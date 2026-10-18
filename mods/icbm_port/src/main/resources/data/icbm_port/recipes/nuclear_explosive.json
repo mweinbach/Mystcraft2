@@ -16,5 +16,27 @@
     "i": {
       "item": "minecraft:wither_skeleton_skull"
     }
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:or",
+        "values": [
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/uranium_ingots"
+            ]
+          },
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/uranium_235_pellets"
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

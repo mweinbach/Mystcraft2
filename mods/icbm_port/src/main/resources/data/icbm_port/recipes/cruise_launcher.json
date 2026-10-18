@@ -16,13 +16,13 @@
       "item": "icbm_port:launcher_screen"
     },
     "S": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     },
     "C": {
-      "item": "icbm_port:advanced_circuit"
+      "tag": "icbm_port:materials/advanced_circuits"
     },
     "P": {
-      "item": "icbm_port:steel_plate"
+      "tag": "icbm_port:materials/steel_plates"
     }
   }
 }

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ii",
+    "ii"
+  ],
+  "key": {
+    "i": {
+      "tag": "icbm_port:materials/iron_ingots"
+    }
+  },
+  "result": {
+    "item": "icbm_port:iron_plate",
+    "count": 4
+  }
+}

@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -22,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_ingredient",
+      "has_ingredient_0",
       "has_the_recipe"
     ]
   ],
@@ -30,5 +30,13 @@
     "recipes": [
       "icbm_port:held_item_missile"
     ]
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "icbm_port:materials/basic_circuits"
+      ]
+    }
+  ]
 }

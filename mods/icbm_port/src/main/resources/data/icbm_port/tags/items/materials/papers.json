@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:paper",
+      "required": false
+    },
+    {
+      "id": "#c:papers",
+      "required": false
+    },
+    {
+      "id": "#forge:paper",
+      "required": false
+    }
+  ]
+}

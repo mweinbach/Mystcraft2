@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:elite_circuits",
+      "required": false
+    },
+    {
+      "id": "#c:circuits/elite",
+      "required": false
+    },
+    {
+      "id": "#forge:circuits/elite",
+      "required": false
+    }
+  ]
+}

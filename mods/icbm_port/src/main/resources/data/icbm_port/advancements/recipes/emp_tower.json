@@ -1,14 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": [
-              "icbm_port:gold_wire"
-            ]
+            "tag": "icbm_port:materials/gold_wires"
           }
         ]
       }
@@ -22,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_ingredient",
+      "has_ingredient_0",
       "has_the_recipe"
     ]
   ],

@@ -5,10 +5,10 @@
       "item": "icbm_port:launcher_base_tier_2"
     },
     {
-      "item": "icbm_port:elite_circuit"
+      "tag": "icbm_port:materials/elite_circuits"
     },
     {
-      "item": "icbm_port:steel_plate"
+      "tag": "icbm_port:materials/steel_plates"
     }
   ],
   "result": {

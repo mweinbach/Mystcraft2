@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:copper_wires",
+      "required": false
+    },
+    {
+      "id": "#c:wires/copper",
+      "required": false
+    },
+    {
+      "id": "#forge:wires/copper",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:charcoal_dusts",
+      "required": false
+    },
+    {
+      "id": "#c:dusts/charcoal",
+      "required": false
+    },
+    {
+      "id": "#forge:dusts/charcoal",
+      "required": false
+    }
+  ]
+}

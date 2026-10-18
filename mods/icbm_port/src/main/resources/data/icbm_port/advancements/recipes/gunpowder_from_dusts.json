@@ -1,0 +1,79 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient_0": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "icbm_port:materials/carbon_dusts"
+          }
+        ]
+      }
+    },
+    "has_ingredient_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "icbm_port:materials/charcoal_dusts"
+          }
+        ]
+      }
+    },
+    "has_ingredient_2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "icbm_port:materials/coal_dusts"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "icbm_port:gunpowder_from_dusts"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient_0",
+      "has_ingredient_1",
+      "has_ingredient_2",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "icbm_port:gunpowder_from_dusts"
+    ]
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:or",
+      "values": [
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/carbon_dusts"
+          ]
+        },
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/charcoal_dusts"
+          ]
+        },
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/coal_dusts"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,7 +17,7 @@
       "item": "icbm_port:radio_detonator"
     },
     "c": {
-      "item": "icbm_port:elite_circuit"
+      "tag": "icbm_port:materials/elite_circuits"
     }
   }
 }

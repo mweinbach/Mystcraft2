@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:advanced_circuits",
+      "required": false
+    },
+    {
+      "id": "#c:circuits/advanced",
+      "required": false
+    },
+    {
+      "id": "#forge:circuits/advanced",
+      "required": false
+    }
+  ]
+}

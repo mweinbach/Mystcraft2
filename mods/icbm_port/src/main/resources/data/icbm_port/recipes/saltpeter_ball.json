@@ -11,14 +11,14 @@
   ],
   "key": {
     "D": {
-      "tag": "minecraft:dirt"
+      "tag": "icbm_port:materials/dirt"
     },
     "P": [
       {
-        "tag": "minecraft:leaves"
+        "tag": "icbm_port:materials/leaves"
       },
       {
-        "tag": "minecraft:saplings"
+        "tag": "icbm_port:materials/saplings"
       }
     ],
     "W": {

@@ -1,0 +1,59 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient_0": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:redstone_block"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "icbm_port:missile_module_vanilla"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient_0",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "icbm_port:missile_module_vanilla"
+    ]
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/basic_circuits"
+            ]
+          }
+        },
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/steel_ingots"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

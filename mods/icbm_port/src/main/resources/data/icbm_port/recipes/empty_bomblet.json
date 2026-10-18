@@ -11,13 +11,32 @@
   ],
   "key": {
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "i": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     },
     "p": {
       "item": "minecraft:oak_button"
     }
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/basic_circuits"
+          ]
+        },
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/steel_ingots"
+          ]
+        }
+      ]
+    }
+  ]
 }

@@ -19,6 +19,7 @@ public final class Materials {
           "steel_clump",
           "steel_ingot",
           "steel_plate",
+          "iron_plate",
           "copper_wire",
           "gold_wire",
           "basic_circuit",

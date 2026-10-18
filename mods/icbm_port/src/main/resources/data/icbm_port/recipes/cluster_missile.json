@@ -17,7 +17,15 @@
       "item": "minecraft:dispenser"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     }
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "icbm_port:materials/basic_circuits"
+      ]
+    }
+  ]
 }

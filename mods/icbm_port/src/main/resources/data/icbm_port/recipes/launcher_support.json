@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "icbm_port:steel_plate"
+      "tag": "icbm_port:materials/steel_plates"
     },
     {
       "item": "icbm_port:battery"
     },
     {
-      "item": "icbm_port:copper_wire"
+      "tag": "icbm_port:materials/copper_wires"
     }
   ],
   "result": {

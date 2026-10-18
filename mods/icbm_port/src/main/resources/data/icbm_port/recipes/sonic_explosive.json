@@ -17,7 +17,7 @@
       "item": "minecraft:note_block"
     },
     "i": {
-      "item": "minecraft:iron_ingot"
+      "tag": "icbm_port:materials/iron_ingots"
     }
   }
 }

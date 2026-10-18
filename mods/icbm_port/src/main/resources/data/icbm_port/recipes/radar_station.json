@@ -13,13 +13,13 @@
       "item": "icbm_port:launcher_screen"
     },
     "g": {
-      "item": "minecraft:gold_ingot"
+      "tag": "icbm_port:materials/gold_ingots"
     },
     "c": {
-      "item": "icbm_port:advanced_circuit"
+      "tag": "icbm_port:materials/advanced_circuits"
     },
     "p": {
-      "item": "icbm_port:steel_plate"
+      "tag": "icbm_port:materials/steel_plates"
     }
   }
 }

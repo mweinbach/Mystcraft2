@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:dirt",
+      "required": false
+    },
+    {
+      "id": "#forge:dirt",
+      "required": false
+    }
+  ]
+}

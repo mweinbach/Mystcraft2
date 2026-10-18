@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:steel_ingots"
+    }
+  ],
+  "result": {
+    "item": "icbm_port_materialtest:unrelated",
+    "count": 1
+  }
+}

@@ -14,16 +14,16 @@
       "item": "icbm_port:radar_gun"
     },
     "s": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "g": {
-      "item": "icbm_port:copper_wire"
+      "tag": "icbm_port:materials/copper_wires"
     },
     "w": {
-      "tag": "minecraft:planks"
+      "tag": "icbm_port:materials/planks"
     }
   }
 }

@@ -11,16 +11,16 @@
   ],
   "key": {
     "w": {
-      "item": "icbm_port:gold_wire"
+      "tag": "icbm_port:materials/gold_wires"
     },
     "i": {
-      "item": "minecraft:gold_ingot"
+      "tag": "icbm_port:materials/gold_ingots"
     },
     "c": {
       "item": "minecraft:quartz"
     },
     "b": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     }
   }
 }

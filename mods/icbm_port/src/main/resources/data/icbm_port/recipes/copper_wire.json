@@ -11,13 +11,13 @@
   ],
   "key": {
     "c": {
-      "item": "minecraft:copper_ingot"
+      "tag": "icbm_port:materials/copper_ingots"
     },
     "s": {
-      "item": "minecraft:stick"
+      "tag": "icbm_port:materials/wooden_rods"
     },
     "w": {
-      "tag": "minecraft:planks"
+      "tag": "icbm_port:materials/planks"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -22,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_ingredient",
+      "has_ingredient_0",
       "has_the_recipe"
     ]
   ],

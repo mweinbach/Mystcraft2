@@ -10,7 +10,7 @@
       "item": "minecraft:sticky_piston"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "m": {
       "item": "icbm_port:missile_module"
@@ -19,5 +19,13 @@
   "result": {
     "item": "icbm_port:held_item_missile",
     "count": 1
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "icbm_port:materials/basic_circuits"
+      ]
+    }
+  ]
 }

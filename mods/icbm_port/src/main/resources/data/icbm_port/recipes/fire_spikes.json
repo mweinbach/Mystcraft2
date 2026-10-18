@@ -6,7 +6,7 @@
   ],
   "key": {
     "c": {
-      "item": "icbm_port:sulfur_dust"
+      "tag": "icbm_port:materials/sulfur_dusts"
     },
     "i": {
       "item": "icbm_port:spikes"

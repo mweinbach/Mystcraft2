@@ -16,13 +16,13 @@
       "item": "minecraft:stone_button"
     },
     "i": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "w": {
-      "tag": "minecraft:planks"
+      "tag": "icbm_port:materials/planks"
     }
   }
 }

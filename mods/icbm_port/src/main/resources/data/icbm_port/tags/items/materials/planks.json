@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:planks",
+      "required": false
+    },
+    {
+      "id": "#forge:planks",
+      "required": false
+    }
+  ]
+}

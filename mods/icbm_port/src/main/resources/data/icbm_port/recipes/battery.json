@@ -11,16 +11,16 @@
   ],
   "key": {
     "C": {
-      "item": "minecraft:copper_ingot"
+      "tag": "icbm_port:materials/copper_ingots"
     },
     "I": {
-      "item": "minecraft:iron_ingot"
+      "tag": "icbm_port:materials/iron_ingots"
     },
     "S": {
-      "item": "icbm_port:sulfur_dust"
+      "tag": "icbm_port:materials/sulfur_dusts"
     },
     "P": {
-      "item": "minecraft:paper"
+      "tag": "icbm_port:materials/papers"
     },
     "R": {
       "item": "minecraft:redstone"

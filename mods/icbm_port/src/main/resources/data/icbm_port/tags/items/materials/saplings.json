@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:saplings",
+      "required": false
+    },
+    {
+      "id": "#forge:saplings",
+      "required": false
+    }
+  ]
+}

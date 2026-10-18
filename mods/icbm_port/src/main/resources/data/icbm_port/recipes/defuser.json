@@ -11,13 +11,13 @@
   ],
   "key": {
     "i": {
-      "item": "minecraft:copper_ingot"
+      "tag": "icbm_port:materials/copper_ingots"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "w": {
-      "tag": "minecraft:planks"
+      "tag": "icbm_port:materials/planks"
     },
     "r": {
       "item": "minecraft:redstone"

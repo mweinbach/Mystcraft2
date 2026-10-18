@@ -26,10 +26,16 @@ jobs:
         run: python3 scripts/ports.py check
       - name: Test port management
         run: python3 -m unittest discover -s scripts/tests -v
+      - name: Test ICBM material tag validation
+        run: python3 -m unittest discover -s mods/icbm_port/tools/tests -v
       - name: Build all ports
         run: ./gradlew --no-daemon listPorts build
+      - name: Validate ICBM resources and material mappings
+        run: python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
       - name: Test ICBM gameplay on a dedicated Fabric server
         run: ./gradlew --no-daemon :icbm_port:runGametest
+      - name: Test material compatibility and datapack reloads
+        run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
       - uses: actions/upload-artifact@v4
         with:
           name: minecraft-1.19.2-ports

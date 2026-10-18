@@ -11,16 +11,16 @@
   ],
   "key": {
     "w": {
-      "item": "icbm_port:copper_wire"
+      "tag": "icbm_port:materials/copper_wires"
     },
     "c": {
-      "item": "minecraft:copper_ingot"
+      "tag": "icbm_port:materials/copper_ingots"
     },
     "i": {
       "item": "minecraft:redstone_torch"
     },
     "b": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     }
   }
 }

@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "e",
+    "m"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:repeater"
+    },
+    "e": {
+      "item": "icbm_port:condensed_explosive"
+    },
+    "m": {
+      "item": "icbm_port:missile_module"
+    }
+  },
+  "result": {
+    "item": "icbm_port:sam_missile",
+    "count": 1
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:tags_populated",
+        "values": [
+          "icbm_port:materials/basic_circuits"
+        ]
+      }
+    }
+  ]
+}

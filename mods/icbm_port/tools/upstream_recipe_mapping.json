@@ -157,7 +157,7 @@
       ],
       "key": {
         "a": {
-          "item": "icbm_port:sulfur_dust"
+          "tag": "icbm_port:materials/sulfur_dusts"
         },
         "l": {
           "item": "minecraft:lava_bucket"
@@ -166,7 +166,13 @@
           "item": "icbm_port:shrapnel_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/a",
+        "ore": "dustSulfur"
+      }
+    ]
   },
   "smoke_explosive": {
     "source": "explosives/smoke.json",
@@ -366,7 +372,7 @@
       ],
       "key": {
         "s": {
-          "item": "icbm_port:sulfur_dust"
+          "tag": "icbm_port:materials/sulfur_dusts"
         },
         "w": {
           "item": "minecraft:water_bucket"
@@ -375,7 +381,13 @@
           "item": "icbm_port:shrapnel_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "dustSulfur"
+      }
+    ]
   },
   "sonic_explosive": {
     "source": "explosives/sonic.json",
@@ -398,10 +410,16 @@
           "item": "minecraft:note_block"
         },
         "i": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "exothermic_explosive": {
     "source": "explosives/exothermic.json",
@@ -564,7 +582,29 @@
         "i": {
           "item": "minecraft:wither_skeleton_skull"
         }
-      }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:or",
+            "values": [
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_ingots"
+                ]
+              },
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_235_pellets"
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   "antimatter_explosive": {
@@ -604,7 +644,7 @@
       ],
       "key": {
         "i": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         },
         "c": [
           {
@@ -615,7 +655,13 @@
           }
         ]
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "elite_circuit": {
     "source": "parts/circuit.elite.json",
@@ -632,19 +678,33 @@
       ],
       "key": {
         "w": {
-          "item": "icbm_port:gold_wire"
+          "tag": "icbm_port:materials/gold_wires"
         },
         "i": {
-          "item": "minecraft:gold_ingot"
+          "tag": "icbm_port:materials/gold_ingots"
         },
         "c": {
           "item": "minecraft:quartz"
         },
         "b": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/w",
+        "ore": "wireGold"
+      },
+      {
+        "path": "/key/i",
+        "ore": "ingotGold"
+      },
+      {
+        "path": "/key/b",
+        "ore": "circuitBasic"
+      }
+    ]
   },
   "advanced_circuit": {
     "source": "parts/circuit.advanced.json",
@@ -661,19 +721,33 @@
       ],
       "key": {
         "w": {
-          "item": "icbm_port:copper_wire"
+          "tag": "icbm_port:materials/copper_wires"
         },
         "c": {
-          "item": "minecraft:copper_ingot"
+          "tag": "icbm_port:materials/copper_ingots"
         },
         "i": {
           "item": "minecraft:redstone_torch"
         },
         "b": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/w",
+        "ore": "wireCopper"
+      },
+      {
+        "path": "/key/c",
+        "ore": "ingotCopper"
+      },
+      {
+        "path": "/key/b",
+        "ore": "circuitBasic"
+      }
+    ]
   },
   "copper_wire": {
     "source": "parts/wire.copper.json",
@@ -690,16 +764,30 @@
       ],
       "key": {
         "c": {
-          "item": "minecraft:copper_ingot"
+          "tag": "icbm_port:materials/copper_ingots"
         },
         "s": {
-          "item": "minecraft:stick"
+          "tag": "icbm_port:materials/wooden_rods"
         },
         "w": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "ingotCopper"
+      },
+      {
+        "path": "/key/s",
+        "ore": "stickWood"
+      },
+      {
+        "path": "/key/w",
+        "ore": "plankWood"
+      }
+    ]
   },
   "basic_circuit": {
     "source": "parts/circuit.basic.json",
@@ -716,7 +804,7 @@
       ],
       "key": {
         "i": {
-          "item": "minecraft:copper_ingot"
+          "tag": "icbm_port:materials/copper_ingots"
         },
         "c": {
           "item": "minecraft:clay_ball"
@@ -725,10 +813,20 @@
           "item": "minecraft:redstone"
         },
         "b": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotCopper"
+      },
+      {
+        "path": "/key/b",
+        "ore": "plankWood"
+      }
+    ]
   },
   "battery": {
     "source": "parts/battery.json",
@@ -745,22 +843,40 @@
       ],
       "key": {
         "C": {
-          "item": "minecraft:copper_ingot"
+          "tag": "icbm_port:materials/copper_ingots"
         },
         "I": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         },
         "S": {
-          "item": "icbm_port:sulfur_dust"
+          "tag": "icbm_port:materials/sulfur_dusts"
         },
         "P": {
-          "item": "minecraft:paper"
+          "tag": "icbm_port:materials/papers"
         },
         "R": {
           "item": "minecraft:redstone"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/C",
+        "ore": "ingotCopper"
+      },
+      {
+        "path": "/key/I",
+        "ore": "ingotIron"
+      },
+      {
+        "path": "/key/S",
+        "ore": "dustSulfur"
+      },
+      {
+        "path": "/key/P",
+        "ore": "paper"
+      }
+    ]
   },
   "gold_wire": {
     "source": "parts/wire.gold.json",
@@ -777,16 +893,30 @@
       ],
       "key": {
         "g": {
-          "item": "minecraft:gold_ingot"
+          "tag": "icbm_port:materials/gold_ingots"
         },
         "s": {
-          "item": "minecraft:stick"
+          "tag": "icbm_port:materials/wooden_rods"
         },
         "w": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/g",
+        "ore": "ingotGold"
+      },
+      {
+        "path": "/key/s",
+        "ore": "stickWood"
+      },
+      {
+        "path": "/key/w",
+        "ore": "plankWood"
+      }
+    ]
   },
   "steel_plate": {
     "source": "parts/plate.steel.json",
@@ -802,10 +932,16 @@
       ],
       "key": {
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
+      }
+    ]
   },
   "gunpowder_from_components": {
     "source": "parts/vanilla/gunpowder.json",
@@ -825,13 +961,51 @@
           }
         ],
         {
-          "item": "icbm_port:sulfur_dust"
+          "tag": "icbm_port:materials/sulfur_dusts"
         },
         {
-          "item": "icbm_port:saltpeter_dust"
+          "tag": "icbm_port:materials/saltpeter_dusts"
+        }
+      ],
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:or",
+            "values": [
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/carbon_dusts"
+                ]
+              },
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/charcoal_dusts"
+                ]
+              },
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/coal_dusts"
+                ]
+              }
+            ]
+          }
         }
       ]
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/ingredients/1",
+        "ore": "dustSulfur"
+      },
+      {
+        "path": "/ingredients/2",
+        "ore": "dustSaltpeter"
+      }
+    ]
   },
   "saltpeter_ball": {
     "source": "parts/vanilla/saltpeter.json",
@@ -848,21 +1022,35 @@
       ],
       "key": {
         "D": {
-          "tag": "minecraft:dirt"
+          "tag": "icbm_port:materials/dirt"
         },
         "P": [
           {
-            "tag": "minecraft:leaves"
+            "tag": "icbm_port:materials/leaves"
           },
           {
-            "tag": "minecraft:saplings"
+            "tag": "icbm_port:materials/saplings"
           }
         ],
         "W": {
           "item": "minecraft:water_bucket"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/D",
+        "ore": "dirt"
+      },
+      {
+        "path": "/key/P/0",
+        "ore": "treeLeaves"
+      },
+      {
+        "path": "/key/P/1",
+        "ore": "treeSapling"
+      }
+    ]
   },
   "radar_gun": {
     "source": "tools/radargun.json",
@@ -884,16 +1072,30 @@
           "item": "minecraft:stone_button"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "w": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/w",
+        "ore": "plankWood"
+      }
+    ]
   },
   "laser_designator": {
     "source": "tools/laser.json",
@@ -916,10 +1118,16 @@
           "item": "icbm_port:radio_detonator"
         },
         "c": {
-          "item": "icbm_port:elite_circuit"
+          "tag": "icbm_port:materials/elite_circuits"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitElite"
+      }
+    ]
   },
   "defuser": {
     "source": "tools/defuser.json",
@@ -936,13 +1144,13 @@
       ],
       "key": {
         "i": {
-          "item": "minecraft:copper_ingot"
+          "tag": "icbm_port:materials/copper_ingots"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "w": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         },
         "r": {
           "item": "minecraft:redstone"
@@ -951,7 +1159,21 @@
           "item": "minecraft:shears"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotCopper"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/w",
+        "ore": "plankWood"
+      }
+    ]
   },
   "radio_detonator": {
     "source": "tools/remote.json",
@@ -974,13 +1196,23 @@
           "item": "minecraft:oak_button"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "c": {
-          "item": "icbm_port:advanced_circuit"
+          "tag": "icbm_port:materials/advanced_circuits"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitAdvanced"
+      }
+    ]
   },
   "rocket_launcher": {
     "source": "tools/rpg.json",
@@ -1000,19 +1232,37 @@
           "item": "icbm_port:radar_gun"
         },
         "s": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "g": {
-          "item": "icbm_port:copper_wire"
+          "tag": "icbm_port:materials/copper_wires"
         },
         "w": {
-          "tag": "minecraft:planks"
+          "tag": "icbm_port:materials/planks"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/g",
+        "ore": "wireCopper"
+      },
+      {
+        "path": "/key/w",
+        "ore": "plankWood"
+      }
+    ]
   },
   "launcher_screen": {
     "source": "launcher/screen.json",
@@ -1031,16 +1281,30 @@
           "item": "minecraft:glass"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "w": {
-          "item": "icbm_port:copper_wire"
+          "tag": "icbm_port:materials/copper_wires"
         },
         "s": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/w",
+        "ore": "wireCopper"
+      },
+      {
+        "path": "/key/s",
+        "ore": "ingotSteel"
+      }
+    ]
   },
   "launcher_connector": {
     "source": "launcher/connector.json",
@@ -1060,13 +1324,23 @@
           "item": "minecraft:hopper"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "w": {
-          "item": "icbm_port:copper_wire"
+          "tag": "icbm_port:materials/copper_wires"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/w",
+        "ore": "wireCopper"
+      }
+    ]
   },
   "launcher_frame": {
     "source": "launcher/support.json",
@@ -1082,13 +1356,19 @@
       ],
       "key": {
         "i": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         },
         "b": {
           "item": "minecraft:iron_bars"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "launcher_base_tier_1": {
     "source": "launcher/base.json",
@@ -1104,16 +1384,30 @@
       ],
       "key": {
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "p": {
-          "item": "icbm_port:steel_plate"
+          "tag": "icbm_port:materials/steel_plates"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/p",
+        "ore": "plateSteel"
+      }
+    ]
   },
   "radar_station": {
     "source": "machine/radar.json",
@@ -1132,16 +1426,30 @@
           "item": "icbm_port:launcher_screen"
         },
         "g": {
-          "item": "minecraft:gold_ingot"
+          "tag": "icbm_port:materials/gold_ingots"
         },
         "c": {
-          "item": "icbm_port:advanced_circuit"
+          "tag": "icbm_port:materials/advanced_circuits"
         },
         "p": {
-          "item": "icbm_port:steel_plate"
+          "tag": "icbm_port:materials/steel_plates"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/g",
+        "ore": "ingotGold"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitAdvanced"
+      },
+      {
+        "path": "/key/p",
+        "ore": "plateSteel"
+      }
+    ]
   },
   "cruise_launcher": {
     "source": "machine/cruiselauncher.json",
@@ -1163,16 +1471,30 @@
           "item": "icbm_port:launcher_screen"
         },
         "S": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "C": {
-          "item": "icbm_port:advanced_circuit"
+          "tag": "icbm_port:materials/advanced_circuits"
         },
         "P": {
-          "item": "icbm_port:steel_plate"
+          "tag": "icbm_port:materials/steel_plates"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/S",
+        "ore": "ingotSteel"
+      },
+      {
+        "path": "/key/C",
+        "ore": "circuitAdvanced"
+      },
+      {
+        "path": "/key/P",
+        "ore": "plateSteel"
+      }
+    ]
   },
   "emp_tower": {
     "source": "machine/emptower.json",
@@ -1189,13 +1511,13 @@
       ],
       "key": {
         "w": {
-          "item": "icbm_port:gold_wire"
+          "tag": "icbm_port:materials/gold_wires"
         },
         "c": {
-          "item": "icbm_port:elite_circuit"
+          "tag": "icbm_port:materials/elite_circuits"
         },
         "p": {
-          "item": "icbm_port:steel_plate"
+          "tag": "icbm_port:materials/steel_plates"
         },
         "r": {
           "item": "minecraft:redstone"
@@ -1204,7 +1526,21 @@
           "item": "icbm_port:battery"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/w",
+        "ore": "wireGold"
+      },
+      {
+        "path": "/key/c",
+        "ore": "circuitElite"
+      },
+      {
+        "path": "/key/p",
+        "ore": "plateSteel"
+      }
+    ]
   },
   "shrapnel_missile": {
     "source": "missile/ex/shrapnel.json",
@@ -2209,13 +2545,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:shrapnel_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "repulsive_grenade": {
     "source": "grenades/repulsive.json",
@@ -2231,13 +2573,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:repulsive_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "incendiary_grenade": {
     "source": "grenades/incendiary.json",
@@ -2253,13 +2601,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:incendiary_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "smoke_grenade": {
     "source": "grenades/smoke.json",
@@ -2275,13 +2629,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:smoke_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "attractive_grenade": {
     "source": "grenades/attractive.json",
@@ -2297,13 +2657,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:attractive_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "colors_grenade": {
     "source": "grenades/colors.json",
@@ -2319,13 +2685,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:colors_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "debilitation_grenade": {
     "source": "grenades/debilitation.json",
@@ -2341,13 +2713,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:debilitation_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "chemical_grenade": {
     "source": "grenades/chemical.json",
@@ -2363,13 +2741,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:chemical_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "anvil_grenade": {
     "source": "grenades/anvil.json",
@@ -2385,13 +2769,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:anvil_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "condensed_grenade": {
     "source": "grenades/condensed.json",
@@ -2407,13 +2797,19 @@
       ],
       "key": {
         "s": {
-          "item": "minecraft:string"
+          "tag": "icbm_port:materials/strings"
         },
         "x": {
           "item": "icbm_port:condensed_explosive"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/s",
+        "ore": "string"
+      }
+    ]
   },
   "empty_bomblet": {
     "source": "bomblet/bomblet.json",
@@ -2430,16 +2826,45 @@
       ],
       "key": {
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "p": {
           "item": "minecraft:oak_button"
         }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:and",
+          "values": [
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/basic_circuits"
+              ]
+            },
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/steel_ingots"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
       }
-    }
+    ]
   },
   "condensed_bomblet": {
     "source": "bomblet/condensed.json",
@@ -2505,10 +2930,16 @@
           "item": "minecraft:cactus"
         },
         "i": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "reinforced_glass": {
     "source": "reinforcedGlass.json",
@@ -2528,10 +2959,16 @@
           "item": "minecraft:glass"
         },
         "i": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         }
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "glass_button": {
     "source": "glassButton.json",
@@ -2687,16 +3124,45 @@
       ],
       "key": {
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "i": {
-          "item": "icbm_port:steel_ingot"
+          "tag": "icbm_port:materials/steel_ingots"
         },
         "f": {
           "item": "minecraft:flint_and_steel"
         }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:and",
+          "values": [
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/basic_circuits"
+              ]
+            },
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/steel_ingots"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
+      },
+      {
+        "path": "/key/i",
+        "ore": "ingotSteel"
       }
-    }
+    ]
   },
   "cluster_missile": {
     "source": "missile/special/missile.cluster.json",
@@ -2719,10 +3185,24 @@
           "item": "minecraft:dispenser"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/basic_circuits"
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
       }
-    }
+    ]
   },
   "steel_ingot": {
     "source": "ICBMClassic.java:registerRecipes",
@@ -2785,14 +3265,20 @@
           "item": "icbm_port:compact_concrete"
         },
         "o": {
-          "item": "minecraft:iron_ingot"
+          "tag": "icbm_port:materials/iron_ingots"
         }
       },
       "result": {
         "item": "icbm_port:reinforced_concrete",
         "count": 8
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/o",
+        "ore": "ingotIron"
+      }
+    ]
   },
   "poison_spikes": {
     "source": "spikes.1.json",
@@ -2826,7 +3312,7 @@
       ],
       "key": {
         "c": {
-          "item": "icbm_port:sulfur_dust"
+          "tag": "icbm_port:materials/sulfur_dusts"
         },
         "i": {
           "item": "icbm_port:spikes"
@@ -2836,7 +3322,13 @@
         "item": "icbm_port:fire_spikes",
         "count": 1
       }
-    }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "dustSulfur"
+      }
+    ]
   },
   "held_item_missile": {
     "source": "missile/special/missile.held_item.json",
@@ -2852,7 +3344,7 @@
           "item": "minecraft:sticky_piston"
         },
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "m": {
           "item": "icbm_port:missile_module"
@@ -2861,8 +3353,22 @@
       "result": {
         "item": "icbm_port:held_item_missile",
         "count": 1
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/basic_circuits"
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
       }
-    }
+    ]
   },
   "ballistic_launcher": {
     "source": "tools/rpgBallistic.json",
@@ -2893,7 +3399,7 @@
       ],
       "key": {
         "c": {
-          "item": "icbm_port:basic_circuit"
+          "tag": "icbm_port:materials/basic_circuits"
         },
         "e": {
           "item": "icbm_port:condensed_explosive"
@@ -2905,8 +3411,22 @@
       "result": {
         "item": "icbm_port:sam_missile",
         "count": 1
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:tags_populated",
+          "values": [
+            "icbm_port:materials/basic_circuits"
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/c",
+        "ore": "circuitBasic"
       }
-    }
+    ]
   },
   "emp_tower_extension": {
     "source": "machine/emptower.booster.json",
@@ -2919,7 +3439,7 @@
       ],
       "key": {
         "p": {
-          "item": "icbm_port:steel_plate"
+          "tag": "icbm_port:materials/steel_plates"
         },
         "r": {
           "item": "minecraft:redstone"
@@ -2928,12 +3448,331 @@
           "item": "icbm_port:battery"
         },
         "w": {
-          "item": "icbm_port:gold_wire"
+          "tag": "icbm_port:materials/gold_wires"
         }
       },
       "result": {
         "item": "icbm_port:emp_tower_extension"
       }
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/w",
+        "ore": "wireGold"
+      },
+      {
+        "path": "/key/p",
+        "ore": "plateSteel"
+      }
+    ]
+  },
+  "nuclear_explosive_uranium": {
+    "source": "explosives/nuclear.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "tit",
+        "iii",
+        "tit"
+      ],
+      "key": {
+        "t": {
+          "item": "icbm_port:thermobaric_explosive"
+        },
+        "i": [
+          {
+            "tag": "icbm_port:materials/uranium_ingots"
+          },
+          {
+            "tag": "icbm_port:materials/uranium_235_pellets"
+          }
+        ]
+      },
+      "result": {
+        "item": "icbm_port:nuclear_explosive",
+        "count": 1
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:or",
+          "values": [
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/uranium_ingots"
+              ]
+            },
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/uranium_235_pellets"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i/0",
+        "ore": "ingotUranium"
+      },
+      {
+        "path": "/key/i/1",
+        "ore": "pelletUranium235"
+      }
+    ]
+  },
+  "gunpowder_from_dusts": {
+    "source": "parts/mod/gunpowder.json",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        [
+          {
+            "tag": "icbm_port:materials/carbon_dusts"
+          },
+          {
+            "tag": "icbm_port:materials/charcoal_dusts"
+          },
+          {
+            "tag": "icbm_port:materials/coal_dusts"
+          }
+        ],
+        {
+          "tag": "icbm_port:materials/sulfur_dusts"
+        },
+        {
+          "tag": "icbm_port:materials/saltpeter_dusts"
+        }
+      ],
+      "result": {
+        "item": "minecraft:gunpowder",
+        "count": 3
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:or",
+          "values": [
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/carbon_dusts"
+              ]
+            },
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/charcoal_dusts"
+              ]
+            },
+            {
+              "condition": "fabric:tags_populated",
+              "values": [
+                "icbm_port:materials/coal_dusts"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/ingredients/0/0",
+        "ore": "dustCarbon"
+      },
+      {
+        "path": "/ingredients/0/1",
+        "ore": "dustCharcoal"
+      },
+      {
+        "path": "/ingredients/0/2",
+        "ore": "dustCoal"
+      },
+      {
+        "path": "/ingredients/1",
+        "ore": "dustSulfur"
+      },
+      {
+        "path": "/ingredients/2",
+        "ore": "dustSaltpeter"
+      }
+    ]
+  },
+  "iron_plate": {
+    "source": "port-specific: mirrors parts/plate.steel.json for the previously uncraftable plateIron subtype",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "ii",
+        "ii"
+      ],
+      "key": {
+        "i": {
+          "tag": "icbm_port:materials/iron_ingots"
+        }
+      },
+      "result": {
+        "item": "icbm_port:iron_plate",
+        "count": 4
+      }
+    }
+  },
+  "launcher_support": {
+    "source": "port-specific launcher network/tier recipe",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "tag": "icbm_port:materials/steel_plates"
+        },
+        {
+          "item": "icbm_port:battery"
+        },
+        {
+          "tag": "icbm_port:materials/copper_wires"
+        }
+      ],
+      "result": {
+        "item": "icbm_port:launcher_support",
+        "count": 1
+      }
+    }
+  },
+  "launcher_base_tier_2": {
+    "source": "port-specific launcher network/tier recipe",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "item": "icbm_port:launcher_base_tier_1"
+        },
+        {
+          "tag": "icbm_port:materials/advanced_circuits"
+        },
+        {
+          "tag": "icbm_port:materials/steel_plates"
+        }
+      ],
+      "result": {
+        "item": "icbm_port:launcher_base_tier_2",
+        "count": 1
+      }
+    }
+  },
+  "launcher_base_tier_3": {
+    "source": "port-specific launcher network/tier recipe",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "item": "icbm_port:launcher_base_tier_2"
+        },
+        {
+          "tag": "icbm_port:materials/elite_circuits"
+        },
+        {
+          "tag": "icbm_port:materials/steel_plates"
+        }
+      ],
+      "result": {
+        "item": "icbm_port:launcher_base_tier_3",
+        "count": 1
+      }
+    }
+  },
+  "missile_module_vanilla": {
+    "source": "missile/vanilla/missile.module.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:missile_module",
+        "count": 1
+      },
+      "pattern": [
+        " i ",
+        "ici",
+        "ifi"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:redstone_block"
+        },
+        "i": {
+          "tag": "icbm_port:materials/iron_ingots"
+        },
+        "f": {
+          "item": "minecraft:flint_and_steel"
+        }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:and",
+          "values": [
+            {
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/basic_circuits"
+                ]
+              }
+            },
+            {
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/steel_ingots"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ore_dictionary": [
+      {
+        "path": "/key/i",
+        "ore": "ingotIron"
+      }
+    ]
+  },
+  "sam_missile_vanilla": {
+    "source": "missile/vanilla/missile.anti_ballistic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "c",
+        "e",
+        "m"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:repeater"
+        },
+        "e": {
+          "item": "icbm_port:condensed_explosive"
+        },
+        "m": {
+          "item": "icbm_port:missile_module"
+        }
+      },
+      "result": {
+        "item": "icbm_port:sam_missile",
+        "count": 1
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/basic_circuits"
+            ]
+          }
+        }
+      ]
     }
   }
 }

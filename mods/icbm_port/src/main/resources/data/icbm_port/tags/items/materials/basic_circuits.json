@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:basic_circuits",
+      "required": false
+    },
+    {
+      "id": "#c:circuits/basic",
+      "required": false
+    },
+    {
+      "id": "#forge:circuits/basic",
+      "required": false
+    }
+  ]
+}

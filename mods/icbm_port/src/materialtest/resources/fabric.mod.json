@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "icbm_port_materialtest",
+  "version": "1.0.0",
+  "name": "ICBM Isolated Material Compatibility Tests",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.icbm.port.materialtest.MaterialFixtureMod"
+    ],
+    "fabric-gametest": [
+      "dev.icbm.port.materialtest.MaterialReloadGameTests"
+    ]
+  },
+  "depends": {
+    "icbm_port": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

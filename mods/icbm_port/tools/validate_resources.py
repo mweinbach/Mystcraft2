@@ -4,9 +4,11 @@ Pass the unmodified Minecraft 1.19.2 client jar as the first argument.
 """
 import json,sys,zipfile
 from pathlib import Path
+from resource_tags import TagIndex
 ROOT=Path(__file__).resolve().parents[1]/'src/main/resources'
 vanilla=zipfile.ZipFile(sys.argv[1]); errors=[]; refs=0
 files={str(p.relative_to(ROOT)):json.loads(p.read_text()) for p in ROOT.rglob('*.json')}
+tags=TagIndex(files,vanilla)
 def exists(ref,kind,suffix='.json'):
  global refs
  refs+=1
@@ -44,17 +46,24 @@ for path,data in files.items():
    if item.startswith('icbm_port:'):exists(item.replace(':',':item/'),'models')
 for state in (ROOT/'assets/icbm_port/blockstates').glob('*.json'):
  if f'data/icbm_port/loot_tables/blocks/{state.name}' not in files:errors.append('Missing block loot '+state.stem)
+for path in files:
+ if '/tags/items/' in path:
+  namespace=path.split('/')[1]; name=path.split('/tags/items/',1)[1][:-5]
+  try:tags.resolve(namespace+':'+name)
+  except ValueError as error:errors.append(str(error))
 print(f'Validated {len(files)} JSON files and {refs} resource references against local resources and Minecraft 1.19.2.')
 if errors:
  print('\n'.join(sorted(set(errors))));sys.exit(1)
 print('PASS: JSON, model parents, vanilla textures, recipe item models, and block loot coverage.')
 
 # Survival progression closure. Sulfur is supplied by the runtime mob-loot hook.
-recipes=[data for path,data in files.items() if '/recipes/' in path and '/advancements/' not in path and 'result' in data]
+all_recipes=[data for path,data in files.items() if '/recipes/' in path and '/advancements/' not in path and 'result' in data]
+recipes=[data for data in all_recipes if tags.enabled(data)]
+print(f'INFO: {len(all_recipes)-len(recipes)} optional recipes disabled without external materials.')
 obtainable={'icbm_port:sulfur_dust','icbm_port:radioactive_stone','icbm_port:radioactive_dirt'}
 def available(value):
  if isinstance(value,list):return any(available(v) for v in value)
- if 'tag' in value:return True
+ if 'tag' in value:return any(available({'item':member}) for member in tags.resolve(value['tag']))
  return not value['item'].startswith('icbm_port:') or value['item'] in obtainable
 for _ in range(len(recipes)):
  for data in recipes:
@@ -124,3 +133,25 @@ for serializer in serializers:
  if files.get(path,{}).get('type')!='icbm_port:'+serializer:
   print('Missing or mismatched special recipe: '+serializer);sys.exit(1)
 print(f'PASS: all {len(serializers)} registered special recipe serializers have activating recipe JSON.')
+
+# Every audited OreDictionary occurrence must still resolve through its material tag.
+mapping=json.loads((ROOT.parents[2]/'tools/upstream_recipe_mapping.json').read_text())
+materials=json.loads((ROOT.parents[2]/'tools/ore_dictionary_mapping.json').read_text())['materials']
+ore_count=0
+for name, entry in mapping.items():
+ resource=files['data/icbm_port/recipes/'+name+'.json']
+ if resource!=entry['recipe']:raise SystemExit('Generated recipe differs from audit: '+name)
+ for occurrence in entry.get('ore_dictionary',[]):
+  value=resource
+  for part in occurrence['path'].split('/')[1:]:value=value[int(part)] if isinstance(value,list) else value[part]
+  if value!={'tag':materials[occurrence['ore']]['tag']}:raise SystemExit('Flattened OreDictionary input: '+name+occurrence['path'])
+  ore_count+=1
+for ore, material in materials.items():
+ for public in material['exports']:
+  resolved=tags.resolve(public)
+  for member in material['members']:
+   expected=tags.resolve(member[1:]) if member.startswith('#') else {member}
+   if not expected.issubset(resolved):raise SystemExit('Missing common-tag export: '+ore+' -> '+public)
+ for member in tags.resolve(material['tag']):
+  if member.startswith('icbm_port:') and member.split(':')[1] not in items:raise SystemExit('Unregistered material '+member)
+print(f'PASS: {ore_count} OreDictionary inputs and {len(materials)} acyclic material groups with additive common exports.')

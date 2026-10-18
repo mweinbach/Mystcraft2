@@ -1,13 +1,37 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
               "minecraft:melon_seeds"
+            ]
+          }
+        ]
+      }
+    },
+    "has_ingredient_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:pumpkin_seeds"
+            ]
+          }
+        ]
+      }
+    },
+    "has_ingredient_2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:wheat_seeds"
             ]
           }
         ]
@@ -22,7 +46,9 @@
   },
   "requirements": [
     [
-      "has_ingredient",
+      "has_ingredient_0",
+      "has_ingredient_1",
+      "has_ingredient_2",
       "has_the_recipe"
     ]
   ],

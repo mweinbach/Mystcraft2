@@ -13,13 +13,13 @@
       "item": "minecraft:glass"
     },
     "c": {
-      "item": "icbm_port:basic_circuit"
+      "tag": "icbm_port:materials/basic_circuits"
     },
     "w": {
-      "item": "icbm_port:copper_wire"
+      "tag": "icbm_port:materials/copper_wires"
     },
     "s": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:steel_clumps",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/steel",
+      "required": false
+    },
+    {
+      "id": "#forge:clumps/steel",
+      "required": false
+    }
+  ]
+}

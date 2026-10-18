@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:missile_module",
+    "count": 1
+  },
+  "pattern": [
+    " i ",
+    "ici",
+    "ifi"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:redstone_block"
+    },
+    "i": {
+      "tag": "icbm_port:materials/iron_ingots"
+    },
+    "f": {
+      "item": "minecraft:flint_and_steel"
+    }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/basic_circuits"
+            ]
+          }
+        },
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/steel_ingots"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

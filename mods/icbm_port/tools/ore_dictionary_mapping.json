@@ -1,0 +1,375 @@
+{
+  "upstream_revision": "9c1d985a375adc2868ff47707b3a636452d0b63a",
+  "materials": {
+    "ingotSteel": {
+      "tag": "icbm_port:materials/steel_ingots",
+      "exports": [
+        "c:steel_ingots",
+        "c:ingots/steel"
+      ],
+      "imports": [
+        "c:steel_ingots",
+        "c:ingots/steel",
+        "forge:ingots/steel"
+      ],
+      "members": [
+        "icbm_port:steel_ingot"
+      ]
+    },
+    "ingotCopper": {
+      "tag": "icbm_port:materials/copper_ingots",
+      "exports": [
+        "c:copper_ingots",
+        "c:ingots/copper"
+      ],
+      "imports": [
+        "c:copper_ingots",
+        "c:ingots/copper",
+        "forge:ingots/copper"
+      ],
+      "members": [
+        "minecraft:copper_ingot"
+      ]
+    },
+    "ingotIron": {
+      "tag": "icbm_port:materials/iron_ingots",
+      "exports": [
+        "c:iron_ingots",
+        "c:ingots/iron"
+      ],
+      "imports": [
+        "c:iron_ingots",
+        "c:ingots/iron",
+        "forge:ingots/iron"
+      ],
+      "members": [
+        "minecraft:iron_ingot"
+      ]
+    },
+    "ingotGold": {
+      "tag": "icbm_port:materials/gold_ingots",
+      "exports": [
+        "c:gold_ingots",
+        "c:ingots/gold"
+      ],
+      "imports": [
+        "c:gold_ingots",
+        "c:ingots/gold",
+        "forge:ingots/gold"
+      ],
+      "members": [
+        "minecraft:gold_ingot"
+      ]
+    },
+    "ingotUranium": {
+      "tag": "icbm_port:materials/uranium_ingots",
+      "exports": [
+        "c:uranium_ingots",
+        "c:ingots/uranium"
+      ],
+      "imports": [
+        "c:uranium_ingots",
+        "c:ingots/uranium",
+        "forge:ingots/uranium"
+      ],
+      "members": []
+    },
+    "plateSteel": {
+      "tag": "icbm_port:materials/steel_plates",
+      "exports": [
+        "c:steel_plates",
+        "c:plates/steel"
+      ],
+      "imports": [
+        "c:steel_plates",
+        "c:plates/steel",
+        "forge:plates/steel"
+      ],
+      "members": [
+        "icbm_port:steel_plate"
+      ]
+    },
+    "plateIron": {
+      "tag": "icbm_port:materials/iron_plates",
+      "exports": [
+        "c:iron_plates",
+        "c:plates/iron"
+      ],
+      "imports": [
+        "c:iron_plates",
+        "c:plates/iron",
+        "forge:plates/iron"
+      ],
+      "members": [
+        "icbm_port:iron_plate"
+      ]
+    },
+    "clumpSteel": {
+      "tag": "icbm_port:materials/steel_clumps",
+      "exports": [
+        "c:steel_clumps",
+        "c:clumps/steel"
+      ],
+      "imports": [
+        "c:steel_clumps",
+        "c:clumps/steel",
+        "forge:clumps/steel"
+      ],
+      "members": [
+        "icbm_port:steel_clump"
+      ]
+    },
+    "wireCopper": {
+      "tag": "icbm_port:materials/copper_wires",
+      "exports": [
+        "c:copper_wires",
+        "c:wires/copper"
+      ],
+      "imports": [
+        "c:copper_wires",
+        "c:wires/copper",
+        "forge:wires/copper"
+      ],
+      "members": [
+        "icbm_port:copper_wire"
+      ]
+    },
+    "wireGold": {
+      "tag": "icbm_port:materials/gold_wires",
+      "exports": [
+        "c:gold_wires",
+        "c:wires/gold"
+      ],
+      "imports": [
+        "c:gold_wires",
+        "c:wires/gold",
+        "forge:wires/gold"
+      ],
+      "members": [
+        "icbm_port:gold_wire"
+      ]
+    },
+    "circuitBasic": {
+      "tag": "icbm_port:materials/basic_circuits",
+      "exports": [
+        "c:basic_circuits",
+        "c:circuits/basic"
+      ],
+      "imports": [
+        "c:basic_circuits",
+        "c:circuits/basic",
+        "forge:circuits/basic"
+      ],
+      "members": [
+        "icbm_port:basic_circuit"
+      ]
+    },
+    "circuitAdvanced": {
+      "tag": "icbm_port:materials/advanced_circuits",
+      "exports": [
+        "c:advanced_circuits",
+        "c:circuits/advanced"
+      ],
+      "imports": [
+        "c:advanced_circuits",
+        "c:circuits/advanced",
+        "forge:circuits/advanced"
+      ],
+      "members": [
+        "icbm_port:advanced_circuit"
+      ]
+    },
+    "circuitElite": {
+      "tag": "icbm_port:materials/elite_circuits",
+      "exports": [
+        "c:elite_circuits",
+        "c:circuits/elite"
+      ],
+      "imports": [
+        "c:elite_circuits",
+        "c:circuits/elite",
+        "forge:circuits/elite"
+      ],
+      "members": [
+        "icbm_port:elite_circuit"
+      ]
+    },
+    "dustSulfur": {
+      "tag": "icbm_port:materials/sulfur_dusts",
+      "exports": [
+        "c:sulfur_dusts",
+        "c:dusts/sulfur"
+      ],
+      "imports": [
+        "c:sulfur_dusts",
+        "c:dusts/sulfur",
+        "forge:dusts/sulfur"
+      ],
+      "members": [
+        "icbm_port:sulfur_dust"
+      ]
+    },
+    "dustSaltpeter": {
+      "tag": "icbm_port:materials/saltpeter_dusts",
+      "exports": [
+        "c:saltpeter_dusts",
+        "c:dusts/saltpeter"
+      ],
+      "imports": [
+        "c:saltpeter_dusts",
+        "c:dusts/saltpeter",
+        "forge:dusts/saltpeter"
+      ],
+      "members": [
+        "icbm_port:saltpeter_dust"
+      ]
+    },
+    "dustCarbon": {
+      "tag": "icbm_port:materials/carbon_dusts",
+      "exports": [
+        "c:carbon_dusts",
+        "c:dusts/carbon"
+      ],
+      "imports": [
+        "c:carbon_dusts",
+        "c:dusts/carbon",
+        "forge:dusts/carbon"
+      ],
+      "members": []
+    },
+    "dustCharcoal": {
+      "tag": "icbm_port:materials/charcoal_dusts",
+      "exports": [
+        "c:charcoal_dusts",
+        "c:dusts/charcoal"
+      ],
+      "imports": [
+        "c:charcoal_dusts",
+        "c:dusts/charcoal",
+        "forge:dusts/charcoal"
+      ],
+      "members": []
+    },
+    "dustCoal": {
+      "tag": "icbm_port:materials/coal_dusts",
+      "exports": [
+        "c:coal_dusts",
+        "c:dusts/coal"
+      ],
+      "imports": [
+        "c:coal_dusts",
+        "c:dusts/coal",
+        "forge:dusts/coal"
+      ],
+      "members": []
+    },
+    "pelletUranium235": {
+      "tag": "icbm_port:materials/uranium_235_pellets",
+      "exports": [
+        "c:uranium_235_pellets",
+        "c:pellets/uranium_235"
+      ],
+      "imports": [
+        "c:uranium_235_pellets",
+        "c:pellets/uranium_235",
+        "forge:pellets/uranium_235"
+      ],
+      "members": []
+    },
+    "string": {
+      "tag": "icbm_port:materials/strings",
+      "exports": [
+        "c:strings"
+      ],
+      "imports": [
+        "c:strings",
+        "forge:string"
+      ],
+      "members": [
+        "minecraft:string"
+      ]
+    },
+    "paper": {
+      "tag": "icbm_port:materials/papers",
+      "exports": [
+        "c:paper",
+        "c:papers"
+      ],
+      "imports": [
+        "c:paper",
+        "c:papers",
+        "forge:paper"
+      ],
+      "members": [
+        "minecraft:paper"
+      ]
+    },
+    "stickWood": {
+      "tag": "icbm_port:materials/wooden_rods",
+      "exports": [
+        "c:wooden_rods",
+        "c:rods/wooden"
+      ],
+      "imports": [
+        "c:wooden_rods",
+        "c:rods/wooden",
+        "forge:rods/wooden"
+      ],
+      "members": [
+        "minecraft:stick"
+      ]
+    },
+    "plankWood": {
+      "tag": "icbm_port:materials/planks",
+      "exports": [
+        "c:planks"
+      ],
+      "imports": [
+        "c:planks",
+        "forge:planks"
+      ],
+      "members": [
+        "#minecraft:planks"
+      ]
+    },
+    "treeLeaves": {
+      "tag": "icbm_port:materials/leaves",
+      "exports": [
+        "c:leaves"
+      ],
+      "imports": [
+        "c:leaves",
+        "forge:leaves"
+      ],
+      "members": [
+        "#minecraft:leaves"
+      ]
+    },
+    "treeSapling": {
+      "tag": "icbm_port:materials/saplings",
+      "exports": [
+        "c:saplings"
+      ],
+      "imports": [
+        "c:saplings",
+        "forge:saplings"
+      ],
+      "members": [
+        "#minecraft:saplings"
+      ]
+    },
+    "dirt": {
+      "tag": "icbm_port:materials/dirt",
+      "exports": [
+        "c:dirt"
+      ],
+      "imports": [
+        "c:dirt",
+        "forge:dirt"
+      ],
+      "members": [
+        "#minecraft:dirt"
+      ]
+    }
+  }
+}

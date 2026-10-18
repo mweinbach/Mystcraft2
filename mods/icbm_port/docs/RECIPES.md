@@ -4,13 +4,13 @@ Baseline: ICBM Classic `prod/1.12`, revision
 `9c1d985a375adc2868ff47707b3a636452d0b63a`. Recipe data is translated into
 Minecraft 1.19.2 JSON. No upstream textures, models or language files are used.
 The exact input/output mapping and source-relative recipe path are retained in
-`tools/upstream_recipe_mapping.json` (124 entries). That file is authoritative
+`tools/upstream_recipe_mapping.json` (132 entries). That file is authoritative
 for reproducing this migration, and is applied last by the resource generator.
 
 ## Source-equivalent recipe shapes and quantities
 
 - All 23 explosive blocks use source patterns, ingredients and result counts.
-  The vanilla fallback nuclear recipe consumes five wither skeleton skulls and
+  When no uranium provider exists, the vanilla fallback nuclear recipe consumes five wither skeleton skulls and
   four thermobaric explosives. Antimatter consumes eight nether stars around a
   nuclear explosive; redmatter consumes eight around an antimatter explosive.
 - All 23 missiles combine a missile module and the matching explosive horizontally.
@@ -37,17 +37,28 @@ its non-contiguous IDs (thermobaric=13, nuclear=15, antimatter=22, redmatter=23)
 Other metadata maps to independent registry entries. Old copper ingots now use
 vanilla copper; old note blocks, snow blocks, skulls, charcoal and carpet map to
 modern IDs. The wildcard dye ingredient accepts all sixteen modern dyes.
-Forge ore-dictionary inputs become the corresponding local component item,
-vanilla item, or vanilla planks/leaves/saplings/dirt tag. These vanilla tags may
-accept more 1.19.2 variants than existed in 1.12.2. Wooden buttons currently map
-to oak buttons. Flint-and-steel crafting accepts damaged tools under modern
-vanilla ingredient rules.
+Source OreDictionary nodes are migrated through private `icbm_port:materials/`
+union tags accepting additive Fabric 1.19.2 common tags and optional modern/Forge
+aliases. Real output forms are exported under both common naming styles; direct
+source item/metadata nodes stay direct, and ingredient arrays stay unions.
+Vanilla planks/leaves/saplings/dirt tags supply modern natural-material variants.
+See [ORE_DICTIONARY.md](ORE_DICTIONARY.md) for all 24 consumed names, all 90 source
+ingredient nodes, exports, exact external-mod tag evidence and form safeguards.
+Wooden buttons currently map to oak buttons. Flint-and-steel crafting accepts
+damaged tools under modern vanilla ingredient rules; the source component module
+specifically requested undamaged metadata 0, while its fallback used wildcard
+32767, so that wear distinction remains adapted.
 
 The installed component set selects the upstream circuit/steel missile-module
-recipe. Unsupported Mekanism and uranium recipes are excluded; the published
-vanilla fallbacks are selected instead. Carbon-mod recipes are excluded, while
-the published coal/charcoal gunpowder fallback remains. Forge recipe conditions
-are resolved at generation time, not exposed as unsupported Fabric serializers.
+recipe. Uranium-ingot/uranium-235-pellet and carbon/charcoal/coal-dust alternatives
+are retained with native Fabric reload-time tag conditions. Their vanilla
+fallbacks use the inverse predicates, so datapack or mod-provided materials
+change the selected path on reload. Ordinary coal/charcoal items remain distinct
+from dust. Native conditions use `fabric:load_conditions`; no Forge condition
+serializer is installed. Official Mekanism is unavailable for Fabric 1.19.2, so
+its atomic-alloy alternatives remain unsupported rather than inventing that item.
+Source condition predicates and the one-component-missing module fallback gap
+are documented in the OreDictionary audit.
 
 Sulfur has no crafting recipe: its source is the creeper/blaze runtime loot
 integration. Source `ICBMClassic.registerRecipes` installs smelting; source
@@ -64,12 +75,12 @@ launcher upgrade recipes are port-specific. The source's launcher support recipe
 actually produces its frame; the new energy support has a separate role.
 The additional nine non-condensed bomblet recipes extend the source condensed
 casing-plus-explosive pattern; they are not published upstream recipes.
+A real `iron_plate` restores the source's `plateIron` export; its four-iron-ingot
+to four-plate recipe is a port extension analogous to the source steel recipe.
+Iron ingots are not mislabeled as plates in common tags.
 
 The upstream advanced/elite circuit recipes both use the basic circuit in their
-center; this apparent oddity is preserved. No ore-processing machines, optional
-mod integrations, unsupported launcher devices and cargo carrier data crafting/decrafting
-are claimed complete here. Further
-new content requires separate source recipe migration.
+center; this apparent oddity is preserved. Ore-processing machines and Forge-only integrations remain outside this recipe migration. Cargo load/unload serializers are described in DELIVERY.md. Further new content requires separate source recipe migration.
 
 ## Verification
 
@@ -82,7 +93,7 @@ Run both documented tooling commands after adding content. Dedicated-server
 recipe reload and gameplay tests are required alongside this static audit.
 
 Static registration audit additionally resolves the module's explicit Java
-registration helper calls and payload enum expansion: 141 registered items have
+registration helper calls and payload enum expansion: 142 registered items have
 matching models, English names and survival paths; all 47 blocks have blockstates;
 all ten entities have English names. Recipe local item references are checked
 against that extracted catalog, and orphan item models fail validation. This

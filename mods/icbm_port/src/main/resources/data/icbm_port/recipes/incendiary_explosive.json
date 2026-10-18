@@ -11,7 +11,7 @@
   ],
   "key": {
     "a": {
-      "item": "icbm_port:sulfur_dust"
+      "tag": "icbm_port:materials/sulfur_dusts"
     },
     "l": {
       "item": "minecraft:lava_bucket"

@@ -10,7 +10,7 @@
   ],
   "key": {
     "i": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     }
   }
 }

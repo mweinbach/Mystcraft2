@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:sulfur_dusts",
+      "required": false
+    },
+    {
+      "id": "#c:dusts/sulfur",
+      "required": false
+    },
+    {
+      "id": "#forge:dusts/sulfur",
+      "required": false
+    }
+  ]
+}

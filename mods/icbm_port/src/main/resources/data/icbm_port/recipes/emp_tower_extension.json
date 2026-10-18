@@ -7,7 +7,7 @@
   ],
   "key": {
     "p": {
-      "item": "icbm_port:steel_plate"
+      "tag": "icbm_port:materials/steel_plates"
     },
     "r": {
       "item": "minecraft:redstone"
@@ -16,7 +16,7 @@
       "item": "icbm_port:battery"
     },
     "w": {
-      "item": "icbm_port:gold_wire"
+      "tag": "icbm_port:materials/gold_wires"
     }
   },
   "result": {

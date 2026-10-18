@@ -14,10 +14,10 @@
       "item": "minecraft:hopper"
     },
     "i": {
-      "item": "icbm_port:steel_ingot"
+      "tag": "icbm_port:materials/steel_ingots"
     },
     "w": {
-      "item": "icbm_port:copper_wire"
+      "tag": "icbm_port:materials/copper_wires"
     }
   }
 }

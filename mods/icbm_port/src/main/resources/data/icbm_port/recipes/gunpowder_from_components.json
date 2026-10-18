@@ -14,10 +14,38 @@
       }
     ],
     {
-      "item": "icbm_port:sulfur_dust"
+      "tag": "icbm_port:materials/sulfur_dusts"
     },
     {
-      "item": "icbm_port:saltpeter_dust"
+      "tag": "icbm_port:materials/saltpeter_dusts"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:or",
+        "values": [
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/carbon_dusts"
+            ]
+          },
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/charcoal_dusts"
+            ]
+          },
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/coal_dusts"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

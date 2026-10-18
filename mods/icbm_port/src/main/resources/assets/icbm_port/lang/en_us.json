@@ -158,5 +158,6 @@
   "entity.icbm_port.flying_block": "Flying Block",
   "entity.icbm_port.redmatter_singularity": "Redmatter Singularity",
   "tooltip.icbm_port.carrier_mode": "Cargo mode: %s (sneak-use to change)",
-  "item.icbm_port.sam_missile": "Surface-to-Air Missile"
+  "item.icbm_port.sam_missile": "Surface-to-Air Missile",
+  "item.icbm_port.iron_plate": "Iron Plate"
 }

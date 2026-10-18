@@ -61,7 +61,7 @@ for id,base,parents in [('glass_button','stone_button',['button','button_pressed
 # Source-recipe migration takes priority over the earlier prototype recipes.
 # This mapping contains recipe data only, never upstream art or language files.
 mapping=json.loads((Path(__file__).parent/'upstream_recipe_mapping.json').read_text())
-components={'steel_clump':'raw_iron','steel_ingot':'iron_ingot','steel_plate':'iron_ingot','copper_wire':'copper_ingot','gold_wire':'gold_ingot','basic_circuit':'redstone','advanced_circuit':'repeater','elite_circuit':'comparator','battery':'redstone','poison_powder':'sugar','sulfur_dust':'glowstone_dust','saltpeter_ball':'clay_ball','saltpeter_dust':'sugar','missile_module':'firework_rocket','empty_bomblet':'iron_nugget'}
+components={'steel_clump':'raw_iron','steel_ingot':'iron_ingot','steel_plate':'iron_ingot','iron_plate':'iron_ingot','copper_wire':'copper_ingot','gold_wire':'gold_ingot','basic_circuit':'redstone','advanced_circuit':'repeater','elite_circuit':'comparator','battery':'redstone','poison_powder':'sugar','sulfur_dust':'glowstone_dust','saltpeter_ball':'clay_ball','saltpeter_dust':'sugar','missile_module':'firework_rocket','empty_bomblet':'iron_nugget'}
 components.update({'held_item_missile':'firework_rocket','ballistic_launcher':'crossbow_standby'})
 for id,texture in components.items():model(id,texture);name(id)
 for id,texture in {'launcher_base_tier_1':'iron_block','launcher_base_tier_2':'gold_block','launcher_base_tier_3':'diamond_block','cruise_launcher':'dispenser_front','launcher_frame':'iron_block','launcher_support':'redstone_block','launcher_screen':'observer_front','launcher_connector':'hopper_outside'}.items():
@@ -76,17 +76,6 @@ for payload in PAYLOADS[:8]+['colors','smoke']:
 for id,texture in {'cluster_missile':'firework_rocket','cargo_parachute':'paper','cargo_balloon':'slime_ball'}.items():model(id,texture);name(id)
 # New port-only controller/support and tier upgrade mappings have no upstream file.
 for id,ingredients in {'launcher_support':['icbm_port:steel_plate','icbm_port:battery','icbm_port:copper_wire'],'launcher_base_tier_2':['icbm_port:launcher_base_tier_1','icbm_port:advanced_circuit','icbm_port:steel_plate'],'launcher_base_tier_3':['icbm_port:launcher_base_tier_2','icbm_port:elite_circuit','icbm_port:steel_plate']}.items():recipe(id,ingredients)
-for id,entry in mapping.items():
- data=entry['recipe'];put('data/icbm_port/recipes/'+id+'.json',data)
- def items(value):
-  if isinstance(value,dict):
-   if 'item' in value:yield value['item']
-   for child in value.values():yield from items(child)
-  elif isinstance(value,list):
-   for child in value:yield from items(child)
- ingredients=list(items(data.get('key',data.get('ingredients',data.get('ingredient',{})))))
- if ingredients:
-  put('data/icbm_port/advancements/recipes/'+id+'.json',{'parent':'minecraft:recipes/root','criteria':{'has_ingredient':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[ingredients[0]]}]}},'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'icbm_port:'+id}}},'requirements':[['has_ingredient','has_the_recipe']],'rewards':{'recipes':['icbm_port:'+id]}})
 lang['entity.icbm_port.bomblet']='Bomblet'
 lang['entity.icbm_port.sam_interceptor']='SAM Interceptor'
 put('assets/icbm_port/lang/en_us.json',lang)
@@ -165,3 +154,9 @@ for id in ['cargo_parachute','cargo_balloon']:
  cargo_box([5,0,5],[11,2,11],'basket')
  put('assets/icbm_port/models/item/'+id+'.json',{'parent':'minecraft:block/block','textures':{'particle':'minecraft:block/white_wool','cloth':'minecraft:block/'+('white_wool' if id=='cargo_parachute' else 'red_wool'),'rope':'minecraft:block/oak_log','basket':'minecraft:block/oak_planks'},'elements':elements,'display':{'gui':{'rotation':[25,-35,0],'scale':[.8,.8,.8]},'ground':{'translation':[0,2,0],'scale':[.6,.6,.6]}}})
 put('assets/icbm_port/lang/en_us.json',lang)
+
+# Apply audited recipe data last: later model/variant generation must not flatten tags.
+from material_tags import write_material_tags, write_recipe
+write_material_tags(ROOT)
+for identifier, entry in mapping.items():
+ write_recipe(ROOT, identifier, entry["recipe"])

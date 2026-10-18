@@ -10,7 +10,7 @@
   ],
   "key": {
     "s": {
-      "item": "minecraft:string"
+      "tag": "icbm_port:materials/strings"
     },
     "x": {
       "item": "icbm_port:attractive_explosive"

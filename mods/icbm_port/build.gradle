@@ -43,11 +43,16 @@ sourceSets {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
+    materialtest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
 }
 loom {
     mods {
         icbm_port { sourceSet sourceSets.main }
         icbm_port_gametest { sourceSet sourceSets.gametest }
+        icbm_port_materialtest { sourceSet sourceSets.materialtest }
     }
     runs {
         gametest {
@@ -58,10 +63,21 @@ loom {
             vmArg '-Dfabric-api.gametest'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
         }
+        materialGametest {
+            server()
+            name 'ICBM Material Compatibility Tests'
+            source sourceSets.materialtest
+            runDir 'build/materialtest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('materialtest-results.xml').get().asFile}"
+        }
     }
 }
 
 // This is Loom's disposable test world; stale queued effects must not leak between runs.
 tasks.named('runGametest') {
     doFirst { delete layout.buildDirectory.dir('gametest/world') }
+}
+tasks.named('runMaterialGametest') {
+    doFirst { delete layout.buildDirectory.dir('materialtest/world') }
 }

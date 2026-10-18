@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:uranium_235_pellets",
+      "required": false
+    },
+    {
+      "id": "#c:pellets/uranium_235",
+      "required": false
+    },
+    {
+      "id": "#forge:pellets/uranium_235",
+      "required": false
+    }
+  ]
+}

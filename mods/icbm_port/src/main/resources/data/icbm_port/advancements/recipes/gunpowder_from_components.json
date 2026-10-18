@@ -1,13 +1,25 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingredient": {
+    "has_ingredient_0": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
               "minecraft:coal"
+            ]
+          }
+        ]
+      }
+    },
+    "has_ingredient_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:charcoal"
             ]
           }
         ]
@@ -22,7 +34,8 @@
   },
   "requirements": [
     [
-      "has_ingredient",
+      "has_ingredient_0",
+      "has_ingredient_1",
       "has_the_recipe"
     ]
   ],
@@ -30,5 +43,33 @@
     "recipes": [
       "icbm_port:gunpowder_from_components"
     ]
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:or",
+        "values": [
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/carbon_dusts"
+            ]
+          },
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/charcoal_dusts"
+            ]
+          },
+          {
+            "condition": "fabric:tags_populated",
+            "values": [
+              "icbm_port:materials/coal_dusts"
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }
