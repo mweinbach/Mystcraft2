@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:breaching_explosive",
+    "count": 2
+  },
+  "pattern": [
+    "grg",
+    "grg",
+    "grg"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:condensed_explosive"
+    },
+    "g": {
+      "item": "minecraft:gunpowder"
+    }
+  }
+}

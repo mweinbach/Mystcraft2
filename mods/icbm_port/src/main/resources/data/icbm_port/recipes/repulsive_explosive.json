@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:repulsive_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "c",
+    "c"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:condensed_explosive"
+    }
+  }
+}

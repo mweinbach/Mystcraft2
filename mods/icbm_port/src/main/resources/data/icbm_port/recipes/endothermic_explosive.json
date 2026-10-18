@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:endothermic_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "isi",
+    "sas",
+    "isi"
+  ],
+  "key": {
+    "a": {
+      "item": "icbm_port:attractive_explosive"
+    },
+    "i": {
+      "item": "minecraft:ice"
+    },
+    "s": {
+      "item": "minecraft:snow_block"
+    }
+  }
+}

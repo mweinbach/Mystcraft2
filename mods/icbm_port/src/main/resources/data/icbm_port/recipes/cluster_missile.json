@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:cluster_missile",
+    "count": 1
+  },
+  "pattern": [
+    "c",
+    "e",
+    "m"
+  ],
+  "key": {
+    "m": {
+      "item": "icbm_port:missile_module"
+    },
+    "e": {
+      "item": "minecraft:dispenser"
+    },
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    }
+  }
+}

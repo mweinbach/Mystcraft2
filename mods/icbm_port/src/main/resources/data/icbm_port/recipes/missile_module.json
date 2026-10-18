@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:missile_module",
+    "count": 1
+  },
+  "pattern": [
+    " i ",
+    "ici",
+    "ifi"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "f": {
+      "item": "minecraft:flint_and_steel"
+    }
+  }
+}

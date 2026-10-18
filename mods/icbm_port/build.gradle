@@ -51,3 +51,8 @@ loom {
         }
     }
 }
+
+// This is Loom's disposable test world; stale queued effects must not leak between runs.
+tasks.named('runGametest') {
+    doFirst { delete layout.buildDirectory.dir('gametest/world') }
+}

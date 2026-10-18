@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "coc",
+    "oco",
+    "coc"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:compact_concrete"
+    },
+    "o": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "icbm_port:reinforced_concrete",
+    "count": 8
+  }
+}

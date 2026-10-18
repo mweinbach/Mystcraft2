@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "icbm_port:launcher_base_tier_2"
+    },
+    {
+      "item": "icbm_port:elite_circuit"
+    },
+    {
+      "item": "icbm_port:steel_plate"
+    }
+  ],
+  "result": {
+    "item": "icbm_port:launcher_base_tier_3",
+    "count": 1
+  }
+}

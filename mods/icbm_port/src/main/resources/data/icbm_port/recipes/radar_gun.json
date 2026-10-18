@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:radar_gun",
+    "count": 1
+  },
+  "pattern": [
+    "gci",
+    " bw"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "b": {
+      "item": "minecraft:stone_button"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "w": {
+      "tag": "minecraft:planks"
+    }
+  }
+}

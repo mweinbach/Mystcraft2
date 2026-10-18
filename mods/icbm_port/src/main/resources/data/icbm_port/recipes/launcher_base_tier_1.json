@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:launcher_base_tier_1",
+    "count": 1
+  },
+  "pattern": [
+    "ici",
+    "ppp"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "p": {
+      "item": "icbm_port:steel_plate"
+    }
+  }
+}

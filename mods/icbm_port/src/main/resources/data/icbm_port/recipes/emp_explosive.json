@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:emp_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "rer",
+    "sas",
+    "sss"
+  ],
+  "key": {
+    "a": {
+      "item": "icbm_port:repulsive_explosive"
+    },
+    "e": {
+      "item": "icbm_port:battery"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "s": {
+      "item": "icbm_port:copper_wire"
+    }
+  }
+}

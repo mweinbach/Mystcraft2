@@ -1,0 +1,2885 @@
+{
+  "shrapnel_explosive": {
+    "source": "explosives/shrapnel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:shrapnel_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "aaa",
+        "ara",
+        "aaa"
+      ],
+      "key": {
+        "a": {
+          "item": "minecraft:arrow"
+        },
+        "r": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "endothermic_explosive": {
+    "source": "explosives/endothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:endothermic_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "isi",
+        "sas",
+        "isi"
+      ],
+      "key": {
+        "a": {
+          "item": "icbm_port:attractive_explosive"
+        },
+        "i": {
+          "item": "minecraft:ice"
+        },
+        "s": {
+          "item": "minecraft:snow_block"
+        }
+      }
+    }
+  },
+  "fragmentation_explosive": {
+    "source": "explosives/fragmentation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:fragmentation_explosive",
+        "count": 1
+      },
+      "pattern": [
+        " a ",
+        "ara",
+        " a "
+      ],
+      "key": {
+        "a": {
+          "item": "icbm_port:shrapnel_explosive"
+        },
+        "r": {
+          "item": "icbm_port:incendiary_explosive"
+        }
+      }
+    }
+  },
+  "repulsive_explosive": {
+    "source": "explosives/repulsive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:repulsive_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "c",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "contagious_explosive": {
+    "source": "explosives/contagious.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:contagious_explosive",
+        "count": 2
+      },
+      "pattern": [
+        " c ",
+        "crc",
+        " c "
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:chemical_explosive"
+        },
+        "r": {
+          "item": "minecraft:rotten_flesh"
+        }
+      }
+    }
+  },
+  "emp_explosive": {
+    "source": "explosives/emp.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:emp_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "rer",
+        "sas",
+        "sss"
+      ],
+      "key": {
+        "a": {
+          "item": "icbm_port:repulsive_explosive"
+        },
+        "e": {
+          "item": "icbm_port:battery"
+        },
+        "r": {
+          "item": "minecraft:redstone"
+        },
+        "s": {
+          "item": "icbm_port:copper_wire"
+        }
+      }
+    }
+  },
+  "incendiary_explosive": {
+    "source": "explosives/incendiary.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:incendiary_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "aaa",
+        "ara",
+        "ala"
+      ],
+      "key": {
+        "a": {
+          "item": "icbm_port:sulfur_dust"
+        },
+        "l": {
+          "item": "minecraft:lava_bucket"
+        },
+        "r": {
+          "item": "icbm_port:shrapnel_explosive"
+        }
+      }
+    }
+  },
+  "smoke_explosive": {
+    "source": "explosives/smoke.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:smoke_explosive",
+        "count": 16
+      },
+      "pattern": [
+        "CCC",
+        "CrC",
+        "CCC"
+      ],
+      "key": {
+        "C": {
+          "item": "minecraft:charcoal"
+        },
+        "r": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "ender_explosive": {
+    "source": "explosives/ender.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:ender_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "ses",
+        "eae",
+        "ses"
+      ],
+      "key": {
+        "a": {
+          "item": "icbm_port:attractive_explosive"
+        },
+        "e": {
+          "item": "minecraft:ender_eye"
+        },
+        "s": {
+          "item": "minecraft:end_stone"
+        }
+      }
+    }
+  },
+  "antigravitational_explosive": {
+    "source": "explosives/anti_grav.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antigravitational_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "eee",
+        "ere",
+        "eee"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:shrapnel_explosive"
+        },
+        "e": {
+          "item": "minecraft:ender_eye"
+        }
+      }
+    }
+  },
+  "breaching_explosive": {
+    "source": "explosives/breaching.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:breaching_explosive",
+        "count": 2
+      },
+      "pattern": [
+        "grg",
+        "grg",
+        "grg"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:condensed_explosive"
+        },
+        "g": {
+          "item": "minecraft:gunpowder"
+        }
+      }
+    }
+  },
+  "attractive_explosive": {
+    "source": "explosives/attractive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:attractive_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "cc"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "colors_explosive": {
+    "source": "explosives/colors.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:colors_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "CCC",
+        "CrC",
+        "CCC"
+      ],
+      "key": {
+        "C": [
+          {
+            "item": "minecraft:white_dye"
+          },
+          {
+            "item": "minecraft:orange_dye"
+          },
+          {
+            "item": "minecraft:magenta_dye"
+          },
+          {
+            "item": "minecraft:light_blue_dye"
+          },
+          {
+            "item": "minecraft:yellow_dye"
+          },
+          {
+            "item": "minecraft:lime_dye"
+          },
+          {
+            "item": "minecraft:pink_dye"
+          },
+          {
+            "item": "minecraft:gray_dye"
+          },
+          {
+            "item": "minecraft:light_gray_dye"
+          },
+          {
+            "item": "minecraft:cyan_dye"
+          },
+          {
+            "item": "minecraft:purple_dye"
+          },
+          {
+            "item": "minecraft:blue_dye"
+          },
+          {
+            "item": "minecraft:brown_dye"
+          },
+          {
+            "item": "minecraft:green_dye"
+          },
+          {
+            "item": "minecraft:red_dye"
+          },
+          {
+            "item": "minecraft:black_dye"
+          }
+        ],
+        "r": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "debilitation_explosive": {
+    "source": "explosives/debilitation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:debilitation_explosive",
+        "count": 3
+      },
+      "pattern": [
+        "sss",
+        "wrw",
+        "sss"
+      ],
+      "key": {
+        "s": {
+          "item": "icbm_port:sulfur_dust"
+        },
+        "w": {
+          "item": "minecraft:water_bucket"
+        },
+        "r": {
+          "item": "icbm_port:shrapnel_explosive"
+        }
+      }
+    }
+  },
+  "sonic_explosive": {
+    "source": "explosives/sonic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:sonic_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "ini",
+        "nrn",
+        "ini"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:repulsive_explosive"
+        },
+        "n": {
+          "item": "minecraft:note_block"
+        },
+        "i": {
+          "item": "minecraft:iron_ingot"
+        }
+      }
+    }
+  },
+  "exothermic_explosive": {
+    "source": "explosives/exothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:exothermic_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "iii",
+        "igi",
+        "iii"
+      ],
+      "key": {
+        "i": {
+          "item": "icbm_port:incendiary_explosive"
+        },
+        "g": {
+          "item": "minecraft:glass"
+        }
+      }
+    }
+  },
+  "chemical_explosive": {
+    "source": "explosives/chemical.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:chemical_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "ppp",
+        "prp",
+        "ppp"
+      ],
+      "key": {
+        "p": {
+          "item": "icbm_port:poison_powder"
+        },
+        "r": {
+          "item": "icbm_port:debilitation_explosive"
+        }
+      }
+    }
+  },
+  "anvil_explosive": {
+    "source": "explosives/anvil.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:anvil_explosive",
+        "count": 10
+      },
+      "pattern": [
+        "aaa",
+        "ara",
+        "aaa"
+      ],
+      "key": {
+        "a": {
+          "item": "minecraft:anvil"
+        },
+        "r": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "thermobaric_explosive": {
+    "source": "explosives/thermobaric.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:thermobaric_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "cic",
+        "iri",
+        "cic"
+      ],
+      "key": {
+        "i": {
+          "item": "icbm_port:incendiary_explosive"
+        },
+        "c": {
+          "item": "icbm_port:chemical_explosive"
+        },
+        "r": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "condensed_explosive": {
+    "source": "explosives/condensed.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:condensed_explosive",
+        "count": 3
+      },
+      "pattern": [
+        "trt",
+        "rtr",
+        "trt"
+      ],
+      "key": {
+        "r": {
+          "item": "minecraft:redstone"
+        },
+        "t": {
+          "item": "minecraft:tnt"
+        }
+      }
+    }
+  },
+  "redmatter_explosive": {
+    "source": "explosives/vanilla/redmatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:redmatter_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "nnn",
+        "nrn",
+        "nnn"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:antimatter_explosive"
+        },
+        "n": {
+          "item": "minecraft:nether_star"
+        }
+      }
+    }
+  },
+  "nuclear_explosive": {
+    "source": "explosives/vanilla/nuclear.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:nuclear_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "tit",
+        "iii",
+        "tit"
+      ],
+      "key": {
+        "t": {
+          "item": "icbm_port:thermobaric_explosive"
+        },
+        "i": {
+          "item": "minecraft:wither_skeleton_skull"
+        }
+      }
+    }
+  },
+  "antimatter_explosive": {
+    "source": "explosives/vanilla/antimatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antimatter_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "nnn",
+        "nrn",
+        "nnn"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:nuclear_explosive"
+        },
+        "n": {
+          "item": "minecraft:nether_star"
+        }
+      }
+    }
+  },
+  "steel_clump": {
+    "source": "parts/clump.steel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:steel_clump",
+        "count": 1
+      },
+      "pattern": [
+        "ic",
+        "cc"
+      ],
+      "key": {
+        "i": {
+          "item": "minecraft:iron_ingot"
+        },
+        "c": [
+          {
+            "item": "minecraft:coal"
+          },
+          {
+            "item": "minecraft:charcoal"
+          }
+        ]
+      }
+    }
+  },
+  "elite_circuit": {
+    "source": "parts/circuit.elite.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:elite_circuit",
+        "count": 1
+      },
+      "pattern": [
+        "wcw",
+        "ibi",
+        "wcw"
+      ],
+      "key": {
+        "w": {
+          "item": "icbm_port:gold_wire"
+        },
+        "i": {
+          "item": "minecraft:gold_ingot"
+        },
+        "c": {
+          "item": "minecraft:quartz"
+        },
+        "b": {
+          "item": "icbm_port:basic_circuit"
+        }
+      }
+    }
+  },
+  "advanced_circuit": {
+    "source": "parts/circuit.advanced.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:advanced_circuit",
+        "count": 1
+      },
+      "pattern": [
+        "wcw",
+        "ibi",
+        "wcw"
+      ],
+      "key": {
+        "w": {
+          "item": "icbm_port:copper_wire"
+        },
+        "c": {
+          "item": "minecraft:copper_ingot"
+        },
+        "i": {
+          "item": "minecraft:redstone_torch"
+        },
+        "b": {
+          "item": "icbm_port:basic_circuit"
+        }
+      }
+    }
+  },
+  "copper_wire": {
+    "source": "parts/wire.copper.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:copper_wire",
+        "count": 18
+      },
+      "pattern": [
+        "cwc",
+        "csc",
+        "cwc"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:copper_ingot"
+        },
+        "s": {
+          "item": "minecraft:stick"
+        },
+        "w": {
+          "tag": "minecraft:planks"
+        }
+      }
+    }
+  },
+  "basic_circuit": {
+    "source": "parts/circuit.basic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:basic_circuit",
+        "count": 4
+      },
+      "pattern": [
+        "rcr",
+        "iii",
+        "bbb"
+      ],
+      "key": {
+        "i": {
+          "item": "minecraft:copper_ingot"
+        },
+        "c": {
+          "item": "minecraft:clay_ball"
+        },
+        "r": {
+          "item": "minecraft:redstone"
+        },
+        "b": {
+          "tag": "minecraft:planks"
+        }
+      }
+    }
+  },
+  "battery": {
+    "source": "parts/battery.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:battery",
+        "count": 1
+      },
+      "pattern": [
+        "RCR",
+        "PPP",
+        "SIS"
+      ],
+      "key": {
+        "C": {
+          "item": "minecraft:copper_ingot"
+        },
+        "I": {
+          "item": "minecraft:iron_ingot"
+        },
+        "S": {
+          "item": "icbm_port:sulfur_dust"
+        },
+        "P": {
+          "item": "minecraft:paper"
+        },
+        "R": {
+          "item": "minecraft:redstone"
+        }
+      }
+    }
+  },
+  "gold_wire": {
+    "source": "parts/wire.gold.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:gold_wire",
+        "count": 18
+      },
+      "pattern": [
+        "gwg",
+        "gsg",
+        "gwg"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:gold_ingot"
+        },
+        "s": {
+          "item": "minecraft:stick"
+        },
+        "w": {
+          "tag": "minecraft:planks"
+        }
+      }
+    }
+  },
+  "steel_plate": {
+    "source": "parts/plate.steel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:steel_plate",
+        "count": 4
+      },
+      "pattern": [
+        "ii",
+        "ii"
+      ],
+      "key": {
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        }
+      }
+    }
+  },
+  "gunpowder_from_components": {
+    "source": "parts/vanilla/gunpowder.json",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "result": {
+        "item": "minecraft:gunpowder",
+        "count": 3
+      },
+      "ingredients": [
+        [
+          {
+            "item": "minecraft:coal"
+          },
+          {
+            "item": "minecraft:charcoal"
+          }
+        ],
+        {
+          "item": "icbm_port:sulfur_dust"
+        },
+        {
+          "item": "icbm_port:saltpeter_dust"
+        }
+      ]
+    }
+  },
+  "saltpeter_ball": {
+    "source": "parts/vanilla/saltpeter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:saltpeter_ball",
+        "count": 4
+      },
+      "pattern": [
+        "DPD",
+        "PWP",
+        "DPD"
+      ],
+      "key": {
+        "D": {
+          "tag": "minecraft:dirt"
+        },
+        "P": [
+          {
+            "tag": "minecraft:leaves"
+          },
+          {
+            "tag": "minecraft:saplings"
+          }
+        ],
+        "W": {
+          "item": "minecraft:water_bucket"
+        }
+      }
+    }
+  },
+  "radar_gun": {
+    "source": "tools/radargun.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:radar_gun",
+        "count": 1
+      },
+      "pattern": [
+        "gci",
+        " bw"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:glass"
+        },
+        "b": {
+          "item": "minecraft:stone_button"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "w": {
+          "tag": "minecraft:planks"
+        }
+      }
+    }
+  },
+  "laser_designator": {
+    "source": "tools/laser.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:laser_designator",
+        "count": 1
+      },
+      "pattern": [
+        "r  ",
+        " c ",
+        "  h"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:radar_gun"
+        },
+        "h": {
+          "item": "icbm_port:radio_detonator"
+        },
+        "c": {
+          "item": "icbm_port:elite_circuit"
+        }
+      }
+    }
+  },
+  "defuser": {
+    "source": "tools/defuser.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:defuser",
+        "count": 1
+      },
+      "pattern": [
+        "w w",
+        "rar",
+        "ici"
+      ],
+      "key": {
+        "i": {
+          "item": "minecraft:copper_ingot"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "w": {
+          "tag": "minecraft:planks"
+        },
+        "r": {
+          "item": "minecraft:redstone"
+        },
+        "a": {
+          "item": "minecraft:shears"
+        }
+      }
+    }
+  },
+  "radio_detonator": {
+    "source": "tools/remote.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:radio_detonator",
+        "count": 1
+      },
+      "pattern": [
+        "iri",
+        "ici",
+        "ibi"
+      ],
+      "key": {
+        "r": {
+          "item": "minecraft:redstone_torch"
+        },
+        "b": {
+          "item": "minecraft:oak_button"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "c": {
+          "item": "icbm_port:advanced_circuit"
+        }
+      }
+    }
+  },
+  "rocket_launcher": {
+    "source": "tools/rpg.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:rocket_launcher",
+        "count": 1
+      },
+      "pattern": [
+        "sss",
+        "rcg",
+        "w w"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:radar_gun"
+        },
+        "s": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "g": {
+          "item": "icbm_port:copper_wire"
+        },
+        "w": {
+          "tag": "minecraft:planks"
+        }
+      }
+    }
+  },
+  "launcher_screen": {
+    "source": "launcher/screen.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:launcher_screen",
+        "count": 1
+      },
+      "pattern": [
+        "cg",
+        "sw"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:glass"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "w": {
+          "item": "icbm_port:copper_wire"
+        },
+        "s": {
+          "item": "icbm_port:steel_ingot"
+        }
+      }
+    }
+  },
+  "launcher_connector": {
+    "source": "launcher/connector.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:launcher_connector",
+        "count": 4
+      },
+      "pattern": [
+        "iwi",
+        "whw",
+        "iwi"
+      ],
+      "key": {
+        "h": {
+          "item": "minecraft:hopper"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "w": {
+          "item": "icbm_port:copper_wire"
+        }
+      }
+    }
+  },
+  "launcher_frame": {
+    "source": "launcher/support.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:launcher_frame",
+        "count": 1
+      },
+      "pattern": [
+        "ibi",
+        "ibi"
+      ],
+      "key": {
+        "i": {
+          "item": "minecraft:iron_ingot"
+        },
+        "b": {
+          "item": "minecraft:iron_bars"
+        }
+      }
+    }
+  },
+  "launcher_base_tier_1": {
+    "source": "launcher/base.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:launcher_base_tier_1",
+        "count": 1
+      },
+      "pattern": [
+        "ici",
+        "ppp"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "p": {
+          "item": "icbm_port:steel_plate"
+        }
+      }
+    }
+  },
+  "radar_station": {
+    "source": "machine/radar.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:radar_station",
+        "count": 1
+      },
+      "pattern": [
+        "gcs",
+        "pcp"
+      ],
+      "key": {
+        "s": {
+          "item": "icbm_port:launcher_screen"
+        },
+        "g": {
+          "item": "minecraft:gold_ingot"
+        },
+        "c": {
+          "item": "icbm_port:advanced_circuit"
+        },
+        "p": {
+          "item": "icbm_port:steel_plate"
+        }
+      }
+    }
+  },
+  "cruise_launcher": {
+    "source": "machine/cruiselauncher.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:cruise_launcher",
+        "count": 1
+      },
+      "pattern": [
+        "CLP",
+        "SBS"
+      ],
+      "key": {
+        "L": {
+          "item": "icbm_port:launcher_base_tier_1"
+        },
+        "B": {
+          "item": "icbm_port:launcher_screen"
+        },
+        "S": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "C": {
+          "item": "icbm_port:advanced_circuit"
+        },
+        "P": {
+          "item": "icbm_port:steel_plate"
+        }
+      }
+    }
+  },
+  "emp_tower": {
+    "source": "machine/emptower.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:emp_tower",
+        "count": 1
+      },
+      "pattern": [
+        "pwp",
+        "ece",
+        "prp"
+      ],
+      "key": {
+        "w": {
+          "item": "icbm_port:gold_wire"
+        },
+        "c": {
+          "item": "icbm_port:elite_circuit"
+        },
+        "p": {
+          "item": "icbm_port:steel_plate"
+        },
+        "r": {
+          "item": "minecraft:redstone"
+        },
+        "e": {
+          "item": "icbm_port:battery"
+        }
+      }
+    }
+  },
+  "shrapnel_missile": {
+    "source": "missile/ex/shrapnel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:shrapnel_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:shrapnel_explosive"
+        }
+      }
+    }
+  },
+  "endothermic_missile": {
+    "source": "missile/ex/endothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:endothermic_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:endothermic_explosive"
+        }
+      }
+    }
+  },
+  "fragmentation_missile": {
+    "source": "missile/ex/fragmentation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:fragmentation_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:fragmentation_explosive"
+        }
+      }
+    }
+  },
+  "repulsive_missile": {
+    "source": "missile/ex/repulsive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:repulsive_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "antigravitational_missile": {
+    "source": "missile/ex/antigravitational.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antigravitational_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:antigravitational_explosive"
+        }
+      }
+    }
+  },
+  "contagious_missile": {
+    "source": "missile/ex/contagious.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:contagious_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:contagious_explosive"
+        }
+      }
+    }
+  },
+  "emp_missile": {
+    "source": "missile/ex/emp.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:emp_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:emp_explosive"
+        }
+      }
+    }
+  },
+  "incendiary_missile": {
+    "source": "missile/ex/incendiary.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:incendiary_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:incendiary_explosive"
+        }
+      }
+    }
+  },
+  "smoke_missile": {
+    "source": "missile/ex/smoke.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:smoke_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:smoke_explosive"
+        }
+      }
+    }
+  },
+  "redmatter_missile": {
+    "source": "missile/ex/redmatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:redmatter_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:redmatter_explosive"
+        }
+      }
+    }
+  },
+  "ender_missile": {
+    "source": "missile/ex/ender.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:ender_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:ender_explosive"
+        }
+      }
+    }
+  },
+  "nuclear_missile": {
+    "source": "missile/ex/nuclear.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:nuclear_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:nuclear_explosive"
+        }
+      }
+    }
+  },
+  "breaching_missile": {
+    "source": "missile/ex/breaching.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:breaching_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:breaching_explosive"
+        }
+      }
+    }
+  },
+  "attractive_missile": {
+    "source": "missile/ex/attractive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:attractive_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:attractive_explosive"
+        }
+      }
+    }
+  },
+  "colors_missile": {
+    "source": "missile/ex/colors.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:colors_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:colors_explosive"
+        }
+      }
+    }
+  },
+  "debilitation_missile": {
+    "source": "missile/ex/debilitation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:debilitation_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:debilitation_explosive"
+        }
+      }
+    }
+  },
+  "sonic_missile": {
+    "source": "missile/ex/sonic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:sonic_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:sonic_explosive"
+        }
+      }
+    }
+  },
+  "antimatter_missile": {
+    "source": "missile/ex/antimatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antimatter_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:antimatter_explosive"
+        }
+      }
+    }
+  },
+  "exothermic_missile": {
+    "source": "missile/ex/exothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:exothermic_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:exothermic_explosive"
+        }
+      }
+    }
+  },
+  "chemical_missile": {
+    "source": "missile/ex/chemical.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:chemical_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:chemical_explosive"
+        }
+      }
+    }
+  },
+  "anvil_missile": {
+    "source": "missile/ex/anvil.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:anvil_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:anvil_explosive"
+        }
+      }
+    }
+  },
+  "thermobaric_missile": {
+    "source": "missile/ex/thermobaric.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:thermobaric_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:thermobaric_explosive"
+        }
+      }
+    }
+  },
+  "condensed_missile": {
+    "source": "missile/ex/condensed.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:condensed_missile",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "x": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "shrapnel_bomb_cart": {
+    "source": "bombcarts/shrapnel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:shrapnel_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:shrapnel_explosive"
+        }
+      }
+    }
+  },
+  "endothermic_bomb_cart": {
+    "source": "bombcarts/endothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:endothermic_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:endothermic_explosive"
+        }
+      }
+    }
+  },
+  "fragmentation_bomb_cart": {
+    "source": "bombcarts/fragmentation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:fragmentation_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:fragmentation_explosive"
+        }
+      }
+    }
+  },
+  "repulsive_bomb_cart": {
+    "source": "bombcarts/repulsive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:repulsive_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "antigravitational_bomb_cart": {
+    "source": "bombcarts/antigravitational.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antigravitational_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:antigravitational_explosive"
+        }
+      }
+    }
+  },
+  "contagious_bomb_cart": {
+    "source": "bombcarts/contagious.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:contagious_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:contagious_explosive"
+        }
+      }
+    }
+  },
+  "emp_bomb_cart": {
+    "source": "bombcarts/emp.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:emp_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:emp_explosive"
+        }
+      }
+    }
+  },
+  "incendiary_bomb_cart": {
+    "source": "bombcarts/incendiary.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:incendiary_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:incendiary_explosive"
+        }
+      }
+    }
+  },
+  "smoke_bomb_cart": {
+    "source": "bombcarts/smoke.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:smoke_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:smoke_explosive"
+        }
+      }
+    }
+  },
+  "redmatter_bomb_cart": {
+    "source": "bombcarts/redmatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:redmatter_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:redmatter_explosive"
+        }
+      }
+    }
+  },
+  "ender_bomb_cart": {
+    "source": "bombcarts/ender.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:ender_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:ender_explosive"
+        }
+      }
+    }
+  },
+  "nuclear_bomb_cart": {
+    "source": "bombcarts/nuclear.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:nuclear_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:nuclear_explosive"
+        }
+      }
+    }
+  },
+  "breaching_bomb_cart": {
+    "source": "bombcarts/breaching.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:breaching_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:breaching_explosive"
+        }
+      }
+    }
+  },
+  "attractive_bomb_cart": {
+    "source": "bombcarts/attractive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:attractive_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:attractive_explosive"
+        }
+      }
+    }
+  },
+  "colors_bomb_cart": {
+    "source": "bombcarts/colors.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:colors_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:colors_explosive"
+        }
+      }
+    }
+  },
+  "debilitation_bomb_cart": {
+    "source": "bombcarts/debilitation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:debilitation_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:debilitation_explosive"
+        }
+      }
+    }
+  },
+  "sonic_bomb_cart": {
+    "source": "bombcarts/sonic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:sonic_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:sonic_explosive"
+        }
+      }
+    }
+  },
+  "antimatter_bomb_cart": {
+    "source": "bombcarts/antimatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antimatter_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:antimatter_explosive"
+        }
+      }
+    }
+  },
+  "exothermic_bomb_cart": {
+    "source": "bombcarts/exothermic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:exothermic_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:exothermic_explosive"
+        }
+      }
+    }
+  },
+  "chemical_bomb_cart": {
+    "source": "bombcarts/chemical.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:chemical_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:chemical_explosive"
+        }
+      }
+    }
+  },
+  "anvil_bomb_cart": {
+    "source": "bombcarts/anvil.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:anvil_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:anvil_explosive"
+        }
+      }
+    }
+  },
+  "thermobaric_bomb_cart": {
+    "source": "bombcarts/thermobaric.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:thermobaric_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:thermobaric_explosive"
+        }
+      }
+    }
+  },
+  "condensed_bomb_cart": {
+    "source": "bombcarts/condensed.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:condensed_bomb_cart",
+        "count": 1
+      },
+      "pattern": [
+        "a",
+        "c"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:minecart"
+        },
+        "a": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "shrapnel_grenade": {
+    "source": "grenades/shrapnel.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:shrapnel_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:shrapnel_explosive"
+        }
+      }
+    }
+  },
+  "repulsive_grenade": {
+    "source": "grenades/repulsive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:repulsive_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:repulsive_explosive"
+        }
+      }
+    }
+  },
+  "incendiary_grenade": {
+    "source": "grenades/incendiary.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:incendiary_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:incendiary_explosive"
+        }
+      }
+    }
+  },
+  "smoke_grenade": {
+    "source": "grenades/smoke.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:smoke_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:smoke_explosive"
+        }
+      }
+    }
+  },
+  "attractive_grenade": {
+    "source": "grenades/attractive.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:attractive_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:attractive_explosive"
+        }
+      }
+    }
+  },
+  "colors_grenade": {
+    "source": "grenades/colors.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:colors_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:colors_explosive"
+        }
+      }
+    }
+  },
+  "debilitation_grenade": {
+    "source": "grenades/debilitation.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:debilitation_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:debilitation_explosive"
+        }
+      }
+    }
+  },
+  "chemical_grenade": {
+    "source": "grenades/chemical.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:chemical_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:chemical_explosive"
+        }
+      }
+    }
+  },
+  "anvil_grenade": {
+    "source": "grenades/anvil.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:anvil_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:anvil_explosive"
+        }
+      }
+    }
+  },
+  "condensed_grenade": {
+    "source": "grenades/condensed.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:condensed_grenade",
+        "count": 1
+      },
+      "pattern": [
+        "s",
+        "x"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:string"
+        },
+        "x": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "empty_bomblet": {
+    "source": "bomblet/bomblet.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:empty_bomblet",
+        "count": 16
+      },
+      "pattern": [
+        " i ",
+        "ici",
+        "ipi"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "p": {
+          "item": "minecraft:oak_button"
+        }
+      }
+    }
+  },
+  "condensed_bomblet": {
+    "source": "bomblet/condensed.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:condensed_bomblet",
+        "count": 1
+      },
+      "pattern": [
+        "mx"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:empty_bomblet"
+        },
+        "x": {
+          "item": "icbm_port:condensed_explosive"
+        }
+      }
+    }
+  },
+  "concrete": {
+    "source": "concrete.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:concrete",
+        "count": 8
+      },
+      "pattern": [
+        "sgs",
+        "gwg",
+        "sgs"
+      ],
+      "key": {
+        "s": {
+          "item": "minecraft:sand"
+        },
+        "g": {
+          "item": "minecraft:gravel"
+        },
+        "w": {
+          "item": "minecraft:water_bucket"
+        }
+      }
+    }
+  },
+  "spikes": {
+    "source": "spikes.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:spikes",
+        "count": 6
+      },
+      "pattern": [
+        "ccc",
+        "iii"
+      ],
+      "key": {
+        "c": {
+          "item": "minecraft:cactus"
+        },
+        "i": {
+          "item": "minecraft:iron_ingot"
+        }
+      }
+    }
+  },
+  "reinforced_glass": {
+    "source": "reinforcedGlass.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:reinforced_glass",
+        "count": 8
+      },
+      "pattern": [
+        "igi",
+        "gig",
+        "igi"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:glass"
+        },
+        "i": {
+          "item": "minecraft:iron_ingot"
+        }
+      }
+    }
+  },
+  "glass_button": {
+    "source": "glassButton.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:glass_button",
+        "count": 2
+      },
+      "pattern": [
+        "g",
+        "g",
+        "g"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:glass"
+        }
+      }
+    }
+  },
+  "glass_pressure_plate": {
+    "source": "glassPressurePlate.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:glass_pressure_plate",
+        "count": 1
+      },
+      "pattern": [
+        "ggg"
+      ],
+      "key": {
+        "g": {
+          "item": "minecraft:glass"
+        }
+      }
+    }
+  },
+  "poison_powder": {
+    "source": "powder.poison.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:poison_powder",
+        "count": 3
+      },
+      "pattern": [
+        "er"
+      ],
+      "key": {
+        "e": {
+          "item": "minecraft:spider_eye"
+        },
+        "r": {
+          "item": "minecraft:rotten_flesh"
+        }
+      }
+    }
+  },
+  "antidote": {
+    "source": "antidote.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antidote",
+        "count": 6
+      },
+      "pattern": [
+        "sss",
+        "sss",
+        "sss"
+      ],
+      "key": {
+        "s": [
+          {
+            "item": "minecraft:melon_seeds"
+          },
+          {
+            "item": "minecraft:pumpkin_seeds"
+          },
+          {
+            "item": "minecraft:wheat_seeds"
+          }
+        ]
+      }
+    }
+  },
+  "cargo_balloon": {
+    "source": "balloon.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:cargo_balloon",
+        "count": 4
+      },
+      "pattern": [
+        "SCS",
+        "CGC",
+        "SCS"
+      ],
+      "key": {
+        "C": {
+          "item": "minecraft:white_carpet"
+        },
+        "G": {
+          "item": "minecraft:blaze_powder"
+        },
+        "S": {
+          "item": "minecraft:string"
+        }
+      }
+    }
+  },
+  "cargo_parachute": {
+    "source": "parachute.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:cargo_parachute",
+        "count": 4
+      },
+      "pattern": [
+        " C ",
+        "CGC",
+        "SSS"
+      ],
+      "key": {
+        "C": {
+          "item": "minecraft:white_carpet"
+        },
+        "G": {
+          "item": "minecraft:slime_ball"
+        },
+        "S": {
+          "item": "minecraft:string"
+        }
+      }
+    }
+  },
+  "missile_module": {
+    "source": "missile/missile.module.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:missile_module",
+        "count": 1
+      },
+      "pattern": [
+        " i ",
+        "ici",
+        "ifi"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "i": {
+          "item": "icbm_port:steel_ingot"
+        },
+        "f": {
+          "item": "minecraft:flint_and_steel"
+        }
+      }
+    }
+  },
+  "cluster_missile": {
+    "source": "missile/special/missile.cluster.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:cluster_missile",
+        "count": 1
+      },
+      "pattern": [
+        "c",
+        "e",
+        "m"
+      ],
+      "key": {
+        "m": {
+          "item": "icbm_port:missile_module"
+        },
+        "e": {
+          "item": "minecraft:dispenser"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        }
+      }
+    }
+  },
+  "steel_ingot": {
+    "source": "ICBMClassic.java:registerRecipes",
+    "recipe": {
+      "type": "minecraft:smelting",
+      "ingredient": {
+        "item": "icbm_port:steel_clump"
+      },
+      "result": "icbm_port:steel_ingot",
+      "experience": 0.1,
+      "cookingtime": 200
+    }
+  },
+  "saltpeter_dust": {
+    "source": "ICBMClassic.java:registerRecipes",
+    "recipe": {
+      "type": "minecraft:smelting",
+      "ingredient": {
+        "item": "icbm_port:saltpeter_ball"
+      },
+      "result": "icbm_port:saltpeter_dust",
+      "experience": 0.1,
+      "cookingtime": 200
+    }
+  },
+  "compact_concrete": {
+    "source": "concrete.1.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "coc",
+        "oco",
+        "coc"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:concrete"
+        },
+        "o": {
+          "item": "minecraft:obsidian"
+        }
+      },
+      "result": {
+        "item": "icbm_port:compact_concrete",
+        "count": 8
+      }
+    }
+  },
+  "reinforced_concrete": {
+    "source": "concrete.2.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "coc",
+        "oco",
+        "coc"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:compact_concrete"
+        },
+        "o": {
+          "item": "minecraft:iron_ingot"
+        }
+      },
+      "result": {
+        "item": "icbm_port:reinforced_concrete",
+        "count": 8
+      }
+    }
+  },
+  "poison_spikes": {
+    "source": "spikes.1.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "c",
+        "i"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:poison_powder"
+        },
+        "i": {
+          "item": "icbm_port:spikes"
+        }
+      },
+      "result": {
+        "item": "icbm_port:poison_spikes",
+        "count": 1
+      }
+    }
+  },
+  "fire_spikes": {
+    "source": "spikes.2.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "c",
+        "i"
+      ],
+      "key": {
+        "c": {
+          "item": "icbm_port:sulfur_dust"
+        },
+        "i": {
+          "item": "icbm_port:spikes"
+        }
+      },
+      "result": {
+        "item": "icbm_port:fire_spikes",
+        "count": 1
+      }
+    }
+  },
+  "held_item_missile": {
+    "source": "missile/special/missile.held_item.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "e",
+        "c",
+        "m"
+      ],
+      "key": {
+        "e": {
+          "item": "minecraft:sticky_piston"
+        },
+        "c": {
+          "item": "icbm_port:basic_circuit"
+        },
+        "m": {
+          "item": "icbm_port:missile_module"
+        }
+      },
+      "result": {
+        "item": "icbm_port:held_item_missile",
+        "count": 1
+      }
+    }
+  },
+  "ballistic_launcher": {
+    "source": "tools/rpgBallistic.json",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "item": "icbm_port:rocket_launcher"
+        },
+        {
+          "item": "icbm_port:launcher_screen"
+        }
+      ],
+      "result": {
+        "item": "icbm_port:ballistic_launcher",
+        "count": 1
+      }
+    }
+  }
+}

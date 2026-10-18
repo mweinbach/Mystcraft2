@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "i"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:sulfur_dust"
+    },
+    "i": {
+      "item": "icbm_port:spikes"
+    }
+  },
+  "result": {
+    "item": "icbm_port:fire_spikes",
+    "count": 1
+  }
+}

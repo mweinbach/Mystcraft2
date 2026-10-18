@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:glass_button",
+    "count": 2
+  },
+  "pattern": [
+    "g",
+    "g",
+    "g"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    }
+  }
+}

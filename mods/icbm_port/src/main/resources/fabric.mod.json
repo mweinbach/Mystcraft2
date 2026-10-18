@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "icbm_port",
   "version": "${version}",
-  "name": "ICBM Fabric Port (Prototype)",
+  "name": "ICBM Fabric Port (Alpha)",
   "description": "An unofficial, in-progress ICBM gameplay port for Minecraft 1.19.2.",
   "environment": "*",
   "entrypoints": {

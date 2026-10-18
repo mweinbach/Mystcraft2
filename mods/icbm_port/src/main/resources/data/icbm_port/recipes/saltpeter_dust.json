@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "icbm_port:saltpeter_ball"
+  },
+  "result": "icbm_port:saltpeter_dust",
+  "experience": 0.1,
+  "cookingtime": 200
+}

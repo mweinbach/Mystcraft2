@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "icbm_port:steel_plate"
+    },
+    {
+      "item": "icbm_port:battery"
+    },
+    {
+      "item": "icbm_port:copper_wire"
+    }
+  ],
+  "result": {
+    "item": "icbm_port:launcher_support",
+    "count": 1
+  }
+}

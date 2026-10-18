@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:empty_bomblet",
+    "count": 16
+  },
+  "pattern": [
+    " i ",
+    "ici",
+    "ipi"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "p": {
+      "item": "minecraft:oak_button"
+    }
+  }
+}

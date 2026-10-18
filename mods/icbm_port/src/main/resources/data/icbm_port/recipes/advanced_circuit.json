@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:advanced_circuit",
+    "count": 1
+  },
+  "pattern": [
+    "wcw",
+    "ibi",
+    "wcw"
+  ],
+  "key": {
+    "w": {
+      "item": "icbm_port:copper_wire"
+    },
+    "c": {
+      "item": "minecraft:copper_ingot"
+    },
+    "i": {
+      "item": "minecraft:redstone_torch"
+    },
+    "b": {
+      "item": "icbm_port:basic_circuit"
+    }
+  }
+}

@@ -1,22 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:condensed_missile",
+    "count": 1
+  },
   "pattern": [
-    " I ",
-    "IEI",
-    " R "
+    "mx"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+    "m": {
+      "item": "icbm_port:missile_module"
     },
-    "E": {
+    "x": {
       "item": "icbm_port:condensed_explosive"
-    },
-    "R": {
-      "item": "minecraft:redstone"
     }
-  },
-  "result": {
-    "item": "icbm_port:condensed_missile"
   }
 }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "icbm_port:rocket_launcher"
+    },
+    {
+      "item": "icbm_port:launcher_screen"
+    }
+  ],
+  "result": {
+    "item": "icbm_port:ballistic_launcher",
+    "count": 1
+  }
+}

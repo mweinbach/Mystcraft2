@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:elite_circuit",
+    "count": 1
+  },
+  "pattern": [
+    "wcw",
+    "ibi",
+    "wcw"
+  ],
+  "key": {
+    "w": {
+      "item": "icbm_port:gold_wire"
+    },
+    "i": {
+      "item": "minecraft:gold_ingot"
+    },
+    "c": {
+      "item": "minecraft:quartz"
+    },
+    "b": {
+      "item": "icbm_port:basic_circuit"
+    }
+  }
+}

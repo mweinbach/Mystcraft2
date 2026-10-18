@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:radio_detonator",
+    "count": 1
+  },
+  "pattern": [
+    "iri",
+    "ici",
+    "ibi"
+  ],
+  "key": {
+    "r": {
+      "item": "minecraft:redstone_torch"
+    },
+    "b": {
+      "item": "minecraft:oak_button"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "c": {
+      "item": "icbm_port:advanced_circuit"
+    }
+  }
+}

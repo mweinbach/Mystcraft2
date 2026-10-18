@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:launcher_connector",
+    "count": 4
+  },
+  "pattern": [
+    "iwi",
+    "whw",
+    "iwi"
+  ],
+  "key": {
+    "h": {
+      "item": "minecraft:hopper"
+    },
+    "i": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "w": {
+      "item": "icbm_port:copper_wire"
+    }
+  }
+}

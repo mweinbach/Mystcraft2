@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "icbm_port:block/thermobaric_explosive"
+    }
+  }
+}

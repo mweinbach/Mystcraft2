@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:incendiary_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "aaa",
+    "ara",
+    "ala"
+  ],
+  "key": {
+    "a": {
+      "item": "icbm_port:sulfur_dust"
+    },
+    "l": {
+      "item": "minecraft:lava_bucket"
+    },
+    "r": {
+      "item": "icbm_port:shrapnel_explosive"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:antigravitational_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "eee",
+    "ere",
+    "eee"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:shrapnel_explosive"
+    },
+    "e": {
+      "item": "minecraft:ender_eye"
+    }
+  }
+}

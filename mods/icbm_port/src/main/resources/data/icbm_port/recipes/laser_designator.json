@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:laser_designator",
+    "count": 1
+  },
+  "pattern": [
+    "r  ",
+    " c ",
+    "  h"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:radar_gun"
+    },
+    "h": {
+      "item": "icbm_port:radio_detonator"
+    },
+    "c": {
+      "item": "icbm_port:elite_circuit"
+    }
+  }
+}

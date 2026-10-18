@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:launcher_screen",
+    "count": 1
+  },
+  "pattern": [
+    "cg",
+    "sw"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "w": {
+      "item": "icbm_port:copper_wire"
+    },
+    "s": {
+      "item": "icbm_port:steel_ingot"
+    }
+  }
+}

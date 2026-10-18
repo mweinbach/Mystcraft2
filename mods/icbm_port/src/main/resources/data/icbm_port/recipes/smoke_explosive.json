@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:smoke_explosive",
+    "count": 16
+  },
+  "pattern": [
+    "CCC",
+    "CrC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:charcoal"
+    },
+    "r": {
+      "item": "icbm_port:repulsive_explosive"
+    }
+  }
+}

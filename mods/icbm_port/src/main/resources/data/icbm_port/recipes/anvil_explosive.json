@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:anvil_explosive",
+    "count": 10
+  },
+  "pattern": [
+    "aaa",
+    "ara",
+    "aaa"
+  ],
+  "key": {
+    "a": {
+      "item": "minecraft:anvil"
+    },
+    "r": {
+      "item": "icbm_port:repulsive_explosive"
+    }
+  }
+}

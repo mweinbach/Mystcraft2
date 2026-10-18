@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:cargo_parachute",
+    "count": 4
+  },
+  "pattern": [
+    " C ",
+    "CGC",
+    "SSS"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:white_carpet"
+    },
+    "G": {
+      "item": "minecraft:slime_ball"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  }
+}

@@ -1,6 +1,26 @@
 {
   "replace": false,
   "values": [
-    "icbm_port:launcher"
+    "icbm_port:compact_concrete",
+    "icbm_port:concrete",
+    "icbm_port:cruise_launcher",
+    "icbm_port:emp_tower",
+    "icbm_port:fire_spikes",
+    "icbm_port:glass_button",
+    "icbm_port:glass_pressure_plate",
+    "icbm_port:launcher",
+    "icbm_port:launcher_base_tier_1",
+    "icbm_port:launcher_base_tier_2",
+    "icbm_port:launcher_base_tier_3",
+    "icbm_port:launcher_connector",
+    "icbm_port:launcher_frame",
+    "icbm_port:launcher_screen",
+    "icbm_port:launcher_support",
+    "icbm_port:poison_spikes",
+    "icbm_port:radar_station",
+    "icbm_port:reinforced_concrete",
+    "icbm_port:reinforced_glass",
+    "icbm_port:sam_launcher",
+    "icbm_port:spikes"
   ]
 }

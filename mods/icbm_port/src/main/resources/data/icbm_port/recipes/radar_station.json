@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:radar_station",
+    "count": 1
+  },
+  "pattern": [
+    "gcs",
+    "pcp"
+  ],
+  "key": {
+    "s": {
+      "item": "icbm_port:launcher_screen"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "c": {
+      "item": "icbm_port:advanced_circuit"
+    },
+    "p": {
+      "item": "icbm_port:steel_plate"
+    }
+  }
+}

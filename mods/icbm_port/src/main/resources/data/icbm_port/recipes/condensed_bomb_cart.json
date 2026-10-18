@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:condensed_bomb_cart",
+    "count": 1
+  },
+  "pattern": [
+    "a",
+    "c"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:minecart"
+    },
+    "a": {
+      "item": "icbm_port:condensed_explosive"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mx"
+  ],
+  "key": {
+    "m": {
+      "item": "icbm_port:empty_bomblet"
+    },
+    "x": {
+      "item": "icbm_port:shrapnel_explosive"
+    }
+  },
+  "result": {
+    "item": "icbm_port:shrapnel_bomblet",
+    "count": 1
+  }
+}

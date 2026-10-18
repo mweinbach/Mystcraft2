@@ -4,6 +4,19 @@
   "version": "1.0.0",
   "name": "ICBM Port Game Tests",
   "environment": "*",
-  "entrypoints": { "fabric-gametest": ["dev.icbm.port.IcbmGameTests"] },
-  "depends": { "icbm_port": "*", "fabric-gametest-api-v1": "*" }
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.icbm.port.IcbmGameTests",
+      "dev.icbm.port.LauncherGameTests",
+      "dev.icbm.port.PayloadGameTests",
+      "dev.icbm.port.delivery.DeliveryGameTests",
+      "dev.icbm.port.defense.DefenseGameTests",
+      "dev.icbm.port.MissileGameTests",
+      "dev.icbm.port.ContentGameTests"
+    ]
+  },
+  "depends": {
+    "icbm_port": "*",
+    "fabric-gametest-api-v1": "*"
+  }
 }

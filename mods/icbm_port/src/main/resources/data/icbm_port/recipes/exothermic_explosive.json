@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:exothermic_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "iii",
+    "igi",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "icbm_port:incendiary_explosive"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    }
+  }
+}

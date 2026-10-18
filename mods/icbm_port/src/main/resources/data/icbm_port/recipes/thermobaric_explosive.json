@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:thermobaric_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "cic",
+    "iri",
+    "cic"
+  ],
+  "key": {
+    "i": {
+      "item": "icbm_port:incendiary_explosive"
+    },
+    "c": {
+      "item": "icbm_port:chemical_explosive"
+    },
+    "r": {
+      "item": "icbm_port:repulsive_explosive"
+    }
+  }
+}

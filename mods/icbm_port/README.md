@@ -1,74 +1,43 @@
-# ICBM Fabric Port — initial prototype
+# ICBM Fabric Port
 
-Target: Minecraft **1.19.2**, Fabric Loader **0.16.14+**, Fabric API
-**0.77.0+1.19.2**, and **Java 17**.
+An unofficial, in-progress recreation of ICBM Classic for **Minecraft 1.19.2**, **Fabric Loader 0.16.14+**, **Fabric API 0.77.0+1.19.2**, and **Java 17**. This is a playable alpha with substantial behavior differences from the original. The [parity audit](docs/PARITY.md) tracks the remaining work.
 
-This is an unofficial port in progress. It contains a first gameplay slice;
-the full ICBM feature set is not implemented. See [PORTING.md](PORTING.md).
+This independent module belongs to the Mystcraft project. Mystcraft uses Forge and ICBM uses Fabric, so their JARs require separate game instances.
 
 ## Build and run
 
-From this directory, with a Java 17 JDK installed:
+From the repository root:
 
 ```sh
-./gradlew build
-./gradlew runGametest
-./gradlew runClient
+./scripts/gradle.sh :icbm_port:build
+./scripts/gradle.sh :icbm_port:runGametest
+./scripts/gradle.sh :icbm_port:runClient
 ```
 
-Windows: use `gradlew.bat` instead. The distributable mod is
-`build/libs/icbm-fabric-port-0.1.0-alpha.1.jar` (not the `-sources.jar`). Install it
-with the matching Fabric API on both the client and server.
+Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Java 17. Install `build/libs/icbm-fabric-port-0.1.0-alpha.2.jar` and Fabric API on both client and server. The sources JAR and GameTest mod are not runtime dependencies.
 
-This port is an independent Fabric build inside the Mystcraft mod collection.
-From the workspace root, use `./scripts/gradle.sh :icbm_port:build` or
-`./scripts/gradle.sh :icbm_port:runGametest`. The root `build` task builds both
-Mystcraft (Forge) and ICBM (Fabric); each produces a separate mod JAR. They use
-different mod loaders and cannot be installed in the same game instance.
+## Gameplay
 
-## Try the first features
+The creative tab and survival recipes expose the implemented content:
 
-Use the ICBM Fabric Port creative tab, craft the items, or run:
+- **23 payload families:** condensed, shrapnel, incendiary, debilitation, chemical, anvil, repulsive, attractive, fragmentation, contagious, sonic, breaching, thermobaric, nuclear, EMP, exothermic, endothermic, antigravitational, ender, antimatter, redmatter, colors and smoke. Blocks respond to ignition and redstone; fuse lengths vary by payload. Condensed and breaching blocks activate immediately.
+- **Delivery:** payload missiles, ten tier-one grenades and bomblets, 23 bomb carts, direct and ballistic handheld launchers, held-item action missiles, and mixed cluster missiles. Craft a cluster with bomblets to load it; empty clusters cannot fire. Held-item missiles carry tools or blocks through load/unload crafting and recover their casing; supported impact actions include mining, striking and block placement. Item cargo can travel by parachute or balloon. Grenades and carts support dispensers.
+- **Launchers:** the original directional launcher, three base tiers and a cruise launcher. Load a missile by hand or inventory, charge with redstone, and fire with a pulse or the screen. Empty-hand use opens the controls; sneak-use unloads ammunition. Tiered vertical bases require adjacent frames. Supports, connectors and remote screens form a bounded local control network. GPS, laser and radio tools set targets or trigger launches.
+- **Defense:** radar emits a redstone signal for nearby missiles, powered SAM launchers consume firework rockets to launch guided interceptors, and EMP disables missiles and machines temporarily. Defusers recover compatible explosives. Antidote clears status effects. Concrete variants, reinforced glass, spikes and glass controls provide protection and utilities.
+- **Configuration:** `config/icbm_port/payloads.json` is generated at startup. Operators can apply validated changes with `/icbm_payloads reload`. Invalid changes preserve the previous configuration.
 
-```mcfunction
-/give @s icbm_port:condensed_explosive
-/give @s icbm_port:condensed_missile 16
-/give @s icbm_port:launcher
-```
+See [launcher controls](docs/LAUNCHERS.md), [defense controls](docs/DEFENSE.md), [recipe mappings](docs/RECIPES.md), and [payload behavior](src/main/java/dev/icbm/port/payload/PORTING-NOTES.md) for details. Large effects alter terrain; development should use a test world.
 
-- **Condensed explosive:** ignite with flint and steel, a fire charge, redstone,
-  or a burning player-fired projectile. A normal fuse lasts five seconds.
-  Nearby explosions can chain-prime it with a shorter fuse.
-- **Direct-fire launcher:** placement faces it like a dispenser, including up
-  or down. Use a condensed missile on it to load one; the front changes to an
-  observer face. Apply a redstone pulse to fire after four ticks. Clear the
-  block immediately in front first. Sneak-use with an empty hand to unload.
-  Holding power does not automatically fire newly loaded ammunition.
-- **Missile:** travels in a straight line and detonates on collision. Its flight
-  expires after ten loaded seconds or on reaching unloaded terrain, the world
-  border, or the build height limit.
+## Current limits
 
-Models deliberately use vanilla textures and are placeholders. Prototype
-explosions affect the world; use a test world while developing.
+This is not a complete or behavior-identical port. Major remaining work includes upstream blast propagation and persistent radiation/toxicity, full redmatter and flying-block simulation, energy API compatibility, radar/EMP interfaces and multiblocks, complete radio networks, remote chunk flight, original animation/sound replacements, and optional-mod integrations. Targets use a Minecraft animation arc; direct missiles expire after 200 loaded ticks. No flight path force-loads distant chunks. Existing Forge worlds and saved items are not converted.
+
+Models are original JSON using vanilla textures. Upstream artwork is excluded under its separate license. Distinctive art and interactive client/multiplayer playtesting remain unfinished.
 
 ## Validation
 
-`build` compiles the common/client sources, runs JUnit tests for adapted flight
-math, and creates a remapped production jar. `runGametest` starts a dedicated
-Fabric test server to exercise registration and gameplay behavior. The test mod
-is a separate source set and is not packaged into the production jar.
-
-Manual client checks still needed: model appearance, item use and inventory
-interaction, creative tab display, multiplayer rendering, and recipe discovery.
-
-Verified on October 18, 2026: production build passed; all **4 JUnit tests** and
-**8 dedicated-server GameTests** passed. All **29 model/texture references** were
-also checked against the Minecraft 1.19.2 client resources and this module.
+`build` compiles common and client sources, runs JUnit tests, and produces a remapped JAR. `runGametest` exercises the implementation on a dedicated Fabric server. These tests establish the documented contracts, not full upstream parity. Resource tooling checks model/texture references, registration coverage and recipe reachability against the Minecraft 1.19.2 client JAR. See [VALIDATION.md](docs/VALIDATION.md) for the current results.
 
 ## Attribution
 
-Based on ICBM Classic by Built Broken Modding and contributors. The direct-flight
-normalization is adapted from its MIT-licensed `DirectFlightLogic`. Copyright
-and license notices are included in `LICENSE-ICBM-CODE.md` in the jar.
-New Java code and JSON resources in this module use the MIT license. Vanilla
-textures are referenced by Minecraft resource identifiers, not copied here.
+Based on ICBM Classic by Built Broken Modding and contributors, pinned to `prod/1.12` commit `9c1d985a375adc2868ff47707b3a636452d0b63a`. MIT code and team-created recipe data are adapted with the [upstream notice](LICENSE-ICBM-CODE.md) packaged in both JARs. Upstream textures, models, sounds and language files are not imported. See [UPSTREAM.md](UPSTREAM.md).

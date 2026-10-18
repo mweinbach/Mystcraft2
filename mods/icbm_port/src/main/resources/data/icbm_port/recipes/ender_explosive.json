@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:ender_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "ses",
+    "eae",
+    "ses"
+  ],
+  "key": {
+    "a": {
+      "item": "icbm_port:attractive_explosive"
+    },
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "s": {
+      "item": "minecraft:end_stone"
+    }
+  }
+}

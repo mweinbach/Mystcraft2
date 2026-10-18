@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:shrapnel_grenade",
+    "count": 1
+  },
+  "pattern": [
+    "s",
+    "x"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:string"
+    },
+    "x": {
+      "item": "icbm_port:shrapnel_explosive"
+    }
+  }
+}

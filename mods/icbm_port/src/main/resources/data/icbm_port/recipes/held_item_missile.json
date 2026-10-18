@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "e",
+    "c",
+    "m"
+  ],
+  "key": {
+    "e": {
+      "item": "minecraft:sticky_piston"
+    },
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "m": {
+      "item": "icbm_port:missile_module"
+    }
+  },
+  "result": {
+    "item": "icbm_port:held_item_missile",
+    "count": 1
+  }
+}

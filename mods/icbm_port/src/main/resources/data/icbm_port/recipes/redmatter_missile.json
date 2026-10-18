@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:redmatter_missile",
+    "count": 1
+  },
+  "pattern": [
+    "mx"
+  ],
+  "key": {
+    "m": {
+      "item": "icbm_port:missile_module"
+    },
+    "x": {
+      "item": "icbm_port:redmatter_explosive"
+    }
+  }
+}

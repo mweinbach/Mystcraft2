@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:cargo_balloon",
+    "count": 4
+  },
+  "pattern": [
+    "SCS",
+    "CGC",
+    "SCS"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:white_carpet"
+    },
+    "G": {
+      "item": "minecraft:blaze_powder"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  }
+}

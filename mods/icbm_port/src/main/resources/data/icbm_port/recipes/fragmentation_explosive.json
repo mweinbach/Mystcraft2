@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:fragmentation_explosive",
+    "count": 1
+  },
+  "pattern": [
+    " a ",
+    "ara",
+    " a "
+  ],
+  "key": {
+    "a": {
+      "item": "icbm_port:shrapnel_explosive"
+    },
+    "r": {
+      "item": "icbm_port:incendiary_explosive"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:rocket_launcher",
+    "count": 1
+  },
+  "pattern": [
+    "sss",
+    "rcg",
+    "w w"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:radar_gun"
+    },
+    "s": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "g": {
+      "item": "icbm_port:copper_wire"
+    },
+    "w": {
+      "tag": "minecraft:planks"
+    }
+  }
+}

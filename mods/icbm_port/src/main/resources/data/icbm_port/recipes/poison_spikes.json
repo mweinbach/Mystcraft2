@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "i"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:poison_powder"
+    },
+    "i": {
+      "item": "icbm_port:spikes"
+    }
+  },
+  "result": {
+    "item": "icbm_port:poison_spikes",
+    "count": 1
+  }
+}

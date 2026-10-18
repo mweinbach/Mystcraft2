@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:saltpeter_ball",
+    "count": 4
+  },
+  "pattern": [
+    "DPD",
+    "PWP",
+    "DPD"
+  ],
+  "key": {
+    "D": {
+      "tag": "minecraft:dirt"
+    },
+    "P": [
+      {
+        "tag": "minecraft:leaves"
+      },
+      {
+        "tag": "minecraft:saplings"
+      }
+    ],
+    "W": {
+      "item": "minecraft:water_bucket"
+    }
+  }
+}

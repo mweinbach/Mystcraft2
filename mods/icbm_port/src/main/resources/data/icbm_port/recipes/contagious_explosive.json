@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:contagious_explosive",
+    "count": 2
+  },
+  "pattern": [
+    " c ",
+    "crc",
+    " c "
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:chemical_explosive"
+    },
+    "r": {
+      "item": "minecraft:rotten_flesh"
+    }
+  }
+}

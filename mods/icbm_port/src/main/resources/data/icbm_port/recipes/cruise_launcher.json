@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:cruise_launcher",
+    "count": 1
+  },
+  "pattern": [
+    "CLP",
+    "SBS"
+  ],
+  "key": {
+    "L": {
+      "item": "icbm_port:launcher_base_tier_1"
+    },
+    "B": {
+      "item": "icbm_port:launcher_screen"
+    },
+    "S": {
+      "item": "icbm_port:steel_ingot"
+    },
+    "C": {
+      "item": "icbm_port:advanced_circuit"
+    },
+    "P": {
+      "item": "icbm_port:steel_plate"
+    }
+  }
+}

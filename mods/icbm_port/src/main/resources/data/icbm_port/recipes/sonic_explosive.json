@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:sonic_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "ini",
+    "nrn",
+    "ini"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:repulsive_explosive"
+    },
+    "n": {
+      "item": "minecraft:note_block"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  }
+}

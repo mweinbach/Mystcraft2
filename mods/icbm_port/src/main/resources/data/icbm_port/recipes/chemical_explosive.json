@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:chemical_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "ppp",
+    "prp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "icbm_port:poison_powder"
+    },
+    "r": {
+      "item": "icbm_port:debilitation_explosive"
+    }
+  }
+}
