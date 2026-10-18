@@ -27,7 +27,7 @@ jobs:
       - name: Test port management
         run: python3 -m unittest discover -s scripts/tests -v
       - name: Build all ports
-        run: ./gradlew --no-daemon build
+        run: ./gradlew --no-daemon listPorts build
       - name: Test ICBM gameplay on a dedicated Fabric server
         run: ./gradlew --no-daemon :icbm_port:runGametest
       - uses: actions/upload-artifact@v4
