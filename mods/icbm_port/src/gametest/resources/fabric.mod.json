@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "icbm_port_gametest",
+  "version": "1.0.0",
+  "name": "ICBM Port Game Tests",
+  "environment": "*",
+  "entrypoints": { "fabric-gametest": ["dev.icbm.port.IcbmGameTests"] },
+  "depends": { "icbm_port": "*", "fabric-gametest-api-v1": "*" }
+}

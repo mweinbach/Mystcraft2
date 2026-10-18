@@ -1,6 +1,7 @@
 # Contributing
 
-Target Minecraft 1.19.2, Forge 43.5.0, and Java 17. Keep each port in
+Target Minecraft 1.19.2 and Java 17. Forge ports use Forge 43.5.0; the ICBM port
+uses Fabric and its own pinned Loom configuration. Keep each port in
 `mods/<mod-id>` and put its dependencies in that project's `build.gradle`.
 Change `gradle/forge-mod.gradle` only for behavior shared by all ports.
 
@@ -10,11 +11,12 @@ Before opening a pull request:
 python3 scripts/ports.py check
 python3 -m unittest discover -s scripts/tests -v
 ./scripts/gradle.sh build
+./scripts/gradle.sh :icbm_port:runGametest
 ```
 
 For gameplay changes, also run the affected mod's client and dedicated server.
 Describe what you tried and any known failures. Include regression tests for
-ported logic where they exercise behavior; use Forge GameTests when world state
+ported logic where they exercise behavior; use the port's loader GameTests when world state
 matters. The starter contains no gameplay tests.
 
 Use commit scopes such as `feat(mystcraft): ...` or `build(workspace): ...`.

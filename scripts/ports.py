@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List, validate, and create independently packaged Forge ports."""
+"""List and validate ports; create new ports from the Forge template."""
 import argparse
 from pathlib import Path
 import re
@@ -35,6 +35,8 @@ def read_metadata(path):
         raise ValueError(f"{path}: mod_id must be a valid ID matching its directory")
     if metadata["port_status"] not in STATUSES:
         raise ValueError(f"{path}: invalid port_status")
+    if metadata.get("mod_loader", "forge") not in {"forge", "fabric"}:
+        raise ValueError(f"{path}: unsupported mod_loader")
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+", metadata["mod_group"]):
         raise ValueError(f"{path}: mod_group must be a Java package")
     address = urlsplit(metadata["upstream_url"])
@@ -52,8 +54,12 @@ def ports(root):
         if not path.is_file():
             raise ValueError(f"{directory}: missing port.properties")
         metadata = read_metadata(path)
-        for resource in ("build.gradle", "README.md", "src/main/resources/META-INF/mods.toml",
-                         "src/main/resources/pack.mcmeta"):
+        resources = ["build.gradle", "README.md"]
+        if metadata.get("mod_loader", "forge") == "fabric":
+            resources += ["settings.gradle", "src/main/resources/fabric.mod.json"]
+        else:
+            resources += ["src/main/resources/META-INF/mods.toml", "src/main/resources/pack.mcmeta"]
+        for resource in resources:
             if not (directory / resource).is_file():
                 raise ValueError(f"{directory}: missing {resource}")
         if not list((directory / "src/main/java").rglob("*.java")):

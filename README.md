@@ -1,12 +1,17 @@
 # Minecraft 1.19.2 ports
 
-A workspace for bringing older Minecraft mods to **Minecraft 1.19.2 on Forge**.
-Each port lives in `mods/<mod-id>` and produces its own JAR. Shared tooling pins
-Java 17, Forge 43.5.0, ForgeGradle 6.0.54, and Gradle 8.8.
+A workspace for bringing older Minecraft mods to **Minecraft 1.19.2**.
+Each port lives in `mods/<mod-id>` and produces its own JAR. The default Forge
+tooling pins Java 17, Forge 43.5.0, ForgeGradle 6.0.54, and Gradle 8.8. Fabric
+ports use independent Gradle builds so their loader tooling stays isolated.
 
 | Port | Status | Notes |
 | --- | --- | --- |
 | [Mystcraft](mods/mystcraft/) | Scaffold | Loader entry point only. No gameplay has been ported. |
+| [ICBM](mods/icbm_port/) | In progress | Fabric prototype: condensed explosives, direct-fire missiles, and redstone launchers. |
+
+Mystcraft targets Forge; ICBM targets Fabric. Their JARs require separate game
+instances with the matching loader, even though they share this repository.
 
 ## Get started
 
@@ -31,6 +36,9 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh :mystcraft:runClient
 ./scripts/gradle.sh :mystcraft:runServer
 ./scripts/gradle.sh :mystcraft:runData
+./scripts/gradle.sh :icbm_port:build
+./scripts/gradle.sh :icbm_port:runGametest
+./scripts/gradle.sh :icbm_port:runClient
 ```
 
 JARs land in `mods/<mod-id>/build/libs/`. Client, server, and data runs use
@@ -48,7 +56,11 @@ python3 scripts/ports.py new examplemod --name 'Example mod' \
 
 The command copies `templates/forge-mod/`, sets the package and metadata, and
 creates a loader scaffold. It does not download upstream code. Gradle discovers
-projects from `mods/*/port.properties`; no root build edits are needed.
+projects from `mods/*/port.properties`; no root build edits are needed. Metadata
+defaults to `mod_loader=forge`. For a manually added Fabric port, set
+`mod_loader=fabric` and provide its own `settings.gradle`, Loom build, and
+`fabric.mod.json`; it is included as an independent composite build. The `new`
+command continues to generate Forge scaffolds.
 Check the upstream license before importing source or assets, retain its notices
 and license text in the port, and record the imported revision in `port.properties`.
 See [the porting guide](docs/porting.md) and [contribution guide](CONTRIBUTING.md).
@@ -64,7 +76,8 @@ docs/                   Porting and development instructions
 ```
 
 `./scripts/gradle.sh build` builds all ports. GitHub Actions checks metadata,
-tests the port-management tool, builds every port, and uploads the resulting JARs.
+tests the port-management tool, builds every port, runs ICBM's dedicated-server
+GameTests, and uploads the resulting JARs.
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
 tree. Ports do not depend on one another unless explicitly declared.
 

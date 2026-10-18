@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "icbm_port",
+  "version": "${version}",
+  "name": "ICBM Fabric Port (Prototype)",
+  "description": "An unofficial, in-progress ICBM gameplay port for Minecraft 1.19.2.",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.icbm.port.IcbmPort"],
+    "client": ["dev.icbm.port.client.IcbmPortClient"]
+  },
+  "license": "MIT",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

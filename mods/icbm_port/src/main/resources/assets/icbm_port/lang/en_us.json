@@ -1,0 +1,11 @@
+{
+  "itemGroup.icbm_port.items": "ICBM Fabric Port",
+  "block.icbm_port.condensed_explosive": "Condensed Explosive",
+  "block.icbm_port.launcher": "Direct-Fire Launcher",
+  "item.icbm_port.condensed_missile": "Condensed Missile",
+  "entity.icbm_port.condensed_missile": "Condensed Missile",
+  "entity.icbm_port.primed_condensed_explosive": "Primed Condensed Explosive",
+  "message.icbm_port.loaded": "Missile loaded. Apply a new redstone pulse to fire.",
+  "message.icbm_port.ready": "Ready. Apply a redstone pulse, or sneak-use with an empty hand to unload.",
+  "message.icbm_port.empty": "Use a condensed missile on the launcher to load it."
+}

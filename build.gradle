@@ -7,8 +7,14 @@ subprojects {
     apply from: rootProject.file('gradle/forge-mod.gradle')
 }
 
-tasks.named('assemble') { dependsOn subprojects.collect { it.tasks.named('assemble') } }
-tasks.named('check') { dependsOn subprojects.collect { it.tasks.named('check') } }
+tasks.named('assemble') {
+    dependsOn subprojects.collect { it.tasks.named('assemble') }
+    dependsOn gradle.includedBuilds.collect { it.task(':assemble') }
+}
+tasks.named('check') {
+    dependsOn subprojects.collect { it.tasks.named('check') }
+    dependsOn gradle.includedBuilds.collect { it.task(':check') }
+}
 
 tasks.register('listPorts') {
     group = 'help'
@@ -16,6 +22,11 @@ tasks.register('listPorts') {
     doLast {
         subprojects.sort { it.name }.each {
             println "${it.name}: ${it.portMetadata.mod_name} [${it.portMetadata.port_status}]"
+        }
+        gradle.includedBuilds.sort { it.name }.each {
+            def metadata = new Properties()
+            new File(it.projectDir, 'port.properties').withInputStream { metadata.load(it) }
+            println "${it.name}: ${metadata.mod_name} [${metadata.port_status}] (${metadata.mod_loader})"
         }
     }
 }

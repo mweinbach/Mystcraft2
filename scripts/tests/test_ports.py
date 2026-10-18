@@ -36,6 +36,33 @@ class PortManagementTests(unittest.TestCase):
         self.create("secondmod")
         self.assertEqual([p["mod_id"] for p in ports.ports(self.root)], ["examplemod", "secondmod"])
 
+    def fabric(self):
+        result = self.create("fabricmod")
+        with (result / "port.properties").open("a") as metadata:
+            metadata.write("\nmod_loader=fabric\n")
+        (result / "src/main/resources/META-INF/mods.toml").unlink()
+        (result / "src/main/resources/pack.mcmeta").unlink()
+        (result / "settings.gradle").write_text("rootProject.name = 'fabricmod'\n")
+        (result / "src/main/resources/fabric.mod.json").write_text('{"schemaVersion": 1, "id": "fabricmod"}\n')
+        return result
+
+    def test_mixed_loaders_use_their_own_metadata_files(self):
+        self.create()
+        self.fabric()
+        entries = ports.ports(self.root)
+        self.assertEqual([(p["mod_id"], p.get("mod_loader", "forge")) for p in entries],
+                         [("examplemod", "forge"), ("fabricmod", "fabric")])
+
+    def test_fabric_requires_manifest_and_independent_settings(self):
+        result = self.fabric()
+        for relative in ("settings.gradle", "src/main/resources/fabric.mod.json"):
+            path = result / relative
+            original = path.read_text()
+            path.unlink()
+            with self.subTest(resource=relative), self.assertRaises(ValueError):
+                ports.ports(self.root)
+            path.write_text(original)
+
     def test_existing_port_is_not_overwritten(self):
         result = self.create()
         sentinel = result / "local-work.txt"
@@ -61,6 +88,7 @@ class PortManagementTests(unittest.TestCase):
         for changed in [original + "mod_id=duplicate\n",
                         original.replace("mod_id=examplemod", "mod_id=wrong"),
                         original.replace("port_status=scaffold", "port_status=done"),
+                        original + "\nmod_loader=unknown\n",
                         original.replace("mod_license=MIT\n", "")]:
             with self.subTest(metadata=changed):
                 metadata.write_text(changed)

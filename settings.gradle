@@ -12,7 +12,17 @@ file('mods').eachDir { directory ->
         if (!(directory.name ==~ /[a-z][a-z0-9_]{1,63}/)) {
             throw new GradleException("Invalid mod directory: ${directory.name}")
         }
-        include directory.name
-        project(":${directory.name}").projectDir = directory
+        def metadata = new Properties()
+        new File(directory, 'port.properties').withInputStream { metadata.load(it) }
+        def loader = metadata.getProperty('mod_loader', 'forge')
+        if (loader == 'fabric') {
+            // Keep Loom and ForgeGradle in separate builds/plugin classpaths.
+            includeBuild(directory) { name = directory.name }
+        } else if (loader == 'forge') {
+            include directory.name
+            project(":${directory.name}").projectDir = directory
+        } else {
+            throw new GradleException("Unsupported mod loader for ${directory.name}: ${loader}")
+        }
     }
 }

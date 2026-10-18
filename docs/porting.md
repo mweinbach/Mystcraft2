@@ -58,3 +58,16 @@ The shared build limits Gradle to two workers and a 3 GB heap.
 The cloud environment supports compilation and headless data generation.
 A graphical client requires a display and graphics support. A dedicated server
 requires your EULA acceptance. Neither is started by environment setup.
+
+## Fabric builds in the collection
+
+The Forge template remains the default for new scaffolds. ICBM is the explicit
+Fabric port, under `mods/icbm_port`. Its `port.properties` sets
+`mod_loader=fabric`; the root settings include it as an independent Gradle build
+so Loom and ForgeGradle do not configure the same project. Its local settings,
+dependencies, mod manifest, and license stay inside its directory.
+
+The root `build` includes both loaders' artifacts and unit checks. Use
+`./scripts/gradle.sh :icbm_port:runGametest` for Fabric server gameplay tests.
+The generated JARs still require their respective loaders and cannot be loaded
+together in a single standard Forge or Fabric game instance.
