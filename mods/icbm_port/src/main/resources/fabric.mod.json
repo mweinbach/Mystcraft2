@@ -14,6 +14,9 @@
     ],
     "jei_mod_plugin": [
       "dev.icbm.port.integration.IcbmJeiPlugin"
+    ],
+    "emi": [
+      "dev.icbm.port.integration.IcbmEmiPlugin"
     ]
   },
   "license": "MIT",

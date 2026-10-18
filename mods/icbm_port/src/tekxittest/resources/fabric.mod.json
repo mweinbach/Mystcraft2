@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "icbm_port_tekxittest",
+  "version": "1.0.0",
+  "name": "ICBM Actual Tekxit Integration Tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": ["dev.icbm.port.tekxittest.TekxitCompatibilityGameTests"]
+  },
+  "depends": {
+    "icbm_port": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

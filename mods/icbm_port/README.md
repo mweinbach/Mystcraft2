@@ -13,11 +13,12 @@ From the repository root:
 ./scripts/gradle.sh :icbm_port:runGametest
 ./scripts/gradle.sh :icbm_port:runMaterialGametest
 ./scripts/gradle.sh :icbm_port:runClient
-# Optional JEI recipe browser during development:
+# Optional recipe browsers during development:
+./scripts/gradle.sh :icbm_port:runClient -PwithEmi
 ./scripts/gradle.sh :icbm_port:runClient -PwithJei
 ```
 
-Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Java 17. Install `build/libs/icbm-fabric-port-0.2.0-alpha.2.jar` and Fabric API on both client and server. Team Reborn Energy API 2.3.0 is bundled. JEI 11.8.1.1034 is optional and installed separately. The sources JAR and GameTest mod are not runtime dependencies.
+Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Java 17. Install `build/libs/icbm-fabric-port-0.2.0-alpha.3.jar` and Fabric API on both client and server. Team Reborn Energy API 2.3.0 is bundled. EMI 1.1.24 and JEI 11.8.1.1034 are optional and installed separately. Tekxit 4 already supplies EMI; see the [Tekxit integration guide](docs/TEKXIT.md). The sources JAR and GameTest mod are not runtime dependencies.
 
 ## Gameplay
 
@@ -25,7 +26,7 @@ Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Ja
 - **Delivery:** payload missiles, ten tier-one grenades and bomblets, 23 bomb carts, direct and ballistic handheld launchers, mixed cluster missiles and held-item action missiles. Load and unload cargo through crafting. Player-owned action missiles can use tools and items through their normal interactions. Parachutes and balloons carry items, blocks, entities or projectiles. Grenades and carts support dispensers.
 - **Launchers and flight:** directional prototype, three base tiers and cruise launcher; inventories, batteries, external Fabric energy, frames, supports, connectors and remote screens. GPS, laser and radio tools configure targets and launches. Targeted flight has warmup, climb, arc/ascent, saved long-range travel and descending reentry. Bounded temporary tickets allow distant arrival. Ender payload destinations can cross dimensions.
 - **Defense:** powered radar with incoming-flight detection and radio channels, SAM ammunition and guided interceptors, configurable EMP stations with vertical range extenders, and validated machine screens. Radio relays connect loaded receivers. Defusers, antidote, concrete variants, reinforced glass, spikes and glass controls provide utilities and protection.
-- **Integration:** shared material tags for cross-mod recipe substitutions, reload-aware material fallbacks, transactional rechargeable batteries, executable extension API with cancellation/source events, operator blast/cleanup commands, and optional JEI displays for NBT-bearing load/unload recipes.
+- **Integration:** shared material tags for cross-mod recipe substitutions, reload-aware material fallbacks, transactional rechargeable batteries, executable extension API with cancellation/source events, operator blast/cleanup commands, and optional EMI/JEI displays for NBT-bearing load/unload recipes.
 
 See [launchers](docs/LAUNCHERS.md), [delivery](docs/DELIVERY.md), [defense](docs/DEFENSE.md), [exposure](docs/EXPOSURE.md), [energy](docs/ENERGY.md), [API and commands](docs/API.md), [recipes](docs/RECIPES.md), [OreDictionary compatibility](docs/ORE_DICTIONARY.md), and [payload behavior](src/main/java/dev/icbm/port/payload/PORTING-NOTES.md).
 

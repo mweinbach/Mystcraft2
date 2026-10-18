@@ -537,4 +537,42 @@ public final class DeliveryGameTests implements FabricGameTest {
     }
     c.complete();
   }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void decodedCargoCannotMutateContainerNbt(TestContext c) {
+    for (var item :
+        java.util.List.of(
+            DeliveryContent.HELD_ITEM_MISSILE,
+            DeliveryContent.CARGO_PARACHUTE,
+            DeliveryContent.CARGO_BALLOON)) {
+      boolean held = item == DeliveryContent.HELD_ITEM_MISSILE;
+      ItemStack holder = new ItemStack(item);
+      ItemStack tool = new ItemStack(net.minecraft.item.Items.IRON_PICKAXE);
+      NbtCompound nested = new NbtCompound();
+      nested.putString("Marker", "original");
+      tool.getOrCreateNbt().put("Nested", nested);
+      if (held) HeldItemMissileItem.setCargo(holder, tool);
+      else CarrierData.setCargo(holder, tool);
+      // Vanilla fromNbt normalizes missing Damage on tools. That decode must not
+      // write through the embedded tag, even before the returned stack is used.
+      holder
+          .getNbt()
+          .getCompound(held ? "HeldItem" : "CarrierCargo")
+          .getCompound("tag")
+          .remove("Damage");
+      NbtCompound before = holder.getNbt().copy();
+      String subtype = dev.icbm.port.integration.JeiRecipeDisplays.subtype(holder);
+      ItemStack decoded = held ? HeldItemMissileItem.cargo(holder) : CarrierData.cargo(holder);
+      check(
+          c, holder.getNbt().equals(before), "Decoding cargo must not normalize the holder's NBT");
+      decoded.setDamage(13);
+      decoded.getOrCreateNbt().getCompound("Nested").putString("Marker", "changed");
+      check(c, holder.getNbt().equals(before), "Returned cargo must not alias nested holder tags");
+      check(
+          c,
+          subtype.equals(dev.icbm.port.integration.JeiRecipeDisplays.subtype(holder)),
+          "Cargo tooltip/getter use must preserve recipe-viewer subtype identity");
+    }
+    c.complete();
+  }
 }

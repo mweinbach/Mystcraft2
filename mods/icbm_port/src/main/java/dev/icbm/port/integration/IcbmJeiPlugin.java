@@ -20,6 +20,8 @@ public final class IcbmJeiPlugin implements IModPlugin {
 
   @Override
   public void registerItemSubtypes(ISubtypeRegistration registration) {
+    // EMI's native plugin owns these when both viewers are installed; JEMI must not duplicate them.
+    if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("emi")) return;
     for (var item :
         java.util.List.of(
             DeliveryContent.CLUSTER_MISSILE,
@@ -32,6 +34,7 @@ public final class IcbmJeiPlugin implements IModPlugin {
 
   @Override
   public void registerRecipes(IRecipeRegistration registration) {
+    if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("emi")) return;
     registration.addRecipes(RecipeTypes.CRAFTING, JeiRecipeDisplays.all());
     registration.addItemStackInfo(
         new ItemStack(DeliveryContent.CLUSTER_MISSILE),

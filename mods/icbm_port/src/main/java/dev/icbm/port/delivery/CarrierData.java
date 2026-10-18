@@ -18,7 +18,7 @@ public final class CarrierData {
 
   public static ItemStack cargo(ItemStack stack) {
     return stack.hasNbt()
-        ? ItemStack.fromNbt(stack.getNbt().getCompound("CarrierCargo"))
+        ? ItemStack.fromNbt(stack.getNbt().getCompound("CarrierCargo").copy())
         : ItemStack.EMPTY;
   }
 

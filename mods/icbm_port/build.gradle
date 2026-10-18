@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6.12'
+    id 'fabric-loom' version '1.7.4'
 }
 
 version = project.mod_version
@@ -10,6 +10,7 @@ repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
     maven { url = 'https://maven.blamejared.com/' }
+    maven { url = 'https://maven.terraformersmc.com/releases/' }
 }
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -18,8 +19,12 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     include(modImplementation('teamreborn:energy:2.3.0'))
     modCompileOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
     if (providers.gradleProperty('withJei').isPresent()) {
         modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
     }
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -47,7 +52,40 @@ sourceSets {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
+    tekxittest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    emitest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
 }
+
+// Run this separate test mod in the actual Tekxit distribution. It is never bundled
+// in the production artifact and does not pull the modpack into normal builds.
+def tekxitTestJar = tasks.register('tekxitTestJar', Jar) {
+    archiveClassifier = 'tekxit-tests-dev'
+    from sourceSets.tekxittest.output
+}
+tasks.register('remapTekxitTestJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn tekxitTestJar
+    inputFile = tekxitTestJar.flatMap { it.archiveFile }
+    archiveClassifier = 'tekxit-tests'
+    addNestedDependencies = false
+}
+def emiTestJar = tasks.register('emiTestJar', Jar) {
+    archiveClassifier = 'emi-tests-dev'
+    from sourceSets.emitest.output
+}
+tasks.register('remapEmiTestJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn emiTestJar
+    inputFile = emiTestJar.flatMap { it.archiveFile }
+    archiveClassifier = 'emi-tests'
+    addNestedDependencies = false
+}
+// Compile the optional integration fixtures in CI without downloading/running the pack.
+tasks.named('check') { dependsOn 'tekxittestClasses', 'emitestClasses' }
 loom {
     mods {
         icbm_port { sourceSet sourceSets.main }

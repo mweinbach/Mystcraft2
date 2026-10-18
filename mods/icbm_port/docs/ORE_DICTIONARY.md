@@ -217,3 +217,5 @@ Validation must check both the generated graph and runtime behavior:
 
 All 90 source OreDictionary ingredient nodes have retained mappings in `tools/upstream_recipe_mapping.json`; all 26 imported/exported material groups are defined in `tools/ore_dictionary_mapping.json`. The resource generator applies these mappings last, and validation rejects flattened ingredients or cyclic tag references. Final build, resource-audit and GameTest results belong in the validation record.
 This source audit is not itself a claim that every external mod combination was run.
+
+Actual Tekxit 4 pack versions, material providers, Almost Unified policy and runtime checks are documented in [TEKXIT.md](TEKXIT.md).

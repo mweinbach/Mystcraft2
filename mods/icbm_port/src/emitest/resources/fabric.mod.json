@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "icbm_port_emi_smoke",
+  "version": "1.0.0",
+  "name": "ICBM EMI Client Smoke Test",
+  "description": "Optional development-only live EMI registry assertions; enabled by icbm.emiSmokeTest or /icbm_emi_smoke.",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.icbm.port.emitest.EmiSmokeTest"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": "1.19.2",
+    "icbm_port": "*",
+    "emi": ">=1.1.24"
+  },
+  "license": "MIT"
+}

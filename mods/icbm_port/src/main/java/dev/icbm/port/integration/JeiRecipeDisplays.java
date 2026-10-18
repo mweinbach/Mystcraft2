@@ -15,24 +15,83 @@ public final class JeiRecipeDisplays {
   private JeiRecipeDisplays() {}
 
   public static String subtype(ItemStack stack) {
-    if (stack.isOf(DeliveryContent.CLUSTER_MISSILE))
-      return ClusterPlan.fromStack(stack).payloads().toString();
-    if (stack.isOf(DeliveryContent.HELD_ITEM_MISSILE))
-      return HeldItemMissileItem.cargo(stack).writeNbt(new net.minecraft.nbt.NbtCompound())
-          + "|"
-          + HeldItemMissileItem.mode(stack);
-    if (CarrierData.isCarrier(stack))
-      return CarrierData.cargo(stack).writeNbt(new net.minecraft.nbt.NbtCompound())
-          + "|"
-          + CarrierData.mode(stack);
+    return subtype(stack.getItem(), stack.getNbt());
+  }
+
+  /**
+   * Pure serialized identity: never constructs a nested ItemStack or runs third-party item hooks.
+   */
+  public static String subtype(Item item, net.minecraft.nbt.NbtCompound source) {
+    net.minecraft.nbt.NbtCompound nbt =
+        source == null ? new net.minecraft.nbt.NbtCompound() : source.copy();
+    if (item == DeliveryContent.CLUSTER_MISSILE) {
+      var payloads = ClusterPlan.read(nbt).payloads();
+      return payloads.isEmpty() ? "" : payloads.toString();
+    }
+    if (item == DeliveryContent.HELD_ITEM_MISSILE) {
+      String mode =
+          normalizedMode(
+              nbt.getString("HeldAction"), HeldItemMissileItem.Mode.values(), "PRIMARY_FIRST");
+      String cargo = serializedCargo(nbt.getCompound("HeldItem"));
+      return cargo.isEmpty() && mode.equals("PRIMARY_FIRST") ? "" : mode + "|" + cargo;
+    }
+    if (item == DeliveryContent.CARGO_PARACHUTE || item == DeliveryContent.CARGO_BALLOON) {
+      String mode = normalizedMode(nbt.getString("CarrierMode"), CarrierData.Mode.values(), "ITEM");
+      String cargo = serializedCargo(nbt.getCompound("CarrierCargo"));
+      return cargo.isEmpty() && mode.equals("ITEM") ? "" : mode + "|" + cargo;
+    }
     return "";
+  }
+
+  private static String normalizedMode(String value, Enum<?>[] modes, String fallback) {
+    for (Enum<?> mode : modes) if (mode.name().equals(value)) return value;
+    return fallback;
+  }
+
+  private static String serializedCargo(net.minecraft.nbt.NbtCompound cargo) {
+    Identifier id = Identifier.tryParse(cargo.getString("id"));
+    if (cargo.getByte("Count") <= 0
+        || id == null
+        || !Registry.ITEM.containsId(id)
+        || id.equals(new Identifier("minecraft", "air"))) return "";
+    net.minecraft.nbt.NbtCompound identity = cargo.copy();
+    identity.putByte("Count", (byte) 1);
+    if (identity.getCompound("tag").isEmpty()) identity.remove("tag");
+    return canonicalNbt(identity);
+  }
+
+  private static String canonicalNbt(net.minecraft.nbt.NbtElement element) {
+    if (element instanceof net.minecraft.nbt.NbtCompound compound) {
+      StringBuilder result = new StringBuilder("{");
+      compound.getKeys().stream()
+          .sorted()
+          .forEach(
+              key ->
+                  result
+                      .append(net.minecraft.nbt.NbtString.of(key))
+                      .append(':')
+                      .append(canonicalNbt(compound.get(key)))
+                      .append(','));
+      return result.append('}').toString();
+    }
+    if (element instanceof net.minecraft.nbt.NbtList list) {
+      StringBuilder result = new StringBuilder("[");
+      for (var entry : list) result.append(canonicalNbt(entry)).append(',');
+      return result.append(']').toString();
+    }
+    return element == null ? "null" : element.toString();
   }
 
   public static List<CraftingRecipe> all() {
     List<CraftingRecipe> recipes = new ArrayList<>();
     for (Item item : Registry.ITEM) {
       if (item == Items.AIR) continue;
-      recipes.addAll(forCargo(new ItemStack(item)));
+      // Preserve item-defined defaults (notably PotionItem's water Potion NBT).
+      // A bare constructor can inject invalid subtype-less stacks into a viewer's global index.
+      ItemStack defaultStack = item.getDefaultStack().copy();
+      if (defaultStack.isEmpty()) continue;
+      defaultStack.setCount(1);
+      recipes.addAll(forCargo(defaultStack));
     }
     for (var entry : DeliveryContent.BOMBLETS.entrySet()) {
       ItemStack loaded = new ItemStack(DeliveryContent.CLUSTER_MISSILE);
@@ -106,6 +165,11 @@ public final class JeiRecipeDisplays {
         ItemStack remainder) {
       super(id, "icbm_port", output, ingredients);
       this.remainder = remainder;
+    }
+
+    /** Immutable display metadata for native viewers; not an extra recipe output. */
+    public ItemStack displayRemainder() {
+      return remainder.copy();
     }
 
     @Override

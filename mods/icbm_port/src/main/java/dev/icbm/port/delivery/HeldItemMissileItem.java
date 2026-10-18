@@ -25,7 +25,7 @@ public final class HeldItemMissileItem extends Item {
   public static ItemStack cargo(ItemStack missile) {
     ItemStack cargo =
         missile.hasNbt()
-            ? ItemStack.fromNbt(missile.getNbt().getCompound("HeldItem"))
+            ? ItemStack.fromNbt(missile.getNbt().getCompound("HeldItem").copy())
             : ItemStack.EMPTY;
     if (!cargo.isEmpty()) cargo.setCount(1);
     return cargo;
