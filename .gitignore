@@ -1,0 +1,14 @@
+.local/
+.gradle/
+**/build/
+**/run/
+**/src/generated/resources/.cache/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+__pycache__/
+*.pyc
+.DS_Store

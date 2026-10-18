@@ -1,0 +1,21 @@
+plugins {
+    id 'base'
+    id 'net.minecraftforge.gradle' version '6.0.54' apply false
+}
+
+subprojects {
+    apply from: rootProject.file('gradle/forge-mod.gradle')
+}
+
+tasks.named('assemble') { dependsOn subprojects.collect { it.tasks.named('assemble') } }
+tasks.named('check') { dependsOn subprojects.collect { it.tasks.named('check') } }
+
+tasks.register('listPorts') {
+    group = 'help'
+    description = 'List the independently packaged ports in this workspace.'
+    doLast {
+        subprojects.sort { it.name }.each {
+            println "${it.name}: ${it.portMetadata.mod_name} [${it.portMetadata.port_status}]"
+        }
+    }
+}

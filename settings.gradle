@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net' }
+    }
+}
+
+rootProject.name = 'minecraft-1.19.2-ports'
+
+file('mods').eachDir { directory ->
+    if (new File(directory, 'port.properties').isFile()) {
+        if (!(directory.name ==~ /[a-z][a-z0-9_]{1,63}/)) {
+            throw new GradleException("Invalid mod directory: ${directory.name}")
+        }
+        include directory.name
+        project(":${directory.name}").projectDir = directory
+    }
+}

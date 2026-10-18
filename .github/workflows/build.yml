@@ -1,0 +1,35 @@
+name: Build ports
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Validate port metadata
+        run: python3 scripts/ports.py check
+      - name: Test port management
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Build all ports
+        run: ./gradlew --no-daemon build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-1.19.2-ports
+          path: mods/*/build/libs/*.jar
+          if-no-files-found: error

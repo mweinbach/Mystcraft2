@@ -1,72 +1,78 @@
-**Mystcraft 2** (referred to as "Mystcraft" here onward) is a remake of the original Mystcraft mod by XCompWiz.
+# Minecraft 1.19.2 ports
 
-Mystcraft is a mod for Minecraft which allows players to create and travel to custom dimensions (referred to as "Ages" in the lore).
-It is based on the popular Myst series of computer games.
+A workspace for bringing older Minecraft mods to **Minecraft 1.19.2 on Forge**.
+Each port lives in `mods/<mod-id>` and produces its own JAR. Shared tooling pins
+Java 17, Forge 43.5.0, ForgeGradle 6.0.54, and Gradle 8.8.
 
-# Community
-Mystcraft Discord: https://discord.gg/pRGH45W
+| Port | Status | Notes |
+| --- | --- | --- |
+| [Mystcraft](mods/mystcraft/) | Scaffold | Loader entry point only. No gameplay has been ported. |
 
-# Repository Structure
-Because Minecraft is an ever shifting beast, and making a mod for it means matching versions, this repo prefixes branches and tags with the version of Minecraft the mod is targeting (ex. `mc-1.20.2/* `). This means it is feasible to make fixes to versions of Mystcraft for older versions of Minecraft, including backporting features.
-- The current development branch for a version is `<mc-version>/dev`. (ex. `mc-1.20.2/dev`).
-- Release tags follow the same convention, with the mod version after the slash (ex. `release/mc-1.20.2/1.0.2`)
-- Mod versions across Minecraft versions may not have exact feature parity (`mc-1.20.2/1.0.2` and `mc-1.21.1/1.0.2` are not guaranteed to behave the same way).
+## Get started
 
-The default branch of the repository is the current development branch of the current target version of Minecraft.
-This makes it easy to see the "most current" version of the mod.
+On Linux, install the workspace JDK and prepare the build:
 
-The repository has a separate tree inside it with a branch named `cla`. This is to manage the [Contributor License Agreement](https://github.com/Mystcraft/Mystcraft2/blob/cla/CLA.md).
+```sh
+./scripts/setup.sh
+./scripts/gradle.sh build
+```
 
-# Contributing
+Setup needs Python 3, curl, and tar. It downloads Eclipse Temurin 17 and verifies
+the vendor-provided SHA-256 before extracting it into the ignored `.local/`
+directory. A working Java 17 installation can also be supplied through `JAVA_HOME`.
+The first Forge build downloads and prepares Minecraft and can take several minutes.
 
-1. Make a fork of the dev version of the Minecraft version you are targeting
-1. Clone using git. If you are new to git, I recommend Sourcetree.
-1. Make your changes
-1. Push the changes back to your repo (I'd recommend using a branch)
-1. Make a PR. This will initiate the automated and manual review processes.
-  - Review may take a few iterations. This is normal and good! Refining changes based on other lenses makes them more robust.
-    - There may even be additional design changes to features at this stage. Like all game development, the key to good design and mechanics is iteration.
-1. Once a feature is approved, the branch is squashed and rebased, then merged.
+On Windows, install JDK 17, set `JAVA_HOME`, and use `gradlew.bat` in place of
+`./scripts/gradle.sh`. On macOS, use an installed JDK 17 with `./gradlew`.
 
-## Consent
-All contributors to Mystcraft must agree to the [Contributor License Agreement](https://github.com/Mystcraft/Mystcraft2/blob/cla/CLA.md).
+```sh
+python3 scripts/ports.py list
+./scripts/gradle.sh :mystcraft:build
+./scripts/gradle.sh :mystcraft:runClient
+./scripts/gradle.sh :mystcraft:runServer
+./scripts/gradle.sh :mystcraft:runData
+```
 
-You will be automatically asked to do so when you open a PR, and can accept the agreement by responding to the CLA assistant bot.
+JARs land in `mods/<mod-id>/build/libs/`. Client, server, and data runs use
+separate directories under that mod's `run/`. A graphical display is required
+for the client. Read and accept the Minecraft EULA yourself before running a
+server. Setup does not accept it for you.
 
-## Commit Messages
-Mystcraft uses [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/), as that simplifies the production of change logs.
+## Add a port
 
-## Architecture
-The mod is broken up into the following high level packages (under `net.mystcraft`):
-- **core** - pure, non-Minecraft integrated or interacting code. Should not care about Minecraft versions. Preferred working environment.
-- **integration** - This is the communication layer between core and Minecraft. Susceptible to Minecraft code changes, but ideally easy enough to maintain. It may reference `core` and `minecraft` freely, but should not extend any Minecraft classes. Code which loads the mod exists here.
-- **minecraft** - Classes extending Minecraft classes, or directly parsing / matching Minecraft data formats. If the Minecraft version changes, things in here are almost likely to break. Minimize. Things in this package may reference `integration` or `core` directly.
+```sh
+python3 scripts/ports.py new examplemod --name 'Example mod' \
+  --upstream https://github.com/owner/examplemod --license MIT
+./scripts/gradle.sh :examplemod:build
+```
 
-Each of these high level packages is then broken up into:
-- **features** (ex. "banners") - Specific mechanics and features. Features should not reference other `feature` packages, but may reference `systems`.
-- **systems** - Higher level systems. Packages under `systems` may reference other systems, but not `features`. Ideally mostly glue and stitching and pathways, but some very critical mechanics may exist as systems.
+The command copies `templates/forge-mod/`, sets the package and metadata, and
+creates a loader scaffold. It does not download upstream code. Gradle discovers
+projects from `mods/*/port.properties`; no root build edits are needed.
+Check the upstream license before importing source or assets, retain its notices
+and license text in the port, and record the imported revision in `port.properties`.
+See [the porting guide](docs/porting.md) and [contribution guide](CONTRIBUTING.md).
 
-**This separation makes it easier, when updating to newer versions of Minecraft, to drop any features which are difficult to update while moving forward with critical features first.**
+## Layout
 
-### Features vs Systems
-Prefer working in `features` over `systems`. If features should interact, the best way to handle that is a system which handles the interaction, but does not depend on the features themselves. Ideally, any such systems would be able to live in **core**.
+```text
+mods/                   One independently packaged project per port
+templates/forge-mod/    Starter used by scripts/ports.py new
+gradle/forge-mod.gradle Shared Java, Forge, resources, and run configuration
+scripts/                Setup, Gradle environment, and port management
+docs/                   Porting and development instructions
+```
 
-Features should be implemented in a modular way, so that non-critical features are easy to disable (generally, by not loading them).
+`./scripts/gradle.sh build` builds all ports. GitHub Actions checks metadata,
+tests the port-management tool, builds every port, and uploads the resulting JARs.
+Add mod-specific dependencies and tests to that port's `build.gradle` and source
+tree. Ports do not depend on one another unless explicitly declared.
 
-An example of a larger system is `linking` (dimensional teleport). However, `portals` would be a feature that uses the `linking` system.
+## Origins and licensing
 
-#### Systems consuming features
-For example, the linking system "consumes" the `linking` feature. This means that the system provides interface and handling for other features to use, but the logic of actually linking things exists in the feature. Systems consuming features are provided the feature during initialization. If the feature is missing or unloaded, the system should handle this gracefully. 
-This pattern allows most systems to exist in the **core** or **integration** layers.
-
-## Feature Creation
-Features are (ideally) designed in documentation first.
-
-The primary way to do this is to start a Discussion regarding the feature. Get feedback and refine the concept.
-Once there is a general concensus to move forward, make a branch and begin implementation.
-
-During implementation, the feature should get a Markdown document in docs/features which explains the gameplay and implementation designs.
-
-Note that design is not a once and done process; you will likely encounter unexpected cases and issues.
-The feature design is finalized, in as much as design is ever final in a living project, only when the feature PR is approved.
-See [Contributing](#Contributing) below.
+This repository started as a fork of [Mystcraft2](https://github.com/Mystcraft/Mystcraft2).
+Its original README, license, and CLA workflow are preserved under `mods/mystcraft/`.
+The upstream CLA workflow is archived rather than applied to unrelated ports.
+The existing root [LGPLv3 license](LICENSE) remains in place. Imported code and
+assets retain their upstream licenses; each port records its own licensing and
+attribution. A folder in this collection does not imply an official upstream release.
