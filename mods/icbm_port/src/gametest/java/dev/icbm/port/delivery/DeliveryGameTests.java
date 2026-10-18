@@ -395,10 +395,131 @@ public final class DeliveryGameTests implements FabricGameTest {
     missiles.get(0).writeCustomDataToNbt(flight);
     check(
         c,
-        flight.contains("Target") && flight.getLong("Target") == far.asLong(),
+        flight.getCompound("FlightPlan").contains("Target")
+            && flight.getCompound("FlightPlan").getLong("Target") == far.asLong(),
         "Ballistic launcher must configure target arc");
     missiles.forEach(net.minecraft.entity.Entity::discard);
     c.getWorld().removeBlock(far, false);
+    c.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void carrierCraftingTransfersOneItemAndPreservesModes(TestContext c) {
+    var player = c.createMockPlayer();
+    var handler = new net.minecraft.screen.CraftingScreenHandler(0, player.getInventory());
+    var inventory = new net.minecraft.inventory.CraftingInventory(handler, 3, 3);
+    var loading = new CarrierLoadingRecipe(IcbmPort.id("carrier_test_load"));
+    var unloading = new CarrierUnloadingRecipe(IcbmPort.id("carrier_test_unload"));
+    ItemStack carrier = new ItemStack(DeliveryContent.CARGO_PARACHUTE);
+    carrier.getOrCreateNbt().putString("CarrierMode", "BLOCK");
+    ItemStack chest = new ItemStack(net.minecraft.item.Items.CHEST, 16);
+    chest.getOrCreateNbt().putString("Marker", "preserve");
+    inventory.setStack(0, carrier);
+    inventory.setStack(1, chest);
+    ItemStack loaded = loading.craft(inventory);
+    check(
+        c,
+        CarrierData.cargo(loaded).getCount() == 1
+            && CarrierData.cargo(loaded).getNbt().getString("Marker").equals("preserve")
+            && CarrierData.mode(loaded) == CarrierData.Mode.BLOCK,
+        "Carrier loading must preserve one item and mode");
+    inventory.setStack(0, loaded);
+    check(c, loading.craft(inventory).isEmpty(), "Loaded carrier cannot overwrite cargo");
+    inventory.setStack(1, ItemStack.EMPTY);
+    check(
+        c,
+        unloading.craft(inventory).getCount() == 1
+            && CarrierData.cargo(unloading.getRemainder(inventory).get(0)).isEmpty(),
+        "Carrier unload must return one item and one empty carrier");
+    check(
+        c,
+        chest.getCount() == 16 && CarrierData.cargo(carrier).isEmpty(),
+        "Crafting previews must not mutate source inventories");
+    c.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void carrierPassengerTreeSurvivesSaveAndReleasesWithoutDuplicate(TestContext c) {
+    var carrier = new CargoEntity(DeliveryContent.CARGO, c.getWorld());
+    carrier.setPosition(
+        net.minecraft.util.math.Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 8, 2))));
+    carrier.setCargo(new ItemStack(net.minecraft.item.Items.DIAMOND, 3));
+    c.getWorld().spawnEntity(carrier);
+    check(
+        c,
+        carrier.deployCargo() && carrier.hasPassengers() && carrier.getCargo().isEmpty(),
+        "Cargo deployment must transfer ownership to a real passenger");
+    NbtCompound nbt = new NbtCompound();
+    carrier.saveNbt(nbt);
+    var originalPassenger = carrier.getFirstPassenger();
+    originalPassenger.stopRiding();
+    originalPassenger.discard();
+    carrier.discard();
+    var restored =
+        (CargoEntity)
+            net.minecraft.entity.EntityType.loadEntityWithPassengers(nbt, c.getWorld(), e -> e);
+    check(
+        c,
+        restored != null
+            && restored.getFirstPassenger() instanceof net.minecraft.entity.ItemEntity item
+            && item.getStack().getCount() == 3,
+        "Vanilla passenger tree must restore cargo exactly once");
+    var passenger = restored.getFirstPassenger();
+    restored.releaseCargo();
+    restored.releaseCargo();
+    check(
+        c,
+        !passenger.hasVehicle() && restored.getCargo().isEmpty(),
+        "Release must dismount passenger without recreating stored cargo");
+    passenger.discard();
+    c.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void carrierBlockModeUsesPersistentFlyingBlockPassenger(TestContext c) {
+    var carrier = new CargoEntity(DeliveryContent.CARGO, c.getWorld());
+    carrier.setMode(CarrierData.Mode.BLOCK);
+    carrier.setCargo(new ItemStack(net.minecraft.item.Items.CHEST));
+    carrier.setPosition(
+        net.minecraft.util.math.Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 8, 2))));
+    c.getWorld().spawnEntity(carrier);
+    check(
+        c,
+        carrier.deployCargo()
+            && carrier.getFirstPassenger() instanceof dev.icbm.port.simulation.FlyingBlockEntity,
+        "Block mode must attach a flying block entity");
+    var passenger = carrier.getFirstPassenger();
+    carrier.releaseCargo();
+    check(
+        c,
+        !passenger.hasVehicle(),
+        "Releasing block cargo must resume its independent falling behavior");
+    passenger.discard();
+    c.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void heldSecondaryUsesVanillaShearsAndRestoresPlayerHand(TestContext c) {
+    var player = c.createMockPlayer();
+    player.setStackInHand(
+        net.minecraft.util.Hand.MAIN_HAND, new ItemStack(net.minecraft.item.Items.STICK));
+    var sheep = net.minecraft.entity.EntityType.SHEEP.create(c.getWorld());
+    sheep.setPosition(
+        net.minecraft.util.math.Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 3, 2))));
+    c.getWorld().spawnEntity(sheep);
+    ItemStack missileStack = new ItemStack(DeliveryContent.HELD_ITEM_MISSILE);
+    HeldItemMissileItem.setCargo(missileStack, new ItemStack(net.minecraft.item.Items.SHEARS));
+    missileStack.getOrCreateNbt().putString("HeldAction", "SECONDARY");
+    var missile = new HeldItemMissileEntity(DeliveryContent.HELD_MISSILE, c.getWorld());
+    missile.setOwner(player);
+    missile.setMissile(missileStack);
+    missile.setPosition(sheep.getPos());
+    missile.impact(new net.minecraft.util.hit.EntityHitResult(sheep));
+    check(
+        c,
+        sheep.isSheared() && player.getMainHandStack().isOf(net.minecraft.item.Items.STICK),
+        "Held secondary action must use vanilla shears and restore owner's real hand");
+    sheep.discard();
     c.complete();
   }
 

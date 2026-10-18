@@ -6,12 +6,21 @@ version = project.mod_version
 group = project.maven_group
 base { archivesName = project.archives_base_name }
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.blamejared.com/' }
+}
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    include(modImplementation('teamreborn:energy:2.3.0'))
+    modCompileOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    if (providers.gradleProperty('withJei').isPresent()) {
+        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    }
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

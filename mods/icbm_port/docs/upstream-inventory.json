@@ -1,7 +1,7 @@
 {
   "baseline": "9c1d985a375adc2868ff47707b3a636452d0b63a",
   "audit_date": "2026-10-18",
-  "status_policy": "Inventory is not evidence of implementation or tested parity. Initial baseline snapshot; see PARITY.md for current qualifications.",
+  "status_policy": "Upstream source inventory only. No implementation status is encoded here; see PARITY.md for the current Fabric source/behavior audit.",
   "explosives": [
     {
       "field": "CONDENSED",
@@ -13,8 +13,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "approximation"
+      ]
     },
     {
       "field": "SHRAPNEL",
@@ -26,8 +25,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "INCENDIARY",
@@ -39,8 +37,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "DEBILITATION",
@@ -52,8 +49,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "CHEMICAL",
@@ -65,8 +61,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "ANVIL",
@@ -78,8 +73,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "REPULSIVE",
@@ -91,8 +85,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "ATTRACTIVE",
@@ -104,8 +97,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "FRAGMENTATION",
@@ -116,8 +108,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "CONTAGIOUS",
@@ -128,8 +119,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "SONIC",
@@ -140,8 +130,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "BREACHING",
@@ -152,8 +141,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "THERMOBARIC",
@@ -164,8 +152,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "NUCLEAR",
@@ -176,8 +163,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "EMP",
@@ -188,8 +174,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "EXOTHERMIC",
@@ -200,8 +185,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "ENDOTHERMIC",
@@ -212,8 +196,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "ANTI_GRAVITATIONAL",
@@ -224,8 +207,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "ENDER",
@@ -236,16 +218,14 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "HYPERSONIC",
       "legacy_id": 21,
       "id": "hypersonic",
       "tier": "NONE",
-      "forms": [],
-      "status": "missing"
+      "forms": []
     },
     {
       "field": "ANTIMATTER",
@@ -256,8 +236,7 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "REDMATTER",
@@ -268,32 +247,28 @@
         "block",
         "missile",
         "minecart"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "MISSILEMODULE",
       "legacy_id": 24,
       "id": "missile",
       "tier": "NONE",
-      "forms": [],
-      "status": "missing"
+      "forms": []
     },
     {
       "field": "ROT",
       "legacy_id": 25,
       "id": "rot",
       "tier": "NONE",
-      "forms": [],
-      "status": "missing"
+      "forms": []
     },
     {
       "field": "MUTATION",
       "legacy_id": 26,
       "id": "mutation",
       "tier": "NONE",
-      "forms": [],
-      "status": "missing"
+      "forms": []
     },
     {
       "field": "COLOR",
@@ -305,8 +280,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "field": "SMOKE",
@@ -318,8 +292,7 @@
         "missile",
         "minecart",
         "grenade"
-      ],
-      "status": "missing"
+      ]
     }
   ],
   "configuration": [
@@ -329,16 +302,14 @@
         "BATTERY_CAPACITY",
         "BATTERY_INPUT_LIMIT",
         "BATTERY_OUTPUT_LIMIT"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigClient.java",
       "fields": [
         "MISSILE_ENGINE_SMOKE",
         "MISSILE_LAUNCH_SMOKE"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigDebug.java",
@@ -348,8 +319,7 @@
         "DEBUG_MISSILE_LAUNCHES",
         "DEBUG_MISSILE_LOGIC",
         "DEBUG_MISSILE_TRACKER"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigFlyingBlocks.java",
@@ -360,8 +330,7 @@
         "damageScale",
         "ban",
         "blockStates"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigItems.java",
@@ -374,16 +343,14 @@
         "ENABLE_BATTERY",
         "ENABLE_SULFUR_LOOT_DROPS",
         "ENABLE_LOOT_DROPS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigJEI.java",
       "fields": [
         "DISABLED",
         "DISABLE_PAYLOAD"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigMain.java",
@@ -396,15 +363,13 @@
         "minProtectionDebilitationGas",
         "requireHelmet",
         "ITEMS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/ConfigThread.java",
       "fields": [
         "THREAD_COUNT"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/ConfigBlast.java",
@@ -434,8 +399,7 @@
         "BLAST_DO_BLOCKUPDATES",
         "ALLOW_DAY_NIGHT",
         "FUSE_TIMES"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/ConfigFuseTimes.java",
@@ -495,8 +459,7 @@
         "ANVIL",
         "REPULSIVE",
         "ATTRACTIVE"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/ConfigThermobaric.java",
@@ -505,8 +468,7 @@
         "entityDamageScale",
         "energy",
         "entityDamageMultiplier"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigAntimatter.java",
@@ -515,16 +477,14 @@
         "damageOnRedmatterKill",
         "size",
         "damage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigAnvil.java",
       "fields": [
         "fragments",
         "damage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigBreaching.java",
@@ -535,8 +495,7 @@
         "energy",
         "energyDistanceScale",
         "energyCostDistance"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigChemical.java",
@@ -546,16 +505,14 @@
         "toxicityBuildup",
         "toxicityScale",
         "toxicityMinDamage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigCondensed.java",
       "fields": [
         "energyScale",
         "damage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigContagious.java",
@@ -565,16 +522,14 @@
         "toxicityBuildup",
         "toxicityScale",
         "toxicityMinDamage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigDebilitation.java",
       "fields": [
         "size",
         "duration"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigEmp.java",
@@ -599,13 +554,11 @@
         "DRAIN_ENERGY_TILES",
         "ALLOW_ENTITY",
         "ALLOW_TILES"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigExBasics.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigFragment.java",
@@ -613,8 +566,7 @@
         "fragments",
         "damage",
         "explosionSize"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigNuclear.java",
@@ -627,8 +579,7 @@
         "entityDamageMultiplier",
         "radiationReplacements",
         "blockStates"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigRedmatter.java",
@@ -648,24 +599,21 @@
         "ENABLE_AUDIO",
         "SPAWN_FLYING_BLOCKS",
         "RENDER_COLORED_BEAMS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blast/types/ConfigShrapnel.java",
       "fields": [
         "fragments",
         "damage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blocks/ConfigBlocks.java",
       "fields": [
         "spikes",
         "radioactive"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blocks/ConfigRadioactive.java",
@@ -677,8 +625,7 @@
         "decayEffectRange",
         "decayEffectDamage",
         "decayWitherDuration"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/blocks/ConfigSpikes.java",
@@ -686,8 +633,7 @@
         "normalDamage",
         "poisonDamage",
         "fireDamage"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/machines/ConfigEmpTower.java",
@@ -699,8 +645,7 @@
         "COOLDOWN",
         "ENERGY_INPUT",
         "MAX_BASE_RANGE"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/machines/ConfigLauncher.java",
@@ -711,8 +656,7 @@
         "SCALED_INACCURACY_LAUNCHERS",
         "POWER_CAPACITY",
         "POWER_COST"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/machines/ConfigRadar.java",
@@ -722,16 +666,14 @@
         "POWER_COST",
         "SCAN_TICKS",
         "SAM_TICKS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigBomblet.java",
       "fields": [
         "impactDamage",
         "health"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigCargoItem.java",
@@ -739,8 +681,7 @@
         "BAN_ALLOW",
         "BAN",
         "ITEMS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigClusterMissile.java",
@@ -753,8 +694,7 @@
         "ITEMS",
         "BAN",
         "ITEMS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigHeldItemMissile.java",
@@ -763,8 +703,7 @@
         "BLOCK_DAMAGE_MULTIPLIER",
         "BAN",
         "ITEMS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigMissile.java",
@@ -788,8 +727,7 @@
         "CLUSTER_MISSILE",
         "HELD_ITEM_MISSILE",
         "CARGO_HOLDERS"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/missile/ConfigSAMMissile.java",
@@ -799,38 +737,31 @@
         "TARGET_RANGE",
         "FUEL",
         "ATTACK_DAMAGE"
-      ],
-      "status": "missing"
+      ]
     },
     {
       "source": "src/main/java/icbm/classic/config/util/BlockReplacementData.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/util/BlockStateConfigList.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/util/BlockStateConfigListOld.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/util/ItemStackConfigList.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/util/ResourceConfigEntry.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     },
     {
       "source": "src/main/java/icbm/classic/config/util/ResourceConfigList.java",
-      "fields": [],
-      "status": "missing"
+      "fields": []
     }
   ],
   "recipes": [

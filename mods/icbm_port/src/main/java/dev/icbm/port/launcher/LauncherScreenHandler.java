@@ -30,15 +30,15 @@ public final class LauncherScreenHandler extends ScreenHandler {
           }
         });
     addSlot(
-        new Slot(inventory, 1, 62, 28) {
+        new Slot(inventory, 1, 116, 28) {
           public boolean canInsert(ItemStack stack) {
             return inventory.isValid(1, stack);
           }
         });
     for (int row = 0; row < 3; row++)
       for (int col = 0; col < 9; col++)
-        addSlot(new Slot(player, col + row * 9 + 9, 8 + col * 18, 166 + row * 18));
-    for (int col = 0; col < 9; col++) addSlot(new Slot(player, col, 8 + col * 18, 224));
+        addSlot(new Slot(player, col + row * 9 + 9, 8 + col * 18, 145 + row * 18));
+    for (int col = 0; col < 9; col++) addSlot(new Slot(player, col, 8 + col * 18, 203));
     addProperties(properties);
   }
 

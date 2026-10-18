@@ -55,15 +55,15 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
   }
 
   public int range() {
-    return tier == 1 ? 1000 : tier == 2 ? 2500 : 4000;
+    return tier == 0 ? 4000 : dev.icbm.port.flight.FlightSettings.current.maxRange;
   }
 
   public int capacity() {
-    return tier == 2 ? 25000 : tier == 3 ? 50000 : 10000;
+    return tier == 0 ? 10000 : 1200;
   }
 
   public int launchCost() {
-    return Math.max(1, tier) * 1000;
+    return tier == 0 ? 1000 : 1200;
   }
 
   @Override
@@ -153,10 +153,12 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
 
   public boolean launch(ServerWorld world, BlockPos pos) {
     BlockState state = world.getBlockState(pos);
-    if (!state.isOf(this) || !state.get(LOADED)) return false;
+    if (!state.isOf(this)) return false;
     if (dev.icbm.port.defense.DefenseContent.isEmpDisabled(world, pos)) return false;
     if (!(world.getBlockEntity(pos) instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher))
       return false;
+    if (!state.get(LOADED) && !launcher.pullNetworkAmmo()) return false;
+    state = world.getBlockState(pos);
     ItemStack ammo = launcher.getStack(0);
     dev.icbm.port.delivery.ClusterPlan clusterPlan =
         dev.icbm.port.delivery.ClusterPlan.fromStack(ammo);
@@ -179,17 +181,19 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
         || !world.getWorldBorder().contains(muzzle)
         || world.isOutOfHeightLimit(muzzle)
         || !world.getBlockState(muzzle).getCollisionShape(world, muzzle).isEmpty()) return false;
+    launcher.shareEnergy();
     while (launcher.energy() < launchCost() && launcher.charge()) {}
     if (launcher.energy() < launchCost()) return false;
     Vec3d start =
         Vec3d.ofCenter(pos)
             .add(facing.getOffsetX() * 1.1, facing.getOffsetY() * 1.1, facing.getOffsetZ() * 1.1);
+    double speed =
+        tier > 0 ? dev.icbm.port.flight.FlightProfile.DIRECT_SPEED : IcbmPort.MISSILE_SPEED;
     DirectFlight.Velocity motion =
-        DirectFlight.velocity(
-            facing.getOffsetX(), facing.getOffsetY(), facing.getOffsetZ(), IcbmPort.MISSILE_SPEED);
+        DirectFlight.velocity(facing.getOffsetX(), facing.getOffsetY(), facing.getOffsetZ(), speed);
     if (launcher.targeted() && cruise) {
       Vec3d delta = Vec3d.ofCenter(launcher.target()).subtract(start);
-      motion = DirectFlight.velocity(delta.x, delta.y, delta.z, IcbmPort.MISSILE_SPEED);
+      motion = DirectFlight.velocity(delta.x, delta.y, delta.z, speed);
     }
     if (held) {
       if (!dev.icbm.port.delivery.DeliveryContent.launchHeld(
@@ -201,9 +205,15 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
           launcher.targeted() && !cruise ? launcher.target() : null)) return false;
     } else {
       MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      if (cruise || tier > 0) missile.configureFuel(dev.icbm.port.flight.FlightProfile.CRUISE_FUEL);
       missile.setPosition(start);
       missile.setVelocity(motion.x(), motion.y(), motion.z());
       missile.setPayload(payload);
+      if (payload == dev.icbm.port.payload.PayloadType.ENDER
+          && launcher.payloadDestination() != null
+          && launcher.payloadDimension() != null)
+        missile.configurePayloadDestination(
+            launcher.payloadDimension(), launcher.payloadDestination());
       missile.setCluster(ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE));
       missile.setClusterPlan(clusterPlan);
       if (launcher.targeted() && !cruise) {

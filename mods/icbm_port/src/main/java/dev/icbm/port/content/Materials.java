@@ -33,7 +33,11 @@ public final class Materials {
           "empty_bomblet"
         }) {
       Registry.register(
-          Registry.ITEM, IcbmPort.id(name), new Item(new Item.Settings().group(IcbmPort.GROUP)));
+          Registry.ITEM,
+          IcbmPort.id(name),
+          name.equals("battery")
+              ? new dev.icbm.port.energy.BatteryItem()
+              : new Item(new Item.Settings().group(IcbmPort.GROUP)));
     }
     LootTableEvents.MODIFY.register(
         (resourceManager, manager, id, builder, source) -> {

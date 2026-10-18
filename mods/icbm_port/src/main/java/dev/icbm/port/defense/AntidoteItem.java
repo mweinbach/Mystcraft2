@@ -32,6 +32,7 @@ public final class AntidoteItem extends Item {
   public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
     if (!world.isClient) {
       user.clearStatusEffects();
+      dev.icbm.port.exposure.ExposureContent.clear(user);
       if (!(user instanceof PlayerEntity player) || !player.getAbilities().creativeMode)
         stack.decrement(1);
     }

@@ -1,7 +1,5 @@
 package dev.icbm.port.delivery;
 
-import dev.icbm.port.IcbmPort;
-import dev.icbm.port.core.GameFlightPath;
 import net.minecraft.block.Block;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.*;
@@ -16,15 +14,22 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 /** Held-item impact subset: tool mining/striking, block placement, and intact recovery. */
-public final class HeldItemMissileEntity extends ThrownItemEntity {
+public final class HeldItemMissileEntity extends ThrownItemEntity
+    implements dev.icbm.port.flight.FlightTracked {
   private ItemStack missile = ItemStack.EMPTY;
   private boolean recovered;
   private int flightTicks;
+  private int fuel = dev.icbm.port.flight.FlightProfile.CRUISE_FUEL;
+  private float health = dev.icbm.port.flight.FlightProfile.health(2);
   private boolean empDisabled;
-  private BlockPos target;
-  private Vec3d start;
-  private int duration;
-  private double lift;
+  private final dev.icbm.port.flight.StagedFlight flightPlan =
+      new dev.icbm.port.flight.StagedFlight();
+  private boolean flightChecked;
+
+  @Override
+  public dev.icbm.port.flight.StagedFlight flightPlan() {
+    return flightPlan;
+  }
 
   public HeldItemMissileEntity(EntityType<? extends HeldItemMissileEntity> type, World world) {
     super(type, world);
@@ -58,47 +63,38 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
   }
 
   public void configureTarget(BlockPos target) {
-    double distance = getPos().distanceTo(Vec3d.ofCenter(target));
-    if (!Double.isFinite(distance)
-        || distance > 4096
-        || world.isOutOfHeightLimit(target)
-        || !world.getWorldBorder().contains(target))
-      throw new IllegalArgumentException("Invalid target");
-    this.target = target.toImmutable();
-    start = getPos();
-    duration = Math.max(2, Math.min(2400, (int) Math.ceil(distance / IcbmPort.MISSILE_SPEED)));
-    lift =
-        Math.max(
-            0,
-            Math.min(distance * .25, world.getTopY() - 2 - Math.max(start.y, target.getY() + .5)));
+    flightPlan.configure(world, getPos(), target);
   }
 
   @Override
   public void tick() {
+    if (!world.isClient && !flightChecked) {
+      flightChecked = true;
+      if (dev.icbm.port.flight.FlightLedger.suppressDuplicate(this, flightPlan)) {
+        discard();
+        return;
+      }
+    }
     if (!world.isClient && empDisabled) {
       recover();
       return;
     }
-    if (!world.isClient
-        && (++flightTicks > (target == null ? IcbmPort.MISSILE_LIFETIME : 2400)
-            || !world.isChunkLoaded(getBlockPos())
-            || world.isOutOfHeightLimit(getBlockPos())
-            || !world.getWorldBorder().contains(getBlockPos()))) {
+    if (!world.isClient && ++flightTicks > 12000) {
       recover();
       return;
     }
-    Vec3d motion = getVelocity();
-    if (!world.isClient && target != null) {
-      var point =
-          GameFlightPath.sample(
-              new GameFlightPath.Point(start.x, start.y, start.z),
-              new GameFlightPath.Point(target.getX() + .5, target.getY() + .5, target.getZ() + .5),
-              lift,
-              flightTicks / (double) duration);
-      motion = new Vec3d(point.x(), point.y(), point.z()).subtract(getPos());
-      setVelocity(motion);
-    }
+    if (!world.isClient && !flightPlan.targeted() && --fuel <= 0) setNoGravity(false);
+    Vec3d motion = !world.isClient ? flightPlan.nextVelocity(this) : getVelocity();
     Vec3d next = getPos().add(motion);
+    if (!world.isClient
+        && flightPlan.targeted()
+        && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
+                && flightPlan.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
+            || !world.isChunkLoaded(new BlockPos(next)))) {
+      if (dev.icbm.port.flight.FlightLedger.tryCapture(this, flightPlan)) return;
+      setVelocity(Vec3d.ZERO);
+      return;
+    }
     if (!world.isClient
         && (!Double.isFinite(next.x)
             || !Double.isFinite(next.y)
@@ -109,9 +105,10 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
       recover();
       return;
     }
+    setVelocity(motion);
     super.tick();
-    if (!isRemoved()) setVelocity(motion);
-    if (!world.isClient && !isRemoved() && target != null && flightTicks >= duration) recover();
+    if (!isRemoved() && hasNoGravity()) setVelocity(motion);
+    if (!world.isClient && !isRemoved() && flightPlan.arrived()) recover();
   }
 
   @Override
@@ -132,10 +129,10 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
         mode == HeldItemMissileItem.Mode.SECONDARY
             || mode == HeldItemMissileItem.Mode.SECONDARY_FIRST;
     if (HeldItemMissileItem.allowed(held)) {
-      if (secondaryFirst) secondary(held, hit);
-      else primary(held, hit);
-      if (mode == HeldItemMissileItem.Mode.PRIMARY_FIRST) secondary(held, hit);
-      if (mode == HeldItemMissileItem.Mode.SECONDARY_FIRST) primary(held, hit);
+      if (secondaryFirst) held = secondary(held, hit);
+      else held = primary(held, hit);
+      if (mode == HeldItemMissileItem.Mode.PRIMARY_FIRST) held = secondary(held, hit);
+      if (mode == HeldItemMissileItem.Mode.SECONDARY_FIRST) held = primary(held, hit);
     }
     HeldItemMissileItem.setCargo(missile, held);
     recover();
@@ -147,10 +144,12 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
         && world.canPlayerModifyAt(player, pos);
   }
 
-  private void primary(ItemStack held, HitResult hit) {
-    if (held.isEmpty()) return;
-    if (hit instanceof EntityHitResult entityHit
-        && (held.getItem() instanceof ToolItem || held.getItem() instanceof SwordItem)) {
+  private ItemStack primary(ItemStack held, HitResult hit) {
+    if (held.isEmpty()) return held;
+    if (hit instanceof EntityHitResult entityHit) {
+      if (DeliveryConfig.genericInteractions() && getOwner() instanceof PlayerEntity player) {
+        return PlayerOwnedItemActions.attack(player, held, hit);
+      }
       var attack = new EntityAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE, a -> {});
       attack.setBaseValue(1);
       for (var modifier :
@@ -168,28 +167,51 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
       float hardness = state.getHardness(world, pos);
       if (hardness < 0
           || (state.isToolRequired() && !held.isSuitableFor(state))
-          || hardness > held.getMiningSpeedMultiplier(state) * Math.max(.1, getVelocity().length()))
-        return;
+          || hardness
+              > held.getMiningSpeedMultiplier(state)
+                  * Math.max(.1, getVelocity().length())
+                  * DeliveryConfig.blockDamageMultiplier()) return held;
       var blockEntity = world.getBlockEntity(pos);
-      if (!world.removeBlock(pos, false)) return;
+      if (!world.removeBlock(pos, false)) return held;
       Block.dropStacks(state, (ServerWorld) world, pos, blockEntity, getOwner(), held);
       held.postMine(world, state, pos, (PlayerEntity) getOwner());
     }
+    return held;
   }
 
-  private void secondary(ItemStack held, HitResult hit) {
-    if (held.isEmpty()
-        || !(held.getItem() instanceof BlockItem item)
-        || !(hit instanceof BlockHitResult blockHit)) return;
+  private ItemStack secondary(ItemStack held, HitResult hit) {
+    if (held.isEmpty()) return held;
+    if (getOwner() instanceof PlayerEntity player && DeliveryConfig.genericInteractions()) {
+      if (hit instanceof BlockHitResult blockHit
+          && (!canModify(blockHit.getBlockPos())
+              || !canModify(blockHit.getBlockPos().offset(blockHit.getSide())))) return held;
+      return PlayerOwnedItemActions.secondary(player, held, hit);
+    }
+    if (!(held.getItem() instanceof BlockItem item) || !(hit instanceof BlockHitResult blockHit))
+      return held;
     BlockPos pos = blockHit.getBlockPos().offset(blockHit.getSide());
-    if (!canModify(pos)) return;
-    item.place(
-        new AutomaticItemPlacementContext(
-            world,
-            pos,
-            Direction.getFacing(getVelocity().x, getVelocity().y, getVelocity().z),
-            held,
-            blockHit.getSide()));
+    if (canModify(pos))
+      item.place(
+          new AutomaticItemPlacementContext(
+              world,
+              pos,
+              Direction.getFacing(getVelocity().x, getVelocity().y, getVelocity().z),
+              held,
+              blockHit.getSide()));
+    return held;
+  }
+
+  @Override
+  public boolean canHit() {
+    return !isRemoved();
+  }
+
+  @Override
+  public boolean damage(DamageSource source, float amount) {
+    if (world.isClient || isRemoved() || !Float.isFinite(amount) || amount <= 0) return false;
+    health -= amount;
+    if (health <= 0) recover();
+    return true;
   }
 
   public void recover() {
@@ -205,45 +227,30 @@ public final class HeldItemMissileEntity extends ThrownItemEntity {
     super.writeCustomDataToNbt(nbt);
     nbt.put("HeldMissile", missile.writeNbt(new NbtCompound()));
     nbt.putInt("HeldFlight", flightTicks);
+    nbt.putInt("HeldFuel", fuel);
+    nbt.putFloat("HeldHealth", health);
     nbt.putBoolean("HeldEmpDisabled", empDisabled);
-    if (target != null) {
-      nbt.putLong("HeldTarget", target.asLong());
-      nbt.putDouble("HeldStartX", start.x);
-      nbt.putDouble("HeldStartY", start.y);
-      nbt.putDouble("HeldStartZ", start.z);
-      nbt.putInt("HeldDuration", duration);
-      nbt.putDouble("HeldLift", lift);
-    }
+    nbt.put("HeldFlightPlan", flightPlan.writeNbt());
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
     setMissile(ItemStack.fromNbt(nbt.getCompound("HeldMissile")));
-    flightTicks = Math.max(0, Math.min(2400, nbt.getInt("HeldFlight")));
+    flightTicks = Math.max(0, Math.min(12000, nbt.getInt("HeldFlight")));
+    fuel = nbt.contains("HeldFuel") ? Math.max(0, Math.min(200, nbt.getInt("HeldFuel"))) : 200;
+    health =
+        nbt.contains("HeldHealth") && Float.isFinite(nbt.getFloat("HeldHealth"))
+            ? Math.max(0, Math.min(80, nbt.getFloat("HeldHealth")))
+            : 80;
     empDisabled = nbt.getBoolean("HeldEmpDisabled");
-    target = null;
-    if (nbt.contains("HeldTarget")) {
-      var savedStart =
-          new Vec3d(
-              nbt.getDouble("HeldStartX"),
-              nbt.getDouble("HeldStartY"),
-              nbt.getDouble("HeldStartZ"));
-      var savedTarget = BlockPos.fromLong(nbt.getLong("HeldTarget"));
-      double savedLift = nbt.getDouble("HeldLift");
-      if (Double.isFinite(savedStart.x)
-          && Double.isFinite(savedStart.y)
-          && Double.isFinite(savedStart.z)
-          && Double.isFinite(savedLift)
-          && savedStart.distanceTo(Vec3d.ofCenter(savedTarget)) <= 4096
-          && !world.isOutOfHeightLimit(savedTarget)
-          && world.getWorldBorder().contains(savedTarget)) {
-        target = savedTarget;
-        start = savedStart;
-        lift = Math.max(0, Math.min(512, savedLift));
-        duration = Math.max(2, Math.min(2400, nbt.getInt("HeldDuration")));
+    flightPlan.readNbt(world, nbt.getCompound("HeldFlightPlan"));
+    if (!flightPlan.targeted() && nbt.contains("HeldTarget")) {
+      try {
+        configureTarget(BlockPos.fromLong(nbt.getLong("HeldTarget")));
+      } catch (IllegalArgumentException ignored) {
       }
     }
-    setNoGravity(true);
+    setNoGravity(flightPlan.targeted() || fuel > 0);
   }
 }

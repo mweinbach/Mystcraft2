@@ -146,7 +146,7 @@ public class IcbmGameTests implements FabricGameTest {
     context.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 600)
   public void missileDetonatesOnCollision(TestContext context) {
     BlockPos start = context.getAbsolutePos(new BlockPos(2, 20, 2));
     context.getWorld().setBlockState(start.south(3), Blocks.STONE.getDefaultState());
@@ -154,8 +154,7 @@ public class IcbmGameTests implements FabricGameTest {
     missile.setPosition(start.getX() + 0.5, start.getY() + 0.5, start.getZ() + 0.5);
     missile.setVelocity(0, 0, IcbmPort.MISSILE_SPEED);
     context.getWorld().spawnEntity(missile);
-    context.runAtTick(
-        5,
+    context.addInstantFinalTask(
         () -> {
           check(context, missile.isRemoved(), "Impact must remove the missile");
           check(
@@ -166,7 +165,7 @@ public class IcbmGameTests implements FabricGameTest {
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 600)
   public void fuseEndsInExplosion(TestContext context) {
     BlockPos pos = context.getAbsolutePos(new BlockPos(2, 20, 2));
     context.getWorld().setBlockState(pos, Blocks.STONE.getDefaultState());
@@ -175,8 +174,7 @@ public class IcbmGameTests implements FabricGameTest {
     explosive.setNoGravity(true);
     explosive.setFuse(2);
     context.getWorld().spawnEntity(explosive);
-    context.runAtTick(
-        5,
+    context.addInstantFinalTask(
         () -> {
           check(context, explosive.isRemoved(), "Expired fuse must remove the primed entity");
           check(context, context.getWorld().isAir(pos), "Expired fuse must explode");

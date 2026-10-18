@@ -1,87 +1,111 @@
-# Launcher and targeting port
+# Launchers and flight
 
-This subsystem adapts the MIT-licensed ICBM Classic launcher inventory, energy,
-coordinate targeting, and radio concepts to Fabric 1.19.2. It does not reproduce
-the original multipart launcher network, frame tiers, RF/Forge energy capability,
-or original graphical assets.
+This Fabric subsystem adapts ICBM Classic's MIT-licensed launcher inventory,
+energy networks, targeting, modular flight and saved missile tracker. Models use
+vanilla textures. It does not claim the original rendering or complete parity.
 
-- Insert a missile by using it on the launcher or opening the empty-hand screen.
-  The actual missile stack is saved, retaining its payload and item data. Slot 0
-  accepts missile items; slot 1 accepts redstone dust. Hoppers can access these
-  inventory slots. Breaking the launcher drops its inventory.
-- Every new launcher contains 1,000 units of internal charge. Firing costs 1,000;
-  each redstone dust supplies 1,000; capacity is 10,000. Use dust on the block or
-  place dust in the fuel slot and press Charge. Launching also consumes fuel if
-  the buffer is empty. This is a standalone gameplay energy system, not an RF or
-  Tech Reborn energy bridge.
-- Direct fire follows the placement facing, including vertical placements.
-  Target arc mode uses the port's bounded coordinate flight approximation rather
-  than upstream staged ballistic physics. A clear muzzle is required in both
-  modes. Targets must be within 4,000 blocks, inside the world border and build
-  height. Flight does not load chunks.
-- Use a GPS in the air to record your position, or on a block to record that
-  block. The laser designator records a server raycast hit up to 256 blocks away;
-  without a hit it records the player's position. Use either on a launcher to
-  copy its recorded target. Sneak-use records the launcher position instead.
-  Targets store their dimension and cannot transfer across dimensions.
-- Configure coordinates, direct/arc mode, and a 0–9,999 radio frequency in the
-  screen. Save Target applies the settings. Launch applies them and attempts a
-  launch; failures preserve the payload. A radio detonator pairs by using it on
-  a launcher. Air-use requests launch from that paired launcher within 256
-  blocks in the same dimension with its matching channel and a loaded chunk.
-- A rising redstone edge schedules a launch four ticks later. Sustained power
-  does not repeatedly fire or launch ammunition inserted after the pulse.
-  EMP zones temporarily prevent launch.
+## Blocks, inventory and energy
 
-Screen packets are resolved against the sender's currently open launcher menu,
-matching synchronization ID, living block entity, eight-block interaction
-range, spectator state, bounded target and channel, fixed packet length and
-known action. They never specify an arbitrary launcher position or load chunks.
-Invalid settings leave the prior settings unchanged. Inventory, energy, target,
-mode and radio frequency survive chunk saves; malformed saved energy/channel
-values are clamped. Legacy loaded block states without an inventory stack fire
-one condensed missile so worlds from the initial prototype remain usable.
+The original `launcher` remains compatible with prototype worlds: directional
+placement, no frame requirement, 10,000 energy capacity, 1,000 per launch, and
+1,000 initial charge. Its unconfigured direct projectile retains the prototype
+speed/lifetime for compatibility. Real registered tier 1/2/3 bases face upward
+and require respectively 1/2/3 adjacent horizontal frame blocks. Tiered bases and
+the cruise launcher now use the upstream `ConfigLauncher` defaults: **1,200
+energy capacity and 1,200 per launch**, starting empty. All source bases and cruise use the upstream **10,000-block** range, controlled
+by the bounded `maxRange` flight setting (hard limit 30,000). The prototype
+retains its earlier 4,000-block safety range. Tier differences are structural
+frame requirements, rather than invented tier range limits.
 
-Models reference vanilla textures. Client layout and multiplayer interaction
-still require a manual in-game visual check.
+Missile stacks retain payload, cluster manifest, held-item cargo and item NBT.
+Each successful launch consumes one actual missile. Slot 0 accepts loaded
+missiles and slot 1 accepts a real energy battery or redstone dust. Hoppers can
+access these slots. Breaking a block drops its inventory. Redstone is an explicit
+compatibility fallback supplying up to 1,000 energy per dust (limited by remaining
+capacity). Batteries and external providers use the transactional Team Reborn
+Energy API, with the root energy module's numeric units. Charge uses a battery
+first; launch also charges if needed. Malformed saved energy is capacity-clamped.
 
-## Launcher structures and connected controls
+Components form physical six-neighbor networks, recomputed for each operation:
+32-block traversal radius, at most 128 loaded component nodes. Removing a
+connector immediately revokes screen access and splits energy/ammunition pools.
+A launcher can pull a missile from another connected base and transactionally
+transfer its missing launch energy. Support blocks distribute hand-fed redstone
+energy. Screens open connected bases; sneak-use cycles the player's selection.
+A player must remain within eight blocks of the base or a connected screen.
+No cached connection can authorize use after the path breaks.
 
-Registered tier 1/2/3 bases have respective ranges of 1,000/2,500/4,000 blocks,
-energy capacities of 10,000/25,000/50,000, and launch costs of 1,000/2,000/3,000.
-They face upward and require 1/2/3 launcher frame blocks touching their horizontal
-sides. The original `launcher` remains the inexpensive directional prototype
-without a frame requirement. The cruise launcher has tier 1 energy/range limits
-but fires directly toward configured coordinates instead of following an arc,
-and does not require frames.
+A rising redstone edge schedules firing four ticks later. Sustained power does
+not repeat. A powered connected screen supplies a network launch pulse. EMP
+prevents launches and disables missile guidance. Failed muzzle/target checks
+preserve ammunition. There are no original frame animations, support accuracy
+bonus, seat/riding controls, or full original multipart geometry.
 
-Launcher connectors, support blocks, frames, screens, and bases form a physical
-six-neighbor network. Traversal never loads chunks, visits at most 128 component
-nodes, and stays within 32 blocks of its starting component. Removing a connector
-immediately breaks access; no stale network cache or remote position packet is
-trusted. A launcher screen opens the first connected base; sneak-use cycles
-the player's selected base in the connected network. The connected screen must
-remain within eight blocks of the player to keep remote menus valid. Redstone
-at a screen schedules a network launch pulse and marks the bases triggered until
-power drops. A support accepts redstone dust and adds 1,000 units to the first
-connected base with room; connectors and frames report network status.
+## Targeting and radio
 
-These are smaller Fabric implementations of the original launcher's structural
-roles. There is no shared energy/inventory pool, original support accuracy bonus,
-frame animation, rotating GUI launcher selection, or original multi-part bounding
-geometry. Tier constraints and cruise steering use the explicit rules above.
+GPS air-use records the player position; block-use records that block. The laser
+designator records a server raycast hit up to 256 blocks away, falling back to the
+player position on a miss. Use either on a launcher to copy coordinates. For
+ordinary payloads the dimension must match. Sneak-use records the launcher
+position instead. The screen configures flight coordinates, direct/arc mode,
+and channel 0–9,999. Direct cruise flight aims toward coordinates without an arc.
+
+A loaded **ender** missile interprets a copied GPS position as the payload's
+relocation destination, independent of the missile flight path. That destination
+may be in another existing server dimension and is checked against its border
+and build height. It survives launcher/missile saves and reaches the payload
+implementation as `getTargetDimension()` / `getTargetPosition()`.
+
+A radio pairs by use on a launcher, storing its position, dimension and channel.
+Air-use launches that paired loaded launcher within 256 blocks when its channel
+matches. It does not load arbitrary chunks. Screen packets use fixed length,
+known action, current handler and matching synchronization ID, valid interaction
+path, spectator checks, world bounds and tier range. Invalid settings are atomic.
+
+## Staged and saved flight
+
+`FlightProfile` records the source defaults: warmup **40 ticks**, climb **2
+blocks**, default lock height **3**, direct powered speed **2**, simulation speed **10**, reentry speed
+**1**, short-arc threshold **500**, cruise/handheld fuel **200**, and tier health
+**50/80/100/200**. Targeted flight advances through warmup, accelerating climb/lock-height steps and a sampled
+parabolic short arc, or vertical ascent for long range, then simulated travel
+and descending reentry. The short-arc sampler is a bounded numerical adaptation;
+the source climb accelerations .005 and .1 and default lock height are retained,
+while the original renderer, seat logic and arbitrary launch angles are absent. Health,
+fuel, EMP, cargo/manifests and stage progress persist. Powered direct missiles
+fall under gravity when fuel runs out. Damage can destroy missiles without
+creating a free detonation. Targeted cluster manifests burst at arrival; direct
+cluster missiles retain their forty-tick burst behavior.
+
+Upstream exit/enter heights 500/450 are clamped below the modern dimension build
+ceiling. At high altitude or an unloaded next chunk, `FlightLedger` stores the
+registered entity NBT and removes the live entity. It never runs a blast while
+the missile is virtual. Generic `FlightTracked` supports both payload and
+held-item missiles. Travel delay uses horizontal distance / 10; reentry uses
+its original UUID and payload/cargo and starts a descending stage.
+
+The ledger persists generation numbers to reject stale pre-transfer entities.
+Admission is bounded to 256 pending flights and 8,192 retained identity records;
+when full, admission fails inertly. Pending data is validated and clamped on
+load. Unavailable destinations expire after at most 72,000 loaded-world ticks.
+Generation records remain to prevent old chunks resurrecting a prior flight.
+This intentionally favors at-most-once transfer over duplicating payloads if a
+server crashes between independent entity/chunk and world-state saves.
+
+`config/icbm-flight.json` controls `temporaryReentryTickets` (default true),
+`maxRange` (default 10,000, hard limit 30,000), `maxActiveTickets` (default 4,
+hard limit 16), and `pendingLifetimeTicks` (default
+72,000). Each temporary ticket lasts 1,200 ticks, with at most three attempts per
+flight; tickets are removed early when their missile is gone. They are not
+permanent forced chunks. Disabling tickets leaves virtual missiles pending
+until their destination naturally loads or their bounded lifetime ends.
 
 ## Held-item delivery
 
-All launcher inventories and hand-loading accept a loaded held-item missile via
-its actual cargo validation; an empty casing is rejected. The launcher calls the
-held-item delivery entity helper, copying the complete cargo and action-mode NBT.
-The regular muzzle, frame, EMP, tier range and energy constraints apply. Targeted
-bases use its bounded arc; cruise bases use direct target velocity. The missile
-and launch charge are consumed only after a successful spawn. No explosive
-payload type is fabricated for this transport.
+Loaded held-item missiles use the same `StagedFlight` and generic ledger as
+payload missiles; no fabricated explosive payload type is used. A fixed launcher
+has no live player owner. Held operations requiring player ownership (block
+placement/tool mining) therefore use the delivery subsystem's intact recovery
+fallback. The launcher never impersonates the player who opened its screen.
 
-A fixed block launcher has no live player owner. Held-item operations that require
-player ownership (block placement or tool mining) therefore recover the intact
-missile/cargo under the delivery subsystem's automation fallback. A block launcher
-does not impersonate the player who last opened its screen.
+The launcher layout was checked in a live client at default 854×480 / GUI scale 2; coordinates and channel settings survived close/reopen. Two-client visuals remain unverified.

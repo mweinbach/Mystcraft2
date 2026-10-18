@@ -109,13 +109,14 @@ public class LauncherGameTests implements FabricGameTest {
     context.getWorld().setBlockState(pos, LauncherContent.BASE_TIER_1.getDefaultState());
     check(
         context,
-        !LauncherContent.validTarget(context.getWorld(), pos, pos.east(1500)),
-        "Tier one range must be limited");
+        !LauncherContent.validTarget(
+            context.getWorld(), pos, pos.east(LauncherContent.BASE_TIER_1.range() + 1)),
+        "Source range must be bounded by flight configuration");
     context.getWorld().setBlockState(pos, LauncherContent.BASE_TIER_3.getDefaultState());
     check(
         context,
         LauncherContent.validTarget(context.getWorld(), pos, pos.east(1500)),
-        "Tier three must reach farther");
+        "All source tiers must support the same configured range");
     context.getWorld().setBlockState(pos.east(), LauncherContent.FRAME.getDefaultState());
     check(
         context,
@@ -131,7 +132,7 @@ public class LauncherGameTests implements FabricGameTest {
     NbtCompound nbt = new NbtCompound();
     nbt.putInt("Energy", 100000);
     launcher.readNbt(nbt);
-    check(context, launcher.energy() == 50000, "Tier capacity must clamp saved energy");
+    check(context, launcher.energy() == 1200, "Tier capacity must clamp saved energy");
     context.complete();
   }
 
@@ -164,7 +165,7 @@ public class LauncherGameTests implements FabricGameTest {
     launcher.setStack(0, new ItemStack(IcbmPort.CONDENSED_MISSILE));
     NbtCompound nbt = new NbtCompound();
     launcher.writeNbt(nbt);
-    nbt.putLong("Target", pos.east(1500).asLong());
+    nbt.putLong("Target", pos.east(LauncherContent.BASE_TIER_1.range() + 1).asLong());
     nbt.putBoolean("Targeted", true);
     launcher.readNbt(nbt);
     check(

@@ -19,17 +19,17 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
 
   public LauncherScreen(LauncherScreenHandler handler, PlayerInventory inventory, Text title) {
     super(handler, inventory, title);
-    backgroundHeight = 248;
-    playerInventoryTitleY = 154;
+    backgroundHeight = 222;
+    playerInventoryTitleY = 134;
   }
 
   @Override
   protected void init() {
     super.init();
-    xField = field(8, 66, 50, "X");
-    yField = field(62, 66, 50, "Y");
-    zField = field(116, 66, 50, "Z");
-    frequency = field(80, 94, 80, "Frequency");
+    xField = field(8, 72, 50, "X");
+    yField = field(62, 72, 50, "Y");
+    zField = field(116, 72, 50, "Z");
+    frequency = field(62, 92, 42, "Frequency");
     xField.setText(Integer.toString(coordinate(0)));
     yField.setText(Integer.toString(coordinate(1)));
     zField.setText(Integer.toString(coordinate(2)));
@@ -38,21 +38,21 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
     modeButton =
         addDrawableChild(
             new ButtonWidget(
-                x + 8,
-                y + 116,
-                76,
-                20,
+                x + 110,
+                y + 92,
+                58,
+                18,
                 modeText(),
                 button -> {
                   targeted = !targeted;
                   button.setMessage(modeText());
                 }));
     addDrawableChild(
-        new ButtonWidget(x + 88, y + 116, 80, 20, Text.literal("Save target"), button -> send(0)));
+        new ButtonWidget(x + 62, y + 113, 50, 18, Text.literal("Save"), button -> send(0)));
     addDrawableChild(
-        new ButtonWidget(x + 8, y + 138, 76, 20, Text.literal("Charge"), button -> send(1)));
+        new ButtonWidget(x + 8, y + 113, 50, 18, Text.literal("Charge"), button -> send(1)));
     addDrawableChild(
-        new ButtonWidget(x + 88, y + 138, 80, 20, Text.literal("Launch"), button -> send(2)));
+        new ButtonWidget(x + 116, y + 113, 52, 18, Text.literal("Launch"), button -> send(2)));
   }
 
   private int coordinate(int index) {
@@ -60,12 +60,12 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
   }
 
   private Text modeText() {
-    return Text.literal(targeted ? "Target arc" : "Direct fire");
+    return Text.literal(targeted ? "Arc" : "Direct");
   }
 
   private TextFieldWidget field(int left, int top, int width, String name) {
     TextFieldWidget field =
-        new TextFieldWidget(textRenderer, x + left, y + top, width, 18, Text.literal(name));
+        new TextFieldWidget(textRenderer, x + left, y + top, width, 16, Text.literal(name));
     field.setMaxLength(10);
     addDrawableChild(field);
     return field;
@@ -93,14 +93,35 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
   @Override
   protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
     fill(matrices, x, y, x + backgroundWidth, y + backgroundHeight, 0xffc6c6c6);
-    fill(matrices, x + 25, y + 27, x + 43, y + 45, 0xff777777);
-    fill(matrices, x + 61, y + 27, x + 79, y + 45, 0xff777777);
+    fill(matrices, x, y, x + backgroundWidth, y + 1, 0xffffffff);
+    fill(matrices, x, y, x + 1, y + backgroundHeight, 0xffffffff);
+    fill(
+        matrices,
+        x,
+        y + backgroundHeight - 1,
+        x + backgroundWidth,
+        y + backgroundHeight,
+        0xff555555);
+    fill(
+        matrices,
+        x + backgroundWidth - 1,
+        y,
+        x + backgroundWidth,
+        y + backgroundHeight,
+        0xff555555);
+    for (var slot : handler.slots) {
+      int left = x + slot.x - 1, top = y + slot.y - 1;
+      fill(matrices, left, top, left + 18, top + 18, 0xff373737);
+      fill(matrices, left + 1, top + 1, left + 18, top + 18, 0xffffffff);
+      fill(matrices, left + 1, top + 1, left + 17, top + 17, 0xff8b8b8b);
+    }
   }
 
   @Override
   protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY) {
     super.drawForeground(matrices, mouseX, mouseY);
-    textRenderer.draw(matrices, "Missile   Redstone", 8, 17, 0x404040);
+    textRenderer.draw(matrices, "Missile", 8, 17, 0x404040);
+    textRenderer.draw(matrices, "Battery/fuel", 90, 17, 0x404040);
     textRenderer.draw(
         matrices,
         "Energy "
@@ -108,9 +129,12 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
             + " / "
             + (handler.properties.get(10) & 65535),
         8,
-        49,
+        48,
         0x404040);
-    textRenderer.draw(matrices, "Frequency", 8, 99, 0x404040);
+    textRenderer.draw(matrices, "X", 8, 61, 0x404040);
+    textRenderer.draw(matrices, "Y", 62, 61, 0x404040);
+    textRenderer.draw(matrices, "Z", 116, 61, 0x404040);
+    textRenderer.draw(matrices, "Channel", 8, 96, 0x404040);
   }
 
   @Override

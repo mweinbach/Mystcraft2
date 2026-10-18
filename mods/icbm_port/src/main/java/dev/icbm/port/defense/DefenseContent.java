@@ -54,14 +54,30 @@ public final class DefenseContent {
       new PressurePlateBlock(
           PressurePlateBlock.ActivationRule.EVERYTHING,
           AbstractBlock.Settings.of(Material.GLASS).noCollision().strength(0.5F));
+  public static final Item SAM_MISSILE =
+      new Item(new Item.Settings().group(IcbmPort.GROUP).maxCount(16));
   public static final Item RADAR_GUN = new RadarGunItem();
   public static final Item DEFUSER =
       new Item(new Item.Settings().group(IcbmPort.GROUP).maxDamage(128));
   public static final Item ANTIDOTE = new AntidoteItem();
 
+  public static final Block EMP_TOWER_EXTENSION = new EmpTowerExtensionBlock();
+  public static final net.minecraft.block.entity.BlockEntityType<DefenseMachineBlockEntity>
+      MACHINE_BLOCK_ENTITY =
+          net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder
+              .create(DefenseMachineBlockEntity::new, RADAR_STATION, EMP_TOWER, SAM_LAUNCHER)
+              .build();
+  public static net.minecraft.screen.ScreenHandlerType<DefenseScreenHandler> MACHINE_SCREEN;
+
   private DefenseContent() {}
 
   public static void register() {
+    Registry.register(
+        Registry.BLOCK_ENTITY_TYPE, IcbmPort.id("defense_machine"), MACHINE_BLOCK_ENTITY);
+    MACHINE_SCREEN =
+        net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.registerSimple(
+            IcbmPort.id("defense_machine"), DefenseScreenHandler::new);
+    block("emp_tower_extension", EMP_TOWER_EXTENSION);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("sam_interceptor"), SAM_INTERCEPTOR);
     dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(
         (world, pos) ->
@@ -82,6 +98,7 @@ public final class DefenseContent {
     block("spikes", SPIKES);
     block("glass_button", GLASS_BUTTON);
     block("glass_pressure_plate", GLASS_PRESSURE_PLATE);
+    item("sam_missile", SAM_MISSILE);
     item("radar_gun", RADAR_GUN);
     item("defuser", DEFUSER);
     item("antidote", ANTIDOTE);
@@ -129,7 +146,7 @@ public final class DefenseContent {
 
   /** Bounded loaded-entity query; no chunk loading and no explosion on interception. */
   public static List<MissileEntity> missiles(World world, Vec3d center, double radius) {
-    double bounded = Math.max(0, Math.min(128, radius));
+    double bounded = Math.max(0, Math.min(512, radius));
     return world.getEntitiesByClass(
         MissileEntity.class,
         new Box(center, center).expand(bounded),
@@ -139,7 +156,7 @@ public final class DefenseContent {
   /** All loaded missile families, including nonexplosive cargo/tool flights. */
   public static List<Entity> trackedMissiles(World world, Vec3d center, double radius) {
     if (!Double.isFinite(radius) || radius < 0) return List.of();
-    double bounded = Math.min(128, radius);
+    double bounded = Math.min(512, radius);
     return world.getEntitiesByClass(
         Entity.class,
         new Box(center, center).expand(bounded),
@@ -171,7 +188,7 @@ public final class DefenseContent {
         || !Double.isFinite(center.x)
         || !Double.isFinite(center.y)
         || !Double.isFinite(center.z)) return;
-    double bounded = Math.min(128, radius);
+    double bounded = Math.min(512, radius);
     if (!(world instanceof net.minecraft.server.world.ServerWorld server)) return;
     EmpPersistentState.get(server).add(center, bounded, world.getTime());
     trackedMissiles(world, center, bounded)

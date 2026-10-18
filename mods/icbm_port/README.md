@@ -1,8 +1,8 @@
 # ICBM Fabric Port
 
-An unofficial, in-progress recreation of ICBM Classic for **Minecraft 1.19.2**, **Fabric Loader 0.16.14+**, **Fabric API 0.77.0+1.19.2**, and **Java 17**. This is a playable alpha with substantial behavior differences from the original. The [parity audit](docs/PARITY.md) tracks the remaining work.
+An unofficial ICBM Classic recreation for **Minecraft 1.19.2**, **Fabric Loader 0.16.14+**, **Fabric API 0.77.0+1.19.2**, and **Java 17**, maintained inside the Mystcraft project. This release implements the major gameplay systems; exact source differences and platform limits are recorded in the [parity audit](docs/PARITY.md).
 
-This independent module belongs to the Mystcraft project. Mystcraft uses Forge and ICBM uses Fabric, so their JARs require separate game instances.
+Mystcraft uses Forge and ICBM uses Fabric, so their JARs require separate game instances.
 
 ## Build and run
 
@@ -12,31 +12,31 @@ From the repository root:
 ./scripts/gradle.sh :icbm_port:build
 ./scripts/gradle.sh :icbm_port:runGametest
 ./scripts/gradle.sh :icbm_port:runClient
+# Optional JEI recipe browser during development:
+./scripts/gradle.sh :icbm_port:runClient -PwithJei
 ```
 
-Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Java 17. Install `build/libs/icbm-fabric-port-0.1.0-alpha.2.jar` and Fabric API on both client and server. The sources JAR and GameTest mod are not runtime dependencies.
+Alternatively, use this directory's `./gradlew` (Windows: `gradlew.bat`) with Java 17. Install `build/libs/icbm-fabric-port-0.2.0-alpha.1.jar` and Fabric API on both client and server. Team Reborn Energy API 2.3.0 is bundled. JEI 11.8.1.1034 is optional and installed separately. The sources JAR and GameTest mod are not runtime dependencies.
 
 ## Gameplay
 
-The creative tab and survival recipes expose the implemented content:
+- **23 payload families:** condensed, shrapnel, incendiary, debilitation, chemical, anvil, repulsive, attractive, fragmentation, contagious, sonic, breaching, thermobaric, nuclear, EMP, exothermic, endothermic, antigravitational, ender, antimatter, redmatter, colors and smoke. Blocks respond to ignition and redstone. Terrain effects use saved, bounded work queues and resistance-aware rays; gas diffuses through open spaces. Chemical, viral and radiation exposure persists, nuclear blasts contaminate terrain, antigravity lifts actual blocks, and moving redmatter consumes nearby matter.
+- **Delivery:** payload missiles, ten tier-one grenades and bomblets, 23 bomb carts, direct and ballistic handheld launchers, mixed cluster missiles and held-item action missiles. Load and unload cargo through crafting. Player-owned action missiles can use tools and items through their normal interactions. Parachutes and balloons carry items, blocks, entities or projectiles. Grenades and carts support dispensers.
+- **Launchers and flight:** directional prototype, three base tiers and cruise launcher; inventories, batteries, external Fabric energy, frames, supports, connectors and remote screens. GPS, laser and radio tools configure targets and launches. Targeted flight has warmup, climb, arc/ascent, saved long-range travel and descending reentry. Bounded temporary tickets allow distant arrival. Ender payload destinations can cross dimensions.
+- **Defense:** powered radar with incoming-flight detection and radio channels, SAM ammunition and guided interceptors, configurable EMP stations with vertical range extenders, and validated machine screens. Radio relays connect loaded receivers. Defusers, antidote, concrete variants, reinforced glass, spikes and glass controls provide utilities and protection.
+- **Integration:** transactional rechargeable batteries, executable extension API with cancellation/source events, operator blast/cleanup commands, and optional JEI displays for NBT-bearing load/unload recipes.
 
-- **23 payload families:** condensed, shrapnel, incendiary, debilitation, chemical, anvil, repulsive, attractive, fragmentation, contagious, sonic, breaching, thermobaric, nuclear, EMP, exothermic, endothermic, antigravitational, ender, antimatter, redmatter, colors and smoke. Blocks respond to ignition and redstone; fuse lengths vary by payload. Condensed and breaching blocks activate immediately.
-- **Delivery:** payload missiles, ten tier-one grenades and bomblets, 23 bomb carts, direct and ballistic handheld launchers, held-item action missiles, and mixed cluster missiles. Craft a cluster with bomblets to load it; empty clusters cannot fire. Held-item missiles carry tools or blocks through load/unload crafting and recover their casing; supported impact actions include mining, striking and block placement. Item cargo can travel by parachute or balloon. Grenades and carts support dispensers.
-- **Launchers:** the original directional launcher, three base tiers and a cruise launcher. Load a missile by hand or inventory, charge with redstone, and fire with a pulse or the screen. Empty-hand use opens the controls; sneak-use unloads ammunition. Tiered vertical bases require adjacent frames. Supports, connectors and remote screens form a bounded local control network. GPS, laser and radio tools set targets or trigger launches.
-- **Defense:** radar emits a redstone signal for nearby missiles, powered SAM launchers consume firework rockets to launch guided interceptors, and EMP disables missiles and machines temporarily. Defusers recover compatible explosives. Antidote clears status effects. Concrete variants, reinforced glass, spikes and glass controls provide protection and utilities.
-- **Configuration:** `config/icbm_port/payloads.json` is generated at startup. Operators can apply validated changes with `/icbm_payloads reload`. Invalid changes preserve the previous configuration.
+See [launchers](docs/LAUNCHERS.md), [delivery](docs/DELIVERY.md), [defense](docs/DEFENSE.md), [exposure](docs/EXPOSURE.md), [energy](docs/ENERGY.md), [API and commands](docs/API.md), [recipes](docs/RECIPES.md), and [payload behavior](src/main/java/dev/icbm/port/payload/PORTING-NOTES.md).
 
-See [launcher controls](docs/LAUNCHERS.md), [defense controls](docs/DEFENSE.md), [recipe mappings](docs/RECIPES.md), and [payload behavior](src/main/java/dev/icbm/port/payload/PORTING-NOTES.md) for details. Large effects alter terrain; development should use a test world.
+## Configuration
 
-## Current limits
+Startup generates payload and battery settings under `config/icbm_port/`, plus `config/icbm-flight.json`, `config/icbm_port-exposure.json` and `config/icbm-port-delivery.properties`. Payload and battery settings support validated operator reloads with `/icbm_payloads reload` and `/icbm energy reload`; other settings apply at restart. Subsystem documents explain limits and defaults.
 
-This is not a complete or behavior-identical port. Major remaining work includes upstream blast propagation and persistent radiation/toxicity, full redmatter and flying-block simulation, energy API compatibility, radar/EMP interfaces and multiblocks, complete radio networks, remote chunk flight, original animation/sound replacements, and optional-mod integrations. Targets use a Minecraft animation arc; direct missiles expire after 200 loaded ticks. No flight path force-loads distant chunks. Existing Forge worlds and saved items are not converted.
+## Compatibility and release status
 
-Models are original JSON using vanilla textures. Upstream artwork is excluded under its separate license. Distinctive art and interactive client/multiplayer playtesting remain unfinished.
+This remains an alpha while multiplayer and survival balance receive broader testing. Gameplay is adapted to modern Fabric APIs and bounded server work; it is not a binary-compatible Forge port. Legacy worlds, items and configuration files are not converted. Source rendering, animations, sounds, all radio commands, ownership/faction integration and optional Forge-only integrations are not reproduced. Some machine and tool models use vanilla forms; missiles and cargo carriers have original 3D models. Upstream artwork is excluded by its separate license.
 
-## Validation
-
-`build` compiles common and client sources, runs JUnit tests, and produces a remapped JAR. `runGametest` exercises the implementation on a dedicated Fabric server. These tests establish the documented contracts, not full upstream parity. Resource tooling checks model/texture references, registration coverage and recipe reachability against the Minecraft 1.19.2 client JAR. See [VALIDATION.md](docs/VALIDATION.md) for the current results.
+[VALIDATION.md](docs/VALIDATION.md) records build, server, resource and client checks. These establish implemented behavior, not exact upstream equivalence.
 
 ## Attribution
 

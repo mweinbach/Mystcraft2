@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "e",
+    "m"
+  ],
+  "key": {
+    "c": {
+      "item": "icbm_port:basic_circuit"
+    },
+    "e": {
+      "item": "icbm_port:condensed_explosive"
+    },
+    "m": {
+      "item": "icbm_port:missile_module"
+    }
+  },
+  "result": {
+    "item": "icbm_port:sam_missile",
+    "count": 1
+  }
+}

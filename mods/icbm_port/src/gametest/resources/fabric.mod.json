@@ -12,7 +12,11 @@
       "dev.icbm.port.delivery.DeliveryGameTests",
       "dev.icbm.port.defense.DefenseGameTests",
       "dev.icbm.port.MissileGameTests",
-      "dev.icbm.port.ContentGameTests"
+      "dev.icbm.port.ContentGameTests",
+      "dev.icbm.port.energy.EnergyGameTests",
+      "dev.icbm.port.exposure.ExposureGameTests",
+      "dev.icbm.port.command.CommandApiGameTests",
+      "dev.icbm.port.FlightGameTests"
     ]
   },
   "depends": {

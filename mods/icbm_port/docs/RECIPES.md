@@ -4,7 +4,7 @@ Baseline: ICBM Classic `prod/1.12`, revision
 `9c1d985a375adc2868ff47707b3a636452d0b63a`. Recipe data is translated into
 Minecraft 1.19.2 JSON. No upstream textures, models or language files are used.
 The exact input/output mapping and source-relative recipe path are retained in
-`tools/upstream_recipe_mapping.json` (122 entries). That file is authoritative
+`tools/upstream_recipe_mapping.json` (124 entries). That file is authoritative
 for reproducing this migration, and is applied last by the resource generator.
 
 ## Source-equivalent recipe shapes and quantities
@@ -82,9 +82,9 @@ Run both documented tooling commands after adding content. Dedicated-server
 recipe reload and gameplay tests are required alongside this static audit.
 
 Static registration audit additionally resolves the module's explicit Java
-registration helper calls and payload enum expansion: 137 registered items have
-matching models, English names and survival paths; all 44 blocks have blockstates;
-all eight entities have English names. Recipe local item references are checked
+registration helper calls and payload enum expansion: 141 registered items have
+matching models, English names and survival paths; all 47 blocks have blockstates;
+all ten entities have English names. Recipe local item references are checked
 against that extracted catalog, and orphan item models fail validation. This
 static extractor targets current code conventions and must be updated if those
 conventions change. Cluster loading is a special recipe without a fixed output
@@ -101,3 +101,10 @@ follows `tools/rpgBallistic.json`: rocket launcher plus launcher screen.
 `held_item_loading` and `held_item_unloading` special recipe JSONs activate
 modern serializers; allowed cargo actions and unloading semantics are verified
 by delivery gameplay tests, rather than represented as static fixed outputs.
+
+SAM ammunition follows `missile/special/missile.anti_ballistic.json`: basic
+circuit above condensed explosive above missile module. EMP tower extensions
+follow `machine/emptower.booster.json`. Radioactive dirt/stone are environmental
+fallout blocks, available by nuclear replacement and harvesting; no source
+crafting recipes exist for them. Their survival availability is an explicit
+external source in the recipe graph alongside sulfur loot.

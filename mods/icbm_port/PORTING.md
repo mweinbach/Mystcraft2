@@ -1,6 +1,6 @@
 # Minecraft 1.19.2 / Fabric migration
 
-`mods/icbm_port` is an independent Fabric build inside the Mystcraft collection. It does not compile legacy Forge sources or include Mystcraft code. The user-selected target is Minecraft 1.19.2, Fabric, Java 17.
+`mods/icbm_port` is an independent Fabric build inside the Mystcraft collection, targeting Minecraft 1.19.2 and Java 17.
 
 Reference: [BuiltBrokenModding/ICBM-Classic](https://github.com/BuiltBrokenModding/ICBM-Classic), `prod/1.12` at `9c1d985a375adc2868ff47707b3a636452d0b63a`.
 
@@ -8,26 +8,27 @@ Reference: [BuiltBrokenModding/ICBM-Classic](https://github.com/BuiltBrokenModdi
 
 | Package | Responsibility |
 | --- | --- |
-| `core` | Direct-flight normalization and bounded Minecraft target animation |
-| `block`, `entity` | Explosive blocks, primed payloads, missiles and persisted flight |
-| `payload` | 27-definition catalog, 23 content variants, effect dispatch, bounded persistent work queues, configuration and reload command |
-| `launcher` | Inventory, tier rules, target/energy/frequency persistence, screens, packet validation and local component networks |
-| `delivery` | Grenades, carts, handheld launchers, bomblets, mixed cluster crafting, held-item actions and item cargo |
-| `defense` | Radar, guided SAM interceptors, persistent EMP zones, utilities and protective blocks |
-| `content` | Recipe components and sulfur mob-loot integration |
-| `client` | Entity rendering and client initialization |
-| `tools` | Resource generation, validation and source recipe mappings |
+| `block`, `entity` | Explosive blocks, primed payloads, missiles, source attribution |
+| `payload`, `simulation` | Catalog, effect dispatch, persisted resistance rays and gas diffusion, moving redmatter, conserved flying blocks |
+| `exposure` | Persistent chemical/viral/radiation doses, protection, infection, fallout and decay |
+| `launcher`, `flight`, `core` | Inventories, target/energy networks, screens, staged flight, saved virtual travel and temporary reentry tickets |
+| `energy` | Transactional Fabric energy, rechargeable batteries and configuration |
+| `delivery` | Grenades, carts, handheld launchers, mixed clusters, held-item actions and carrier passengers |
+| `defense`, `radio` | Radar, guided SAMs, EMP fields/extenders, machine screens, channel/relay messaging and protective blocks |
+| `api`, `command`, `integration` | Executable extension registry/events, operator commands and optional JEI |
+| `content`, `client` | Recipe components, sulfur loot, original model rendering and client initialization |
+| `tools` | Resource generation/validation and source recipe mappings |
 
-The [README](README.md) describes current gameplay. [PARITY.md](docs/PARITY.md) maps upstream systems and acceptance criteria; [upstream-inventory.json](docs/upstream-inventory.json) inventories 660 production Java files, 467 resource paths, 130 recipe/factory paths and 42 configuration sources. Inventory counts do not establish feature equivalence.
+The [README](README.md) describes gameplay. [PARITY.md](docs/PARITY.md) records source mappings and differences; [upstream-inventory.json](docs/upstream-inventory.json) inventories 660 production Java files, 467 resource paths, 130 recipe/factory paths and 42 configuration sources. Counts do not establish feature equivalence.
 
-## Deliberate adaptations and outstanding work
+## Adaptation boundaries
 
-The new code replaces Forge registration, capability/event and network systems with Fabric APIs. Effects run on the server thread with bounded terrain work, saved cursors and no background world access. Large payloads use simplified geometry and entity effects. Gas does not reproduce the original diffusion/toxicity capability; radiation and full redmatter behavior remain outstanding.
+Forge registration, capabilities, events and networking are replaced by Fabric APIs. Terrain effects execute on the server thread with bounded work and saved cursors. Large effects can take multiple ticks; ray resolution, gas cell limits and modern block resistance change exact shapes. Exposure is native persistent world state. Missile virtual travel uses generation records and bounded temporary tickets, favoring at-most-once transfer across interrupted saves.
 
-Launcher tiers currently use redstone-fed internal energy buffers and local adjacency rules. They do not implement an external energy API or the complete original network topology. Targeted missiles follow bounded arcs in loaded chunks; the upstream virtual distant-flight/chunkloading system is absent. Renderers use vanilla item geometry, with original JSON blocks. Interactive two-client testing, custom animation, sounds and comprehensive survival balancing remain pending.
+Power uses the bundled Team Reborn Energy API. The port preserves numeric source costs where implemented, not Forge capability compatibility. Configurations and addon interfaces are modern replacements. Original seat/riding controls, frame animation/support accuracy, complete radio command vocabulary, ownership/faction behavior and Forge-only integrations remain outside this implementation. Source artwork is replaced by original geometry and vanilla texture references. Two-client networking and complete survival balance still need broader playtesting.
 
-The module uses its own `icbm_port` namespace. Legacy Forge worlds, items, entities and configuration files are not automatically converted. Keep this alpha separate from production worlds until the missing systems and migration policy are resolved.
+The independent `icbm_port` namespace does not convert legacy Forge saves, items or settings. Subsystem documents describe concrete behavior and limits.
 
 ## Licensing
 
-Upstream code and team-created data, including recipes, are MIT licensed. Their notice is preserved in `LICENSE-ICBM-CODE.md`. Artwork has separate terms which prohibit Fabric ports, so no upstream textures, models, sounds or language files are imported. Source-mapped recipes are documented separately from new artwork in [RECIPES.md](docs/RECIPES.md). Vanilla textures are referenced, not redistributed.
+Upstream code and team-created recipe data are MIT licensed; `LICENSE-ICBM-CODE.md` is included in both JARs. Artwork has separate terms prohibiting Fabric ports, so upstream textures, models, sounds and language files are excluded. Vanilla textures are referenced, not redistributed. The embedded Team Reborn Energy API retains its own MIT license inside its nested JAR.

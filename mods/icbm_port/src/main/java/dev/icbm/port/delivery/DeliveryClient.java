@@ -9,8 +9,9 @@ import net.minecraft.client.render.entity.model.EntityModelLayers;
 @Environment(EnvType.CLIENT)
 public final class DeliveryClient {
   public static void registerClient() {
-    EntityRendererRegistry.register(DeliveryContent.HELD_MISSILE, FlyingItemEntityRenderer::new);
-    EntityRendererRegistry.register(DeliveryContent.CARGO, FlyingItemEntityRenderer::new);
+    EntityRendererRegistry.register(
+        DeliveryContent.HELD_MISSILE, dev.icbm.port.client.ProjectileItemRenderer::new);
+    EntityRendererRegistry.register(DeliveryContent.CARGO, CargoCarrierRenderer::new);
     EntityRendererRegistry.register(DeliveryContent.BOMBLET, FlyingItemEntityRenderer::new);
     EntityRendererRegistry.register(DeliveryContent.GRENADE, FlyingItemEntityRenderer::new);
     EntityRendererRegistry.register(

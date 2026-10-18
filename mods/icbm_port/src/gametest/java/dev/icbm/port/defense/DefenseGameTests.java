@@ -37,6 +37,9 @@ public class DefenseGameTests implements FabricGameTest {
   public void radarCountsLoadedMissiles(TestContext context) {
     BlockPos origin = context.getAbsolutePos(new BlockPos(2, 20, 2));
     context.getWorld().setBlockState(origin, DefenseContent.RADAR_STATION.getDefaultState());
+    ((DefenseMachineBlockEntity) context.getWorld().getBlockEntity(origin))
+        .energyBuffer()
+        .setAmount(20_000);
     MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, context.getWorld());
     missile.setPosition(Vec3d.ofCenter(origin.up(3)));
     context.getWorld().spawnEntity(missile);
@@ -162,8 +165,8 @@ public class DefenseGameTests implements FabricGameTest {
         EmpPersistentState.fromNbt(original.writeNbt(new net.minecraft.nbt.NbtCompound()));
     check(
         context,
-        !bounded.contains(center.add(129, 0, 0), 1001),
-        "EMP must clamp persisted radius to 128");
+        !bounded.contains(center.add(513, 0, 0), 1001),
+        "EMP must clamp persisted radius to 512");
     context.complete();
   }
 
@@ -243,6 +246,154 @@ public class DefenseGameTests implements FabricGameTest {
               context,
               interceptor.isRemoved(),
               "SAM must consume interceptor when held target is caught");
+          context.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void defenseConfigurationAndEnergyPersist(TestContext context) {
+    BlockPos pos = context.getAbsolutePos(new BlockPos(2, 20, 2));
+    context.getWorld().setBlockState(pos, DefenseContent.RADAR_STATION.getDefaultState());
+    var machine = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(pos);
+    check(
+        context, machine.energyBuffer().getAmount() == 0, "New radar must not receive free energy");
+    machine.energyBuffer().setAmount(12_000);
+    machine.configure(1);
+    machine.configure(5);
+    machine.configure(7);
+    var saved = machine.createNbt();
+    var restored =
+        new DefenseMachineBlockEntity(pos, DefenseContent.RADAR_STATION.getDefaultState());
+    restored.readNbt(saved);
+    check(context, restored.properties().get(0) == 110, "Detection range must persist");
+    check(
+        context,
+        restored.properties().get(2) == 1 && restored.properties().get(4) == 0,
+        "Channel and filters must persist");
+    check(
+        context,
+        restored.energyBuffer().getAmount() == 12_000,
+        "Stored energy must persist exactly");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void empExtensionsAndFireCost(TestContext context) {
+    BlockPos pos = context.getAbsolutePos(new BlockPos(2, 200, 2));
+    context.getWorld().setBlockState(pos, DefenseContent.EMP_TOWER.getDefaultState());
+    var machine = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(pos);
+    context
+        .getWorld()
+        .setBlockState(pos.up(), DefenseContent.EMP_TOWER_EXTENSION.getDefaultState());
+    context
+        .getWorld()
+        .setBlockState(pos.up(2), DefenseContent.EMP_TOWER_EXTENSION.getDefaultState());
+    check(
+        context,
+        machine.extensions() == 2 && machine.maximumRange() == 190,
+        "Connected boosters must raise max radius by twenty each");
+    check(context, !machine.fireEmp(), "Uncharged EMP tower must not fire");
+    machine.energyBuffer().setAmount(400_000);
+    check(context, machine.fireEmp(), "Charged tower must fire");
+    check(
+        context,
+        machine.energyBuffer().getAmount() == 40_000,
+        "Default range60 must consume 60 squared times100 energy");
+    check(context, !machine.fireEmp(), "Cooldown must prevent repeat firing");
+    context.getWorld().breakBlock(pos, false);
+    check(
+        context,
+        context.getWorld().isAir(pos.up()) && context.getWorld().isAir(pos.up(2)),
+        "Removing base must tear down orphan extenders");
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void radioChannelsDeliverOnceAndRespectIsolation(TestContext context) {
+    var world = context.getWorld();
+    BlockPos origin = context.getAbsolutePos(new BlockPos(2, 40, 2));
+    class Receiver implements dev.icbm.port.radio.RadioNetwork.Receiver {
+      final BlockPos pos;
+      final int channel;
+      int received;
+
+      Receiver(BlockPos pos, int channel) {
+        this.pos = pos;
+        this.channel = channel;
+      }
+
+      public BlockPos radioPosition() {
+        return pos;
+      }
+
+      public int radioChannel() {
+        return channel;
+      }
+
+      public boolean radioEnabled() {
+        return true;
+      }
+
+      public boolean receive(dev.icbm.port.radio.RadioNetwork.Incoming message) {
+        received++;
+        return true;
+      }
+    }
+    var sender = new Receiver(origin, 4093);
+    var receiver = new Receiver(origin.up(), 4093);
+    var isolated = new Receiver(origin.up(2), 4092);
+    dev.icbm.port.radio.RadioNetwork.register(world, sender);
+    dev.icbm.port.radio.RadioNetwork.register(world, receiver);
+    dev.icbm.port.radio.RadioNetwork.register(world, isolated);
+    int delivered =
+        dev.icbm.port.radio.RadioNetwork.broadcast(world, sender, java.util.UUID.randomUUID());
+    check(
+        context,
+        delivered == 1 && receiver.received == 1,
+        "Radio relay loops must not redeliver a message");
+    check(context, isolated.received == 0, "Different channels must remain isolated");
+    dev.icbm.port.radio.RadioNetwork.remove(world, origin);
+    dev.icbm.port.radio.RadioNetwork.remove(world, origin.up());
+    dev.icbm.port.radio.RadioNetwork.remove(world, origin.up(2));
+    context.complete();
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void poweredRadarRadioTriggersSam(TestContext context) {
+    BlockPos radarPos = context.getAbsolutePos(new BlockPos(2, 100, 2)), samPos = radarPos.east(4);
+    context.getWorld().setBlockState(radarPos, DefenseContent.RADAR_STATION.getDefaultState());
+    context
+        .getWorld()
+        .setBlockState(
+            samPos,
+            DefenseContent.SAM_LAUNCHER.getDefaultState().with(DefenseMachineBlock.POWER, 1));
+    var radar = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(radarPos);
+    var sam = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(samPos);
+    radar.configure(5);
+    sam.configure(5);
+    radar.energyBuffer().setAmount(20_000);
+    var target = new MissileEntity(IcbmPort.MISSILE_ENTITY, context.getWorld());
+    target.setPosition(Vec3d.ofCenter(samPos.up(3)));
+    context.getWorld().spawnEntity(target);
+    DefenseMachineBlockEntity.tick(
+        context.getWorld(), samPos, context.getWorld().getBlockState(samPos), sam);
+    DefenseMachineBlockEntity.tick(
+        context.getWorld(), radarPos, context.getWorld().getBlockState(radarPos), radar);
+    check(
+        context,
+        context.getWorld().getBlockState(samPos).get(DefenseMachineBlock.POWER) == 0,
+        "Powered radar radio must launch SAM without local redstone");
+    check(
+        context,
+        radar.energyBuffer().getAmount() == 19_000,
+        "Radar must consume the upstream per-tick scan energy");
+    context.runAtTick(
+        4,
+        () -> {
+          check(
+              context,
+              target.isRemoved(),
+              "Radio-directed interceptor must catch incoming missile");
           context.complete();
         });
   }

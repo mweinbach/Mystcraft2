@@ -151,5 +151,12 @@
   "item.icbm_port.ballistic_launcher": "Ballistic Launcher",
   "entity.icbm_port.held_item_missile": "Held Item Missile",
   "tooltip.icbm_port.held_contents": "Held item: %s",
-  "tooltip.icbm_port.held_mode": "Action: %s"
+  "tooltip.icbm_port.held_mode": "Action: %s",
+  "block.icbm_port.radioactive_stone": "Radioactive Stone",
+  "block.icbm_port.radioactive_dirt": "Radioactive Dirt",
+  "block.icbm_port.emp_tower_extension": "Emp Tower Extension",
+  "entity.icbm_port.flying_block": "Flying Block",
+  "entity.icbm_port.redmatter_singularity": "Redmatter Singularity",
+  "tooltip.icbm_port.carrier_mode": "Cargo mode: %s (sneak-use to change)",
+  "item.icbm_port.sam_missile": "Surface-to-Air Missile"
 }

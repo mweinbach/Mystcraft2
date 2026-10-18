@@ -23,6 +23,18 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
   private static final TrackedData<String> PAYLOAD =
       DataTracker.registerData(PrimedExplosiveEntity.class, TrackedDataHandlerRegistry.STRING);
 
+  private java.util.UUID ownerUuid;
+
+  public void setOwner(Entity owner) {
+    ownerUuid = owner == null ? null : owner.getUuid();
+  }
+
+  public Entity getOwner() {
+    return ownerUuid != null && world instanceof net.minecraft.server.world.ServerWorld server
+        ? server.getEntity(ownerUuid)
+        : null;
+  }
+
   public PrimedExplosiveEntity(EntityType<? extends PrimedExplosiveEntity> type, World world) {
     super(type, world);
     intersectionChecked = true;
@@ -70,12 +82,14 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
 
   @Override
   protected void readCustomDataFromNbt(NbtCompound nbt) {
+    ownerUuid = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
     if (nbt.contains("Fuse")) setFuse(nbt.getInt("Fuse"));
     setPayload(IcbmPort.payloadById(nbt.getString("Payload")));
   }
 
   @Override
   protected void writeCustomDataToNbt(NbtCompound nbt) {
+    if (ownerUuid != null) nbt.putUuid("Owner", ownerUuid);
     nbt.putInt("Fuse", getFuse());
     nbt.putString("Payload", getPayload().id());
   }

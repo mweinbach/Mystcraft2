@@ -30,15 +30,37 @@ final class TargetingItem extends Item {
     if (!world.isClient) {
       if (world.getBlockEntity(pos) instanceof LauncherBlockEntity launcher
           && !context.getPlayer().isSneaking()) {
-        BlockPos target = LauncherContent.readTarget(world, stack);
-        boolean success = target != null && launcher.configure(target, true, launcher.frequency());
+        var recorded = stack.getSubNbt("IcbmTarget");
+        boolean ender =
+            IcbmPort.payloadForMissile(launcher.getStack(0))
+                == dev.icbm.port.payload.PayloadType.ENDER;
+        BlockPos target =
+            recorded != null && recorded.contains("Position")
+                ? BlockPos.fromLong(recorded.getLong("Position"))
+                : null;
+        var dimension =
+            recorded == null
+                ? null
+                : net.minecraft.util.Identifier.tryParse(recorded.getString("Dimension"));
+        boolean success =
+            ender
+                ? target != null
+                    && dimension != null
+                    && launcher.configurePayloadDestination(
+                        net.minecraft.util.registry.RegistryKey.of(
+                            net.minecraft.util.registry.Registry.WORLD_KEY, dimension),
+                        target)
+                : target != null
+                    && world.getRegistryKey().getValue().equals(dimension)
+                    && launcher.configure(target, true, launcher.frequency());
         context
             .getPlayer()
             .sendMessage(
                 Text.literal(
                     success
-                        ? "Launcher target copied: " + target.toShortString()
-                        : "Record a valid target in this dimension first"),
+                        ? (ender ? "Ender destination copied: " : "Launcher target copied: ")
+                            + target.toShortString()
+                        : "Record a valid destination first"),
                 true);
       } else {
         LauncherContent.writeTarget(world, stack, pos);

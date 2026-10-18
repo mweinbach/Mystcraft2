@@ -6,14 +6,22 @@
   "description": "An unofficial, in-progress ICBM gameplay port for Minecraft 1.19.2.",
   "environment": "*",
   "entrypoints": {
-    "main": ["dev.icbm.port.IcbmPort"],
-    "client": ["dev.icbm.port.client.IcbmPortClient"]
+    "main": [
+      "dev.icbm.port.IcbmPort"
+    ],
+    "client": [
+      "dev.icbm.port.client.IcbmPortClient"
+    ],
+    "jei_mod_plugin": [
+      "dev.icbm.port.integration.IcbmJeiPlugin"
+    ]
   },
   "license": "MIT",
   "depends": {
     "fabricloader": ">=0.16.14",
     "fabric-api": "*",
     "minecraft": "1.19.2",
-    "java": ">=17"
+    "java": ">=17",
+    "team_reborn_energy": ">=2.3.0"
   }
 }

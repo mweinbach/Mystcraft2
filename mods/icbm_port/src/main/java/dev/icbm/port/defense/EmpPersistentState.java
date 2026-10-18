@@ -26,7 +26,7 @@ public final class EmpPersistentState extends PersistentState {
         || radius <= 0) return;
     prune(time);
     if (zones.size() >= 256) zones.remove(0);
-    double bounded = Math.min(128, radius);
+    double bounded = Math.min(512, radius);
     zones.add(new Zone(center, bounded * bounded, time + 200));
     markDirty();
   }
@@ -60,7 +60,7 @@ public final class EmpPersistentState extends PersistentState {
           && Double.isFinite(z)
           && Double.isFinite(radius)
           && radius > 0
-          && radius <= 128 * 128
+          && radius <= 512 * 512
           && expiry >= 0) state.zones.add(new Zone(new Vec3d(x, y, z), radius, expiry));
     }
     return state;

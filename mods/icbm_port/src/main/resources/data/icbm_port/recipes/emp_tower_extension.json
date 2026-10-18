@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "prp",
+    "ewe",
+    "prp"
+  ],
+  "key": {
+    "p": {
+      "item": "icbm_port:steel_plate"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "e": {
+      "item": "icbm_port:battery"
+    },
+    "w": {
+      "item": "icbm_port:gold_wire"
+    }
+  },
+  "result": {
+    "item": "icbm_port:emp_tower_extension"
+  }
+}

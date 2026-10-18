@@ -111,9 +111,14 @@ public final class IcbmPort implements ModInitializer {
     Registry.register(Registry.ENTITY_TYPE, id("condensed_missile"), MISSILE_ENTITY);
     Registry.register(Registry.ENTITY_TYPE, id("primed_condensed_explosive"), PRIMED_EXPLOSIVE);
     dev.icbm.port.content.Materials.register();
+    dev.icbm.port.energy.EnergyContent.register();
+    dev.icbm.port.exposure.ExposureContent.register();
+    dev.icbm.port.simulation.SimulationContent.register();
     Payloads.initialize();
     LauncherContent.register();
     DeliveryContent.register();
     DefenseContent.register();
+    dev.icbm.port.api.IcbmApi.initialize();
+    dev.icbm.port.command.IcbmCommands.register();
   }
 }

@@ -8,7 +8,7 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | Port | Status | Notes |
 | --- | --- | --- |
 | [Mystcraft](mods/mystcraft/) | Scaffold | Loader entry point only. No gameplay has been ported. |
-| [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload families, tiered launchers, delivery systems, defenses, and configuration. |
+| [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload simulation, persistent flight/exposure, energy, delivery, defenses, screens and optional JEI. |
 
 Mystcraft targets Forge; ICBM targets Fabric. Their JARs require separate game
 instances with the matching loader, even though they share this repository.

@@ -45,7 +45,7 @@ public final class SamInterceptorEntity extends Entity implements FlyingItemEnti
       world.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
       return;
     }
-    if (++flightTicks > 100 || targetUuid == null) {
+    if (++flightTicks > 200 || targetUuid == null) {
       discard();
       return;
     }
@@ -61,8 +61,8 @@ public final class SamInterceptorEntity extends Entity implements FlyingItemEnti
     Entity target = found;
     Vec3d start = getPos();
     Vec3d aim =
-        target.getPos().add(target.getVelocity().multiply(Math.min(10, distanceTo(target) / 3.0)));
-    Vec3d desired = aim.subtract(start).normalize().multiply(3);
+        target.getPos().add(target.getVelocity().multiply(Math.min(10, distanceTo(target) / 4.0)));
+    Vec3d desired = aim.subtract(start).normalize().multiply(4);
     Vec3d motion = getVelocity().multiply(0.35).add(desired.multiply(0.65));
     Vec3d end = start.add(motion);
     BlockPos next = new BlockPos(end);
@@ -114,7 +114,7 @@ public final class SamInterceptorEntity extends Entity implements FlyingItemEnti
   @Override
   protected void readCustomDataFromNbt(NbtCompound nbt) {
     targetUuid = nbt.containsUuid("Target") ? nbt.getUuid("Target") : null;
-    flightTicks = MathHelper.clamp(nbt.getInt("FlightTicks"), 0, 100);
+    flightTicks = MathHelper.clamp(nbt.getInt("FlightTicks"), 0, 200);
     setNoGravity(true);
   }
 
@@ -125,6 +125,6 @@ public final class SamInterceptorEntity extends Entity implements FlyingItemEnti
 
   @Override
   public ItemStack getStack() {
-    return new ItemStack(Items.FIREWORK_ROCKET);
+    return new ItemStack(DefenseContent.SAM_MISSILE);
   }
 }

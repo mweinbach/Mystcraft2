@@ -11,6 +11,12 @@ import net.minecraft.util.registry.Registry;
 
 /** Delivery forms follow ExplosiveInit's tier-based content registration. */
 public final class DeliveryContent {
+  public static final net.minecraft.recipe.SpecialRecipeSerializer<CarrierLoadingRecipe>
+      CARRIER_LOADING =
+          new net.minecraft.recipe.SpecialRecipeSerializer<>(CarrierLoadingRecipe::new);
+  public static final net.minecraft.recipe.SpecialRecipeSerializer<CarrierUnloadingRecipe>
+      CARRIER_UNLOADING =
+          new net.minecraft.recipe.SpecialRecipeSerializer<>(CarrierUnloadingRecipe::new);
   public static final Item HELD_ITEM_MISSILE = new HeldItemMissileItem();
   public static final Item BALLISTIC_LAUNCHER =
       new RocketLauncherItem(new Item.Settings().group(IcbmPort.GROUP).maxDamage(256), true);
@@ -64,6 +70,17 @@ public final class DeliveryContent {
           .build();
 
   public static void register() {
+    DeliveryConfig.load();
+    net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register(
+        (player, world, hand, target, hit) -> {
+          var item = player.getStackInHand(hand).getItem();
+          return item instanceof CargoCarrierItem carrier
+              ? carrier.attachToEntity(player, hand, target)
+              : net.minecraft.util.ActionResult.PASS;
+        });
+    Registry.register(Registry.RECIPE_SERIALIZER, IcbmPort.id("carrier_loading"), CARRIER_LOADING);
+    Registry.register(
+        Registry.RECIPE_SERIALIZER, IcbmPort.id("carrier_unloading"), CARRIER_UNLOADING);
     Registry.register(Registry.ITEM, IcbmPort.id("held_item_missile"), HELD_ITEM_MISSILE);
     Registry.register(Registry.ITEM, IcbmPort.id("ballistic_launcher"), BALLISTIC_LAUNCHER);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("held_item_missile"), HELD_MISSILE);

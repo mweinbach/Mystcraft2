@@ -54,6 +54,9 @@ public final class LauncherContent {
       RADIO_DETONATOR = new RadioItem();
 
   public static void register() {
+    dev.icbm.port.flight.FlightSettings.load();
+    net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(
+        world -> dev.icbm.port.flight.FlightLedger.get(world).tick(world));
     block("launcher_base_tier_1", BASE_TIER_1);
     block("launcher_base_tier_2", BASE_TIER_2);
     block("launcher_base_tier_3", BASE_TIER_3);
@@ -122,7 +125,7 @@ public final class LauncherContent {
     int range =
         world.getBlockState(launcher).getBlock() instanceof dev.icbm.port.block.LauncherBlock block
             ? block.range()
-            : 4000;
+            : dev.icbm.port.flight.FlightSettings.current.maxRange;
     return !world.isOutOfHeightLimit(target)
         && world.getWorldBorder().contains(target)
         && target.getSquaredDistance(launcher) <= (double) range * range;

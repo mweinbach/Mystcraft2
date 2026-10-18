@@ -4,7 +4,7 @@ Source: [BuiltBrokenModding/ICBM-Classic](https://github.com/BuiltBrokenModding/
 
 Baseline: `prod/1.12`, revision `9c1d985a375adc2868ff47707b3a636452d0b63a`.
 The source targets Minecraft 1.12.2 / Forge. This module targets Minecraft 1.19.2 /
-Fabric and is an unofficial alpha, not a complete port.
+Fabric and is an unofficial recreation with documented adaptation boundaries.
 
 `src/main/java/dev/icbm/port/core/DirectFlight.java` adapts upstream
 `src/main/java/icbm/classic/content/missile/logic/flight/DirectFlightLogic.java`.
@@ -19,5 +19,9 @@ with per-file mappings in `tools/upstream_recipe_mapping.json`. Gameplay systems
 are reconstructed from the source families listed in `docs/PARITY.md`. No Mystcraft code or assets are
 included in this independently built module. The ICBM code license is distinct
 from the repository's root Mystcraft license.
+
+The nested Team Reborn Energy API 2.3.0 is MIT licensed and retains its license
+inside its bundled JAR. Optional JEI 11.8.1.1034 is a separate runtime dependency;
+its code and assets are not redistributed by this module.
 
 See [PORTING.md](PORTING.md) for implementation status and behavior differences.

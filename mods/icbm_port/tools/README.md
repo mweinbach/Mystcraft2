@@ -1,4 +1,4 @@
-# Prototype resource tooling
+# Resource tooling
 
 These resources are original JSON and use Minecraft texture identifiers. No
 upstream ICBM textures, language files, models, sounds, or other art are imported.
@@ -16,19 +16,19 @@ for exact source files, modern item/tag mappings, optional dependencies excluded
 and the remaining port-specific recipes. Recipe advancement unlocks expose
 recipes in the vanilla recipe book. Every placed block has a self-drop loot table.
 
-Explosives use original iron casing and colored band geometry. Colors are
-identification hints, not a reproduction of upstream art. Missiles use vanilla
-firework sprites, grenades fire-charge sprites, carts TNT minecart sprites, and
-tools use vanilla sprites. Machines and spikes have temporary cube models;
-machine power state currently has no visual indicator. Glass controls use
-vanilla model templates and state rotations with vanilla glass textures.
+Explosives use original iron casing and colored bands. All payload missiles,
+cluster/held missiles and SAM ammunition now use original 3D body/nose/fin models,
+with local +Y as their flight axis. Cargo carriers have original canopy/rope/basket
+and balloon models. Spikes use original stepped prong geometry. These models
+reference vanilla textures and do not reproduce upstream art. Grenades, carts and
+tools still use vanilla item sprites; most machines retain temporary cube models.
+Machine power currently has no visual indicator. Glass controls use vanilla model
+templates and state rotations with vanilla glass textures.
 
 The checker parses every JSON, resolves all explicit model parents and textures
 against the supplied vanilla jar or local resources, checks recipe mod-item
-model references, ensures block loot coverage, and checks survival recipe reachability with runtime sulfur loot assumed. It does not render models,
+model references, ensures block loot coverage, and checks survival recipe reachability with runtime sulfur loot and environmental radioactive blocks assumed. It does not render models,
 execute runtime registries (its static Java catalog audit is convention-specific), prove gameplay behavior, or establish upstream parity.
 
-Resource verification on October 18, 2026: 553 JSON files, 856 references and all 137 fixed-output recipe ingredient paths
-passed against the Minecraft 1.19.2 client jar. Manual in-game model appearance,
-glass transparency, hand transforms, sounds, custom animation and distinct item
-art remain unfinished.
+Resource verification on October 18, 2026: 572 JSON files, 1018 references and all 139 fixed-output recipe ingredient paths
+passed against the Minecraft 1.19.2 client jar. Client smoke testing confirmed missile item models and JEI recipe displays. Comprehensive glass transparency, hand transforms, sound, animation and multiplayer appearance checks remain pending.

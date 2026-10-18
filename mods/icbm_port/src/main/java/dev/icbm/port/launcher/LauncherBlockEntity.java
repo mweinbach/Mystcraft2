@@ -20,11 +20,39 @@ import net.minecraft.util.math.BlockPos;
 
 /** Standalone Fabric adaptation of upstream launcher inventory, target and energy buffer. */
 public final class LauncherBlockEntity extends BlockEntity
-    implements Inventory, NamedScreenHandlerFactory {
+    implements Inventory, NamedScreenHandlerFactory, dev.icbm.port.energy.EnergyMachine {
   private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
   private BlockPos target = BlockPos.ORIGIN;
-  private int energy = 1000, frequency;
+  private final dev.icbm.port.energy.EnergyBuffer energy;
+  private int frequency;
   private boolean targeted;
+  private net.minecraft.util.registry.RegistryKey<net.minecraft.world.World> payloadDimension;
+  private BlockPos payloadDestination;
+
+  public net.minecraft.util.registry.RegistryKey<net.minecraft.world.World> payloadDimension() {
+    return payloadDimension;
+  }
+
+  public BlockPos payloadDestination() {
+    return payloadDestination;
+  }
+
+  public boolean configurePayloadDestination(
+      net.minecraft.util.registry.RegistryKey<net.minecraft.world.World> dimension,
+      BlockPos destination) {
+    if (!(world instanceof net.minecraft.server.world.ServerWorld source)
+        || IcbmPort.payloadForMissile(getStack(0)) != dev.icbm.port.payload.PayloadType.ENDER)
+      return false;
+    var targetWorld = source.getServer().getWorld(dimension);
+    if (targetWorld == null
+        || targetWorld.isOutOfHeightLimit(destination)
+        || !targetWorld.getWorldBorder().contains(destination)) return false;
+    payloadDimension = dimension;
+    payloadDestination = destination.toImmutable();
+    markDirty();
+    return true;
+  }
+
   public final PropertyDelegate properties =
       new PropertyDelegate() {
         public int size() {
@@ -36,7 +64,7 @@ public final class LauncherBlockEntity extends BlockEntity
             case 0 -> target.getX();
             case 1 -> target.getY();
             case 2 -> target.getZ();
-            case 3 -> energy;
+            case 3 -> energy();
             case 4 -> targeted ? 1 : 0;
             case 5 -> frequency;
             case 6 -> target.getX() >> 16;
@@ -52,7 +80,7 @@ public final class LauncherBlockEntity extends BlockEntity
             case 0 -> target = new BlockPos(value, target.getY(), target.getZ());
             case 1 -> target = new BlockPos(target.getX(), value, target.getZ());
             case 2 -> target = new BlockPos(target.getX(), target.getY(), value);
-            case 3 -> energy = value;
+            case 3 -> energy.setAmount(value);
             case 4 -> targeted = value != 0;
             case 5 -> frequency = value;
           }
@@ -62,6 +90,8 @@ public final class LauncherBlockEntity extends BlockEntity
   public LauncherBlockEntity(BlockPos pos, BlockState state) {
     super(LauncherContent.BLOCK_ENTITY, pos, state);
     target = pos.toImmutable();
+    energy = new dev.icbm.port.energy.EnergyBuffer(capacity(), 1200, 1200, this::markDirty);
+    energy.setAmount(launcherBlock().tier == 0 ? 1000 : 0);
   }
 
   public BlockPos target() {
@@ -73,6 +103,11 @@ public final class LauncherBlockEntity extends BlockEntity
   }
 
   public int energy() {
+    return (int) energy.getAmount();
+  }
+
+  @Override
+  public dev.icbm.port.energy.EnergyBuffer energyBuffer() {
     return energy;
   }
 
@@ -101,22 +136,52 @@ public final class LauncherBlockEntity extends BlockEntity
   }
 
   public boolean acceptCharge() {
-    if (energy > capacity() - 1000) return false;
-    energy += 1000;
-    markDirty();
-    return true;
+    return energy.insert(1000, false) > 0;
   }
 
   public boolean charge() {
-    if (energy > capacity() - 1000 || !inventory.get(1).isOf(Items.REDSTONE)) return false;
+    if (dev.icbm.port.energy.EnergyContent.chargeFromBattery(this, 1, energy, 1200) > 0)
+      return true;
+    if (!inventory.get(1).isOf(Items.REDSTONE) || !acceptCharge()) return false;
     inventory.get(1).decrement(1);
-    energy += 1000;
     markDirty();
     return true;
   }
 
+  /** Discover connectivity each operation: removing a connector immediately splits pools. */
+  public void shareEnergy() {
+    if (world == null) return;
+    long required = launcherBlock().launchCost() - energy.getAmount();
+    if (required <= 0) return;
+    for (BlockPos candidate : LauncherNetwork.connected(world, pos)) {
+      if (candidate.equals(pos)
+          || !(world.getBlockEntity(candidate) instanceof LauncherBlockEntity donor)) continue;
+      try (var transaction =
+          net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+        long taken = donor.energyBuffer().extract(required, transaction);
+        if (energy.insert(taken, transaction) == taken) transaction.commit();
+      }
+      required = launcherBlock().launchCost() - energy.getAmount();
+      if (required <= 0) return;
+    }
+  }
+
+  public boolean pullNetworkAmmo() {
+    if (world == null || !getStack(0).isEmpty()) return false;
+    for (BlockPos candidate : LauncherNetwork.connected(world, pos)) {
+      if (!candidate.equals(pos)
+          && world.getBlockEntity(candidate) instanceof LauncherBlockEntity donor
+          && IcbmPort.isMissile(donor.getStack(0))) {
+        setStack(0, donor.removeStack(0, 1));
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void consumeLaunch() {
-    energy -= launcherBlock().launchCost();
+    if (!energy.consume(launcherBlock().launchCost()))
+      throw new IllegalStateException("Launcher energy changed during launch transaction");
     removeStack(0, 1);
     markDirty();
   }
@@ -126,9 +191,13 @@ public final class LauncherBlockEntity extends BlockEntity
     super.writeNbt(nbt);
     Inventories.writeNbt(nbt, inventory);
     nbt.putLong("Target", target.asLong());
-    nbt.putInt("Energy", energy);
+    energy.writeNbt(nbt);
     nbt.putInt("Frequency", frequency);
     nbt.putBoolean("Targeted", targeted);
+    if (payloadDimension != null && payloadDestination != null) {
+      nbt.putString("PayloadDimension", payloadDimension.getValue().toString());
+      nbt.putLong("PayloadDestination", payloadDestination.asLong());
+    }
   }
 
   @Override
@@ -137,10 +206,19 @@ public final class LauncherBlockEntity extends BlockEntity
     inventory.clear();
     Inventories.readNbt(nbt, inventory);
     target = nbt.contains("Target") ? BlockPos.fromLong(nbt.getLong("Target")) : pos.toImmutable();
-    energy =
-        nbt.contains("Energy") ? Math.max(0, Math.min(capacity(), nbt.getInt("Energy"))) : 1000;
+    if (nbt.contains("Energy")) energy.readNbt(nbt);
+    else energy.setAmount(launcherBlock().tier == 0 ? 1000 : 0);
     frequency = Math.max(0, Math.min(9999, nbt.getInt("Frequency")));
     targeted = nbt.getBoolean("Targeted");
+    payloadDimension = null;
+    payloadDestination = null;
+    var dimension = net.minecraft.util.Identifier.tryParse(nbt.getString("PayloadDimension"));
+    if (dimension != null && nbt.contains("PayloadDestination")) {
+      payloadDimension =
+          net.minecraft.util.registry.RegistryKey.of(
+              net.minecraft.util.registry.Registry.WORLD_KEY, dimension);
+      payloadDestination = BlockPos.fromLong(nbt.getLong("PayloadDestination"));
+    }
   }
 
   public int size() {
@@ -174,7 +252,9 @@ public final class LauncherBlockEntity extends BlockEntity
   }
 
   public boolean isValid(int slot, ItemStack stack) {
-    return slot == 0 ? IcbmPort.isMissile(stack) : stack.isOf(Items.REDSTONE);
+    return slot == 0
+        ? IcbmPort.isMissile(stack)
+        : (stack.isOf(Items.REDSTONE) || dev.icbm.port.energy.EnergyContent.isBattery(stack));
   }
 
   public boolean canPlayerUse(PlayerEntity player) {
@@ -191,7 +271,8 @@ public final class LauncherBlockEntity extends BlockEntity
   @Override
   public void markDirty() {
     super.markDirty();
-    if (world != null
+    if (energy != null
+        && world != null
         && !world.isClient
         && world.getBlockState(pos).getBlock() instanceof dev.icbm.port.block.LauncherBlock) {
       BlockState state = world.getBlockState(pos);

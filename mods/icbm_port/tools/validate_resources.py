@@ -51,7 +51,7 @@ print('PASS: JSON, model parents, vanilla textures, recipe item models, and bloc
 
 # Survival progression closure. Sulfur is supplied by the runtime mob-loot hook.
 recipes=[data for path,data in files.items() if '/recipes/' in path and '/advancements/' not in path and 'result' in data]
-obtainable={'icbm_port:sulfur_dust'}
+obtainable={'icbm_port:sulfur_dust','icbm_port:radioactive_stone','icbm_port:radioactive_dirt'}
 def available(value):
  if isinstance(value,list):return any(available(v) for v in value)
  if 'tag' in value:return True
@@ -74,6 +74,7 @@ launcher=(java/'launcher/LauncherContent.java').read_text()
 defense=(java/'defense/DefenseContent.java').read_text()
 delivery=(java/'delivery/DeliveryContent.java').read_text()
 materials=(java/'content/Materials.java').read_text()
+exposure=(java/'exposure/ExposureContent.java').read_text()
 enum=re.search(r'public\s+enum\s+PayloadType\s*\{(.*?);', (java/'payload/PayloadType.java').read_text(), re.S).group(1)
 payloads=[]
 for match in re.finditer(r'([A-Z][A-Z_]*)(?:\s*\(([^)]*)\))?',enum):
@@ -82,14 +83,19 @@ for match in re.finditer(r'([A-Z][A-Z_]*)(?:\s*\(([^)]*)\))?',enum):
  payloads.append(re.search(r'"([^" ]+)"',args).group(1) if args else name.lower())
 tier_one=payloads[:8]+['colors','smoke']
 blocks={p+'_explosive' for p in payloads}|{'launcher'}
-for source in [launcher,defense]:blocks.update(re.findall(r'\bblock\s*\(\s*"([a-z0-9_]+)"',source))
+for source in [launcher,defense,exposure]:blocks.update(re.findall(r'\bblock\s*\(\s*"([a-z0-9_]+)"',source))
 items=set(blocks)|{p+'_missile' for p in payloads}|{p+'_bomb_cart' for p in payloads}|{p+suffix for p in tier_one for suffix in ['_grenade','_bomblet']}
-for source in [root,launcher,defense,delivery]:
+for source in [root,launcher,defense,delivery,exposure]:
  items.update(re.findall(r'Registry\s*\.\s*register\s*\(\s*Registry\s*\.\s*ITEM\s*,\s*(?:IcbmPort\s*\.\s*)?id\s*\(\s*"([a-z0-9_]+)"',source))
 items.update(re.findall(r'\bitem\s*\(\s*"([a-z0-9_]+)"',defense))
 items.update(re.findall(r'"([a-z0-9_]+)"',re.search(r'new\s+String\s*\[\s*\]\s*\{([^}]*)\}', materials, re.S).group(1)))
 entities=set()
-for source in [root,launcher,defense,delivery]:entities.update(re.findall(r'Registry\s*\.\s*register\s*\(\s*Registry\s*\.\s*ENTITY_TYPE\s*,\s*(?:IcbmPort\s*\.\s*)?id\s*\(\s*"([a-z0-9_]+)"',source))
+for source in [root,launcher,defense,delivery,exposure]:entities.update(re.findall(r'Registry\s*\.\s*register\s*\(\s*Registry\s*\.\s*ENTITY_TYPE\s*,\s*(?:IcbmPort\s*\.\s*)?id\s*\(\s*"([a-z0-9_]+)"',source))
+# Also inspect direct Identifier constructors used by simulation registration.
+for source_file in java.rglob('*.java'):
+ source_text=source_file.read_text()
+ for registry,target in [('ITEM',items),('BLOCK',blocks),('ENTITY_TYPE',entities)]:
+  target.update(re.findall(r'Registry\s*\.\s*register\s*\(\s*Registry\s*\.\s*'+registry+r'\s*,\s*new\s+Identifier\s*\(\s*"icbm_port"\s*,\s*"([a-z0-9_]+)"',source_text))
 lang=files['assets/icbm_port/lang/en_us.json'];catalog_errors=[]
 for item in items:
  if f'assets/icbm_port/models/item/{item}.json' not in files:catalog_errors.append('No model '+item)

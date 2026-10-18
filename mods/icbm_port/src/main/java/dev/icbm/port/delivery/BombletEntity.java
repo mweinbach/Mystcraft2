@@ -65,6 +65,10 @@ public final class BombletEntity extends ThrownItemEntity {
 
   @Override
   public void tick() {
+    if (hasVehicle()) {
+      baseTick();
+      return;
+    }
     if (!world.isClient
         && (age > 1200
             || !world.isChunkLoaded(getBlockPos())

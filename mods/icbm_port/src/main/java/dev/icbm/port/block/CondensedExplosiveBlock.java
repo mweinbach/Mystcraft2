@@ -36,11 +36,16 @@ public final class CondensedExplosiveBlock extends Block {
   }
 
   public boolean prime(World world, BlockPos pos, int fuse) {
+    return prime(world, pos, fuse, null);
+  }
+
+  public boolean prime(World world, BlockPos pos, int fuse, Entity owner) {
     if (world.isClient) return false;
     PrimedExplosiveEntity entity = new PrimedExplosiveEntity(IcbmPort.PRIMED_EXPLOSIVE, world);
     entity.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
     entity.setFuse(fuse);
     entity.setPayload(payload);
+    entity.setOwner(owner);
     if (!world.spawnEntity(entity)) return false;
     world.playSound(null, pos, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1, 1);
     return true;
@@ -75,10 +80,11 @@ public final class CondensedExplosiveBlock extends Block {
       PlayerEntity player,
       Hand hand,
       BlockHitResult hit) {
+    if (player.isSpectator()) return ActionResult.PASS;
     ItemStack stack = player.getStackInHand(hand);
     if (!stack.isOf(Items.FLINT_AND_STEEL) && !stack.isOf(Items.FIRE_CHARGE))
       return ActionResult.PASS;
-    if (!world.isClient && prime(world, pos, payload.blockFuseTicks())) {
+    if (!world.isClient && prime(world, pos, payload.blockFuseTicks(), player)) {
       world.removeBlock(pos, false);
       if (!player.getAbilities().creativeMode) {
         if (stack.isOf(Items.FLINT_AND_STEEL))
@@ -97,7 +103,8 @@ public final class CondensedExplosiveBlock extends Block {
         && projectile.isOnFire()
         && (owner == null || owner instanceof PlayerEntity)
         && projectile.canModifyAt(world, hit.getBlockPos()))
-      primeAndRemove(world, hit.getBlockPos());
+      if (prime(world, hit.getBlockPos(), payload.blockFuseTicks(), owner))
+        world.removeBlock(hit.getBlockPos(), false);
   }
 
   @Override
@@ -107,6 +114,6 @@ public final class CondensedExplosiveBlock extends Block {
 
   @Override
   public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-    prime(world, pos, 10 + world.random.nextInt(20));
+    prime(world, pos, 10 + world.random.nextInt(20), explosion.getCausingEntity());
   }
 }

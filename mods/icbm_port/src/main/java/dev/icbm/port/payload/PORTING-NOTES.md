@@ -1,110 +1,118 @@
-# Blast implementation and remaining differences
+# Blast and simulation implementation
 
-Catalog and default quantities derive from ICBM Classic's MIT `ExplosiveInit`,
-`ConfigBlast`, and blast implementations at the pinned upstream revision.
-The Java code here is a new server-side implementation using vanilla entities,
-particles, status effects and Fabric world tick callbacks; no upstream assets.
+This package adapts MIT Java behavior from the pinned ICBM Classic source:
+`ExplosiveInit`, `BlastTNT`, `BlastThermobaric`, `BlastGasBase`, `BlastMutation`,
+`BlastAntiGravitational`, `EntityFlyingBlock`, and redmatter entity/logic. The
+module packages the upstream MIT notice. No upstream artwork is imported.
 
-All 27 registered IDs are represented, including four upstream non-content slots.
-23 content payloads are executable. Reserved hypersonic/missile slots are no-ops,
-as upstream. Tier and delivery-specific default fuses are exposed by the enum.
+## Execution and persistence
 
-Distinct implemented mechanics: condensed vanilla power6; burning arrow shrapnel
-(30/damage11); falling anvil fragments (25/damage30); fragmentation (15 explosive
-rays plus damage11 arrows); fire placement radius14; lingering 600-tick radius20
-debilitation/chemical/contagious fields; inward/outward force; narrow energy-budget
-breaching (7 deep/15376 energy); sonic ejected blocks; resistance-filtered radius30
-thermobaric/radius50 nuclear destruction; nuclear pig/villager mutation; radius55
-antimatter removal; radius30 hot/cold terrain transformations; lift fields;
-random local ender relocation; temporary redmatter attraction and consumption;
-100-tick smoke emitters; harmless colorful dust gas. EMP delegates to registered technology handlers.
+All27 upstream definitions exist, with23 content variants and4 reserved/no-content
+slots. `Payloads.detonate` remains the delivery entrypoint. `detonateScaled`
+accepts an absolute radius override, checks the server and bounds, applies API
+before/after events, and reports admission. Jobs retain the API action source,
+including UUID attribution, across saves. `removeNear` cancels queued work and
+singularities and settles captured blocks safely. Unknown/nonfinite saved data
+is rejected; progress and lifetime are clamped.
 
-These are **not complete blast parity**. Differences requiring follow-up:
-- Condensed propagation/damage uses vanilla, not upstream ray energy logic.
-- Projectile collision physics are vanilla; fragmentation uses immediate traced
-  secondary bursts, not the upstream moving explosive fragment entity.
-- Gas is a persisted spherical field; no upstream cell diffusion, hazmat
-  integration, toxicity capability, or independently carried contagious illness.
-- Large destruction uses an explicit resistance/distance rule, not upstream
-  threaded ray propagation. It respects unbreakable blocks, including antimatter
-  (upstream antimatter can optionally destroy unbreakable terrain).
-- Redmatter is a stationary 120-second queued field; feeding, merging,
-  motion, variable size, antimatter cancellation and full entity are outstanding.
-- Antigravity lifts entities for120 seconds; falling blocks regain vanilla
-  gravity immediately and do not reproduce custom flying-block rendering.
-- Ender uses safe random local relocation; GPS/custom destination and cross-world
-  transplantation are outstanding.
-- Rot uses coarse dirt/plant decay; custom radioactive block replacements,
-  radiation capability and custom mutation mobs remain outstanding.
-- Color retains upstream visual-only intent using vanilla dust particles. Hot/cold transforms cover vanilla base terrain and fluids;
-  upstream full material classification and day/night changes are outstanding.
-- Configuration uses the Fabric JSON format described below; legacy Forge
-  config files, full material replacement lists and optional integration knobs
-  are not imported.
+The queue admits256 jobs including deferred work. It serves up to8 jobs per
+server tick with512 work units each, round-robin. Every job's persisted elapsed
+lifetime advances every world tick. Timed fields stop applying effects when
+expired and retire within32 ticks of service latency at full load. Processed age
+is separate for first-effect and pulse scheduling. Legacy saves use processed
+age when the elapsed field is absent. No code accesses worlds off thread, holds
+chunk tickets, or edits unloaded/out-of-border/out-of-height terrain.
 
-Work is persisted per dimension through PersistentState. All edits are on server
-world ticks, skip unloaded chunks/build limits/border, and never retain tickets.
-At most4096 candidate block positions are visited per world tick (512/job),
-256 pending effects are admitted, and each entity query affects at most256
-entities. Unloaded portions are skipped permanently. Multiple active blasts are
-served round-robin (eight jobs per world tick), so every admitted job receives a
-turn within32 ticks even when earlier jobs are long lived. Queued
-source entity attribution is not persisted. These limits are intentional port
-performance bounds, not upstream behavior parity.
+## Propagation and terrain
 
+Condensed and attractive/repulsive terrain use the upstream16-axis cube-surface
+ray algorithm:0.3-block steps,0.225 air energy loss, resistance plus0.3 scaled by
+0.3, and0.7–1.3 per-ray starting energy jitter. Jitter is deterministic by ray ID,
+which makes interrupted work reproducible. Thermobaric/nuclear use the source
+angular grid (ceil(pi*radius) polar slices, twice that many yaw slices),0.5-block
+steps,1.125 air energy loss and resistance charged once per entered block. Their
+liquid resistance is0.25. Collection completes before destruction, so removing
+one ray's blocks cannot erase shielding for later rays. Collection, ray energy,
+step and destruction cursor all persist. Each blast retains at most65536 affected
+positions. This explicit cap can truncate a very large crater; large grids may
+take many ticks. The older simplified sphere threshold is not used by new
+condensed/thermobaric/nuclear jobs.
 
-## Server configuration
+Other families retain distinct mechanics: burning damage11 shrapnel30 arrows;
+25 falling anvil fragments;15 explosive fragment rays plus arrows; incendiary
+ignition; seven-deep energy-budget breaching; sonic ejection; thermal vanilla
+material/fluid conversion; maximal-damage antimatter; smoke and color particles.
+Nuclear completion invokes mutation and the exposure module's contamination
+work. EMP invokes registered defense handlers. Antimatter cancels nearby
+redmatter singularities.
 
-`Payloads.initialize()` creates `config/icbm_port/payloads.json` with an entry for
-all27 catalog IDs. Operators with permission level2 can run
-`/icbm_payloads reload`; restarting the server also loads it. Omitted entries and
-fields retain typed defaults. Unknown IDs/fields, wrong JSON types, fractional
-integers, nonfinite values and out-of-range values reject the complete reload;
-the previous working configuration remains active and an error is reported.
-A malformed file at startup logs an error and uses defaults. Files over1MiB are
-rejected. This file is server configuration and is not client-synchronized.
+Gas uses saved six-neighbor diffusion with directional collision bounds adapted
+from `BlastGasBase`, rather than applying through all blocks in a sphere. There
+are at most65536 visited cells. Blocked cells prevent a sealed solid enclosure
+from leaking. Only living targets whose feet occupy an affected cell are passed
+to `ExposureContent.expose` every5 service ticks. Toxicity, armor protection,
+contagion and radiation belong to the exposure package. Gas cells currently grow
+to the configured radius as work permits rather than reproducing the exact
+upstream radius-over-time curve; previously blocked cells are not automatically
+reopened after wall removal. Visual particle spread is cosmetic.
 
-Every entry exposes:
+## Conserved block entities and redmatter
 
-| Field | Valid range | Effects which consume it |
+`SimulationContent.register()` registers `flying_block` and
+`redmatter_singularity`; `SimulationClient.register()` supplies vanilla-texture
+renderers. A flying block captures complete blockstate and block-entity NBT.
+The source BE is removed before clearing its block, preventing inventory scatter.
+On landing it either restores the block/BE or drops one state/NBT-bearing item.
+Completion is one-shot, including repeated settlement. Save/load preserves its
+cargo, remaining no-gravity lift and lifetime. Unloaded boundaries stop movement
+and settle in loaded terrain. Multi-part doors, beds, piston heads and paired
+chests are not split. Block data from a held-item carrier can be constructed via
+`FlyingBlockEntity.fromCargo` without consuming a world block. Passengers pause
+movement until released. Antigravity captures real flying blocks with remaining
+field duration; they regain gravity and settle afterward.
+
+Redmatter is now a saved moving/no-clip entity. It pulls entities with distance
+falloff, captures up to4 blocks while examining at most128 cube-wall positions
+per tick, consumes captured blocks at its core, grows by feeding, starves when
+unfed, merges overlapping cores, retains momentum, and obeys its configured
+lifetime. Size, scan position, owner and lifetime survive save/load. Maximum
+configured size defaults12; source starts at1, minimum0.25. Gameplay uses a
+vanilla ender-eye rendering and particles; the upstream custom shader/art and
+complex visual beam mesh are not imported. Upstream per-block mass accounting,
+explosion-specific momentum coefficients, audio, and every optional redmatter
+configuration branch are not yet identical.
+
+GPS-customized ender missiles carry target dimension/position independently of
+flight. Their payload moves nearby entities and conserved blocks to matching
+offsets in an already loaded target world. Occupied block destinations and
+unloaded terrain are skipped rather than overwritten/force-loaded. An ender
+payload with no custom destination retains safe local random entity relocation.
+
+## Configuration
+
+`config/icbm_port/payloads.json` is generated on initialization. Permission-level2
+operators can run `/icbm_payloads reload`. Invalid JSON, unknown IDs/fields,
+nonfinite numbers, fractional integers and out-of-range values reject the whole
+reload while retaining working settings. Missing fields use typed defaults;
+files over1MiB are rejected. Legacy Forge config files are not imported.
+
+| Field | Range | Consumers |
 | --- | --- | --- |
-| enabled | boolean | All types; disabled queued effects end on their next service turn |
-| radius | 0–80 | Queued terrain/gas/gravity effects, condensed, attractive/repulsive, ender and mutation; EMP through the defense callback |
-| entityDamage | 0–2147483647 | Shrapnel, anvil, fragmentation arrows, breaching, thermobaric/nuclear, antimatter and redmatter |
-| fragments | 0–128 | Shrapnel, anvil and fragmentation |
-| durationTicks | 0–72000 | Gas, smoke, antigravity and redmatter |
-| energy | 0–20000 | Breaching budget, thermobaric/nuclear resistance threshold, fragmentation burst power |
-| blockFuseTicks | 0–72000 | Payload block activation |
-| cartFuseTicks | 0–72000 | Bomb cart activation |
-| grenadeFuseTicks | 0–72000 | Grenade activation |
+| enabled | boolean | All payloads; queued work ends at next service |
+| radius |0–80| Queued fields, condensed bounds, force, mutation, ender, EMP callback, redmatter maximum size |
+| entityDamage |0–2147483647| Condensed, arrows/anvils, breach, thermobaric/nuclear, antimatter/redmatter |
+| fragments |0–128| Shrapnel, anvil, fragmentation |
+| durationTicks |0–72000| Gas, smoke, antigravity, singularity |
+| energy |0–20000| Condensed/force rays, breaching, thermobaric/nuclear, fragmentation bursts |
+| blockFuseTicks/cartFuseTicks/grenadeFuseTicks |0–72000| New corresponding delivery activations |
 
-Unused fields are retained in the uniform schema but have no effect on that
-family. Condensed uses vanilla explosion power from radius, capped16; its
-entityDamage and energy fields do not replace vanilla explosion calculations.
-Attractive/repulsive vanilla burst power and fragmentation burst power are also
-capped16. Existing queued effects retain their initial radius, including through
-save/reload; duration, damage, energy and enabled changes apply on subsequent
-ticks. Existing primed delivery forms retain their already assigned fuse.
-The redmatter defaults intentionally retain this port's bounded radius12 and
-2400-tick lifespan, rather than claiming upstream variable-size entity parity.
-Gas potion durations/amplifiers, toxicity growth, force strengths, breaching
-width/depth and transport offsets remain fixed implementation parameters.
-
-Saved queue loading rejects nonfinite/out-of-world coordinates and unknown types,
-clamps progress to the stored cube size and72000-tick age limit, inspects at most
-4096 saved entries, and accepts at most256 jobs. Deferred jobs share that admission
-cap and are included in serialization. Dedicated-server queue tests exercise
-resuming an interrupted thermal transformation, preservation of bedrock, the
-4096-candidate world budget,512-candidate job shares, malformed saved state and
-combined immediate/deferred admission.
-
-Every admitted job increments a separate persisted elapsed lifetime each server
-world tick, including ticks when it receives no work slot. Gas, smoke, antigravity
-and redmatter expire by their configured duration and retire within at most32
-additional ticks of service latency under a full queue. Expired fields apply no
-further effects when served. Processed age remains separate for first-effect and
-pulse scheduling. Legacy saves without elapsed lifetime use prior processed age
-as a compatibility fallback. A full256-job load test saves and restores fields
-near expiry, then verifies all retire within the bounded service latency.
-The debilitation integration test removes its own live field at completion to
-prevent accumulating persistent test work across reruns.
+Queued radius, initial ray energy and captured block lift are snapshots; enabled,
+damage and field durations are checked live. Existing primed fuses retain their
+assigned value. Unused fields remain in the uniform schema. Fragmentation bursts
+still use vanilla power capped16 and immediate collision traces rather than the
+upstream moving explosive-fragment entity. Source-specific sounds, custom
+fragment models, exhaustive material rules and full Forge integration remain
+differences. Dedicated-server tests exercise registry/timing, projectiles,
+mutation, gas, budgets, lifetime/reload, inventory conservation, shielding,
+singularity consumption and diffusion walls. Interactive client playtesting is
+still required for custom entity presentation.

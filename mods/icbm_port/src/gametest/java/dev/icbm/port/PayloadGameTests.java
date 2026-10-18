@@ -87,4 +87,24 @@ public class PayloadGameTests implements FabricGameTest {
   public void queuedFieldsKeepElapsedLifetimeAcrossReload(TestContext c) {
     dev.icbm.port.payload.PayloadQueueAssertions.loadedQueuesKeepRealTimeFieldLifetimes(c);
   }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void capturedInventoryRestoresOnceAfterReload(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.flyingInventoryHasOneOwnerAcrossReload(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void rayEnergySurvivesReloadAndRespectsShielding(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.raysResumeAndRespectShielding(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void singularityConsumesAndPersists(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.singularityPersistsAndConsumesCapturedBlocks(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void gasRespectsEnclosureAfterReload(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.gasCannotPassSolidEnclosure(c);
+  }
 }

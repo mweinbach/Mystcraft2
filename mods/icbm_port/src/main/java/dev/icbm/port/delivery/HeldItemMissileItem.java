@@ -46,7 +46,7 @@ public final class HeldItemMissileItem extends Item {
   }
 
   public static boolean allowed(ItemStack cargo) {
-    return !cargo.isEmpty()
+    return DeliveryConfig.heldAllowed(cargo)
         && !cargo.isOf(DeliveryContent.HELD_ITEM_MISSILE)
         && !cargo.isOf(DeliveryContent.CLUSTER_MISSILE)
         && !cargo.isOf(DeliveryContent.CARGO_BALLOON)

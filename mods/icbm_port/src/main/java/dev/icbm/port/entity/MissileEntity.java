@@ -1,7 +1,6 @@
 package dev.icbm.port.entity;
 
 import dev.icbm.port.IcbmPort;
-import dev.icbm.port.core.GameFlightPath;
 import dev.icbm.port.delivery.ClusterPlan;
 import dev.icbm.port.delivery.DeliveryContent;
 import dev.icbm.port.payload.PayloadType;
@@ -18,17 +17,73 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 /** Server-authoritative game projectile; targeted arcs are bounded Minecraft animations. */
-public final class MissileEntity extends ThrownItemEntity {
+public final class MissileEntity extends ThrownItemEntity
+    implements dev.icbm.port.flight.FlightTracked {
   private int flightTicks;
   private int empTicks;
   private PayloadType payload = PayloadType.CONDENSED;
   private boolean cluster;
   private ClusterPlan clusterPlan = ClusterPlan.EMPTY;
-  private Vec3d launchStart;
-  private BlockPos target;
-  private int duration;
-  private int pathTicks;
-  private double lift;
+  private final dev.icbm.port.flight.StagedFlight flight = new dev.icbm.port.flight.StagedFlight();
+  private int fuel = dev.icbm.port.flight.FlightProfile.CRUISE_FUEL;
+  private float health = 50;
+  private boolean poweredFuel;
+  private net.minecraft.util.registry.RegistryKey<World> targetDimension;
+  private BlockPos payloadDestination;
+
+  public net.minecraft.util.registry.RegistryKey<World> getTargetDimension() {
+    return targetDimension == null ? world.getRegistryKey() : targetDimension;
+  }
+
+  public BlockPos getTargetPosition() {
+    return payloadDestination;
+  }
+
+  public void configurePayloadDestination(
+      net.minecraft.util.registry.RegistryKey<World> dimension, BlockPos position) {
+    targetDimension = dimension;
+    payloadDestination = position.toImmutable();
+  }
+
+  @Override
+  public dev.icbm.port.flight.StagedFlight flightPlan() {
+    return flight;
+  }
+
+  public void configureFuel(int ticks) {
+    poweredFuel = true;
+    fuel = Math.max(0, Math.min(12000, ticks));
+  }
+
+  public int getFuel() {
+    return fuel;
+  }
+
+  public float getMissileHealth() {
+    return health;
+  }
+
+  @Override
+  public boolean canHit() {
+    return !isRemoved();
+  }
+
+  @Override
+  public boolean isAttackable() {
+    return true;
+  }
+
+  @Override
+  public boolean damage(net.minecraft.entity.damage.DamageSource source, float amount) {
+    if (world.isClient
+        || isRemoved()
+        || isInvulnerableTo(source)
+        || !Float.isFinite(amount)
+        || amount <= 0) return false;
+    health -= amount;
+    if (health <= 0) discard();
+    return true;
+  }
 
   public MissileEntity(EntityType<? extends MissileEntity> type, World world) {
     super(type, world);
@@ -46,6 +101,7 @@ public final class MissileEntity extends ThrownItemEntity {
 
   public void setPayload(PayloadType payload) {
     this.payload = payload.hasContent() ? payload : PayloadType.CONDENSED;
+    health = dev.icbm.port.flight.FlightProfile.health(this.payload.tier());
     setItem(
         new ItemStack(
             IcbmPort.MISSILE_ITEMS.getOrDefault(this.payload, IcbmPort.CONDENSED_MISSILE)));
@@ -88,60 +144,65 @@ public final class MissileEntity extends ThrownItemEntity {
   }
 
   public void configureTarget(BlockPos target) {
-    Vec3d end = Vec3d.ofCenter(target);
-    double distance = getPos().distanceTo(end);
-    if (!Double.isFinite(distance)
-        || distance > 4096
-        || world.isOutOfHeightLimit(target)
-        || !world.getWorldBorder().contains(target))
-      throw new IllegalArgumentException("Target outside flight bounds");
-    this.target = target.toImmutable();
-    launchStart = getPos();
-    duration = Math.max(2, Math.min(2400, (int) Math.ceil(distance / IcbmPort.MISSILE_SPEED)));
-    pathTicks = 0;
-    lift =
-        Math.max(0, Math.min(distance * .25, world.getTopY() - 2 - Math.max(end.y, launchStart.y)));
+    flight.configure(world, getPos(), target);
   }
 
   @Override
   public void tick() {
-    if (!world.isClient && isEmpDisabled()) {
-      empTicks--;
-      // Disabled missiles lose their guidance and coast under gravity. Their payload is inert while
-      // disabled.
-      target = null;
-      setNoGravity(empTicks == 0);
-    }
-    Vec3d motion = getVelocity();
-    if (!world.isClient && target != null && !isEmpDisabled()) {
-      GameFlightPath.Point point =
-          GameFlightPath.sample(
-              new GameFlightPath.Point(launchStart.x, launchStart.y, launchStart.z),
-              new GameFlightPath.Point(target.getX() + .5, target.getY() + .5, target.getZ() + .5),
-              lift,
-              ++pathTicks / (double) duration);
-      motion = new Vec3d(point.x(), point.y(), point.z()).subtract(getPos());
-      setVelocity(motion);
-    }
-    Vec3d next = getPos().add(motion);
-    if (!world.isClient
-        && (++flightTicks > (target == null ? IcbmPort.MISSILE_LIFETIME : 2400)
-            || !Double.isFinite(next.x)
-            || !Double.isFinite(next.y)
-            || !Double.isFinite(next.z)
-            || next.y < world.getBottomY()
-            || next.y >= world.getTopY()
-            || !world.getWorldBorder().contains(new BlockPos(next))
-            || !world.isChunkLoaded(new BlockPos(next)))) {
+    if (!world.isClient && health <= 0) {
       discard();
       return;
+    }
+    if (!world.isClient && dev.icbm.port.flight.FlightLedger.suppressDuplicate(this, flight)) {
+      discard();
+      return;
+    }
+    if (!world.isClient && isEmpDisabled()) {
+      empTicks--;
+      flight.clear();
+      setNoGravity(empTicks == 0 && fuel > 0);
+    }
+    Vec3d motion = getVelocity();
+    if (!world.isClient && flight.targeted() && !isEmpDisabled()) {
+      motion = flight.nextVelocity(this);
+      setVelocity(motion);
+    }
+    if (!world.isClient && poweredFuel && !flight.targeted() && !isEmpDisabled()) {
+      if (fuel > 0) fuel--;
+      if (fuel == 0) setNoGravity(false);
+    }
+    Vec3d next = getPos().add(motion);
+    if (!world.isClient) {
+      flightTicks++;
+      boolean finite =
+          Double.isFinite(next.x) && Double.isFinite(next.y) && Double.isFinite(next.z);
+      if (!finite
+          || flightTicks > (flight.targeted() || poweredFuel ? 12000 : IcbmPort.MISSILE_LIFETIME)
+          || next.y < world.getBottomY()
+          || !world.getWorldBorder().contains(new BlockPos(next))) {
+        discard();
+        return;
+      }
+      if (flight.targeted()
+          && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
+                  && flight.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
+              || !world.isChunkLoaded(new BlockPos(next)))) {
+        if (dev.icbm.port.flight.FlightLedger.tryCapture(this, flight)) return;
+        // Admission exhaustion is inert and bounded rather than silently loading arbitrary terrain.
+        discard();
+        return;
+      }
+      if (next.y >= world.getTopY() || !world.isChunkLoaded(new BlockPos(next))) {
+        discard();
+        return;
+      }
     }
     super.tick();
     if (!isRemoved() && hasNoGravity()) setVelocity(motion);
     if (!world.isClient
         && !isRemoved()
         && !isEmpDisabled()
-        && ((cluster && flightTicks >= 40) || (target != null && pathTicks >= duration)))
+        && ((cluster && flightTicks >= 40 && !flight.targeted()) || flight.arrived()))
       detonate(getPos());
     if (world.isClient) world.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
   }
@@ -169,46 +230,55 @@ public final class MissileEntity extends ThrownItemEntity {
     nbt.putString("Payload", payload.id());
     nbt.putBoolean("Cluster", cluster);
     clusterPlan.writeTo(nbt);
-    if (target != null) {
-      nbt.putLong("Target", target.asLong());
-      nbt.putDouble("StartX", launchStart.x);
-      nbt.putDouble("StartY", launchStart.y);
-      nbt.putDouble("StartZ", launchStart.z);
-      nbt.putInt("Duration", duration);
-      nbt.putInt("PathTicks", pathTicks);
-      nbt.putDouble("Lift", lift);
+    if (payloadDestination != null && targetDimension != null) {
+      nbt.putLong("PayloadDestination", payloadDestination.asLong());
+      nbt.putString("TargetDimension", targetDimension.getValue().toString());
     }
+    nbt.put("FlightPlan", flight.writeNbt());
+    nbt.putInt("Fuel", fuel);
+    nbt.putBoolean("PoweredFuel", poweredFuel);
+    nbt.putFloat("MissileHealth", health);
   }
 
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
     super.readCustomDataFromNbt(nbt);
-    flightTicks = Math.max(0, Math.min(2400, nbt.getInt("FlightTicks")));
+    flightTicks = Math.max(0, Math.min(12000, nbt.getInt("FlightTicks")));
     empTicks = Math.max(0, Math.min(12000, nbt.getInt("EmpTicks")));
     setPayload(IcbmPort.payloadById(nbt.getString("Payload")));
     cluster = nbt.getBoolean("Cluster");
     clusterPlan = ClusterPlan.read(nbt);
     updateClusterItem();
-    target = null;
-    if (nbt.contains("Target")) {
-      Vec3d start =
-          new Vec3d(nbt.getDouble("StartX"), nbt.getDouble("StartY"), nbt.getDouble("StartZ"));
-      BlockPos end = BlockPos.fromLong(nbt.getLong("Target"));
-      double savedLift = nbt.getDouble("Lift");
-      if (Double.isFinite(start.x)
-          && Double.isFinite(start.y)
-          && Double.isFinite(start.z)
-          && start.distanceTo(Vec3d.ofCenter(end)) <= 4096
-          && !world.isOutOfHeightLimit(end)
-          && world.getWorldBorder().contains(end)
-          && Double.isFinite(savedLift)) {
-        launchStart = start;
-        target = end;
-        lift = Math.max(0, Math.min(512, savedLift));
-        duration = Math.max(2, Math.min(2400, nbt.getInt("Duration")));
-        pathTicks = Math.max(0, Math.min(duration, nbt.getInt("PathTicks")));
+    payloadDestination = null;
+    targetDimension = null;
+    net.minecraft.util.Identifier dimension =
+        net.minecraft.util.Identifier.tryParse(nbt.getString("TargetDimension"));
+    if (dimension != null && nbt.contains("PayloadDestination"))
+      configurePayloadDestination(
+          net.minecraft.util.registry.RegistryKey.of(
+              net.minecraft.util.registry.Registry.WORLD_KEY, dimension),
+          BlockPos.fromLong(nbt.getLong("PayloadDestination")));
+    flight.clear();
+    if (nbt.contains("FlightPlan")) flight.readNbt(world, nbt.getCompound("FlightPlan"));
+    else if (nbt.contains(
+        "Target")) { // Upgrade the earlier one-arc prototype save without resetting its target.
+      try {
+        flight.configure(world, getPos(), BlockPos.fromLong(nbt.getLong("Target")));
+      } catch (IllegalArgumentException invalid) {
+        flight.clear();
       }
     }
-    setNoGravity(empTicks == 0);
+    fuel = nbt.contains("Fuel") ? Math.max(0, Math.min(12000, nbt.getInt("Fuel"))) : 200;
+    poweredFuel = nbt.getBoolean("PoweredFuel");
+    if (nbt.contains("MissileHealth"))
+      health =
+          Float.isFinite(nbt.getFloat("MissileHealth"))
+              ? Math.max(
+                  0,
+                  Math.min(
+                      dev.icbm.port.flight.FlightProfile.health(payload.tier()),
+                      nbt.getFloat("MissileHealth")))
+              : dev.icbm.port.flight.FlightProfile.health(payload.tier());
+    setNoGravity(empTicks == 0 && (!poweredFuel || fuel > 0));
   }
 }

@@ -123,3 +123,45 @@ lang['entity.icbm_port.held_item_missile']='Held Item Missile'
 lang['tooltip.icbm_port.held_contents']='Held item: %s'
 lang['tooltip.icbm_port.held_mode']='Action: %s'
 put('assets/icbm_port/lang/en_us.json',lang)
+
+# Original three-dimensional rockets: local +Y nose axis, centered at X/Z=8.
+def rocket_model(id,color):
+ elements=[]
+ def box(lo,hi,texture):elements.append({'from':lo,'to':hi,'faces':{face:{'texture':'#'+texture} for face in ['up','down','north','south','east','west']}})
+ box([5,2,5],[11,12,11],'case');box([4.99,8,4.99],[11.01,10,11.01],'band')
+ box([6,12,6],[10,14,10],'band');box([7,14,7],[9,16,9],'tip')
+ box([4,0,4],[12,2,12],'engine')
+ for lo,hi in [([1,1,7],[5,6,9]),([11,1,7],[15,6,9]),([7,1,1],[9,6,5]),([7,1,11],[9,6,15])]:box(lo,hi,'fin')
+ put('assets/icbm_port/models/item/'+id+'.json',{'parent':'minecraft:block/block','textures':{'particle':'minecraft:block/iron_block','case':'minecraft:block/iron_block','band':'minecraft:block/'+color+'_concrete','tip':'minecraft:block/quartz_block_top','engine':'minecraft:block/blast_furnace_front','fin':'minecraft:block/gray_concrete'},'elements':elements,'display':{'gui':{'rotation':[25,-35,-20],'translation':[0,0,0],'scale':[.8,.8,.8]},'firstperson_righthand':{'rotation':[0,-25,-20],'translation':[0,1,-2],'scale':[.55,.55,.55]},'thirdperson_righthand':{'rotation':[0,0,0],'translation':[0,0,0],'scale':[.6,.6,.6]},'ground':{'translation':[0,2,0],'scale':[.5,.5,.5]}}})
+for payload,color in zip(PAYLOADS,COLORS):rocket_model(payload+'_missile',color)
+rocket_model('cluster_missile','yellow');rocket_model('held_item_missile','cyan')
+for id,texture in [('radioactive_stone','stone'),('radioactive_dirt','dirt'),('emp_tower_extension','gold_block')]:
+ block(id,texture)
+ if id.startswith('radioactive'):
+  put('assets/icbm_port/models/block/'+id+'.json',{'parent':'minecraft:block/block','textures':{'particle':'minecraft:block/'+texture,'base':'minecraft:block/'+texture,'mark':'minecraft:block/lime_concrete'},'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{face:{'texture':'#base'} for face in ['up','down','north','south','east','west']}},{'from':[5,16.01,5],'to':[11,16.02,11],'faces':{'up':{'texture':'#mark'}}}]})
+put('data/icbm_port/recipes/emp_tower_extension.json',{'type':'minecraft:crafting_shaped','pattern':['prp','ewe','prp'],'key':{'p':{'item':'icbm_port:steel_plate'},'r':{'item':'minecraft:redstone'},'e':{'item':'icbm_port:battery'},'w':{'item':'icbm_port:gold_wire'}},'result':{'item':'icbm_port:emp_tower_extension'}})
+lang['entity.icbm_port.flying_block']='Flying Block'
+lang['entity.icbm_port.redmatter_singularity']='Redmatter Singularity'
+put('assets/icbm_port/lang/en_us.json',lang)
+blocks=[p.stem for p in (ROOT/'assets/icbm_port/blockstates').glob('*.json')]
+put('data/minecraft/tags/blocks/mineable/pickaxe.json',{'replace':False,'values':['icbm_port:'+b for b in sorted(blocks) if not b.endswith('_explosive')]})
+lang['tooltip.icbm_port.carrier_mode']='Cargo action: %s'
+put('assets/icbm_port/lang/en_us.json',lang)
+for serializer in ['carrier_loading','carrier_unloading']:put('data/icbm_port/recipes/'+serializer+'.json',{'type':'icbm_port:'+serializer})
+lang['tooltip.icbm_port.carrier_mode']='Cargo mode: %s (sneak-use to change)'
+put('assets/icbm_port/lang/en_us.json',lang)
+
+rocket_model('sam_missile','light_blue');name('sam_missile','',title='Surface-to-Air Missile')
+# Original physical cargo carriers, composed of vanilla-textured boxes.
+for id in ['cargo_parachute','cargo_balloon']:
+ elements=[]
+ def cargo_box(lo,hi,tex):elements.append({'from':lo,'to':hi,'faces':{face:{'texture':'#'+tex} for face in ['up','down','north','south','east','west']}})
+ if id=='cargo_parachute':
+  cargo_box([0,11,0],[16,13,16],'cloth');cargo_box([2,13,2],[14,15,14],'cloth');cargo_box([5,15,5],[11,16,11],'cloth')
+  for x,z in [(1,1),(14,1),(1,14),(14,14)]:cargo_box([x,2,z],[x+.5,11,z+.5],'rope')
+ else:
+  cargo_box([3,8,3],[13,14,13],'cloth');cargo_box([5,14,5],[11,16,11],'cloth');cargo_box([5,5,5],[11,8,11],'cloth')
+  for x,z in [(5,5),(10,5),(5,10),(10,10)]:cargo_box([x,1,z],[x+.5,5,z+.5],'rope')
+ cargo_box([5,0,5],[11,2,11],'basket')
+ put('assets/icbm_port/models/item/'+id+'.json',{'parent':'minecraft:block/block','textures':{'particle':'minecraft:block/white_wool','cloth':'minecraft:block/'+('white_wool' if id=='cargo_parachute' else 'red_wool'),'rope':'minecraft:block/oak_log','basket':'minecraft:block/oak_planks'},'elements':elements,'display':{'gui':{'rotation':[25,-35,0],'scale':[.8,.8,.8]},'ground':{'translation':[0,2,0],'scale':[.6,.6,.6]}}})
+put('assets/icbm_port/lang/en_us.json',lang)
