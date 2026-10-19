@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.technovision.advancedgenetics.AdvancedGenetics;
 import com.technovision.advancedgenetics.api.genetics.Genes;
 import com.technovision.advancedgenetics.commands.GeneArgumentType;
+import com.technovision.advancedgenetics.common.entity.FireballEntity;
 import com.technovision.advancedgenetics.common.goal.FleePlayerGoal;
 import com.technovision.advancedgenetics.component.PlayerGeneticsComponent;
 import com.technovision.advancedgenetics.registry.ComponentRegistry;
@@ -22,14 +23,18 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
@@ -37,12 +42,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.TEMPLATE;
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.check;
@@ -190,6 +198,51 @@ public class GeneGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public static void fireballExplosionCreditsTheShooter(GameTestHelper helper) throws ReflectiveOperationException {
+        BlockPos target = new BlockPos(4, 2, 4);
+        helper.setBlock(target.below(), Blocks.STONE);
+        LivingEntity chicken = helper.spawn(EntityType.CHICKEN, target);
+        FakePlayer shooter = player(helper, "ag_shooter");
+        FireballEntity fireball = new FireballEntity(helper.getLevel(), shooter, new Vec3(0, -1, 0));
+        check(fireball.getOwner() == shooter, "Fireball owner is " + fireball.getOwner());
+
+        fireball.moveTo(chicken.position());
+        BlockPos floor = helper.absolutePos(target.below());
+        hit(fireball, new BlockHitResult(chicken.position(), Direction.UP, floor, false));
+        check(fireball.isRemoved(), "Fireball survived its impact");
+        check(chicken.isDeadOrDying(), "Fireball explosion did not kill the chicken");
+        check(chicken.getKillCredit() == shooter, "Kill credit went to " + chicken.getKillCredit());
+        helper.killAllEntities();
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void fireballDamagesItsDirectTargetOnce(GameTestHelper helper) throws ReflectiveOperationException {
+        LivingEntity golem = helper.spawn(EntityType.IRON_GOLEM, new BlockPos(4, 2, 4));
+        FakePlayer shooter = player(helper, "ag_burner");
+        FireballEntity fireball = new FireballEntity(helper.getLevel(), shooter, new Vec3(0, -1, 0));
+        fireball.moveTo(golem.getEyePosition());
+
+        AtomicInteger fireballHits = new AtomicInteger();
+        Consumer<LivingAttackEvent> counter = event -> {
+            if (event.getEntity() == golem && event.getSource().getMsgId().equals("fireball")
+                    && event.getSource().getEntity() == shooter) {
+                fireballHits.incrementAndGet();
+            }
+        };
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingAttackEvent.class, counter);
+        try {
+            hit(fireball, new EntityHitResult(golem));
+        } finally {
+            MinecraftForge.EVENT_BUS.unregister(counter);
+        }
+        check(fireballHits.get() == 1, "Shooter's fireball damaged its target " + fireballHits.get() + " times");
+        check(golem.isOnFire(), "Fireball did not ignite its target");
+        helper.killAllEntities();
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void eatGrassGeneTurnsGrassToDirt(GameTestHelper helper) {
         BlockPos grass = new BlockPos(1, 1, 1);
         helper.setBlock(grass, Blocks.GRASS_BLOCK);
@@ -294,6 +347,10 @@ public class GeneGameTests {
         for (int i = 0; i < seconds * 20; i++) {
             MinecraftForge.EVENT_BUS.post(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
         }
+    }
+
+    private static void hit(Projectile projectile, HitResult result) throws ReflectiveOperationException {
+        ObfuscationReflectionHelper.findMethod(Projectile.class, "m_6532_", HitResult.class).invoke(projectile, result);
     }
 
     private static boolean rightClick(GameTestHelper helper, FakePlayer player, BlockPos relativePos) {
