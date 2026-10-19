@@ -1,6 +1,7 @@
 package dev.icbm.port.payload;
 
 import dev.icbm.port.simulation.*;
+import java.util.List;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
@@ -142,15 +143,32 @@ public final class SimulationAssertions {
     c.getWorld().setBlockState(pos, block.getDefaultState(), 2);
     BlockPos target = pos.east(6);
     c.getWorld().setBlockState(target, Blocks.STONE.getDefaultState(), 2);
-    ItemEntity item =
-        new ItemEntity(
-            c.getWorld(),
-            pos.getX() + 4.5,
-            pos.getY() + .4,
-            pos.getZ() + .5,
-            new ItemStack(Items.DIAMOND));
-    item.setNoGravity(true);
-    c.getWorld().spawnEntity(item);
+    // Fixed drop-style velocities whose sideways drift carries each item through the core between
+    // ticks; the core must still consume them instead of slinging them out of its field.
+    var items =
+        List.of(
+            new ItemEntity(
+                c.getWorld(),
+                pos.getX() + 4.5,
+                pos.getY() + .4,
+                pos.getZ() + .5,
+                new ItemStack(Items.DIAMOND),
+                .044,
+                .2,
+                .001),
+            new ItemEntity(
+                c.getWorld(),
+                pos.getX() + 4.5,
+                pos.getY() + .4,
+                pos.getZ() + .5,
+                new ItemStack(Items.EMERALD),
+                .075,
+                .2,
+                .07));
+    for (ItemEntity item : items) {
+      item.setNoGravity(true);
+      c.getWorld().spawnEntity(item);
+    }
     check(c, block.prime(c.getWorld(), pos, 1), "Placed redmatter block must prime");
     c.getWorld().removeBlock(pos, false);
     c.runAtTick(
@@ -173,7 +191,7 @@ public final class SimulationAssertions {
                 "Captured terrain must actually reach and feed the core");
             check(
                 c,
-                item.isRemoved(),
+                items.stream().allMatch(ItemEntity::isRemoved),
                 "The gravitational field must pull and consume nearby dropped items");
             NbtCompound saved = new NbtCompound();
             core.writeNbt(saved);
@@ -187,7 +205,7 @@ public final class SimulationAssertions {
             restored.discard();
           } finally {
             Payloads.removeNear(c.getWorld(), Vec3d.ofCenter(pos), 12);
-            item.discard();
+            items.forEach(ItemEntity::discard);
             c.getWorld().removeBlock(pos.down(), false);
             c.getWorld().removeBlock(target, false);
           }
