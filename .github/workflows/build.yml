@@ -36,6 +36,8 @@ jobs:
         run: ./gradlew --no-daemon :icbm_port:runGametest
       - name: Test material compatibility and datapack reloads
         run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
+      - name: Test Advanced Genetics on a dedicated Forge GameTest server
+        run: ./gradlew --no-daemon :advancedgenetics:runGameTestServer
       - name: Build Mystcraft for Fabric
         run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
       - name: Verify Mystcraft loader artifact parity
@@ -66,6 +68,7 @@ jobs:
             mods/icbm_port/build/*-results.xml
             mods/icbm_port/build/gametest/logs/latest.log
             mods/icbm_port/build/materialtest/logs/latest.log
+            mods/advancedgenetics/run/gameTestServer/logs/latest.log
             mods/jurassicraft/run/gameTestServer/logs/latest.log
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log

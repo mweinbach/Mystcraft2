@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.technovision.advancedgenetics.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "advancedgenetics.refmap.json",
+  "mixins": [
+    "ArrowItemMixin",
+    "LivingEntityAccessor",
+    "LivingEntityMixin",
+    "PlayerMixin"
+  ],
+  "client": [
+    "client.MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
