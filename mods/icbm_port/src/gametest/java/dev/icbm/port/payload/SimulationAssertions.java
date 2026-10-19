@@ -153,17 +153,6 @@ public final class SimulationAssertions {
     c.getWorld().spawnEntity(item);
     check(c, block.prime(c.getWorld(), pos, 1), "Placed redmatter block must prime");
     c.getWorld().removeBlock(pos, false);
-    System.out.println("DBGRM start item=" + item.getPos() + " vel=" + item.getVelocity() + " time=" + c.getWorld().getTime()); // DEBUG-TEMP
-    for (int t = 1; t < 200; t += t < 20 ? 1 : 10) { // DEBUG-TEMP
-      final int tt = t; // DEBUG-TEMP
-      c.runAtTick(t, () -> { // DEBUG-TEMP
-        var cs = c.getWorld().getEntitiesByType(SimulationContent.REDMATTER, new Box(pos).expand(16), e -> true); // DEBUG-TEMP
-        System.out.println("DBGRM t=" + tt + " time=" + c.getWorld().getTime() + " item=" + item.getPos() + " v=" + item.getVelocity() + " removed=" + item.isRemoved() // DEBUG-TEMP
-            + " stone=" + c.getWorld().getBlockState(target).getBlock() + " cores=" + cs.stream().map(r -> r.getPos() + "/s" + r.size() + "/r" + r.searchRadius() + "/cap" + r.capturedBlocks() + "/con" + r.consumedBlocks() + "/l" + r.livedTicks() + "/rm" + r.isRemoved()).toList() // DEBUG-TEMP
-            + " near=" + c.getWorld().getOtherEntities(null, new Box(pos).expand(16), e -> !(e instanceof RedmatterEntity)).stream().map(e -> e.getType().getUntranslatedName() + "@" + e.getBlockPos().toShortString()).toList() // DEBUG-TEMP
-            + " ticking=" + c.getWorld().shouldTickEntity(pos)); // DEBUG-TEMP
-      }); // DEBUG-TEMP
-    } // DEBUG-TEMP
     c.runAtTick(
         200,
         () -> {
