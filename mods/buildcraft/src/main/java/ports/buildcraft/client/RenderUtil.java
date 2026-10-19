@@ -1,0 +1,97 @@
+package ports.buildcraft.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+
+/** Box drawing in block-model pixel units (0 to 16), with the face vertex order and UVs of vanilla models. */
+public final class RenderUtil {
+    public static final int FULL_BRIGHT = 0xF000F0;
+
+    @FunctionalInterface
+    public interface FaceUv {
+        /** UV rectangle {u1, v1, u2, v2} in sprite pixels for {@code face}, or null to skip the face. */
+        @Nullable float[] uv(Direction face, float x1, float y1, float z1, float x2, float y2, float z2);
+    }
+
+    /** Vanilla's default UVs: each face projects the box onto the sprite. */
+    public static final FaceUv AUTO = RenderUtil::autoUv;
+
+    private RenderUtil() {}
+
+    public static TextureAtlasSprite sprite(ResourceLocation id) {
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(id);
+    }
+
+    public static float[] autoUv(Direction face, float x1, float y1, float z1, float x2, float y2, float z2) {
+        return switch (face) {
+            case DOWN -> new float[] {x1, 16 - z2, x2, 16 - z1};
+            case UP -> new float[] {x1, z1, x2, z2};
+            case NORTH -> new float[] {16 - x2, 16 - y2, 16 - x1, 16 - y1};
+            case SOUTH -> new float[] {x1, 16 - y2, x2, 16 - y1};
+            case WEST -> new float[] {z1, 16 - y2, z2, 16 - y1};
+            case EAST -> new float[] {16 - z2, 16 - y2, 16 - z1, 16 - y1};
+        };
+    }
+
+    public static void box(PoseStack poseStack, VertexConsumer consumer, TextureAtlasSprite sprite, FaceUv uvs,
+            float x1, float y1, float z1, float x2, float y2, float z2, int argb, int light) {
+        if (x2 <= x1 || y2 <= y1 || z2 <= z1) return;
+        for (Direction face : Direction.values()) {
+            float[] uv = uvs.uv(face, x1, y1, z1, x2, y2, z2);
+            if (uv != null) face(poseStack, consumer, sprite, face, uv, x1, y1, z1, x2, y2, z2, argb, light);
+        }
+    }
+
+    public static void face(PoseStack poseStack, VertexConsumer consumer, TextureAtlasSprite sprite, Direction face, float[] uv,
+            float x1, float y1, float z1, float x2, float y2, float z2, int argb, int light) {
+        float a = x1 / 16, b = y1 / 16, c = z1 / 16, d = x2 / 16, e = y2 / 16, f = z2 / 16;
+        float[][] corners = switch (face) {
+            case DOWN -> new float[][] {{a, b, f}, {a, b, c}, {d, b, c}, {d, b, f}};
+            case UP -> new float[][] {{a, e, c}, {a, e, f}, {d, e, f}, {d, e, c}};
+            case NORTH -> new float[][] {{d, e, c}, {d, b, c}, {a, b, c}, {a, e, c}};
+            case SOUTH -> new float[][] {{a, e, f}, {a, b, f}, {d, b, f}, {d, e, f}};
+            case WEST -> new float[][] {{a, e, c}, {a, b, c}, {a, b, f}, {a, e, f}};
+            case EAST -> new float[][] {{d, e, f}, {d, b, f}, {d, b, c}, {d, e, c}};
+        };
+        float u1 = sprite.getU(uv[0]), v1 = sprite.getV(uv[1]), u2 = sprite.getU(uv[2]), v2 = sprite.getV(uv[3]);
+        float[][] uvCorners = {{u1, v1}, {u1, v2}, {u2, v2}, {u2, v1}};
+        Matrix4f pose = poseStack.last().pose();
+        Matrix3f normal = poseStack.last().normal();
+        Vector3f n = face.step();
+        int alpha = argb >>> 24, red = argb >> 16 & 0xFF, green = argb >> 8 & 0xFF, blue = argb & 0xFF;
+        for (int i = 0; i < 4; i++) {
+            consumer.vertex(pose, corners[i][0], corners[i][1], corners[i][2])
+                    .color(red, green, blue, alpha)
+                    .uv(uvCorners[i][0], uvCorners[i][1])
+                    .overlayCoords(OverlayTexture.NO_OVERLAY)
+                    .uv2(light)
+                    .normal(normal, n.x(), n.y(), n.z())
+                    .endVertex();
+        }
+    }
+
+    /** Rotates the pose about the block centre so that a model built facing up faces {@code facing}. */
+    public static void rotateFromUp(PoseStack poseStack, Direction facing) {
+        if (facing == Direction.UP) return;
+        poseStack.translate(0.5, 0.5, 0.5);
+        switch (facing) {
+            case DOWN -> poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
+            case NORTH -> poseStack.mulPose(Vector3f.XP.rotationDegrees(-90));
+            case SOUTH -> poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
+            case EAST -> poseStack.mulPose(Vector3f.ZP.rotationDegrees(-90));
+            case WEST -> poseStack.mulPose(Vector3f.ZP.rotationDegrees(90));
+            default -> {}
+        }
+        poseStack.translate(-0.5, -0.5, -0.5);
+    }
+}
