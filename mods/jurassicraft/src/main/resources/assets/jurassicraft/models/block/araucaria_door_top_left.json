@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/door_top_left",
+  "textures": {
+    "bottom": "jurassicraft:blocks/door_araucaria_lower",
+    "top": "jurassicraft:blocks/door_araucaria_upper"
+  },
+  "render_type": "minecraft:cutout"
+}

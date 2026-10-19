@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "jurassicraft:block/plant_fossil_block_0"
+      },
+      {
+        "model": "jurassicraft:block/plant_fossil_block_1"
+      },
+      {
+        "model": "jurassicraft:block/plant_fossil_block_2"
+      },
+      {
+        "model": "jurassicraft:block/plant_fossil_block_3"
+      }
+    ]
+  }
+}

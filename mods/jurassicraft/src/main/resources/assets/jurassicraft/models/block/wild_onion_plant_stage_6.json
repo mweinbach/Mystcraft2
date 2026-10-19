@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "jurassicraft:blocks/plants/wild_onion/stage_6"
+  },
+  "render_type": "minecraft:cutout"
+}

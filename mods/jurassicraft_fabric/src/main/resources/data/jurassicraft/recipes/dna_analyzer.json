@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "CDA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "tag": "c:iron_nuggets"
+    },
+    "B": {
+      "item": "minecraft:glass"
+    },
+    "C": {
+      "item": "jurassicraft:advanced_circuit"
+    },
+    "D": {
+      "item": "jurassicraft:laser"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:dna_analyzer",
+    "count": 1
+  }
+}

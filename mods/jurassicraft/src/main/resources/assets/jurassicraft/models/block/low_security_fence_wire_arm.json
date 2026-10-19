@@ -1,0 +1,145 @@
+{
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "jurassicraft:blocks/low_security_fence_wire",
+    "fence": "jurassicraft:blocks/low_security_fence_wire"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        11.5,
+        7.5
+      ],
+      "to": [
+        8.0,
+        12.5,
+        8.5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0.0,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            0.5,
+            0.5,
+            4.5,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            4.5,
+            0.5,
+            5.0,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            5.0,
+            0.5,
+            9.0,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            0.5,
+            0.0,
+            4.5,
+            0.5
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            4.5,
+            0.0,
+            8.5,
+            0.5
+          ],
+          "texture": "#fence"
+        }
+      }
+    },
+    {
+      "from": [
+        0.0,
+        3.5,
+        7.5
+      ],
+      "to": [
+        8.0,
+        4.5,
+        8.5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0.0,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            0.5,
+            0.5,
+            4.5,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            4.5,
+            0.5,
+            5.0,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            5.0,
+            0.5,
+            9.0,
+            1.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            0.5,
+            0.0,
+            4.5,
+            0.5
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            4.5,
+            0.0,
+            8.5,
+            0.5
+          ],
+          "texture": "#fence"
+        }
+      }
+    }
+  ]
+}

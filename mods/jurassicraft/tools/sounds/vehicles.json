@@ -1,0 +1,12 @@
+{
+  "car_move": {
+    "sounds": [
+      "jurassicraft:car_move"
+    ]
+  },
+  "helicopter_warning": {
+    "sounds": [
+      "jurassicraft:helicopter_warning"
+    ]
+  }
+}

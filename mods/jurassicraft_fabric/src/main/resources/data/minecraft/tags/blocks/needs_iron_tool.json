@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:araucaria_log_petrified",
+    "jurassicraft:calamites_log_petrified",
+    "jurassicraft:ginkgo_log_petrified",
+    "jurassicraft:phoenix_log_petrified",
+    "jurassicraft:psaronius_log_petrified"
+  ]
+}

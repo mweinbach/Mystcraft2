@@ -1,0 +1,281 @@
+{
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "jurassicraft:blocks/low_security_fence_pole",
+    "fence": "jurassicraft:blocks/low_security_fence_pole"
+  },
+  "elements": [
+    {
+      "from": [
+        5.0,
+        11.0,
+        7.0
+      ],
+      "to": [
+        7.0,
+        13.0,
+        9.0
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10.0,
+            4.0,
+            11.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            11.0,
+            4.0,
+            12.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            13.0,
+            4.0,
+            14.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            11.0,
+            3.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            3.0,
+            13.0,
+            4.0
+          ],
+          "texture": "#fence"
+        }
+      }
+    },
+    {
+      "from": [
+        0.0,
+        11.5,
+        7.5
+      ],
+      "to": [
+        5.0,
+        12.5,
+        8.5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10.0,
+            5.5,
+            10.5,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            10.5,
+            5.5,
+            13.0,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            13.0,
+            5.5,
+            13.5,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            13.5,
+            5.5,
+            16.0,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            10.5,
+            5.0,
+            13.0,
+            5.5
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            13.0,
+            5.0,
+            15.5,
+            5.5
+          ],
+          "texture": "#fence"
+        }
+      }
+    },
+    {
+      "from": [
+        5.0,
+        3.0,
+        7.0
+      ],
+      "to": [
+        7.0,
+        5.0,
+        9.0
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10.0,
+            4.0,
+            11.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            11.0,
+            4.0,
+            12.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            13.0,
+            4.0,
+            14.0,
+            5.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            11.0,
+            3.0,
+            12.0,
+            4.0
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            3.0,
+            13.0,
+            4.0
+          ],
+          "texture": "#fence"
+        }
+      }
+    },
+    {
+      "from": [
+        0.0,
+        3.5,
+        7.5
+      ],
+      "to": [
+        5.0,
+        4.5,
+        8.5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10.0,
+            5.5,
+            10.5,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "north": {
+          "uv": [
+            10.5,
+            5.5,
+            13.0,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "west": {
+          "uv": [
+            13.0,
+            5.5,
+            13.5,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "south": {
+          "uv": [
+            13.5,
+            5.5,
+            16.0,
+            6.0
+          ],
+          "texture": "#fence"
+        },
+        "up": {
+          "uv": [
+            10.5,
+            5.0,
+            13.0,
+            5.5
+          ],
+          "texture": "#fence"
+        },
+        "down": {
+          "uv": [
+            13.0,
+            5.0,
+            15.5,
+            5.5
+          ],
+          "texture": "#fence"
+        }
+      }
+    }
+  ]
+}

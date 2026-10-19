@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/hippurites_radiosus"
+  },
+  "render_type": "minecraft:cutout"
+}

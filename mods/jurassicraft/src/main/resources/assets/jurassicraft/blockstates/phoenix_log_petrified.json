@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "jurassicraft:block/phoenix_log_petrified"
+    },
+    "axis=x": {
+      "model": "jurassicraft:block/phoenix_log_petrified_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "jurassicraft:block/phoenix_log_petrified_horizontal",
+      "x": 90
+    }
+  }
+}

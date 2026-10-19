@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "jurassicraft:vehicle_item",
+  "pattern": [
+    "RWG",
+    "LCR",
+    "YYY"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:glass_pane"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "L": {
+      "item": "minecraft:lime_dye"
+    },
+    "C": {
+      "item": "jurassicraft:unfinished_car"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:ford_explorer"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A  ",
+    "AA ",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "jurassicraft:psaronius_planks"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:psaronius_stairs",
+    "count": 4
+  }
+}

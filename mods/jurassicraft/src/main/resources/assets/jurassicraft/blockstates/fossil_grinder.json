@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/fossil_grinder",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/fossil_grinder"
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/fossil_grinder",
+      "y": 90
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/fossil_grinder",
+      "y": 270
+    }
+  }
+}

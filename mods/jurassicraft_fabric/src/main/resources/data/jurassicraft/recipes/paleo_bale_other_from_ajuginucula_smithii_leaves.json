@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "AAA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "jurassicraft:ajuginucula_smithii_leaves"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:paleo_bale_other",
+    "count": 1
+  }
+}

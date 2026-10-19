@@ -1,0 +1,95 @@
+package ports.jurassicraft;
+
+import net.fabricmc.api.ModInitializer;
+import ports.jurassicraft.content.JurassicContent;
+import ports.jurassicraft.config.JurassicConfig;
+import ports.jurassicraft.fossil.FossilLootEntry;
+import ports.jurassicraft.assembly.AssemblyRegistry;
+import ports.jurassicraft.bugs.BugRegistry;
+import ports.jurassicraft.cleaning.CleaningStationRegistry;
+import ports.jurassicraft.components.ComponentsRegistry;
+import ports.jurassicraft.cultivator.CultivatorRegistry;
+import ports.jurassicraft.egg.FossilNestRegistry;
+import ports.jurassicraft.egg.FossilizedEggRegistry;
+import ports.jurassicraft.entity.DinosaurRegistry;
+import ports.jurassicraft.feeder.FeederRegistry;
+import ports.jurassicraft.fence.FenceRegistry;
+import ports.jurassicraft.genetics.GeneticsRegistry;
+import ports.jurassicraft.grinder.FossilGrinderRegistry;
+import ports.jurassicraft.hatching.HatcheryRegistry;
+import ports.jurassicraft.machine.DnaMachineRegistry;
+import ports.jurassicraft.plantculture.PlantCultureRegistry;
+import ports.jurassicraft.plants.PlantRegistry;
+import ports.jurassicraft.plants.PlantWorldgen;
+import ports.jurassicraft.skull.SkullRegistry;
+import ports.jurassicraft.supplies.DinosaurSupplies;
+import ports.jurassicraft.tourrail.TourRailRegistry;
+import ports.jurassicraft.vehicle.VehicleRegistry;
+import ports.jurassicraft.worldgen.WorldgenRegistry;
+import ports.jurassicraft.music.MusicRegistry;
+import ports.jurassicraft.souvenir.SouvenirRegistry;
+import ports.jurassicraft.goat.GoatRegistry;
+import ports.jurassicraft.darts.DartRegistry;
+import ports.jurassicraft.scanner.DinoScannerRegistry;
+import ports.jurassicraft.fieldguide.FieldGuideRegistry;
+import ports.jurassicraft.journal.JournalRegistry;
+import ports.jurassicraft.figure.ActionFigureRegistry;
+import ports.jurassicraft.mural.MuralRegistry;
+import ports.jurassicraft.loot.BonusLoot;
+import ports.jurassicraft.loot.DynamicLootEntry;
+import ports.jurassicraft.structures.StructureRegistry;
+import ports.jurassicraft.village.VillageRegistry;
+import ports.jurassicraft.decor.DecorRegistry;
+
+public final class PortMod implements ModInitializer {
+    public static final String MOD_ID = "jurassicraft";
+
+    @Override
+    public void onInitialize() {
+        JurassicConfig.init();
+        JurassicContent.init();
+        FossilLootEntry.init();
+        DynamicLootEntry.init();
+        SkullRegistry.register();
+        ComponentsRegistry.init();
+        PlantRegistry.setPeatSpreadDistance(() -> JurassicConfig.PEAT_SPREAD_DISTANCE.get());
+        PlantWorldgen.setEnabled("coal_plant_fossils", () -> JurassicConfig.generation("plantFossilGeneration"));
+        PlantWorldgen.setEnabled("petrified_tree", () -> JurassicConfig.generation("petrifiedTreeGeneration"));
+        PlantWorldgen.setEnabled("moss", () -> JurassicConfig.generation("mossGeneration"));
+        PlantWorldgen.setEnabled("peat", () -> JurassicConfig.generation("peatGeneration"));
+        PlantWorldgen.setEnabled("west_indian_lilac", () -> JurassicConfig.generation("flowerGeneration"));
+        PlantWorldgen.setEnabled("gracilaria", () -> JurassicConfig.generation("gracilariaGeneration"));
+        PlantRegistry.init();
+        GeneticsRegistry.init();
+        PlantCultureRegistry.init();
+        DinosaurSupplies.init();
+        AssemblyRegistry.register();
+        CleaningStationRegistry.register();
+        FossilGrinderRegistry.register();
+        FossilizedEggRegistry.init();
+        FossilNestRegistry.init();
+        FenceRegistry.init();
+        BugRegistry.init();
+        FeederRegistry.init();
+        DnaMachineRegistry.init();
+        HatcheryRegistry.init();
+        CultivatorRegistry.init();
+        DinosaurRegistry.init();
+        ActionFigureRegistry.register();
+        MuralRegistry.register();
+        DecorRegistry.register();
+        BonusLoot.init();
+        FieldGuideRegistry.init();
+        JournalRegistry.init();
+        StructureRegistry.init();
+        VillageRegistry.init();
+        GoatRegistry.init();
+        DartRegistry.init();
+        DinoScannerRegistry.init();
+        TourRailRegistry.init();
+        VehicleRegistry.init();
+        MusicRegistry.register();
+        SouvenirRegistry.register();
+        WorldgenRegistry.init();
+    }
+}

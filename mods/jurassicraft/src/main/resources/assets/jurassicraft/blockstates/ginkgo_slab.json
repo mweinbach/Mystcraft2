@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "jurassicraft:block/ginkgo_slab"
+    },
+    "type=top": {
+      "model": "jurassicraft:block/ginkgo_slab_top"
+    },
+    "type=double": {
+      "model": "jurassicraft:block/ginkgo_planks"
+    }
+  }
+}

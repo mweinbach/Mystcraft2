@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "type": "forge:partial_nbt",
+    "item": "minecraft:potion",
+    "nbt": {
+      "Potion": "minecraft:water"
+    }
+  },
+  "result": "jurassicraft:dna_nucleotides",
+  "experience": 1.0,
+  "cookingtime": 200
+}

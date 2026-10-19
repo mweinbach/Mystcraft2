@@ -1,0 +1,85 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_center"
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "up": "down"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_arm",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "up": "down"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "up": "down"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "up": "down"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "west"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_diagonal",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "up": "north"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_diagonal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "up": "east"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_diagonal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "up": "south"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_wire_diagonal",
+        "y": 270
+      }
+    }
+  ]
+}

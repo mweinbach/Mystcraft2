@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "side": "jurassicraft:blocks/log_ginkgo",
+    "end": "jurassicraft:blocks/log_ginkgo_top"
+  }
+}

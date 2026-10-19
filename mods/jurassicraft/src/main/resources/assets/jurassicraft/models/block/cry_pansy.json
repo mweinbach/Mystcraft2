@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/cry_pansy"
+  },
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/dna_extractor"
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/dna_extractor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/dna_extractor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/dna_extractor",
+      "y": 270
+    }
+  }
+}

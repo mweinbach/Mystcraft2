@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/skeleton_display"
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/skeleton_display"
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/skeleton_display"
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/skeleton_display"
+    }
+  }
+}

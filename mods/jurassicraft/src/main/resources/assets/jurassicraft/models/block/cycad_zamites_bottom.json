@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/cycad_zamites_bottom"
+  },
+  "render_type": "minecraft:cutout"
+}

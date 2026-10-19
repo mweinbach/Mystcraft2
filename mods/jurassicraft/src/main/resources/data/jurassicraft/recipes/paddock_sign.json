@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "BBB",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "tag": "forge:nuggets/iron"
+    },
+    "B": {
+      "tag": "minecraft:signs"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:paddock_sign",
+    "count": 1
+  }
+}

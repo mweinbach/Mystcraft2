@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "#jurassicraft:feeder_plants",
+    "minecraft:carrot",
+    "minecraft:potato",
+    "minecraft:beetroot",
+    "minecraft:apple",
+    "minecraft:melon_slice"
+  ]
+}

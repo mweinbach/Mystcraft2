@@ -1,0 +1,7 @@
+{
+  "type": "jurassicraft:raptor_paddock",
+  "biomes": "#jurassicraft:has_structure/raptor_paddock",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

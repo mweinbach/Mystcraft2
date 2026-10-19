@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BAB",
+    "BAB"
+  ],
+  "key": {
+    "A": {
+      "item": "jurassicraft:ginkgo_planks"
+    },
+    "B": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:ginkgo_fence_gate",
+    "count": 3
+  }
+}

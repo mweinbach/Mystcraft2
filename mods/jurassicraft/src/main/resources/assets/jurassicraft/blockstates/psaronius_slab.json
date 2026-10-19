@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "jurassicraft:block/psaronius_slab"
+    },
+    "type=top": {
+      "model": "jurassicraft:block/psaronius_slab_top"
+    },
+    "type=double": {
+      "model": "jurassicraft:block/psaronius_planks"
+    }
+  }
+}

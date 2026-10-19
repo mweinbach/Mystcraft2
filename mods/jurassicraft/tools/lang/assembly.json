@@ -1,0 +1,17 @@
+{
+  "block.jurassicraft.skeleton_assembly": "Skeleton Assembly Table",
+  "block.jurassicraft.skeleton_display": "Skeleton Display",
+  "container.jurassicraft.skeleton_assembly": "Skeleton Assembly",
+  "item.jurassicraft.fossil_skeleton": "%s Fossil Skeleton",
+  "item.jurassicraft.fresh_skeleton": "%s Skeleton",
+  "tooltip.jurassicraft.skeleton_gender": "Gender: %s",
+  "tooltip.jurassicraft.skeleton_change_gender": "Sneak and use on a block to change gender",
+  "tooltip.jurassicraft.skeleton_pose": "Pose: %s",
+  "tooltip.jurassicraft.skeleton_change_pose": "Sneak and use in the air to change pose",
+  "mode.jurassicraft.random": "Random",
+  "mode.jurassicraft.male": "Male",
+  "mode.jurassicraft.female": "Female",
+  "pose.jurassicraft.idle": "Idle",
+  "pose.jurassicraft.death": "Death",
+  "pose.jurassicraft.attacking": "Attacking"
+}

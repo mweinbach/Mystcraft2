@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "jurassicraft:dilophosaurus_meat"
+  },
+  "result": "jurassicraft:dilophosaurus_steak",
+  "experience": 5.0,
+  "cookingtime": 100
+}

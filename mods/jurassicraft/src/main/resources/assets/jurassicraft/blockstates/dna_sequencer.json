@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/dna_sequencer"
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/dna_sequencer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/dna_sequencer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/dna_sequencer",
+      "y": 270
+    }
+  }
+}

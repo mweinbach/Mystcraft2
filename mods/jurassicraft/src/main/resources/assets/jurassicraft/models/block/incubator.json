@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "forge:obj",
+  "model": "jurassicraft:models/block/incubator.obj",
+  "automatic_culling": false,
+  "emissive_ambient": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "minecraft:block/iron_block"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "item.jurassicraft.growth_serum": "Growth Serum",
+  "item.jurassicraft.dinosaur_steak": "Dinosaur Steak",
+  "item.jurassicraft.pregnancy_test": "Pregnancy Test",
+  "item.jurassicraft.breeding_wand": "Breeding Wand",
+  "item.jurassicraft.birthing_wand": "Birthing Wand",
+  "message.jurassicraft.breeding_wand.selected": "First dinosaur selected.",
+  "message.jurassicraft.breeding_wand.success": "Breeding started.",
+  "message.jurassicraft.breeding_wand.invalid": "These dinosaurs cannot breed.",
+  "message.jurassicraft.birthing_wand.success": "Delivery started.",
+  "message.jurassicraft.birthing_wand.invalid": "This dinosaur is not pregnant.",
+  "message.jurassicraft.pregnancy_test.male": "This dinosaur is male.",
+  "message.jurassicraft.pregnancy_test.pregnant": "This dinosaur is pregnant.",
+  "message.jurassicraft.pregnancy_test.not_pregnant": "This dinosaur is not pregnant."
+}

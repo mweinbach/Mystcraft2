@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/dna_combinator_hybridizer"
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/dna_combinator_hybridizer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/dna_combinator_hybridizer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/dna_combinator_hybridizer",
+      "y": 270
+    }
+  }
+}

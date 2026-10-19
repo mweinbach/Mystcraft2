@@ -1,0 +1,52 @@
+// Put this port's dependencies and build tasks here.
+
+// JEI is optional at runtime; its API is needed only to compile our plugin.
+repositories {
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+dependencies {
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1015')
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-forge-api:11.6.0.1015')
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1015')
+    }
+    compileOnly fg.deobf('maven.modrinth:jade:8.9.2')
+    if (providers.gradleProperty('withJade').isPresent()) {
+        runtimeOnly fg.deobf('maven.modrinth:jade:8.9.2')
+    }
+}
+
+// Imported textures are separate from the scaffold's LGPL license. Include the
+// upstream attribution and historical license with both distribution artifacts.
+tasks.withType(Jar).configureEach {
+    from('UPSTREAM.md') {
+        into 'META-INF'
+        rename { 'JurassiCraft-UPSTREAM.md' }
+    }
+    from('UPSTREAM-LICENSE-HISTORICAL.md') { into 'META-INF' }
+}
+
+// Exercises NBT validation and genetic data generation without launching a game server.
+tasks.register('geneticsLogicTest', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ports.jurassicraft.genetics.GeneticsLogicTest'
+}
+tasks.named('check') { dependsOn tasks.named('geneticsLogicTest') }
+
+// Allow the original plantSpreading gamerule to be registered on Forge 1.19.2.
+minecraft.accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+// Opt-in in-world tests for this port; never launched by the normal build.
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enabledGameTestNamespaces', 'jurassicraft'
+    }
+}

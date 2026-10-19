@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/graminidites_bambusoides_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/graminidites_bambusoides_top"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "jurassicraft:block/paleo_bale_fern"
+    },
+    "axis=x": {
+      "model": "jurassicraft:block/paleo_bale_fern_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "jurassicraft:block/paleo_bale_fern_horizontal",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "jurassicraft:blocks/leaves_phoenix"
+  },
+  "render_type": "minecraft:cutout_mipped"
+}

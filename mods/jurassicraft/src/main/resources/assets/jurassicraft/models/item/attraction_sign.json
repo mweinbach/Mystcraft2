@@ -1,0 +1,107 @@
+{
+  "parent": "jurassicraft:item/attraction_sign_aquarium",
+  "overrides": [
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 1
+      },
+      "model": "jurassicraft:item/attraction_sign_aquarium_coral"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 2
+      },
+      "model": "jurassicraft:item/attraction_sign_aviary"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 3
+      },
+      "model": "jurassicraft:item/attraction_sign_aviary_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 4
+      },
+      "model": "jurassicraft:item/attraction_sign_gallimimus_valley"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 5
+      },
+      "model": "jurassicraft:item/attraction_sign_gallimimus_valley_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 6
+      },
+      "model": "jurassicraft:item/attraction_sign_gentle_giants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 7
+      },
+      "model": "jurassicraft:item/attraction_sign_gentle_giants_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 8
+      },
+      "model": "jurassicraft:item/attraction_sign_raptor_paddock"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 9
+      },
+      "model": "jurassicraft:item/attraction_sign_raptor_paddock_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 10
+      },
+      "model": "jurassicraft:item/attraction_sign_safari"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 11
+      },
+      "model": "jurassicraft:item/attraction_sign_safari_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 12
+      },
+      "model": "jurassicraft:item/attraction_sign_triceratops_territorium"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 13
+      },
+      "model": "jurassicraft:item/attraction_sign_garden"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 14
+      },
+      "model": "jurassicraft:item/attraction_sign_garden_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 15
+      },
+      "model": "jurassicraft:item/attraction_sign_triceratops_territorium_plants"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 16
+      },
+      "model": "jurassicraft:item/attraction_sign_tyrannosaurus_kingdom"
+    },
+    {
+      "predicate": {
+        "jurassicraft:sign_artwork": 17
+      },
+      "model": "jurassicraft:item/attraction_sign_tyrannosaurus_kingdom_plants"
+    }
+  ]
+}

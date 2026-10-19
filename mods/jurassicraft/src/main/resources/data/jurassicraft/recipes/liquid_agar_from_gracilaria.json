@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "jurassicraft:gracilaria"
+  },
+  "result": "jurassicraft:liquid_agar",
+  "experience": 0.5,
+  "cookingtime": 200
+}

@@ -1,0 +1,10 @@
+{
+  "gui.jurassicraft.select_order": "Select Order",
+  "key.jurassicraft.microraptor_dismount": "Dismount Microraptors",
+  "item.growth_serum.denied": "This function has been remote-disabled",
+  "order.jurassicraft.wander": "Wander",
+  "order.jurassicraft.follow": "Follow",
+  "order.jurassicraft.sit": "Sit",
+  "message.jurassicraft.not_owned": "You do not own this dinosaur!",
+  "message.jurassicraft.too_young": "This dinosaur is too young to hold items!"
+}

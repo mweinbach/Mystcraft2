@@ -1,0 +1,73 @@
+{
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "jurassicraft:blocks/low_security_fence_wire",
+    "fence": "jurassicraft:blocks/low_security_fence_wire"
+  },
+  "elements": [
+    {
+      "from": [
+        7.5,
+        3.5,
+        7.5
+      ],
+      "to": [
+        8.5,
+        4.5,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fence"
+        },
+        "south": {
+          "texture": "#fence"
+        },
+        "east": {
+          "texture": "#fence"
+        },
+        "west": {
+          "texture": "#fence"
+        },
+        "up": {
+          "texture": "#fence"
+        },
+        "down": {
+          "texture": "#fence"
+        }
+      }
+    },
+    {
+      "from": [
+        7.5,
+        11.5,
+        7.5
+      ],
+      "to": [
+        8.5,
+        12.5,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fence"
+        },
+        "south": {
+          "texture": "#fence"
+        },
+        "east": {
+          "texture": "#fence"
+        },
+        "west": {
+          "texture": "#fence"
+        },
+        "up": {
+          "texture": "#fence"
+        },
+        "down": {
+          "texture": "#fence"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "jurassicraft:oiled_potato_strips"
+  },
+  "result": "jurassicraft:fun_fries",
+  "experience": 0.5,
+  "cookingtime": 200
+}

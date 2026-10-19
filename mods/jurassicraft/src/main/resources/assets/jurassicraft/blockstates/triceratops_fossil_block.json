@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "jurassicraft:block/fossil_deposit_0"
+      },
+      {
+        "model": "jurassicraft:block/fossil_deposit_1"
+      },
+      {
+        "model": "jurassicraft:block/fossil_deposit_2"
+      },
+      {
+        "model": "jurassicraft:block/fossil_deposit_3"
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "jurassicraft:block/ginkgo_log"
+    },
+    "axis=x": {
+      "model": "jurassicraft:block/ginkgo_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "jurassicraft:block/ginkgo_log_horizontal",
+      "x": 90
+    }
+  }
+}

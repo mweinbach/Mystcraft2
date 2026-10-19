@@ -1,0 +1,9 @@
+{
+  "item.jurassicraft.dart_tranquilizer": "Tranquilizer Dart",
+  "item.jurassicraft.dart_poison_cycasin": "Poison Dart",
+  "item.jurassicraft.dart_poison_executioner_concoction": "Lethal Dart",
+  "item.jurassicraft.dart_tipped_potion": "Potion Dart",
+  "item.jurassicraft.dart_gun": "Dart Gun",
+  "entity.jurassicraft.dart": "Dart",
+  "tooltip.jurassicraft.dart_gun": "Use to load darts, then use again to fire."
+}

@@ -1,0 +1,1844 @@
+{
+  "modelName": "tyrannosaurus_adult_skeleton_head_wall",
+  "authorName": "RaptorWhisper",
+  "projVersion": 4,
+  "metadata": [],
+  "textureWidth": 256,
+  "textureHeight": 128,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "cubeGroups": [],
+  "cubes": [
+    {
+      "name": "Plaqu part1",
+      "dimensions": [
+        5,
+        7,
+        1
+      ],
+      "position": [
+        0.0,
+        14.0,
+        7.0
+      ],
+      "offset": [
+        -2.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        8,
+        57
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "opacity": 100.0,
+      "hidden": false,
+      "metadata": [],
+      "children": [
+        {
+          "name": "Plaqu part1",
+          "dimensions": [
+            2,
+            2,
+            3
+          ],
+          "position": [
+            0.0,
+            3.0,
+            0.3
+          ],
+          "offset": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            180.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            10,
+            43
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "opacity": 100.0,
+          "hidden": false,
+          "metadata": [],
+          "children": [],
+          "parentIdentifier": "7vV>w]iH\\:gQ}(AkNlZ ",
+          "identifier": "bE-/o`XH;lt&:e^IT!8@"
+        },
+        {
+          "name": "head",
+          "dimensions": [
+            7,
+            7,
+            5
+          ],
+          "position": [
+            0.0,
+            -2.0,
+            -2.5
+          ],
+          "offset": [
+            -3.5,
+            0.21,
+            -5.02
+          ],
+          "rotation": [
+            13.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            228,
+            0
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "opacity": 100.0,
+          "hidden": false,
+          "children": [
+            {
+              "name": "eyeridge2Right",
+              "dimensions": [
+                1,
+                4,
+                4
+              ],
+              "position": [
+                -4.900000095367432,
+                -0.38999998569488525,
+                -2.619999885559082
+              ],
+              "offset": [
+                0.0,
+                0.0,
+                -5.0
+              ],
+              "rotation": [
+                31.299999237060547,
+                23.479999542236328,
+                -59.22999954223633
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                187,
+                2
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "opacity": 100.0,
+              "hidden": false,
+              "children": [
+                {
+                  "name": "eyeridge3Right",
+                  "dimensions": [
+                    1,
+                    2,
+                    5
+                  ],
+                  "position": [
+                    -0.5799999833106995,
+                    0.27000001072883606,
+                    -3.75
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    -6.0
+                  ],
+                  "rotation": [
+                    -18.260000228881836,
+                    -25.459999084472656,
+                    3.5999999046325684
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    162,
+                    3
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [
+                    {
+                      "name": "eyeridge4Right",
+                      "dimensions": [
+                        1,
+                        2,
+                        4
+                      ],
+                      "position": [
+                        1.0,
+                        0.0,
+                        -6.0
+                      ],
+                      "offset": [
+                        -1.0,
+                        0.0,
+                        -4.0
+                      ],
+                      "rotation": [
+                        10.739999771118164,
+                        12.329999923706055,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
+                      "txOffset": [
+                        45,
+                        4
+                      ],
+                      "txMirror": false,
+                      "mcScale": 0.0,
+                      "opacity": 100.0,
+                      "hidden": false,
+                      "children": [],
+                      "parentIdentifier": ";d[qNCesa)7#5?qc<XrD",
+                      "identifier": "9)tSUeS44l?@7$:Qm;96"
+                    }
+                  ],
+                  "parentIdentifier": "7K_UbbqS\\SktX#z2%a(d",
+                  "identifier": ";d[qNCesa)7#5?qc<XrD"
+                },
+                {
+                  "name": "eyeridge1Right",
+                  "dimensions": [
+                    1,
+                    1,
+                    4
+                  ],
+                  "position": [
+                    0.30000001192092896,
+                    0.0,
+                    -1.7000000476837158
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    -75.6500015258789,
+                    -36.52000045776367,
+                    33.90999984741211
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    175,
+                    3
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [],
+                  "parentIdentifier": "7K_UbbqS\\SktX#z2%a(d",
+                  "identifier": "zewe*8H'9$UfM0p#1o!|"
+                }
+              ],
+              "parentIdentifier": "<F.l\\Au%mg1<8{?j-rh[",
+              "identifier": "7K_UbbqS\\SktX#z2%a(d"
+            },
+            {
+              "name": "eyeridge2Left",
+              "dimensions": [
+                1,
+                4,
+                4
+              ],
+              "position": [
+                4.900000095367432,
+                -0.38999998569488525,
+                -2.619999885559082
+              ],
+              "offset": [
+                -1.0,
+                0.0,
+                -5.0
+              ],
+              "rotation": [
+                31.299999237060547,
+                -23.479999542236328,
+                59.22999954223633
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                205,
+                2
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "opacity": 100.0,
+              "hidden": false,
+              "children": [
+                {
+                  "name": "eyeridge3Left",
+                  "dimensions": [
+                    1,
+                    2,
+                    5
+                  ],
+                  "position": [
+                    0.5799999833106995,
+                    0.27000001072883606,
+                    -3.75
+                  ],
+                  "offset": [
+                    -1.0,
+                    0.0,
+                    -6.0
+                  ],
+                  "rotation": [
+                    -18.260000228881836,
+                    25.459999084472656,
+                    -3.5999999046325684
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    132,
+                    4
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [
+                    {
+                      "name": "eyeridge4Left",
+                      "dimensions": [
+                        1,
+                        2,
+                        4
+                      ],
+                      "position": [
+                        -1.0,
+                        0.0,
+                        -6.0
+                      ],
+                      "offset": [
+                        0.0,
+                        0.0,
+                        -4.0
+                      ],
+                      "rotation": [
+                        10.739999771118164,
+                        -12.329999923706055,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
+                      "txOffset": [
+                        149,
+                        4
+                      ],
+                      "txMirror": false,
+                      "mcScale": 0.0,
+                      "opacity": 100.0,
+                      "hidden": false,
+                      "children": [],
+                      "parentIdentifier": "\"6]EPzI}q5/qf-%>q^_~",
+                      "identifier": "vq<0+Mqk:0l*2qY$m\" K"
+                    }
+                  ],
+                  "parentIdentifier": "tEY>eD0Pr8[Ya':>r?,)",
+                  "identifier": "\"6]EPzI}q5/qf-%>q^_~"
+                },
+                {
+                  "name": "eyeridge1Left",
+                  "dimensions": [
+                    1,
+                    1,
+                    4
+                  ],
+                  "position": [
+                    -0.30000001192092896,
+                    0.0,
+                    -1.7000000476837158
+                  ],
+                  "offset": [
+                    -1.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    -75.6500015258789,
+                    36.52000045776367,
+                    -33.90999984741211
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    139,
+                    4
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [],
+                  "parentIdentifier": "tEY>eD0Pr8[Ya':>r?,)",
+                  "identifier": "Ar|p(z}L7f=uNkeMNt9a"
+                }
+              ],
+              "parentIdentifier": "<F.l\\Au%mg1<8{?j-rh[",
+              "identifier": "tEY>eD0Pr8[Ya':>r?,)"
+            },
+            {
+              "name": "jawUpperBack",
+              "dimensions": [
+                6,
+                3,
+                8
+              ],
+              "position": [
+                0.0,
+                5.179999828338623,
+                -3.2100000381469727
+              ],
+              "offset": [
+                -3.0,
+                -2.0,
+                -1.0
+              ],
+              "rotation": [
+                -179.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                83,
+                4
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "opacity": 100.0,
+              "hidden": false,
+              "children": [
+                {
+                  "name": "jawUpperFront",
+                  "dimensions": [
+                    5,
+                    3,
+                    6
+                  ],
+                  "position": [
+                    -0.5,
+                    -0.6100000143051147,
+                    7.179999828338623
+                  ],
+                  "offset": [
+                    -2.0,
+                    -1.309999942779541,
+                    -0.8999999761581421
+                  ],
+                  "rotation": [
+                    -4.889999866485596,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    26,
+                    6
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [
+                    {
+                      "name": "teethJawUpperFront",
+                      "dimensions": [
+                        5,
+                        2,
+                        6
+                      ],
+                      "position": [
+                        0.5,
+                        -1.2999999523162842,
+                        -0.800000011920929
+                      ],
+                      "offset": [
+                        -2.5,
+                        0.0,
+                        -5.900000095367432
+                      ],
+                      "rotation": [
+                        -180.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
+                      "txOffset": [
+                        168,
+                        8
+                      ],
+                      "txMirror": false,
+                      "mcScale": 0.0,
+                      "opacity": 100.0,
+                      "hidden": false,
+                      "children": [],
+                      "parentIdentifier": "Z9W~s$PJDoC,:h[E(Gvq",
+                      "identifier": "R+e9qG7k]>l{<t/Bj`t\""
+                    }
+                  ],
+                  "parentIdentifier": "OPeVlW4OER:KNDl= D4\\",
+                  "identifier": "Z9W~s$PJDoC,:h[E(Gvq"
+                },
+                {
+                  "name": "snout1",
+                  "dimensions": [
+                    6,
+                    4,
+                    2
+                  ],
+                  "position": [
+                    0.0,
+                    0.6899999976158142,
+                    1.7599999904632568
+                  ],
+                  "offset": [
+                    -3.0,
+                    -0.20000000298023224,
+                    -2.0
+                  ],
+                  "rotation": [
+                    21.540000915527344,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    69,
+                    5
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [
+                    {
+                      "name": "snout2",
+                      "dimensions": [
+                        5,
+                        4,
+                        6
+                      ],
+                      "position": [
+                        0.0,
+                        0.17000000178813934,
+                        0.8799999952316284
+                      ],
+                      "offset": [
+                        -2.5,
+                        -0.20000000298023224,
+                        -1.7000000476837158
+                      ],
+                      "rotation": [
+                        -10.430000305175781,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
+                      "txOffset": [
+                        105,
+                        9
+                      ],
+                      "txMirror": false,
+                      "mcScale": 0.0,
+                      "opacity": 100.0,
+                      "hidden": false,
+                      "children": [
+                        {
+                          "name": "snout3",
+                          "dimensions": [
+                            4,
+                            4,
+                            3
+                          ],
+                          "position": [
+                            0.0,
+                            3.009999990463257,
+                            4.150000095367432
+                          ],
+                          "offset": [
+                            -2.0,
+                            -3.200000047683716,
+                            0.0
+                          ],
+                          "rotation": [
+                            5.650000095367432,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            194,
+                            7
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [
+                            {
+                              "name": "snout4",
+                              "dimensions": [
+                                4,
+                                2,
+                                1
+                              ],
+                              "position": [
+                                0.0,
+                                0.800000011920929,
+                                3.0
+                              ],
+                              "offset": [
+                                -2.0,
+                                0.0,
+                                -1.0
+                              ],
+                              "rotation": [
+                                -172.1699981689453,
+                                0.0,
+                                0.0
+                              ],
+                              "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                              ],
+                              "txOffset": [
+                                169,
+                                4
+                              ],
+                              "txMirror": false,
+                              "mcScale": 0.0,
+                              "opacity": 100.0,
+                              "hidden": false,
+                              "children": [
+                                {
+                                  "name": "snout5",
+                                  "dimensions": [
+                                    4,
+                                    1,
+                                    1
+                                  ],
+                                  "position": [
+                                    0.0,
+                                    0.0,
+                                    -1.0
+                                  ],
+                                  "offset": [
+                                    -2.0,
+                                    0.0,
+                                    -1.0
+                                  ],
+                                  "rotation": [
+                                    23.8700008392334,
+                                    0.0,
+                                    0.0
+                                  ],
+                                  "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                  ],
+                                  "txOffset": [
+                                    181,
+                                    4
+                                  ],
+                                  "txMirror": false,
+                                  "mcScale": 0.0,
+                                  "opacity": 100.0,
+                                  "hidden": false,
+                                  "children": [],
+                                  "parentIdentifier": "M&Ys>2W\\)J.?RXLc6FNd",
+                                  "identifier": "cJjq%dN,!j;/h<N9?TM("
+                                }
+                              ],
+                              "parentIdentifier": "q1$CIK;RWk;z4.[(B)6q",
+                              "identifier": "M&Ys>2W\\)J.?RXLc6FNd"
+                            }
+                          ],
+                          "parentIdentifier": "pp(+)5pBHV^iP-&|I\\40",
+                          "identifier": "q1$CIK;RWk;z4.[(B)6q"
+                        },
+                        {
+                          "name": "nasalRidge1",
+                          "dimensions": [
+                            3,
+                            1,
+                            3
+                          ],
+                          "position": [
+                            0.0,
+                            4.099999904632568,
+                            0.009999999776482582
+                          ],
+                          "offset": [
+                            -1.5,
+                            0.0,
+                            -1.0
+                          ],
+                          "rotation": [
+                            180.0,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            155,
+                            4
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [
+                            {
+                              "name": "nasalRidge2",
+                              "dimensions": [
+                                3,
+                                2,
+                                2
+                              ],
+                              "position": [
+                                0.0,
+                                -0.10000000149011612,
+                                -0.800000011920929
+                              ],
+                              "offset": [
+                                -1.5,
+                                0.0,
+                                -1.0
+                              ],
+                              "rotation": [
+                                -16.020000457763672,
+                                0.0,
+                                0.0
+                              ],
+                              "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                              ],
+                              "txOffset": [
+                                0,
+                                5
+                              ],
+                              "txMirror": false,
+                              "mcScale": 0.0,
+                              "opacity": 100.0,
+                              "hidden": false,
+                              "children": [
+                                {
+                                  "name": "nasalRidge3",
+                                  "dimensions": [
+                                    3,
+                                    2,
+                                    2
+                                  ],
+                                  "position": [
+                                    0.0,
+                                    0.0,
+                                    -1.0
+                                  ],
+                                  "offset": [
+                                    -1.5,
+                                    0.0,
+                                    -2.0
+                                  ],
+                                  "rotation": [
+                                    7.639999866485596,
+                                    0.0,
+                                    0.0
+                                  ],
+                                  "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                  ],
+                                  "txOffset": [
+                                    59,
+                                    5
+                                  ],
+                                  "txMirror": false,
+                                  "mcScale": 0.0,
+                                  "opacity": 100.0,
+                                  "hidden": false,
+                                  "children": [
+                                    {
+                                      "name": "nasalRidge4",
+                                      "dimensions": [
+                                        3,
+                                        2,
+                                        2
+                                      ],
+                                      "position": [
+                                        0.0,
+                                        0.0,
+                                        -2.0
+                                      ],
+                                      "offset": [
+                                        -1.5,
+                                        0.0,
+                                        -2.0
+                                      ],
+                                      "rotation": [
+                                        9.65999984741211,
+                                        0.0,
+                                        0.0
+                                      ],
+                                      "scale": [
+                                        1.0,
+                                        1.0,
+                                        1.0
+                                      ],
+                                      "txOffset": [
+                                        103,
+                                        5
+                                      ],
+                                      "txMirror": false,
+                                      "mcScale": 0.0,
+                                      "opacity": 100.0,
+                                      "hidden": false,
+                                      "children": [
+                                        {
+                                          "name": "nasalRidge5",
+                                          "dimensions": [
+                                            3,
+                                            2,
+                                            2
+                                          ],
+                                          "position": [
+                                            0.0,
+                                            0.0,
+                                            -2.0
+                                          ],
+                                          "offset": [
+                                            -1.5,
+                                            0.0,
+                                            -2.0
+                                          ],
+                                          "rotation": [
+                                            16.0,
+                                            0.0,
+                                            0.0
+                                          ],
+                                          "scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                          ],
+                                          "txOffset": [
+                                            121,
+                                            9
+                                          ],
+                                          "txMirror": false,
+                                          "mcScale": 0.0,
+                                          "opacity": 100.0,
+                                          "hidden": false,
+                                          "children": [
+                                            {
+                                              "name": "nasalRidge6",
+                                              "dimensions": [
+                                                3,
+                                                2,
+                                                1
+                                              ],
+                                              "position": [
+                                                0.0,
+                                                0.0,
+                                                -2.0
+                                              ],
+                                              "offset": [
+                                                -1.5,
+                                                0.0,
+                                                -1.0
+                                              ],
+                                              "rotation": [
+                                                16.0,
+                                                0.0,
+                                                0.0
+                                              ],
+                                              "scale": [
+                                                1.0,
+                                                1.0,
+                                                1.0
+                                              ],
+                                              "txOffset": [
+                                                193,
+                                                3
+                                              ],
+                                              "txMirror": false,
+                                              "mcScale": 0.0,
+                                              "opacity": 100.0,
+                                              "hidden": false,
+                                              "children": [
+                                                {
+                                                  "name": "nasalRidge7",
+                                                  "dimensions": [
+                                                    3,
+                                                    2,
+                                                    1
+                                                  ],
+                                                  "position": [
+                                                    0.0,
+                                                    0.0,
+                                                    -1.0
+                                                  ],
+                                                  "offset": [
+                                                    -1.5,
+                                                    0.0,
+                                                    -1.0
+                                                  ],
+                                                  "rotation": [
+                                                    20.0,
+                                                    0.0,
+                                                    0.0
+                                                  ],
+                                                  "scale": [
+                                                    1.0,
+                                                    1.0,
+                                                    1.0
+                                                  ],
+                                                  "txOffset": [
+                                                    211,
+                                                    3
+                                                  ],
+                                                  "txMirror": false,
+                                                  "mcScale": 0.0,
+                                                  "opacity": 100.0,
+                                                  "hidden": false,
+                                                  "children": [],
+                                                  "parentIdentifier": "`?Rb$q`(6Y7n6+L^F~5%",
+                                                  "identifier": "0k~F+|s=j$_/eh%`WT2["
+                                                }
+                                              ],
+                                              "parentIdentifier": "*H?5$tqKv]{#q;nkZ,/<",
+                                              "identifier": "`?Rb$q`(6Y7n6+L^F~5%"
+                                            }
+                                          ],
+                                          "parentIdentifier": "z/,z4Xw 6\"C8uGMMq~D@",
+                                          "identifier": "*H?5$tqKv]{#q;nkZ,/<"
+                                        }
+                                      ],
+                                      "parentIdentifier": "We$3=`|aeQg[[Xa![ [@",
+                                      "identifier": "z/,z4Xw 6\"C8uGMMq~D@"
+                                    },
+                                    {
+                                      "name": "nasalRidge1Male",
+                                      "dimensions": [
+                                        2,
+                                        2,
+                                        2
+                                      ],
+                                      "position": [
+                                        0.0,
+                                        0.05999999865889549,
+                                        0.27000001072883606
+                                      ],
+                                      "offset": [
+                                        -1.0,
+                                        0.0,
+                                        -2.0
+                                      ],
+                                      "rotation": [
+                                        -5.75,
+                                        0.0,
+                                        0.0
+                                      ],
+                                      "scale": [
+                                        1.0,
+                                        1.0,
+                                        1.0
+                                      ],
+                                      "txOffset": [
+                                        247,
+                                        0
+                                      ],
+                                      "txMirror": false,
+                                      "mcScale": 0.0,
+                                      "opacity": 100.0,
+                                      "hidden": false,
+                                      "children": [
+                                        {
+                                          "name": "nasalRidge2Male",
+                                          "dimensions": [
+                                            2,
+                                            2,
+                                            2
+                                          ],
+                                          "position": [
+                                            0.0,
+                                            0.0,
+                                            -2.0
+                                          ],
+                                          "offset": [
+                                            -1.0,
+                                            0.0,
+                                            -2.0
+                                          ],
+                                          "rotation": [
+                                            11.65999984741211,
+                                            0.0,
+                                            0.0
+                                          ],
+                                          "scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                          ],
+                                          "txOffset": [
+                                            145,
+                                            4
+                                          ],
+                                          "txMirror": false,
+                                          "mcScale": 0.0,
+                                          "opacity": 100.0,
+                                          "hidden": false,
+                                          "children": [
+                                            {
+                                              "name": "nasalRidge3Male",
+                                              "dimensions": [
+                                                2,
+                                                2,
+                                                2
+                                              ],
+                                              "position": [
+                                                0.0,
+                                                0.0,
+                                                -2.0
+                                              ],
+                                              "offset": [
+                                                -1.0,
+                                                0.0,
+                                                -2.0
+                                              ],
+                                              "rotation": [
+                                                15.199999809265137,
+                                                0.0,
+                                                0.0
+                                              ],
+                                              "scale": [
+                                                1.0,
+                                                1.0,
+                                                1.0
+                                              ],
+                                              "txOffset": [
+                                                142,
+                                                9
+                                              ],
+                                              "txMirror": false,
+                                              "mcScale": 0.0,
+                                              "opacity": 100.0,
+                                              "hidden": false,
+                                              "children": [
+                                                {
+                                                  "name": "nasalRidge4Male",
+                                                  "dimensions": [
+                                                    2,
+                                                    2,
+                                                    1
+                                                  ],
+                                                  "position": [
+                                                    0.0,
+                                                    0.0,
+                                                    -2.0
+                                                  ],
+                                                  "offset": [
+                                                    -1.0,
+                                                    0.0,
+                                                    -1.0
+                                                  ],
+                                                  "rotation": [
+                                                    20.0,
+                                                    0.0,
+                                                    0.0
+                                                  ],
+                                                  "scale": [
+                                                    1.0,
+                                                    1.0,
+                                                    1.0
+                                                  ],
+                                                  "txOffset": [
+                                                    227,
+                                                    2
+                                                  ],
+                                                  "txMirror": false,
+                                                  "mcScale": 0.0,
+                                                  "opacity": 100.0,
+                                                  "hidden": false,
+                                                  "children": [
+                                                    {
+                                                      "name": "nasalRidge5Male",
+                                                      "dimensions": [
+                                                        2,
+                                                        2,
+                                                        1
+                                                      ],
+                                                      "position": [
+                                                        0.0,
+                                                        0.0,
+                                                        -1.0
+                                                      ],
+                                                      "offset": [
+                                                        -1.0,
+                                                        0.0,
+                                                        -1.0
+                                                      ],
+                                                      "rotation": [
+                                                        17.0,
+                                                        0.0,
+                                                        0.0
+                                                      ],
+                                                      "scale": [
+                                                        1.0,
+                                                        1.0,
+                                                        1.0
+                                                      ],
+                                                      "txOffset": [
+                                                        14,
+                                                        4
+                                                      ],
+                                                      "txMirror": false,
+                                                      "mcScale": 0.0,
+                                                      "opacity": 100.0,
+                                                      "hidden": false,
+                                                      "children": [
+                                                        {
+                                                          "name": "nasalRidge6Male",
+                                                          "dimensions": [
+                                                            2,
+                                                            2,
+                                                            1
+                                                          ],
+                                                          "position": [
+                                                            0.0,
+                                                            0.0,
+                                                            -1.0
+                                                          ],
+                                                          "offset": [
+                                                            -1.0,
+                                                            0.0,
+                                                            -1.0
+                                                          ],
+                                                          "rotation": [
+                                                            19.25,
+                                                            0.0,
+                                                            0.0
+                                                          ],
+                                                          "scale": [
+                                                            1.0,
+                                                            1.0,
+                                                            1.0
+                                                          ],
+                                                          "txOffset": [
+                                                            219,
+                                                            4
+                                                          ],
+                                                          "txMirror": false,
+                                                          "mcScale": 0.0,
+                                                          "opacity": 100.0,
+                                                          "hidden": false,
+                                                          "children": [],
+                                                          "parentIdentifier": "Hou'F}oU]?kKO2&#hu%a",
+                                                          "identifier": "r?FX]\\A!&%D[&2H8:_&n"
+                                                        }
+                                                      ],
+                                                      "parentIdentifier": "~$N$npm&VC:O~OGV%5/k",
+                                                      "identifier": "Hou'F}oU]?kKO2&#hu%a"
+                                                    }
+                                                  ],
+                                                  "parentIdentifier": "b>8f=xgflK7)4,AOJ=Yh",
+                                                  "identifier": "~$N$npm&VC:O~OGV%5/k"
+                                                }
+                                              ],
+                                              "parentIdentifier": "-\"<q}wW~ogv{lPv!~kd{",
+                                              "identifier": "b>8f=xgflK7)4,AOJ=Yh"
+                                            }
+                                          ],
+                                          "parentIdentifier": "e$F^}<#N#n^W6CPe]H.W",
+                                          "identifier": "-\"<q}wW~ogv{lPv!~kd{"
+                                        }
+                                      ],
+                                      "parentIdentifier": "We$3=`|aeQg[[Xa![ [@",
+                                      "identifier": "e$F^}<#N#n^W6CPe]H.W"
+                                    }
+                                  ],
+                                  "parentIdentifier": "NuvU<Eq0ACwmX:(5,V83",
+                                  "identifier": "We$3=`|aeQg[[Xa![ [@"
+                                }
+                              ],
+                              "parentIdentifier": "NrsCDv/uJ*+\"8xH.{qa)",
+                              "identifier": "NuvU<Eq0ACwmX:(5,V83"
+                            }
+                          ],
+                          "parentIdentifier": "pp(+)5pBHV^iP-&|I\\40",
+                          "identifier": "NrsCDv/uJ*+\"8xH.{qa)"
+                        }
+                      ],
+                      "parentIdentifier": "qj7({k[?+[g@6v$:xsbY",
+                      "identifier": "pp(+)5pBHV^iP-&|I\\40"
+                    }
+                  ],
+                  "parentIdentifier": "OPeVlW4OER:KNDl= D4\\",
+                  "identifier": "qj7({k[?+[g@6v$:xsbY"
+                },
+                {
+                  "name": "teethJawUpperBack",
+                  "dimensions": [
+                    6,
+                    2,
+                    5
+                  ],
+                  "position": [
+                    0.0,
+                    -2.0,
+                    2.0
+                  ],
+                  "offset": [
+                    -3.0,
+                    0.0,
+                    -4.699999809265137
+                  ],
+                  "rotation": [
+                    180.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    210,
+                    7
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [],
+                  "parentIdentifier": "OPeVlW4OER:KNDl= D4\\",
+                  "identifier": "PBURWnJQ\"zM}c),;ttg,"
+                }
+              ],
+              "parentIdentifier": "<F.l\\Au%mg1<8{?j-rh[",
+              "identifier": "OPeVlW4OER:KNDl= D4\\"
+            },
+            {
+              "name": "jawLowerBase",
+              "dimensions": [
+                7,
+                3,
+                2
+              ],
+              "position": [
+                0.0,
+                7.210000038146973,
+                -0.019999999552965164
+              ],
+              "offset": [
+                -3.5,
+                0.0,
+                -2.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                119,
+                4
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "opacity": 100.0,
+              "hidden": false,
+              "children": [
+                {
+                  "name": "jawLower1",
+                  "dimensions": [
+                    7,
+                    3,
+                    3
+                  ],
+                  "position": [
+                    0.0,
+                    0.0,
+                    -2.0
+                  ],
+                  "offset": [
+                    -3.5,
+                    0.0,
+                    -3.0
+                  ],
+                  "rotation": [
+                    25.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    147,
+                    10
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "opacity": 100.0,
+                  "hidden": false,
+                  "children": [
+                    {
+                      "name": "jawLower2Bottom",
+                      "dimensions": [
+                        5,
+                        3,
+                        3
+                      ],
+                      "position": [
+                        0.0,
+                        0.3199999928474426,
+                        -1.3899999856948853
+                      ],
+                      "offset": [
+                        -2.5,
+                        -3.0999999046325684,
+                        0.0
+                      ],
+                      "rotation": [
+                        170.5,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
+                      "txOffset": [
+                        66,
+                        11
+                      ],
+                      "txMirror": false,
+                      "mcScale": 0.0,
+                      "opacity": 100.0,
+                      "hidden": false,
+                      "children": [
+                        {
+                          "name": "jawLower3Middle",
+                          "dimensions": [
+                            4,
+                            2,
+                            8
+                          ],
+                          "position": [
+                            0.0,
+                            -0.10000000149011612,
+                            5.989999771118164
+                          ],
+                          "offset": [
+                            -2.0,
+                            -2.4000000953674316,
+                            -3.0
+                          ],
+                          "rotation": [
+                            7.829999923706055,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            123,
+                            11
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [
+                            {
+                              "name": "jawLower4",
+                              "dimensions": [
+                                4,
+                                1,
+                                2
+                              ],
+                              "position": [
+                                0.0,
+                                -0.4000000059604645,
+                                5.079999923706055
+                              ],
+                              "offset": [
+                                -2.0,
+                                -1.0,
+                                -1.2000000476837158
+                              ],
+                              "rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                              ],
+                              "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                              ],
+                              "txOffset": [
+                                230,
+                                12
+                              ],
+                              "txMirror": false,
+                              "mcScale": 0.0,
+                              "opacity": 100.0,
+                              "hidden": false,
+                              "children": [
+                                {
+                                  "name": "teethJawLower",
+                                  "dimensions": [
+                                    4,
+                                    1,
+                                    6
+                                  ],
+                                  "position": [
+                                    0.0,
+                                    0.0,
+                                    0.800000011920929
+                                  ],
+                                  "offset": [
+                                    -2.0,
+                                    -1.0,
+                                    0.0
+                                  ],
+                                  "rotation": [
+                                    180.0,
+                                    0.0,
+                                    0.0
+                                  ],
+                                  "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                  ],
+                                  "txOffset": [
+                                    184,
+                                    14
+                                  ],
+                                  "txMirror": false,
+                                  "mcScale": 0.0,
+                                  "opacity": 100.0,
+                                  "hidden": false,
+                                  "children": [],
+                                  "parentIdentifier": "ada[rCG7\"R}CFdQJy@Wv",
+                                  "identifier": "6%y[9,#Q\"]43 CPwWnOA"
+                                }
+                              ],
+                              "parentIdentifier": "L^WlM&'N}aG$S,SOA>&H",
+                              "identifier": "ada[rCG7\"R}CFdQJy@Wv"
+                            }
+                          ],
+                          "parentIdentifier": "W~BziHN9nA6^k'$66_p4",
+                          "identifier": "L^WlM&'N}aG$S,SOA>&H"
+                        },
+                        {
+                          "name": "jawLower3Bottom1",
+                          "dimensions": [
+                            4,
+                            2,
+                            2
+                          ],
+                          "position": [
+                            0.0,
+                            -3.009999990463257,
+                            3.0
+                          ],
+                          "offset": [
+                            -2.0,
+                            -1.909999966621399,
+                            -1.9800000190734863
+                          ],
+                          "rotation": [
+                            173.60000610351562,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            0,
+                            12
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [
+                            {
+                              "name": "jawLower3Bottom2",
+                              "dimensions": [
+                                3,
+                                1,
+                                6
+                              ],
+                              "position": [
+                                0.0,
+                                0.0,
+                                -1.5
+                              ],
+                              "offset": [
+                                -1.5,
+                                -1.0,
+                                -6.0
+                              ],
+                              "rotation": [
+                                10.4399995803833,
+                                0.0,
+                                0.0
+                              ],
+                              "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                              ],
+                              "txOffset": [
+                                236,
+                                12
+                              ],
+                              "txMirror": false,
+                              "mcScale": 0.0,
+                              "opacity": 100.0,
+                              "hidden": false,
+                              "children": [
+                                {
+                                  "name": "jawLower3Bottom3",
+                                  "dimensions": [
+                                    3,
+                                    1,
+                                    1
+                                  ],
+                                  "position": [
+                                    0.0,
+                                    0.0,
+                                    -6.0
+                                  ],
+                                  "offset": [
+                                    -1.5,
+                                    0.0,
+                                    -1.0
+                                  ],
+                                  "rotation": [
+                                    -119.20999908447266,
+                                    0.0,
+                                    0.0
+                                  ],
+                                  "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                  ],
+                                  "txOffset": [
+                                    201,
+                                    4
+                                  ],
+                                  "txMirror": false,
+                                  "mcScale": 0.0,
+                                  "opacity": 100.0,
+                                  "hidden": false,
+                                  "children": [
+                                    {
+                                      "name": "jawLower3Bottom4",
+                                      "dimensions": [
+                                        3,
+                                        1,
+                                        1
+                                      ],
+                                      "position": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                      ],
+                                      "offset": [
+                                        -1.5,
+                                        0.0,
+                                        -1.0
+                                      ],
+                                      "rotation": [
+                                        -48.27000045776367,
+                                        0.0,
+                                        0.0
+                                      ],
+                                      "scale": [
+                                        1.0,
+                                        1.0,
+                                        1.0
+                                      ],
+                                      "txOffset": [
+                                        83,
+                                        5
+                                      ],
+                                      "txMirror": false,
+                                      "mcScale": 0.0,
+                                      "opacity": 100.0,
+                                      "hidden": false,
+                                      "children": [],
+                                      "parentIdentifier": "NEcn1NY8vOm\\pDV np4f",
+                                      "identifier": "B?-Uc, y.\\|Y@~&:5H'Y"
+                                    }
+                                  ],
+                                  "parentIdentifier": "t}~%#IAy. D=O8w`[]^E",
+                                  "identifier": "NEcn1NY8vOm\\pDV np4f"
+                                }
+                              ],
+                              "parentIdentifier": "M#s9,9-R|v0i$M&^iHh<",
+                              "identifier": "t}~%#IAy. D=O8w`[]^E"
+                            }
+                          ],
+                          "parentIdentifier": "W~BziHN9nA6^k'$66_p4",
+                          "identifier": "M#s9,9-R|v0i$M&^iHh<"
+                        },
+                        {
+                          "name": "muscle1",
+                          "dimensions": [
+                            5,
+                            2,
+                            3
+                          ],
+                          "position": [
+                            0.0,
+                            -3.190000057220459,
+                            -0.019999999552965164
+                          ],
+                          "offset": [
+                            -2.5,
+                            -2.0999999046325684,
+                            0.0
+                          ],
+                          "rotation": [
+                            -169.39999389648438,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            12,
+                            12
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [],
+                          "parentIdentifier": "W~BziHN9nA6^k'$66_p4",
+                          "identifier": "4!JEbD?)e/A;,6jKfC@C"
+                        },
+                        {
+                          "name": "jawLower3Top",
+                          "dimensions": [
+                            4,
+                            3,
+                            1
+                          ],
+                          "position": [
+                            0.0,
+                            0.30000001192092896,
+                            3.0
+                          ],
+                          "offset": [
+                            -2.0,
+                            0.0,
+                            0.0
+                          ],
+                          "rotation": [
+                            105.18000030517578,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            184,
+                            10
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [],
+                          "parentIdentifier": "W~BziHN9nA6^k'$66_p4",
+                          "identifier": "~&0+\"b|gC5sAy>F*5.{L"
+                        },
+                        {
+                          "name": "jawLower2Top",
+                          "dimensions": [
+                            5,
+                            1,
+                            3
+                          ],
+                          "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                          ],
+                          "offset": [
+                            -2.5,
+                            -0.699999988079071,
+                            0.0
+                          ],
+                          "rotation": [
+                            0.0,
+                            0.0,
+                            0.0
+                          ],
+                          "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "txOffset": [
+                            45,
+                            12
+                          ],
+                          "txMirror": false,
+                          "mcScale": 0.0,
+                          "opacity": 100.0,
+                          "hidden": false,
+                          "children": [],
+                          "parentIdentifier": "W~BziHN9nA6^k'$66_p4",
+                          "identifier": "Nw&(ONFe;~7D_V%:[?Y5"
+                        }
+                      ],
+                      "parentIdentifier": "+XLp\"me](eSF6{;KI^~L",
+                      "identifier": "W~BziHN9nA6^k'$66_p4"
+                    }
+                  ],
+                  "parentIdentifier": "W/2tus_L5c4t/hCBYU=_",
+                  "identifier": "+XLp\"me](eSF6{;KI^~L"
+                }
+              ],
+              "parentIdentifier": "<F.l\\Au%mg1<8{?j-rh[",
+              "identifier": "W/2tus_L5c4t/hCBYU=_"
+            }
+          ],
+          "parentIdentifier": "7vV>w]iH\\:gQ}(AkNlZ ",
+          "identifier": "<F.l\\Au%mg1<8{?j-rh["
+        }
+      ],
+      "identifier": "7vV>w]iH\\:gQ}(AkNlZ "
+    }
+  ],
+  "anims": [],
+  "cubeCount": 408
+}

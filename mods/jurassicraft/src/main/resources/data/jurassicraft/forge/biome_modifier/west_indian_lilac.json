@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#jurassicraft:lilac_biomes",
+  "features": "jurassicraft:west_indian_lilac",
+  "step": "vegetal_decoration"
+}

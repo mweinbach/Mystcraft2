@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:ginkgo_sapling",
+    "jurassicraft:calamites_sapling",
+    "jurassicraft:psaronius_sapling",
+    "jurassicraft:phoenix_sapling",
+    "jurassicraft:araucaria_sapling"
+  ]
+}

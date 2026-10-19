@@ -1,0 +1,59 @@
+{
+  "parent": "jurassicraft:item/action_figure/brachiosaurus",
+  "overrides": [
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 1
+      },
+      "model": "jurassicraft:item/action_figure/coelacanth"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 2
+      },
+      "model": "jurassicraft:item/action_figure/dilophosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 3
+      },
+      "model": "jurassicraft:item/action_figure/gallimimus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 4
+      },
+      "model": "jurassicraft:item/action_figure/microraptor"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 5
+      },
+      "model": "jurassicraft:item/action_figure/mussaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 6
+      },
+      "model": "jurassicraft:item/action_figure/parasaurolophus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 7
+      },
+      "model": "jurassicraft:item/action_figure/triceratops"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 8
+      },
+      "model": "jurassicraft:item/action_figure/tyrannosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:figure_species": 9
+      },
+      "model": "jurassicraft:item/action_figure/velociraptor"
+    }
+  ]
+}

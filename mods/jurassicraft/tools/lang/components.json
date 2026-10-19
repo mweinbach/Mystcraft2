@@ -1,0 +1,17 @@
+{
+  "item.jurassicraft.basic_circuit": "Basic Circuit",
+  "item.jurassicraft.advanced_circuit": "Advanced Circuit",
+  "item.jurassicraft.computer_screen": "Computer Screen",
+  "item.jurassicraft.keyboard": "Keyboard",
+  "item.jurassicraft.laser": "Laser",
+  "item.jurassicraft.dna_analyzer": "DNA Analyzer",
+  "item.jurassicraft.disc_reader": "Disc Reader",
+  "item.jurassicraft.empty_test_tube": "Empty Test Tube",
+  "item.jurassicraft.dna_nucleotides": "DNA Base Material",
+  "item.jurassicraft.petri_dish": "Petri Dish",
+  "item.jurassicraft.petri_dish_agar": "Petri Dish Agar",
+  "item.jurassicraft.liquid_agar": "Liquid Agar",
+  "item.jurassicraft.plant_cells": "Plant Cells",
+  "item.jurassicraft.plant_cells_petri_dish": "Plant Cells Petri Dish",
+  "item.jurassicraft.empty_syringe": "Empty Syringe"
+}

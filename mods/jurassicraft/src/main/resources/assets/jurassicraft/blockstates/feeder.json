@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "jurassicraft:block/feeder"
+    },
+    "facing=down": {
+      "model": "jurassicraft:block/feeder",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "jurassicraft:block/feeder",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/feeder",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/feeder",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/feeder",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

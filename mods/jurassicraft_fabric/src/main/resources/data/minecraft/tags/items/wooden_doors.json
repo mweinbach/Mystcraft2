@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:ginkgo_door",
+    "jurassicraft:calamites_door",
+    "jurassicraft:psaronius_door",
+    "jurassicraft:phoenix_door",
+    "jurassicraft:araucaria_door"
+  ]
+}

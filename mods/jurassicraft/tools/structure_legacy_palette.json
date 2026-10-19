@@ -1,0 +1,1586 @@
+{
+  "comment": "Vanilla DataFixer STRUCTURE mapping from Minecraft 1.12.2 (DataVersion 1343) to 1.19.2 (3120); custom and residual mappings are applied by convert_structures.py.",
+  "states": {
+    "{\"Name\":\"jurassicraft:araucaria_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:araucaria_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:araucaria_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:araucaria_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:araucaria_door\",\"Properties\":{\"facing\":\"south\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:araucaria_door",
+      "Properties": {
+        "facing": "south",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"east\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "east",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "north",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"south\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "south",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:calamites_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:calamites_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:cleaning_station\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "jurassicraft:cleaning_station",
+      "Properties": {
+        "facing": "south"
+      }
+    },
+    "{\"Name\":\"jurassicraft:clear_glass\",\"Properties\":{\"down\":\"false\",\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "jurassicraft:clear_glass",
+      "Properties": {
+        "down": "false",
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:dna_combinator_hybridizer\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "jurassicraft:dna_combinator_hybridizer",
+      "Properties": {
+        "facing": "south"
+      }
+    },
+    "{\"Name\":\"jurassicraft:dna_extractor\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "jurassicraft:dna_extractor",
+      "Properties": {
+        "facing": "north"
+      }
+    },
+    "{\"Name\":\"jurassicraft:dna_sequencer\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "jurassicraft:dna_sequencer",
+      "Properties": {
+        "facing": "south"
+      }
+    },
+    "{\"Name\":\"jurassicraft:dna_synthesizer\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "jurassicraft:dna_synthesizer",
+      "Properties": {
+        "facing": "north"
+      }
+    },
+    "{\"Name\":\"jurassicraft:embryo_calcification_machine\",\"Properties\":{\"facing\":\"west\"}}": {
+      "Name": "jurassicraft:embryo_calcification_machine",
+      "Properties": {
+        "facing": "west"
+      }
+    },
+    "{\"Name\":\"jurassicraft:embryonic_machine\",\"Properties\":{\"facing\":\"east\"}}": {
+      "Name": "jurassicraft:embryonic_machine",
+      "Properties": {
+        "facing": "east"
+      }
+    },
+    "{\"Name\":\"jurassicraft:embryonic_machine\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "jurassicraft:embryonic_machine",
+      "Properties": {
+        "facing": "north"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_0\",\"Properties\":{\"variant\":\"0\"}}": {
+      "Name": "jurassicraft:encased_fossil_0",
+      "Properties": {
+        "variant": "0"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_0\",\"Properties\":{\"variant\":\"13\"}}": {
+      "Name": "jurassicraft:encased_fossil_0",
+      "Properties": {
+        "variant": "13"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_0\",\"Properties\":{\"variant\":\"3\"}}": {
+      "Name": "jurassicraft:encased_fossil_0",
+      "Properties": {
+        "variant": "3"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_0\",\"Properties\":{\"variant\":\"7\"}}": {
+      "Name": "jurassicraft:encased_fossil_0",
+      "Properties": {
+        "variant": "7"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_0\",\"Properties\":{\"variant\":\"9\"}}": {
+      "Name": "jurassicraft:encased_fossil_0",
+      "Properties": {
+        "variant": "9"
+      }
+    },
+    "{\"Name\":\"jurassicraft:encased_fossil_1\",\"Properties\":{\"variant\":\"3\"}}": {
+      "Name": "jurassicraft:encased_fossil_1",
+      "Properties": {
+        "variant": "3"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_0\",\"Properties\":{\"variant\":\"0\"}}": {
+      "Name": "jurassicraft:fossil_block_0",
+      "Properties": {
+        "variant": "0"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_0\",\"Properties\":{\"variant\":\"3\"}}": {
+      "Name": "jurassicraft:fossil_block_0",
+      "Properties": {
+        "variant": "3"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_0\",\"Properties\":{\"variant\":\"7\"}}": {
+      "Name": "jurassicraft:fossil_block_0",
+      "Properties": {
+        "variant": "7"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_0\",\"Properties\":{\"variant\":\"9\"}}": {
+      "Name": "jurassicraft:fossil_block_0",
+      "Properties": {
+        "variant": "9"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_1\",\"Properties\":{\"variant\":\"3\"}}": {
+      "Name": "jurassicraft:fossil_block_1",
+      "Properties": {
+        "variant": "3"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_block_1\",\"Properties\":{\"variant\":\"4\"}}": {
+      "Name": "jurassicraft:fossil_block_1",
+      "Properties": {
+        "variant": "4"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossil_grinder\",\"Properties\":{\"facing\":\"west\"}}": {
+      "Name": "jurassicraft:fossil_grinder",
+      "Properties": {
+        "facing": "west"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossilized_trackway\",\"Properties\":{\"facing\":\"north\",\"variant\":\"biped_small\"}}": {
+      "Name": "jurassicraft:fossilized_trackway",
+      "Properties": {
+        "facing": "north",
+        "variant": "biped_small"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossilized_trackway\",\"Properties\":{\"facing\":\"south\",\"variant\":\"biped_medium\"}}": {
+      "Name": "jurassicraft:fossilized_trackway",
+      "Properties": {
+        "facing": "south",
+        "variant": "biped_medium"
+      }
+    },
+    "{\"Name\":\"jurassicraft:fossilized_trackway\",\"Properties\":{\"facing\":\"south\",\"variant\":\"raptor\"}}": {
+      "Name": "jurassicraft:fossilized_trackway",
+      "Properties": {
+        "facing": "south",
+        "variant": "raptor"
+      }
+    },
+    "{\"Name\":\"jurassicraft:incubator\",\"Properties\":{\"facing\":\"west\"}}": {
+      "Name": "jurassicraft:incubator",
+      "Properties": {
+        "facing": "west"
+      }
+    },
+    "{\"Name\":\"jurassicraft:low_security_fence_base\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"pole\":\"true\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "jurassicraft:low_security_fence_base",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "pole": "true",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:low_security_fence_pole\",\"Properties\":{\"east\":\"true\",\"north\":\"true\",\"powered\":\"true\",\"south\":\"true\",\"west\":\"true\"}}": {
+      "Name": "jurassicraft:low_security_fence_pole",
+      "Properties": {
+        "east": "true",
+        "north": "true",
+        "powered": "true",
+        "south": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"jurassicraft:low_security_fence_wire\",\"Properties\":{\"east\":\"true\",\"north\":\"true\",\"south\":\"true\",\"up\":\"down\",\"west\":\"true\"}}": {
+      "Name": "jurassicraft:low_security_fence_wire",
+      "Properties": {
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "up": "down",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"east\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "east",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "north",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "north",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"south\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "south",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:phoenix_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "jurassicraft:phoenix_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"jurassicraft:plant_fossil_block\"}": {
+      "Name": "jurassicraft:plant_fossil_block"
+    },
+    "{\"Name\":\"jurassicraft:reinforced_bricks\"}": {
+      "Name": "jurassicraft:reinforced_bricks"
+    },
+    "{\"Name\":\"jurassicraft:reinforced_stone\"}": {
+      "Name": "jurassicraft:reinforced_stone"
+    },
+    "{\"Name\":\"minecraft:acacia_door\",\"Properties\":{\"facing\":\"east\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:acacia_door",
+      "Properties": {
+        "facing": "east",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:acacia_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:acacia_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:acacia_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:acacia_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:acacia_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:acacia_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:acacia_fence\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:acacia_fence",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:air\"}": {
+      "Name": "minecraft:air"
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"north\",\"occupied\":\"false\",\"part\":\"foot\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "north",
+        "occupied": "false",
+        "part": "foot"
+      }
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"north\",\"occupied\":\"false\",\"part\":\"head\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "north",
+        "occupied": "false",
+        "part": "head"
+      }
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"south\",\"occupied\":\"false\",\"part\":\"foot\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "south",
+        "occupied": "false",
+        "part": "foot"
+      }
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"south\",\"occupied\":\"false\",\"part\":\"head\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "south",
+        "occupied": "false",
+        "part": "head"
+      }
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"west\",\"occupied\":\"false\",\"part\":\"foot\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "west",
+        "occupied": "false",
+        "part": "foot"
+      }
+    },
+    "{\"Name\":\"minecraft:bed\",\"Properties\":{\"facing\":\"west\",\"occupied\":\"false\",\"part\":\"head\"}}": {
+      "Name": "minecraft:red_bed",
+      "Properties": {
+        "facing": "west",
+        "occupied": "false",
+        "part": "head"
+      }
+    },
+    "{\"Name\":\"minecraft:birch_fence_gate\",\"Properties\":{\"facing\":\"north\",\"in_wall\":\"false\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:birch_fence_gate",
+      "Properties": {
+        "facing": "north",
+        "in_wall": "false",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:bone_block\",\"Properties\":{\"axis\":\"x\"}}": {
+      "Name": "minecraft:bone_block",
+      "Properties": {
+        "axis": "x"
+      }
+    },
+    "{\"Name\":\"minecraft:bone_block\",\"Properties\":{\"axis\":\"y\"}}": {
+      "Name": "minecraft:bone_block",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "{\"Name\":\"minecraft:bone_block\",\"Properties\":{\"axis\":\"z\"}}": {
+      "Name": "minecraft:bone_block",
+      "Properties": {
+        "axis": "z"
+      }
+    },
+    "{\"Name\":\"minecraft:bookshelf\"}": {
+      "Name": "minecraft:bookshelf"
+    },
+    "{\"Name\":\"minecraft:brown_mushroom\"}": {
+      "Name": "minecraft:brown_mushroom"
+    },
+    "{\"Name\":\"minecraft:carpet\",\"Properties\":{\"color\":\"cyan\"}}": {
+      "Name": "minecraft:cyan_carpet"
+    },
+    "{\"Name\":\"minecraft:carpet\",\"Properties\":{\"color\":\"gray\"}}": {
+      "Name": "minecraft:gray_carpet"
+    },
+    "{\"Name\":\"minecraft:carpet\",\"Properties\":{\"color\":\"red\"}}": {
+      "Name": "minecraft:red_carpet"
+    },
+    "{\"Name\":\"minecraft:chest\",\"Properties\":{\"facing\":\"east\"}}": {
+      "Name": "minecraft:chest",
+      "Properties": {
+        "facing": "east",
+        "type": "single"
+      }
+    },
+    "{\"Name\":\"minecraft:chest\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "minecraft:chest",
+      "Properties": {
+        "facing": "north",
+        "type": "single"
+      }
+    },
+    "{\"Name\":\"minecraft:chest\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "minecraft:chest",
+      "Properties": {
+        "facing": "south",
+        "type": "single"
+      }
+    },
+    "{\"Name\":\"minecraft:chest\",\"Properties\":{\"facing\":\"west\"}}": {
+      "Name": "minecraft:chest",
+      "Properties": {
+        "facing": "west",
+        "type": "single"
+      }
+    },
+    "{\"Name\":\"minecraft:cobblestone_wall\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"variant\":\"cobblestone\",\"west\":\"false\"}}": {
+      "Name": "minecraft:cobblestone_wall",
+      "Properties": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "false",
+        "west": "none"
+      }
+    },
+    "{\"Name\":\"minecraft:cobblestone_wall\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"variant\":\"mossy_cobblestone\",\"west\":\"false\"}}": {
+      "Name": "minecraft:mossy_cobblestone_wall",
+      "Properties": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "false",
+        "west": "none"
+      }
+    },
+    "{\"Name\":\"minecraft:crafting_table\"}": {
+      "Name": "minecraft:crafting_table"
+    },
+    "{\"Name\":\"minecraft:dark_oak_door\",\"Properties\":{\"facing\":\"east\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:dark_oak_door",
+      "Properties": {
+        "facing": "east",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:dark_oak_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:dark_oak_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:dark_oak_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:dark_oak_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:deadbush\"}": {
+      "Name": "minecraft:dead_bush"
+    },
+    "{\"Name\":\"minecraft:diamond_block\"}": {
+      "Name": "minecraft:diamond_block"
+    },
+    "{\"Name\":\"minecraft:dirt\",\"Properties\":{\"snowy\":\"false\",\"variant\":\"coarse_dirt\"}}": {
+      "Name": "minecraft:coarse_dirt"
+    },
+    "{\"Name\":\"minecraft:dirt\",\"Properties\":{\"snowy\":\"false\",\"variant\":\"dirt\"}}": {
+      "Name": "minecraft:dirt"
+    },
+    "{\"Name\":\"minecraft:dirt\",\"Properties\":{\"snowy\":\"false\",\"variant\":\"podzol\"}}": {
+      "Name": "minecraft:podzol",
+      "Properties": {
+        "snowy": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:double_stone_slab\",\"Properties\":{\"seamless\":\"false\",\"variant\":\"quartz\"}}": {
+      "Name": "minecraft:quartz_slab",
+      "Properties": {
+        "type": "double"
+      }
+    },
+    "{\"Name\":\"minecraft:double_stone_slab\",\"Properties\":{\"seamless\":\"false\",\"variant\":\"stone\"}}": {
+      "Name": "minecraft:smooth_stone_slab",
+      "Properties": {
+        "type": "double"
+      }
+    },
+    "{\"Name\":\"minecraft:double_wooden_slab\",\"Properties\":{\"variant\":\"dark_oak\"}}": {
+      "Name": "minecraft:dark_oak_slab",
+      "Properties": {
+        "type": "double"
+      }
+    },
+    "{\"Name\":\"minecraft:flower_pot\",\"Properties\":{\"contents\":\"empty\",\"legacy_data\":\"0\"}}": {
+      "Name": "minecraft:potted_cactus"
+    },
+    "{\"Name\":\"minecraft:furnace\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "minecraft:furnace",
+      "Properties": {
+        "facing": "north",
+        "lit": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:furnace\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "minecraft:furnace",
+      "Properties": {
+        "facing": "south",
+        "lit": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:gold_block\"}": {
+      "Name": "minecraft:gold_block"
+    },
+    "{\"Name\":\"minecraft:grass\",\"Properties\":{\"snowy\":\"false\"}}": {
+      "Name": "minecraft:grass_block",
+      "Properties": {
+        "snowy": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:gravel\"}": {
+      "Name": "minecraft:gravel"
+    },
+    "{\"Name\":\"minecraft:hay_block\",\"Properties\":{\"axis\":\"x\"}}": {
+      "Name": "minecraft:hay_block",
+      "Properties": {
+        "axis": "x"
+      }
+    },
+    "{\"Name\":\"minecraft:hay_block\",\"Properties\":{\"axis\":\"y\"}}": {
+      "Name": "minecraft:hay_block",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "{\"Name\":\"minecraft:hay_block\",\"Properties\":{\"axis\":\"z\"}}": {
+      "Name": "minecraft:hay_block",
+      "Properties": {
+        "axis": "z"
+      }
+    },
+    "{\"Name\":\"minecraft:heavy_weighted_pressure_plate\",\"Properties\":{\"power\":\"0\"}}": {
+      "Name": "minecraft:heavy_weighted_pressure_plate",
+      "Properties": {
+        "power": "0"
+      }
+    },
+    "{\"Name\":\"minecraft:iron_bars\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:iron_bars",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:iron_block\"}": {
+      "Name": "minecraft:iron_block"
+    },
+    "{\"Name\":\"minecraft:iron_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:iron_door",
+      "Properties": {
+        "facing": "north",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:iron_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:iron_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:iron_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:iron_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:iron_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:iron_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:jungle_door\",\"Properties\":{\"facing\":\"east\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:jungle_door",
+      "Properties": {
+        "facing": "east",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:jungle_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:jungle_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:jungle_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:jungle_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:jungle_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:jungle_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:ladder\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "minecraft:ladder",
+      "Properties": {
+        "facing": "north"
+      }
+    },
+    "{\"Name\":\"minecraft:ladder\",\"Properties\":{\"facing\":\"south\"}}": {
+      "Name": "minecraft:ladder",
+      "Properties": {
+        "facing": "south"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves\",\"Properties\":{\"check_decay\":\"false\",\"decayable\":\"false\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_leaves",
+      "Properties": {
+        "check_decay": "false",
+        "decayable": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves\",\"Properties\":{\"check_decay\":\"false\",\"decayable\":\"true\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_leaves",
+      "Properties": {
+        "check_decay": "false",
+        "decayable": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves\",\"Properties\":{\"check_decay\":\"true\",\"decayable\":\"false\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_leaves",
+      "Properties": {
+        "check_decay": "true",
+        "decayable": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves\",\"Properties\":{\"check_decay\":\"true\",\"decayable\":\"true\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_leaves",
+      "Properties": {
+        "check_decay": "true",
+        "decayable": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves2\",\"Properties\":{\"check_decay\":\"false\",\"decayable\":\"false\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_leaves",
+      "Properties": {
+        "check_decay": "false",
+        "decayable": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:leaves2\",\"Properties\":{\"check_decay\":\"true\",\"decayable\":\"false\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_leaves",
+      "Properties": {
+        "check_decay": "true",
+        "decayable": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"down_x\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "ceiling",
+        "facing": "west",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"down_z\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "ceiling",
+        "facing": "north",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"east\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "wall",
+        "facing": "east",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"north\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "wall",
+        "facing": "north",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"south\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "wall",
+        "facing": "south",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"up_z\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "floor",
+        "facing": "north",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:lever\",\"Properties\":{\"facing\":\"west\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:lever",
+      "Properties": {
+        "face": "wall",
+        "facing": "west",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:log\",\"Properties\":{\"axis\":\"x\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_log",
+      "Properties": {
+        "axis": "x"
+      }
+    },
+    "{\"Name\":\"minecraft:log\",\"Properties\":{\"axis\":\"y\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_log",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "{\"Name\":\"minecraft:log\",\"Properties\":{\"axis\":\"z\",\"variant\":\"jungle\"}}": {
+      "Name": "minecraft:jungle_log",
+      "Properties": {
+        "axis": "z"
+      }
+    },
+    "{\"Name\":\"minecraft:log2\",\"Properties\":{\"axis\":\"x\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_log",
+      "Properties": {
+        "axis": "x"
+      }
+    },
+    "{\"Name\":\"minecraft:log2\",\"Properties\":{\"axis\":\"y\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_log",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "{\"Name\":\"minecraft:log2\",\"Properties\":{\"axis\":\"z\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_log",
+      "Properties": {
+        "axis": "z"
+      }
+    },
+    "{\"Name\":\"minecraft:mycelium\",\"Properties\":{\"snowy\":\"false\"}}": {
+      "Name": "minecraft:mycelium",
+      "Properties": {
+        "snowy": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:nether_brick_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:nether_brick_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:packed_ice\"}": {
+      "Name": "minecraft:packed_ice"
+    },
+    "{\"Name\":\"minecraft:piston\",\"Properties\":{\"extended\":\"false\",\"facing\":\"up\"}}": {
+      "Name": "minecraft:piston",
+      "Properties": {
+        "extended": "false",
+        "facing": "up"
+      }
+    },
+    "{\"Name\":\"minecraft:planks\",\"Properties\":{\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_planks"
+    },
+    "{\"Name\":\"minecraft:planks\",\"Properties\":{\"variant\":\"spruce\"}}": {
+      "Name": "minecraft:spruce_planks"
+    },
+    "{\"Name\":\"minecraft:quartz_block\",\"Properties\":{\"variant\":\"chiseled\"}}": {
+      "Name": "minecraft:chiseled_quartz_block"
+    },
+    "{\"Name\":\"minecraft:quartz_block\",\"Properties\":{\"variant\":\"default\"}}": {
+      "Name": "minecraft:quartz_block"
+    },
+    "{\"Name\":\"minecraft:quartz_block\",\"Properties\":{\"variant\":\"lines_x\"}}": {
+      "Name": "minecraft:quartz_pillar",
+      "Properties": {
+        "axis": "x"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_block\",\"Properties\":{\"variant\":\"lines_y\"}}": {
+      "Name": "minecraft:quartz_pillar",
+      "Properties": {
+        "axis": "y"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:quartz_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:quartz_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:red_flower\",\"Properties\":{\"type\":\"poppy\"}}": {
+      "Name": "minecraft:poppy"
+    },
+    "{\"Name\":\"minecraft:red_mushroom\"}": {
+      "Name": "minecraft:red_mushroom"
+    },
+    "{\"Name\":\"minecraft:redstone_lamp\"}": {
+      "Name": "minecraft:redstone_lamp",
+      "Properties": {
+        "lit": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:redstone_ore\"}": {
+      "Name": "minecraft:redstone_ore",
+      "Properties": {
+        "lit": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:redstone_torch\",\"Properties\":{\"facing\":\"north\"}}": {
+      "Name": "minecraft:redstone_wall_torch",
+      "Properties": {
+        "facing": "north",
+        "lit": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:redstone_wire\",\"Properties\":{\"east\":\"none\",\"north\":\"none\",\"power\":\"0\",\"south\":\"none\",\"west\":\"none\"}}": {
+      "Name": "minecraft:redstone_wire",
+      "Properties": {
+        "east": "side",
+        "north": "side",
+        "power": "0",
+        "south": "side",
+        "west": "side"
+      }
+    },
+    "{\"Name\":\"minecraft:sand\",\"Properties\":{\"variant\":\"sand\"}}": {
+      "Name": "minecraft:sand"
+    },
+    "{\"Name\":\"minecraft:sea_lantern\"}": {
+      "Name": "minecraft:sea_lantern"
+    },
+    "{\"Name\":\"minecraft:spruce_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:spruce_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "left",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_door\",\"Properties\":{\"facing\":\"north\",\"half\":\"upper\",\"hinge\":\"right\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:spruce_door",
+      "Properties": {
+        "facing": "east",
+        "half": "upper",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_door\",\"Properties\":{\"facing\":\"south\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:spruce_door",
+      "Properties": {
+        "facing": "south",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_door\",\"Properties\":{\"facing\":\"west\",\"half\":\"lower\",\"hinge\":\"left\",\"open\":\"false\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:spruce_door",
+      "Properties": {
+        "facing": "west",
+        "half": "lower",
+        "hinge": "right",
+        "open": "false",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_fence\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:spruce_fence",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:spruce_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:spruce_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:spruce_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:spruce_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:spruce_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stained_glass\",\"Properties\":{\"color\":\"black\"}}": {
+      "Name": "minecraft:black_stained_glass"
+    },
+    "{\"Name\":\"minecraft:stained_glass\",\"Properties\":{\"color\":\"brown\"}}": {
+      "Name": "minecraft:brown_stained_glass"
+    },
+    "{\"Name\":\"minecraft:stained_glass\",\"Properties\":{\"color\":\"cyan\"}}": {
+      "Name": "minecraft:cyan_stained_glass"
+    },
+    "{\"Name\":\"minecraft:stained_glass\",\"Properties\":{\"color\":\"gray\"}}": {
+      "Name": "minecraft:gray_stained_glass"
+    },
+    "{\"Name\":\"minecraft:stained_glass_pane\",\"Properties\":{\"color\":\"black\",\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:black_stained_glass_pane",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"black\"}}": {
+      "Name": "minecraft:black_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"cyan\"}}": {
+      "Name": "minecraft:cyan_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"light_blue\"}}": {
+      "Name": "minecraft:light_blue_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"red\"}}": {
+      "Name": "minecraft:red_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"silver\"}}": {
+      "Name": "minecraft:light_gray_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"white\"}}": {
+      "Name": "minecraft:white_terracotta"
+    },
+    "{\"Name\":\"minecraft:stained_hardened_clay\",\"Properties\":{\"color\":\"yellow\"}}": {
+      "Name": "minecraft:yellow_terracotta"
+    },
+    "{\"Name\":\"minecraft:stone\",\"Properties\":{\"variant\":\"andesite\"}}": {
+      "Name": "minecraft:andesite"
+    },
+    "{\"Name\":\"minecraft:stone\",\"Properties\":{\"variant\":\"smooth_andesite\"}}": {
+      "Name": "minecraft:polished_andesite"
+    },
+    "{\"Name\":\"minecraft:stone\",\"Properties\":{\"variant\":\"stone\"}}": {
+      "Name": "minecraft:stone"
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"east\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "east",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"north\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "north",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"south\",\"half\":\"top\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "south",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_brick_stairs\",\"Properties\":{\"facing\":\"west\",\"half\":\"bottom\",\"shape\":\"straight\"}}": {
+      "Name": "minecraft:stone_brick_stairs",
+      "Properties": {
+        "facing": "west",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_button\",\"Properties\":{\"facing\":\"up\",\"powered\":\"false\"}}": {
+      "Name": "minecraft:stone_button",
+      "Properties": {
+        "face": "floor",
+        "facing": "north",
+        "powered": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"bottom\",\"variant\":\"quartz\"}}": {
+      "Name": "minecraft:quartz_slab",
+      "Properties": {
+        "type": "bottom"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"bottom\",\"variant\":\"stone\"}}": {
+      "Name": "minecraft:smooth_stone_slab",
+      "Properties": {
+        "type": "bottom"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"bottom\",\"variant\":\"stone_brick\"}}": {
+      "Name": "minecraft:stone_brick_slab",
+      "Properties": {
+        "type": "bottom"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"quartz\"}}": {
+      "Name": "minecraft:quartz_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"stone\"}}": {
+      "Name": "minecraft:smooth_stone_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:stone_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"stone_brick\"}}": {
+      "Name": "minecraft:stone_brick_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:stonebrick\",\"Properties\":{\"variant\":\"cracked_stonebrick\"}}": {
+      "Name": "minecraft:cracked_stone_bricks"
+    },
+    "{\"Name\":\"minecraft:stonebrick\",\"Properties\":{\"variant\":\"mossy_stonebrick\"}}": {
+      "Name": "minecraft:mossy_stone_bricks"
+    },
+    "{\"Name\":\"minecraft:stonebrick\",\"Properties\":{\"variant\":\"stonebrick\"}}": {
+      "Name": "minecraft:stone_bricks"
+    },
+    "{\"Name\":\"minecraft:structure_block\",\"Properties\":{\"mode\":\"data\"}}": {
+      "Name": "minecraft:structure_block",
+      "Properties": {
+        "mode": "data"
+      }
+    },
+    "{\"Name\":\"minecraft:tallgrass\",\"Properties\":{\"type\":\"fern\"}}": {
+      "Name": "minecraft:fern"
+    },
+    "{\"Name\":\"minecraft:tallgrass\",\"Properties\":{\"type\":\"tall_grass\"}}": {
+      "Name": "minecraft:grass"
+    },
+    "{\"Name\":\"minecraft:trapdoor\",\"Properties\":{\"facing\":\"north\",\"half\":\"top\",\"open\":\"false\"}}": {
+      "Name": "minecraft:oak_trapdoor",
+      "Properties": {
+        "facing": "north",
+        "half": "top",
+        "open": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:trapdoor\",\"Properties\":{\"facing\":\"south\",\"half\":\"top\",\"open\":\"false\"}}": {
+      "Name": "minecraft:oak_trapdoor",
+      "Properties": {
+        "facing": "south",
+        "half": "top",
+        "open": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:tripwire\",\"Properties\":{\"attached\":\"false\",\"disarmed\":\"false\",\"east\":\"false\",\"north\":\"false\",\"powered\":\"false\",\"south\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:tripwire",
+      "Properties": {
+        "attached": "false",
+        "disarmed": "false",
+        "east": "false",
+        "north": "false",
+        "powered": "false",
+        "south": "false",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"true\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "true",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"false\",\"south\":\"true\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "false",
+        "south": "true",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"true\",\"south\":\"false\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "true",
+        "south": "false",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"true\",\"south\":\"false\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "true",
+        "south": "false",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"false\",\"north\":\"true\",\"south\":\"true\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "false",
+        "north": "true",
+        "south": "true",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "false",
+        "south": "false",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"false\",\"south\":\"false\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "false",
+        "south": "false",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"false\",\"south\":\"true\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "false",
+        "south": "true",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"true\",\"south\":\"false\",\"up\":\"false\",\"west\":\"false\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "true",
+        "south": "false",
+        "up": "true",
+        "west": "false"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"true\",\"south\":\"false\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "true",
+        "south": "false",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:vine\",\"Properties\":{\"east\":\"true\",\"north\":\"true\",\"south\":\"true\",\"up\":\"false\",\"west\":\"true\"}}": {
+      "Name": "minecraft:vine",
+      "Properties": {
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "up": "true",
+        "west": "true"
+      }
+    },
+    "{\"Name\":\"minecraft:water\",\"Properties\":{\"level\":\"0\"}}": {
+      "Name": "minecraft:water",
+      "Properties": {
+        "level": "0"
+      }
+    },
+    "{\"Name\":\"minecraft:water\",\"Properties\":{\"level\":\"1\"}}": {
+      "Name": "minecraft:water",
+      "Properties": {
+        "level": "1"
+      }
+    },
+    "{\"Name\":\"minecraft:web\"}": {
+      "Name": "minecraft:cobweb"
+    },
+    "{\"Name\":\"minecraft:wooden_slab\",\"Properties\":{\"half\":\"bottom\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_slab",
+      "Properties": {
+        "type": "bottom"
+      }
+    },
+    "{\"Name\":\"minecraft:wooden_slab\",\"Properties\":{\"half\":\"bottom\",\"variant\":\"dark_oak\"}}": {
+      "Name": "minecraft:dark_oak_slab",
+      "Properties": {
+        "type": "bottom"
+      }
+    },
+    "{\"Name\":\"minecraft:wooden_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"acacia\"}}": {
+      "Name": "minecraft:acacia_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:wooden_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"birch\"}}": {
+      "Name": "minecraft:birch_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:wooden_slab\",\"Properties\":{\"half\":\"top\",\"variant\":\"dark_oak\"}}": {
+      "Name": "minecraft:dark_oak_slab",
+      "Properties": {
+        "type": "top"
+      }
+    },
+    "{\"Name\":\"minecraft:wool\",\"Properties\":{\"color\":\"black\"}}": {
+      "Name": "minecraft:black_wool"
+    },
+    "{\"Name\":\"minecraft:wool\",\"Properties\":{\"color\":\"gray\"}}": {
+      "Name": "minecraft:gray_wool"
+    },
+    "{\"Name\":\"minecraft:wool\",\"Properties\":{\"color\":\"light_blue\"}}": {
+      "Name": "minecraft:light_blue_wool"
+    },
+    "{\"Name\":\"minecraft:wool\",\"Properties\":{\"color\":\"white\"}}": {
+      "Name": "minecraft:white_wool"
+    },
+    "{\"Name\":\"minecraft:yellow_flower\",\"Properties\":{\"type\":\"dandelion\"}}": {
+      "Name": "minecraft:dandelion"
+    }
+  }
+}

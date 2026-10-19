@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "jurassicraft:block/incubator",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "jurassicraft:block/incubator",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "jurassicraft:block/incubator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jurassicraft:block/incubator",
+      "y": 270
+    }
+  }
+}

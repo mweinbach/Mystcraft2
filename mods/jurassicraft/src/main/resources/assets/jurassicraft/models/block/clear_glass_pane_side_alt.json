@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_glass_pane_side_alt",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "pane": "jurassicraft:blocks/clear_glass/clear_glass",
+    "edge": "jurassicraft:blocks/clear_glass/clear_glass_frame"
+  }
+}

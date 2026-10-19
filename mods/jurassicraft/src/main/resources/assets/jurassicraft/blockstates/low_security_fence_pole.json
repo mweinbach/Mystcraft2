@@ -1,0 +1,56 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "active": "false"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole"
+      }
+    },
+    {
+      "when": {
+        "active": "true"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole_active"
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole_arm",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "jurassicraft:block/low_security_fence_pole_arm",
+        "y": 270
+      }
+    }
+  ]
+}

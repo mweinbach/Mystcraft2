@@ -1,0 +1,6 @@
+{
+  "block.jurassicraft.low_security_fence_base": "Low Security Fence Base",
+  "block.jurassicraft.low_security_fence_pole": "Low Security Fence Pole",
+  "block.jurassicraft.low_security_fence_wire": "Low Security Fence Wire",
+  "death.attack.jurassicraft_shock": "%1$s was electrocuted by a security fence"
+}

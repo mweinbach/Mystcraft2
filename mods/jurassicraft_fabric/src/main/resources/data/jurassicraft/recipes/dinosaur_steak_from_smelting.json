@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "jurassicraft:dinosaur_meat"
+  },
+  "result": "jurassicraft:dinosaur_steak",
+  "experience": 5.0,
+  "cookingtime": 200
+}

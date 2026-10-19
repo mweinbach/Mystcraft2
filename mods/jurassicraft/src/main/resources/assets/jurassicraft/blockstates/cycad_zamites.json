@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/cycad_zamites_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/cycad_zamites_top"
+    }
+  }
+}

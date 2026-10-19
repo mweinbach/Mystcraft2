@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#jurassicraft:ginkgo_logs",
+    "#jurassicraft:calamites_logs",
+    "#jurassicraft:psaronius_logs",
+    "#jurassicraft:phoenix_logs",
+    "#jurassicraft:araucaria_logs"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "key.jurassicraft.vehicle_seat_1": "Vehicle seat 1 (driver)",
+  "key.jurassicraft.vehicle_seat_2": "Vehicle seat 2",
+  "key.jurassicraft.vehicle_seat_3": "Vehicle seat 3",
+  "key.jurassicraft.vehicle_seat_4": "Vehicle seat 4",
+  "key.jurassicraft.vehicle_seat_5": "Vehicle seat 5",
+  "key.jurassicraft.vehicle_seat_6": "Vehicle seat 6",
+  "key.jurassicraft.vehicle_seat_7": "Vehicle seat 7",
+  "key.jurassicraft.vehicle_seat_8": "Vehicle seat 8",
+  "key.jurassicraft.vehicle_seat_9": "Vehicle seat 9",
+  "tooltip.jurassicraft.vehicle_seats": "Switch seats with the vehicle seat keys; driver seat: %s",
+  "key.jurassicraft.helicopter_rotate_left": "Helicopter rotate left",
+  "key.jurassicraft.helicopter_rotate_right": "Helicopter rotate right",
+  "key.jurassicraft.helicopter_zoom_in": "Helicopter camera zoom in",
+  "key.jurassicraft.helicopter_zoom_out": "Helicopter camera zoom out",
+  "tooltip.jurassicraft.helicopter_steering": "Move sideways with left/right; rotate with %s / %s"
+}

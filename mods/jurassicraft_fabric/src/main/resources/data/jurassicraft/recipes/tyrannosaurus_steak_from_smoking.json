@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "jurassicraft:tyrannosaurus_meat"
+  },
+  "result": "jurassicraft:tyrannosaurus_steak",
+  "experience": 5.0,
+  "cookingtime": 100
+}

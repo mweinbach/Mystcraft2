@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/block",
+  "jurassicraft_obj": "jurassicraft:models/block/dna_sequencer.obj",
+  "textures": {
+    "particle": "minecraft:block/iron_block",
+    "surface": "jurassicraft:blocks/dna_sequencer"
+  }
+}

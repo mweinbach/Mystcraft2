@@ -1,0 +1,6 @@
+{
+  "message.jurassicraft.spawn_egg_gender": "This egg will now spawn a %s dinosaur.",
+  "tooltip.jurassicraft.spawn_egg_gender": "Gender: %s",
+  "tooltip.jurassicraft.spawn_egg_change_gender": "Sneak and use in the air to change gender",
+  "tooltip.jurassicraft.spawn_egg_baby": "Sneak and use on a block to spawn a baby"
+}

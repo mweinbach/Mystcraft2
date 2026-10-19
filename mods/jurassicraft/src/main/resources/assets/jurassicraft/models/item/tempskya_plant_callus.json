@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "jurassicraft:items/plant_callus",
+    "layer1": "jurassicraft:items/overlay/plants/tempskya"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "jurassicraft:amber_ore",
+    "jurassicraft:ice_shard",
+    "jurassicraft:gypsum_stone",
+    "jurassicraft:velociraptor_fossil_block",
+    "jurassicraft:coelacanth_fossil_block",
+    "jurassicraft:microraptor_fossil_block",
+    "jurassicraft:brachiosaurus_fossil_block",
+    "jurassicraft:mussaurus_fossil_block",
+    "jurassicraft:dilophosaurus_fossil_block",
+    "jurassicraft:gallimimus_fossil_block",
+    "jurassicraft:parasaurolophus_fossil_block",
+    "jurassicraft:triceratops_fossil_block",
+    "jurassicraft:tyrannosaurus_fossil_block"
+  ],
+  "step": "underground_ores"
+}

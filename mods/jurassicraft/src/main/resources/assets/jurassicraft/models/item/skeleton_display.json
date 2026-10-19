@@ -1,0 +1,138 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "jurassicraft:items/skeleton/fossil/velociraptor"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "jurassicraft:species": 0
+      },
+      "model": "jurassicraft:item/skeleton_display_velociraptor"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_coelacanth"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 2
+      },
+      "model": "jurassicraft:item/skeleton_display_microraptor"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 3
+      },
+      "model": "jurassicraft:item/skeleton_display_brachiosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 4
+      },
+      "model": "jurassicraft:item/skeleton_display_mussaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 5
+      },
+      "model": "jurassicraft:item/skeleton_display_dilophosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 6
+      },
+      "model": "jurassicraft:item/skeleton_display_gallimimus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 7
+      },
+      "model": "jurassicraft:item/skeleton_display_parasaurolophus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 8
+      },
+      "model": "jurassicraft:item/skeleton_display_triceratops"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 9
+      },
+      "model": "jurassicraft:item/skeleton_display_tyrannosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 0,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_velociraptor"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 1,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_coelacanth"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 2,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_microraptor"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 3,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_brachiosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 4,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_mussaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 5,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_dilophosaurus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 6,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_gallimimus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 7,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_parasaurolophus"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 8,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_triceratops"
+    },
+    {
+      "predicate": {
+        "jurassicraft:species": 9,
+        "jurassicraft:fresh": 1
+      },
+      "model": "jurassicraft:item/skeleton_display_fresh_tyrannosaurus"
+    }
+  ]
+}

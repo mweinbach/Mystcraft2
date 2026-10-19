@@ -1,0 +1,596 @@
+{
+  "textureWidth": 64,
+  "textureHeight": 64,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "cubes": [
+    {
+      "identifier": "UrZ0&\"J{F]J!;DgCBRPl",
+      "dimensions": [
+        7,
+        5,
+        15
+      ],
+      "position": [
+        0.0,
+        16.7,
+        -2.65
+      ],
+      "offset": [
+        -3.5,
+        0.0,
+        -11.0
+      ],
+      "rotation": [
+        35.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        0.7
+      ],
+      "txOffset": [
+        0,
+        18
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "zsXmA9NcMVpK&G,lL8v0",
+          "dimensions": [
+            1,
+            3,
+            15
+          ],
+          "position": [
+            0.0,
+            -0.7,
+            0.0
+          ],
+          "offset": [
+            -0.5,
+            0.0,
+            -11.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            0
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "*[l-vQNR!3Jl.cK=uXF ",
+              "dimensions": [
+                1,
+                3,
+                15
+              ],
+              "position": [
+                0.0,
+                0.0,
+                15.0
+              ],
+              "offset": [
+                -0.5,
+                0.0,
+                -11.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                0
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "identifier": "ySPrI8yYunbkYJ(WUtqY",
+          "dimensions": [
+            1,
+            3,
+            15
+          ],
+          "position": [
+            2.5,
+            -0.7,
+            0.0
+          ],
+          "offset": [
+            -0.5,
+            0.0,
+            -11.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            0
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "`E#_eV'(54Ie[-h,xU#m",
+              "dimensions": [
+                1,
+                3,
+                15
+              ],
+              "position": [
+                0.0,
+                0.0,
+                15.0
+              ],
+              "offset": [
+                -0.5,
+                0.0,
+                -11.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                0
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "identifier": "T.eH;jx^04w`@|-u&bwA",
+          "dimensions": [
+            2,
+            4,
+            15
+          ],
+          "position": [
+            3.0,
+            -0.5,
+            1.0
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            -12.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -45.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            45
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "}9U1r{80&~zZT`x''4I+",
+              "dimensions": [
+                2,
+                4,
+                14
+              ],
+              "position": [
+                0.0,
+                0.0,
+                15.0
+              ],
+              "offset": [
+                -2.0,
+                0.0,
+                -12.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                19,
+                42
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "identifier": "E;RHJiJVGgR_>f<X**~m",
+          "dimensions": [
+            2,
+            4,
+            15
+          ],
+          "position": [
+            -3.0,
+            -0.4,
+            1.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            -12.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            45.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            45
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "zghmFaZ>h\\3t$-~]s$k!",
+              "dimensions": [
+                2,
+                4,
+                14
+              ],
+              "position": [
+                0.0,
+                0.0,
+                15.0
+              ],
+              "offset": [
+                0.0,
+                0.0,
+                -12.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                19,
+                42
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "identifier": "x\"bI'';(ta2Vz<B3mR?[",
+          "dimensions": [
+            7,
+            5,
+            15
+          ],
+          "position": [
+            0.0,
+            0.0,
+            14.84
+          ],
+          "offset": [
+            -3.5,
+            0.0,
+            -11.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            18
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "e<C5){b}PYeAJB]W9e[r",
+              "dimensions": [
+                2,
+                12,
+                2
+              ],
+              "position": [
+                -1.4,
+                1.0,
+                -0.1
+              ],
+              "offset": [
+                0.0,
+                3.3,
+                0.0
+              ],
+              "rotation": [
+                -35.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                35,
+                0
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [
+                {
+                  "identifier": "W7Agz[KJ::-u\"Wr3W'N.",
+                  "dimensions": [
+                    3,
+                    1,
+                    4
+                  ],
+                  "position": [
+                    -0.4,
+                    14.4,
+                    -1.0
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    18,
+                    0
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "identifier": "bmdS28GREB,<*V-XW\"xC",
+              "dimensions": [
+                2,
+                7,
+                2
+              ],
+              "position": [
+                -1.5,
+                1.0,
+                0.0
+              ],
+              "offset": [
+                0.0,
+                8.2,
+                -7.9
+              ],
+              "rotation": [
+                -35.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                43,
+                0
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [
+                {
+                  "identifier": "Cv&&#1A-FLeZAFMo.@pJ",
+                  "dimensions": [
+                    3,
+                    1,
+                    4
+                  ],
+                  "position": [
+                    -0.4,
+                    14.4,
+                    -9.0
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    18,
+                    0
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "dQpUEqble\\|6B;KglcS!",
+          "dimensions": [
+            1,
+            3,
+            15
+          ],
+          "position": [
+            -2.5,
+            -0.7,
+            0.0
+          ],
+          "offset": [
+            -0.5,
+            0.0,
+            -11.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            0
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "cvCmU|}=d-@Y$`-X/vE>",
+              "dimensions": [
+                1,
+                3,
+                15
+              ],
+              "position": [
+                0.0,
+                0.0,
+                15.0
+              ],
+              "offset": [
+                -0.5,
+                0.0,
+                -11.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                0
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

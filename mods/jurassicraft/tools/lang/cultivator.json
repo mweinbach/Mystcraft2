@@ -1,0 +1,9 @@
+{
+  "block.jurassicraft.cultivate_bottom": "Cultivator",
+  "container.jurassicraft.cultivator": "Cultivator",
+  "gui.jurassicraft.cultivator_nutrient_0": "Proximates",
+  "gui.jurassicraft.cultivator_nutrient_1": "Minerals",
+  "gui.jurassicraft.cultivator_nutrient_2": "Vitamins",
+  "gui.jurassicraft.cultivator_nutrient_3": "Lipids",
+  "gui.jurassicraft.cultivator_progress": "Gestation: %s%%"
+}

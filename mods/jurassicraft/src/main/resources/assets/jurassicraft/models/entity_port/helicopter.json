@@ -1,0 +1,4256 @@
+{
+  "textureWidth": 254,
+  "textureHeight": 254,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "cubes": [
+    {
+      "identifier": "MvdaI(E5O{us'z}%3cg&",
+      "dimensions": [
+        4,
+        1,
+        2
+      ],
+      "position": [
+        8.0,
+        -9.6,
+        -23.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        249
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body1"
+    },
+    {
+      "identifier": "(1\"qAt6hXXK__G_FF=bq",
+      "dimensions": [
+        1,
+        2,
+        13
+      ],
+      "position": [
+        12.0,
+        -9.6,
+        -8.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        40,
+        237
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body2"
+    },
+    {
+      "identifier": ",B%yGU(7/Md%CSS\\uvc*",
+      "dimensions": [
+        1,
+        4,
+        22
+      ],
+      "position": [
+        -12.0,
+        18.0,
+        -30.0
+      ],
+      "offset": [
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        221
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body3"
+    },
+    {
+      "identifier": "I+W!&&$X$)MTso7Mx.z+",
+      "dimensions": [
+        1,
+        22,
+        5
+      ],
+      "position": [
+        -14.9,
+        -6.8,
+        -13.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        215
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body4"
+    },
+    {
+      "identifier": "Tx#qm/IXjBfnLBd_'v C",
+      "dimensions": [
+        1,
+        11,
+        23
+      ],
+      "position": [
+        -14.9,
+        15.2,
+        22.0
+      ],
+      "offset": [
+        0.0,
+        -11.0,
+        0.0
+      ],
+      "rotation": [
+        32.8,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        20,
+        185
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body5"
+    },
+    {
+      "identifier": "HuhLK\"w|G{}sG4jQxYlz",
+      "dimensions": [
+        2,
+        4,
+        17
+      ],
+      "position": [
+        -12.0,
+        18.0,
+        5.0
+      ],
+      "offset": [
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        4,
+        186
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body6"
+    },
+    {
+      "identifier": "=%l4h\"MPBptve=_u]TAy",
+      "dimensions": [
+        16,
+        5,
+        16
+      ],
+      "position": [
+        -8.0,
+        16.0,
+        -44.9
+      ],
+      "offset": [
+        0.0,
+        -4.0,
+        -1.0
+      ],
+      "rotation": [
+        -3.8,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        163
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "tg.2jEI'FTN#X)IT&5Hm",
+          "dimensions": [
+            16,
+            9,
+            1
+          ],
+          "position": [
+            0.0,
+            1.0,
+            -1.0
+          ],
+          "offset": [
+            0.0,
+            -9.0,
+            0.0
+          ],
+          "rotation": [
+            8.2,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            49,
+            168
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body82"
+        }
+      ],
+      "name": "body7"
+    },
+    {
+      "identifier": "2O0(C{mwu&)Y1;u:s5Qg",
+      "dimensions": [
+        2,
+        4,
+        37
+      ],
+      "position": [
+        -12.0,
+        -9.6,
+        5.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        121
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body8"
+    },
+    {
+      "identifier": "^Nj*jsoMY+t:_?\"QE^#P",
+      "dimensions": [
+        1,
+        4,
+        5
+      ],
+      "position": [
+        -12.0,
+        -9.6,
+        -13.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        193
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body9"
+    },
+    {
+      "identifier": "] iK~IwCw[_20@>&zcR/",
+      "dimensions": [
+        13,
+        3,
+        7
+      ],
+      "position": [
+        25.0,
+        9.0,
+        15.0
+      ],
+      "offset": [
+        -13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        -26.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        29,
+        220
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body10"
+    },
+    {
+      "identifier": ")b{~*%;(xU_feIf(}Q*-",
+      "dimensions": [
+        12,
+        8,
+        9
+      ],
+      "position": [
+        -25.0,
+        9.0,
+        6.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        42,
+        140
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "Vo_6T{,~_|zGiXK1v2>,",
+          "dimensions": [
+            12,
+            8,
+            1
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -3.0,
+            2.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            26,
+            233
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body12"
+        }
+      ],
+      "name": "body11"
+    },
+    {
+      "identifier": "=.=C 8~E~\"\\H;gn,KdnF",
+      "dimensions": [
+        13,
+        5,
+        6
+      ],
+      "position": [
+        -25.0,
+        12.0,
+        15.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        241
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body13"
+    },
+    {
+      "identifier": "7H,z^LbB*>9BT.Qlkd!?",
+      "dimensions": [
+        2,
+        4,
+        37
+      ],
+      "position": [
+        12.0,
+        -9.6,
+        5.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        121
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body14"
+    },
+    {
+      "identifier": "hBnh8I7-*'Ze)Pr)zER+",
+      "dimensions": [
+        2,
+        22,
+        17
+      ],
+      "position": [
+        14.9,
+        -6.8,
+        5.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        201
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body15"
+    },
+    {
+      "identifier": "h_z2@y]hld48W9EC1F4=",
+      "dimensions": [
+        2,
+        4,
+        17
+      ],
+      "position": [
+        12.0,
+        18.0,
+        5.0
+      ],
+      "offset": [
+        -2.0,
+        -4.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        4,
+        186
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body16"
+    },
+    {
+      "identifier": "EiG5B|E:=!y1gv]!nd,;",
+      "dimensions": [
+        1,
+        4,
+        22
+      ],
+      "position": [
+        12.0,
+        18.0,
+        -30.0
+      ],
+      "offset": [
+        -1.0,
+        -4.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        221
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body17"
+    },
+    {
+      "identifier": "^?ajASvw0.r4<BUPUn6q",
+      "dimensions": [
+        1,
+        1,
+        10
+      ],
+      "position": [
+        -14.9,
+        -6.8,
+        -23.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        46,
+        195
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body18"
+    },
+    {
+      "identifier": "tbHxm!~NVw;.~aY$~3UO",
+      "dimensions": [
+        1,
+        4,
+        2
+      ],
+      "position": [
+        -12.0,
+        -9.6,
+        -23.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        14,
+        196
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body19"
+    },
+    {
+      "identifier": "NhA\\CQ{6!nptY+ACure6",
+      "dimensions": [
+        1,
+        2,
+        13
+      ],
+      "position": [
+        -12.0,
+        -9.6,
+        -8.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        40,
+        237
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body20"
+    },
+    {
+      "identifier": "?uprrT[g%4Hmii+?,6WN",
+      "dimensions": [
+        12,
+        8,
+        9
+      ],
+      "position": [
+        25.0,
+        9.0,
+        6.0
+      ],
+      "offset": [
+        -12.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        42,
+        140
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": ":{,YC7+H?Z\";Rc+jM7]L",
+          "dimensions": [
+            12,
+            8,
+            1
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            -12.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -3.0,
+            -2.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            26,
+            233
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body22"
+        }
+      ],
+      "name": "body21"
+    },
+    {
+      "identifier": ">k63<y_>bo-*C$+A*kUj",
+      "dimensions": [
+        13,
+        5,
+        6
+      ],
+      "position": [
+        25.0,
+        12.0,
+        15.0
+      ],
+      "offset": [
+        -13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        241
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body23"
+    },
+    {
+      "identifier": "G5H!:5jf~!q9_\"]#3IU?",
+      "dimensions": [
+        13,
+        3,
+        7
+      ],
+      "position": [
+        -25.0,
+        9.0,
+        15.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        -26.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        29,
+        220
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body24"
+    },
+    {
+      "identifier": "gxYU9\\ (5\"L}s2TyW&F7",
+      "dimensions": [
+        1,
+        9,
+        5
+      ],
+      "position": [
+        -14.9,
+        5.2,
+        -30.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        30,
+        185
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body25"
+    },
+    {
+      "identifier": "7zM0Ji?J[)k*!OrH58~y",
+      "dimensions": [
+        1,
+        1,
+        17
+      ],
+      "position": [
+        -14.9,
+        14.2,
+        -30.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        139
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body26"
+    },
+    {
+      "identifier": "EF?[yYTA;<fRmoG'T=xw",
+      "dimensions": [
+        1,
+        1,
+        17
+      ],
+      "position": [
+        14.9,
+        14.2,
+        -30.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        139
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body27"
+    },
+    {
+      "identifier": "EH]CzT3] -zN2miMFicM",
+      "dimensions": [
+        1,
+        9,
+        12
+      ],
+      "position": [
+        -14.5,
+        5.2,
+        -25.0
+      ],
+      "offset": [
+        -0.4,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        179
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "doorR"
+    },
+    {
+      "identifier": "w{o!\"l3M{;jdPliL~jp4",
+      "dimensions": [
+        24,
+        1,
+        28
+      ],
+      "position": [
+        -12.0,
+        -9.6,
+        -13.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        124,
+        223
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body28"
+    },
+    {
+      "identifier": "|?>(%I60en!I=+u\":d&~",
+      "dimensions": [
+        1,
+        7,
+        8
+      ],
+      "position": [
+        -14.9,
+        5.2,
+        -30.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        -8.0
+      ],
+      "rotation": [
+        11.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        96,
+        175
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body29"
+    },
+    {
+      "identifier": "RN/u7}qjSPa$N]C@r$#'",
+      "dimensions": [
+        1,
+        9,
+        12
+      ],
+      "position": [
+        14.5,
+        5.2,
+        -25.0
+      ],
+      "offset": [
+        -0.6,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        179
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "doorL"
+    },
+    {
+      "identifier": "`U_*J|C9N=6:gF&+Yl$8",
+      "dimensions": [
+        1,
+        22,
+        5
+      ],
+      "position": [
+        14.9,
+        -6.8,
+        -13.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        215
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body30"
+    },
+    {
+      "identifier": "n&b;w<5 h_FgJ&?V%x,i",
+      "dimensions": [
+        1,
+        13,
+        2
+      ],
+      "position": [
+        -14.9,
+        -6.8,
+        -23.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        -19.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        163
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body31"
+    },
+    {
+      "identifier": "9RqCTIBxW\"[F(%tiuYbq",
+      "dimensions": [
+        1,
+        4,
+        5
+      ],
+      "position": [
+        12.0,
+        -9.6,
+        -13.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        193
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body32"
+    },
+    {
+      "identifier": "([0Oy:/C=rH/_\\|7%W%#",
+      "dimensions": [
+        16,
+        1,
+        12
+      ],
+      "position": [
+        -8.0,
+        -9.6,
+        -13.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        29,
+        48
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body33"
+    },
+    {
+      "identifier": "=6)k JG|%EH6g@< BTUE",
+      "dimensions": [
+        1,
+        13,
+        2
+      ],
+      "position": [
+        14.9,
+        -6.8,
+        -23.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        -19.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        163
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body34"
+    },
+    {
+      "identifier": "]@S m&Wpe`nYD:Kl<pT,",
+      "dimensions": [
+        1,
+        4,
+        2
+      ],
+      "position": [
+        12.0,
+        -9.6,
+        -23.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -45.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        14,
+        196
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body35"
+    },
+    {
+      "identifier": "/bNh]DIqclrC!<]yHt[S",
+      "dimensions": [
+        4,
+        1,
+        2
+      ],
+      "position": [
+        -8.0,
+        -9.6,
+        -23.0
+      ],
+      "offset": [
+        -4.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        249
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body36"
+    },
+    {
+      "identifier": "VhnjZ:`Cl90%S,!Z!Ro.",
+      "dimensions": [
+        1,
+        1,
+        10
+      ],
+      "position": [
+        14.9,
+        -6.8,
+        -23.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        46,
+        195
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body37"
+    },
+    {
+      "identifier": "e>!6z/AQv]M@1JZ%8&t:",
+      "dimensions": [
+        23,
+        1,
+        27
+      ],
+      "position": [
+        0.0,
+        17.5,
+        22.0
+      ],
+      "offset": [
+        -11.5,
+        -1.0,
+        0.0
+      ],
+      "rotation": [
+        32.8,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        121,
+        193
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "$$!)B57!9eXfqh}8\"dXX",
+          "dimensions": [
+            1,
+            4,
+            27
+          ],
+          "position": [
+            11.5,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            -1.0,
+            -4.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            45.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            115,
+            160
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "ramp1"
+        },
+        {
+          "identifier": "fQ_G-{~;Rp$vG?$_<<hz",
+          "dimensions": [
+            1,
+            4,
+            27
+          ],
+          "position": [
+            -11.5,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            -4.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -45.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            115,
+            160
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "ramp2"
+        }
+      ],
+      "name": "Rampdoorbase"
+    },
+    {
+      "identifier": "nkxwuB&2?nVi{AI kNJK",
+      "dimensions": [
+        16,
+        7,
+        11
+      ],
+      "position": [
+        -8.0,
+        15.3,
+        -45.2
+      ],
+      "offset": [
+        0.0,
+        -7.0,
+        0.0
+      ],
+      "rotation": [
+        11.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        86,
+        156
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "Q1(>Y6\\4.y=)W?33P_`P",
+          "dimensions": [
+            1,
+            7,
+            11
+          ],
+          "position": [
+            16.0,
+            0.0,
+            0.3
+          ],
+          "offset": [
+            -1.0,
+            -7.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            38.8,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            122,
+            192
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body39"
+        },
+        {
+          "identifier": "WK~Nx~<}'AFqgSn#q rv",
+          "dimensions": [
+            1,
+            7,
+            11
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.3
+          ],
+          "offset": [
+            0.0,
+            -7.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            -38.8,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            122,
+            192
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body40"
+        },
+        {
+          "identifier": "0aozNDSY{4GeNg@}e,.:",
+          "dimensions": [
+            7,
+            1,
+            11
+          ],
+          "position": [
+            0.0,
+            -7.0,
+            0.5
+          ],
+          "offset": [
+            0.5,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.8,
+            -38.8,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            202,
+            235
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "@M3eHqLDHzD \\ek7|T[(",
+              "dimensions": [
+                6,
+                1,
+                11
+              ],
+              "position": [
+                0.0,
+                0.0,
+                11.4
+              ],
+              "offset": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                1.0,
+                37.6,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                202,
+                222
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body42"
+            }
+          ],
+          "name": "body41"
+        },
+        {
+          "identifier": "Hb$e&0&[sP<ZtF>Rh7a:",
+          "dimensions": [
+            7,
+            1,
+            11
+          ],
+          "position": [
+            16.0,
+            -7.0,
+            0.5
+          ],
+          "offset": [
+            -7.5,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.8,
+            38.8,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            202,
+            235
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "<rXA{t_QPo.abYw}7[(|",
+              "dimensions": [
+                6,
+                1,
+                11
+              ],
+              "position": [
+                0.0,
+                0.0,
+                11.4
+              ],
+              "offset": [
+                -6.6,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                1.0,
+                -37.6,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                202,
+                222
+              ],
+              "txMirror": true,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body44"
+            }
+          ],
+          "name": "body43"
+        },
+        {
+          "identifier": "y(qpeq3x^l^q#FRi%d9d",
+          "dimensions": [
+            16,
+            2,
+            10
+          ],
+          "position": [
+            0.0,
+            -7.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "rotation": [
+            5.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            195,
+            207
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "Y]S#*D`T1m5G=@N@C\\P)",
+              "dimensions": [
+                1,
+                2,
+                14
+              ],
+              "position": [
+                0.0,
+                -1.0,
+                9.0
+              ],
+              "offset": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                -7.0,
+                -29.2,
+                2.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                120,
+                234
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body46"
+            },
+            {
+              "identifier": "{H^V$ya(I^*3:+%A@.RR",
+              "dimensions": [
+                1,
+                2,
+                14
+              ],
+              "position": [
+                16.0,
+                -1.0,
+                9.0
+              ],
+              "offset": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                -7.0,
+                29.2,
+                -2.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                120,
+                234
+              ],
+              "txMirror": true,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body47"
+            }
+          ],
+          "name": "body45"
+        }
+      ],
+      "name": "body38"
+    },
+    {
+      "identifier": "#VVVujDyoohM<>(_(&ns",
+      "dimensions": [
+        1,
+        9,
+        5
+      ],
+      "position": [
+        14.9,
+        5.2,
+        -30.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        30,
+        185
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body48"
+    },
+    {
+      "identifier": "&O;P&'l83VqvH/1&s_{-",
+      "dimensions": [
+        1,
+        7,
+        8
+      ],
+      "position": [
+        14.9,
+        5.2,
+        -30.0
+      ],
+      "offset": [
+        -1.0,
+        0.0,
+        -8.0
+      ],
+      "rotation": [
+        11.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        96,
+        175
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body49"
+    },
+    {
+      "identifier": "2qQ':]TnTd50K4xc}2H4",
+      "dimensions": [
+        4,
+        6,
+        2
+      ],
+      "position": [
+        -20.0,
+        17.0,
+        18.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        -2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        109,
+        193
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "(6ifXV4\"J3<+[}d>cqfx",
+          "dimensions": [
+            3,
+            5,
+            5
+          ],
+          "position": [
+            0.0,
+            4.5,
+            -1.0
+          ],
+          "offset": [
+            -1.5,
+            -2.5,
+            -2.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            103,
+            207
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "gearR2"
+        }
+      ],
+      "name": "gearR1"
+    },
+    {
+      "identifier": "I\\/Vw#(ES#Tdro`)Yk@<",
+      "dimensions": [
+        4,
+        6,
+        2
+      ],
+      "position": [
+        0.0,
+        17.0,
+        -35.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        -2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        109,
+        193
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "Hy!l:(VNW/}6Ksx#bG4*",
+          "dimensions": [
+            3,
+            5,
+            5
+          ],
+          "position": [
+            0.0,
+            4.5,
+            -1.0
+          ],
+          "offset": [
+            -1.5,
+            -2.5,
+            -2.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            103,
+            207
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "gearfront2"
+        }
+      ],
+      "name": "gearFront1"
+    },
+    {
+      "identifier": ";*]M,Bcm`Zu2JDWvP/p;",
+      "dimensions": [
+        4,
+        6,
+        2
+      ],
+      "position": [
+        20.0,
+        17.0,
+        18.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        -2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        109,
+        193
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "WlEh/4h%R7#a!S57Hr9.",
+          "dimensions": [
+            3,
+            5,
+            5
+          ],
+          "position": [
+            0.0,
+            4.5,
+            -1.0
+          ],
+          "offset": [
+            -1.5,
+            -2.5,
+            -2.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            103,
+            207
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "gearL2"
+        }
+      ],
+      "name": "gearL1"
+    },
+    {
+      "identifier": "%}vdOaEXT#aVLM/lOt-M",
+      "dimensions": [
+        17,
+        4,
+        6
+      ],
+      "position": [
+        -8.5,
+        6.1,
+        -37.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        32.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        85,
+        145
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "*DQ_`~SU'Bn:c)Qk(\\{Q",
+          "dimensions": [
+            4,
+            7,
+            5
+          ],
+          "position": [
+            6.5,
+            3.0,
+            4.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            -4.0
+          ],
+          "rotation": [
+            -21.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            115,
+            174
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body51"
+        }
+      ],
+      "name": "body50"
+    },
+    {
+      "identifier": "w DS|3PH6>ySrD1<he\\2",
+      "dimensions": [
+        12,
+        19,
+        2
+      ],
+      "position": [
+        -6.0,
+        16.0,
+        -18.0
+      ],
+      "offset": [
+        0.0,
+        -19.0,
+        0.0
+      ],
+      "rotation": [
+        -10.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        196,
+        184
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "seat1"
+    },
+    {
+      "identifier": "O+)7Dq?'TY&X>TH`OmpL",
+      "dimensions": [
+        12,
+        2,
+        12
+      ],
+      "position": [
+        -6.0,
+        15.0,
+        -28.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        187,
+        169
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "seat2"
+    },
+    {
+      "identifier": ").o\" fbnrf[Xpn%zs,LJ",
+      "dimensions": [
+        1,
+        11,
+        1
+      ],
+      "position": [
+        0.0,
+        17.0,
+        -29.0
+      ],
+      "offset": [
+        -0.5,
+        -11.0,
+        -0.5
+      ],
+      "rotation": [
+        -4.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        185
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "8~QYC=3fvCd;n{D$d|Fi",
+          "dimensions": [
+            2,
+            3,
+            2
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            -1.0,
+            -10.8,
+            -1.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            10,
+            185
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "controlstick2"
+        }
+      ],
+      "name": "controlstick1"
+    },
+    {
+      "identifier": "[Y#bwrrrkq<(wN!^~yS~",
+      "dimensions": [
+        10,
+        7,
+        15
+      ],
+      "position": [
+        -5.0,
+        -16.0,
+        0.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.1
+      ],
+      "rotation": [
+        3.8,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        146,
+        158
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "eUE`6$+X:H4`ThthFMss",
+          "dimensions": [
+            10,
+            7,
+            2
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -17.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            120,
+            223
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body53"
+        },
+        {
+          "identifier": "BWlKs~1\\5Q<XRbVS9E_E",
+          "dimensions": [
+            7,
+            2,
+            17
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -1.0,
+            -28.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            182,
+            149
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body54"
+        },
+        {
+          "identifier": "dEo1QALFb -,[+1.!//5",
+          "dimensions": [
+            7,
+            2,
+            17
+          ],
+          "position": [
+            10.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            -7.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -1.0,
+            28.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            182,
+            149
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body55"
+        },
+        {
+          "identifier": "H$T0!A+R+S$=9[*`,0%&",
+          "dimensions": [
+            5,
+            1,
+            16
+          ],
+          "position": [
+            10.0,
+            6.0,
+            0.0
+          ],
+          "offset": [
+            -5.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            17.0,
+            11.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            155,
+            140
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body84"
+        },
+        {
+          "identifier": "t,+=Jo3r:Ol+6c(2?v*U",
+          "dimensions": [
+            5,
+            1,
+            16
+          ],
+          "position": [
+            0.0,
+            6.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            -17.0,
+            -11.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            155,
+            140
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body83"
+        }
+      ],
+      "name": "body52"
+    },
+    {
+      "identifier": ":#\\Q-mfFpqPt8Ep-&9K+",
+      "dimensions": [
+        2,
+        22,
+        17
+      ],
+      "position": [
+        -14.9,
+        -6.8,
+        5.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        81,
+        201
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body56"
+    },
+    {
+      "identifier": "j)?E,UJ+I;]^l3h7uf E",
+      "dimensions": [
+        2,
+        10,
+        20
+      ],
+      "position": [
+        -14.9,
+        -6.8,
+        22.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        76,
+        114
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body57"
+    },
+    {
+      "identifier": "dNK%):TIzsx#,a27-Arv",
+      "dimensions": [
+        26,
+        9,
+        27
+      ],
+      "position": [
+        -13.0,
+        -17.0,
+        15.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        147,
+        102
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "N<PCOfcjL]{B*gIe^V8V",
+          "dimensions": [
+            12,
+            8,
+            20
+          ],
+          "position": [
+            7.0,
+            0.0,
+            27.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -25.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            109,
+            100
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body59"
+        }
+      ],
+      "name": "body58"
+    },
+    {
+      "identifier": "#/.>U{#(j?/tk+oV-ah ",
+      "dimensions": [
+        2,
+        10,
+        20
+      ],
+      "position": [
+        14.9,
+        -6.8,
+        22.0
+      ],
+      "offset": [
+        -2.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        76,
+        114
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body60"
+    },
+    {
+      "identifier": "Se~PNYOZ@02tt@mPMU8S",
+      "dimensions": [
+        1,
+        11,
+        23
+      ],
+      "position": [
+        14.9,
+        15.2,
+        22.0
+      ],
+      "offset": [
+        -1.0,
+        -11.0,
+        0.0
+      ],
+      "rotation": [
+        32.8,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        20,
+        185
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body61"
+    },
+    {
+      "identifier": "[O<}):A5C9BGwA%ACg,+",
+      "dimensions": [
+        24,
+        2,
+        17
+      ],
+      "position": [
+        -12.0,
+        16.0,
+        5.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        101
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body62"
+    },
+    {
+      "identifier": "#r@3&y\"~a*- Xdpw?V}k",
+      "dimensions": [
+        26,
+        12,
+        7
+      ],
+      "position": [
+        -13.0,
+        -8.8,
+        42.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        187,
+        0
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": ";LiKW\\U0Bs5;8(Ynl=an",
+          "dimensions": [
+            16,
+            12,
+            20
+          ],
+          "position": [
+            5.0,
+            0.0,
+            7.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            181,
+            20
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "j]/?:PLnM=nJ;Oozz#5<",
+              "dimensions": [
+                8,
+                12,
+                30
+              ],
+              "position": [
+                4.0,
+                12.0,
+                20.0
+              ],
+              "offset": [
+                0.0,
+                -12.0,
+                0.0
+              ],
+              "rotation": [
+                2.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                177,
+                58
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [
+                {
+                  "identifier": "'6A#~HDi5g{g=9j/ eIN",
+                  "dimensions": [
+                    5,
+                    12,
+                    29
+                  ],
+                  "position": [
+                    -4.4,
+                    -12.0,
+                    0.0
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    9.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    107,
+                    59
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "body66"
+                },
+                {
+                  "identifier": "6bt(,]b#bv`Y1Np\\,cq\\",
+                  "dimensions": [
+                    5,
+                    12,
+                    29
+                  ],
+                  "position": [
+                    12.4,
+                    -12.0,
+                    0.0
+                  ],
+                  "offset": [
+                    -5.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    -9.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    107,
+                    59
+                  ],
+                  "txMirror": true,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "body67"
+                }
+              ],
+              "name": "body65"
+            },
+            {
+              "identifier": "oGs~oqI?nA'OoHLU\"`#?",
+              "dimensions": [
+                5,
+                12,
+                21
+              ],
+              "position": [
+                -5.0,
+                0.0,
+                0.0
+              ],
+              "offset": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                13.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                148,
+                54
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body68"
+            },
+            {
+              "identifier": "WG3k2wA~QX9+]a>l)XT}",
+              "dimensions": [
+                5,
+                12,
+                21
+              ],
+              "position": [
+                21.0,
+                0.0,
+                0.0
+              ],
+              "offset": [
+                -5.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                -13.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                148,
+                54
+              ],
+              "txMirror": true,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "body69"
+            }
+          ],
+          "name": "body64"
+        },
+        {
+          "identifier": "@xLV3'j{XY3E}YU:Sd[U",
+          "dimensions": [
+            2,
+            10,
+            8
+          ],
+          "position": [
+            -1.9,
+            2.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            15.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            180,
+            56
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body70"
+        },
+        {
+          "identifier": "THO  3iSs_lVNTFTS-5.",
+          "dimensions": [
+            2,
+            10,
+            8
+          ],
+          "position": [
+            27.9,
+            2.0,
+            0.0
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            -15.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            180,
+            56
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body71"
+        }
+      ],
+      "name": "body63"
+    },
+    {
+      "identifier": "3p\\Ce.&ehQQ%RFW)s7E)",
+      "dimensions": [
+        3,
+        24,
+        14
+      ],
+      "position": [
+        -1.5,
+        -27.7,
+        96.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        -19.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        67,
+        75
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "};Bwa:@#Q.eNw?ls0Nz!",
+          "dimensions": [
+            3,
+            6,
+            14
+          ],
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "offset": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "rotation": [
+            19.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            80
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body73"
+        },
+        {
+          "identifier": "ao(.y<5HGx6OW}kL3dHd",
+          "dimensions": [
+            3,
+            19,
+            14
+          ],
+          "position": [
+            0.0,
+            26.0,
+            -2.0
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            40.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            165,
+            6
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body74"
+        },
+        {
+          "identifier": ")m{IZe!WN4bc(X{8P+!4",
+          "dimensions": [
+            3,
+            6,
+            14
+          ],
+          "position": [
+            0.0,
+            36.0,
+            8.6
+          ],
+          "offset": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "rotation": [
+            19.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            214,
+            145
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body75"
+        }
+      ],
+      "name": "body72"
+    },
+    {
+      "identifier": "D;t<)7B; Kx}/VEXG51>",
+      "dimensions": [
+        50,
+        2,
+        10
+      ],
+      "position": [
+        -25.0,
+        -4.0,
+        64.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        62
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "ye)vD/!cLip-Z=\\PJ3r~",
+          "dimensions": [
+            2,
+            20,
+            11
+          ],
+          "position": [
+            0.0,
+            -10.0,
+            -0.5
+          ],
+          "offset": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            2.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            225,
+            55
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body77"
+        },
+        {
+          "identifier": "w_BwOL|Z!gx>Au`HT#~I",
+          "dimensions": [
+            2,
+            20,
+            11
+          ],
+          "position": [
+            50.0,
+            -10.0,
+            -0.5
+          ],
+          "offset": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            -2.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            225,
+            55
+          ],
+          "txMirror": true,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "body78"
+        }
+      ],
+      "name": "body76"
+    },
+    {
+      "identifier": "Uv|;$4d0%7S3?`l=rOe?",
+      "dimensions": [
+        6,
+        8,
+        7
+      ],
+      "position": [
+        6.0,
+        -9.0,
+        42.0
+      ],
+      "offset": [
+        0.0,
+        -7.0,
+        0.0
+      ],
+      "rotation": [
+        14.0,
+        15.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        39,
+        75
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body79"
+    },
+    {
+      "identifier": "tHb^^_MOF]xH@Qay/#k5",
+      "dimensions": [
+        6,
+        8,
+        7
+      ],
+      "position": [
+        -6.0,
+        -9.0,
+        42.0
+      ],
+      "offset": [
+        -6.0,
+        -7.0,
+        0.0
+      ],
+      "rotation": [
+        14.0,
+        -15.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        39,
+        75
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body80"
+    },
+    {
+      "identifier": "mTg>k]}aH$=+,>FUsX[B",
+      "dimensions": [
+        8,
+        7,
+        16
+      ],
+      "position": [
+        -5.5,
+        9.0,
+        5.5
+      ],
+      "offset": [
+        -8.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        116,
+        0
+      ],
+      "txMirror": true,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "i{IB@)Kt#uwZKqu66k\\s",
+          "dimensions": [
+            8,
+            3,
+            16
+          ],
+          "position": [
+            -8.0,
+            0.0,
+            16.0
+          ],
+          "offset": [
+            0.0,
+            -3.0,
+            -16.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            131,
+            25
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "chesttopR"
+        }
+      ],
+      "name": "chestR"
+    },
+    {
+      "identifier": "Q@[u<uBUwQ}UhlG9(H,{",
+      "dimensions": [
+        8,
+        7,
+        16
+      ],
+      "position": [
+        5.5,
+        9.0,
+        5.5
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        116,
+        0
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": ">WF$>qxo5C0G-wxHfvE!",
+          "dimensions": [
+            8,
+            3,
+            16
+          ],
+          "position": [
+            8.0,
+            0.0,
+            16.0
+          ],
+          "offset": [
+            -8.0,
+            -3.0,
+            -16.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            131,
+            25
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [],
+          "name": "chesttopL"
+        }
+      ],
+      "name": "chestL"
+    },
+    {
+      "identifier": "719|F4z}H'b|0n?~DFG\"",
+      "dimensions": [
+        24,
+        1,
+        35
+      ],
+      "position": [
+        -12.0,
+        17.0,
+        -30.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        0
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [],
+      "name": "body81"
+    },
+    {
+      "identifier": "Xy<>m[-J6Zd,KvX6^*'`",
+      "dimensions": [
+        5,
+        2,
+        2
+      ],
+      "position": [
+        -5.0,
+        -6.0,
+        95.0
+      ],
+      "offset": [
+        -2.5,
+        0.5,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        151
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "35wB`=@I}\\{Xir~]yWc7",
+          "dimensions": [
+            4,
+            4,
+            4
+          ],
+          "position": [
+            -3.0,
+            1.5,
+            1.5
+          ],
+          "offset": [
+            -3.0,
+            -2.0,
+            -2.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            0,
+            142
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "YjUZ(mS[\\ifQ(TTeBoty",
+              "dimensions": [
+                1,
+                15,
+                4
+              ],
+              "position": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "offset": [
+                0.0,
+                -17.0,
+                -1.5
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                121
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "tailrotorblade1"
+            },
+            {
+              "identifier": "<|#-t_Wx?a@Q\"0'C)|[q",
+              "dimensions": [
+                1,
+                15,
+                4
+              ],
+              "position": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "offset": [
+                0.0,
+                -17.0,
+                -1.5
+              ],
+              "rotation": [
+                180.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                121
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [],
+              "name": "tailrotorblade2"
+            }
+          ],
+          "name": "tailrotor_rotatehere"
+        }
+      ],
+      "name": "tailrotorbase"
+    },
+    {
+      "identifier": "#5F6PXrY7pB8{yDe/k/l",
+      "dimensions": [
+        8,
+        3,
+        8
+      ],
+      "position": [
+        -4.0,
+        -19.0,
+        17.0
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "txOffset": [
+        0,
+        23
+      ],
+      "txMirror": false,
+      "mcScale": 0.0,
+      "hidden": false,
+      "children": [
+        {
+          "identifier": "5l/#[L<[IFO=#\\Ds. E9",
+          "dimensions": [
+            4,
+            5,
+            4
+          ],
+          "position": [
+            4.0,
+            -5.0,
+            4.0
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            -2.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "txOffset": [
+            20,
+            146
+          ],
+          "txMirror": false,
+          "mcScale": 0.0,
+          "hidden": false,
+          "children": [
+            {
+              "identifier": "%kHvKZKVVWj$>Wh5XPv\"",
+              "dimensions": [
+                3,
+                4,
+                3
+              ],
+              "position": [
+                0.0,
+                -4.0,
+                0.0
+              ],
+              "offset": [
+                -1.5,
+                0.0,
+                -1.5
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "txOffset": [
+                0,
+                86
+              ],
+              "txMirror": false,
+              "mcScale": 0.0,
+              "hidden": false,
+              "children": [
+                {
+                  "identifier": "D#q'c|X\"M z;E~:(Xbq-",
+                  "dimensions": [
+                    5,
+                    2,
+                    5
+                  ],
+                  "position": [
+                    0.0,
+                    -2.0,
+                    0.0
+                  ],
+                  "offset": [
+                    -2.5,
+                    0.0,
+                    -2.5
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    21,
+                    86
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "rotor2"
+                },
+                {
+                  "identifier": "K u!Vzyz;AM\"6AtH{<J@",
+                  "dimensions": [
+                    5,
+                    1,
+                    70
+                  ],
+                  "position": [
+                    0.0,
+                    1.0,
+                    1.0
+                  ],
+                  "offset": [
+                    -2.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    0,
+                    183
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "rotorblade1"
+                },
+                {
+                  "identifier": "NBf*(#lVs4 qnLbMEY;a",
+                  "dimensions": [
+                    5,
+                    1,
+                    70
+                  ],
+                  "position": [
+                    0.0,
+                    1.0,
+                    -1.0
+                  ],
+                  "offset": [
+                    -2.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    -180.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    0,
+                    183
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "rotorblade2"
+                },
+                {
+                  "identifier": "U>f8J`t!)IUU^etrDb>~",
+                  "dimensions": [
+                    12,
+                    2,
+                    2
+                  ],
+                  "position": [
+                    -6.0,
+                    1.0,
+                    0.0
+                  ],
+                  "offset": [
+                    0.0,
+                    0.0,
+                    -1.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "txOffset": [
+                    0,
+                    57
+                  ],
+                  "txMirror": false,
+                  "mcScale": 0.0,
+                  "hidden": false,
+                  "children": [],
+                  "name": "rotor3"
+                }
+              ],
+              "name": "rotor1"
+            }
+          ],
+          "name": "rotorbase_rotatehere"
+        }
+      ],
+      "name": "rotorbase"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "jurassicraft:velociraptor_meat"
+  },
+  "result": "jurassicraft:velociraptor_steak",
+  "experience": 5.0,
+  "cookingtime": 100
+}

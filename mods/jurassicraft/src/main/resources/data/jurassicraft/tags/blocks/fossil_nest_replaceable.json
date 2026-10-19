@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:base_stone_overworld",
+    "#minecraft:dirt",
+    "#minecraft:sand",
+    "#minecraft:terracotta",
+    "#forge:ores",
+    "minecraft:gravel",
+    "minecraft:clay",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "jurassicraft:fossilized_trackway_biped_medium",
+    "jurassicraft:fossilized_trackway_biped_small",
+    "jurassicraft:fossilized_trackway_raptor"
+  ]
+}

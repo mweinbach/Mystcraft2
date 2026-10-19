@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/orontium_mackii"
+  },
+  "render_type": "minecraft:cutout"
+}

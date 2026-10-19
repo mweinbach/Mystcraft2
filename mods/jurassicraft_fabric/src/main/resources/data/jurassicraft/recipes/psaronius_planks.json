@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "jurassicraft:psaronius_log"
+    }
+  ],
+  "result": {
+    "item": "jurassicraft:psaronius_planks",
+    "count": 4
+  }
+}

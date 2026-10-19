@@ -1,0 +1,2 @@
+# Preserve the imported snapshot's original bytes, including line endings.
+/upstream/** -text !eol

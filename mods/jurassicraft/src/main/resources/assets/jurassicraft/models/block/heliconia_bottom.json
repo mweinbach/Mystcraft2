@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/heliconia_bottom"
+  },
+  "render_type": "minecraft:cutout"
+}

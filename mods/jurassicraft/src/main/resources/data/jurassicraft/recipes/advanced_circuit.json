@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "jurassicraft:basic_circuit"
+    },
+    {
+      "item": "jurassicraft:basic_circuit"
+    },
+    {
+      "tag": "forge:nuggets/iron"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "item": "jurassicraft:advanced_circuit",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "item.jurassicraft.dino_scanner": "Debug Dinosaur Scanner",
+  "tooltip.jurassicraft.dino_scanner.scan": "Use on a dinosaur to inspect and copy its diagnostics.",
+  "tooltip.jurassicraft.dino_scanner.sneak": "Sneak-use reduces its energy by up to 5,000.",
+  "message.jurassicraft.dino_scanner.header": "%s diagnostics",
+  "message.jurassicraft.dino_scanner.health": "Health: %s / %s",
+  "message.jurassicraft.dino_scanner.growth": "Growth: %s%%, %s",
+  "message.jurassicraft.dino_scanner.male": "male",
+  "message.jurassicraft.dino_scanner.female": "female",
+  "message.jurassicraft.dino_scanner.energy": "Energy: %s / %s",
+  "message.jurassicraft.dino_scanner.water": "Water: %s / %s",
+  "message.jurassicraft.dino_scanner.dna": "DNA: %s%%, genome %s",
+  "message.jurassicraft.dino_scanner.drained": "Debug action: energy reduced by up to %s.",
+  "message.jurassicraft.dino_scanner.copy": "[Copy diagnostics]",
+  "message.jurassicraft.dino_scanner.copy_hover": "Copy this diagnostic report to the clipboard"
+}

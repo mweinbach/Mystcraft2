@@ -1,0 +1,21 @@
+{
+  "goat_living": {
+    "sounds": [
+      "jurassicraft:entity/goat/goat_living_1",
+      "jurassicraft:entity/goat/goat_living_2",
+      "jurassicraft:entity/goat/goat_living_3",
+      "jurassicraft:entity/goat/goat_living_4"
+    ]
+  },
+  "goat_hurt": {
+    "sounds": [
+      "jurassicraft:entity/goat/goat_hurt_1",
+      "jurassicraft:entity/goat/goat_hurt_2"
+    ]
+  },
+  "goat_death": {
+    "sounds": [
+      "jurassicraft:entity/goat/goat_death"
+    ]
+  }
+}

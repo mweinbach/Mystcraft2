@@ -1,0 +1,8 @@
+{
+  "type": "jurassicraft:land_plant",
+  "config": {
+    "state": {
+      "Name": "jurassicraft:west_indian_lilac"
+    }
+  }
+}

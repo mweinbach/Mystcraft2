@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/tempskya_top"
+  },
+  "render_type": "minecraft:cutout"
+}

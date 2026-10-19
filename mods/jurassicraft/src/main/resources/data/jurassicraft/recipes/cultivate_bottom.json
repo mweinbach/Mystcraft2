@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "A A",
+    "BCB"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:white_stained_glass_pane"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:cultivate_bottom"
+  }
+}

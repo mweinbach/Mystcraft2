@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/dicroidium_zuberi_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/dicroidium_zuberi_top"
+    }
+  }
+}

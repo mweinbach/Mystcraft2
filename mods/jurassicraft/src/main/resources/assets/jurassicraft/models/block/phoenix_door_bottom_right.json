@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/door_bottom_right",
+  "textures": {
+    "bottom": "jurassicraft:blocks/door_phoenix_lower",
+    "top": "jurassicraft:blocks/door_phoenix_upper"
+  },
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,26 @@
+{
+  "jurassicraft_theme": {
+    "sounds": [
+      {
+        "name": "jurassicraft:music/jurassicraft_theme",
+        "stream": true
+      }
+    ]
+  },
+  "troodons_and_raptors": {
+    "sounds": [
+      {
+        "name": "jurassicraft:music/troodons_and_raptors",
+        "stream": true
+      }
+    ]
+  },
+  "dont_move_a_muscle": {
+    "sounds": [
+      {
+        "name": "jurassicraft:music/dont_move_a_muscle",
+        "stream": true
+      }
+    ]
+  }
+}

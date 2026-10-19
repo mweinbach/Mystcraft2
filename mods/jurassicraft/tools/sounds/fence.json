@@ -1,0 +1,11 @@
+{
+  "fence_shock": {
+    "subtitle": "subtitles.jurassicraft.fence_shock",
+    "sounds": [
+      "jurassicraft:fence_shock_1",
+      "jurassicraft:fence_shock_2",
+      "jurassicraft:fence_shock_3",
+      "jurassicraft:fence_shock_4"
+    ]
+  }
+}

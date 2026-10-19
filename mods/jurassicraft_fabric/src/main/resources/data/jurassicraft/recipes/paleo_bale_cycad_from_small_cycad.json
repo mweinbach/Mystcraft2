@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "AAA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "jurassicraft:small_cycad"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:paleo_bale_cycad",
+    "count": 1
+  }
+}

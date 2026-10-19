@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cod",
+    "minecraft:cooked_cod",
+    "minecraft:salmon",
+    "minecraft:cooked_salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "jurassicraft:crickets",
+    "jurassicraft:cockroaches",
+    "jurassicraft:mealworm_beetles",
+    "jurassicraft:krill",
+    "jurassicraft:plankton"
+  ]
+}

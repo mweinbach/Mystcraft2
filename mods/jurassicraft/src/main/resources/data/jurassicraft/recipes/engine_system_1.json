@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "jurassicraft:engine_system",
+  "pattern": [
+    "ABC",
+    "DEF",
+    "GHC"
+  ],
+  "key": {
+    "H": {
+      "item": "minecraft:stone_pressure_plate"
+    },
+    "D": {
+      "item": "minecraft:cauldron"
+    },
+    "C": {
+      "item": "minecraft:iron_bars"
+    },
+    "A": {
+      "item": "minecraft:lever"
+    },
+    "E": {
+      "item": "minecraft:repeater"
+    },
+    "G": {
+      "item": "minecraft:piston"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    },
+    "F": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:engine_system"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "jurassicraft:blocks/plants/rhamnem/stage_5"
+  },
+  "render_type": "minecraft:cutout"
+}

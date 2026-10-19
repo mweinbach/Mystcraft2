@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "jurassicraft:block/phoenix_slab"
+    },
+    "type=top": {
+      "model": "jurassicraft:block/phoenix_slab_top"
+    },
+    "type=double": {
+      "model": "jurassicraft:block/phoenix_planks"
+    }
+  }
+}

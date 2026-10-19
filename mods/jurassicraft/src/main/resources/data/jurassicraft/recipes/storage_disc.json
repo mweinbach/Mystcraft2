@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "jurassicraft:storage_disc",
+  "pattern": [" I ", "ICI", " I "],
+  "key": {
+    "I": {"tag": "forge:nuggets/iron"},
+    "C": {"item": "jurassicraft:basic_circuit"}
+  },
+  "result": {"item": "jurassicraft:storage_disc"}
+}

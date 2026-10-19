@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:ginkgo_stairs",
+    "jurassicraft:calamites_stairs",
+    "jurassicraft:psaronius_stairs",
+    "jurassicraft:phoenix_stairs",
+    "jurassicraft:araucaria_stairs"
+  ]
+}

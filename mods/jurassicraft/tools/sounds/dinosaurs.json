@@ -1,0 +1,284 @@
+{
+  "entity.velociraptor.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_1",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_2",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_3",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_4",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_5",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_living_6"
+    ]
+  },
+  "entity.velociraptor.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_hurt_1",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_hurt_2",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_hurt_3"
+    ]
+  },
+  "entity.velociraptor.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_death_1"
+    ]
+  },
+  "entity.velociraptor.attack": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_attack_1",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_attack_2",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_attack_3"
+    ]
+  },
+  "entity.velociraptor.breathing": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_breath_1"
+    ]
+  },
+  "entity.velociraptor.call": {
+    "sounds": [
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_bark_1",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_bark_2",
+      "jurassicraft:dinosaurs/velociraptor/velociraptor_bark_3"
+    ]
+  },
+  "entity.microraptor.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/microraptor/microraptor_living_1",
+      "jurassicraft:dinosaurs/microraptor/microraptor_living_2",
+      "jurassicraft:dinosaurs/microraptor/microraptor_living_3",
+      "jurassicraft:dinosaurs/microraptor/microraptor_living_4",
+      "jurassicraft:dinosaurs/microraptor/microraptor_living_5"
+    ]
+  },
+  "entity.microraptor.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/microraptor/microraptor_hurt_1",
+      "jurassicraft:dinosaurs/microraptor/microraptor_hurt_2",
+      "jurassicraft:dinosaurs/microraptor/microraptor_hurt_3"
+    ]
+  },
+  "entity.microraptor.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/microraptor/microraptor_death"
+    ]
+  },
+  "entity.microraptor.attack": {
+    "sounds": [
+      "jurassicraft:dinosaurs/microraptor/microraptor_attack_1",
+      "jurassicraft:dinosaurs/microraptor/microraptor_attack_2"
+    ]
+  },
+  "entity.brachiosaurus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_living_1",
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_living_2",
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_living_3",
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_living_4"
+    ]
+  },
+  "entity.brachiosaurus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_hurt_1",
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_hurt_2"
+    ]
+  },
+  "entity.brachiosaurus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_death_1",
+      "jurassicraft:dinosaurs/brachiosaurus/brachiosaurus_death_2"
+    ]
+  },
+  "entity.mussaurus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_living_1",
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_living_2",
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_living_3"
+    ]
+  },
+  "entity.mussaurus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_hurt_1",
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_hurt_2"
+    ]
+  },
+  "entity.mussaurus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_death"
+    ]
+  },
+  "entity.mussaurus.attack": {
+    "sounds": [
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_attack_1",
+      "jurassicraft:dinosaurs/mussaurus/mussaurus_attack_2"
+    ]
+  },
+  "entity.dilophosaurus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_living_1",
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_living_2",
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_living_3",
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_living_4",
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_living_5"
+    ]
+  },
+  "entity.dilophosaurus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_hurt_1",
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_hurt_2"
+    ]
+  },
+  "entity.dilophosaurus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_death_1"
+    ]
+  },
+  "entity.dilophosaurus.spit": {
+    "sounds": [
+      "jurassicraft:dinosaurs/dilophosaurus/dilophosaurus_spit"
+    ]
+  },
+  "entity.gallimimus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_living_1",
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_living_2"
+    ]
+  },
+  "entity.gallimimus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_hurt_1",
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_hurt_2"
+    ]
+  },
+  "entity.gallimimus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_death_1",
+      "jurassicraft:dinosaurs/gallimimus/gallimimus_death_2"
+    ]
+  },
+  "entity.parasaurolophus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_living_1",
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_living_2"
+    ]
+  },
+  "entity.parasaurolophus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_hurt_1"
+    ]
+  },
+  "entity.parasaurolophus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_death_1"
+    ]
+  },
+  "entity.parasaurolophus.call": {
+    "sounds": [
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_call_1",
+      "jurassicraft:dinosaurs/parasaurolophus/parasaurolophus_call_2"
+    ]
+  },
+  "entity.triceratops.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/triceratops/triceratops_living_1",
+      "jurassicraft:dinosaurs/triceratops/triceratops_living_2",
+      "jurassicraft:dinosaurs/triceratops/triceratops_living_3"
+    ]
+  },
+  "entity.triceratops.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/triceratops/triceratops_hurt_1"
+    ]
+  },
+  "entity.triceratops.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/triceratops/triceratops_death_1"
+    ]
+  },
+  "entity.tyrannosaurus.ambient": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_1",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_10",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_11",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_12",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_13",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_14",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_15",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_16",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_17",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_18",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_19",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_2",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_20",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_21",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_22",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_23",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_24",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_25",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_26",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_27",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_28",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_3",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_4",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_5",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_6",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_7",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_8",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_living_9"
+    ]
+  },
+  "entity.tyrannosaurus.hurt": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_hurt_1",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_hurt_2",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_hurt_3"
+    ]
+  },
+  "entity.tyrannosaurus.death": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_death_1",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_death_2"
+    ]
+  },
+  "entity.tyrannosaurus.attack": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_attack_1",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_attack_2"
+    ]
+  },
+  "entity.tyrannosaurus.breathing": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_breath_1"
+    ]
+  },
+  "entity.tyrannosaurus.call": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_calling_1"
+    ]
+  },
+  "entity.tyrannosaurus.drinking": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_drinking_1"
+    ]
+  },
+  "entity.tyrannosaurus.stomp": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_stomp_1",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_stomp_2",
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_stomp_3"
+    ]
+  },
+  "entity.tyrannosaurus.roar1": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_roar_1_1"
+    ]
+  },
+  "entity.tyrannosaurus.roar2": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_roar_2_1"
+    ]
+  },
+  "entity.tyrannosaurus.roar3": {
+    "sounds": [
+      "jurassicraft:dinosaurs/tyrannosaurus/tyrannosaurus_roar_3_1"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F",
+    "N "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:flint"
+    },
+    "N": {
+      "tag": "forge:nuggets/iron"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:dart_tranquilizer",
+    "count": 6
+  }
+}

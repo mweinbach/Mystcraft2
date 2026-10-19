@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/tempskya_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/tempskya_top"
+    }
+  }
+}

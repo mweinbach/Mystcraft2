@@ -1,0 +1,22 @@
+{
+  "block.jurassicraft.dna_extractor": "DNA Extractor",
+  "container.jurassicraft.dna_extractor": "DNA Extractor",
+  "block.jurassicraft.dna_sequencer": "DNA Sequencer",
+  "container.jurassicraft.dna_sequencer": "DNA Sequencer",
+  "block.jurassicraft.dna_combinator_hybridizer": "DNA Combinator / Hybridizer",
+  "container.jurassicraft.dna_combinator_hybridizer": "DNA Combinator / Hybridizer",
+  "block.jurassicraft.dna_synthesizer": "DNA Synthesizer",
+  "container.jurassicraft.dna_synthesizer": "DNA Synthesizer",
+  "gui.jurassicraft.dna_slot.extract_sample": "Amber, sea lamprey or dinosaur meat",
+  "gui.jurassicraft.dna_slot.blank_disc": "Blank storage disc",
+  "gui.jurassicraft.dna_slot.tissue": "Soft tissue",
+  "gui.jurassicraft.dna_slot.filled_disc": "Disc with DNA",
+  "gui.jurassicraft.dna_slot.hybrid_disc": "Disc with 100% dinosaur DNA",
+  "gui.jurassicraft.dna_slot.complete_disc": "Disc with 100% DNA",
+  "gui.jurassicraft.dna_slot.test_tube": "Empty test tube",
+  "gui.jurassicraft.dna_slot.nucleotides": "DNA base material",
+  "gui.jurassicraft.dna_slot.output": "Output",
+  "gui.jurassicraft.dna_mode.hybridize": "Hybridize",
+  "gui.jurassicraft.dna_mode.combine": "Combine",
+  "gui.jurassicraft.dna_mode.no_hybrids": "No hybrids"
+}

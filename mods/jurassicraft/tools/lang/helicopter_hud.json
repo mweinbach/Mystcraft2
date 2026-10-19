@@ -1,0 +1,8 @@
+{
+  "key.jurassicraft.helicopter_autopilot": "Toggle helicopter autopilot",
+  "key.jurassicraft.helicopter_rotation_lock": "Toggle helicopter rotation lock",
+  "tooltip.jurassicraft.helicopter_assists": "Assists: %s autopilot, %s rotation lock",
+  "hud.jurassicraft.autopilot_disabled": "Autopilot disabled!",
+  "hud.jurassicraft.rotation_lock_on": "Rotation lock on",
+  "hud.jurassicraft.rotation_lock_off": "Rotation lock off"
+}

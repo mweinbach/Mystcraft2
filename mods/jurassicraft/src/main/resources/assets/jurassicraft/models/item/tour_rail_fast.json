@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:block/rail",
+    "layer1": "jurassicraft:item_port/tour_rail_fast_marker"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "config.jade.plugin_jurassicraft.dinosaur": "Dinosaur information",
+  "config.jade.plugin_jurassicraft.feeder": "Feeder contents",
+  "config.jade.plugin_jurassicraft.incubator": "Incubation progress",
+  "tooltip.jurassicraft.jade.gender": "Gender",
+  "tooltip.jurassicraft.jade.owner": "Owner",
+  "tooltip.jurassicraft.jade.order": "Order",
+  "tooltip.jurassicraft.jade.not_imprinted": "Not imprinted",
+  "tooltip.jurassicraft.jade.fullness": "Fullness:",
+  "tooltip.jurassicraft.jade.food_narration": "Meat: %s%%, plants: %s%%",
+  "tooltip.jurassicraft.jade.slot": "Slot %s",
+  "tooltip.jurassicraft.jade.egg_narration": "Incubation: %s%%, %s"
+}

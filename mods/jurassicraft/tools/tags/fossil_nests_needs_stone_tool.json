@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:nest_fossil",
+    "jurassicraft:encased_nest_fossil",
+    "jurassicraft:nest_fossil_2",
+    "jurassicraft:encased_nest_fossil_2",
+    "jurassicraft:nest_fossil_3",
+    "jurassicraft:encased_nest_fossil_3"
+  ]
+}

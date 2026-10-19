@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "jurassicraft:car_tire",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:slime_ball"
+    },
+    "C": {
+      "item": "minecraft:piston"
+    },
+    "A": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:car_tire",
+    "count": 2
+  }
+}

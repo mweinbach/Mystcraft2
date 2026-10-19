@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/cultivator_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/cultivator_top"
+    }
+  }
+}

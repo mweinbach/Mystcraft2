@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "minecraft:mossy_cobblestone",
+  "pattern": ["ABA", "BAB", "ABA"],
+  "key": {
+    "A": {"item": "jurassicraft:moss"},
+    "B": {"item": "minecraft:cobblestone"}
+  },
+  "result": {"item": "minecraft:mossy_cobblestone", "count": 4}
+}

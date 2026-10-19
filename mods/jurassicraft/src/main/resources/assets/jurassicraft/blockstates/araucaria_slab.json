@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "jurassicraft:block/araucaria_slab"
+    },
+    "type=top": {
+      "model": "jurassicraft:block/araucaria_slab_top"
+    },
+    "type=double": {
+      "model": "jurassicraft:block/araucaria_planks"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jurassicraft:blocks/plants/small_chain_fern"
+  },
+  "render_type": "minecraft:cutout"
+}

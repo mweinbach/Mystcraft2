@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "fabric:type": "fabric:nbt",
+    "base": {
+      "item": "minecraft:potion"
+    },
+    "nbt": {
+      "Potion": "minecraft:water"
+    },
+    "strict": false
+  },
+  "result": "jurassicraft:dna_nucleotides",
+  "experience": 1.0,
+  "cookingtime": 200
+}

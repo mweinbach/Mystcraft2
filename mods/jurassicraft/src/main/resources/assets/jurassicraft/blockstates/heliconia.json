@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "jurassicraft:block/heliconia_bottom"
+    },
+    "half=upper": {
+      "model": "jurassicraft:block/heliconia_top"
+    }
+  }
+}

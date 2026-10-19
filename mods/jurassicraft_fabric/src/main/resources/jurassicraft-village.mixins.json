@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.jurassicraft.village.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": ["MobGoalAccessor", "VillagerDigsiteMemory", "TemplatePoolAccessor"],
+  "injectors": {"defaultRequire": 1}
+}

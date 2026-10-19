@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "P  ",
+    " R ",
+    "  W"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:pink_wool"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "W": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "item": "jurassicraft:pregnancy_test"
+  }
+}

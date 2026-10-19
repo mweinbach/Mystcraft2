@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "jurassicraft:microraptor_meat"
+  },
+  "result": "jurassicraft:microraptor_steak",
+  "experience": 5.0,
+  "cookingtime": 200
+}

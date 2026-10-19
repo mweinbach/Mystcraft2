@@ -1,0 +1,15 @@
+{
+  "item.jurassicraft.ingen_journal": "InGen Journal",
+  "journal.jurassicraft.chef_alejandro": "Chef Alejandro",
+  "journal.jurassicraft.dennis_nedry": "Dennis Nedry",
+  "journal.jurassicraft.dr_gerry_harding": "Dr. Gerry Harding",
+  "journal.jurassicraft.dr_henry_wu": "Dr. Henry Wu",
+  "journal.jurassicraft.dr_laura_sorkin": "Dr. Laura Sorkin",
+  "journal.jurassicraft.ed_regis": "Ed Regis",
+  "journal.jurassicraft.john_hammond": "John Hammond",
+  "journal.jurassicraft.ray_arnold": "Ray Arnold",
+  "journal.jurassicraft.robert_muldoon": "Robert Muldoon",
+  "gui.jurassicraft.journal.previous": "Previous page",
+  "gui.jurassicraft.journal.next": "Next page",
+  "gui.jurassicraft.journal.load_error": "Failed to load journal entries."
+}
