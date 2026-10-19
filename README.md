@@ -9,11 +9,10 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | --- | --- | --- |
 | [Mystcraft](mods/mystcraft/) | In progress | Forge + Fabric development port with linking, descriptive books, generated Ages, writing and portals. Full classic parity remains in progress. |
 | [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload simulation, persistent flight/exposure, energy, delivery, defenses, screens and optional JEI. |
-| [JurassiCraft (Forge)](mods/jurassicraft/) | In progress | Forge alpha: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
-| [JurassiCraft (Fabric)](mods/jurassicraft_fabric/) | In progress | Fabric adaptation targeting Tekxit 4 (Official), Minecraft 1.19.2. |
+| [JurassiCraft](mods/jurassicraft/) | In progress | Forge + Fabric alpha with shared gameplay: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
 
 Mystcraft and JurassiCraft support Forge and Fabric; ICBM targets Fabric.
-Install the variant matching your game loader. The two JurassiCraft builds
+Install the variant matching your game loader; a mod's Forge and Fabric JARs
 cannot be installed together.
 
 ## Get started
@@ -43,12 +42,14 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh :icbm_port:build
 ./scripts/gradle.sh :icbm_port:runGametest
 ./scripts/gradle.sh :icbm_port:runClient
-./scripts/gradle.sh :jurassicraft_fabric:build
-./scripts/gradle.sh :jurassicraft_fabric:runGametest -PwithJade -PwithEmi
+./scripts/gradle.sh :jurassicraft:build
+./scripts/gradle.sh -p mods/jurassicraft/fabric build
+./scripts/gradle.sh :jurassicraft:runGameTestServer
+./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
 ```
 
-JARs land in `mods/<mod-id>/build/libs/`; Mystcraft Fabric JARs land in
-`mods/mystcraft/fabric/build/libs/`. Fabric also requires Fabric API on server
+JARs land in `mods/<mod-id>/build/libs/`; Mystcraft and JurassiCraft Fabric JARs
+land in `mods/<mod-id>/fabric/build/libs/`. Fabric also requires Fabric API on server
 and clients. Client, server, and data runs use
 separate directories under that mod's `run/`. A graphical display is required
 for the client. Read and accept the Minecraft EULA yourself before running a
@@ -84,13 +85,13 @@ docs/                   Porting and development instructions
 ```
 
 `./scripts/gradle.sh build` builds the default variants of all ports. Build
-Mystcraft Fabric separately with the command above. GitHub Actions checks
-metadata, tests the port-management tool, builds both Mystcraft variants and
-ICBM, verifies Mystcraft loader parity, runs ICBM's dedicated-server GameTests,
-and uploads the resulting JARs.
+the Mystcraft and JurassiCraft Fabric variants separately with the commands
+above. GitHub Actions checks metadata, tests the port-management tool, builds
+both variants of Mystcraft and JurassiCraft and ICBM, verifies both mods' loader
+parity, runs ICBM's dedicated-server GameTests and both JurassiCraft GameTest
+suites, and uploads the resulting JARs.
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
-tree. The JurassiCraft Fabric build also reads the shared artwork from the
-JurassiCraft Forge port when packaging its JAR.
+tree.
 
 ## Origins and licensing
 

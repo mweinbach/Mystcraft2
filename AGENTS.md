@@ -37,3 +37,23 @@ After Mystcraft changes, build both variants:
 The Fabric build intentionally isolates Loom from the root ForgeGradle build.
 Server/client loader combinations must match; cross-loader multiplayer and world
 migration are not promised. Keep classic 1.12 parity gaps explicit.
+
+## JurassiCraft loader support
+
+JurassiCraft follows the same layout: gameplay, registries, recipes, loot,
+worldgen, assets and NBT live in `mods/jurassicraft/src/main`; Forge adapters in
+`src/forge`, Fabric adapters in `src/fabric`, and the Loom build in
+`mods/jurassicraft/fabric`. Shared code reaches loader services only through
+`Platform`/`ClientPlatform`. Where loaders differed, keep the variant matching
+upstream 1.12.2, otherwise the union, and record it in
+`mods/jurassicraft/PARITY.md`. GameTests and their fixtures live in
+`src/gametestCommon`, `src/gametestForge` and `src/gametestFabric` and must stay
+out of production JARs. The Fabric mixin package may contain only mixins.
+After JurassiCraft changes, run:
+
+- `./scripts/gradle.sh :jurassicraft:build`
+- `./scripts/gradle.sh -p mods/jurassicraft/fabric build`
+- `python3 mods/jurassicraft/scripts/check_loader_parity.py`
+- `python3 -m unittest discover -s mods/jurassicraft/tools/tests`
+- `./scripts/gradle.sh :jurassicraft:runGameTestServer`
+- `./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`
