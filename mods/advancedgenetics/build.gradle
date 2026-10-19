@@ -4,6 +4,19 @@ sourceSets.main.java.srcDir 'src/forge/java'
 sourceSets.main.resources.srcDir 'src/forge/resources'
 base.archivesName = 'advancedgenetics-forge-1.19.2'
 
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
+dependencies {
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
+    }
+}
+
 // Map official-name mixin targets to SRG names for the reobfuscated JAR.
 dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
 def mixinRefmap = layout.buildDirectory.file('generated/mixin/advancedgenetics.forge.refmap.json')
@@ -45,6 +58,7 @@ minecraft.runs {
     gameTestServer {
         property 'forge.enableGameTest', 'true'
         property 'forge.enabledGameTestNamespaces', portMetadata.mod_id
+        property 'emc.values', file('emc/values.json').absolutePath
         mods {
             "${portMetadata.mod_id}" { source sourceSets.gametest }
         }

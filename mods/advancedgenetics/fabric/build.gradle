@@ -13,6 +13,10 @@ base.archivesName = 'advancedgenetics-fabric-1.19.2'
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
 }
 
 dependencies {
@@ -25,6 +29,12 @@ dependencies {
     include(implementation('com.electronwill.night-config:core:3.6.4'))
     include(implementation('com.electronwill.night-config:toml:3.6.4'))
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    // Item Alchemy 1.1.3, the Fabric EMC mod, checks the shipped default_emcs data against real values.
+    if (providers.gradleProperty('withItemAlchemy').isPresent()) {
+        modRuntimeOnly 'maven.modrinth:item-alchemy:1AYUTFS2'
+        modRuntimeOnly 'maven.modrinth:mcpitanlibarch:cTAftMK5'
+        modRuntimeOnly 'maven.modrinth:architectury-api:cde9Su0w'
+    }
 }
 
 java {
@@ -85,9 +95,11 @@ loom {
             runDir 'build/gametest'
             vmArg '-Dfabric-api.gametest'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
+            vmArg "-Demc.values=${file('../emc/values.json')}"
         }
     }
 }
 tasks.named('runGametest') {
-    doFirst { delete layout.buildDirectory.dir('gametest/world') }
+    // Item Alchemy only reads default_emcs when it has no saved emc_config.json.
+    doFirst { delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/itemalchemy') }
 }

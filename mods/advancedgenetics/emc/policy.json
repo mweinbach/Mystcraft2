@@ -2,8 +2,8 @@
   "namespace": "advancedgenetics",
   "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
   "resources": {
-    "projecte": ["src/main/resources"],
-    "itemalchemy": ["src/main/resources"]
+    "projecte": ["src/main/resources", "src/forge/resources"],
+    "itemalchemy": ["src/main/resources", "src/fabric/resources"]
   },
   "output": "src/main/resources",
   "values": {

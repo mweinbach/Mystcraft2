@@ -1,6 +1,7 @@
 package com.technovision.advancedgenetics.gametest.forge;
 
 import com.technovision.advancedgenetics.AdvancedGenetics;
+import com.technovision.advancedgenetics.gametest.EmcGameTests;
 import com.technovision.advancedgenetics.gametest.GeneGameTests;
 import com.technovision.advancedgenetics.gametest.MachineGameTests;
 import com.technovision.advancedgenetics.gametest.TestPlatform;
@@ -27,7 +28,7 @@ import java.util.Locale;
 @GameTestHolder(AdvancedGenetics.MOD_ID)
 public class ForgeGameTests {
 
-    private static final List<Class<?>> SHARED_TESTS = List.of(GeneGameTests.class, MachineGameTests.class);
+    private static final List<Class<?>> SHARED_TESTS = List.of(GeneGameTests.class, MachineGameTests.class, EmcGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
