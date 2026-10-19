@@ -29,7 +29,9 @@ the client and the server. It has no dependencies beyond Forge. GameTests live i
 - **Machines:** the cell analyzer, DNA extractor, DNA decrypter, plasmid infuser, blood purifier
   and plasmid injector. They use Forge Energy (`ForgeCapabilities.ENERGY`), accept overclockers,
   can be picked up with the crowbar, and expose item handlers for automation. Automation inserts
-  only valid items into the input slot, and extracts only from the output slot.
+  only valid items into the input slot, and extracts only from the output slot. The plasmid
+  infuser and injector work on that slot in place, so automation leaves an unfinished plasmid or
+  a purified syringe that is waiting for a plasmid where it is.
 - **Genes:** 38 configurable genes, plus the basic filler gene. They cover potion effects, flight, no hunger, wall climbing,
   web walking, teleport and dragon's breath keys, fireballs, Milky, Beelicious, Meaty, Wooly,
   Eat Grass, Lay Egg, Keep Inventory, Infinity, Scare Creepers and Scare Skeletons, Mob Sight,
@@ -74,6 +76,12 @@ These upstream defects are fixed in the port:
 - Eat Grass uses only the main hand.
 - Attack and item genes run only on the server.
 - A totem of undying now prevents death-triggered genes.
+- Fire-charge fireballs are owned by the shooter, so kills by their impact or explosion are
+  credited to the player.
+- A fireball hit damages its target once, not twice.
+- Players without the Flight gene keep spectator flight.
+- Automation no longer pulls unfinished plasmids or waiting syringes out of the plasmid infuser
+  and injector.
 
 Retained upstream behavior:
 
@@ -99,18 +107,20 @@ Retained upstream behavior:
 
 ## GameTests
 
-`runGameTestServer` runs 21 server tests:
+`runGameTestServer` runs 26 server tests:
 
 - capability persistence through player NBT;
 - respawn gene copy and Keep Inventory;
 - the Keep Inventory, Web Walking, Climb Walls and Infinity mixins;
 - damage-cancelling genes and the dragon crystal;
-- server-tick flight, effects and hunger;
+- server-tick flight, effects and hunger, and spectator flight without the gene;
+- fireball ownership, kill credit and single-hit damage;
 - Eat Grass, Milky, and the Scare Creepers and Scare Skeletons goals;
 - gene-name argument parsing, and the `/gene` commands with their permission check;
 - recipe loading and network round trips;
 - the cell analyzer's configured time, energy, face rules and menu;
-- every machine stage through syringe injection.
+- every machine stage through syringe injection;
+- automation leaving the infuser's and injector's in-place work alone.
 
 ## Attribution and license
 
