@@ -54,8 +54,6 @@ import ports.buildcraft.platform.Platform;
  * shared registry classes resolve the same way on both loaders.
  */
 final class FabricPlatform implements Platform.Backend {
-    /** Fabric fluid viscosity is in ticks (water 5); shared code compares Forge's scale (water 1000). */
-    private static final int FORGE_VISCOSITY_PER_TICK = 200;
     private static final List<ResourceKey<? extends Registry<?>>> ORDER = List.of(Registry.FLUID_REGISTRY, Registry.BLOCK_REGISTRY,
             Registry.ITEM_REGISTRY, Registry.BLOCK_ENTITY_TYPE_REGISTRY, Registry.MENU_REGISTRY);
     private final Map<ResourceLocation, List<Pending<?>>> pending = new LinkedHashMap<>();
@@ -133,7 +131,7 @@ final class FabricPlatform implements Platform.Backend {
         FluidVariantAttributes.register(fluid, new FluidVariantAttributeHandler() {
             @Override public Component getName(FluidVariant variant) { return Component.translatable("fluid.buildcraft." + definition.name); }
             @Override public int getTemperature(FluidVariant variant) { return definition.temperature; }
-            @Override public int getViscosity(FluidVariant variant, @Nullable Level level) { return Math.max(1, definition.viscosity / FORGE_VISCOSITY_PER_TICK); }
+            @Override public int getViscosity(FluidVariant variant, @Nullable Level level) { return definition.viscosity; }
             @Override public boolean isLighterThanAir(FluidVariant variant) { return definition.isGaseous(); }
         });
         return fluid;
@@ -162,7 +160,8 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public int viscosity(Fluid fluid) {
         if (fluid instanceof BCFluid bc) return bc.definition().viscosity;
-        return FluidVariantAttributes.getViscosity(FluidVariant.of(fluid), null) * FORGE_VISCOSITY_PER_TICK;
+        // Fabric's FluidConstants use Forge's scale too: water 1000, lava 6000 (2000 in ultrawarm dimensions).
+        return FluidVariantAttributes.getViscosity(FluidVariant.of(fluid), null);
     }
 
     @Override
