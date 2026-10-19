@@ -63,6 +63,21 @@ class PortManagementTests(unittest.TestCase):
                 ports.ports(self.root)
             path.write_text(original)
 
+    def test_multi_loader_forge_descriptor_may_live_in_its_overlay(self):
+        result = self.create()
+        descriptor = result / "src/main/resources/META-INF/mods.toml"
+        overlay = result / "src/forge/resources/META-INF/mods.toml"
+        overlay.parent.mkdir(parents=True)
+        descriptor.rename(overlay)
+        self.assertEqual(ports.ports(self.root)[0]["mod_id"], "examplemod")
+        overlay.unlink()
+        with self.assertRaises(ValueError):
+            ports.ports(self.root)
+        (result / "src/fabric/resources/META-INF").mkdir(parents=True)
+        (result / "src/fabric/resources/META-INF/mods.toml").write_text("")
+        with self.assertRaises(ValueError):
+            ports.ports(self.root)
+
     def test_existing_port_is_not_overwritten(self):
         result = self.create()
         sentinel = result / "local-work.txt"
