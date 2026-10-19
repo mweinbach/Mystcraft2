@@ -5,6 +5,9 @@
   "name": "JurassiCraft Fabric Game Tests",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "ports.jurassicraft.gametest.FabricGameTestSetup"
+    ],
     "fabric-gametest": [
       "ports.jurassicraft.gametest.CoreFossilGameTests",
       "ports.jurassicraft.gametest.CoreRecipeGameTests",
