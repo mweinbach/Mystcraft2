@@ -101,32 +101,32 @@ public class PumpBlockEntity extends MinerBlockEntity {
             List<BlockPos> toCheck = new ArrayList<>(nextPosesToCheck);
             nextPosesToCheck.clear();
             for (BlockPos posToCheck : toCheck) {
-                int count = 0;
                 for (Direction side : directions) {
                     BlockPos offsetPos = posToCheck.relative(side);
                     if (offsetPos.distSqr(targetPos) > maxLengthSquared) continue;
-                    if (checked.add(offsetPos)) {
-                        if (BlockUtil.fluidWithFlowing(level, offsetPos) == queueFluid) {
-                            paths.put(offsetPos, new FluidPath(offsetPos, paths.get(posToCheck)));
-                            if (BlockUtil.drainableFluid(level, offsetPos) != null) queue.add(offsetPos);
-                            nextPosesToCheck.add(offsetPos);
-                            count++;
-                        }
-                    } else {
-                        // Already visited, so it must be a valid source of the same fluid.
-                        count++;
+                    if (checked.add(offsetPos) && BlockUtil.fluidWithFlowing(level, offsetPos) == queueFluid) {
+                        paths.put(offsetPos, new FluidPath(offsetPos, paths.get(posToCheck)));
+                        if (BlockUtil.drainableFluid(level, offsetPos) != null) queue.add(offsetPos);
+                        nextPosesToCheck.add(offsetPos);
                     }
                 }
-                if (isWater && count >= 2) {
-                    // Same check as vanilla water source creation.
-                    BlockState below = level.getBlockState(posToCheck.below());
-                    if (BlockUtil.drainableFluid(level, posToCheck.below()) == Fluids.WATER || below.getMaterial().isSolid()) {
-                        isInfiniteWaterSource = true;
-                        break outer;
-                    }
+                if (isWater && refillsAsWaterSource(posToCheck)) {
+                    isInfiniteWaterSource = true;
+                    break outer;
                 }
             }
         }
+    }
+
+    /** Vanilla's {@code FlowingFluid.getNewLiquid} rule: two horizontal water sources over a solid block or a water source. */
+    private boolean refillsAsWaterSource(BlockPos pos) {
+        int sources = 0;
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            if (BlockUtil.drainableFluid(level, pos.relative(side)) == Fluids.WATER) sources++;
+        }
+        if (sources < 2) return false;
+        BlockPos below = pos.below();
+        return BlockUtil.drainableFluid(level, below) == Fluids.WATER || level.getBlockState(below).getMaterial().isSolid();
     }
 
     private boolean canDrain(BlockPos pos) {

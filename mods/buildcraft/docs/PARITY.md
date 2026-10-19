@@ -75,6 +75,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Viscosity** uses Forge's scale on both loaders (water 1000, lava 6000), which is also Fabric's
   `FluidConstants` scale. The mining well and quarry pass through fluids up to water's viscosity,
   as upstream.
+- **Infinite water** detection uses vanilla's refill rule: the pump stops removing water sources
+  only when a cell in the pool has two horizontal water sources over a solid block or a water
+  source. Upstream also counted every already-scanned neighbour, including rejected air and stone,
+  so it could treat finite pools as infinite and duplicate water.
 
 ## Not ported
 
@@ -100,7 +104,7 @@ the Forge and Fabric builds are not supported.
 Shared GameTest bodies in `src/gametestCommon` run on both loaders (`ForgeGameTests`,
 `FabricGameTests`): the MJ/energy ratio, the viscosity scale, every engine powering a receiver, a
 redstone engine driving a wooden pipe that delivers items through stone and gold pipes, tank
-columns, pump draining, mining well and quarry digging, void pipes, fluid pipes filling a tank,
+columns, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, and recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
 (`FabricAdapterGameTests`), including transaction rollback. `EmcGameTests` audits EMC coverage and,
