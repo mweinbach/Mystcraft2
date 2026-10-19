@@ -231,7 +231,8 @@ public final class MissileEntity extends ThrownItemEntity
         && !isEmpDisabled()
         && ((cluster && flightTicks >= 40 && !flight.targeted()) || flight.arrived()))
       detonate(getPos());
-    if (world.isClient) world.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
+    if (world.isClient && !isVisuallyDisabled())
+      world.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
   }
 
   private void detonate(Vec3d position) {

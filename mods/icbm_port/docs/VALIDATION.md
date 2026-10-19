@@ -11,6 +11,8 @@ Verified locally October 19, 2026 with Java 17, Minecraft 1.19.2 and Fabric. The
 | Static resources | 662 JSON files, 2,095 references and 47 original PNG textures passed validation; this checks references and image/animation metadata, not in-game appearance |
 | Full Tekxit 4 alpha.4 client | All 308 official mod jars retained; ordinary client/world startup passed; six actual-pack integration tests and 285,316 EMI assertions passed before and after `/reload` |
 
+A later pass regenerated the payload labels, six missile bodies, the exhaust strip, the redmatter core and disc, and the radioactive mark from `tools/payload_visuals.py`. `python3 tools/check_payload_visuals.py` passed. Resource validation then reported 663 JSON files, 2,095 references, and 50 original PNGs. `:icbm_port:test` and all 92 GameTests passed again. Those checks do not render the client.
+
 Direct client inspection confirmed the growing redmatter core and rotating rings, terrain consumption and antimatter removal, radar dish motion, EMP coil animation and corrected upright launcher models. The new presentation uses ordinary Minecraft render layers, original geometry/textures and vanilla sound events. Grenades and bomblets use 3D tumbling, cargo canopies sway, and cart flashes use the server countdown. No custom shader is required. The client used software OpenGL with shaders off and a null audio driver. Shader-pack appearance, real audio playback, two-client synchronization and every visual variation remain unverified. No restricted upstream artwork was copied. See [asset provenance](ASSET_PROVENANCE.md).
 
 ## Historical alpha.3 validation

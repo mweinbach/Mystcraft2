@@ -15,9 +15,9 @@ import net.minecraft.util.math.Vec3f;
 /** Original animated geometry. Uses ordinary entity layers, including with Sodium and Iris. */
 public final class RedmatterRenderer extends EntityRenderer<RedmatterEntity> {
   private static final Identifier BLACK =
-      new Identifier("minecraft", "textures/block/black_concrete.png");
+      new Identifier("icbm_port", "textures/entity/redmatter_core.png");
   private static final Identifier GLOW =
-      new Identifier("minecraft", "textures/block/white_concrete.png");
+      new Identifier("icbm_port", "textures/entity/redmatter_disc.png");
   private static final int FULL_BRIGHT = 0xF000F0;
 
   public RedmatterRenderer(EntityRendererFactory.Context context) {
@@ -43,8 +43,10 @@ public final class RedmatterRenderer extends EntityRenderer<RedmatterEntity> {
     float time = entity.age + tickDelta;
     float radius = Math.max(.65f, entity.size() * .45f);
     matrices.push();
-    // The event horizon remains spherical while the accretion discs tumble around it.
+    matrices.push();
+    matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(time * .35f));
     sphere(matrices, consumers.getBuffer(RenderLayer.getEntitySolid(BLACK)), radius);
+    matrices.pop();
     for (int ring = 0; ring < 4; ring++) {
       matrices.push();
       matrices.multiply(
@@ -92,7 +94,7 @@ public final class RedmatterRenderer extends EntityRenderer<RedmatterEntity> {
     float z = (float) (Math.cos(latitude) * Math.sin(longitude));
     buffer
         .vertex(matrices.peek().getPositionMatrix(), x * radius, y * radius, z * radius)
-        .color(8, 0, 2, 255)
+        .color(255, 255, 255, 255)
         .texture((float) (longitude / (Math.PI * 2)), (float) (latitude / Math.PI + .5))
         .overlay(OverlayTexture.DEFAULT_UV)
         .light(FULL_BRIGHT)
