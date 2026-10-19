@@ -68,6 +68,7 @@ jobs:
             mods/icbm_port/build/*-results.xml
             mods/icbm_port/build/gametest/logs/latest.log
             mods/icbm_port/build/materialtest/logs/latest.log
+            mods/advancedgenetics/run/gameTestServer/logs/latest.log
             mods/jurassicraft/run/gameTestServer/logs/latest.log
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log
