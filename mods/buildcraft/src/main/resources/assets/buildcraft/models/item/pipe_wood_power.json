@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:item/pipe_base",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/wood_power_clear"
+  }
+}

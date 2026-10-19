@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "I I",
+    " G ",
+    " I "
+  ],
+  "key": {
+    "I": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ],
+    "G": [
+      {
+        "tag": "c:stone_gears"
+      },
+      {
+        "tag": "forge:gears/stone"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:wrench"
+  }
+}

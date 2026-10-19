@@ -1,0 +1,472 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "connected_down": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_down": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_down": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_down": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_down": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_down": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_down": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_down": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/down_connected",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_up": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_up": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_up": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_up": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_up": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_up": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_up": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_up": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/up_connected",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_north": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_north": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_north": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_north": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_north": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_north": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_north": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_north": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/north_connected",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_south": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_south": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_south": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_south": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_south": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_south": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_south": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_south": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/south_connected",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_west": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_west": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_west": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_west": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_west": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_west": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_west": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_west": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/west_connected",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_east": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_normal"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_east": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_normal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_east": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_normal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_east": "false"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_normal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "connected_east": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_connected"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "connected_east": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_connected",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "connected_east": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_connected",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "connected_east": "true"
+      },
+      "apply": {
+        "model": "buildcraft:block/quarry/east_connected",
+        "y": 270
+      }
+    }
+  ]
+}

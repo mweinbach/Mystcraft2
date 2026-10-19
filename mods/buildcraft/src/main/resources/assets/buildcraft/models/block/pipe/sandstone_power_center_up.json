@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_center_up",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/sandstone_power"
+  }
+}

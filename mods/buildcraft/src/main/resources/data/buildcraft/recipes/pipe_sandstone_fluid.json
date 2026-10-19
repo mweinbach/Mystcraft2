@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "buildcraft:pipe_sandstone_item"
+    },
+    {
+      "item": "buildcraft:waterproof"
+    }
+  ],
+  "result": {
+    "item": "buildcraft:pipe_sandstone_fluid"
+  }
+}

@@ -94,4 +94,35 @@ public final class RenderUtil {
         }
         poseStack.translate(-0.5, -0.5, -0.5);
     }
+
+    /**
+     * An axis-aligned beam between the centres of its end faces, in block units. The sprite row
+     * starting at {@code vMin} tiles once per block along the beam, as upstream laser rows do; the end
+     * faces use {@code endUv}, or the middle of that row when null.
+     */
+    public static void beam(PoseStack poseStack, VertexConsumer consumer, TextureAtlasSprite sprite, int light, double radius, float vMin, @Nullable float[] endUv,
+            double x1, double y1, double z1, double x2, double y2, double z2) {
+        double ax = Math.min(x1, x2) - (x1 == x2 ? radius : 0), bx = Math.max(x1, x2) + (x1 == x2 ? radius : 0);
+        double ay = Math.min(y1, y2) - (y1 == y2 ? radius : 0), by = Math.max(y1, y2) + (y1 == y2 ? radius : 0);
+        double az = Math.min(z1, z2) - (z1 == z2 ? radius : 0), bz = Math.max(z1, z2) + (z1 == z2 ? radius : 0);
+        Direction.Axis axis = x1 != x2 ? Direction.Axis.X : y1 != y2 ? Direction.Axis.Y : Direction.Axis.Z;
+        double start = axis.choose(ax, ay, az);
+        double end = axis.choose(bx, by, bz);
+        float thickness = (float) (radius * 32);
+        for (double from = start; from < end - 1e-4; from = Math.min(end, Math.floor(from + 1))) {
+            double to = Math.min(end, Math.floor(from) + 1);
+            double[] lo = {ax, ay, az};
+            double[] hi = {bx, by, bz};
+            lo[axis.ordinal()] = from;
+            hi[axis.ordinal()] = to;
+            float length = (float) (to - from) * 16;
+            for (Direction face : Direction.values()) {
+                if (face.getAxis() == axis && (face.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? from > start : to < end)) continue;
+                float[] uv = face.getAxis() != axis ? new float[] {0, vMin, length, vMin + thickness}
+                        : endUv != null ? endUv : new float[] {8 - thickness / 2, vMin, 8 + thickness / 2, vMin + thickness};
+                RenderUtil.face(poseStack, consumer, sprite, face, uv, (float) lo[0] * 16, (float) lo[1] * 16, (float) lo[2] * 16,
+                        (float) hi[0] * 16, (float) hi[1] * 16, (float) hi[2] * 16, 0xFFFFFFFF, light);
+            }
+        }
+    }
 }
