@@ -40,6 +40,22 @@ jobs:
         run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
       - name: Verify Mystcraft loader artifact parity
         run: python3 mods/mystcraft/scripts/check_loader_parity.py
+      - name: Test JurassiCraft resources
+        run: python3 -m unittest discover -s mods/jurassicraft/tools/tests -v
+      - name: Build JurassiCraft for Fabric
+        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric build
+      - name: Verify JurassiCraft loader artifact parity
+        run: python3 mods/jurassicraft/scripts/check_loader_parity.py
+      - name: Test JurassiCraft distributions
+        run: |
+          for jar in mods/jurassicraft/build/libs/jurassicraft-forge-1.19.2-*[0-9].jar \
+                     mods/jurassicraft/fabric/build/libs/jurassicraft-fabric-1.19.2-*[0-9].jar; do
+            JURASSICRAFT_TEST_JAR="$PWD/$jar" python3 -m unittest discover -s mods/jurassicraft/tools/tests -p test_built_jar.py -v
+          done
+      - name: Test JurassiCraft gameplay on a Forge GameTest server
+        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer
+      - name: Test JurassiCraft gameplay on a Fabric GameTest server
+        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
       # The headless GameTest server reports assertion messages only in these files.
       - name: Upload GameTest reports
         if: failure()
@@ -50,6 +66,9 @@ jobs:
             mods/icbm_port/build/*-results.xml
             mods/icbm_port/build/gametest/logs/latest.log
             mods/icbm_port/build/materialtest/logs/latest.log
+            mods/jurassicraft/run/gameTestServer/logs/latest.log
+            mods/jurassicraft/fabric/build/gametest-results.xml
+            mods/jurassicraft/fabric/build/gametest/logs/latest.log
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
@@ -57,4 +76,5 @@ jobs:
           path: |
             mods/*/build/libs/*.jar
             mods/mystcraft/fabric/build/libs/*.jar
+            mods/jurassicraft/fabric/build/libs/*.jar
           if-no-files-found: error
