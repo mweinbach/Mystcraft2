@@ -1,5 +1,3 @@
-"""One record per payload family. Labels, silhouettes, and blast profiles derive from it."""
-
 GLYPH_UV = [0, 0, 16, 16]
 EDGE = (24, 36, 45, 255)
 DARK = (12, 18, 24, 255)
@@ -25,7 +23,6 @@ def _mark(text):
     return tuple(rows)
 
 
-# Order matches PayloadType content ids. Grenades exist for the first eight, plus colors and smoke.
 PROFILES = [
     Profile("condensed", (255, 168, 32), _mark("""
 ########
@@ -259,7 +256,10 @@ PROFILES = [
 """), "canister", "cloud", "smoke", "explode"),
 ]
 
-GRENADE_IDS = {profile.id for profile in PROFILES[:8]} | {"colors", "smoke"}
+GRENADE_IDS = frozenset({
+    "condensed", "shrapnel", "incendiary", "debilitation", "chemical", "anvil",
+    "repulsive", "attractive", "colors", "smoke",
+})
 BODIES = ("rocket", "flame", "canister", "warhead", "core", "coil")
 SHAPES = ("ring", "burst", "column", "mushroom", "vortex", "snow", "spark", "cloud", "portal", "prismatic")
 PARTICLES = ("flame", "smoke", "snowflake", "reverse_portal", "electric_spark", "sneeze", "end_rod", "portal")
@@ -270,6 +270,9 @@ def validate_profiles():
     ids = [profile.id for profile in PROFILES]
     if len(ids) != 23 or len(set(ids)) != 23:
         raise ValueError("expected 23 distinct payload ids")
+    unknown = GRENADE_IDS.difference(ids)
+    if unknown:
+        raise ValueError("grenade id is not a payload: " + ", ".join(sorted(unknown)))
     if len({profile.rgb for profile in PROFILES}) != 23:
         raise ValueError("payload colors must be unique")
     for profile in PROFILES:

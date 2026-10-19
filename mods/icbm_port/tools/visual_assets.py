@@ -119,7 +119,6 @@ def generate(root):
    for lo,hi in [([0,5,6],[16,9,10]),([6,5,0],[10,9,16])]:m.box(lo,hi,'carbon')
    m.box([5,11,5],[11,12,11],'hazard')
   m.save('block/'+id)
- # Payload identity comes from payload_visuals.PROFILES. Nose stays on local +Y.
  def label_box(m,lo,hi,tex='label'):
   m.box(lo,hi,tex,face={'up':'casing','down':'casing','north':'label','south':'label','east':'label','west':'label'},uv=GLYPH)
  def fins(m,y0=1,y1=6):

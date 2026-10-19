@@ -14,7 +14,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.math.Vec3f;
 
-/** Client view of the payload catalog written by tools/payload_visuals.py. */
 public final class PayloadVisuals implements SimpleSynchronousResourceReloadListener {
   public static final Identifier ID = new Identifier("icbm_port", "payload_visuals");
   private static final Identifier FILE = new Identifier("icbm_port", "payload_visuals.json");

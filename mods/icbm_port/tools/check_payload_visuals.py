@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Prove payload labels, missile UVs, silhouettes, and blast colors stay distinct."""
 import json
+import re
 import struct
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from payload_visuals import GLYPH_UV, PROFILES, validate_profiles
+from payload_visuals import GLYPH_UV, GRENADE_IDS, PARTICLES, PROFILES, SHAPES, SOUNDS, validate_profiles
 
 ROOT = Path(__file__).resolve().parents[1] / "src/main/resources/assets/icbm_port"
 FOCUS = ("nuclear", "chemical", "incendiary", "redmatter")
@@ -46,8 +46,38 @@ def label_uvs(path):
         fail(path.name + " has no label face")
 
 
+def flight_axis(path):
+    model = json.loads(path.read_text())
+    exhaust_at_tail = False
+    tip_at_nose = False
+    for element in model["elements"]:
+        textures = {face["texture"] for face in element["faces"].values()}
+        if "#exhaust" in textures and element["from"][1] == 0:
+            exhaust_at_tail = True
+        if element["to"][1] == 16:
+            tip_at_nose = True
+    if not exhaust_at_tail or not tip_at_nose:
+        fail(path.name + " does not keep exhaust at y=0 and a tip at y=16")
+
+
+def client_tokens():
+    source = Path(__file__).resolve().parents[1] / "src/main/java/dev/icbm/port/client/PayloadVisuals.java"
+    text = source.read_text()
+    found = {}
+    for name in ("Shape", "Particle", "Sound"):
+        match = re.search(r"enum " + name + r" \{([^}]*)}", text)
+        if not match:
+            fail("missing client enum " + name)
+        found[name] = {token.lower() for token in re.findall(r"\b[A-Z][A-Z0-9_]*\b", match.group(1))}
+    expected = {"Shape": set(SHAPES), "Particle": set(PARTICLES), "Sound": set(SOUNDS)}
+    for name, tokens in expected.items():
+        if found[name] != tokens:
+            fail(name + " drifted from the profile table")
+
+
 def main():
     validate_profiles()
+    client_tokens()
     catalog = json.loads((ROOT / "payload_visuals.json").read_text())
     if set(catalog) != {profile.id for profile in PROFILES}:
         fail("payload_visuals.json does not match the profile table")
@@ -59,9 +89,15 @@ def main():
             fail("catalog drifted from " + profile.id)
         colors.append(rgb)
         png_bytes(ROOT / "textures/block" / f"payload_{profile.id}.png")
-        label_uvs(ROOT / "models/item" / f"{profile.id}_missile.json")
+        missile = ROOT / "models/item" / f"{profile.id}_missile.json"
+        label_uvs(missile)
+        flight_axis(missile)
         label_uvs(ROOT / "models/block" / f"{profile.id}_explosive.json")
         label_uvs(ROOT / "models/item" / f"{profile.id}_bomb_cart.json")
+        for suffix in ("_grenade", "_bomblet"):
+            thrown = ROOT / "models/item" / f"{profile.id}{suffix}.json"
+            if (profile.id in GRENADE_IDS) != thrown.exists():
+                fail(profile.id + suffix + " does not match the grenade set")
     if len(set(colors)) != len(colors):
         fail("blast colors are not unique")
     bodies = {}
@@ -90,7 +126,7 @@ def main():
     width, height = png_size(exhaust)
     if height != width * 4 or meta["animation"]["frametime"] < 1:
         fail("exhaust strip is not a four-frame animation")
-    print(f"PASS: {len(PROFILES)} payload visuals, distinct focus silhouettes, full glyph uvs.")
+    print(f"PASS: {len(PROFILES)} payload visuals, flight axis, and client token parity.")
 
 
 def png_size(path):
