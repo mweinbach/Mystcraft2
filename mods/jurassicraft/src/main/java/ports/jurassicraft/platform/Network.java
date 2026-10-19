@@ -65,11 +65,11 @@ public final class Network {
         return Platform.backend().network().toServer(id, buffer(writer));
     }
 
-    /** Called by the transport on the server thread with a buffer it owns. */
+    /** Called by the transport on the server thread; releases the buffer whether or not it is handled. */
     public static void receiveOnServer(ResourceLocation id, ServerPlayer sender, FriendlyByteBuf payload) {
-        ServerHandler handler = SERVER.get(id);
-        if (handler == null || sender == null) return;
         try {
+            ServerHandler handler = SERVER.get(id);
+            if (handler == null || sender == null) return;
             handler.handle(sender, payload);
         } catch (RuntimeException malformed) {
             LOGGER.debug("Dropped malformed {} packet from {}", id, sender.getGameProfile().getName(), malformed);
@@ -77,11 +77,11 @@ public final class Network {
             payload.release();
         }
     }
-    /** Called by the transport on the client thread with a buffer it owns. */
+    /** Called by the transport on the client thread; releases the buffer whether or not it is handled. */
     public static void receiveOnClient(ResourceLocation id, FriendlyByteBuf payload) {
-        ClientHandler handler = CLIENT.get(id);
-        if (handler == null) return;
         try {
+            ClientHandler handler = CLIENT.get(id);
+            if (handler == null) return;
             handler.handle(payload);
         } catch (RuntimeException malformed) {
             LOGGER.debug("Dropped malformed {} packet", id, malformed);

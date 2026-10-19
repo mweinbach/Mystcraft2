@@ -59,7 +59,7 @@ tasks.withType(JavaCompile).configureEach {
 
 // Loader-independent logic checks that run without launching a game server.
 ['ports.jurassicraft.genetics.GeneticsLogicTest', 'ports.jurassicraft.vehicle.VehiclePhysicsLogicTest',
- 'ports.jurassicraft.tourrail.TourRailLogicTest', 'ports.jurassicraft.fabric.client.MachineObjModelTest'].each { mainClassName ->
+ 'ports.jurassicraft.tourrail.TourRailLogicTest', 'ports.jurassicraft.platform.NetworkLogicTest', 'ports.jurassicraft.fabric.client.MachineObjModelTest'].each { mainClassName ->
     def taskName = mainClassName.tokenize('.').last().uncapitalize()
     tasks.register(taskName, JavaExec) {
         dependsOn tasks.named('testClasses')
