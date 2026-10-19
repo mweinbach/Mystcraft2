@@ -3,8 +3,8 @@
 This repository is a collection of independent ports targeting Minecraft 1.19.2.
 Use Java 17 and the checked-in Gradle wrapper. Forge 43.5.0 is the default;
 `mods/icbm_port` explicitly targets Fabric and uses an independent included
-build. Mystcraft supports both Forge and Fabric; its Fabric variant uses Loader
-0.16.14 and Fabric API 0.77.0+1.19.2. Respect each port's loader. Do not upgrade
+build. Mystcraft, JurassiCraft and Advanced Genetics support both Forge and
+Fabric; their Fabric variants use Loader 0.16.14 and Fabric API 0.77.0+1.19.2. Respect each port's loader. Do not upgrade
 Minecraft as part of a port.
 
 - Read the target mod's README, `port.properties`, and upstream attribution.
@@ -17,7 +17,8 @@ Minecraft as part of a port.
   run `python3 -m unittest discover -s scripts/tests -v`. Build the affected port
   with `./scripts/gradle.sh :<mod-id>:build`; build all ports for shared changes.
   Run ICBM's server tests with `./scripts/gradle.sh :icbm_port:runGametest`
-  and Advanced Genetics' with `./scripts/gradle.sh :advancedgenetics:runGameTestServer`.
+  and Advanced Genetics' with `./scripts/gradle.sh :advancedgenetics:runGameTestServer`
+  and `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest`.
 - Each task already has an isolated environment. Use the existing checkout;
   do not create a worktree unless requested.
 - Do not describe a scaffold as a working gameplay port. Keep status, provenance,
@@ -58,3 +59,21 @@ After JurassiCraft changes, run:
 - `python3 -m unittest discover -s mods/jurassicraft/tools/tests`
 - `./scripts/gradle.sh :jurassicraft:runGameTestServer`
 - `./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`
+
+## Advanced Genetics loader support
+
+Advanced Genetics uses the same layout: gameplay, registries, recipes, assets and
+data live in `mods/advancedgenetics/src/main`; Forge adapters in `src/forge`,
+Fabric adapters in `src/fabric`, and the Loom build in `mods/advancedgenetics/fabric`.
+Shared code reaches loader services only through `Platform`. Fabric gene hooks
+must fire where Forge fires the matching event. Shared GameTests live in
+`src/gametestCommon` and run on both loaders through each loader's `TestPlatform`.
+They must stay out of production JARs. Mixin packages may contain only mixins.
+After Advanced Genetics changes, run:
+
+- `./scripts/gradle.sh :advancedgenetics:build`
+- `./scripts/gradle.sh -p mods/advancedgenetics/fabric build`
+- `python3 mods/advancedgenetics/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy`

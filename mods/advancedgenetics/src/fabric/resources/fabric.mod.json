@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "advancedgenetics",
+  "version": "${version}",
+  "name": "Advanced Genetics",
+  "description": "${mod_description}",
+  "authors": [
+    "TechnoVision (developer)",
+    "KirboCabana and TheUnderTaker11 (artists)",
+    "1.19.2 port contributors"
+  ],
+  "contact": {
+    "sources": "https://github.com/TechnoVisionDev/Advanced-Genetics",
+    "issues": "https://github.com/TechnoVisionDev/Advanced-Genetics/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/advancedgenetics/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.technovision.advancedgenetics.fabric.AdvancedGeneticsFabric"],
+    "client": ["com.technovision.advancedgenetics.fabric.client.AdvancedGeneticsFabricClient"]
+  },
+  "mixins": ["advancedgenetics.fabric.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

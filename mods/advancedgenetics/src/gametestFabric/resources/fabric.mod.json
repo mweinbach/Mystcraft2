@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "advancedgenetics_gametest",
+  "version": "1.0.0",
+  "name": "Advanced Genetics Game Tests",
+  "description": "Development-only server tests for the Fabric build of Advanced Genetics.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.technovision.advancedgenetics.gametest.fabric.FabricTestSetup"],
+    "fabric-gametest": [
+      "com.technovision.advancedgenetics.gametest.GeneGameTests",
+      "com.technovision.advancedgenetics.gametest.MachineGameTests",
+      "com.technovision.advancedgenetics.gametest.EmcGameTests",
+      "com.technovision.advancedgenetics.gametest.FabricGameTests"
+    ]
+  },
+  "depends": {
+    "advancedgenetics": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

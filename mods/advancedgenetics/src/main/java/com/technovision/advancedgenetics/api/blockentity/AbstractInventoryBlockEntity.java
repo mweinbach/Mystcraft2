@@ -10,25 +10,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
 public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlockEntity implements ImplementedContainer {
 
     private final NonNullList<ItemStack> inventory;
-    private LazyOptional<?>[] itemHandlers;
 
     public AbstractInventoryBlockEntity(NonNullList<ItemStack> inventory, BlockEntityType<?> type, BlockPos pos, BlockState state, int energyCapacity, int maxProgress, int maxOverclock) {
         super(type, pos, state, energyCapacity, maxProgress, maxOverclock);
         this.inventory = inventory;
-        this.itemHandlers = createItemHandlers();
     }
 
     /**
@@ -127,38 +118,5 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         } else {
             this.setStackInSlot(slot, temp);
         }
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER && !remove) {
-            int index = side == null ? 0 : side.ordinal() + 1;
-            return itemHandlers[index].cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        for (LazyOptional<?> handler : itemHandlers) {
-            handler.invalidate();
-        }
-    }
-
-    @Override
-    public void reviveCaps() {
-        super.reviveCaps();
-        itemHandlers = createItemHandlers();
-    }
-
-    private LazyOptional<?>[] createItemHandlers() {
-        Direction[] directions = Direction.values();
-        LazyOptional<?>[] handlers = new LazyOptional<?>[directions.length + 1];
-        handlers[0] = LazyOptional.of(() -> (IItemHandler) new InvWrapper(this));
-        for (Direction direction : directions) {
-            handlers[direction.ordinal() + 1] = LazyOptional.of(() -> (IItemHandler) new SidedInvWrapper(this, direction));
-        }
-        return handlers;
     }
 }

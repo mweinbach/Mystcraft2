@@ -3,7 +3,6 @@ package com.technovision.advancedgenetics.api.blockentity;
 import com.technovision.advancedgenetics.AdvancedGenetics;
 import com.technovision.advancedgenetics.Config;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -15,14 +14,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,17 +25,15 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private int progress = 0;
     private int overclock = 0;
     private final int maxOverclock;
-    private final MachineEnergyStorage energyStorage;
+    private final MachineEnergy energyStorage;
     private final int maxProgress;
     private final ContainerData propertyDelegate;
-    private LazyOptional<IEnergyStorage> energyCapability;
 
     public AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int energyCapacity, int maxProgress, int maxOverclock) {
         super(type, pos, state);
-        String blockEntityName = Objects.requireNonNull(ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type)).getPath();
+        String blockEntityName = Objects.requireNonNull(BlockEntityType.getKey(type)).getPath();
         this.name = Component.translatable(String.format("%s.container.%s", AdvancedGenetics.MOD_ID, blockEntityName));
-        this.energyStorage = new MachineEnergyStorage(energyCapacity);
-        this.energyCapability = LazyOptional.of(() -> energyStorage);
+        this.energyStorage = new MachineEnergy(energyCapacity, this::setChanged);
         this.maxOverclock = maxOverclock;
         this.maxProgress = maxProgress;
         this.propertyDelegate = new ContainerData() {
@@ -137,7 +126,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setOverclock(oc);
     }
 
-    public IEnergyStorage getEnergyStorage() {
+    public MachineEnergy getEnergyStorage() {
         return energyStorage;
     }
 
@@ -197,54 +186,5 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     public ContainerData getPropertyDelegate() {
         return propertyDelegate;
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ENERGY) {
-            return energyCapability.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        energyCapability.invalidate();
-    }
-
-    @Override
-    public void reviveCaps() {
-        super.reviveCaps();
-        energyCapability = LazyOptional.of(() -> energyStorage);
-    }
-
-    /**
-     * Forge energy buffer matching upstream's SimpleEnergyStorage(capacity, capacity, capacity).
-     */
-    private class MachineEnergyStorage extends EnergyStorage {
-
-        MachineEnergyStorage(int capacity) {
-            super(capacity, capacity, capacity);
-        }
-
-        void setEnergy(int energy) {
-            this.energy = Math.max(0, Math.min(energy, capacity));
-            setChanged();
-        }
-
-        @Override
-        public int receiveEnergy(int maxReceive, boolean simulate) {
-            int received = super.receiveEnergy(maxReceive, simulate);
-            if (received > 0 && !simulate) setChanged();
-            return received;
-        }
-
-        @Override
-        public int extractEnergy(int maxExtract, boolean simulate) {
-            int extracted = super.extractEnergy(maxExtract, simulate);
-            if (extracted > 0 && !simulate) setChanged();
-            return extracted;
-        }
     }
 }

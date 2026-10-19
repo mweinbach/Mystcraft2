@@ -3,7 +3,6 @@ package com.technovision.advancedgenetics.api.genetics;
 import com.technovision.advancedgenetics.Config;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.ForgeConfigSpec;
 import org.jetbrains.annotations.Nullable;
 
 public enum Genes {
@@ -65,11 +64,8 @@ public enum Genes {
 
     public boolean isEnabled() {
         if (this == Genes.BASIC) return false;
-        ForgeConfigSpec.BooleanValue value = Config.Common.genes.get(this.toString().toLowerCase());
-        if (value == null) return false;
-        Boolean result = value.get();
-        if (result == null) return false;
-        return result;
+        Config.BoolValue value = Config.Common.genes.get(this.toString().toLowerCase());
+        return value != null && value.get();
     }
 
     /**

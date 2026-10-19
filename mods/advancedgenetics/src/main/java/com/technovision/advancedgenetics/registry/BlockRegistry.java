@@ -1,25 +1,29 @@
 package com.technovision.advancedgenetics.registry;
 
-import com.technovision.advancedgenetics.AdvancedGenetics;
 import com.technovision.advancedgenetics.common.block.bloodpurifier.BloodPurifierBlock;
 import com.technovision.advancedgenetics.common.block.cellanalyzer.CellAnalyzerBlock;
 import com.technovision.advancedgenetics.common.block.dnadecrypter.DnaDecrypterBlock;
 import com.technovision.advancedgenetics.common.block.dnaextractor.DnaExtractorBlock;
 import com.technovision.advancedgenetics.common.block.plasmidinfuser.PlasmidInfuserBlock;
 import com.technovision.advancedgenetics.common.block.plasmidinjector.PlasmidInjectorBlock;
+import com.technovision.advancedgenetics.platform.Platform;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class BlockRegistry {
 
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AdvancedGenetics.MOD_ID);
+    public static final Supplier<CellAnalyzerBlock> CELL_ANALYZER = register("cell_analyzer", CellAnalyzerBlock::new);
+    public static final Supplier<DnaExtractorBlock> DNA_EXTRACTOR = register("dna_extractor", DnaExtractorBlock::new);
+    public static final Supplier<DnaDecrypterBlock> DNA_DECRYPTER = register("dna_decrypter", DnaDecrypterBlock::new);
+    public static final Supplier<PlasmidInfuserBlock> PLASMID_INFUSER = register("plasmid_infuser", PlasmidInfuserBlock::new);
+    public static final Supplier<BloodPurifierBlock> BLOOD_PURIFIER = register("blood_purifier", BloodPurifierBlock::new);
+    public static final Supplier<PlasmidInjectorBlock> PLASMID_INJECTOR = register("plasmid_injector", PlasmidInjectorBlock::new);
 
-    public static final RegistryObject<CellAnalyzerBlock> CELL_ANALYZER = BLOCKS.register("cell_analyzer", CellAnalyzerBlock::new);
-    public static final RegistryObject<DnaExtractorBlock> DNA_EXTRACTOR = BLOCKS.register("dna_extractor", DnaExtractorBlock::new);
-    public static final RegistryObject<DnaDecrypterBlock> DNA_DECRYPTER = BLOCKS.register("dna_decrypter", DnaDecrypterBlock::new);
-    public static final RegistryObject<PlasmidInfuserBlock> PLASMID_INFUSER = BLOCKS.register("plasmid_infuser", PlasmidInfuserBlock::new);
-    public static final RegistryObject<BloodPurifierBlock> BLOOD_PURIFIER = BLOCKS.register("blood_purifier", BloodPurifierBlock::new);
-    public static final RegistryObject<PlasmidInjectorBlock> PLASMID_INJECTOR = BLOCKS.register("plasmid_injector", PlasmidInjectorBlock::new);
+    public static void init() { }
+
+    private static <T extends Block> Supplier<T> register(String name, Supplier<T> block) {
+        return Platform.register(Registry.BLOCK_REGISTRY, name, block);
+    }
 }

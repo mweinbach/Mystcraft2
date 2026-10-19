@@ -1,6 +1,5 @@
 package com.technovision.advancedgenetics.gametest;
 
-import com.technovision.advancedgenetics.AdvancedGenetics;
 import com.technovision.advancedgenetics.Config;
 import com.technovision.advancedgenetics.api.blockentity.AbstractInventoryBlockEntity;
 import com.technovision.advancedgenetics.api.genetics.Genes;
@@ -21,23 +20,18 @@ import com.technovision.advancedgenetics.registry.RecipeRegistry;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Set;
@@ -49,8 +43,6 @@ import static com.technovision.advancedgenetics.gametest.GameTestSupport.genetic
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.items;
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.player;
 
-@GameTestHolder(AdvancedGenetics.MOD_ID)
-@PrefixGameTestTemplate(false)
 public class MachineGameTests {
 
     private static final BlockPos MACHINE = new BlockPos(2, 1, 2);
@@ -61,8 +53,8 @@ public class MachineGameTests {
         List<CellAnalyzerRecipe> recipes = helper.getLevel().getRecipeManager().getAllRecipesFor(RecipeRegistry.CELL_ANALYZER_TYPE.get());
         check(recipes.size() == RECIPE_COUNT, "Expected " + RECIPE_COUNT + " cell analyzer recipes, got " + recipes.size());
         for (CellAnalyzerRecipe recipe : recipes) {
-            String input = ForgeRegistries.ITEMS.getKey(recipe.getInput().getItem()).getPath();
-            String output = ForgeRegistries.ITEMS.getKey(recipe.getOutput().getItem()).getPath();
+            String input = Registry.ITEM.getKey(recipe.getInput().getItem()).getPath();
+            String output = Registry.ITEM.getKey(recipe.getOutput().getItem()).getPath();
             check(input.endsWith("_matter") && output.equals(input.replace("_matter", "_cell")),
                     recipe.getId() + " maps " + input + " to " + output);
 
@@ -78,23 +70,23 @@ public class MachineGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 600)
     public static void cellAnalyzerUsesConfiguredTimeEnergyAndFaces(GameTestHelper helper) {
         CellAnalyzerBlockEntity analyzer = machine(helper, BlockRegistry.CELL_ANALYZER.get(), CellAnalyzerBlockEntity.class, 0);
-        IItemHandler top = items(analyzer, Direction.UP);
-        IEnergyStorage energy = energy(analyzer, Direction.NORTH);
-        check(ItemHandlerHelper.insertItem(top, new ItemStack(Items.DIRT), false).getCount() == 1, "Cell analyzer accepted dirt");
-        check(ItemHandlerHelper.insertItem(top, matter(EntityType.ZOMBIE), false).isEmpty(), "Cell analyzer rejected zombie matter");
-        check(top.extractItem(0, 1, true).isEmpty(), "Automation can extract the input slot");
+        TestPlatform.ItemAccess top = items(analyzer, Direction.UP);
+        TestPlatform.EnergyAccess energy = energy(analyzer, Direction.NORTH);
+        check(top.insert(new ItemStack(Items.DIRT)).getCount() == 1, "Cell analyzer accepted dirt");
+        check(top.insert(matter(EntityType.ZOMBIE)).isEmpty(), "Cell analyzer rejected zombie matter");
+        check(top.extract(0, 1, true).isEmpty(), "Automation can extract the input slot");
 
         int ticks = Config.Common.cellAnalyzerTicksPerOperation.get();
-        int expectedEnergy = energy.getMaxEnergyStored() - (ticks + 1) * Config.Common.cellAnalyzerEnergyPerTick.get();
+        int expectedEnergy = energy.capacity() - (ticks + 1) * Config.Common.cellAnalyzerEnergyPerTick.get();
         helper.startSequence()
                 .thenExecuteAfter(ticks / 2, () -> check(analyzer.getStackInSlot(1).isEmpty() && analyzer.getProgress() > 0,
                         "Cell analyzer is not halfway through its operation"))
                 .thenWaitUntil(() -> check(analyzer.getStackInSlot(1).is(cell(EntityType.ZOMBIE)), "No zombie cell yet"))
                 .thenExecute(() -> {
                     check(analyzer.getStackInSlot(0).isEmpty(), "Zombie matter was not consumed");
-                    check(energy.getEnergyStored() == expectedEnergy,
-                            "Expected " + expectedEnergy + " energy left, found " + energy.getEnergyStored());
-                    check(top.extractItem(1, 1, false).is(cell(EntityType.ZOMBIE)), "Automation cannot extract the output");
+                    check(energy.stored() == expectedEnergy,
+                            "Expected " + expectedEnergy + " energy left, found " + energy.stored());
+                    check(top.extract(1, 1, false).is(cell(EntityType.ZOMBIE)), "Automation cannot extract the output");
                 })
                 .thenSucceed();
     }
@@ -102,7 +94,7 @@ public class MachineGameTests {
     @GameTest(template = TEMPLATE)
     public static void machineMenuMovesOnlyValidItems(GameTestHelper helper) {
         CellAnalyzerBlockEntity analyzer = machine(helper, BlockRegistry.CELL_ANALYZER.get(), CellAnalyzerBlockEntity.class, 0);
-        FakePlayer player = player(helper, "ag_menu");
+        ServerPlayer player = player(helper, "ag_menu");
         player.getInventory().setItem(9, matter(EntityType.COW));
         player.getInventory().setItem(10, new ItemStack(Items.DIRT));
 
@@ -122,7 +114,7 @@ public class MachineGameTests {
     public static void dnaExtractorExtractsAnEntityGene(GameTestHelper helper) {
         DnaExtractorBlockEntity extractor = machine(helper, BlockRegistry.DNA_EXTRACTOR.get(), DnaExtractorBlockEntity.class,
                 Config.Common.dnaExtractorMaxOverclock.get());
-        check(ItemHandlerHelper.insertItem(items(extractor, Direction.UP), cellStack(EntityType.ZOMBIE), false).isEmpty(),
+        check(items(extractor, Direction.UP).insert(cellStack(EntityType.ZOMBIE)).isEmpty(),
                 "DNA extractor rejected a zombie cell");
         helper.succeedWhen(() -> {
             ItemStack dna = extractor.getStackInSlot(1);
@@ -140,7 +132,7 @@ public class MachineGameTests {
                 Config.Common.dnaDecrypterMaxOverclock.get());
         ItemStack encoded = dna(Genes.RESISTANCE, false);
         encoded.setCount(2);
-        check(ItemHandlerHelper.insertItem(items(decrypter, Direction.UP), encoded, false).isEmpty(), "DNA decrypter rejected DNA");
+        check(items(decrypter, Direction.UP).insert(encoded).isEmpty(), "DNA decrypter rejected DNA");
         helper.succeedWhen(() -> {
             ItemStack decoded = decrypter.getStackInSlot(1);
             check(decoded.getCount() == 2, "Decoded " + decoded.getCount() + " of 2 helices");
@@ -156,7 +148,7 @@ public class MachineGameTests {
                 Config.Common.plasmidInfuserMaxOverclock.get());
         ItemStack decoded = dna(Genes.SPEED, true);
         decoded.setCount(2);
-        check(ItemHandlerHelper.insertItem(items(infuser, Direction.UP), decoded, false).isEmpty(), "Plasmid infuser rejected DNA");
+        check(items(infuser, Direction.UP).insert(decoded).isEmpty(), "Plasmid infuser rejected DNA");
         infuser.setStackInSlot(1, new ItemStack(ItemRegistry.PLASMID.get()));
         helper.succeedWhen(() -> {
             ItemStack plasmid = infuser.getStackInSlot(1);
@@ -170,16 +162,16 @@ public class MachineGameTests {
     public static void plasmidInfuserKeepsUnfinishedPlasmidsFromAutomation(GameTestHelper helper) {
         PlasmidInfuserBlockEntity infuser = machine(helper, BlockRegistry.PLASMID_INFUSER.get(), PlasmidInfuserBlockEntity.class,
                 Config.Common.plasmidInfuserMaxOverclock.get());
-        IItemHandler bottom = items(infuser, Direction.DOWN);
+        TestPlatform.ItemAccess bottom = items(infuser, Direction.DOWN);
         infuser.setStackInSlot(1, new ItemStack(ItemRegistry.PLASMID.get()));
-        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract an empty plasmid");
+        check(bottom.extract(1, 1, true).isEmpty(), "Automation can extract an empty plasmid");
         infuser.setStackInSlot(1, plasmid(Genes.SPEED, PlasmidItem.maxGenes() - 2));
-        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract an unfinished plasmid");
+        check(bottom.extract(1, 1, true).isEmpty(), "Automation can extract an unfinished plasmid");
 
-        check(ItemHandlerHelper.insertItem(items(infuser, Direction.UP), dna(Genes.SPEED, true), false).isEmpty(), "Plasmid infuser rejected DNA");
+        check(items(infuser, Direction.UP).insert(dna(Genes.SPEED, true)).isEmpty(), "Plasmid infuser rejected DNA");
         helper.succeedWhen(() -> {
             check(infuser.getStackInSlot(0).isEmpty(), "DNA was not consumed");
-            ItemStack finished = bottom.extractItem(1, 1, false);
+            ItemStack finished = bottom.extract(1, 1, false);
             check(Genes.getGeneByItem(finished) == Genes.SPEED && finished.getTag().getInt("count") == PlasmidItem.maxGenes(),
                     "Automation extracted " + finished + " " + finished.getTag());
         });
@@ -209,13 +201,13 @@ public class MachineGameTests {
     public static void plasmidInjectorLoadsASyringeThatInjectsTheGene(GameTestHelper helper) {
         PlasmidInjectorBlockEntity injector = machine(helper, BlockRegistry.PLASMID_INJECTOR.get(), PlasmidInjectorBlockEntity.class,
                 Config.Common.plasmidInjectorMaxOverclock.get());
-        FakePlayer patient = player(helper, "ag_patient");
+        ServerPlayer patient = player(helper, "ag_patient");
         ItemStack syringe = new ItemStack(ItemRegistry.SYRINGE.get());
         SyringeItem.fill(syringe, patient);
         SyringeItem.purify(syringe);
 
         ItemStack plasmid = plasmid(Genes.FLIGHT, PlasmidItem.maxGenes());
-        check(ItemHandlerHelper.insertItem(items(injector, Direction.UP), plasmid, false).isEmpty(), "Plasmid injector rejected a full plasmid");
+        check(items(injector, Direction.UP).insert(plasmid).isEmpty(), "Plasmid injector rejected a full plasmid");
         injector.setStackInSlot(1, syringe);
 
         helper.startSequence()
@@ -228,7 +220,7 @@ public class MachineGameTests {
 
                     SyringeItem.purify(loaded);
                     Item syringeItem = ItemRegistry.SYRINGE.get();
-                    FakePlayer stranger = player(helper, "ag_stranger");
+                    ServerPlayer stranger = player(helper, "ag_stranger");
                     syringeItem.finishUsingItem(loaded, helper.getLevel(), stranger);
                     check(!genetics(stranger).hasGene(Genes.FLIGHT), "Another player's blood was injected with gene sharing off");
 
@@ -243,18 +235,18 @@ public class MachineGameTests {
     public static void plasmidInjectorKeepsWaitingSyringesFromAutomation(GameTestHelper helper) {
         PlasmidInjectorBlockEntity injector = machine(helper, BlockRegistry.PLASMID_INJECTOR.get(), PlasmidInjectorBlockEntity.class,
                 Config.Common.plasmidInjectorMaxOverclock.get());
-        IItemHandler bottom = items(injector, Direction.DOWN);
+        TestPlatform.ItemAccess bottom = items(injector, Direction.DOWN);
         ItemStack syringe = new ItemStack(ItemRegistry.SYRINGE.get());
         SyringeItem.fill(syringe, player(helper, "ag_waiting"));
         SyringeItem.purify(syringe);
         injector.setStackInSlot(1, syringe);
-        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract a syringe waiting for a plasmid");
+        check(bottom.extract(1, 1, true).isEmpty(), "Automation can extract a syringe waiting for a plasmid");
 
-        check(ItemHandlerHelper.insertItem(items(injector, Direction.UP), plasmid(Genes.FLIGHT, PlasmidItem.maxGenes()), false).isEmpty(),
+        check(items(injector, Direction.UP).insert(plasmid(Genes.FLIGHT, PlasmidItem.maxGenes())).isEmpty(),
                 "Plasmid injector rejected a full plasmid");
         helper.succeedWhen(() -> {
             check(injector.getStackInSlot(0).isEmpty(), "Plasmid was not injected yet");
-            ItemStack loaded = bottom.extractItem(1, 1, false);
+            ItemStack loaded = bottom.extract(1, 1, false);
             check(loaded.getTag() != null && loaded.getTag().getCompound("genes").contains(Genes.FLIGHT.toString()),
                     "Automation extracted " + loaded + " " + loaded.getTag());
         });
@@ -266,8 +258,8 @@ public class MachineGameTests {
         check(type.isInstance(blockEntity), "Expected " + type.getSimpleName() + " but found " + blockEntity);
         T machine = type.cast(blockEntity);
         machine.setOverclock(overclock);
-        IEnergyStorage energy = energy(machine, Direction.DOWN);
-        check(energy.receiveEnergy(energy.getMaxEnergyStored(), false) == energy.getMaxEnergyStored(), "Machine did not accept energy");
+        TestPlatform.EnergyAccess energy = energy(machine, Direction.DOWN);
+        check(energy.insert(energy.capacity(), false) == energy.capacity(), "Machine did not accept energy");
         return machine;
     }
 

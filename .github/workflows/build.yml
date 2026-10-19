@@ -38,8 +38,14 @@ jobs:
         run: ./gradlew --no-daemon :icbm_port:runGametest -PwithItemAlchemy
       - name: Test material compatibility and datapack reloads
         run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
-      - name: Test Advanced Genetics on a dedicated Forge GameTest server
-        run: ./gradlew --no-daemon :advancedgenetics:runGameTestServer
+      - name: Test Advanced Genetics and its ProjectE EMC on a dedicated Forge GameTest server
+        run: ./gradlew --no-daemon :advancedgenetics:runGameTestServer -PwithProjectE
+      - name: Build Advanced Genetics for Fabric
+        run: ./gradlew --no-daemon -p mods/advancedgenetics/fabric build
+      - name: Verify Advanced Genetics loader artifact parity
+        run: python3 mods/advancedgenetics/scripts/check_loader_parity.py
+      - name: Test Advanced Genetics and its Item Alchemy EMC on a dedicated Fabric GameTest server
+        run: ./gradlew --no-daemon -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy
       - name: Build Mystcraft for Fabric
         run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
       - name: Verify Mystcraft loader artifact parity
@@ -75,6 +81,8 @@ jobs:
             mods/icbm_port/build/gametest/logs/latest.log
             mods/icbm_port/build/materialtest/logs/latest.log
             mods/advancedgenetics/run/gameTestServer/logs/latest.log
+            mods/advancedgenetics/fabric/build/gametest-results.xml
+            mods/advancedgenetics/fabric/build/gametest/logs/latest.log
             mods/mystcraft/run/gameTestServer/logs/latest.log
             mods/mystcraft/fabric/build/gametest-results.xml
             mods/mystcraft/fabric/build/gametest/logs/latest.log
@@ -89,4 +97,5 @@ jobs:
             mods/*/build/libs/*.jar
             mods/mystcraft/fabric/build/libs/*.jar
             mods/jurassicraft/fabric/build/libs/*.jar
+            mods/advancedgenetics/fabric/build/libs/*.jar
           if-no-files-found: error
