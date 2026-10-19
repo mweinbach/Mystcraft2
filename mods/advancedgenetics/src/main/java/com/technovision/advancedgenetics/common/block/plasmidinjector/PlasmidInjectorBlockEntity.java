@@ -43,6 +43,11 @@ public class PlasmidInjectorBlockEntity extends AbstractInventoryBlockEntity {
     }
 
     @Override
+    protected boolean isOutputReady(ItemStack stack) {
+        return !(SyringeItem.isFilled(stack) && SyringeItem.isPurified(stack));
+    }
+
+    @Override
     public void updateRecipe() { }
 
     @Override

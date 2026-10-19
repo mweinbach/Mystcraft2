@@ -167,6 +167,25 @@ public class MachineGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public static void plasmidInfuserKeepsUnfinishedPlasmidsFromAutomation(GameTestHelper helper) {
+        PlasmidInfuserBlockEntity infuser = machine(helper, BlockRegistry.PLASMID_INFUSER.get(), PlasmidInfuserBlockEntity.class,
+                Config.Common.plasmidInfuserMaxOverclock.get());
+        IItemHandler bottom = items(infuser, Direction.DOWN);
+        infuser.setStackInSlot(1, new ItemStack(ItemRegistry.PLASMID.get()));
+        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract an empty plasmid");
+        infuser.setStackInSlot(1, plasmid(Genes.SPEED, PlasmidItem.maxGenes() - 2));
+        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract an unfinished plasmid");
+
+        check(ItemHandlerHelper.insertItem(items(infuser, Direction.UP), dna(Genes.SPEED, true), false).isEmpty(), "Plasmid infuser rejected DNA");
+        helper.succeedWhen(() -> {
+            check(infuser.getStackInSlot(0).isEmpty(), "DNA was not consumed");
+            ItemStack finished = bottom.extractItem(1, 1, false);
+            check(Genes.getGeneByItem(finished) == Genes.SPEED && finished.getTag().getInt("count") == PlasmidItem.maxGenes(),
+                    "Automation extracted " + finished + " " + finished.getTag());
+        });
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void bloodPurifierPurifiesOnlyFilledSyringes(GameTestHelper helper) {
         BloodPurifierBlockEntity purifier = machine(helper, BlockRegistry.BLOOD_PURIFIER.get(), BloodPurifierBlockEntity.class,
                 Config.Common.bloodPurifierMaxOverclock.get());
@@ -195,9 +214,7 @@ public class MachineGameTests {
         SyringeItem.fill(syringe, patient);
         SyringeItem.purify(syringe);
 
-        ItemStack plasmid = new ItemStack(ItemRegistry.PLASMID.get());
-        plasmid.getOrCreateTag().putString("gene", Genes.FLIGHT.toString());
-        plasmid.getOrCreateTag().putInt("count", PlasmidItem.maxGenes());
+        ItemStack plasmid = plasmid(Genes.FLIGHT, PlasmidItem.maxGenes());
         check(ItemHandlerHelper.insertItem(items(injector, Direction.UP), plasmid, false).isEmpty(), "Plasmid injector rejected a full plasmid");
         injector.setStackInSlot(1, syringe);
 
@@ -220,6 +237,27 @@ public class MachineGameTests {
                     check(!SyringeItem.isFilled(loaded), "Syringe was not emptied after injection");
                 })
                 .thenSucceed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void plasmidInjectorKeepsWaitingSyringesFromAutomation(GameTestHelper helper) {
+        PlasmidInjectorBlockEntity injector = machine(helper, BlockRegistry.PLASMID_INJECTOR.get(), PlasmidInjectorBlockEntity.class,
+                Config.Common.plasmidInjectorMaxOverclock.get());
+        IItemHandler bottom = items(injector, Direction.DOWN);
+        ItemStack syringe = new ItemStack(ItemRegistry.SYRINGE.get());
+        SyringeItem.fill(syringe, player(helper, "ag_waiting"));
+        SyringeItem.purify(syringe);
+        injector.setStackInSlot(1, syringe);
+        check(bottom.extractItem(1, 1, true).isEmpty(), "Automation can extract a syringe waiting for a plasmid");
+
+        check(ItemHandlerHelper.insertItem(items(injector, Direction.UP), plasmid(Genes.FLIGHT, PlasmidItem.maxGenes()), false).isEmpty(),
+                "Plasmid injector rejected a full plasmid");
+        helper.succeedWhen(() -> {
+            check(injector.getStackInSlot(0).isEmpty(), "Plasmid was not injected yet");
+            ItemStack loaded = bottom.extractItem(1, 1, false);
+            check(loaded.getTag() != null && loaded.getTag().getCompound("genes").contains(Genes.FLIGHT.toString()),
+                    "Automation extracted " + loaded + " " + loaded.getTag());
+        });
     }
 
     private static <T extends AbstractInventoryBlockEntity> T machine(GameTestHelper helper, Block block, Class<T> type, int overclock) {
@@ -249,6 +287,13 @@ public class MachineGameTests {
         ItemStack stack = new ItemStack(ItemRegistry.DNA_HELIX.get());
         stack.getOrCreateTag().putString("gene", gene.toString());
         stack.getOrCreateTag().putBoolean("decoded", decoded);
+        return stack;
+    }
+
+    private static ItemStack plasmid(Genes gene, int count) {
+        ItemStack stack = new ItemStack(ItemRegistry.PLASMID.get());
+        stack.getOrCreateTag().putString("gene", gene.toString());
+        stack.getOrCreateTag().putInt("count", count);
         return stack;
     }
 }

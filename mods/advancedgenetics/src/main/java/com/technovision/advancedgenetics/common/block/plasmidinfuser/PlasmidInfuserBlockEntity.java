@@ -44,6 +44,13 @@ public class PlasmidInfuserBlockEntity extends AbstractInventoryBlockEntity {
     }
 
     @Override
+    protected boolean isOutputReady(ItemStack stack) {
+        if (!(stack.getItem() instanceof PlasmidItem)) return true;
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getInt("count") >= PlasmidItem.maxGenes();
+    }
+
+    @Override
     public void updateRecipe() { }
 
     @Override

@@ -36,6 +36,14 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
      */
     protected abstract boolean isItemValid(int slot, ItemStack stack);
 
+    /**
+     * Whether automation may pull the stack in the output slot. Machines that modify that
+     * slot in place override this so unfinished work stays put.
+     */
+    protected boolean isOutputReady(ItemStack stack) {
+        return true;
+    }
+
     @Override
     public NonNullList<ItemStack> getItems() {
         return inventory;
@@ -74,7 +82,7 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
 
     @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
-        return slot == 1;
+        return slot == 1 && isOutputReady(stack);
     }
 
     @Override
