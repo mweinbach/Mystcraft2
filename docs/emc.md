@@ -48,8 +48,8 @@ python3 scripts/emc.py merge-itemalchemy path/to/config/itemalchemy/emc_config.j
 ```
 
 Values a port fills in for unvalued vanilla items (`vanilla` in the policy) are added only where the config has
-none. Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults, but
-it discards every customisation in the pack's config.
+none. Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults,
+but it discards every customisation in the pack's config.
 
 Tekxit's Item Alchemy config has some quirks of its own: a glass bottle is 48 but a water bottle is 1, coal is
 3904, a pumpkin is 9 against a melon's 144, and a wither skeleton skull is 16, so three transmuted skulls can
