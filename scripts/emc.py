@@ -665,10 +665,13 @@ class Port:
             pe = sorted({self.final("projecte", i) for i in matched} - {None})
             ia = sorted({self.final("itemalchemy", i) for i in matched} - {None})
             lines.append(f"| {entry_label(key, spec, matched)} | {fmt_range(pe)} | {fmt_range(ia)} | {spec['why']} |")
-        lines += ["", "## Excluded (no EMC)", "", "| Item | Why |", "| --- | --- |"]
-        for key, entry in self.policy.get("exclude", {}).items():
-            matched = [i for i, k in self.excluded_by.items() if k == key]
-            lines.append(f"| {entry_label(key, entry, matched)} | {reason_of(entry)} |")
+        if self.policy.get("exclude"):
+            lines += ["", "## Excluded (no EMC)", "", "| Item | Why |", "| --- | --- |"]
+            for key, entry in self.policy["exclude"].items():
+                matched = [i for i, k in self.excluded_by.items() if k == key]
+                lines.append(f"| {entry_label(key, entry, matched)} | {reason_of(entry)} |")
+        else:
+            lines += ["", "## Excluded (no EMC)", "", "None."]
         below = {item: entry["below_one"] for item, entry in items.items() if "below_one" in entry}
         if below:
             lines += ["", "## Worth less than one EMC", "",
@@ -701,7 +704,8 @@ class Port:
                 lines.append(f"| `{key}` | {why} |")
         skipped = sorted(set(self.inputs["projecte"][5].values()) | set(self.inputs["itemalchemy"][5].values()))
         if skipped:
-            lines += ["", "Recipe types ProjectE does not map (their outputs need a conversion, value or exclusion): "
+            lines += ["", "Recipe types ProjectE does not map, so items made only by them need a conversion, value or "
+                      "exclusion: "
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
 

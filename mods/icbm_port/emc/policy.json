@@ -15,5 +15,6 @@
     "nuclear tier": {"items": [
       "icbm_port:nuclear_*", "icbm_port:antimatter_*", "icbm_port:redmatter_*"
     ], "why": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."}
-  }
+  },
+  "notes": "The carrier, held-item and cluster loading recipes only move one cargo item into NBT and back, or turn bomblets into a launch manifest, so they create nothing; transmuting a loaded carrier or missile gives an empty one."
 }

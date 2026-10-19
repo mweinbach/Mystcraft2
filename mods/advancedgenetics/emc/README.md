@@ -14,8 +14,7 @@ Genes such as Emerald Heart, Lay Egg, Milky, Wooly and Meaty make vanilla items 
 
 ## Excluded (no EMC)
 
-| Item | Why |
-| --- | --- |
+None.
 
 ## Machine conversions
 
@@ -37,4 +36,4 @@ ProjectE cannot see these machine or world processes, so `emc.py check` verifies
 | netherite_scalpel_scrapes | 78 | A netherite scalpel lasts 300 scrapes. |
 | decrypt_dna | 2 | The DNA decrypter marks a helix as decoded, one in, one out. |
 
-Recipe types ProjectE does not map (their outputs need a conversion, value or exclusion): `advancedgenetics:cell_analyzer`.
+Recipe types ProjectE does not map, so items made only by them need a conversion, value or exclusion: `advancedgenetics:cell_analyzer`.

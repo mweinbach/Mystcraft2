@@ -44,4 +44,4 @@ ProjectE cannot see these machine or world processes, so `emc.py check` verifies
 | mix_panel_from_vial | 2 | The ink mixer drains a vial (returning the bottle) and turns one paper into a linking panel. |
 | mix_panel_from_bucket | 2 | The ink mixer drains a bucket of ink (returning the bucket) and turns one paper into a linking panel. |
 
-Recipe types ProjectE does not map (their outputs need a conversion, value or exclusion): `mystcraft:ink_vial`, `mystcraft:linking_book`.
+Recipe types ProjectE does not map, so items made only by them need a conversion, value or exclusion: `mystcraft:ink_vial`, `mystcraft:linking_book`.
