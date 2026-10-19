@@ -9,6 +9,8 @@ import com.technovision.advancedgenetics.common.goal.FleePlayerGoal;
 import com.technovision.advancedgenetics.component.PlayerGeneticsComponent;
 import com.technovision.advancedgenetics.registry.ComponentRegistry;
 import com.technovision.advancedgenetics.registry.ItemRegistry;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -252,6 +254,25 @@ public class GeneGameTests {
         } catch (CommandSyntaxException expected) {
             helper.succeed();
         }
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void geneCommandsEditTheTargetPlayer(GameTestHelper helper) {
+        FakePlayer player = player(helper, "ag_command");
+        CommandSourceStack source = player.createCommandSourceStack().withPermission(2).withSuppressedOutput();
+        Commands commands = helper.getLevel().getServer().getCommands();
+
+        commands.performPrefixedCommand(source, "gene add @s flight");
+        commands.performPrefixedCommand(source, "gene add @s speed");
+        check(genetics(player).hasGene(Genes.FLIGHT) && genetics(player).hasGene(Genes.SPEED), "/gene add failed: " + genetics(player).getGenes());
+        commands.performPrefixedCommand(source, "gene remove @s flight");
+        check(!genetics(player).hasGene(Genes.FLIGHT) && genetics(player).hasGene(Genes.SPEED), "/gene remove failed: " + genetics(player).getGenes());
+        commands.performPrefixedCommand(source, "gene clear @s");
+        check(genetics(player).geneCount() == 0, "/gene clear failed: " + genetics(player).getGenes());
+
+        commands.performPrefixedCommand(player.createCommandSourceStack().withPermission(0).withSuppressedOutput(), "gene add @s flight");
+        check(!genetics(player).hasGene(Genes.FLIGHT), "/gene add ran without permission");
+        helper.succeed();
     }
 
     private static boolean attack(FakePlayer player, DamageSource source, float amount) {
