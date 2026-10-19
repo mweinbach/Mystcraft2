@@ -1,0 +1,19 @@
+{
+  "namespace": "icbm_port",
+  "loaders": {"projecte": "fabric", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources"],
+    "itemalchemy": ["src/main/resources"]
+  },
+  "output": "src/main/resources",
+  "values": {
+    "icbm_port:sulfur_dust": {"like": "minecraft:gunpowder", "times": 3, "why": "Dropped by creepers and blazes, with no ore or recipe. Coal or charcoal, sulfur and saltpeter craft three gunpowder, so sulfur must be worth at least three gunpowder or that recipe would create EMC."},
+    "icbm_port:radioactive_stone": {"like": "minecraft:stone", "why": "Nuclear fallout turns stone into radioactive stone, which can decay back; valued like the stone it replaced."},
+    "icbm_port:radioactive_dirt": {"like": "minecraft:dirt", "why": "Nuclear fallout turns dirt into radioactive dirt, which can decay back; valued like the dirt it replaced."}
+  },
+  "exclude": {
+    "nuclear tier": {"items": [
+      "icbm_port:nuclear_*", "icbm_port:antimatter_*", "icbm_port:redmatter_*"
+    ], "why": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."}
+  }
+}

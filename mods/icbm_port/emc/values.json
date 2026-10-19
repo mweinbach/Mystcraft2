@@ -1,0 +1,699 @@
+{
+  "namespace": "icbm_port",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "icbm_port:advanced_circuit": {
+      "projecte": 702,
+      "itemalchemy": 702,
+      "source": "recipe"
+    },
+    "icbm_port:antidote": {
+      "projecte": 24,
+      "itemalchemy": 24,
+      "source": "recipe"
+    },
+    "icbm_port:antigravitational_bomb_cart": {
+      "projecte": 17420,
+      "itemalchemy": 17400,
+      "source": "recipe"
+    },
+    "icbm_port:antigravitational_explosive": {
+      "projecte": 16140,
+      "itemalchemy": 16140,
+      "source": "recipe"
+    },
+    "icbm_port:antigravitational_missile": {
+      "projecte": 18298,
+      "itemalchemy": 18274,
+      "source": "recipe"
+    },
+    "icbm_port:antimatter_bomb_cart": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:antimatter_explosive": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:antimatter_missile": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:anvil_bomb_cart": {
+      "projecte": 7967,
+      "itemalchemy": 7848,
+      "source": "recipe"
+    },
+    "icbm_port:anvil_bomblet": {
+      "projecte": 6806,
+      "itemalchemy": 6705,
+      "source": "recipe"
+    },
+    "icbm_port:anvil_explosive": {
+      "projecte": 6687,
+      "itemalchemy": 6588,
+      "source": "recipe"
+    },
+    "icbm_port:anvil_grenade": {
+      "projecte": 6699,
+      "itemalchemy": 6600,
+      "source": "recipe"
+    },
+    "icbm_port:anvil_missile": {
+      "projecte": 8845,
+      "itemalchemy": 8722,
+      "source": "recipe"
+    },
+    "icbm_port:attractive_bomb_cart": {
+      "projecte": 4664,
+      "itemalchemy": 4644,
+      "source": "recipe"
+    },
+    "icbm_port:attractive_bomblet": {
+      "projecte": 3503,
+      "itemalchemy": 3501,
+      "source": "recipe"
+    },
+    "icbm_port:attractive_explosive": {
+      "projecte": 3384,
+      "itemalchemy": 3384,
+      "source": "recipe"
+    },
+    "icbm_port:attractive_grenade": {
+      "projecte": 3396,
+      "itemalchemy": 3396,
+      "source": "recipe"
+    },
+    "icbm_port:attractive_missile": {
+      "projecte": 5542,
+      "itemalchemy": 5518,
+      "source": "recipe"
+    },
+    "icbm_port:ballistic_launcher": {
+      "projecte": 2287,
+      "itemalchemy": 2268,
+      "source": "recipe"
+    },
+    "icbm_port:basic_circuit": {
+      "projecte": 138,
+      "itemalchemy": 138,
+      "source": "recipe"
+    },
+    "icbm_port:battery": {
+      "projecte": 1760,
+      "itemalchemy": 1756,
+      "source": "recipe"
+    },
+    "icbm_port:breaching_bomb_cart": {
+      "projecte": 4394,
+      "itemalchemy": 4374,
+      "source": "recipe"
+    },
+    "icbm_port:breaching_explosive": {
+      "projecte": 3114,
+      "itemalchemy": 3114,
+      "source": "recipe"
+    },
+    "icbm_port:breaching_missile": {
+      "projecte": 5272,
+      "itemalchemy": 5248,
+      "source": "recipe"
+    },
+    "icbm_port:cargo_balloon": {
+      "projecte": 236,
+      "itemalchemy": 140,
+      "source": "recipe"
+    },
+    "icbm_port:cargo_parachute": {
+      "projecte": 41,
+      "itemalchemy": 41,
+      "source": "recipe"
+    },
+    "icbm_port:chemical_bomb_cart": {
+      "projecte": 3457,
+      "itemalchemy": 3413,
+      "source": "recipe"
+    },
+    "icbm_port:chemical_bomblet": {
+      "projecte": 2296,
+      "itemalchemy": 2270,
+      "source": "recipe"
+    },
+    "icbm_port:chemical_explosive": {
+      "projecte": 2177,
+      "itemalchemy": 2153,
+      "source": "recipe"
+    },
+    "icbm_port:chemical_grenade": {
+      "projecte": 2189,
+      "itemalchemy": 2165,
+      "source": "recipe"
+    },
+    "icbm_port:chemical_missile": {
+      "projecte": 4335,
+      "itemalchemy": 4287,
+      "source": "recipe"
+    },
+    "icbm_port:cluster_missile": {
+      "projecte": 2415,
+      "itemalchemy": 2391,
+      "source": "recipe"
+    },
+    "icbm_port:colors_bomb_cart": {
+      "projecte": 4728,
+      "itemalchemy": 4772,
+      "source": "recipe"
+    },
+    "icbm_port:colors_bomblet": {
+      "projecte": 3567,
+      "itemalchemy": 3629,
+      "source": "recipe"
+    },
+    "icbm_port:colors_explosive": {
+      "projecte": 3448,
+      "itemalchemy": 3512,
+      "source": "recipe"
+    },
+    "icbm_port:colors_grenade": {
+      "projecte": 3460,
+      "itemalchemy": 3524,
+      "source": "recipe"
+    },
+    "icbm_port:colors_missile": {
+      "projecte": 5606,
+      "itemalchemy": 5646,
+      "source": "recipe"
+    },
+    "icbm_port:compact_concrete": {
+      "projecte": 33,
+      "itemalchemy": 33,
+      "source": "recipe"
+    },
+    "icbm_port:concrete": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "icbm_port:condensed_bomb_cart": {
+      "projecte": 2972,
+      "itemalchemy": 2952,
+      "source": "recipe"
+    },
+    "icbm_port:condensed_bomblet": {
+      "projecte": 1811,
+      "itemalchemy": 1809,
+      "source": "recipe"
+    },
+    "icbm_port:condensed_explosive": {
+      "projecte": 1692,
+      "itemalchemy": 1692,
+      "source": "recipe"
+    },
+    "icbm_port:condensed_grenade": {
+      "projecte": 1704,
+      "itemalchemy": 1704,
+      "source": "recipe"
+    },
+    "icbm_port:condensed_missile": {
+      "projecte": 3850,
+      "itemalchemy": 3826,
+      "source": "recipe"
+    },
+    "icbm_port:contagious_bomb_cart": {
+      "projecte": 5650,
+      "itemalchemy": 5578,
+      "source": "recipe"
+    },
+    "icbm_port:contagious_explosive": {
+      "projecte": 4370,
+      "itemalchemy": 4318,
+      "source": "recipe"
+    },
+    "icbm_port:contagious_missile": {
+      "projecte": 6528,
+      "itemalchemy": 6452,
+      "source": "recipe"
+    },
+    "icbm_port:copper_wire": {
+      "projecte": 43,
+      "itemalchemy": 43,
+      "source": "recipe"
+    },
+    "icbm_port:cruise_launcher": {
+      "projecte": 4190,
+      "itemalchemy": 4154,
+      "source": "recipe"
+    },
+    "icbm_port:debilitation_bomb_cart": {
+      "projecte": 3033,
+      "itemalchemy": 3013,
+      "source": "recipe"
+    },
+    "icbm_port:debilitation_bomblet": {
+      "projecte": 1872,
+      "itemalchemy": 1870,
+      "source": "recipe"
+    },
+    "icbm_port:debilitation_explosive": {
+      "projecte": 1753,
+      "itemalchemy": 1753,
+      "source": "recipe"
+    },
+    "icbm_port:debilitation_grenade": {
+      "projecte": 1765,
+      "itemalchemy": 1765,
+      "source": "recipe"
+    },
+    "icbm_port:debilitation_missile": {
+      "projecte": 3911,
+      "itemalchemy": 3887,
+      "source": "recipe"
+    },
+    "icbm_port:defuser": {
+      "projecte": 1050,
+      "itemalchemy": 1042,
+      "source": "recipe"
+    },
+    "icbm_port:elite_circuit": {
+      "projecte": 7478,
+      "itemalchemy": 7464,
+      "source": "recipe"
+    },
+    "icbm_port:emp_bomb_cart": {
+      "projecte": 6767,
+      "itemalchemy": 6743,
+      "source": "recipe"
+    },
+    "icbm_port:emp_explosive": {
+      "projecte": 5487,
+      "itemalchemy": 5483,
+      "source": "recipe"
+    },
+    "icbm_port:emp_missile": {
+      "projecte": 7645,
+      "itemalchemy": 7617,
+      "source": "recipe"
+    },
+    "icbm_port:emp_tower": {
+      "projecte": 13153,
+      "itemalchemy": 13114,
+      "source": "recipe"
+    },
+    "icbm_port:emp_tower_extension": {
+      "projecte": 5739,
+      "itemalchemy": 5714,
+      "source": "recipe"
+    },
+    "icbm_port:empty_bomblet": {
+      "projecte": 119,
+      "itemalchemy": 117,
+      "source": "recipe"
+    },
+    "icbm_port:ender_bomb_cart": {
+      "projecte": 11836,
+      "itemalchemy": 11816,
+      "source": "recipe"
+    },
+    "icbm_port:ender_explosive": {
+      "projecte": 10556,
+      "itemalchemy": 10556,
+      "source": "recipe"
+    },
+    "icbm_port:ender_missile": {
+      "projecte": 12714,
+      "itemalchemy": 12690,
+      "source": "recipe"
+    },
+    "icbm_port:endothermic_bomb_cart": {
+      "projecte": 4684,
+      "itemalchemy": 4664,
+      "source": "recipe"
+    },
+    "icbm_port:endothermic_explosive": {
+      "projecte": 3404,
+      "itemalchemy": 3404,
+      "source": "recipe"
+    },
+    "icbm_port:endothermic_missile": {
+      "projecte": 5562,
+      "itemalchemy": 5538,
+      "source": "recipe"
+    },
+    "icbm_port:exothermic_bomb_cart": {
+      "projecte": 48481,
+      "itemalchemy": 48461,
+      "source": "recipe"
+    },
+    "icbm_port:exothermic_explosive": {
+      "projecte": 47201,
+      "itemalchemy": 47201,
+      "source": "recipe"
+    },
+    "icbm_port:exothermic_missile": {
+      "projecte": 49359,
+      "itemalchemy": 49335,
+      "source": "recipe"
+    },
+    "icbm_port:fire_spikes": {
+      "projecte": 708,
+      "itemalchemy": 706,
+      "source": "recipe"
+    },
+    "icbm_port:fragmentation_bomb_cart": {
+      "projecte": 14396,
+      "itemalchemy": 14376,
+      "source": "recipe"
+    },
+    "icbm_port:fragmentation_explosive": {
+      "projecte": 13116,
+      "itemalchemy": 13116,
+      "source": "recipe"
+    },
+    "icbm_port:fragmentation_missile": {
+      "projecte": 15274,
+      "itemalchemy": 15250,
+      "source": "recipe"
+    },
+    "icbm_port:glass_button": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "icbm_port:glass_pressure_plate": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "icbm_port:gold_wire": {
+      "projecte": 683,
+      "itemalchemy": 682,
+      "source": "recipe"
+    },
+    "icbm_port:gps": {
+      "projecte": 1152,
+      "itemalchemy": 1136,
+      "source": "recipe"
+    },
+    "icbm_port:held_item_missile": {
+      "projecte": 2676,
+      "itemalchemy": 2648,
+      "source": "recipe"
+    },
+    "icbm_port:incendiary_bomb_cart": {
+      "projecte": 7180,
+      "itemalchemy": 7160,
+      "source": "recipe"
+    },
+    "icbm_port:incendiary_bomblet": {
+      "projecte": 6019,
+      "itemalchemy": 6017,
+      "source": "recipe"
+    },
+    "icbm_port:incendiary_explosive": {
+      "projecte": 5900,
+      "itemalchemy": 5900,
+      "source": "recipe"
+    },
+    "icbm_port:incendiary_grenade": {
+      "projecte": 5912,
+      "itemalchemy": 5912,
+      "source": "recipe"
+    },
+    "icbm_port:incendiary_missile": {
+      "projecte": 8058,
+      "itemalchemy": 8034,
+      "source": "recipe"
+    },
+    "icbm_port:iron_plate": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "recipe"
+    },
+    "icbm_port:laser_designator": {
+      "projecte": 10868,
+      "itemalchemy": 10821,
+      "source": "recipe"
+    },
+    "icbm_port:launcher": {
+      "projecte": 1975,
+      "itemalchemy": 1947,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_base_tier_1": {
+      "projecte": 1898,
+      "itemalchemy": 1878,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_base_tier_2": {
+      "projecte": 2952,
+      "itemalchemy": 2928,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_base_tier_3": {
+      "projecte": 10782,
+      "itemalchemy": 10740,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_connector": {
+      "projecte": 731,
+      "itemalchemy": 722,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_frame": {
+      "projecte": 1216,
+      "itemalchemy": 1128,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_screen": {
+      "projecte": 534,
+      "itemalchemy": 530,
+      "source": "recipe"
+    },
+    "icbm_port:launcher_support": {
+      "projecte": 2155,
+      "itemalchemy": 2147,
+      "source": "recipe"
+    },
+    "icbm_port:missile_module": {
+      "projecte": 2158,
+      "itemalchemy": 2134,
+      "source": "recipe"
+    },
+    "icbm_port:nuclear_bomb_cart": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:nuclear_explosive": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:nuclear_missile": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:poison_powder": {
+      "projecte": 53,
+      "itemalchemy": 50,
+      "source": "recipe"
+    },
+    "icbm_port:poison_spikes": {
+      "projecte": 185,
+      "itemalchemy": 180,
+      "source": "recipe"
+    },
+    "icbm_port:radar_gun": {
+      "projecte": 500,
+      "itemalchemy": 497,
+      "source": "recipe"
+    },
+    "icbm_port:radar_station": {
+      "projecte": 4690,
+      "itemalchemy": 4673,
+      "source": "recipe"
+    },
+    "icbm_port:radio_detonator": {
+      "projecte": 2890,
+      "itemalchemy": 2860,
+      "source": "recipe"
+    },
+    "icbm_port:radioactive_dirt": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "icbm_port:radioactive_stone": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "icbm_port:redmatter_bomb_cart": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:redmatter_explosive": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:redmatter_missile": {
+      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+    },
+    "icbm_port:reinforced_concrete": {
+      "projecte": 148,
+      "itemalchemy": 146,
+      "source": "recipe"
+    },
+    "icbm_port:reinforced_glass": {
+      "projecte": 160,
+      "itemalchemy": 158,
+      "source": "recipe"
+    },
+    "icbm_port:repulsive_bomb_cart": {
+      "projecte": 4664,
+      "itemalchemy": 4644,
+      "source": "recipe"
+    },
+    "icbm_port:repulsive_bomblet": {
+      "projecte": 3503,
+      "itemalchemy": 3501,
+      "source": "recipe"
+    },
+    "icbm_port:repulsive_explosive": {
+      "projecte": 3384,
+      "itemalchemy": 3384,
+      "source": "recipe"
+    },
+    "icbm_port:repulsive_grenade": {
+      "projecte": 3396,
+      "itemalchemy": 3396,
+      "source": "recipe"
+    },
+    "icbm_port:repulsive_missile": {
+      "projecte": 5542,
+      "itemalchemy": 5518,
+      "source": "recipe"
+    },
+    "icbm_port:rocket_launcher": {
+      "projecte": 1753,
+      "itemalchemy": 1738,
+      "source": "recipe"
+    },
+    "icbm_port:saltpeter_ball": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "icbm_port:saltpeter_dust": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "icbm_port:sam_launcher": {
+      "projecte": 2487,
+      "itemalchemy": 2451,
+      "source": "recipe"
+    },
+    "icbm_port:sam_missile": {
+      "projecte": 3988,
+      "itemalchemy": 3964,
+      "source": "recipe"
+    },
+    "icbm_port:shrapnel_bomb_cart": {
+      "projecte": 3084,
+      "itemalchemy": 3064,
+      "source": "recipe"
+    },
+    "icbm_port:shrapnel_bomblet": {
+      "projecte": 1923,
+      "itemalchemy": 1921,
+      "source": "recipe"
+    },
+    "icbm_port:shrapnel_explosive": {
+      "projecte": 1804,
+      "itemalchemy": 1804,
+      "source": "recipe"
+    },
+    "icbm_port:shrapnel_grenade": {
+      "projecte": 1816,
+      "itemalchemy": 1816,
+      "source": "recipe"
+    },
+    "icbm_port:shrapnel_missile": {
+      "projecte": 3962,
+      "itemalchemy": 3938,
+      "source": "recipe"
+    },
+    "icbm_port:smoke_bomb_cart": {
+      "projecte": 1507,
+      "itemalchemy": 1487,
+      "source": "recipe"
+    },
+    "icbm_port:smoke_bomblet": {
+      "projecte": 346,
+      "itemalchemy": 344,
+      "source": "recipe"
+    },
+    "icbm_port:smoke_explosive": {
+      "projecte": 227,
+      "itemalchemy": 227,
+      "source": "recipe"
+    },
+    "icbm_port:smoke_grenade": {
+      "projecte": 239,
+      "itemalchemy": 239,
+      "source": "recipe"
+    },
+    "icbm_port:smoke_missile": {
+      "projecte": 2385,
+      "itemalchemy": 2361,
+      "source": "recipe"
+    },
+    "icbm_port:sonic_bomb_cart": {
+      "projecte": 6200,
+      "itemalchemy": 6164,
+      "source": "recipe"
+    },
+    "icbm_port:sonic_explosive": {
+      "projecte": 4920,
+      "itemalchemy": 4904,
+      "source": "recipe"
+    },
+    "icbm_port:sonic_missile": {
+      "projecte": 7078,
+      "itemalchemy": 7038,
+      "source": "recipe"
+    },
+    "icbm_port:spikes": {
+      "projecte": 132,
+      "itemalchemy": 130,
+      "source": "recipe"
+    },
+    "icbm_port:steel_clump": {
+      "projecte": 352,
+      "itemalchemy": 348,
+      "source": "recipe"
+    },
+    "icbm_port:steel_ingot": {
+      "projecte": 352,
+      "itemalchemy": 348,
+      "source": "recipe"
+    },
+    "icbm_port:steel_plate": {
+      "projecte": 352,
+      "itemalchemy": 348,
+      "source": "recipe"
+    },
+    "icbm_port:sulfur_dust": {
+      "projecte": 576,
+      "itemalchemy": 576,
+      "source": "explicit"
+    },
+    "icbm_port:thermobaric_bomb_cart": {
+      "projecte": 36972,
+      "itemalchemy": 36856,
+      "source": "recipe"
+    },
+    "icbm_port:thermobaric_explosive": {
+      "projecte": 35692,
+      "itemalchemy": 35596,
+      "source": "recipe"
+    },
+    "icbm_port:thermobaric_missile": {
+      "projecte": 37850,
+      "itemalchemy": 37730,
+      "source": "recipe"
+    }
+  }
+}
