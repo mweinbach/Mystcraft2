@@ -47,7 +47,8 @@ that file, so on an existing install the defaults are ignored. Merge the port va
 python3 scripts/emc.py merge-itemalchemy path/to/config/itemalchemy/emc_config.json
 ```
 
-Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults, but
+Values a port fills in for unvalued vanilla items (`vanilla` in the policy) are added only where the config has
+none. Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults, but
 it discards every customisation in the pack's config.
 
 Tekxit's Item Alchemy config has some quirks of its own: a glass bottle is 48 but a water bottle is 1, coal is

@@ -713,5 +713,10 @@
       "itemalchemy": 37730,
       "source": "recipe"
     }
+  },
+  "vanilla": {
+    "minecraft:wither_skeleton_skull": {
+      "projecte": 46421
+    }
   }
 }

@@ -618,9 +618,14 @@ class Port:
                     self.problems.append(f"{item} resolves to no {system} value; give it an explicit value or exclude it")
             entry["source"] = self.source_of(item)
             items[item] = entry
-        return {"namespace": self.namespace,
-                "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
-                "ignored": self.ignored, "items": items}
+        document = {"namespace": self.namespace,
+                    "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+                    "ignored": self.ignored, "items": items}
+        vanilla = {item: {system: self.vanilla[system][item] for system in SYSTEMS if item in self.vanilla[system]}
+                   for item in self.policy.get("vanilla", {})}
+        if vanilla:
+            document["vanilla"] = vanilla
+        return document
 
     def source_of(self, item):
         if item in self.explicit_by:
@@ -855,7 +860,8 @@ def discover(names):
 def build(directory):
     port = Port(directory)
     outputs = port.outputs()
-    known = set(port.items) | {i for system in SYSTEMS for i in read_json(BASELINES / f"{system}-vanilla.json")}
+    known = set(port.items) | set(port.policy.get("vanilla", {}))
+    known |= {i for system in SYSTEMS for i in read_json(BASELINES / f"{system}-vanilla.json")}
     for path, text in outputs.items():
         document = json.loads(text) if path.suffix == ".json" else None
         if path.parent.name == "pe_custom_conversions":
@@ -907,6 +913,10 @@ def command_merge(args):
             value = 0 if "excluded" in entry else entry["itemalchemy"]
             if config.get(item) != value:
                 config[item] = value
+                changed += 1
+        for item, entry in values.get("vanilla", {}).items():
+            if "itemalchemy" in entry and item not in config:
+                config[item] = entry["itemalchemy"]
                 changed += 1
     config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     print(f"{config_path}: {changed} entries updated; restart the server or run /itemalchemy reloademc")

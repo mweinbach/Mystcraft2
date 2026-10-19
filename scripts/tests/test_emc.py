@@ -232,6 +232,17 @@ class PortTests(unittest.TestCase):
         self.assertTrue(any(p.startswith("vanilla.minecraft:dirt: projecte already values it") for p in port.problems),
                         port.problems)
 
+    def test_vanilla_values_may_fill_gaps_in_every_system(self):
+        self.policy["vanilla"] = {"minecraft:petrified_oak_slab": {
+            "systems": ["projecte", "itemalchemy"], "like": "minecraft:oak_slab", "why": "w"}}
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        data = self.dir / "res" / "data" / "testmod"
+        itemalchemy = json.loads(outputs[data / "default_emcs" / "testmod.json"])
+        self.assertIn("minecraft:petrified_oak_slab", itemalchemy)
+        vanilla = json.loads(outputs[self.dir / "emc" / "values.json"])["vanilla"]
+        self.assertEqual(set(vanilla["minecraft:petrified_oak_slab"]), {"projecte", "itemalchemy"})
+
     def test_processes_can_be_limited_to_one_system(self):
         self.add_skull_recipe()
         self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {"systems": ["projecte"], "emc": 256, "why": "w"}}
@@ -258,6 +269,26 @@ class PortTests(unittest.TestCase):
         self.assertEqual(merged["minecraft:dirt"], 1)
         self.assertEqual(merged["testmod:widget"], 508)
         self.assertEqual(merged["testmod:ore"], 0)
+
+    def test_merge_fills_vanilla_gaps_without_overriding_the_pack(self):
+        self.policy["vanilla"] = {
+            "minecraft:petrified_oak_slab": {"systems": ["itemalchemy"], "emc": 4, "why": "w"},
+            "minecraft:written_book": {"systems": ["itemalchemy"], "emc": 300, "why": "w"},
+        }
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        for path, text in outputs.items():
+            write(path, text)
+        config = self.dir / "emc_config.json"
+        write(config, {"minecraft:written_book": 250})
+        original = emc.discover
+        emc.discover = lambda names: [self.dir]
+        self.addCleanup(setattr, emc, "discover", original)
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            emc.main(["merge-itemalchemy", str(config)])
+        merged = json.loads(config.read_text())
+        self.assertEqual(merged["minecraft:petrified_oak_slab"], 4)
+        self.assertEqual(merged["minecraft:written_book"], 250)
 
 
 class RepositoryTests(unittest.TestCase):
