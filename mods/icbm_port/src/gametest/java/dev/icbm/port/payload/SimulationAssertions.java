@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.test.TestContext;
@@ -118,6 +119,33 @@ public final class SimulationAssertions {
         "Singularity lifetime and fed size must persist");
     restored.discard();
     c.complete();
+  }
+
+  public static void redmatterSweepsMovesButNotTeleports(TestContext c) {
+    Vec3d center = Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 5, 2)));
+    var core = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+    core.refreshPositionAndAngles(center.x, center.y, center.z, 0, 0);
+    c.getWorld().spawnEntity(core);
+    var moved = stillItem(c, center.add(0, 0, -2.5), Items.DIAMOND);
+    moved.move(MovementType.SELF, new Vec3d(0, 0, 5));
+    // A short jump across the core that leaves prevX/Y/Z behind, as direct setPosition callers do.
+    var teleported = stillItem(c, center.add(-2.5, 0, 0), Items.EMERALD);
+    teleported.move(MovementType.SELF, new Vec3d(.1, 0, 0));
+    teleported.setPosition(center.add(2.5, 0, 0));
+    core.tick();
+    check(c, moved.isRemoved(), "A physical step through the core must be consumed");
+    check(c, !teleported.isRemoved(), "A teleport across the core must not count as passing it");
+    teleported.discard();
+    core.discard();
+    c.complete();
+  }
+
+  private static ItemEntity stillItem(TestContext c, Vec3d pos, Item item) {
+    var entity = new ItemEntity(c.getWorld(), pos.x, pos.y, pos.z, new ItemStack(item), 0, 0, 0);
+    entity.setNoGravity(true);
+    entity.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0, 0);
+    c.getWorld().spawnEntity(entity);
+    return entity;
   }
 
   public static void gasCannotPassSolidEnclosure(TestContext c) {

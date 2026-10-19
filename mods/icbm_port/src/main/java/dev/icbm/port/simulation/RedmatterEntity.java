@@ -26,7 +26,6 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private static final TrackedData<Integer> CONSUMED =
       DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.INTEGER);
-  private static final double MAX_SWEPT_STEP = 8;
   private int lived, scanCursor, starved;
   private UUID owner;
 
@@ -200,18 +199,19 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   }
 
   /**
-   * The pull can move an entity farther than the kill diameter in one tick, so the latest movement
-   * step is tested instead of only its end point. Steps beyond {@link #MAX_SWEPT_STEP} are
-   * teleports or unticked spawns whose previous position is stale.
+   * The pull can move an entity farther than the kill diameter in one tick, so its latest physical
+   * step is tested instead of only its end point. Teleports and other repositioning have no step
+   * and keep upstream's end-point test.
    */
   private double closestApproach(Entity entity) {
     Vec3d end = entity.getPos();
-    Vec3d step = end.subtract(entity.prevX, entity.prevY, entity.prevZ);
+    Vec3d start = MovementTrace.stepStart(entity);
+    if (start == null) return end.distanceTo(getPos());
+    Vec3d step = end.subtract(start);
     double lengthSquared = step.lengthSquared();
-    if (lengthSquared < 1.0E-7 || lengthSquared > MAX_SWEPT_STEP * MAX_SWEPT_STEP)
-      return end.distanceTo(getPos());
-    double t = MathHelper.clamp(getPos().subtract(end).dotProduct(step) / lengthSquared + 1, 0, 1);
-    return end.subtract(step.multiply(1 - t)).distanceTo(getPos());
+    if (lengthSquared < 1.0E-7) return end.distanceTo(getPos());
+    double t = MathHelper.clamp(getPos().subtract(start).dotProduct(step) / lengthSquared, 0, 1);
+    return start.add(step.multiply(t)).distanceTo(getPos());
   }
 
   private static BlockPos shellOffset(int index, int radius) {

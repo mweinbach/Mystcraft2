@@ -19,6 +19,9 @@
       "dev.icbm.port.integration.IcbmEmiPlugin"
     ]
   },
+  "mixins": [
+    "icbm_port.mixins.json"
+  ],
   "license": "MIT",
   "depends": {
     "fabricloader": ">=0.16.14",
