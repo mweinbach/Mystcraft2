@@ -1,9 +1,11 @@
 package dev.icbm.port.payload;
 
 import dev.icbm.port.simulation.*;
+import java.util.List;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.test.TestContext;
@@ -119,6 +121,33 @@ public final class SimulationAssertions {
     c.complete();
   }
 
+  public static void redmatterSweepsMovesButNotTeleports(TestContext c) {
+    Vec3d center = Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 5, 2)));
+    var core = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+    core.refreshPositionAndAngles(center.x, center.y, center.z, 0, 0);
+    c.getWorld().spawnEntity(core);
+    var moved = stillItem(c, center.add(0, 0, -2.5), Items.DIAMOND);
+    moved.move(MovementType.SELF, new Vec3d(0, 0, 5));
+    // A short jump across the core that leaves prevX/Y/Z behind, as direct setPosition callers do.
+    var teleported = stillItem(c, center.add(-2.5, 0, 0), Items.EMERALD);
+    teleported.move(MovementType.SELF, new Vec3d(.1, 0, 0));
+    teleported.setPosition(center.add(2.5, 0, 0));
+    core.tick();
+    check(c, moved.isRemoved(), "A physical step through the core must be consumed");
+    check(c, !teleported.isRemoved(), "A teleport across the core must not count as passing it");
+    teleported.discard();
+    core.discard();
+    c.complete();
+  }
+
+  private static ItemEntity stillItem(TestContext c, Vec3d pos, Item item) {
+    var entity = new ItemEntity(c.getWorld(), pos.x, pos.y, pos.z, new ItemStack(item), 0, 0, 0);
+    entity.setNoGravity(true);
+    entity.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0, 0);
+    c.getWorld().spawnEntity(entity);
+    return entity;
+  }
+
   public static void gasCannotPassSolidEnclosure(TestContext c) {
     BlockPos center = c.getAbsolutePos(new BlockPos(2, 3, 2));
     for (Direction direction : Direction.values())
@@ -142,15 +171,32 @@ public final class SimulationAssertions {
     c.getWorld().setBlockState(pos, block.getDefaultState(), 2);
     BlockPos target = pos.east(6);
     c.getWorld().setBlockState(target, Blocks.STONE.getDefaultState(), 2);
-    ItemEntity item =
-        new ItemEntity(
-            c.getWorld(),
-            pos.getX() + 4.5,
-            pos.getY() + .4,
-            pos.getZ() + .5,
-            new ItemStack(Items.DIAMOND));
-    item.setNoGravity(true);
-    c.getWorld().spawnEntity(item);
+    // Fixed drop-style velocities whose sideways drift carries each item through the core between
+    // ticks; the core must still consume them instead of slinging them out of its field.
+    var items =
+        List.of(
+            new ItemEntity(
+                c.getWorld(),
+                pos.getX() + 4.5,
+                pos.getY() + .4,
+                pos.getZ() + .5,
+                new ItemStack(Items.DIAMOND),
+                .044,
+                .2,
+                .001),
+            new ItemEntity(
+                c.getWorld(),
+                pos.getX() + 4.5,
+                pos.getY() + .4,
+                pos.getZ() + .5,
+                new ItemStack(Items.EMERALD),
+                .075,
+                .2,
+                .07));
+    for (ItemEntity item : items) {
+      item.setNoGravity(true);
+      c.getWorld().spawnEntity(item);
+    }
     check(c, block.prime(c.getWorld(), pos, 1), "Placed redmatter block must prime");
     c.getWorld().removeBlock(pos, false);
     c.runAtTick(
@@ -173,7 +219,7 @@ public final class SimulationAssertions {
                 "Captured terrain must actually reach and feed the core");
             check(
                 c,
-                item.isRemoved(),
+                items.stream().allMatch(ItemEntity::isRemoved),
                 "The gravitational field must pull and consume nearby dropped items");
             NbtCompound saved = new NbtCompound();
             core.writeNbt(saved);
@@ -187,7 +233,7 @@ public final class SimulationAssertions {
             restored.discard();
           } finally {
             Payloads.removeNear(c.getWorld(), Vec3d.ofCenter(pos), 12);
-            item.discard();
+            items.forEach(ItemEntity::discard);
             c.getWorld().removeBlock(pos.down(), false);
             c.getWorld().removeBlock(target, false);
           }

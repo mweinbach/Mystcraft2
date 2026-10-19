@@ -110,7 +110,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
               (other.getZ() - getZ()) * .0005);
         continue;
       }
-      if (distance < Math.max(.6, size() * .08)) {
+      if (closestApproach(entity) < killRange()) {
         if (entity instanceof FlyingBlockEntity flying) {
           flying.consume();
           dataTracker.set(CONSUMED, Math.min(1000000, consumedBlocks() + 1));
@@ -191,6 +191,27 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
           size() * .2,
           size() * .2,
           .03);
+  }
+
+  /** Upstream {@code KILL_SCALE} with its one-block floor. */
+  private double killRange() {
+    return Math.max(1, size() * .08);
+  }
+
+  /**
+   * The pull can move an entity farther than the kill diameter in one tick, so its latest physical
+   * step is tested instead of only its end point. Teleports and other repositioning have no step
+   * and keep upstream's end-point test.
+   */
+  private double closestApproach(Entity entity) {
+    Vec3d end = entity.getPos();
+    Vec3d start = MovementTrace.stepStart(entity);
+    if (start == null) return end.distanceTo(getPos());
+    Vec3d step = end.subtract(start);
+    double lengthSquared = step.lengthSquared();
+    if (lengthSquared < 1.0E-7) return end.distanceTo(getPos());
+    double t = MathHelper.clamp(getPos().subtract(start).dotProduct(step) / lengthSquared, 0, 1);
+    return start.add(step.multiply(t)).distanceTo(getPos());
   }
 
   private static BlockPos shellOffset(int index, int radius) {

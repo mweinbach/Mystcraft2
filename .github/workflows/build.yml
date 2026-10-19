@@ -40,6 +40,17 @@ jobs:
         run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
       - name: Verify Mystcraft loader artifact parity
         run: python3 mods/mystcraft/scripts/check_loader_parity.py
+      # The headless GameTest server reports assertion messages only in these files.
+      - name: Upload GameTest reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gametest-reports
+          path: |
+            mods/icbm_port/build/*-results.xml
+            mods/icbm_port/build/gametest/logs/latest.log
+            mods/icbm_port/build/materialtest/logs/latest.log
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: minecraft-1.19.2-ports

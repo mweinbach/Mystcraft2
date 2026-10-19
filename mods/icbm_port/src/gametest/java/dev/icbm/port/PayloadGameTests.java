@@ -104,6 +104,11 @@ public class PayloadGameTests implements FabricGameTest {
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void redmatterSweepsMovesButNotTeleports(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.redmatterSweepsMovesButNotTeleports(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void gasRespectsEnclosureAfterReload(TestContext c) {
     dev.icbm.port.payload.SimulationAssertions.gasCannotPassSolidEnclosure(c);
   }
