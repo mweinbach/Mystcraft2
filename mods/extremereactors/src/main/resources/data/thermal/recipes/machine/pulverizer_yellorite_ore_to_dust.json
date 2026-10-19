@@ -1,0 +1,23 @@
+{
+  "type": "thermal:pulverizer",
+  "conditions": [
+    {
+      "modid": "thermal_expansion",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "ingredient": {
+    "item": "bigreactors:yellorite_ore"
+  },
+  "result": [
+    {
+      "item": "bigreactors:yellorium_dust",
+      "chance": 2.0
+    },
+    {
+      "item": "minecraft:gravel",
+      "chance": 0.2
+    }
+  ],
+  "experience": 0.2
+}
