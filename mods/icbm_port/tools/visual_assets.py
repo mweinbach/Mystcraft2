@@ -121,7 +121,7 @@ def generate(root):
   m.save('block/'+id)
  def label_box(m,lo,hi,tex='label'):
   m.box(lo,hi,tex,face={'up':'casing','down':'casing','north':'label','south':'label','east':'label','west':'label'},uv=GLYPH)
- def fins(m,y0=1,y1=6):
+ def fins(m,y0=1,y1=3):
   for lo,hi in [([1,y0,7],[5,y1,9]),([11,y0,7],[15,y1,9]),([7,y0,1],[9,y1,5]),([7,y0,11],[9,y1,15])]:m.box(lo,hi,'carbon')
  def missile(profile):
   m=Model();m.tex['label']=NS+':block/payload_'+profile.id
@@ -238,7 +238,7 @@ def generate(root):
   for x in [0,13]:
    for z in [2,10]:m.box([x,1,z],[x+3,4,z+4],'carbon')
   label_box(m,[2,7,3],[14,13,13]);m.box([2,13,3],[14,14,13],'alloy')
-  m.box([2,7,2],[14,9,3],'casing').box([2,7,13],[14,9,14],'casing')
+  m.box([2,5,2],[14,7,3],'casing').box([2,5,13],[14,7,14],'casing')
   for x in [3,11]:m.box([x,6,1],[x+2,8,15],'hazard')
   m.box([5,14,6],[11,15,10],'warning');m.save('item/'+payload+'_bomb_cart',True)
  # Practical family guidance is part of the reproducible visual/content layer.
