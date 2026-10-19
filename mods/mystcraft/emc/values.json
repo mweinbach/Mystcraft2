@@ -1,0 +1,111 @@
+{
+  "namespace": "mystcraft",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "mystcraft:black_ink_bucket": {
+      "projecte": 800,
+      "itemalchemy": 800,
+      "source": "conversion black_ink_bucket"
+    },
+    "mystcraft:book_binder": {
+      "projecte": 808,
+      "itemalchemy": 796,
+      "source": "recipe"
+    },
+    "mystcraft:book_receptacle": {
+      "projecte": 1024,
+      "itemalchemy": 1024,
+      "source": "recipe"
+    },
+    "mystcraft:bookstand": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "mystcraft:booster": {
+      "projecte": 652,
+      "itemalchemy": 652,
+      "source": "conversion booster"
+    },
+    "mystcraft:crystal": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "explicit"
+    },
+    "mystcraft:decay_black": {
+      "excluded": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only."
+    },
+    "mystcraft:decay_blue": {
+      "excluded": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only."
+    },
+    "mystcraft:decay_purple": {
+      "excluded": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only."
+    },
+    "mystcraft:decay_red": {
+      "excluded": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only."
+    },
+    "mystcraft:decay_white": {
+      "excluded": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only."
+    },
+    "mystcraft:descriptive_book": {
+      "excluded": "Allocates a new Age dimension on first use and carries its pages in NBT; transmuted copies would be invalid books or dimension generators."
+    },
+    "mystcraft:folder": {
+      "projecte": 140,
+      "itemalchemy": 140,
+      "source": "recipe"
+    },
+    "mystcraft:ink_mixer": {
+      "projecte": 22,
+      "itemalchemy": 69,
+      "source": "recipe"
+    },
+    "mystcraft:ink_vial": {
+      "projecte": 33,
+      "itemalchemy": 80,
+      "source": "conversion ink_vial_black_dye, ink_vial_ink_sac"
+    },
+    "mystcraft:lectern": {
+      "projecte": 26,
+      "itemalchemy": 26,
+      "source": "recipe"
+    },
+    "mystcraft:link_modifier": {
+      "excluded": "Creative and operator tool with no survival recipe; it rewrites link flags and Age seeds."
+    },
+    "mystcraft:linking_book": {
+      "excluded": "Its destination lives in NBT; a transmuted copy links nowhere, and a value would let bound books (or unlinked ones bound by players) be duplicated as teleporters."
+    },
+    "mystcraft:linking_panel": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "conversion linking_panel"
+    },
+    "mystcraft:page": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "conversion blank_page"
+    },
+    "mystcraft:portfolio": {
+      "projecte": 396,
+      "itemalchemy": 396,
+      "source": "recipe"
+    },
+    "mystcraft:unlinked_link_book": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion unlinked_link_book"
+    },
+    "mystcraft:writing_desk": {
+      "projecte": 89,
+      "itemalchemy": 136,
+      "source": "recipe"
+    },
+    "mystcraft:writing_desk_extension": {
+      "projecte": 136,
+      "itemalchemy": 136,
+      "source": "recipe"
+    }
+  }
+}

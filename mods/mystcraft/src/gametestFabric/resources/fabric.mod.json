@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mystcraft_gametest",
+  "version": "1.0.0",
+  "name": "Mystcraft Fabric Game Tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "net.mystcraft.gametest.EmcGameTests"
+    ]
+  },
+  "depends": {
+    "mystcraft": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}
