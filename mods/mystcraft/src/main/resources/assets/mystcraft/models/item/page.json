@@ -1,0 +1,890 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mystcraft:item/page/blank"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "mystcraft:page": 0.00390625
+      },
+      "model": "mystcraft:item/page/unknown"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0078125
+      },
+      "model": "mystcraft:item/page/linkpanel"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.01171875
+      },
+      "model": "mystcraft:item/page/colorcloud"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.015625
+      },
+      "model": "mystcraft:item/page/colorcloudnat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.01953125
+      },
+      "model": "mystcraft:item/page/colorfog"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0234375
+      },
+      "model": "mystcraft:item/page/colorfognat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.02734375
+      },
+      "model": "mystcraft:item/page/colorfoliage"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.03125
+      },
+      "model": "mystcraft:item/page/colorfoliagenat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.03515625
+      },
+      "model": "mystcraft:item/page/colorgrass"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0390625
+      },
+      "model": "mystcraft:item/page/colorgrassnat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.04296875
+      },
+      "model": "mystcraft:item/page/colorsky"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.046875
+      },
+      "model": "mystcraft:item/page/colorskynat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.05078125
+      },
+      "model": "mystcraft:item/page/colorskynight"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0546875
+      },
+      "model": "mystcraft:item/page/colorwater"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.05859375
+      },
+      "model": "mystcraft:item/page/colorwaternat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0625
+      },
+      "model": "mystcraft:item/page/rainbow"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.06640625
+      },
+      "model": "mystcraft:item/page/nohorizon"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0703125
+      },
+      "model": "mystcraft:item/page/moondark"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.07421875
+      },
+      "model": "mystcraft:item/page/moonnormal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.078125
+      },
+      "model": "mystcraft:item/page/starsdark"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.08203125
+      },
+      "model": "mystcraft:item/page/starsendsky"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.0859375
+      },
+      "model": "mystcraft:item/page/starsnormal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.08984375
+      },
+      "model": "mystcraft:item/page/starstwinkle"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.09375
+      },
+      "model": "mystcraft:item/page/sundark"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.09765625
+      },
+      "model": "mystcraft:item/page/sunnormal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1015625
+      },
+      "model": "mystcraft:item/page/biocongrid"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.10546875
+      },
+      "model": "mystcraft:item/page/bioconnative"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.109375
+      },
+      "model": "mystcraft:item/page/bioconsingle"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.11328125
+      },
+      "model": "mystcraft:item/page/biocontiled"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1171875
+      },
+      "model": "mystcraft:item/page/bioconhuge"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.12109375
+      },
+      "model": "mystcraft:item/page/bioconlarge"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.125
+      },
+      "model": "mystcraft:item/page/bioconmedium"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.12890625
+      },
+      "model": "mystcraft:item/page/bioconsmall"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1328125
+      },
+      "model": "mystcraft:item/page/biocontiny"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.13671875
+      },
+      "model": "mystcraft:item/page/nosea"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.140625
+      },
+      "model": "mystcraft:item/page/pvpoff"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.14453125
+      },
+      "model": "mystcraft:item/page/envaccel"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1484375
+      },
+      "model": "mystcraft:item/page/envexplosions"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.15234375
+      },
+      "model": "mystcraft:item/page/envlightning"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.15625
+      },
+      "model": "mystcraft:item/page/envmeteor"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.16015625
+      },
+      "model": "mystcraft:item/page/envscorch"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1640625
+      },
+      "model": "mystcraft:item/page/lightingbright"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.16796875
+      },
+      "model": "mystcraft:item/page/lightingdark"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.171875
+      },
+      "model": "mystcraft:item/page/lightingnormal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.17578125
+      },
+      "model": "mystcraft:item/page/modnorth"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1796875
+      },
+      "model": "mystcraft:item/page/modeast"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.18359375
+      },
+      "model": "mystcraft:item/page/modsouth"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1875
+      },
+      "model": "mystcraft:item/page/modwest"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.19140625
+      },
+      "model": "mystcraft:item/page/modclear"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.1953125
+      },
+      "model": "mystcraft:item/page/modgradient"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.19921875
+      },
+      "model": "mystcraft:item/page/colorhorizon"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.203125
+      },
+      "model": "mystcraft:item/page/modzero"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.20703125
+      },
+      "model": "mystcraft:item/page/modhalf"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2109375
+      },
+      "model": "mystcraft:item/page/modfull"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.21484375
+      },
+      "model": "mystcraft:item/page/moddouble"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.21875
+      },
+      "model": "mystcraft:item/page/modend"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.22265625
+      },
+      "model": "mystcraft:item/page/modrising"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2265625
+      },
+      "model": "mystcraft:item/page/modnoon"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.23046875
+      },
+      "model": "mystcraft:item/page/modsetting"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.234375
+      },
+      "model": "mystcraft:item/page/caves"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.23828125
+      },
+      "model": "mystcraft:item/page/dungeons"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2421875
+      },
+      "model": "mystcraft:item/page/floatislands"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.24609375
+      },
+      "model": "mystcraft:item/page/featurelargedummy"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.25
+      },
+      "model": "mystcraft:item/page/featuremediumdummy"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.25390625
+      },
+      "model": "mystcraft:item/page/featuresmalldummy"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2578125
+      },
+      "model": "mystcraft:item/page/hugetrees"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.26171875
+      },
+      "model": "mystcraft:item/page/lakesdeep"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.265625
+      },
+      "model": "mystcraft:item/page/lakessurface"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.26953125
+      },
+      "model": "mystcraft:item/page/mineshafts"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2734375
+      },
+      "model": "mystcraft:item/page/netherfort"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.27734375
+      },
+      "model": "mystcraft:item/page/obelisks"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.28125
+      },
+      "model": "mystcraft:item/page/ravines"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.28515625
+      },
+      "model": "mystcraft:item/page/termodspheres"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.2890625
+      },
+      "model": "mystcraft:item/page/genspikes"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.29296875
+      },
+      "model": "mystcraft:item/page/strongholds"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.296875
+      },
+      "model": "mystcraft:item/page/tendrils"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.30078125
+      },
+      "model": "mystcraft:item/page/villages"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3046875
+      },
+      "model": "mystcraft:item/page/cryform"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.30859375
+      },
+      "model": "mystcraft:item/page/skylands"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3125
+      },
+      "model": "mystcraft:item/page/starfissure"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.31640625
+      },
+      "model": "mystcraft:item/page/denseores"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3203125
+      },
+      "model": "mystcraft:item/page/weatheron"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.32421875
+      },
+      "model": "mystcraft:item/page/weathercloudy"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.328125
+      },
+      "model": "mystcraft:item/page/weatherfast"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.33203125
+      },
+      "model": "mystcraft:item/page/weathernorm"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3359375
+      },
+      "model": "mystcraft:item/page/weatheroff"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.33984375
+      },
+      "model": "mystcraft:item/page/weatherrain"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.34375
+      },
+      "model": "mystcraft:item/page/weatherslow"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.34765625
+      },
+      "model": "mystcraft:item/page/weathersnow"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3515625
+      },
+      "model": "mystcraft:item/page/weatherstorm"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.35546875
+      },
+      "model": "mystcraft:item/page/terrainamplified"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.359375
+      },
+      "model": "mystcraft:item/page/terrainend"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.36328125
+      },
+      "model": "mystcraft:item/page/terrainflat"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3671875
+      },
+      "model": "mystcraft:item/page/terrainnether"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.37109375
+      },
+      "model": "mystcraft:item/page/terrainnormal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.375
+      },
+      "model": "mystcraft:item/page/terrainvoid"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.37890625
+      },
+      "model": "mystcraft:item/page/modmat_dirt_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3828125
+      },
+      "model": "mystcraft:item/page/modmat_stone_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.38671875
+      },
+      "model": "mystcraft:item/page/modmat_stone_1"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.390625
+      },
+      "model": "mystcraft:item/page/modmat_stone_3"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.39453125
+      },
+      "model": "mystcraft:item/page/modmat_stone_5"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.3984375
+      },
+      "model": "mystcraft:item/page/modmat_stone_2"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.40234375
+      },
+      "model": "mystcraft:item/page/modmat_stone_4"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.40625
+      },
+      "model": "mystcraft:item/page/modmat_stone_6"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.41015625
+      },
+      "model": "mystcraft:item/page/modmat_sandstone_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4140625
+      },
+      "model": "mystcraft:item/page/modmat_netherrack_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.41796875
+      },
+      "model": "mystcraft:item/page/modmat_end_stone_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.421875
+      },
+      "model": "mystcraft:item/page/modmat_nether_brick_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.42578125
+      },
+      "model": "mystcraft:item/page/modmat_log_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4296875
+      },
+      "model": "mystcraft:item/page/modmat_log_1"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.43359375
+      },
+      "model": "mystcraft:item/page/modmat_log_2"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4375
+      },
+      "model": "mystcraft:item/page/modmat_log_3"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.44140625
+      },
+      "model": "mystcraft:item/page/modmat_log2_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4453125
+      },
+      "model": "mystcraft:item/page/modmat_log2_1"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.44921875
+      },
+      "model": "mystcraft:item/page/modmat_diamond_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.453125
+      },
+      "model": "mystcraft:item/page/modmat_gold_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.45703125
+      },
+      "model": "mystcraft:item/page/modmat_iron_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4609375
+      },
+      "model": "mystcraft:item/page/modmat_coal_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.46484375
+      },
+      "model": "mystcraft:item/page/modmat_redstone_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.46875
+      },
+      "model": "mystcraft:item/page/modmat_lapis_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.47265625
+      },
+      "model": "mystcraft:item/page/modmat_emerald_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4765625
+      },
+      "model": "mystcraft:item/page/modmat_ice_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.48046875
+      },
+      "model": "mystcraft:item/page/modmat_packed_ice_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.484375
+      },
+      "model": "mystcraft:item/page/modmat_glass_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.48828125
+      },
+      "model": "mystcraft:item/page/modmat_snow_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.4921875
+      },
+      "model": "mystcraft:item/page/modmat_obsidian_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.49609375
+      },
+      "model": "mystcraft:item/page/modmat_glowstone_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5
+      },
+      "model": "mystcraft:item/page/modmat_quartz_ore_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.50390625
+      },
+      "model": "mystcraft:item/page/modmat_blockcrystal_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5078125
+      },
+      "model": "mystcraft:item/page/modmat_water_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.51171875
+      },
+      "model": "mystcraft:item/page/modmat_lava_0"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.515625
+      },
+      "model": "mystcraft:item/page/modcolormaroon"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.51953125
+      },
+      "model": "mystcraft:item/page/modcolorred"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5234375
+      },
+      "model": "mystcraft:item/page/modcolorolive"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.52734375
+      },
+      "model": "mystcraft:item/page/modcoloryellow"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.53125
+      },
+      "model": "mystcraft:item/page/modcolordarkgreen"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.53515625
+      },
+      "model": "mystcraft:item/page/modcolorgreen"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5390625
+      },
+      "model": "mystcraft:item/page/modcolorteal"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.54296875
+      },
+      "model": "mystcraft:item/page/modcolorcyan"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.546875
+      },
+      "model": "mystcraft:item/page/modcolornavy"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.55078125
+      },
+      "model": "mystcraft:item/page/modcolorblue"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5546875
+      },
+      "model": "mystcraft:item/page/modcolorpurple"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.55859375
+      },
+      "model": "mystcraft:item/page/modcolormagenta"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5625
+      },
+      "model": "mystcraft:item/page/modcolorblack"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.56640625
+      },
+      "model": "mystcraft:item/page/modcolorgrey"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.5703125
+      },
+      "model": "mystcraft:item/page/modcolorsilver"
+    },
+    {
+      "predicate": {
+        "mystcraft:page": 0.57421875
+      },
+      "model": "mystcraft:item/page/modcolorwhite"
+    }
+  ]
+}

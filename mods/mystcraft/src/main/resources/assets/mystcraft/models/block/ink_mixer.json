@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mystcraft:block/ink_mixer_top",
+    "side": "mystcraft:block/ink_mixer_side",
+    "bottom": "mystcraft:block/ink_mixer_bottom"
+  }
+}

@@ -1,1 +1,54 @@
-// Put Mystcraft-specific dependencies and build tasks here.
+// Mystcraft-specific verification; the Minecraft/Forge toolchain is shared.
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+tasks.named('jar', Jar) {
+    from('NOTICE.md')
+}
+
+// Shared gameplay plus the Forge-specific lifecycle/transport adapters.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'mystcraft-forge-1.19.2'
+
+if (providers.gradleProperty('enableSmokeTests').isPresent()) {
+    apply from: file('smoke-forge.gradle')
+}
+
+// Generate official-name -> SRG mappings for client-only mixins in packaged Forge JARs.
+// Loom independently generates the Fabric refmap from its own adapter sources.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def forgeMixinRefmap = layout.buildDirectory.file('generated/mixin/mystcraft.forge.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(forgeMixinRefmap)
+    doFirst { forgeMixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${forgeMixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+// Development run classpaths need the same refmap as the packaged JAR.
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(forgeMixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'mystcraft.forge.mixins.json')
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'mystcraft.forge.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }

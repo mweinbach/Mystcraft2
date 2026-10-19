@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "pfp"
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:item_frame"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "mystcraft:writing_desk_extension"
+  }
+}

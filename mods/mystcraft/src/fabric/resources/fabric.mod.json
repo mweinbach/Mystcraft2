@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "mystcraft",
+  "version": "${version}",
+  "name": "Mystcraft",
+  "description": "Classic Mystcraft linking books, bookstands, and ink mixer for Minecraft 1.19.2. Age writing and generation remain unported.",
+  "authors": ["XCompWiz", "1.19.2 port contributors"],
+  "license": "LGPL-3.0-only",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.mystcraft.fabric.FabricMystcraft"],
+    "client": ["net.mystcraft.fabric.FabricMystcraftClient"]
+  },
+  "mixins": ["mystcraft.fabric.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

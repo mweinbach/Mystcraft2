@@ -1,0 +1,39 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "planar": "true",
+        "axis": "x"
+      },
+      "apply": {
+        "model": "mystcraft:block/link_portal_x"
+      }
+    },
+    {
+      "when": {
+        "planar": "true",
+        "axis": "y"
+      },
+      "apply": {
+        "model": "mystcraft:block/link_portal_y"
+      }
+    },
+    {
+      "when": {
+        "planar": "true",
+        "axis": "z"
+      },
+      "apply": {
+        "model": "mystcraft:block/link_portal_z"
+      }
+    },
+    {
+      "when": {
+        "planar": "false"
+      },
+      "apply": {
+        "model": "mystcraft:block/link_portal_full"
+      }
+    }
+  ]
+}

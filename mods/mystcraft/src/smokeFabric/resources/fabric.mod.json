@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"mystcraft_smoke","version":"1.0.0","name":"Mystcraft runtime smoke tests (development only)","environment":"server","entrypoints":{"main":["net.mystcraft.smoke.fabric.FabricSmokeMod"]},"depends":{"mystcraft":"${mod_version}","fabric-api":"*","minecraft":"1.19.2","java":">=17"},"license":"LGPL-3.0-only"}

@@ -1,0 +1,15 @@
+modLoader="javafml"
+loaderVersion="[43,44)"
+license="LGPL-3.0-only"
+[[mods]]
+modId="mystcraft_smoke"
+version="1.0.0"
+displayTest="IGNORE_SERVER_VERSION"
+displayName="Mystcraft runtime smoke tests (development only)"
+description="Opt-in runtime verification for disposable worlds. Not a gameplay mod."
+[[dependencies.mystcraft_smoke]]
+modId="mystcraft"
+mandatory=true
+versionRange="[${mod_version}]"
+ordering="AFTER"
+side="BOTH"

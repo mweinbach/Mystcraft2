@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ccc",
+    "c c",
+    "ccc"
+  ],
+  "key": {
+    "c": {
+      "item": "mystcraft:crystal"
+    }
+  },
+  "result": {
+    "item": "mystcraft:book_receptacle"
+  }
+}

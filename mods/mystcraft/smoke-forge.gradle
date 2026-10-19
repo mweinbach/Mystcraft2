@@ -1,0 +1,22 @@
+// Opt in with -PenableSmokeTests; these classes never enter the production JAR.
+sourceSets {
+    smoke {
+        java.srcDirs = ['src/smoke/java', 'src/smokeForge/java']
+        resources.srcDirs = ['src/smokeForge/resources']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.register('smokeJar', Jar) {
+    from sourceSets.smoke.output
+    archiveBaseName = 'mystcraft-smoke-forge-1.19.2'
+    archiveVersion = '1.0.0'
+    destinationDirectory = layout.buildDirectory.dir('smoke-libs')
+    finalizedBy 'reobfSmokeJar'
+}
+reobf { smokeJar { classpath.from(sourceSets.main.output) } }
+
+tasks.named('processSmokeResources', ProcessResources) {
+    inputs.property 'mod_version', project.version
+    filesMatching('META-INF/mods.toml') { expand mod_version: project.version }
+}

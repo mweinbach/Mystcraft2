@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "v f",
+    "ppp",
+    "p p"
+  ],
+  "key": {
+    "v": {
+      "item": "minecraft:glass_bottle"
+    },
+    "f": {
+      "item": "minecraft:feather"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "mystcraft:writing_desk"
+  }
+}

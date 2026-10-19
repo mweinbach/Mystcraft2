@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "name": "mystcraft:mystcraft_treasure",
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 4,
+        "max": 8
+      },
+      "bonus_rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mystcraft:page",
+          "functions": [
+            {
+              "function": "mystcraft:treasure"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

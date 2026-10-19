@@ -1,0 +1,330 @@
+{
+  "reference": "9bc8ddc061845df0cd5ea47f4fdef773cff786ae ModSymbolsFluids.loadDefaults exact legacy translation keys",
+  "fluids": {
+    "fluid.mobessence": {
+      "seaBanned": false,
+      "accessible": 98.0,
+      "total": 7.0
+    },
+    "fluid.ender": {
+      "seaBanned": true,
+      "accessible": 72.0,
+      "total": 6.0
+    },
+    "fluid.manyullyn.molten": {
+      "seaBanned": true,
+      "accessible": 72.0,
+      "total": 6.0
+    },
+    "fluid.redstone": {
+      "seaBanned": true,
+      "accessible": 72.0,
+      "total": 6.0
+    },
+    "fluid.fluiduumatter": {
+      "seaBanned": true,
+      "accessible": 32.0,
+      "total": 4.0
+    },
+    "fluid.life_essence": {
+      "seaBanned": false,
+      "accessible": 32.0,
+      "total": 4.0
+    },
+    "fluid.alumite.molten": {
+      "seaBanned": true,
+      "accessible": 18.0,
+      "total": 3.0
+    },
+    "fluid.ardite.molten": {
+      "seaBanned": true,
+      "accessible": 18.0,
+      "total": 3.0
+    },
+    "fluid.cobalt.molten": {
+      "seaBanned": true,
+      "accessible": 18.0,
+      "total": 3.0
+    },
+    "fluid.fluid.purity": {
+      "seaBanned": false,
+      "accessible": 18.0,
+      "total": 3.0
+    },
+    "fluid.aluminum.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.biofuel": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.bronze.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.chocolatemilk": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.copper.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.creosote": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.electrum.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.emerald.liquid": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.fluidbiogas": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.fluidbiomass": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.fuel": {
+      "seaBanned": false,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.gold.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.invar.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.iron.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.lead.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.nickel.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.obsidian.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.platinum.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.silver.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.steel.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.tin.molten": {
+      "seaBanned": true,
+      "accessible": 8.0,
+      "total": 2.0
+    },
+    "fluid.aluminumbrass.molten": {
+      "seaBanned": true,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.coal": {
+      "seaBanned": false,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.glass.molten": {
+      "seaBanned": false,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.glowstone": {
+      "seaBanned": false,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.honey": {
+      "seaBanned": false,
+      "accessible": 1.0,
+      "total": 0.0
+    },
+    "fluid.oil": {
+      "seaBanned": false,
+      "accessible": 1.0,
+      "total": 0.0
+    },
+    "fluid.spring_water": {
+      "seaBanned": false,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.witchery:fluidspirit": {
+      "seaBanned": false,
+      "accessible": 2.0,
+      "total": 1.0
+    },
+    "fluid.meat": {
+      "seaBanned": false,
+      "accessible": 1.0,
+      "total": 0.0
+    },
+    "fluid.myst.ink.black": {
+      "seaBanned": false,
+      "accessible": 1.0,
+      "total": 0.0
+    },
+    "fluid.blood": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluidconstructionfoam": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluidcoolant": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluiddistilledwater": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluidpahoehoelava": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluidsteam": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.fluidsuperheatedsteam": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.glue": {
+      "seaBanned": true,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.milk": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.mushroomsoup": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.steam": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.stone.seared": {
+      "seaBanned": false,
+      "accessible": 0.0,
+      "total": 0.0
+    },
+    "fluid.slime.blue": {
+      "seaBanned": false,
+      "accessible": -0.5,
+      "total": -0.5
+    },
+    "fluid.cryotheum": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.etchacid": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.fluid.death": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.fluidhotcoolant": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.poison": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.sewage": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.sludge": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.witchery:hollowtears": {
+      "seaBanned": false,
+      "accessible": -2.0,
+      "total": -1.0
+    },
+    "fluid.mana": {
+      "seaBanned": false,
+      "accessible": -6.0,
+      "total": -2.0
+    },
+    "fluid.pyrotheum": {
+      "seaBanned": false,
+      "accessible": -6.0,
+      "total": -2.0
+    },
+    "fluid.fluxgoo": {
+      "seaBanned": true,
+      "accessible": -12.0,
+      "total": -3.0
+    }
+  }
+}

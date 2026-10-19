@@ -1,0 +1,168 @@
+package net.mystcraft.minecraft.age.generation;
+import java.util.Random;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+/** Pinned Mystcraft-Legacy MapGenSpheresMyst, LGPL-3.0, mechanical chunk-access adaptation. */
+final class ClassicSpheres extends ClassicCarverBase {
+
+	public ClassicSpheres(long seed, Block block) {
+		this(seed, block.defaultBlockState());
+	}
+
+	public ClassicSpheres(long seed, BlockState state) {
+		super(seed, state);
+	}
+
+	/**
+	 * Generates a larger initial cave node than usual. Called 25% of the time.
+	 */
+	protected void generateLargeCaveNode(long seed, int chunkX, int chunkZ, ChunkAccess primer, double baseX, double baseY, double baseZ) {
+		generateCaveNode(seed, chunkX, chunkZ, primer, baseX, baseY, baseZ, 1.0F + rand.nextFloat() * 6F, 0.0F, 0.0F, -1, -1, 1.0D);
+	}
+
+	/**
+	 * Generates a node in the current cave system recursion tree.
+	 */
+	protected void generateCaveNode(long seed, int chunkX, int chunkZ, ChunkAccess primer, double baseX, double baseY, double baseZ, float angleA, float angleB, float angleC, int loopc, int maxLoops, double squash) {
+		double chunkXmid = chunkX * 16 + 8;
+		double chunkZmid = chunkZ * 16 + 8;
+		int layers = 256;
+		float f = 0.0F;
+		float f1 = 0.0F;
+		Random random = new Random(seed);
+
+		if (maxLoops <= 0) {
+			int i = range * 16 - 16;
+			maxLoops = i - random.nextInt(i / 4);
+		}
+
+		boolean flag = false;
+
+		if (loopc == -1) {
+			loopc = maxLoops / 2;
+			flag = true;
+		}
+
+		int j = random.nextInt(maxLoops / 2) + maxLoops / 4;
+		boolean flag1 = random.nextInt(6) == 0;
+
+		for (; loopc < maxLoops; ++loopc) {
+			double d2 = 1.5D + (Mth.sin((loopc * (float) Math.PI) / maxLoops) * angleA * 1.0F);
+			double d3 = d2 * squash;
+			float f2 = Mth.cos(angleC);
+			float f3 = Mth.sin(angleC);
+			baseX += Mth.cos(angleB) * f2;
+			baseY += f3;
+			baseZ += Mth.sin(angleB) * f2;
+
+			if (flag1) {
+				angleC *= 0.92F;
+			} else {
+				angleC *= 0.7F;
+			}
+
+			angleC += f1 * 0.1F;
+			angleB += f * 0.1F;
+			f1 *= 0.9F;
+			f *= 0.75F;
+			f1 += (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 2.0F;
+			f += (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 4F;
+
+			if (!flag && loopc == j && angleA > 1.0F && maxLoops > 0) {
+				generateCaveNode(random.nextLong(), chunkX, chunkZ, primer, baseX, baseY, baseZ, random.nextFloat() * 0.5F + 0.5F, angleB - ((float) Math.PI / 2F), angleC / 3F, loopc, maxLoops, 1.0D);
+				generateCaveNode(random.nextLong(), chunkX, chunkZ, primer, baseX, baseY, baseZ, random.nextFloat() * 0.5F + 0.5F, angleB + ((float) Math.PI / 2F), angleC / 3F, loopc, maxLoops, 1.0D);
+				return;
+			}
+
+			if (!flag && random.nextInt(4) == 0) {
+				continue;
+			}
+
+			double xoffset = baseX - chunkXmid;
+			double yoffset = baseZ - chunkZmid;
+			double zoffset = maxLoops - loopc;
+			double d7 = angleA + 2.0F + 16F;
+
+			if ((xoffset * xoffset + yoffset * yoffset) - zoffset * zoffset > d7 * d7) {
+				return;
+			}
+
+			if (baseX < chunkXmid - 16D - d2 * 2D || baseZ < chunkZmid - 16D - d2 * 2D || baseX > chunkXmid + 16D + d2 * 2D || baseZ > chunkZmid + 16D + d2 * 2D) {
+				continue;
+			}
+
+			int minX = Mth.floor(baseX - d2) - chunkX * 16 - 1;
+			int maxX = (Mth.floor(baseX + d2) - chunkX * 16) + 1;
+			int minY = Mth.floor(baseY - d3) - 1;
+			int maxY = Mth.floor(baseY + d3) + 1;
+			int minZ = Mth.floor(baseZ - d2) - chunkZ * 16 - 1;
+			int maxZ = (Mth.floor(baseZ + d2) - chunkZ * 16) + 1;
+
+			if (minX < 0) {
+				minX = 0;
+			}
+
+			if (maxX > 16) {
+				maxX = 16;
+			}
+
+			if (minY < 1) {
+				minY = 1;
+			}
+
+			if (maxY > layers) {
+				maxY = layers;
+			}
+
+			if (minZ < 0) {
+				minZ = 0;
+			}
+
+			if (maxZ > 16) {
+				maxZ = 16;
+			}
+
+			for (int localY = minY; localY < maxY; ++localY) {
+				double yfactor = ((localY + 0.5D) - baseY) / d3;
+				double yfactorSq = yfactor * yfactor;
+				for (int localZ = minZ; localZ < maxZ; ++localZ) {
+					double zfactor = (((localZ + chunkZ * 16) + 0.5D) - baseZ) / d2;
+					double zfactorSq = zfactor * zfactor;
+					for (int localX = minX; localX < maxX; ++localX) {
+						double xfactor = (((localX + chunkX * 16) + 0.5D) - baseX) / d2;
+						double xfactorSq = xfactor * xfactor;
+
+						if (xfactorSq + zfactorSq < 1.0D) {
+							double total = xfactorSq + yfactorSq + zfactorSq;
+							if (total < 1.0D) {
+								placeBlock(primer, localX, localY, localZ);
+							}
+						}
+					}
+				}
+			}
+
+			if (flag) {
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Recursively called by generate() (generate) and optionally by itself.
+	 */
+	@Override
+	protected void recursiveGenerate(int x, int z, int chunkX, int chunkZ, ChunkAccess primer) {
+		float roll = rand.nextFloat();
+		if (roll > 0.05F)
+			return;
+
+		double dx = x * 16 + rand.nextInt(16);
+		double dy = rand.nextInt(rand.nextInt(192) + 1) + 32;
+		double dz = z * 16 + rand.nextInt(16);
+		// generateLargeCaveNode(rand.nextLong(), chunkX, chunkZ, blocks, metadata, dx, dy, dz);
+		generateCaveNode(rand.nextLong(), chunkX, chunkZ, primer, dx, dy, dz, 1.0F + rand.nextFloat() * 4F, 0.0F, 0.0F, -1, -1, 1.0D);
+	}
+}

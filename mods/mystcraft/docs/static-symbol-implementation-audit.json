@@ -1,0 +1,310 @@
+{
+  "scope": "Static registry source-path audit; not runtime or exact legacy parity proof",
+  "reference_commit": "9bc8ddc061845df0cd5ea47f4fdef773cff786ae",
+  "static_symbols": 145,
+  "classified": 145,
+  "modern_flags_true": 145,
+  "groups": [
+    {
+      "group": "colors",
+      "count": 13,
+      "symbols": [
+        "mystcraft:colorcloud",
+        "mystcraft:colorcloudnat",
+        "mystcraft:colorfog",
+        "mystcraft:colorfognat",
+        "mystcraft:colorfoliage",
+        "mystcraft:colorfoliagenat",
+        "mystcraft:colorgrass",
+        "mystcraft:colorgrassnat",
+        "mystcraft:colorsky",
+        "mystcraft:colorskynat",
+        "mystcraft:colorskynight",
+        "mystcraft:colorwater",
+        "mystcraft:colorwaternat"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualMath.java",
+        "src/main/java/net/mystcraft/minecraft/client/age/AgeVisualClient.java"
+      ]
+    },
+    {
+      "group": "celestials",
+      "count": 11,
+      "symbols": [
+        "mystcraft:rainbow",
+        "mystcraft:nohorizon",
+        "mystcraft:moondark",
+        "mystcraft:moonnormal",
+        "mystcraft:starsdark",
+        "mystcraft:starsendsky",
+        "mystcraft:starsnormal",
+        "mystcraft:starstwinkle",
+        "mystcraft:sundark",
+        "mystcraft:sunnormal",
+        "mystcraft:colorhorizon"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeCelestialCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/client/age/AgeSkyRenderer.java"
+      ]
+    },
+    {
+      "group": "biome_controllers",
+      "count": 9,
+      "symbols": [
+        "mystcraft:biocongrid",
+        "mystcraft:bioconnative",
+        "mystcraft:bioconsingle",
+        "mystcraft:biocontiled",
+        "mystcraft:bioconhuge",
+        "mystcraft:bioconlarge",
+        "mystcraft:bioconmedium",
+        "mystcraft:bioconsmall",
+        "mystcraft:biocontiny"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicGenerationCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicBiomeSource.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicBiomeLayers.java"
+      ]
+    },
+    {
+      "group": "weather",
+      "count": 9,
+      "symbols": [
+        "mystcraft:weatheron",
+        "mystcraft:weathercloudy",
+        "mystcraft:weatherfast",
+        "mystcraft:weathernorm",
+        "mystcraft:weatheroff",
+        "mystcraft:weatherrain",
+        "mystcraft:weatherslow",
+        "mystcraft:weathersnow",
+        "mystcraft:weatherstorm"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeLevelData.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeServerLevel.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeWeatherRules.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeWeatherCycle.java"
+      ]
+    },
+    {
+      "group": "terrain",
+      "count": 6,
+      "symbols": [
+        "mystcraft:terrainamplified",
+        "mystcraft:terrainend",
+        "mystcraft:terrainflat",
+        "mystcraft:terrainnether",
+        "mystcraft:terrainnormal",
+        "mystcraft:terrainvoid"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicGenerationCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicChunkGenerator.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicDensity.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicNormalDensity.java"
+      ]
+    },
+    {
+      "group": "generation_features",
+      "count": 18,
+      "symbols": [
+        "mystcraft:caves",
+        "mystcraft:dungeons",
+        "mystcraft:floatislands",
+        "mystcraft:hugetrees",
+        "mystcraft:lakesdeep",
+        "mystcraft:lakessurface",
+        "mystcraft:mineshafts",
+        "mystcraft:netherfort",
+        "mystcraft:obelisks",
+        "mystcraft:ravines",
+        "mystcraft:termodspheres",
+        "mystcraft:genspikes",
+        "mystcraft:strongholds",
+        "mystcraft:tendrils",
+        "mystcraft:villages",
+        "mystcraft:cryform",
+        "mystcraft:skylands",
+        "mystcraft:denseores"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicGenerationCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicChunkGenerator.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicPopulation.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicStructures.java"
+      ]
+    },
+    {
+      "group": "environment_effects",
+      "count": 5,
+      "symbols": [
+        "mystcraft:envaccel",
+        "mystcraft:envexplosions",
+        "mystcraft:envlightning",
+        "mystcraft:envmeteor",
+        "mystcraft:envscorch"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/AgeSymbolCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeAllocation.java",
+        "src/main/java/net/mystcraft/minecraft/instability/InstabilityRuntime.java",
+        "src/main/java/net/mystcraft/minecraft/instability/InstabilityEffects.java",
+        "src/main/java/net/mystcraft/integration/registry/MeteorRegistry.java",
+        "src/main/java/net/mystcraft/integration/registry/LightningRegistry.java"
+      ]
+    },
+    {
+      "group": "source_dummy_costs",
+      "count": 3,
+      "symbols": [
+        "mystcraft:featurelargedummy",
+        "mystcraft:featuremediumdummy",
+        "mystcraft:featuresmalldummy"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/AgeSymbolCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeAllocation.java"
+      ]
+    },
+    {
+      "group": "visual_modifiers",
+      "count": 17,
+      "symbols": [
+        "mystcraft:lightingbright",
+        "mystcraft:lightingdark",
+        "mystcraft:lightingnormal",
+        "mystcraft:modnorth",
+        "mystcraft:modeast",
+        "mystcraft:modsouth",
+        "mystcraft:modwest",
+        "mystcraft:modclear",
+        "mystcraft:modgradient",
+        "mystcraft:modzero",
+        "mystcraft:modhalf",
+        "mystcraft:modfull",
+        "mystcraft:moddouble",
+        "mystcraft:modend",
+        "mystcraft:modrising",
+        "mystcraft:modnoon",
+        "mystcraft:modsetting"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualMath.java",
+        "src/main/java/net/mystcraft/minecraft/age/visual/CelestialMath.java"
+      ]
+    },
+    {
+      "group": "pvp",
+      "count": 1,
+      "symbols": [
+        "mystcraft:pvpoff"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/AgeAllocation.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeServerLevel.java"
+      ]
+    },
+    {
+      "group": "no_sea",
+      "count": 1,
+      "symbols": [
+        "mystcraft:nosea"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicGenerationCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicChunkGenerator.java"
+      ]
+    },
+    {
+      "group": "star_fissure",
+      "count": 1,
+      "symbols": [
+        "mystcraft:starfissure"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/AgeSymbolCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/AgeManager.java",
+        "src/main/java/net/mystcraft/minecraft/fissure/StarFissureBlock.java"
+      ]
+    },
+    {
+      "group": "color_modifiers",
+      "count": 16,
+      "symbols": [
+        "mystcraft:modcolormaroon",
+        "mystcraft:modcolorred",
+        "mystcraft:modcolorolive",
+        "mystcraft:modcoloryellow",
+        "mystcraft:modcolordarkgreen",
+        "mystcraft:modcolorgreen",
+        "mystcraft:modcolorteal",
+        "mystcraft:modcolorcyan",
+        "mystcraft:modcolornavy",
+        "mystcraft:modcolorblue",
+        "mystcraft:modcolorpurple",
+        "mystcraft:modcolormagenta",
+        "mystcraft:modcolorblack",
+        "mystcraft:modcolorgrey",
+        "mystcraft:modcolorsilver",
+        "mystcraft:modcolorwhite"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/visual/AgeVisualCompiler.java"
+      ]
+    },
+    {
+      "group": "materials",
+      "count": 35,
+      "symbols": [
+        "mystcraft:modmat_dirt_0",
+        "mystcraft:modmat_stone_0",
+        "mystcraft:modmat_stone_1",
+        "mystcraft:modmat_stone_3",
+        "mystcraft:modmat_stone_5",
+        "mystcraft:modmat_stone_2",
+        "mystcraft:modmat_stone_4",
+        "mystcraft:modmat_stone_6",
+        "mystcraft:modmat_sandstone_0",
+        "mystcraft:modmat_netherrack_0",
+        "mystcraft:modmat_end_stone_0",
+        "mystcraft:modmat_nether_brick_0",
+        "mystcraft:modmat_log_0",
+        "mystcraft:modmat_log_1",
+        "mystcraft:modmat_log_2",
+        "mystcraft:modmat_log_3",
+        "mystcraft:modmat_log2_0",
+        "mystcraft:modmat_log2_1",
+        "mystcraft:modmat_diamond_ore_0",
+        "mystcraft:modmat_gold_ore_0",
+        "mystcraft:modmat_iron_ore_0",
+        "mystcraft:modmat_coal_ore_0",
+        "mystcraft:modmat_redstone_ore_0",
+        "mystcraft:modmat_lapis_ore_0",
+        "mystcraft:modmat_emerald_ore_0",
+        "mystcraft:modmat_ice_0",
+        "mystcraft:modmat_packed_ice_0",
+        "mystcraft:modmat_glass_0",
+        "mystcraft:modmat_snow_0",
+        "mystcraft:modmat_obsidian_0",
+        "mystcraft:modmat_glowstone_0",
+        "mystcraft:modmat_quartz_ore_0",
+        "mystcraft:modmat_blockcrystal_0",
+        "mystcraft:modmat_water_0",
+        "mystcraft:modmat_lava_0"
+      ],
+      "source_paths": [
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicMaterials.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicGenerationCompiler.java",
+        "src/main/java/net/mystcraft/minecraft/age/generation/ClassicChunkGenerator.java"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "linking.link": {
+    "subtitle": "subtitles.mystcraft.linking",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link"
+      }
+    ]
+  },
+  "linking.link-fissure": {
+    "subtitle": "subtitles.mystcraft.fissure_link",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link-fissure",
+        "stream": false
+      }
+    ]
+  },
+  "entity.meteor.roar": {
+    "sounds": [
+      {
+        "name": "mystcraft:entity/meteor/roar"
+      }
+    ]
+  },
+  "linking.link-portal": {
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link-portal"
+      }
+    ]
+  },
+  "linking.pop": {
+    "sounds": [
+      {
+        "name": "mystcraft:linking/pop"
+      }
+    ]
+  },
+  "linking.link-disarm": {
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link-disarm"
+      }
+    ]
+  },
+  "linking.link-following": {
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link-following"
+      }
+    ]
+  },
+  "linking.link-intra": {
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link-intra"
+      }
+    ]
+  }
+}

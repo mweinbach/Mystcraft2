@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "s s",
+    " p "
+  ],
+  "key": {
+    "s": {
+      "tag": "mystcraft:wooden_rods"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "mystcraft:bookstand"
+  }
+}

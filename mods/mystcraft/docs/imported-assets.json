@@ -1,0 +1,372 @@
+{
+  "upstream": "https://github.com/Mystcraft/Mystcraft-Legacy",
+  "commit": "9bc8ddc061845df0cd5ea47f4fdef773cff786ae",
+  "license": "LGPL-3.0",
+  "method": "Byte-identical SHA-256 matching; derived resources documented separately in asset-provenance.md",
+  "assets": [
+    {
+      "asset": "gui/bookui_cover.png",
+      "upstream_paths": [
+        "gui/bookui_cover.png"
+      ],
+      "sha256": "f02395fc9c7c7108724f79cf121094844518d2011f745166c7b3c697d3bbb28a"
+    },
+    {
+      "asset": "gui/bookui_pagel.png",
+      "upstream_paths": [
+        "gui/bookui_pagel.png"
+      ],
+      "sha256": "c5ea2f8b84de81f01546411f32dfa9b552121381a1297534db2c3c29024f6348"
+    },
+    {
+      "asset": "gui/bookui_pager.png",
+      "upstream_paths": [
+        "gui/bookui_pager.png"
+      ],
+      "sha256": "260fbea5b26689206309752e4d7e67c0af5d4d30ac8a3403da40472476e26916"
+    },
+    {
+      "asset": "gui/bookui_rpage_full.png",
+      "upstream_paths": [
+        "gui/bookui_rpage_full.png"
+      ],
+      "sha256": "52f41cd1662361de86c14d70fa351f360cec73c5bd80cbbacffc47e1ec46ca2d"
+    },
+    {
+      "asset": "gui/writingdesk.png",
+      "upstream_paths": [
+        "gui/writingdesk.png"
+      ],
+      "sha256": "c997aa9a9313af9506fdeec3c1999274017b6b33588d70482a525f178170cb02"
+    },
+    {
+      "asset": "sounds/linking/link-fissure.ogg",
+      "upstream_paths": [
+        "sounds/linking/link-fissure.ogg"
+      ],
+      "sha256": "7daaf6530f19d2f10a58ed0c5cd6f4632bd87ae24a9d6a4e686ed82de599c2b0"
+    },
+    {
+      "asset": "sounds/linking/link.ogg",
+      "upstream_paths": [
+        "sounds/linking/link.ogg"
+      ],
+      "sha256": "97f272a86819edc056d16ea2f5b0dc6bf9610f0e9bc338cce8d7eb3befb32fc6"
+    },
+    {
+      "asset": "textures/block/book_receptacle.png",
+      "upstream_paths": [
+        "textures/blocks/book_receptacle.png"
+      ],
+      "sha256": "9485cd452d14bfa264b5ebfe81f14885ce1b4baf86f71b7fb371f5d0a7582f0b"
+    },
+    {
+      "asset": "textures/block/crystal.png",
+      "upstream_paths": [
+        "textures/blocks/crystal.png"
+      ],
+      "sha256": "9aa257620253edb643236c808a8bc13d227bec380a9de4deb518eb6954f6eb02"
+    },
+    {
+      "asset": "textures/block/decay_blue.png",
+      "upstream_paths": [
+        "textures/blocks/decay_blue.png"
+      ],
+      "sha256": "39b99ac2cf3a8baef6a4a8dee6b59557fd323f3108a823d86de340e844dc16d7"
+    },
+    {
+      "asset": "textures/block/decay_purple.png",
+      "upstream_paths": [
+        "textures/blocks/decay_purple.png"
+      ],
+      "sha256": "abc97344aaf722b1242f2b064b11c677bd43d32c4593640ff9996c445bf857d6"
+    },
+    {
+      "asset": "textures/block/decay_red.png",
+      "upstream_paths": [
+        "textures/blocks/decay_red.png"
+      ],
+      "sha256": "87bf6d3a833bed50bb6d6124461b38ae427ee6270fe9029e7789d9e6d5b83d16"
+    },
+    {
+      "asset": "textures/block/decay_white.png",
+      "upstream_paths": [
+        "textures/blocks/decay_white.png"
+      ],
+      "sha256": "5f021cc4e91be237a81227103f05eaaa8029f3bc55f1f84f7f05f97f5ca4b1ad"
+    },
+    {
+      "asset": "textures/block/ink_mixer_bottom.png",
+      "upstream_paths": [
+        "textures/blocks/inkmixer_bottom.png"
+      ],
+      "sha256": "589379c3fb66fad4999647736ca093d92f08d7143d9995de2bdcbf8f357558dc"
+    },
+    {
+      "asset": "textures/block/ink_mixer_side.png",
+      "upstream_paths": [
+        "textures/blocks/inkmixer_side.png"
+      ],
+      "sha256": "7e1a7fc0abdb3b54077dc4038df6c9860ed3b14430cb0fa0fd8557079d2240b3"
+    },
+    {
+      "asset": "textures/block/ink_mixer_top.png",
+      "upstream_paths": [
+        "textures/blocks/inkmixer_top.png"
+      ],
+      "sha256": "45a02bd5311dc15c6cc56fa0c311ed54b80d0a8464f61877ada297d172345036"
+    },
+    {
+      "asset": "textures/block/portal.png",
+      "upstream_paths": [
+        "textures/blocks/portal.png"
+      ],
+      "sha256": "6279d2768bc22a9179fe10dcde0e5237acc883d74bf4cc0a00912ae495c645cd"
+    },
+    {
+      "asset": "textures/block/portal.png.mcmeta",
+      "upstream_paths": [
+        "textures/blocks/portal.png.mcmeta"
+      ],
+      "sha256": "e9b8025fde1b09b0a4d2a38427b04f98f28a593045be6d177eb2b29164c872b0"
+    },
+    {
+      "asset": "textures/entity/agebook.png",
+      "upstream_paths": [
+        "textures/entity/agebook.png"
+      ],
+      "sha256": "763aa2545a89cbc3f69129950a1393098faf54515e532745cc3f146d1fc2d014"
+    },
+    {
+      "asset": "textures/entity/bookbinder/bookbinder.png",
+      "upstream_paths": [
+        "textures/entity/bookbinder/bookbinder.png"
+      ],
+      "sha256": "832970d14df328952303b39910d8a2c0c51920079ecd486054dc2e5f66ff6651"
+    },
+    {
+      "asset": "textures/entity/bookbinder/press_part.png",
+      "upstream_paths": [
+        "textures/entity/bookbinder/press_part.png"
+      ],
+      "sha256": "6d8d5572087efe55190aa4fb16334be8903737835fa20ddeb036c00dabb86916"
+    },
+    {
+      "asset": "textures/entity/bookstand.png",
+      "upstream_paths": [
+        "textures/entity/bookstand.png"
+      ],
+      "sha256": "dfc7be73f151a01387a22e694f7fffb16c71f6bc69e38f7086272b49466720e4"
+    },
+    {
+      "asset": "textures/entity/lectern.png",
+      "upstream_paths": [
+        "textures/entity/lectern.png"
+      ],
+      "sha256": "800a7cc32a1147717fd218f1d4682138d8d4854aebba2368a9e05bd3dc531a59"
+    },
+    {
+      "asset": "textures/entity/linkbook.png",
+      "upstream_paths": [
+        "textures/entity/linkbook.png"
+      ],
+      "sha256": "970de6046c31d8d13aff6cd04fc80777abf2ff7dfd3c3447b12bb0bbb55a7093"
+    },
+    {
+      "asset": "textures/entity/linkmodifier/linkmodifier_base.png",
+      "upstream_paths": [
+        "textures/entity/linkmodifier/linkmodifier_base.png"
+      ],
+      "sha256": "8c52b59b087e94d90b1fc4296f76bb751d0669d9b57194daf60bb485b3cfde12"
+    },
+    {
+      "asset": "textures/entity/linkmodifier/linkmodifier_details.png",
+      "upstream_paths": [
+        "textures/entity/linkmodifier/linkmodifier_details.png"
+      ],
+      "sha256": "796d8adf08c90779b90bea2e07ee3172882a8ae127aad654367e5c60e96c9c34"
+    },
+    {
+      "asset": "textures/entity/villager/profession/archivist.png",
+      "upstream_paths": [
+        "textures/villager/archivist.png"
+      ],
+      "sha256": "f5522b923134673e1be337908c8b9e94de4fe16f7c4e45ccc7c974eebbdd3a41"
+    },
+    {
+      "asset": "textures/gui/inkmixer.png",
+      "upstream_paths": [
+        "gui/inkmixer.png"
+      ],
+      "sha256": "5de9b3ce901e887c9decfa427d337f8ac1c844355f1b450192ac00b8f7b76cef"
+    },
+    {
+      "asset": "textures/gui/pagebinder.png",
+      "upstream_paths": [
+        "gui/pagebinder.png"
+      ],
+      "sha256": "8c16ab850bd87d948dedd8be98383fadd846dbd26af805ae874bd8bda61e93cd"
+    },
+    {
+      "asset": "textures/gui/single_slot.png",
+      "upstream_paths": [
+        "gui/single_slot.png"
+      ],
+      "sha256": "b5a96bfcc5c5f62a7f4e7d35d07321a5a9c776be68b3a2a5e7416cb29d2e49df"
+    },
+    {
+      "asset": "textures/item/booster.png",
+      "upstream_paths": [
+        "textures/items/booster.png"
+      ],
+      "sha256": "ac61a0ce15e8acf6dfc8ea413e7c256a30b4c06cce46f9db9ad04cdde672609b"
+    },
+    {
+      "asset": "textures/item/descriptive_book.png",
+      "upstream_paths": [
+        "textures/items/agebook.png"
+      ],
+      "sha256": "3de797d385994a14bf72ef25cf2a11d2d29db4929f85810b028dd6417e975334"
+    },
+    {
+      "asset": "textures/item/folder.png",
+      "upstream_paths": [
+        "textures/items/folder.png"
+      ],
+      "sha256": "62e72697ec3130c6506793bc353ba1cb62bd9060d4de333f31d2644b6ed96fa8"
+    },
+    {
+      "asset": "textures/item/ink_vial.png",
+      "upstream_paths": [
+        "textures/items/inkvial.png"
+      ],
+      "sha256": "49baece3e1ef66cd00a8a36f632cf7a172f03ab5247fe0def7455acf449216af"
+    },
+    {
+      "asset": "textures/item/linkingbook.png",
+      "upstream_paths": [
+        "textures/items/linkingbook.png"
+      ],
+      "sha256": "74b80f440ff278c997ae5197c4d92889bda78d04d94b49b98990d124b868bfba"
+    },
+    {
+      "asset": "textures/item/page.png",
+      "upstream_paths": [
+        "textures/items/page_background.png"
+      ],
+      "sha256": "9a7068a7e7a9ae434922acbb5e453fb93fd2edbdc6f62d37d1093d955edd54f3"
+    },
+    {
+      "asset": "textures/item/page_background.png",
+      "upstream_paths": [
+        "textures/items/page_background.png"
+      ],
+      "sha256": "9a7068a7e7a9ae434922acbb5e453fb93fd2edbdc6f62d37d1093d955edd54f3"
+    },
+    {
+      "asset": "textures/item/portfolio.png",
+      "upstream_paths": [
+        "textures/items/portfolio.png"
+      ],
+      "sha256": "aeedd0a68a8bf0047fdca73a295e4afb7d84c64bfe80c94a1e9eca812f4587e6"
+    },
+    {
+      "asset": "textures/item/unlinked.png",
+      "upstream_paths": [
+        "textures/items/unlinked.png"
+      ],
+      "sha256": "23d622f784f778cd9f20592e5f4ee86bd9da6e7f19d88534df51f759a639ae99"
+    },
+    {
+      "asset": "textures/item/writing_desk.png",
+      "upstream_paths": [
+        "textures/items/writingdesk.png"
+      ],
+      "sha256": "bf2115d0384f35f136f8df285328672bb36bd1c03184277952c680a17461f864"
+    },
+    {
+      "asset": "textures/item/writing_desk_extension.png",
+      "upstream_paths": [
+        "textures/items/deskext.png"
+      ],
+      "sha256": "d2f24524cdf8ad9759ec86686d187db6fa5d88cbca5bddfbff6dcb1a534057f0"
+    },
+    {
+      "asset": "textures/symbolcomponents.png",
+      "upstream_paths": [
+        "textures/symbolcomponents.png"
+      ],
+      "sha256": "16a3e40756c4e6da7be3a122a1a241cc0fc646d628b1de7086e48d0a989e4796"
+    },
+    {
+      "asset": "textures/block/decay_black.png",
+      "upstream_paths": [
+        "textures/blocks/decay_black.png"
+      ],
+      "sha256": "b7ff37afd9e230ae7f8ab4235a07d8557abbdca4353d4e83195fce2972389871"
+    },
+    {
+      "asset": "sounds/entity/meteor/roar.ogg",
+      "upstream_paths": [
+        "sounds/entity/meteor/roar.ogg"
+      ],
+      "sha256": "e1bc69effc0588c6a2b3c2bc4bc80a921dc88eda55298a2d2d6025dffb4fb856"
+    },
+    {
+      "asset": "sounds/linking/link-portal.ogg",
+      "upstream_paths": [
+        "sounds/linking/link-portal.ogg"
+      ],
+      "sha256": "5bcb21c6f77905475119475eafebbba3e60915c3f2fdf169cf47a903c805d600"
+    },
+    {
+      "asset": "sounds/linking/pop.ogg",
+      "upstream_paths": [
+        "sounds/linking/pop.ogg"
+      ],
+      "sha256": "1f180490a641e1d07c836717080333830d5741dc5937bd5eb486315bb11906c3"
+    },
+    {
+      "asset": "sounds/linking/link-disarm.ogg",
+      "upstream_paths": [
+        "sounds/linking/link-disarm.ogg"
+      ],
+      "sha256": "7b7ff786c88dc30cb9417fad85de45d9ebfa5a204084571a21298761b6e765e2"
+    },
+    {
+      "asset": "sounds/linking/link-following.ogg",
+      "upstream_paths": [
+        "sounds/linking/link-following.ogg"
+      ],
+      "sha256": "58e089ebbe72a7f986220a9c65e3c648e5eeb6987b14850537228a6de5d64b9c"
+    },
+    {
+      "asset": "sounds/linking/link-intra.ogg",
+      "upstream_paths": [
+        "sounds/linking/link-intra.ogg"
+      ],
+      "sha256": "c6edb6608f1307cafb56fb9657a9ac1e27bb783585792fe8f34dfa44c7dfe2d6"
+    },
+    {
+      "asset": "gui/scrollbar.png",
+      "upstream_paths": [
+        "gui/scrollbar.png"
+      ],
+      "sha256": "d3fbd54d053e6175184d186e993af7d56874248f9606b161b1ab4be35f25f6fd"
+    },
+    {
+      "asset": "gui/tradeshop.png",
+      "upstream_paths": [
+        "gui/tradeshop.png"
+      ],
+      "sha256": "1735e877c1a41046a3d536932f777f02bb0c18333003dd13fe26f2af6755e326"
+    },
+    {
+      "asset": "textures/models/lectern_texture.png",
+      "upstream_paths": [
+        "textures/models/lectern_texture.png"
+      ],
+      "sha256": "54426373d777b57811d72daad3ea04eb0b639cb2fbcfadc0223d69737f6f8ab4"
+    }
+  ]
+}

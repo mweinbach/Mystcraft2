@@ -1,0 +1,31 @@
+// Opt in with -PenableSmokeTests; these classes never enter the production JAR.
+sourceSets {
+    smoke {
+        java.srcDirs = ['../src/smoke/java', '../src/smokeFabric/java']
+        resources.srcDirs = ['../src/smokeFabric/resources']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.register('smokeJar', Jar) {
+    from sourceSets.smoke.output
+    archiveBaseName = 'mystcraft-smoke-fabric-1.19.2'
+    archiveVersion = '1.0.0'
+    archiveClassifier = 'dev'
+    destinationDirectory = layout.buildDirectory.dir('smoke-libs')
+}
+tasks.register('remapSmokeJar', tasks.named('remapJar').get().class.superclass) {
+    dependsOn tasks.named('smokeJar')
+    inputFile = tasks.named('smokeJar', Jar).flatMap { it.archiveFile }
+    archiveBaseName = 'mystcraft-smoke-fabric-1.19.2'
+    archiveVersion = '1.0.0'
+    archiveClassifier = ''
+    destinationDirectory = layout.buildDirectory.dir('smoke-libs')
+    classpath.from(sourceSets.main.output)
+    addNestedDependencies = false
+}
+
+tasks.named('processSmokeResources', ProcessResources) {
+    inputs.property 'mod_version', project.version
+    filesMatching('fabric.mod.json') { expand mod_version: project.version }
+}

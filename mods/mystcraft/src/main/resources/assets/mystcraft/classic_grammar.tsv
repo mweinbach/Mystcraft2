@@ -1,0 +1,229 @@
+# Mystcraft-Legacy 9bc8ddc061845df0cd5ea47f4fdef773cff786ae LGPL-3.0
+# rank<TAB>parent<TAB>ordered children
+0	mystcraft:Age	mystcraft:TerrainGen	mystcraft:BiomeController	mystcraft:Weather	mystcraft:Lighting	mystcraft:Spawning0	mystcraft:Suns0	mystcraft:Moons0	mystcraft:Starfields0	mystcraft:Doodads0	mystcraft:Visuals0	mystcraft:FeatureSmalls0	mystcraft:FeatureMediums0	mystcraft:FeatureLarges0	mystcraft:Effects0
+10	mystcraft:Spawning0
+1	mystcraft:Biomes	mystcraft:BiomesAdv
+2	mystcraft:BiomesAdv	mystcraft:BiomesAdv	mystcraft:Biome
+3	mystcraft:BiomesAdv	mystcraft:Biome
+null	mystcraft:Biomes	mystcraft:BiomesExt	mystcraft:Biome
+null	mystcraft:BiomesExt	mystcraft:BiomesExt	mystcraft:Biomes
+1	mystcraft:BiomesExt
+1	mystcraft:Suns0	mystcraft:SunsAdv
+4	mystcraft:SunsAdv	mystcraft:SunsAdv	mystcraft:Sun
+2	mystcraft:SunsAdv	mystcraft:Sun
+null	mystcraft:Suns0	mystcraft:SunsExt	mystcraft:Sun
+null	mystcraft:SunsExt	mystcraft:SunsExt	mystcraft:Sun
+1	mystcraft:SunsExt
+1	mystcraft:Moons0	mystcraft:MoonsAdv
+2	mystcraft:MoonsAdv	mystcraft:MoonsAdv	mystcraft:Moon
+2	mystcraft:MoonsAdv	mystcraft:Moon
+null	mystcraft:Moons0	mystcraft:MoonsExt	mystcraft:Moon
+null	mystcraft:MoonsExt	mystcraft:MoonsExt	mystcraft:Moon
+1	mystcraft:MoonsExt
+1	mystcraft:Starfields0	mystcraft:StarfieldsAdv
+3	mystcraft:StarfieldsAdv	mystcraft:StarfieldsAdv	mystcraft:Starfield
+2	mystcraft:StarfieldsAdv	mystcraft:Starfield
+null	mystcraft:Starfields0	mystcraft:StarfieldsExt	mystcraft:Starfield
+null	mystcraft:StarfieldsExt	mystcraft:StarfieldsExt	mystcraft:Starfield
+1	mystcraft:StarfieldsExt
+1	mystcraft:Starfield
+1	mystcraft:Doodads0	mystcraft:DoodadsAdv
+5	mystcraft:DoodadsAdv	mystcraft:DoodadsAdv	mystcraft:Doodad
+2	mystcraft:DoodadsAdv	mystcraft:Doodad
+null	mystcraft:Doodads0	mystcraft:DoodadsExt	mystcraft:Doodad
+null	mystcraft:DoodadsExt	mystcraft:DoodadsExt	mystcraft:Doodad
+1	mystcraft:DoodadsExt
+0	mystcraft:Doodad
+1	mystcraft:Visuals0	mystcraft:VisualsAdv
+3	mystcraft:VisualsAdv	mystcraft:VisualsAdv	mystcraft:Visual
+2	mystcraft:VisualsAdv	mystcraft:Visual
+null	mystcraft:Visuals0	mystcraft:VisualsExt	mystcraft:Visual
+null	mystcraft:VisualsExt	mystcraft:VisualsExt	mystcraft:Visual
+1	mystcraft:VisualsExt
+1	mystcraft:Visual
+1	mystcraft:FeatureLarges0	mystcraft:FeatureLargeAdv
+2	mystcraft:FeatureLargeAdv	mystcraft:FeatureLargeAdv	mystcraft:FeatureLarge
+2	mystcraft:FeatureLargeAdv	mystcraft:FeatureLarge
+null	mystcraft:FeatureLarges0	mystcraft:FeatureLargeExt	mystcraft:FeatureLarge
+null	mystcraft:FeatureLargeExt	mystcraft:FeatureLargeExt	mystcraft:FeatureLarge
+1	mystcraft:FeatureLargeExt
+4	mystcraft:FeatureLarge
+1	mystcraft:FeatureMediums0	mystcraft:FeatureMediumAdv
+2	mystcraft:FeatureMediumAdv	mystcraft:FeatureMediumAdv	mystcraft:FeatureMedium
+3	mystcraft:FeatureMediumAdv	mystcraft:FeatureMedium
+null	mystcraft:FeatureMediums0	mystcraft:FeatureMediumExt	mystcraft:FeatureMedium
+null	mystcraft:FeatureMediumExt	mystcraft:FeatureMediumExt	mystcraft:FeatureMedium
+1	mystcraft:FeatureMediumExt
+4	mystcraft:FeatureMedium
+1	mystcraft:FeatureSmalls0	mystcraft:FeatureSmallAdv
+2	mystcraft:FeatureSmallAdv	mystcraft:FeatureSmallAdv	mystcraft:FeatureSmall
+4	mystcraft:FeatureSmallAdv	mystcraft:FeatureSmall
+null	mystcraft:FeatureSmalls0	mystcraft:FeatureSmallExt	mystcraft:FeatureSmall
+null	mystcraft:FeatureSmallExt	mystcraft:FeatureSmallExt	mystcraft:FeatureSmall
+1	mystcraft:FeatureSmallExt
+4	mystcraft:FeatureSmall
+1	mystcraft:Effects0	mystcraft:EffectsAdv
+3	mystcraft:EffectsAdv	mystcraft:EffectsAdv	mystcraft:Effect
+2	mystcraft:EffectsAdv	mystcraft:Effect
+null	mystcraft:Effects0	mystcraft:EffectsExt	mystcraft:Effect
+null	mystcraft:EffectsExt	mystcraft:EffectsExt	mystcraft:Effect
+1	mystcraft:EffectsExt
+1	mystcraft:Effect
+2	mystcraft:SunsetUncommon
+3	mystcraft:SunsetUncommon	mystcraft:Sunset
+1	mystcraft:Sunset
+null	mystcraft:Sunset_Ext	mystcraft:Sunset
+1	mystcraft:Sunset_Ext
+1	mystcraft:Angle	mystcraft:AngleAdv
+2	mystcraft:AngleAdv	mystcraft:AngleAdv	mystcraft:AngleBasic
+3	mystcraft:AngleAdv	mystcraft:AngleBasic
+null	mystcraft:Angle	mystcraft:Angle_Ext	mystcraft:AngleBasic
+null	mystcraft:Angle_Ext	mystcraft:Angle
+1	mystcraft:Angle_Ext
+1	mystcraft:Period	mystcraft:PeriodAdv
+2	mystcraft:PeriodAdv	mystcraft:PeriodAdv	mystcraft:PeriodBasic
+3	mystcraft:PeriodAdv	mystcraft:PeriodBasic
+null	mystcraft:Period	mystcraft:Period_Ext	mystcraft:PeriodBasic
+null	mystcraft:Period_Ext	mystcraft:Period
+1	mystcraft:Period_Ext
+1	mystcraft:Phase	mystcraft:PhaseAdv
+2	mystcraft:PhaseAdv	mystcraft:PhaseAdv	mystcraft:PhaseBasic
+3	mystcraft:PhaseAdv	mystcraft:PhaseBasic
+null	mystcraft:Phase	mystcraft:Phase_Ext	mystcraft:PhaseBasic
+null	mystcraft:Phase_Ext	mystcraft:Phase
+1	mystcraft:Phase_Ext
+1	mystcraft:Color	mystcraft:ColorAdv
+2	mystcraft:ColorAdv	mystcraft:ColorAdv	mystcraft:ColorBasic
+3	mystcraft:ColorAdv	mystcraft:ColorBasic
+null	mystcraft:Color	mystcraft:Color_Ext	mystcraft:ColorBasic
+null	mystcraft:Color_Ext	mystcraft:Color
+1	mystcraft:Color_Ext
+1	mystcraft:Gradient	mystcraft:GradientAdv
+2	mystcraft:GradientAdv	mystcraft:GradientAdv	mystcraft:GradientBasic
+2	mystcraft:GradientAdv	mystcraft:GradientBasic
+null	mystcraft:Gradient	mystcraft:Gradient_Ext	mystcraft:GradientBasic
+null	mystcraft:Gradient_Ext	mystcraft:Gradient
+1	mystcraft:Gradient_Ext
+0	mystcraft:BlockTerrain
+0	mystcraft:BlockSolid
+0	mystcraft:BlockStructure
+0	mystcraft:BlockOrganic
+0	mystcraft:BlockCrystal
+0	mystcraft:BlockSea
+0	mystcraft:BlockFluid
+0	mystcraft:BlockGas
+0	mystcraft:BlockAny
+1	mystcraft:BLOCK_NONSOLID	mystcraft:BlockFluid
+2	mystcraft:BLOCK_NONSOLID	mystcraft:BlockGas
+# DYNAMIC_BINDINGS
+1	mystcraft:ColorBasic	mystcraft:ModColorMaroon
+1	mystcraft:ColorBasic	mystcraft:ModColorRed
+1	mystcraft:ColorBasic	mystcraft:ModColorOlive
+1	mystcraft:ColorBasic	mystcraft:ModColorYellow
+1	mystcraft:ColorBasic	mystcraft:ModColorDarkGreen
+1	mystcraft:ColorBasic	mystcraft:ModColorGreen
+1	mystcraft:ColorBasic	mystcraft:ModColorTeal
+1	mystcraft:ColorBasic	mystcraft:ModColorCyan
+1	mystcraft:ColorBasic	mystcraft:ModColorNavy
+1	mystcraft:ColorBasic	mystcraft:ModColorBlue
+1	mystcraft:ColorBasic	mystcraft:ModColorPurple
+1	mystcraft:ColorBasic	mystcraft:ModColorMagenta
+1	mystcraft:ColorBasic	mystcraft:ModColorBlack
+1	mystcraft:ColorBasic	mystcraft:ModColorGrey
+1	mystcraft:ColorBasic	mystcraft:ModColorSilver
+1	mystcraft:ColorBasic	mystcraft:ModColorWhite
+3	mystcraft:Visual	mystcraft:Gradient	mystcraft:ColorCloud
+2	mystcraft:Visual	mystcraft:ColorCloudNat
+3	mystcraft:Visual	mystcraft:Gradient	mystcraft:ColorFog
+2	mystcraft:Visual	mystcraft:ColorFogNat
+3	mystcraft:Visual	mystcraft:Color	mystcraft:ColorFoliage
+2	mystcraft:Visual	mystcraft:ColorFoliageNat
+3	mystcraft:Visual	mystcraft:Color	mystcraft:ColorGrass
+2	mystcraft:Visual	mystcraft:ColorGrassNat
+3	mystcraft:Visual	mystcraft:Gradient	mystcraft:ColorSky
+2	mystcraft:Visual	mystcraft:ColorSkyNat
+3	mystcraft:Visual	mystcraft:Gradient	mystcraft:ColorSkyNight
+3	mystcraft:Visual	mystcraft:Color	mystcraft:ColorWater
+2	mystcraft:Visual	mystcraft:ColorWaterNat
+4	mystcraft:Visual	mystcraft:Angle	mystcraft:Rainbow
+2	mystcraft:Visual	mystcraft:NoHorizon
+3	mystcraft:Moon	mystcraft:MoonDark
+1	mystcraft:Moon	mystcraft:SunsetUncommon	mystcraft:Period	mystcraft:Angle	mystcraft:Phase	mystcraft:MoonNormal
+3	mystcraft:Starfield	mystcraft:StarsDark
+4	mystcraft:Starfield	mystcraft:Gradient	mystcraft:StarsEndSky
+1	mystcraft:Starfield	mystcraft:Gradient	mystcraft:Period	mystcraft:Angle	mystcraft:StarsNormal
+2	mystcraft:Starfield	mystcraft:Gradient	mystcraft:Period	mystcraft:Angle	mystcraft:StarsTwinkle
+3	mystcraft:Sun	mystcraft:SunDark
+1	mystcraft:Sun	mystcraft:Sunset	mystcraft:Period	mystcraft:Angle	mystcraft:Phase	mystcraft:SunNormal
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:BioConGrid
+1	mystcraft:BiomeController	mystcraft:BioConNative
+1	mystcraft:BiomeController	mystcraft:Biome	mystcraft:BioConSingle
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:BioConTiled
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:Biome	mystcraft:BioConHuge
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:Biome	mystcraft:BioConLarge
+1	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:Biome	mystcraft:BioConMedium
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:Biome	mystcraft:BioConSmall
+2	mystcraft:BiomeController	mystcraft:Biomes	mystcraft:Biome	mystcraft:Biome	mystcraft:BioConTiny
+2	mystcraft:BlockSea	mystcraft:NoSea
+null	mystcraft:Effect	mystcraft:EnvAccel
+null	mystcraft:Effect	mystcraft:EnvExplosions
+null	mystcraft:Effect	mystcraft:Gradient	mystcraft:EnvLightning
+null	mystcraft:Effect	mystcraft:EnvMeteor
+null	mystcraft:Effect	mystcraft:EnvScorch
+2	mystcraft:Lighting	mystcraft:LightingBright
+2	mystcraft:Lighting	mystcraft:LightingDark
+1	mystcraft:Lighting	mystcraft:LightingNormal
+1	mystcraft:AngleBasic	mystcraft:ModNorth
+1	mystcraft:AngleBasic	mystcraft:ModEast
+1	mystcraft:AngleBasic	mystcraft:ModSouth
+1	mystcraft:AngleBasic	mystcraft:ModWest
+1	mystcraft:GradientBasic	mystcraft:Color	mystcraft:Period	mystcraft:ModGradient
+2	mystcraft:Sunset	mystcraft:Sunset_Ext	mystcraft:Gradient	mystcraft:ColorHorizon
+2	mystcraft:PeriodBasic	mystcraft:ModZero
+1	mystcraft:PeriodBasic	mystcraft:ModHalf
+1	mystcraft:PeriodBasic	mystcraft:ModFull
+1	mystcraft:PeriodBasic	mystcraft:ModDouble
+1	mystcraft:PhaseBasic	mystcraft:ModEnd
+1	mystcraft:PhaseBasic	mystcraft:ModRising
+1	mystcraft:PhaseBasic	mystcraft:ModNoon
+1	mystcraft:PhaseBasic	mystcraft:ModSetting
+1	mystcraft:FeatureLarge	mystcraft:Caves
+2	mystcraft:FeatureMedium	mystcraft:Dungeons
+4	mystcraft:FeatureLarge	mystcraft:Biome	mystcraft:BlockStructure	mystcraft:FloatIslands
+5	mystcraft:FeatureLarges0	mystcraft:FeatureLargeExt	mystcraft:FeatureLargeDummy
+null	mystcraft:FeatureLargeExt	mystcraft:FeatureLargeDummy
+5	mystcraft:FeatureMediums0	mystcraft:FeatureMediumExt	mystcraft:FeatureMediumDummy
+null	mystcraft:FeatureMediumExt	mystcraft:FeatureMediumDummy
+null	mystcraft:FeatureSmalls0	mystcraft:FeatureSmallExt	mystcraft:FeatureSmallDummy
+null	mystcraft:FeatureSmallExt	mystcraft:FeatureSmallDummy
+2	mystcraft:FeatureLarge	mystcraft:HugeTrees
+1	mystcraft:FeatureSmall	mystcraft:BLOCK_NONSOLID	mystcraft:LakesDeep
+1	mystcraft:FeatureSmall	mystcraft:BlockFluid	mystcraft:LakesSurface
+1	mystcraft:FeatureMedium	mystcraft:Mineshafts
+2	mystcraft:FeatureMedium	mystcraft:NetherFort
+3	mystcraft:FeatureSmall	mystcraft:BlockStructure	mystcraft:Obelisks
+1	mystcraft:FeatureMedium	mystcraft:Ravines
+3	mystcraft:FeatureMedium	mystcraft:BlockStructure	mystcraft:TerModSpheres
+3	mystcraft:FeatureMedium	mystcraft:BlockStructure	mystcraft:GenSpikes
+1	mystcraft:FeatureMedium	mystcraft:Strongholds
+4	mystcraft:FeatureLarge	mystcraft:BlockStructure	mystcraft:Tendrils
+1	mystcraft:FeatureMedium	mystcraft:Villages
+3	mystcraft:FeatureSmall	mystcraft:BlockCrystal	mystcraft:CryForm
+5	mystcraft:FeatureLarge	mystcraft:Skylands
+3	mystcraft:FeatureSmall	mystcraft:StarFissure
+null	mystcraft:FeatureLarge	mystcraft:DenseOres
+2	mystcraft:Weather	mystcraft:WeatherOn
+2	mystcraft:Weather	mystcraft:WeatherCloudy
+2	mystcraft:Weather	mystcraft:WeatherFast
+1	mystcraft:Weather	mystcraft:WeatherNorm
+2	mystcraft:Weather	mystcraft:WeatherOff
+2	mystcraft:Weather	mystcraft:WeatherRain
+2	mystcraft:Weather	mystcraft:WeatherSlow
+2	mystcraft:Weather	mystcraft:WeatherSnow
+2	mystcraft:Weather	mystcraft:WeatherStorm
+3	mystcraft:TerrainGen	mystcraft:BlockTerrain	mystcraft:BlockSea	mystcraft:TerrainAmplified
+3	mystcraft:TerrainGen	mystcraft:BlockTerrain	mystcraft:BlockSea	mystcraft:TerrainEnd
+2	mystcraft:TerrainGen	mystcraft:BlockTerrain	mystcraft:BlockSea	mystcraft:TerrainFlat
+3	mystcraft:TerrainGen	mystcraft:BlockTerrain	mystcraft:BlockSea	mystcraft:TerrainNether
+1	mystcraft:TerrainGen	mystcraft:BlockTerrain	mystcraft:BlockSea	mystcraft:TerrainNormal
+3	mystcraft:TerrainGen	mystcraft:TerrainVoid

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "s s",
+    "svs",
+    "psp"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:stone"
+    },
+    "v": {
+      "item": "minecraft:glass_bottle"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "mystcraft:ink_mixer"
+  }
+}

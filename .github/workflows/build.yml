@@ -36,8 +36,14 @@ jobs:
         run: ./gradlew --no-daemon :icbm_port:runGametest
       - name: Test material compatibility and datapack reloads
         run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
+      - name: Build Mystcraft for Fabric
+        run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
+      - name: Verify Mystcraft loader artifact parity
+        run: python3 mods/mystcraft/scripts/check_loader_parity.py
       - uses: actions/upload-artifact@v4
         with:
           name: minecraft-1.19.2-ports
-          path: mods/*/build/libs/*.jar
+          path: |
+            mods/*/build/libs/*.jar
+            mods/mystcraft/fabric/build/libs/*.jar
           if-no-files-found: error

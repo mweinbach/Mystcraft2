@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mystcraft:item/page/modmat_redstone_ore_0"
+  }
+}

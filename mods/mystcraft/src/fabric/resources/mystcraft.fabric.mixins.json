@@ -1,0 +1,45 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.mystcraft.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ServerLevelMixin",
+    "MinecraftServerAccessor",
+    "MinecraftServerAgeMixin",
+    "ServerLevelAgeAccessor",
+    "StructureCheckAccessor",
+    "BookAttackPacketMixin",
+    "AgePvpMixin",
+    "AgeChunkTickMixin",
+    "AgeWeatherTemperatureMixin",
+    "AgeWeatherChunkMixin",
+    "ServerPlayerDimensionIdentityMixin",
+    "VillageHousePoolMixin",
+    "WorldGenRegionBoundsMixin",
+    "DeferredCrystalChunkSaveMixin",
+    "InkEntityPhysicsMixin",
+    "InkBoatPhysicsMixin",
+    "ArchivistCareerMixin",
+    "HopperBookPickupMixin",
+    "LegacyTreasureLootMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mystcraft.fabric.refmap.json",
+  "client": [
+    "AgeWaterColorMixin",
+    "AgeSkyColorMixin",
+    "AgeLightmapMixin",
+    "AgeBiomeTemperatureMixin",
+    "AgeCelestialTimeMixin",
+    "AgeCelestialSkyMixin",
+    "AgeCloudHeightMixin",
+    "AgeClientWeatherMixin",
+    "DynamicPageItemMixin",
+    "DynamicPageDisconnectMixin",
+    "InkFogMixin",
+    "InkCameraMixin"
+  ]
+}
