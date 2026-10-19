@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/raw_iron"
+    "layer0": "icbm_port:item/steel_clump"
   }
 }

@@ -160,3 +160,7 @@ from material_tags import write_material_tags, write_recipe
 write_material_tags(ROOT)
 for identifier, entry in mapping.items():
  write_recipe(ROOT, identifier, entry["recipe"])
+
+# Original artwork and geometry are the final visual layer; recipe generation is independent.
+from visual_assets import generate as generate_visual_assets
+generate_visual_assets(ROOT)

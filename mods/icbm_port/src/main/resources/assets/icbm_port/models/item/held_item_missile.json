@@ -1,12 +1,17 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/iron_block",
-    "case": "minecraft:block/iron_block",
-    "band": "minecraft:block/cyan_concrete",
-    "tip": "minecraft:block/quartz_block_top",
-    "engine": "minecraft:block/blast_furnace_front",
-    "fin": "minecraft:block/gray_concrete"
+    "casing": "icbm_port:block/casing",
+    "alloy": "icbm_port:block/alloy",
+    "carbon": "icbm_port:block/carbon",
+    "hazard": "icbm_port:block/hazard",
+    "grille": "icbm_port:block/grille",
+    "coil": "icbm_port:block/coil",
+    "optic": "icbm_port:block/optic",
+    "panel": "icbm_port:block/panel",
+    "warning": "icbm_port:block/warning",
+    "exhaust": "icbm_port:block/exhaust",
+    "particle": "icbm_port:block/casing"
   },
   "elements": [
     {
@@ -22,54 +27,54 @@
       ],
       "faces": {
         "up": {
-          "texture": "#case"
+          "texture": "#casing"
         },
         "down": {
-          "texture": "#case"
+          "texture": "#casing"
         },
         "north": {
-          "texture": "#case"
+          "texture": "#casing"
         },
         "south": {
-          "texture": "#case"
+          "texture": "#casing"
         },
         "east": {
-          "texture": "#case"
+          "texture": "#casing"
         },
         "west": {
-          "texture": "#case"
+          "texture": "#casing"
         }
       }
     },
     {
       "from": [
-        4.99,
-        8,
-        4.99
+        4.9,
+        7,
+        4.9
       ],
       "to": [
-        11.01,
+        11.1,
         10,
-        11.01
+        11.1
       ],
       "faces": {
         "up": {
-          "texture": "#band"
+          "texture": "#optic"
         },
         "down": {
-          "texture": "#band"
+          "texture": "#optic"
         },
         "north": {
-          "texture": "#band"
+          "texture": "#optic"
         },
         "south": {
-          "texture": "#band"
+          "texture": "#optic"
         },
         "east": {
-          "texture": "#band"
+          "texture": "#optic"
         },
         "west": {
-          "texture": "#band"
+          "texture": "#optic"
         }
       }
     },
@@ -86,22 +91,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#band"
+          "texture": "#alloy"
         },
         "down": {
-          "texture": "#band"
+          "texture": "#alloy"
         },
         "north": {
-          "texture": "#band"
+          "texture": "#alloy"
         },
         "south": {
-          "texture": "#band"
+          "texture": "#alloy"
         },
         "east": {
-          "texture": "#band"
+          "texture": "#alloy"
         },
         "west": {
-          "texture": "#band"
+          "texture": "#alloy"
         }
       }
     },
@@ -118,86 +123,86 @@
       ],
       "faces": {
         "up": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "down": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "north": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "south": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "east": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "west": {
-          "texture": "#tip"
+          "texture": "#alloy"
         }
       }
     },
     {
       "from": [
-        4,
+        5,
         0,
-        4
+        5
       ],
       "to": [
-        12,
+        11,
         2,
-        12
+        11
       ],
       "faces": {
         "up": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "down": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "north": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "south": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "east": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "west": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         }
       }
     },
     {
       "from": [
-        1,
+        2,
         1,
         7
       ],
       "to": [
         5,
-        6,
-        9
+        5,
+        10
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -208,28 +213,28 @@
         7
       ],
       "to": [
-        15,
-        6,
-        9
+        14,
+        5,
+        10
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -237,31 +242,31 @@
       "from": [
         7,
         1,
-        1
+        2
       ],
       "to": [
-        9,
-        6,
+        10,
+        5,
         5
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -272,28 +277,28 @@
         11
       ],
       "to": [
-        9,
-        6,
-        15
+        10,
+        5,
+        14
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     }
@@ -303,12 +308,7 @@
       "rotation": [
         25,
         -35,
-        -20
-      ],
-      "translation": [
-        0,
-        0,
-        0
+        -15
       ],
       "scale": [
         0.8,
@@ -319,18 +319,18 @@
     "firstperson_righthand": {
       "rotation": [
         0,
-        -25,
-        -20
+        -35,
+        0
       ],
       "translation": [
         0,
         1,
-        -2
+        -1
       ],
       "scale": [
-        0.55,
-        0.55,
-        0.55
+        0.65,
+        0.65,
+        0.65
       ]
     },
     "thirdperson_righthand": {
@@ -339,15 +339,10 @@
         0,
         0
       ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
       "scale": [
-        0.6,
-        0.6,
-        0.6
+        0.65,
+        0.65,
+        0.65
       ]
     },
     "ground": {

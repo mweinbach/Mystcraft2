@@ -1,12 +1,18 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/iron_block",
-    "case": "minecraft:block/iron_block",
-    "band": "minecraft:block/gray_concrete",
-    "tip": "minecraft:block/quartz_block_top",
-    "engine": "minecraft:block/blast_furnace_front",
-    "fin": "minecraft:block/gray_concrete"
+    "casing": "icbm_port:block/casing",
+    "alloy": "icbm_port:block/alloy",
+    "carbon": "icbm_port:block/carbon",
+    "hazard": "icbm_port:block/hazard",
+    "grille": "icbm_port:block/grille",
+    "coil": "icbm_port:block/coil",
+    "optic": "icbm_port:block/optic",
+    "panel": "icbm_port:block/panel",
+    "warning": "icbm_port:block/warning",
+    "exhaust": "icbm_port:block/exhaust",
+    "particle": "icbm_port:block/casing",
+    "label": "icbm_port:block/payload_smoke"
   },
   "elements": [
     {
@@ -22,54 +28,54 @@
       ],
       "faces": {
         "up": {
-          "texture": "#case"
+          "texture": "#alloy"
         },
         "down": {
-          "texture": "#case"
+          "texture": "#alloy"
         },
         "north": {
-          "texture": "#case"
+          "texture": "#alloy"
         },
         "south": {
-          "texture": "#case"
+          "texture": "#alloy"
         },
         "east": {
-          "texture": "#case"
+          "texture": "#alloy"
         },
         "west": {
-          "texture": "#case"
+          "texture": "#alloy"
         }
       }
     },
     {
       "from": [
-        4.99,
-        8,
-        4.99
+        4.98,
+        7,
+        4.98
       ],
       "to": [
-        11.01,
+        11.02,
         10,
-        11.01
+        11.02
       ],
       "faces": {
         "up": {
-          "texture": "#band"
+          "texture": "#label"
         },
         "down": {
-          "texture": "#band"
+          "texture": "#label"
         },
         "north": {
-          "texture": "#band"
+          "texture": "#label"
         },
         "south": {
-          "texture": "#band"
+          "texture": "#label"
         },
         "east": {
-          "texture": "#band"
+          "texture": "#label"
         },
         "west": {
-          "texture": "#band"
+          "texture": "#label"
         }
       }
     },
@@ -86,22 +92,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#band"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#band"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#band"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#band"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#band"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#band"
+          "texture": "#carbon"
         }
       }
     },
@@ -118,54 +124,54 @@
       ],
       "faces": {
         "up": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "down": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "north": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "south": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "east": {
-          "texture": "#tip"
+          "texture": "#alloy"
         },
         "west": {
-          "texture": "#tip"
+          "texture": "#alloy"
         }
       }
     },
     {
       "from": [
-        4,
+        5,
         0,
-        4
+        5
       ],
       "to": [
-        12,
+        11,
         2,
-        12
+        11
       ],
       "faces": {
         "up": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "down": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "north": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "south": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "east": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         },
         "west": {
-          "texture": "#engine"
+          "texture": "#exhaust"
         }
       }
     },
@@ -182,22 +188,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -214,22 +220,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -246,22 +252,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     },
@@ -278,22 +284,22 @@
       ],
       "faces": {
         "up": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "down": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "north": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "south": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "east": {
-          "texture": "#fin"
+          "texture": "#carbon"
         },
         "west": {
-          "texture": "#fin"
+          "texture": "#carbon"
         }
       }
     }
@@ -303,12 +309,7 @@
       "rotation": [
         25,
         -35,
-        -20
-      ],
-      "translation": [
-        0,
-        0,
-        0
+        -15
       ],
       "scale": [
         0.8,
@@ -319,18 +320,18 @@
     "firstperson_righthand": {
       "rotation": [
         0,
-        -25,
-        -20
+        -35,
+        0
       ],
       "translation": [
         0,
         1,
-        -2
+        -1
       ],
       "scale": [
-        0.55,
-        0.55,
-        0.55
+        0.65,
+        0.65,
+        0.65
       ]
     },
     "thirdperson_righthand": {
@@ -339,15 +340,10 @@
         0,
         0
       ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
       "scale": [
-        0.6,
-        0.6,
-        0.6
+        0.65,
+        0.65,
+        0.65
       ]
     },
     "ground": {

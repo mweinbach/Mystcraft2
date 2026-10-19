@@ -1,6 +1,202 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:block/block",
   "textures": {
-    "layer0": "minecraft:item/fire_charge"
+    "casing": "icbm_port:block/casing",
+    "alloy": "icbm_port:block/alloy",
+    "carbon": "icbm_port:block/carbon",
+    "hazard": "icbm_port:block/hazard",
+    "grille": "icbm_port:block/grille",
+    "coil": "icbm_port:block/coil",
+    "optic": "icbm_port:block/optic",
+    "panel": "icbm_port:block/panel",
+    "warning": "icbm_port:block/warning",
+    "exhaust": "icbm_port:block/exhaust",
+    "particle": "icbm_port:block/casing",
+    "label": "icbm_port:block/payload_anvil"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        2,
+        4
+      ],
+      "to": [
+        12,
+        11,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#label"
+        },
+        "down": {
+          "texture": "#label"
+        },
+        "north": {
+          "texture": "#label"
+        },
+        "south": {
+          "texture": "#label"
+        },
+        "east": {
+          "texture": "#label"
+        },
+        "west": {
+          "texture": "#label"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        11,
+        5
+      ],
+      "to": [
+        11,
+        13,
+        11
+      ],
+      "faces": {
+        "up": {
+          "texture": "#alloy"
+        },
+        "down": {
+          "texture": "#alloy"
+        },
+        "north": {
+          "texture": "#alloy"
+        },
+        "south": {
+          "texture": "#alloy"
+        },
+        "east": {
+          "texture": "#alloy"
+        },
+        "west": {
+          "texture": "#alloy"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        13,
+        6
+      ],
+      "to": [
+        12,
+        14,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#carbon"
+        },
+        "down": {
+          "texture": "#carbon"
+        },
+        "north": {
+          "texture": "#carbon"
+        },
+        "south": {
+          "texture": "#carbon"
+        },
+        "east": {
+          "texture": "#carbon"
+        },
+        "west": {
+          "texture": "#carbon"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        11,
+        6
+      ],
+      "to": [
+        13,
+        13,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hazard"
+        },
+        "down": {
+          "texture": "#hazard"
+        },
+        "north": {
+          "texture": "#hazard"
+        },
+        "south": {
+          "texture": "#hazard"
+        },
+        "east": {
+          "texture": "#hazard"
+        },
+        "west": {
+          "texture": "#hazard"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        -35,
+        -15
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        -1
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
   }
 }

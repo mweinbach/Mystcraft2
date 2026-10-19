@@ -22,6 +22,8 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
   private BlockPos origin = BlockPos.ORIGIN;
   private int ticks, liftTicks;
   private boolean completed;
+  private java.util.UUID singularity;
+  private int coreLoadGrace;
 
   public FlyingBlockEntity(EntityType<? extends FlyingBlockEntity> type, World world) {
     super(type, world);
@@ -97,10 +99,41 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     return entity;
   }
 
+  public void bindToSingularity(java.util.UUID id) {
+    singularity = id;
+    coreLoadGrace = 0;
+  }
+
   @Override
   public void tick() {
     super.tick();
-    if (world.isClient || completed || hasVehicle()) return;
+    if (world.isClient || hasVehicle()) return;
+    if (completed) {
+      discard();
+      return;
+    }
+    Entity attracting = singularity == null ? null : ((ServerWorld) world).getEntity(singularity);
+    if (attracting instanceof RedmatterEntity core && !core.isRemoved()) {
+      coreLoadGrace = 0;
+      Vec3d delta = core.getPos().subtract(getPos());
+      double speed = Math.min(.65, delta.length() * .4);
+      setVelocity(delta.lengthSquared() < .0001 ? Vec3d.ZERO : delta.normalize().multiply(speed));
+      // Captured cargo belongs to the core, so intervening terrain cannot cause it
+      // to land and recreate the crater while it is being drawn inward.
+      noClip = true;
+      liftTicks = Math.max(2, liftTicks);
+    } else if (singularity != null && coreLoadGrace > 0) {
+      // Entity NBT can load before its owning core's chunk/entity. Preserve the
+      // transfer briefly without moving cargo or forcing either chunk to load.
+      coreLoadGrace--;
+      noClip = true;
+      liftTicks = Math.max(2, liftTicks);
+      setVelocity(Vec3d.ZERO);
+      return;
+    } else {
+      singularity = null;
+      noClip = false;
+    }
     ticks++;
     if (liftTicks > 0) liftTicks--;
     Vec3d next = getPos().add(getVelocity());
@@ -185,6 +218,7 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     n.putInt("ticks", ticks);
     n.putInt("lift", liftTicks);
     n.putBoolean("completed", completed);
+    if (singularity != null) n.putUuid("singularity", singularity);
     if (blockEntityData != null) n.put("blockEntity", blockEntityData);
   }
 
@@ -195,6 +229,8 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     ticks = Math.max(0, Math.min(72000, n.getInt("ticks")));
     liftTicks = Math.max(0, Math.min(72000, n.getInt("lift")));
     completed = n.getBoolean("completed");
+    singularity = n.containsUuid("singularity") ? n.getUuid("singularity") : null;
+    coreLoadGrace = singularity == null ? 0 : 100;
     blockEntityData = n.contains("blockEntity", 10) ? n.getCompound("blockEntity").copy() : null;
   }
 

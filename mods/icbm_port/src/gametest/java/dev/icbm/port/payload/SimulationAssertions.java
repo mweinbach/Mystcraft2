@@ -134,4 +134,197 @@ public final class SimulationAssertions {
         "Saved gas bounds must preserve collision filtering");
     c.complete();
   }
+
+  public static void placedRedmatterReachesDistantTerrain(TestContext c) {
+    BlockPos pos = c.getAbsolutePos(new BlockPos(2, 44, 2));
+    var block = dev.icbm.port.IcbmPort.EXPLOSIVE_BLOCKS.get(PayloadType.REDMATTER);
+    c.getWorld().setBlockState(pos.down(), Blocks.BEDROCK.getDefaultState(), 2);
+    c.getWorld().setBlockState(pos, block.getDefaultState(), 2);
+    BlockPos target = pos.east(6);
+    c.getWorld().setBlockState(target, Blocks.STONE.getDefaultState(), 2);
+    ItemEntity item =
+        new ItemEntity(
+            c.getWorld(),
+            pos.getX() + 4.5,
+            pos.getY() + .4,
+            pos.getZ() + .5,
+            new ItemStack(Items.DIAMOND));
+    item.setNoGravity(true);
+    c.getWorld().spawnEntity(item);
+    check(c, block.prime(c.getWorld(), pos, 1), "Placed redmatter block must prime");
+    c.getWorld().removeBlock(pos, false);
+    c.runAtTick(
+        200,
+        () -> {
+          try {
+            var cores =
+                c.getWorld()
+                    .getEntitiesByType(
+                        SimulationContent.REDMATTER, new Box(pos).expand(10), e -> e.isAlive());
+            check(c, cores.size() == 1, "Primed redmatter must create one persistent core");
+            RedmatterEntity core = cores.get(0);
+            check(
+                c,
+                c.getWorld().isAir(target),
+                "Redmatter must find terrain six blocks away after its inner shells are empty");
+            check(
+                c,
+                core.capturedBlocks() > 0 && core.consumedBlocks() > 0,
+                "Captured terrain must actually reach and feed the core");
+            check(
+                c,
+                item.isRemoved(),
+                "The gravitational field must pull and consume nearby dropped items");
+            NbtCompound saved = new NbtCompound();
+            core.writeNbt(saved);
+            var restored = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+            restored.readNbt(saved);
+            check(
+                c,
+                restored.searchRadius() == core.searchRadius()
+                    && restored.consumedBlocks() == core.consumedBlocks(),
+                "Scan progress and consumption counters must survive reload");
+            restored.discard();
+          } finally {
+            Payloads.removeNear(c.getWorld(), Vec3d.ofCenter(pos), 12);
+            item.discard();
+            c.getWorld().removeBlock(pos.down(), false);
+            c.getWorld().removeBlock(target, false);
+          }
+          c.complete();
+        });
+  }
+
+  public static void antimatterNeutralizesWithoutEntityPulse(TestContext c) {
+    BlockPos pos = c.getAbsolutePos(new BlockPos(2, 4, 2));
+    Vec3d center = Vec3d.ofCenter(pos);
+    check(
+        c,
+        Payloads.detonateScaled(c.getWorld(), center, PayloadType.REDMATTER, null, 2),
+        "Redmatter detonation must be accepted");
+    var pig = net.minecraft.entity.EntityType.PIG.create(c.getWorld());
+    pig.setNoGravity(true);
+    pig.setAiDisabled(true);
+    pig.refreshPositionAndAngles(center.x, center.y, center.z, 0, 0);
+    c.getWorld().spawnEntity(pig);
+    float health = pig.getHealth();
+    check(
+        c,
+        Payloads.detonateScaled(c.getWorld(), center, PayloadType.ANTIMATTER, null, 2),
+        "Antimatter counter must be accepted");
+    check(
+        c,
+        c.getWorld()
+            .getEntitiesByType(
+                SimulationContent.REDMATTER, new Box(pos).expand(2), e -> e.isAlive())
+            .isEmpty(),
+        "Antimatter must neutralize the singularity");
+    c.runAtTick(
+        36,
+        () -> {
+          check(
+              c,
+              pig.isAlive() && pig.getHealth() == health,
+              "Neutralizing redmatter must suppress antimatter's entity damage pulse, as upstream"
+                  + " defaults require");
+          Payloads.removeNear(c.getWorld(), center, 2);
+          pig.discard();
+          c.complete();
+        });
+  }
+
+  public static void restoredCaptureWaitsForItsCore(TestContext c) {
+    BlockPos pos = c.getAbsolutePos(new BlockPos(2, 84, 2));
+    var originalCore = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+    originalCore.refreshPositionAndAngles(pos.getX() + .5, pos.getY(), pos.getZ() + .5, 0, 0);
+    NbtCompound coreSave = new NbtCompound();
+    originalCore.writeNbt(coreSave);
+    originalCore.discard();
+    BlockPos cargoPos = pos.east(4);
+    c.getWorld().setBlockState(cargoPos, Blocks.STONE.getDefaultState(), 2);
+    var original = FlyingBlockEntity.capture(c.getWorld(), cargoPos, Vec3d.ZERO, 0);
+    original.bindToSingularity(originalCore.getUuid());
+    NbtCompound cargoSave = new NbtCompound();
+    original.writeNbt(cargoSave);
+    original.discard();
+    var restored = new FlyingBlockEntity(SimulationContent.FLYING_BLOCK, c.getWorld());
+    restored.readNbt(cargoSave);
+    c.getWorld().spawnEntity(restored);
+    Vec3d held = restored.getPos();
+    for (int tick = 0; tick < 5; tick++) restored.tick();
+    NbtCompound waiting = new NbtCompound();
+    restored.writeNbt(waiting);
+    check(
+        c,
+        waiting.containsUuid("singularity") && restored.getPos().squaredDistanceTo(held) < .000001,
+        "Cargo loaded before its core must preserve binding and hold position");
+    var core = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+    core.readNbt(coreSave);
+    c.getWorld().spawnEntity(core);
+    for (int tick = 0; tick < 40 && !restored.isRemoved(); tick++) {
+      restored.tick();
+      core.tick();
+    }
+    check(
+        c,
+        restored.isRemoved() && restored.completed() && core.consumedBlocks() == 1,
+        "Late-loaded core must resume homing and consume exactly one captured block");
+    check(c, c.getWorld().isAir(cargoPos), "Consumed cargo must not recreate its source block");
+    core.discard();
+
+    // A missing owner must not leave immortal hovering inventory after the grace.
+    c.getWorld().setBlockState(cargoPos, Blocks.CHEST.getDefaultState(), 2);
+    ((ChestBlockEntity) c.getWorld().getBlockEntity(cargoPos))
+        .setStack(0, new ItemStack(Items.DIAMOND, 3));
+    var missing = FlyingBlockEntity.capture(c.getWorld(), cargoPos, Vec3d.ZERO, 0);
+    missing.bindToSingularity(java.util.UUID.randomUUID());
+    NbtCompound missingSave = new NbtCompound();
+    missing.writeNbt(missingSave);
+    missing.discard();
+    var fallback = new FlyingBlockEntity(SimulationContent.FLYING_BLOCK, c.getWorld());
+    fallback.readNbt(missingSave);
+    c.getWorld().spawnEntity(fallback);
+    for (int tick = 0; tick < 100; tick++) fallback.tick();
+    NbtCompound before = new NbtCompound();
+    fallback.writeNbt(before);
+    check(
+        c,
+        before.containsUuid("singularity"),
+        "Reload grace must last exactly100 absent-core ticks");
+    fallback.tick();
+    NbtCompound after = new NbtCompound();
+    fallback.writeNbt(after);
+    check(
+        c,
+        !after.containsUuid("singularity"),
+        "A core that never loads must release cargo after finite grace");
+    fallback.settle();
+    fallback.settle();
+    var chest = (ChestBlockEntity) c.getWorld().getBlockEntity(cargoPos);
+    check(
+        c,
+        chest != null && chest.getStack(0).isOf(Items.DIAMOND) && chest.getStack(0).getCount() == 3,
+        "Fallback must restore one complete inventory without duplication");
+    chest.clear();
+    c.getWorld().removeBlock(cargoPos, false);
+
+    // Grace is load-only: losing an already observed core releases immediately.
+    var known = new RedmatterEntity(SimulationContent.REDMATTER, c.getWorld());
+    known.refreshPositionAndAngles(pos.getX() + .5, pos.getY(), pos.getZ() + .5, 0, 0);
+    c.getWorld().spawnEntity(known);
+    c.getWorld().setBlockState(cargoPos, Blocks.STONE.getDefaultState(), 2);
+    var fresh = FlyingBlockEntity.capture(c.getWorld(), cargoPos, Vec3d.ZERO, 0);
+    fresh.bindToSingularity(known.getUuid());
+    fresh.tick();
+    known.discard();
+    fresh.tick();
+    NbtCompound released = new NbtCompound();
+    fresh.writeNbt(released);
+    check(
+        c,
+        !released.containsUuid("singularity"),
+        "Known core destruction must release bound cargo immediately");
+    fresh.consume();
+    c.complete();
+  }
 }

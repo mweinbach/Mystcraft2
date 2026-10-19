@@ -71,6 +71,23 @@ public final class DeliveryGameTests implements FabricGameTest {
         c,
         restored.getPickBlockStack().isOf(DeliveryContent.BOMB_CARTS.get(PayloadType.ATTRACTIVE)),
         "Cart item must retain payload");
+    check(
+        c,
+        cart.getVisualFuseTicks() == 120,
+        "Priming must synchronize the payload-specific visual fuse");
+    data.putInt("TNTFuse", 37);
+    restored.readCustomDataFromNbt(data);
+    check(
+        c,
+        restored.getVisualFuseTicks() == 37,
+        "Reload must synchronize the saved remaining fuse rather than the default duration");
+    restored.setPosition(
+        net.minecraft.util.math.Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 4, 2))));
+    restored.tick();
+    check(
+        c,
+        restored.getFuseTicks() == 36 && restored.getVisualFuseTicks() == 36,
+        "Visual synchronization must follow the real server countdown without changing its timing");
     c.complete();
   }
 

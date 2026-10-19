@@ -13,8 +13,10 @@ and packaged in both binary and source JARs. That notice's relative asset-licens
 link describes the original upstream layout; the upstream asset terms can be read
 [at the pinned revision](https://github.com/BuiltBrokenModding/ICBM-Classic/blob/9c1d985a375adc2868ff47707b3a636452d0b63a/src/main/resources/assets/icbmclassic/LICENSE.md).
 
-Upstream textures, models, sounds, and language files are not imported. New model
-JSON references vanilla Minecraft textures. MIT team-created recipe data is adapted
+Upstream textures, models, sounds, and language files are not imported. Alpha.4 adds independently authored industrial texture PNGs, JSON geometry and
+client animation/rendering code; some models continue to reference vanilla Minecraft
+textures. The original generation scripts and remaining asset limits are documented
+in [ASSET_PROVENANCE.md](docs/ASSET_PROVENANCE.md). No upstream artist assets were copied. MIT team-created recipe data is adapted
 with per-file mappings in `tools/upstream_recipe_mapping.json`. Gameplay systems
 are reconstructed from the source families listed in `docs/PARITY.md`. No Mystcraft code or assets are
 included in this independently built module. The ICBM code license is distinct

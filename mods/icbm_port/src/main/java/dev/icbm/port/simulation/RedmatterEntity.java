@@ -20,6 +20,12 @@ import net.minecraft.world.World;
 public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   private static final TrackedData<Float> SIZE =
       DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.FLOAT);
+  private static final TrackedData<Integer> SEARCH_RADIUS =
+      DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> CAPTURED =
+      DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.INTEGER);
+  private static final TrackedData<Integer> CONSUMED =
+      DataTracker.registerData(RedmatterEntity.class, TrackedDataHandlerRegistry.INTEGER);
   private int lived, scanCursor, starved;
   private UUID owner;
 
@@ -32,6 +38,9 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   @Override
   protected void initDataTracker() {
     dataTracker.startTracking(SIZE, 1f);
+    dataTracker.startTracking(SEARCH_RADIUS, 1);
+    dataTracker.startTracking(CAPTURED, 0);
+    dataTracker.startTracking(CONSUMED, 0);
   }
 
   public float size() {
@@ -40,6 +49,18 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
 
   public void setSize(float size) {
     dataTracker.set(SIZE, Math.max(.25f, Math.min(70, size)));
+  }
+
+  public int searchRadius() {
+    return dataTracker.get(SEARCH_RADIUS);
+  }
+
+  public int capturedBlocks() {
+    return dataTracker.get(CAPTURED);
+  }
+
+  public int consumedBlocks() {
+    return dataTracker.get(CONSUMED);
   }
 
   public void setOwner(Entity entity) {
@@ -65,7 +86,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       discard();
       return;
     }
-    double radius = Math.min(70, Math.max(2, size() * 3));
+    double radius = Math.min(70, Math.max(searchRadius() + 2, size() * 3));
     int fed = 0;
     var entities = server.getOtherEntities(this, getBoundingBox().expand(radius), Entity::isAlive);
     for (int index = 0; index < Math.min(256, entities.size()); index++) {
@@ -92,6 +113,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       if (distance < Math.max(.6, size() * .08)) {
         if (entity instanceof FlyingBlockEntity flying) {
           flying.consume();
+          dataTracker.set(CONSUMED, Math.min(1000000, consumedBlocks() + 1));
           fed++;
         } else {
           Entity attributed = owner == null ? null : server.getEntity(owner);
@@ -114,24 +136,32 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
         entity.velocityModified = true;
       }
     }
-    // Bounded expanding cube-wall scan: captures at most four blocks per tick into conserved
-    // entities.
-    int r = Math.max(1, (int) Math.ceil(size())), side = 2 * r + 1, total = side * side * side;
-    for (int check = 0; check < 128 && fed < 4; check++, scanCursor = (scanCursor + 1) % total) {
-      int x = scanCursor % side - r,
-          y = scanCursor / side % side - r,
-          z = scanCursor / (side * side) - r;
-      if (Math.abs(x) != r && Math.abs(y) != r && Math.abs(z) != r) continue;
-      BlockPos pos = getBlockPos().add(x, y, z);
-      if (!server.isChunkLoaded(pos)
-          || server.isOutOfHeightLimit(pos)
-          || !server.getWorldBorder().contains(pos)) continue;
-      BlockState state = server.getBlockState(pos);
-      if (state.isAir() || state.getHardness(server, pos) < 0) continue;
+    // Search expansion must not depend on growth: otherwise clearing the first shell
+    // permanently disconnects a small core from all remaining terrain.
+    int limit = Math.max(1, Math.min(70, config.radius()));
+    int r = Math.min(limit, searchRadius());
+    int shell = 24 * r * r + 2;
+    scanCursor = Math.floorMod(scanCursor, shell);
+    int captured = 0;
+    for (int rays = 0; rays < 32 && captured < 4; rays++) {
+      BlockPos target = getBlockPos().add(shellOffset(scanCursor, r));
+      if (++scanCursor >= shell) {
+        scanCursor = 0;
+        r = r >= limit ? 1 : r + 1;
+        shell = 24 * r * r + 2;
+      }
+      BlockPos pos = firstCaptureCandidate(server, target);
+      if (pos == null) continue;
       Vec3d inward = getPos().subtract(Vec3d.ofCenter(pos)).normalize().multiply(.2);
-      FlyingBlockEntity captured = FlyingBlockEntity.capture(server, pos, inward, 40);
-      if (captured != null) fed++;
+      FlyingBlockEntity flying = FlyingBlockEntity.capture(server, pos, inward, 40);
+      if (flying != null) {
+        flying.bindToSingularity(getUuid());
+        captured++;
+        dataTracker.set(CAPTURED, Math.min(1000000, capturedBlocks() + 1));
+      }
     }
+    dataTracker.set(SEARCH_RADIUS, r);
+    fed += captured;
     if (fed > 0) {
       starved = 0;
       setSize((float) Math.min(Math.max(1, config.radius()), size() + fed * .01));
@@ -163,12 +193,50 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
           .03);
   }
 
+  private static BlockPos shellOffset(int index, int radius) {
+    int side = radius * 2 + 1, inner = side - 2, face = side * side;
+    if (index < 2 * face) {
+      int x = index < face ? -radius : radius;
+      int n = index % face;
+      return new BlockPos(x, n % side - radius, n / side - radius);
+    }
+    index -= 2 * face;
+    face = inner * side;
+    if (index < 2 * face) {
+      int y = index < face ? -radius : radius;
+      int n = index % face;
+      return new BlockPos(n % inner - radius + 1, y, n / inner - radius);
+    }
+    index -= 2 * face;
+    face = inner * inner;
+    int z = index < face ? -radius : radius, n = index % face;
+    return new BlockPos(n % inner - radius + 1, n / inner - radius + 1, z);
+  }
+
+  private BlockPos firstCaptureCandidate(ServerWorld world, BlockPos target) {
+    Vec3d delta = Vec3d.ofCenter(target).subtract(getPos());
+    int steps = Math.min(256, Math.max(1, (int) Math.ceil(delta.length() * 2)));
+    for (int step = 1; step <= steps; step++) {
+      BlockPos pos = new BlockPos(getPos().add(delta.multiply(step / (double) steps)));
+      if (!world.isChunkLoaded(pos)
+          || world.isOutOfHeightLimit(pos)
+          || !world.getWorldBorder().contains(pos)) return null;
+      BlockState state = world.getBlockState(pos);
+      if (state.getHardness(world, pos) < 0) return null;
+      if (!state.isAir() && state.getFluidState().isEmpty()) return pos;
+    }
+    return null;
+  }
+
   @Override
   protected void writeCustomDataToNbt(NbtCompound n) {
     n.putFloat("size", size());
     n.putInt("lived", lived);
     n.putInt("scan", scanCursor);
     n.putInt("starved", starved);
+    n.putInt("searchRadius", searchRadius());
+    n.putInt("captured", capturedBlocks());
+    n.putInt("consumed", consumedBlocks());
     if (owner != null) n.putUuid("owner", owner);
   }
 
@@ -179,6 +247,9 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     lived = Math.max(0, Math.min(72000, n.getInt("lived")));
     scanCursor = Math.max(0, n.getInt("scan"));
     starved = Math.max(0, Math.min(72000, n.getInt("starved")));
+    dataTracker.set(SEARCH_RADIUS, Math.max(1, Math.min(70, n.getInt("searchRadius"))));
+    dataTracker.set(CAPTURED, Math.max(0, Math.min(1000000, n.getInt("captured"))));
+    dataTracker.set(CONSUMED, Math.max(0, Math.min(1000000, n.getInt("consumed"))));
     owner = n.containsUuid("owner") ? n.getUuid("owner") : null;
   }
 

@@ -101,6 +101,7 @@ public final class Payloads {
     boolean accepted =
         dispatch(server, center, type, source, (int) Math.ceil(size), context.source());
     IcbmApi.fireAfter(context, accepted);
+    if (accepted) dev.icbm.port.effects.BlastEffects.broadcast(server, center, type, size);
     return accepted;
   }
 
@@ -113,11 +114,22 @@ public final class Payloads {
       ActionSource attribution) {
     PayloadConfig.Settings settings = PayloadConfig.forType(type);
     if (!settings.enabled()) return false;
-    if (type == PayloadType.ANTIMATTER)
+    if (type == PayloadType.ANTIMATTER) {
+      Job job = new Job(type, center, size);
+      job.source = attribution;
+      if (!state(server).enqueue(job, false)) return false;
       for (Entity entity :
           server.getOtherEntities(
-              null, new Box(center, center).expand(size), e -> e instanceof RedmatterEntity))
-        if (entity.squaredDistanceTo(center) <= size * size) entity.discard();
+              null, new Box(center, center).expand(size), e -> e instanceof RedmatterEntity)) {
+        if (entity.squaredDistanceTo(center) <= size * size) {
+          entity.discard();
+          job.suppressEntityDamage = true;
+        }
+      }
+      // Upstream damageOnRedmatterKill=false: neutralizing a core consumes the
+      // entity-damage pulse. Terrain work still follows the accepted blast.
+      return true;
+    }
     switch (type) {
       case CONDENSED -> {
         Job job = new Job(type, center, size);
@@ -196,7 +208,7 @@ public final class Payloads {
       }
       case REDMATTER -> {
         RedmatterEntity singularity = new RedmatterEntity(SimulationContent.REDMATTER, server);
-        singularity.refreshPositionAndAngles(center.x, center.y, center.z, 0, 0);
+        singularity.refreshPositionAndAngles(center.x, center.y + .5, center.z, 0, 0);
         singularity.setOwner(source);
         singularity.setVelocity(source == null ? Vec3d.ZERO : source.getVelocity().multiply(.1));
         return server.spawnEntity(singularity);
@@ -417,6 +429,7 @@ public final class Payloads {
               n.contains("elapsedTicks")
                   ? Math.min(72000, Math.max(0, n.getInt("elapsedTicks")))
                   : j.age;
+          j.suppressEntityDamage = n.getBoolean("suppressEntityDamage");
           j.source = ActionSource.fromNbt(n.getCompound("source"));
           if (n.contains("rayWork", 10)) j.rayWork = RayWork.read(n.getCompound("rayWork"));
           if (n.contains("gasWork", 10))
@@ -451,6 +464,7 @@ public final class Payloads {
         n.putInt("cursor", j.cursor);
         n.putInt("age", j.age);
         n.putInt("elapsedTicks", j.elapsedTicks);
+        n.putBoolean("suppressEntityDamage", j.suppressEntityDamage);
         n.put("source", j.source.toNbt());
         if (j.rayWork != null) n.put("rayWork", j.rayWork.write());
         if (j.gasWork != null) n.put("gasWork", j.gasWork.write());
@@ -490,6 +504,7 @@ public final class Payloads {
     final Vec3d center;
     final int radius;
     int cursor, age, elapsedTicks;
+    boolean suppressEntityDamage;
     RayWork rayWork;
     GasWork gasWork;
     String destinationWorld;
@@ -615,7 +630,7 @@ public final class Payloads {
                     (settings.entityDamage()
                         * Math.max(
                             0, 1 - entity.getPos().distanceTo(center) / Math.max(1, radius))));
-        if (type == PayloadType.ANTIMATTER)
+        if (type == PayloadType.ANTIMATTER && !suppressEntityDamage)
           for (Entity e : nearby(w, center, radius))
             e.damage(DamageSource.OUT_OF_WORLD, (float) settings.entityDamage());
         if (type == PayloadType.INCENDIARY)

@@ -59,8 +59,8 @@ reopened after wall removal. Visual particle spread is cosmetic.
 ## Conserved block entities and redmatter
 
 `SimulationContent.register()` registers `flying_block` and
-`redmatter_singularity`; `SimulationClient.register()` supplies vanilla-texture
-renderers. A flying block captures complete blockstate and block-entity NBT.
+`redmatter_singularity`; `SimulationClient.register()` supplies independent
+renderers using ordinary Minecraft render layers and permitted vanilla textures. A flying block captures complete blockstate and block-entity NBT. Restored core-bound blocks wait up to 100 ticks for their core to load, then resume homing or release conservatively if it never appears.
 The source BE is removed before clearing its block, preventing inventory scatter.
 On landing it either restores the block/BE or drops one state/NBT-bearing item.
 Completion is one-shot, including repeated settlement. Save/load preserves its
@@ -71,16 +71,11 @@ chests are not split. Block data from a held-item carrier can be constructed via
 movement until released. Antigravity captures real flying blocks with remaining
 field duration; they regain gravity and settle afterward.
 
-Redmatter is now a saved moving/no-clip entity. It pulls entities with distance
-falloff, captures up to4 blocks while examining at most128 cube-wall positions
-per tick, consumes captured blocks at its core, grows by feeding, starves when
-unfed, merges overlapping cores, retains momentum, and obeys its configured
-lifetime. Size, scan position, owner and lifetime survive save/load. Maximum
-configured size defaults12; source starts at1, minimum0.25. Gameplay uses a
-vanilla ender-eye rendering and particles; the upstream custom shader/art and
-complex visual beam mesh are not imported. Upstream per-block mass accounting,
-explosion-specific momentum coefficients, audio, and every optional redmatter
-configuration branch are not yet identical.
+Redmatter is a saved moving/no-clip entity. In alpha.4 its terrain search expands independently of core growth, so an emptied inner shell no longer prevents it from finding distant terrain. Each tick it tests at most32 shell rays (at most256 samples each) and captures at most4 blocks. Shell radius is bounded by the configured radius and a hard limit70; saved search radius/cursor preserve progress. Captured blocks bind to the core UUID, move inward without terrain collision and are consumed at its center, rather than settling back into the crater. The binding survives saves; loss of the core restores ordinary settling behavior.
+
+The core pulls entities with distance falloff, grows by feeding, starves when unfed, merges overlapping cores, retains momentum and obeys its configured lifetime. Size, owner, lifetime and capture/consumption counters survive saves. Maximum configured size defaults12; source starts at1, minimum0.25. Tests cover placed-block priming, consumption of terrain six blocks away after inner shells are empty, persisted search progress and antimatter neutralization.
+
+The former ender-eye placeholder is replaced with an original animated dark sphere and four tumbling accretion discs. This uses ordinary solid/translucent entity layers, without the upstream shader or beam mesh. Upstream per-block mass accounting, explosion-specific momentum coefficients, custom audio and every optional redmatter branch are not identical. No upstream artist assets were copied.
 
 GPS-customized ender missiles carry target dimension/position independently of
 flight. Their payload moves nearby entities and conserved blocks to matching
@@ -114,5 +109,9 @@ upstream moving explosive-fragment entity. Source-specific sounds, custom
 fragment models, exhaustive material rules and full Forge integration remain
 differences. Dedicated-server tests exercise registry/timing, projectiles,
 mutation, gas, budgets, lifetime/reload, inventory conservation, shielding,
-singularity consumption and diffusion walls. Interactive client playtesting is
-still required for custom entity presentation.
+singularity consumption and diffusion walls. Alpha.4 also sends a bounded presentation packet per admitted detonation, driving
+client shockwave/particle effects and vanilla sound events independently of the
+terrain work queue. Primed casings pulse and flash; missile exhaust follows
+synchronized flight/EMP state. Original models and effects are approximate
+replacements. Full-pack alpha.4 client inspection confirmed redmatter consumption, core/ring motion and selected machines; audio, shader
+packs and two-client presentation need broader testing.

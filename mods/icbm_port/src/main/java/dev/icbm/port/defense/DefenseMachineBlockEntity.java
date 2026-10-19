@@ -29,6 +29,65 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       radarOnly,
       enabled = true;
   private int radioCooldown;
+  private int visualFlags, visualYaw, lastSentVisualFlags = -1, lastSentVisualYaw;
+  private long lastVisualSync = Long.MIN_VALUE, visualTargetUntil;
+
+  /**
+   * Read-only synchronized rendering state: ready=1, cooling=2, incoming=4, disabled=8,
+   * tracking=16.
+   */
+  public int visualFlags() {
+    return visualFlags;
+  }
+
+  public float visualYaw() {
+    return visualYaw;
+  }
+
+  private int computeVisualFlags() {
+    if (world == null) return 0;
+    boolean disabled = !enabled || DefenseContent.isEmpDisabled(world, pos);
+    boolean ready =
+        !disabled
+            && switch (kind()) {
+              case RADAR -> energy.getAmount() >= 1000;
+              case EMP -> cooldown == 0 && energy.getAmount() >= (long) range * range * 100;
+              case SAM -> getCachedState().get(DefenseMachineBlock.POWER) > 0;
+            };
+    return (ready ? 1 : 0)
+        | (cooldown > 0 ? 2 : 0)
+        | (kind() == DefenseMachineBlock.Kind.RADAR && tracks > 0 ? 4 : 0)
+        | (disabled ? 8 : 0)
+        | (world.getTime() < visualTargetUntil ? 16 : 0);
+  }
+
+  private void syncVisual() {
+    if (!(world instanceof ServerWorld)) return;
+    visualFlags = computeVisualFlags();
+    long now = world.getTime();
+    if ((visualFlags != lastSentVisualFlags || visualYaw != lastSentVisualYaw)
+        && (lastVisualSync == Long.MIN_VALUE || now - lastVisualSync >= 5)) {
+      lastSentVisualFlags = visualFlags;
+      lastSentVisualYaw = visualYaw;
+      lastVisualSync = now;
+      world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+    }
+  }
+
+  @Override
+  public NbtCompound toInitialChunkDataNbt() {
+    NbtCompound nbt = new NbtCompound();
+    nbt.putBoolean("DefenseVisual", true);
+    nbt.putInt(
+        "VisualFlags", world != null && !world.isClient ? computeVisualFlags() : visualFlags);
+    nbt.putInt("VisualYaw", visualYaw);
+    return nbt;
+  }
+
+  @Override
+  public net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket toUpdatePacket() {
+    return net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket.create(this);
+  }
 
   public DefenseMachineBlockEntity(BlockPos pos, BlockState state) {
     super(DefenseContent.MACHINE_BLOCK_ENTITY, pos, state);
@@ -75,43 +134,50 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       BlockState state,
       DefenseMachineBlockEntity machine) {
     if (!(world instanceof ServerWorld server)) return;
-    RadioNetwork.register(server, machine);
-    EnergyContent.chargeFromBattery(machine, 0, machine.energy, 10_000);
-    if (machine.cooldown > 0) {
-      machine.cooldown--;
-      machine.markDirty();
-    }
-    if (machine.radioCooldown > 0) machine.radioCooldown--;
-    machine.range = MathHelper.clamp(machine.range, 1, machine.maximumRange());
-    if (!machine.enabled || DefenseContent.isEmpDisabled(world, pos)) {
-      machine.output(0);
-      return;
-    }
-    if (machine.kind() == DefenseMachineBlock.Kind.RADAR) {
-      if (!machine.energy.consume(1000)) {
-        machine.tracks = 0;
+    try {
+      RadioNetwork.register(server, machine);
+      EnergyContent.chargeFromBattery(machine, 0, machine.energy, 10_000);
+      if (machine.cooldown > 0) {
+        machine.cooldown--;
+        machine.markDirty();
+      }
+      if (machine.radioCooldown > 0) machine.radioCooldown--;
+      machine.range = MathHelper.clamp(machine.range, 1, machine.maximumRange());
+      if (!machine.enabled || DefenseContent.isEmpDisabled(world, pos)) {
         machine.output(0);
         return;
       }
-      var detected =
-          DefenseContent.trackedMissiles(world, Vec3d.ofCenter(pos), machine.range).stream()
-              .filter(machine::accepts)
-              .toList();
-      machine.tracks = detected.size();
-      var incoming = detected.stream().filter(entity -> machine.incoming(entity)).toList();
-      machine.output(Math.min(15, incoming.size()));
-      if (!incoming.isEmpty() && machine.radioCooldown == 0) {
-        RadioNetwork.broadcast(server, machine, incoming.get(0).getUuid());
-        machine.radioCooldown = 40;
+      if (machine.kind() == DefenseMachineBlock.Kind.RADAR) {
+        if (!machine.energy.consume(1000)) {
+          machine.tracks = 0;
+          machine.output(0);
+          return;
+        }
+        var detected =
+            DefenseContent.trackedMissiles(world, Vec3d.ofCenter(pos), machine.range).stream()
+                .filter(machine::accepts)
+                .toList();
+        machine.tracks = detected.size();
+        var incoming = detected.stream().filter(entity -> machine.incoming(entity)).toList();
+        machine.output(Math.min(15, incoming.size()));
+        if (!incoming.isEmpty() && machine.radioCooldown == 0) {
+          RadioNetwork.broadcast(server, machine, incoming.get(0).getUuid());
+          machine.radioCooldown = 40;
+        }
+      } else if (machine.kind() == DefenseMachineBlock.Kind.EMP) {
+        if (machine.cooldown == 0 && world.isReceivingRedstonePower(pos)) machine.fireEmp();
+      } else if (!machine.radarOnly
+          && world.isReceivingRedstonePower(pos)
+          && machine.cooldown == 0) {
+        DefenseContent.trackedMissiles(world, Vec3d.ofCenter(pos), machine.range).stream()
+            .filter(machine::accepts)
+            .filter(entity -> DefenseContent.isThreat(world, Vec3d.ofCenter(pos), entity))
+            .min(
+                Comparator.comparingDouble(entity -> entity.squaredDistanceTo(Vec3d.ofCenter(pos))))
+            .ifPresent(machine::fireSam);
       }
-    } else if (machine.kind() == DefenseMachineBlock.Kind.EMP) {
-      if (machine.cooldown == 0 && world.isReceivingRedstonePower(pos)) machine.fireEmp();
-    } else if (!machine.radarOnly && world.isReceivingRedstonePower(pos) && machine.cooldown == 0) {
-      DefenseContent.trackedMissiles(world, Vec3d.ofCenter(pos), machine.range).stream()
-          .filter(machine::accepts)
-          .filter(entity -> DefenseContent.isThreat(world, Vec3d.ofCenter(pos), entity))
-          .min(Comparator.comparingDouble(entity -> entity.squaredDistanceTo(Vec3d.ofCenter(pos))))
-          .ifPresent(machine::fireSam);
+    } finally {
+      machine.syncVisual();
     }
   }
 
@@ -169,6 +235,9 @@ public final class DefenseMachineBlockEntity extends BlockEntity
         pos,
         state.with(DefenseMachineBlock.POWER, state.get(DefenseMachineBlock.POWER) - 1),
         Block.NOTIFY_ALL);
+    Vec3d visualDelta = target.getPos().subtract(Vec3d.ofCenter(pos));
+    visualYaw = (int) Math.toDegrees(Math.atan2(visualDelta.x, visualDelta.z));
+    visualTargetUntil = world.getTime() + 40;
     cooldown = 40;
     markDirty();
     return true;
@@ -364,6 +433,11 @@ public final class DefenseMachineBlockEntity extends BlockEntity
 
   @Override
   public void readNbt(NbtCompound nbt) {
+    if (nbt.getBoolean("DefenseVisual")) {
+      visualFlags = nbt.getInt("VisualFlags") & 31;
+      visualYaw = MathHelper.clamp(nbt.getInt("VisualYaw"), -180, 180);
+      return;
+    }
     super.readNbt(nbt);
     Inventories.readNbt(nbt, items);
     energy.readNbt(nbt);

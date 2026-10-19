@@ -1,6 +1,169 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:block/block",
   "textures": {
-    "layer0": "minecraft:item/honey_bottle"
+    "casing": "icbm_port:block/casing",
+    "alloy": "icbm_port:block/alloy",
+    "carbon": "icbm_port:block/carbon",
+    "hazard": "icbm_port:block/hazard",
+    "grille": "icbm_port:block/grille",
+    "coil": "icbm_port:block/coil",
+    "optic": "icbm_port:block/optic",
+    "panel": "icbm_port:block/panel",
+    "warning": "icbm_port:block/warning",
+    "exhaust": "icbm_port:block/exhaust",
+    "particle": "icbm_port:block/casing"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        1,
+        5
+      ],
+      "to": [
+        11,
+        11,
+        11
+      ],
+      "faces": {
+        "up": {
+          "texture": "#alloy"
+        },
+        "down": {
+          "texture": "#alloy"
+        },
+        "north": {
+          "texture": "#alloy"
+        },
+        "south": {
+          "texture": "#alloy"
+        },
+        "east": {
+          "texture": "#alloy"
+        },
+        "west": {
+          "texture": "#alloy"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        11,
+        6
+      ],
+      "to": [
+        10,
+        14,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#carbon"
+        },
+        "down": {
+          "texture": "#carbon"
+        },
+        "north": {
+          "texture": "#carbon"
+        },
+        "south": {
+          "texture": "#carbon"
+        },
+        "east": {
+          "texture": "#carbon"
+        },
+        "west": {
+          "texture": "#carbon"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        4.9
+      ],
+      "to": [
+        11,
+        8,
+        5
+      ],
+      "faces": {
+        "up": {
+          "texture": "#optic"
+        },
+        "down": {
+          "texture": "#optic"
+        },
+        "north": {
+          "texture": "#optic"
+        },
+        "south": {
+          "texture": "#optic"
+        },
+        "east": {
+          "texture": "#optic"
+        },
+        "west": {
+          "texture": "#optic"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        -35,
+        -15
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        -1
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
   }
 }

@@ -20,6 +20,9 @@ public final class BombCartEntity extends TntMinecartEntity {
   private static final TrackedData<String> PAYLOAD =
       DataTracker.registerData(BombCartEntity.class, TrackedDataHandlerRegistry.STRING);
 
+  private static final TrackedData<Integer> VISUAL_FUSE =
+      DataTracker.registerData(BombCartEntity.class, TrackedDataHandlerRegistry.INTEGER);
+
   public BombCartEntity(EntityType<? extends BombCartEntity> type, World world) {
     super(type, world);
   }
@@ -28,6 +31,7 @@ public final class BombCartEntity extends TntMinecartEntity {
   protected void initDataTracker() {
     super.initDataTracker();
     dataTracker.startTracking(PAYLOAD, "condensed");
+    dataTracker.startTracking(VISUAL_FUSE, -1);
   }
 
   public void setPayload(PayloadType payload) {
@@ -63,6 +67,23 @@ public final class BombCartEntity extends TntMinecartEntity {
     super.writeCustomDataToNbt(state);
     state.putInt("TNTFuse", getPayload().cartFuseTicks());
     super.readCustomDataFromNbt(state);
+    if (!world.isClient) dataTracker.set(VISUAL_FUSE, super.getFuseTicks());
+  }
+
+  /** Renderer-only view, synchronized from the server's actual private TNT fuse. */
+  public int getVisualFuseTicks() {
+    return dataTracker.get(VISUAL_FUSE);
+  }
+
+  @Override
+  public int getFuseTicks() {
+    return world.isClient ? getVisualFuseTicks() : super.getFuseTicks();
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    if (!world.isClient && !isRemoved()) dataTracker.set(VISUAL_FUSE, super.getFuseTicks());
   }
 
   @Override
@@ -101,5 +122,6 @@ public final class BombCartEntity extends TntMinecartEntity {
       state.putInt("TNTFuse", Math.max(-1, Math.min(72000, state.getInt("TNTFuse"))));
     super.readCustomDataFromNbt(state);
     setPayload(DeliveryContent.readPayload(nbt.getString("Payload")));
+    if (!world.isClient) dataTracker.set(VISUAL_FUSE, super.getFuseTicks());
   }
 }

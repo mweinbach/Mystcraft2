@@ -16,7 +16,7 @@ Official distribution links, checked against the Tekxit download listing:
 
 ## Installation
 
-Install the production `icbm-fabric-port-0.2.0-alpha.3.jar` from this module's
+Install the production `icbm-fabric-port-0.2.0-alpha.4.jar` from this module's
 `build/libs` into **both client and server** `mods` directories. Keep the pack's
 matching Fabric API and existing mods. Use the production jar, not `-sources`,
 `-dev`, `-tekxit-tests`, or `-emi-tests` artifacts. Back up existing worlds before
@@ -94,9 +94,9 @@ separate test jars:
 
 The outputs are under `mods/icbm_port/build/libs/`:
 
-- `icbm-fabric-port-0.2.0-alpha.3.jar`: production mod, both sides.
-- `icbm-fabric-port-0.2.0-alpha.3-tekxit-tests.jar`: server integration test mod.
-- `icbm-fabric-port-0.2.0-alpha.3-emi-tests.jar`: client EMI smoke test mod.
+- `icbm-fabric-port-0.2.0-alpha.4.jar`: production mod, both sides.
+- `icbm-fabric-port-0.2.0-alpha.4-tekxit-tests.jar`: server integration test mod.
+- `icbm-fabric-port-0.2.0-alpha.4-emi-tests.jar`: client EMI smoke test mod.
 
 Use a disposable copy of the official **client** for the preferred full-pack test
 route. Keep all 308 shipped mods and the original recipe, material and world-generation
@@ -187,7 +187,13 @@ The ICBM tests separately check its own recipes through EMI's baked input/output
 indexes, including cargo NBT and empty carrier remainders. The port does not patch
 or disable other mods' recipe integrations.
 
-## Validation status
+## Alpha.4 validation status
+
+Local alpha.4 build, 16 JUnit tests, 92 gameplay GameTests, the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
+
+The runtime results below were recorded for **alpha.3** and are retained as a historical compatibility baseline. They do not establish alpha.4 visual correctness or revalidate every new change.
+
+## Historical alpha.3 validation
 
 The production build, **88 ordinary GameTests**, **16 JUnit tests** and the isolated
 material suite with **five real datapack reloads** passed. Test fixture source sets

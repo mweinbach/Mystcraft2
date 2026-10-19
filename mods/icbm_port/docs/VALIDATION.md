@@ -1,4 +1,19 @@
-# Validation — 0.2.0-alpha.3
+# Validation — 0.2.0-alpha.4
+
+Verified locally October 19, 2026 with Java 17, Minecraft 1.19.2 and Fabric. The alpha.4 production JAR was also run in the full Tekxit 4 client. The alpha.3 record below remains historical.
+
+| Alpha.4 check | Result |
+| --- | --- |
+| Build and test-fixture remapping | Passed; production/source artifacts and separate Tekxit/EMI fixtures generated |
+| JUnit | 16 passed |
+| Dedicated-server gameplay suite | All 92 required tests passed, including placed redmatter reaching distant terrain, core/debris load ordering and conserved fallback, antimatter neutralization, synchronized cart countdowns and defense visual packets preserving machine data |
+| Isolated materials suite | Passed, including five real datapack reloads |
+| Static resources | 662 JSON files, 2,095 references and 47 original PNG textures passed validation; this checks references and image/animation metadata, not in-game appearance |
+| Full Tekxit 4 alpha.4 client | All 308 official mod jars retained; ordinary client/world startup passed; six actual-pack integration tests and 285,316 EMI assertions passed before and after `/reload` |
+
+Direct client inspection confirmed the growing redmatter core and rotating rings, terrain consumption and antimatter removal, radar dish motion, EMP coil animation and corrected upright launcher models. The new presentation uses ordinary Minecraft render layers, original geometry/textures and vanilla sound events. Grenades and bomblets use 3D tumbling, cargo canopies sway, and cart flashes use the server countdown. No custom shader is required. The client used software OpenGL with shaders off and a null audio driver. Shader-pack appearance, real audio playback, two-client synchronization and every visual variation remain unverified. No restricted upstream artwork was copied. See [asset provenance](ASSET_PROVENANCE.md).
+
+## Historical alpha.3 validation
 
 Verified October 18, 2026 with Java 17.0.20.1, Gradle 8.8, Fabric Loom 1.7.4, Minecraft 1.19.2 and Fabric Loader 0.16.14.
 
@@ -16,7 +31,7 @@ Verified October 18, 2026 with Java 17.0.20.1, Gradle 8.8, Fabric Loom 1.7.4, Mi
 | Prior alpha.1 client without JEI | Successful startup and saved creative-world load under Xvfb/software OpenGL; launcher, radar and EMP screens inspected at default 854×480 window / GUI scale 2; radar range/channel and launcher target/channel changes survived close/reopen |
 | Prior alpha.1 client with JEI 11.8.1.1034 | Successful startup and creative-world creation; `icbm_port:payload_crafting` plugin registered; item models, normal recipes and dynamic held-item loading recipes displayed in JEI |
 
-The historical client observations below are retained from alpha.1. Current alpha.3 adds native EMI support, cargo NBT isolation, valid item defaults for recipe displays and the separate Tekxit client and integrated-server checks documented in [TEKXIT.md](TEKXIT.md).
+The historical client observations below are retained from alpha.1. Alpha.3 added native EMI support, cargo NBT isolation, valid item defaults for recipe displays and the separate Tekxit client and integrated-server checks documented in [TEKXIT.md](TEKXIT.md).
 
 The prior client check found oversized machine layouts and indistinguishable inventory slots. Defense and launcher screens now fit a 240-pixel scaled viewport with visible slot outlines. Defense controls vary by machine; launcher coordinates and fuel slots are labeled. The final layout was rechecked in a fresh client, and the build and all 87 server tests passed again.
 

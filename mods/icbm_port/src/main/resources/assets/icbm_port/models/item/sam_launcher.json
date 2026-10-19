@@ -1,3 +1,3 @@
 {
-  "parent": "icbm_port:block/sam_launcher"
+  "parent": "icbm_port:block/sam_launcher_inventory"
 }

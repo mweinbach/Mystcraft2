@@ -397,4 +397,56 @@ public class DefenseGameTests implements FabricGameTest {
           context.complete();
         });
   }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void visualPacketsReflectPowerWithoutReplacingMachineData(TestContext context) {
+    // Keep this powered-state fixture outside the real 60-block EMP emitted by
+    // empExtensionsAndFireCost at y=200; GameTests share a server world.
+    BlockPos pos = context.getAbsolutePos(new BlockPos(2, 120, 2));
+    check(
+        context,
+        !DefenseContent.isEmpDisabled(context.getWorld(), pos),
+        "Powered visual fixture must start outside other tests' EMP fields");
+    context.getWorld().setBlockState(pos, DefenseContent.RADAR_STATION.getDefaultState());
+    var machine = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(pos);
+    check(
+        context,
+        (machine.toInitialChunkDataNbt().getInt("VisualFlags") & 1) == 0,
+        "Unpowered radar must not advertise active animation");
+    machine.energyBuffer().setAmount(2000);
+    check(
+        context,
+        machine.energyBuffer().getAmount() == 2000,
+        "Visual fixture must contain exactly two scan ticks of energy");
+    var update = machine.toInitialChunkDataNbt();
+    check(
+        context,
+        (update.getInt("VisualFlags") & 1) != 0,
+        "Charged radar must advertise actual active state");
+    var clientCopy =
+        new DefenseMachineBlockEntity(pos, DefenseContent.RADAR_STATION.getDefaultState());
+    clientCopy.energyBuffer().setAmount(777);
+    clientCopy.readNbt(update);
+    check(
+        context,
+        (clientCopy.visualFlags() & 1) != 0,
+        "Visual packet must populate read-only client rendering state");
+    check(
+        context,
+        clientCopy.energyBuffer().getAmount() == 777 && clientCopy.properties().get(0) == 100,
+        "Visual update must not overwrite inventory, energy or configuration");
+    machine.configure(11);
+    check(
+        context,
+        (machine.toInitialChunkDataNbt().getInt("VisualFlags") & 8) != 0,
+        "Disabled machine must advertise disabled status");
+    machine.configure(11);
+    DefenseContent.applyEmp(context.getWorld(), Vec3d.ofCenter(pos), 4);
+    int empFlags = machine.toInitialChunkDataNbt().getInt("VisualFlags");
+    check(
+        context,
+        (empFlags & 8) != 0 && (empFlags & 1) == 0,
+        "EMP must suppress active animation despite stored energy");
+    context.complete();
+  }
 }

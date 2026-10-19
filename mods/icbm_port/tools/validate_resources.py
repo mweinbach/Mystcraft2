@@ -14,7 +14,7 @@ def exists(ref,kind,suffix='.json'):
  refs+=1
  namespace,path=ref.split(':') if ':' in ref else ('minecraft',ref)
  key=f'assets/{namespace}/{kind}/{path}{suffix}'
- if not (key in vanilla.namelist() if namespace=='minecraft' else key in files):errors.append('Missing '+key)
+ if not (key in vanilla.namelist() if namespace=='minecraft' else (ROOT/key).is_file()):errors.append('Missing '+key)
 for path,data in files.items():
  if '/models/' in path:
   if 'parent' in data:exists(data['parent'],'models')
@@ -124,9 +124,13 @@ for path in files:
 if catalog_errors:print('\n'.join(sorted(set(catalog_errors))));sys.exit(1)
 print(f'PASS: static Java catalog matches {len(items)} item models/names/survival paths, {len(blocks)} blockstates, and {len(entities)} entity names.')
 translation_keys={key for source in java.rglob('*.java') for key in re.findall(r'Text\s*\.\s*translatable\s*\(\s*"([^"]+)"',source.read_text()) if key.startswith(('message.icbm_port.','tooltip.icbm_port.','container.icbm_port.'))}
+# Payload tooltips use a dynamic key in the client callback; audit every catalog ID.
+translation_keys={key for key in translation_keys if not key.endswith('.')}
+translation_keys.update('tooltip.icbm_port.payload.'+payload for payload in payloads)
+translation_keys.update({'tooltip.icbm_port.redmatter_counter','death.attack.icbm_port.redmatter','death.attack.icbm_port.redmatter.player'})
 missing_keys=translation_keys-lang.keys()
 if missing_keys:print('Missing translation keys: '+', '.join(sorted(missing_keys)));sys.exit(1)
-print(f'PASS: all {len(translation_keys)} literal message/tooltip/container translation keys are defined.')
+print(f'PASS: all {len(translation_keys)} required message/tooltip/container/death translation keys are defined.')
 serializers=set(re.findall(r'Registry\s*\.\s*register\s*\(\s*Registry\s*\.\s*RECIPE_SERIALIZER\s*,\s*(?:IcbmPort\s*\.\s*)?id\s*\(\s*"([a-z0-9_]+)"',delivery))
 for serializer in serializers:
  path='data/icbm_port/recipes/'+serializer+'.json'
@@ -155,3 +159,35 @@ for ore, material in materials.items():
  for member in tags.resolve(material['tag']):
   if member.startswith('icbm_port:') and member.split(':')[1] not in items:raise SystemExit('Unregistered material '+member)
 print(f'PASS: {ore_count} OreDictionary inputs and {len(materials)} acyclic material groups with additive common exports.')
+
+# Original texture atlas references and animation strips must have valid PNG dimensions.
+import struct
+textures=list((ROOT/'assets/icbm_port/textures').rglob('*.png'))
+for path in textures:
+ raw=path.read_bytes()
+ if raw[:8]!=b'\x89PNG\r\n\x1a\n':print('Invalid PNG '+str(path));sys.exit(1)
+ width,height=struct.unpack('!II',raw[16:24])
+ if width<=0 or height<=0:print('Invalid PNG dimensions '+str(path));sys.exit(1)
+ animation=path.with_suffix('.png.mcmeta')
+ if animation.exists():
+  meta=json.loads(animation.read_text())['animation']
+  if height%width or meta.get('frametime',1)<1:print('Invalid animation strip '+str(path));sys.exit(1)
+print(f'PASS: {len(textures)} original PNG textures and their animation metadata are valid.')
+
+# Component icons require actual cutout silhouettes, not opaque square backgrounds.
+import zlib
+icons=list((ROOT/'assets/icbm_port/textures/item').glob('*.png'))
+for path in icons:
+ raw=path.read_bytes();width,height=struct.unpack('!II',raw[16:24]);offset=8;compressed=b''
+ while offset<len(raw):
+  length=struct.unpack('!I',raw[offset:offset+4])[0];kind=raw[offset+4:offset+8];body=raw[offset+8:offset+8+length]
+  if kind==b'IDAT':compressed+=body
+  offset+=length+12
+ decoded=zlib.decompress(compressed);stride=1+width*4
+ if raw[25]!=6 or len(decoded)!=stride*height or any(decoded[y*stride]!=0 for y in range(height)):
+  print('Unexpected generated RGBA icon encoding '+str(path));sys.exit(1)
+ alphas=[decoded[y*stride+1+x*4+3] for y in range(height) for x in range(width)]
+ if 0 not in alphas or 255 not in alphas:print('Icon lacks cutout or visible pixels '+str(path));sys.exit(1)
+vanilla_sprites=[path for path,data in files.items() if '/models/item/' in path and data.get('parent','').startswith('minecraft:item/') and any(v.startswith('minecraft:') for v in data.get('textures',{}).values())]
+if vanilla_sprites:print('Unconverted vanilla item sprites: '+', '.join(vanilla_sprites));sys.exit(1)
+print(f'PASS: {len(icons)} original component icons have transparent silhouettes; no vanilla item sprite substitutes remain.')

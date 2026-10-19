@@ -19,6 +19,29 @@ import net.minecraft.world.World;
 /** Server-authoritative game projectile; targeted arcs are bounded Minecraft animations. */
 public final class MissileEntity extends ThrownItemEntity
     implements dev.icbm.port.flight.FlightTracked {
+  private static final net.minecraft.entity.data.TrackedData<Integer> VISUAL_STAGE =
+      net.minecraft.entity.data.DataTracker.registerData(
+          MissileEntity.class, net.minecraft.entity.data.TrackedDataHandlerRegistry.INTEGER);
+  private static final net.minecraft.entity.data.TrackedData<Boolean> VISUAL_DISABLED =
+      net.minecraft.entity.data.DataTracker.registerData(
+          MissileEntity.class, net.minecraft.entity.data.TrackedDataHandlerRegistry.BOOLEAN);
+
+  @Override
+  protected void initDataTracker() {
+    super.initDataTracker();
+    dataTracker.startTracking(VISUAL_STAGE, 0);
+    dataTracker.startTracking(VISUAL_DISABLED, false);
+  }
+
+  public boolean isVisuallyWarmingUp() {
+    return dataTracker.get(VISUAL_STAGE)
+        == dev.icbm.port.flight.StagedFlight.Stage.WARMUP.ordinal();
+  }
+
+  public boolean isVisuallyDisabled() {
+    return dataTracker.get(VISUAL_DISABLED);
+  }
+
   private int flightTicks;
   private int empTicks;
   private PayloadType payload = PayloadType.CONDENSED;
@@ -149,6 +172,10 @@ public final class MissileEntity extends ThrownItemEntity
 
   @Override
   public void tick() {
+    if (!world.isClient) {
+      dataTracker.set(VISUAL_STAGE, flight.stage().ordinal());
+      dataTracker.set(VISUAL_DISABLED, isEmpDisabled());
+    }
     if (!world.isClient && health <= 0) {
       discard();
       return;

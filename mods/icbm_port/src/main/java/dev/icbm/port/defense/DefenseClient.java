@@ -9,6 +9,8 @@ final class DefenseClient {
   private DefenseClient() {}
 
   static void register() {
+    net.minecraft.client.render.block.entity.BlockEntityRendererFactories.register(
+        DefenseContent.MACHINE_BLOCK_ENTITY, DefenseMachineRenderer::new);
     net.minecraft.client.gui.screen.ingame.HandledScreens.register(
         DefenseContent.MACHINE_SCREEN, DefenseScreen::new);
     EntityRendererRegistry.register(

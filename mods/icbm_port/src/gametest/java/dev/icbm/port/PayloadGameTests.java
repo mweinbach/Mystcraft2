@@ -107,4 +107,19 @@ public class PayloadGameTests implements FabricGameTest {
   public void gasRespectsEnclosureAfterReload(TestContext c) {
     dev.icbm.port.payload.SimulationAssertions.gasCannotPassSolidEnclosure(c);
   }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 240)
+  public void placedRedmatterConsumesTerrainAndItems(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.placedRedmatterReachesDistantTerrain(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 80)
+  public void antimatterNeutralizationSuppressesCollateralPulse(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.antimatterNeutralizesWithoutEntityPulse(c);
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void capturedBlockSurvivesCoreLoadOrdering(TestContext c) {
+    dev.icbm.port.payload.SimulationAssertions.restoredCaptureWaitsForItsCore(c);
+  }
 }

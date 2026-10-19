@@ -1,50 +1,56 @@
 {
   "variants": {
-    "facing=north,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded"
-    },
-    "facing=north,loaded=false": {
-      "model": "icbm_port:block/launcher"
-    },
-    "facing=south,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded",
-      "y": 180
-    },
-    "facing=south,loaded=false": {
-      "model": "icbm_port:block/launcher",
-      "y": 180
-    },
-    "facing=east,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded",
-      "y": 90
-    },
-    "facing=east,loaded=false": {
-      "model": "icbm_port:block/launcher",
-      "y": 90
-    },
-    "facing=west,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded",
-      "y": 270
-    },
-    "facing=west,loaded=false": {
-      "model": "icbm_port:block/launcher",
-      "y": 270
+    "facing=up,loaded=false": {
+      "model": "icbm_port:block/launcher_base_tier_1"
     },
     "facing=up,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded",
-      "x": 270
-    },
-    "facing=up,loaded=false": {
-      "model": "icbm_port:block/launcher",
-      "x": 270
-    },
-    "facing=down,loaded=true": {
-      "model": "icbm_port:block/launcher_loaded",
-      "x": 90
+      "model": "icbm_port:block/launcher_base_tier_1_loaded"
     },
     "facing=down,loaded=false": {
-      "model": "icbm_port:block/launcher",
+      "model": "icbm_port:block/launcher_base_tier_1",
+      "x": 180
+    },
+    "facing=down,loaded=true": {
+      "model": "icbm_port:block/launcher_base_tier_1_loaded",
+      "x": 180
+    },
+    "facing=north,loaded=false": {
+      "model": "icbm_port:block/launcher_base_tier_1",
       "x": 90
+    },
+    "facing=north,loaded=true": {
+      "model": "icbm_port:block/launcher_base_tier_1_loaded",
+      "x": 90
+    },
+    "facing=south,loaded=false": {
+      "model": "icbm_port:block/launcher_base_tier_1",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,loaded=true": {
+      "model": "icbm_port:block/launcher_base_tier_1_loaded",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,loaded=false": {
+      "model": "icbm_port:block/launcher_base_tier_1",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,loaded=true": {
+      "model": "icbm_port:block/launcher_base_tier_1_loaded",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,loaded=false": {
+      "model": "icbm_port:block/launcher_base_tier_1",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,loaded=true": {
+      "model": "icbm_port:block/launcher_base_tier_1_loaded",
+      "x": 90,
+      "y": 270
     }
   }
 }

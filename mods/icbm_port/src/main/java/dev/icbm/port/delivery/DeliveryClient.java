@@ -4,7 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.entity.*;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
 
 @Environment(EnvType.CLIENT)
 public final class DeliveryClient {
@@ -12,11 +11,9 @@ public final class DeliveryClient {
     EntityRendererRegistry.register(
         DeliveryContent.HELD_MISSILE, dev.icbm.port.client.ProjectileItemRenderer::new);
     EntityRendererRegistry.register(DeliveryContent.CARGO, CargoCarrierRenderer::new);
-    EntityRendererRegistry.register(DeliveryContent.BOMBLET, FlyingItemEntityRenderer::new);
-    EntityRendererRegistry.register(DeliveryContent.GRENADE, FlyingItemEntityRenderer::new);
-    EntityRendererRegistry.register(
-        DeliveryContent.BOMB_CART,
-        context -> new MinecartEntityRenderer<>(context, EntityModelLayers.TNT_MINECART));
+    EntityRendererRegistry.register(DeliveryContent.BOMBLET, TumbledPayloadRenderer::new);
+    EntityRendererRegistry.register(DeliveryContent.GRENADE, TumbledPayloadRenderer::new);
+    EntityRendererRegistry.register(DeliveryContent.BOMB_CART, TntMinecartEntityRenderer::new);
   }
 
   private DeliveryClient() {}
