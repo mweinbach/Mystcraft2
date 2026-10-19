@@ -10,7 +10,7 @@
       "item": "minecraft:pink_wool"
     },
     "R": {
-      "tag": "forge:dusts/redstone"
+      "tag": "jurassicraft:redstone_dusts"
     },
     "W": {
       "item": "minecraft:white_wool"

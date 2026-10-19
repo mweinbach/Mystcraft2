@@ -1,5 +1,6 @@
 package ports.jurassicraft.skull;
 
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,25 +17,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import ports.jurassicraft.PortMod;
 import ports.jurassicraft.assembly.AssemblyRegistry;
 import ports.jurassicraft.content.JurassicContent;
 import ports.jurassicraft.content.Species;
 
-@Mod.EventBusSubscriber(modid=PortMod.MOD_ID)
 public final class SkullPlacement {
     private SkullPlacement() {}
     public static boolean isFresh(ItemStack stack) { return !stack.isEmpty() && stack.is(AssemblyRegistry.FRESH_BONES.get(Species.TYRANNOSAURUS).get("skull").get()); }
     public static boolean isSkull(ItemStack stack) { return isFresh(stack) || !stack.isEmpty() && stack.is(JurassicContent.BONES.get(Species.TYRANNOSAURUS).get("skull").get()); }
     public static boolean hasStand(ItemStack stack) { return !stack.hasTag() || !stack.getTag().contains("Type") || stack.getTag().getBoolean("Type"); }
-    @SubscribeEvent public static void tooltip(ItemTooltipEvent event) {
-        ItemStack stack=event.getItemStack();
-        if (!isSkull(stack)) return;
-        event.getToolTip().add(Component.translatable(hasStand(stack) ? "message.jurassicraft.skull_stand" : "message.jurassicraft.skull_no_stand").withStyle(ChatFormatting.GOLD));
-        event.getToolTip().add(Component.translatable("tooltip.jurassicraft.skull_pose").withStyle(ChatFormatting.WHITE));
+    public static void appendTooltip(ItemStack stack, List<Component> tooltip) {
+        tooltip.add(Component.translatable(hasStand(stack) ? "message.jurassicraft.skull_stand" : "message.jurassicraft.skull_no_stand").withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.translatable("tooltip.jurassicraft.skull_pose").withStyle(ChatFormatting.WHITE));
     }
     public static InteractionResultHolder<ItemStack> toggle(Level level,Player player,InteractionHand hand) {
         ItemStack stack=player.getItemInHand(hand);
@@ -45,7 +39,7 @@ public final class SkullPlacement {
         }
         return InteractionResultHolder.sidedSuccess(stack,level.isClientSide);
     }
-    /** Called from Item.useOn, after normal block interaction and Forge permission checks. */
+    /** Called from Item.useOn, after normal block interaction and loader permission checks. */
     public static InteractionResult place(UseOnContext click) {
         ItemStack stack=click.getItemInHand(); Player player=click.getPlayer(); Level level=click.getLevel();
         if (player==null || player.isSpectator()) return InteractionResult.PASS;
@@ -65,7 +59,7 @@ public final class SkullPlacement {
             float angle=face==Direction.UP ? (float)(90-Math.toDegrees(Math.atan2(pos.getZ()+.5-player.getZ(),pos.getX()+.5-player.getX())))
                     : face.getAxis()==Direction.Axis.X ? face.toYRot() : 180+face.toYRot();
             skull.setSkull(stack,angle);
-            SoundType sound=state.getSoundType(level,pos,player);
+            SoundType sound=state.getSoundType();
             level.playSound(null,pos,sound.getPlaceSound(),SoundSource.BLOCKS,(sound.getVolume()+1)/2,sound.getPitch()*.8F);
             if (!player.getAbilities().instabuild) stack.shrink(1);
         }

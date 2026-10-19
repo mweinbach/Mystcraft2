@@ -1,5 +1,6 @@
 package ports.jurassicraft.hatching;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 public final class HatcheryBlock extends BaseEntityBlock {
     private final HatcheryRegistry.Machine machine;
@@ -46,7 +46,7 @@ public final class HatcheryBlock extends BaseEntityBlock {
     }
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
-        if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(pos) instanceof HatcheryBlockEntity entity) NetworkHooks.openScreen(server, entity, pos);
+        if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(pos) instanceof HatcheryBlockEntity entity) Platform.openMenu(server, entity, pos);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {

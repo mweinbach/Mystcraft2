@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": {
-      "tag": "forge:ingots/iron"
+      "tag": "jurassicraft:iron_ingots"
     },
     "L": {
       "item": "minecraft:lever"

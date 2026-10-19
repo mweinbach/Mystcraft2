@@ -1,21 +1,15 @@
 package ports.jurassicraft.worldgen;
 
-import com.mojang.serialization.Codec;
+import java.util.function.Supplier;
+import net.minecraft.core.Registry;
+import net.minecraft.util.valueproviders.IntProviderType;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraftforge.common.world.BiomeModifier;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-import ports.jurassicraft.PortMod;
+import ports.jurassicraft.platform.Platform;
 
 public final class WorldgenRegistry {
-    private static final DeferredRegister<Codec<? extends BiomeModifier>> MODIFIERS =
-            DeferredRegister.create(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, PortMod.MOD_ID);
-    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, PortMod.MOD_ID);
-    public static final RegistryObject<Codec<? extends BiomeModifier>> FILTER =
-            MODIFIERS.register("worldgen_filter", () -> Codec.unit(WorldgenBiomeModifier::new));
-    public static final RegistryObject<Feature<?>> TRACKWAY = FEATURES.register("fossil_trackway", FossilTrackwayFeature::new);
+    public static final Supplier<IntProviderType<BinomialCount>> BINOMIAL_COUNT =
+            Platform.register(Registry.INT_PROVIDER_TYPE_REGISTRY, "binomial_count", () -> BinomialCount.TYPE);
+    public static final Supplier<Feature<?>> TRACKWAY = Platform.register(Registry.FEATURE_REGISTRY, "fossil_trackway", FossilTrackwayFeature::new);
     private WorldgenRegistry() {}
-    public static void register(IEventBus bus) { MODIFIERS.register(bus); FEATURES.register(bus); }
+    public static void init() { }
 }

@@ -1,5 +1,6 @@
 package ports.jurassicraft.assembly;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 /** Two adjacent blocks form the original wide assembly table. */
 public final class SkeletonAssemblyBlock extends Block {
@@ -67,7 +67,7 @@ public final class SkeletonAssemblyBlock extends Block {
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockPos main = state.getValue(PART) == BedPart.FOOT ? pos : pos.relative(otherDirection(state));
         if (!level.isClientSide && player instanceof ServerPlayer server) {
-            NetworkHooks.openScreen(server, new SimpleMenuProvider((id, inventory, p) -> new SkeletonAssemblyMenu(id, inventory, main),
+            Platform.openMenu(server, new SimpleMenuProvider((id, inventory, p) -> new SkeletonAssemblyMenu(id, inventory, main),
                     Component.translatable("container.jurassicraft.skeleton_assembly")), main);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

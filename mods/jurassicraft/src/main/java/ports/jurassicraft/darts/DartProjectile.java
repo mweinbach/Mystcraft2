@@ -12,7 +12,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import ports.jurassicraft.entity.DinosaurEntity;
 
 public final class DartProjectile extends ThrowableItemProjectile {
@@ -39,5 +39,5 @@ public final class DartProjectile extends ThrowableItemProjectile {
         super.onHit(hit);
         if (!level.isClientSide) discard();
     }
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
+    @Override public Packet<?> getAddEntityPacket() { return new ClientboundAddEntityPacket(this); }
 }

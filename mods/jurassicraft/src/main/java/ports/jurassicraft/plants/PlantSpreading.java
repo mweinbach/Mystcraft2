@@ -12,7 +12,7 @@ final class PlantSpreading {
     private PlantSpreading() {}
 
     static void trySpread(ServerLevel level, BlockPos pos, BlockState state, RandomSource random, boolean tall) {
-        if (!PlantGameRules.canSpread(level) || random.nextInt(16) != 0 || !level.isAreaLoaded(pos, 9) || level.getRawBrightness(pos, 0) < 5)
+        if (!PlantGameRules.canSpread(level) || random.nextInt(16) != 0 || !PlantChunks.isAreaLoaded(level, pos, 9) || level.getRawBrightness(pos, 0) < 5)
             return;
         boolean water = false;
         for (BlockPos p : BlockPos.betweenClosed(pos.offset(-8, -3, -8), pos.offset(8, 3, 8))) {

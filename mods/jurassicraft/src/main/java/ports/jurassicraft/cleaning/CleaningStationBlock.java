@@ -1,5 +1,6 @@
 package ports.jurassicraft.cleaning;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 
 public final class CleaningStationBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -90,7 +90,7 @@ public final class CleaningStationBlock extends BaseEntityBlock {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer
                 && level.getBlockEntity(pos) instanceof CleaningStationBlockEntity station) {
-            NetworkHooks.openScreen(serverPlayer, station, pos);
+            Platform.openMenu(serverPlayer, station, pos);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

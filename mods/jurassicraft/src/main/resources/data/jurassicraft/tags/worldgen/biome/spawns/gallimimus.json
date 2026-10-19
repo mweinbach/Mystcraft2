@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    {
+      "id": "#forge:is_plains",
+      "required": false
+    },
+    {
+      "id": "#c:plains",
+      "required": false
+    },
+    {
+      "id": "#forge:is_dry",
+      "required": false
+    },
+    {
+      "id": "#c:climate_dry",
+      "required": false
+    }
+  ]
+}

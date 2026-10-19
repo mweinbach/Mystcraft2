@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
@@ -20,12 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public final class HatcheryBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
     private final HatcheryRegistry.Machine machine;
@@ -35,7 +28,6 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
     private final int[] temperature = new int[5];
     private final ItemStack[] active = {ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY};
     @Nullable private Component customName;
-    private LazyOptional<IItemHandler> inputCap = LazyOptional.empty(), outputCap = LazyOptional.empty(), allCap = LazyOptional.empty();
     private final ContainerData data = new ContainerData() {
         @Override public int get(int i) {
             if (machine != HatcheryRegistry.Machine.INCUBATOR) return i == 0 ? progress[0] : i == 1 ? machine.ticks : 0;
@@ -54,7 +46,6 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
         super(HatcheryRegistry.blockEntity(machine), pos, state);
         this.machine = machine;
         this.items = NonNullList.withSize(machine.slots, ItemStack.EMPTY);
-        createCapabilities();
     }
     public static void tick(Level level, BlockPos pos, BlockState state, HatcheryBlockEntity entity) {
         if (level.isClientSide) return;
@@ -139,18 +130,12 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
     }
     @Override public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
+        tag.putBoolean("VisualSync", true);
         if (machine == HatcheryRegistry.Machine.INCUBATOR)
             for (int slot = 0; slot < 5; slot++) tag.put("Visual" + slot, items.get(slot).save(new CompoundTag()));
         return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag) {
-        if (machine == HatcheryRegistry.Machine.INCUBATOR)
-            for (int slot = 0; slot < 5; slot++) visualEggs[slot] = ItemStack.of(tag.getCompound("Visual" + slot));
-    }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
-    @Override public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
-        if (packet.getTag() != null) handleUpdateTag(packet.getTag());
-    }
     @Override public boolean stillValid(Player player) { return level != null && level.getBlockEntity(worldPosition) == this && player.distanceToSqr(worldPosition.getX()+.5,worldPosition.getY()+.5,worldPosition.getZ()+.5) <= 64; }
     @Override public boolean canPlaceItem(int slot, ItemStack stack) { return HatcheryRecipes.accepts(machine,slot,stack); }
     @Override public int[] getSlotsForFace(Direction side) {
@@ -175,6 +160,12 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
         if (customName != null) tag.putString("CustomName",Component.Serializer.toJson(customName));
     }
     @Override public void load(CompoundTag tag) {
+        // Client block-entity updates carry only the rendered incubator eggs.
+        if (tag.getBoolean("VisualSync")) {
+            if (machine == HatcheryRegistry.Machine.INCUBATOR)
+                for (int slot = 0; slot < 5; slot++) visualEggs[slot] = ItemStack.of(tag.getCompound("Visual" + slot));
+            return;
+        }
         super.load(tag); items=NonNullList.withSize(machine.slots,ItemStack.EMPTY); ContainerHelper.loadAllItems(tag,items);
         int[] p=tag.getIntArray("Progress"), t=tag.getIntArray("Temperature");
         for (int i=0;i<5;i++) {
@@ -184,16 +175,4 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
         }
         customName=tag.contains("CustomName",8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
-    private void createCapabilities() {
-        inputCap=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.UP));
-        outputCap=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.DOWN));
-        allCap=LazyOptional.of(() -> machine == HatcheryRegistry.Machine.INCUBATOR ? new SidedInvWrapper(this,Direction.UP)
-                : new CombinedInvWrapper(new SidedInvWrapper(this,Direction.UP),new SidedInvWrapper(this,Direction.DOWN)));
-    }
-    @Override public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) return (side == null ? allCap : side == Direction.DOWN ? outputCap : inputCap).cast();
-        return super.getCapability(capability,side);
-    }
-    @Override public void invalidateCaps() { super.invalidateCaps(); inputCap.invalidate(); outputCap.invalidate(); allCap.invalidate(); }
-    @Override public void reviveCaps() { super.reviveCaps(); createCapabilities(); }
 }

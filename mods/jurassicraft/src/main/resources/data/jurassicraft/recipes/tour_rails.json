@@ -11,7 +11,7 @@
       "item": "minecraft:iron_bars"
     },
     "T": {
-      "tag": "forge:dusts/redstone"
+      "tag": "jurassicraft:redstone_dusts"
     },
     "R": {
       "item": "minecraft:rail"

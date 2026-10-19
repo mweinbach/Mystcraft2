@@ -1,4 +1,4 @@
-"""Keep upstream ore-dictionary inputs interoperable with modern Forge tags."""
+"""Keep upstream ore-dictionary inputs interoperable with Forge and Fabric convention tags."""
 import json
 import unittest
 from pathlib import Path
@@ -8,13 +8,17 @@ DATA = ROOT / "jurassicraft/recipes"
 
 
 class ModpackIngredientsTest(unittest.TestCase):
-    def test_iron_nuggets_accept_forge_tagged_items(self):
+    def test_iron_nuggets_accept_convention_tagged_items(self):
+        nuggets = json.loads((ROOT / "jurassicraft/tags/items/iron_nuggets.json").read_text())["values"]
+        self.assertIn("minecraft:iron_nugget", nuggets)
+        for tag in ("#forge:nuggets/iron", "#c:iron_nuggets"):
+            self.assertIn({"id": tag, "required": False}, nuggets)
         for recipe, key in (("storage_disc", "I"), ("embryonic_machine", "A"),
                             ("paddock_sign", "A"), ("bug_crate", "A"),
                             ("bug_crate_red_sandstone", "A")):
             with self.subTest(recipe=recipe):
                 data = json.loads((DATA / f"{recipe}.json").read_text())
-                self.assertEqual(data["key"][key], {"tag": "forge:nuggets/iron"})
+                self.assertEqual(data["key"][key], {"tag": "jurassicraft:iron_nuggets"})
 
     def test_wooden_gates_and_fossils_are_exposed_to_modpacks(self):
         trees = ("ginkgo", "calamites", "psaronius", "phoenix", "araucaria")

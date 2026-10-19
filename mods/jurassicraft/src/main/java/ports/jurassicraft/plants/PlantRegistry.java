@@ -1,6 +1,10 @@
 package ports.jurassicraft.plants;
 
+import net.minecraft.core.Registry;
+import ports.jurassicraft.platform.Platform;
 import java.util.EnumMap;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.FireBlock;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.world.item.BlockItem;
@@ -12,71 +16,64 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.content.JurassicContent;
 
 /** Prehistoric vegetation and wood, including crops and aquatic plants. */
 public final class PlantRegistry {
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortMod.MOD_ID);
-    public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, PortMod.MOD_ID);
-    public static final RegistryObject<Feature<?>> LAND_PLANT_FEATURE = FEATURES.register("land_plant", LandPlantFeature::new);
-    public static final RegistryObject<Feature<?>> PEAT_FEATURE = FEATURES.register("peat", PeatFeature::new);
-    public static final RegistryObject<Feature<?>> GRACILARIA_FEATURE = FEATURES.register("gracilaria", GracilariaFeature::new);
-    public static final RegistryObject<Feature<?>> PETRIFIED_TREE_FEATURE = FEATURES.register("petrified_tree", PetrifiedTreeFeature::new);
-    public static final RegistryObject<Feature<?>> COAL_FOSSIL_FEATURE = FEATURES.register("coal_plant_fossils", CoalPlantFossilsFeature::new);
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PortMod.MOD_ID);
-    public static final RegistryObject<Item> PHOENIX_SEEDS = ITEMS.register("phoenix_seeds",
+    public static final Supplier<Feature<?>> LAND_PLANT_FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "land_plant", LandPlantFeature::new);
+    public static final Supplier<Feature<?>> PEAT_FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "peat", PeatFeature::new);
+    public static final Supplier<Feature<?>> GRACILARIA_FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "gracilaria", GracilariaFeature::new);
+    public static final Supplier<Feature<?>> PETRIFIED_TREE_FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "petrified_tree", PetrifiedTreeFeature::new);
+    public static final Supplier<Feature<?>> COAL_FOSSIL_FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "coal_plant_fossils", CoalPlantFossilsFeature::new);
+    public static final Supplier<Item> PHOENIX_SEEDS = Platform.register(Registry.ITEM_REGISTRY, "phoenix_seeds",
             () -> new PhoenixSeedItem(plant(PlantSpecies.PHOENIX).get(), new Item.Properties().tab(JurassicContent.TAB)));
-    public static final RegistryObject<Item> PHOENIX_FRUIT = ITEMS.register("phoenix_fruit",
+    public static final Supplier<Item> PHOENIX_FRUIT = Platform.register(Registry.ITEM_REGISTRY, "phoenix_fruit",
             () -> new PhoenixFruitItem(new Item.Properties().tab(JurassicContent.TAB)
                     .food(new FoodProperties.Builder().nutrition(4).saturationMod(0.4F).build())));
-    public static final RegistryObject<Block> GRACILARIA_SEAWEED = BLOCKS.register("gracilaria_seaweed",
+    public static final Supplier<Block> GRACILARIA_SEAWEED = Platform.register(Registry.BLOCK_REGISTRY, "gracilaria_seaweed",
             () -> new AncientAquaticPlantBlock(BlockBehaviour.Properties.copy(Blocks.SEAGRASS).randomTicks()));
-    public static final RegistryObject<Item> GRACILARIA = ITEMS.register("gracilaria",
+    public static final Supplier<Item> GRACILARIA = Platform.register(Registry.ITEM_REGISTRY, "gracilaria",
             () -> new BlockItem(GRACILARIA_SEAWEED.get(), new Item.Properties().tab(JurassicContent.TAB)));
-    public static final RegistryObject<Item> AJUGINUCULA_SEEDS = seed("ajuginucula_smithii_seeds", PlantSpecies.AJUGINUCULA_SMITHII, null);
-    public static final RegistryObject<Item> AJUGINUCULA_OIL = ITEMS.register("ajuginucula_smithii_oil",
+    public static final Supplier<Item> AJUGINUCULA_SEEDS = seed("ajuginucula_smithii_seeds", PlantSpecies.AJUGINUCULA_SMITHII, null);
+    public static final Supplier<Item> AJUGINUCULA_OIL = Platform.register(Registry.ITEM_REGISTRY, "ajuginucula_smithii_oil",
             () -> new Item(new Item.Properties().tab(JurassicContent.TAB)));
-    public static final RegistryObject<Item> OILED_POTATO_STRIPS = food("oiled_potato_strips", 1, 0.0F);
-    public static final RegistryObject<Item> FUN_FRIES = food("fun_fries", 4, 2.0F);
-    public static final RegistryObject<Item> CHILEAN_SEA_BASS = food("chilean_sea_bass", 10, 1.0F);
-    public static final RegistryObject<Item> LILAC_BERRIES = ITEMS.register("west_indian_lilac_berries", () -> new Item(new Item.Properties().tab(JurassicContent.TAB).food(
+    public static final Supplier<Item> OILED_POTATO_STRIPS = food("oiled_potato_strips", 1, 0.0F);
+    public static final Supplier<Item> FUN_FRIES = food("fun_fries", 4, 2.0F);
+    public static final Supplier<Item> CHILEAN_SEA_BASS = food("chilean_sea_bass", 10, 1.0F);
+    public static final Supplier<Item> LILAC_BERRIES = Platform.register(Registry.ITEM_REGISTRY, "west_indian_lilac_berries", () -> new Item(new Item.Properties().tab(JurassicContent.TAB).food(
             new FoodProperties.Builder().nutrition(1).saturationMod(0.1F)
-                    .effect(() -> new MobEffectInstance(MobEffects.POISON, 1400, 1), 1.0F).build())));
-    public static final RegistryObject<Item> AJUGINUCULA_LEAVES = food("ajuginucula_smithii_leaves", 1, 0.5F);
-    public static final RegistryObject<Item> WILD_ONION = seed("wild_onion", PlantSpecies.WILD_ONION, new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).build());
-    public static final RegistryObject<Item> WILD_POTATO_SEEDS = seed("wild_potato_seeds", PlantSpecies.WILD_POTATO, null);
-    public static final RegistryObject<Item> WILD_POTATO = food("wild_potato", 1, 0.1F);
-    public static final RegistryObject<Item> WILD_POTATO_COOKED = food("wild_potato_cooked", 6, 0.6F);
-    public static final RegistryObject<Item> RHAMNUS_SEEDS = seed("rhamnus_salicifolius_seeds", PlantSpecies.RHAMNUS_SALIFOCIFUS, null);
-    public static final RegistryObject<Item> RHAMNUS_BERRIES = ITEMS.register("rhamnus_salicifolius_berries", () -> new Item(new Item.Properties().tab(JurassicContent.TAB).food(
+                    .effect(new MobEffectInstance(MobEffects.POISON, 1400, 1), 1.0F).build())));
+    public static final Supplier<Item> AJUGINUCULA_LEAVES = food("ajuginucula_smithii_leaves", 1, 0.5F);
+    public static final Supplier<Item> WILD_ONION = seed("wild_onion", PlantSpecies.WILD_ONION, new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).build());
+    public static final Supplier<Item> WILD_POTATO_SEEDS = seed("wild_potato_seeds", PlantSpecies.WILD_POTATO, null);
+    public static final Supplier<Item> WILD_POTATO = food("wild_potato", 1, 0.1F);
+    public static final Supplier<Item> WILD_POTATO_COOKED = food("wild_potato_cooked", 6, 0.6F);
+    public static final Supplier<Item> RHAMNUS_SEEDS = seed("rhamnus_salicifolius_seeds", PlantSpecies.RHAMNUS_SALIFOCIFUS, null);
+    public static final Supplier<Item> RHAMNUS_BERRIES = Platform.register(Registry.ITEM_REGISTRY, "rhamnus_salicifolius_berries", () -> new Item(new Item.Properties().tab(JurassicContent.TAB).food(
             new FoodProperties.Builder().nutrition(5).saturationMod(0.6F)
-                    .effect(() -> new MobEffectInstance(MobEffects.POISON, 1400, 1), 1.0F).build())));
-    public static final RegistryObject<Block> PALEO_BALE_CYCADEOIDEA = bale("paleo_bale_cycadeoidea");
-    public static final RegistryObject<Block> PALEO_BALE_CYCAD = bale("paleo_bale_cycad");
-    public static final RegistryObject<Block> PALEO_BALE_FERN = bale("paleo_bale_fern");
-    public static final RegistryObject<Block> PALEO_BALE_LEAVES = bale("paleo_bale_leaves");
-    public static final RegistryObject<Block> PALEO_BALE_OTHER = bale("paleo_bale_other");
-    public static final RegistryObject<Block> PEAT = block("peat", PeatBlock::new);
-    public static final RegistryObject<Block> MOSS = block("moss", MossBlock::new);
-    private static final Map<PlantSpecies, RegistryObject<Block>> PLANTS = new EnumMap<>(PlantSpecies.class);
-    private static final Map<PlantSpecies, RegistryObject<Block>> LOGS = new EnumMap<>(PlantSpecies.class);
-    private static final Map<PlantSpecies, RegistryObject<Block>> PETRIFIED_LOGS = new EnumMap<>(PlantSpecies.class);
-    private static final Map<PlantSpecies, RegistryObject<Block>> LEAVES = new EnumMap<>(PlantSpecies.class);
-    private static final Map<PlantSpecies, RegistryObject<Block>> PLANKS = new EnumMap<>(PlantSpecies.class);
+                    .effect(new MobEffectInstance(MobEffects.POISON, 1400, 1), 1.0F).build())));
+    public static final Supplier<Block> PALEO_BALE_CYCADEOIDEA = bale("paleo_bale_cycadeoidea");
+    public static final Supplier<Block> PALEO_BALE_CYCAD = bale("paleo_bale_cycad");
+    public static final Supplier<Block> PALEO_BALE_FERN = bale("paleo_bale_fern");
+    public static final Supplier<Block> PALEO_BALE_LEAVES = bale("paleo_bale_leaves");
+    public static final Supplier<Block> PALEO_BALE_OTHER = bale("paleo_bale_other");
+    public static final Supplier<Block> PEAT = block("peat", PeatBlock::new);
+    public static final Supplier<Block> MOSS = block("moss", MossBlock::new);
+    private static final Map<PlantSpecies, Supplier<Block>> PLANTS = new EnumMap<>(PlantSpecies.class);
+    private static final Map<PlantSpecies, Supplier<Block>> LOGS = new EnumMap<>(PlantSpecies.class);
+    private static final Map<PlantSpecies, Supplier<Block>> PETRIFIED_LOGS = new EnumMap<>(PlantSpecies.class);
+    private static final Map<PlantSpecies, Supplier<Block>> LEAVES = new EnumMap<>(PlantSpecies.class);
+    private static final Map<PlantSpecies, Supplier<Block>> PLANKS = new EnumMap<>(PlantSpecies.class);
 
     static {
         for (PlantSpecies species : PlantSpecies.values()) {
             if (species.isTree()) {
                 String id = species.id();
-                RegistryObject<Block> log = block(id + "_log", () -> new WoodBlocks.Log(species, BlockBehaviour.Properties.copy(Blocks.OAK_LOG)));
-                RegistryObject<Block> petrified = block(id + "_log_petrified", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.STONE).strength(4.0F).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-                RegistryObject<Block> leaves = block(id + "_leaves", () -> new WoodBlocks.Leaves(species, BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
-                RegistryObject<Block> planks = block(id + "_planks", () -> new WoodBlocks.Planks(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
+                Supplier<Block> log = block(id + "_log", () -> new WoodBlocks.Log(species, BlockBehaviour.Properties.copy(Blocks.OAK_LOG)));
+                Supplier<Block> petrified = block(id + "_log_petrified", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.STONE).strength(4.0F).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                Supplier<Block> leaves = block(id + "_leaves", () -> new WoodBlocks.Leaves(species, BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
+                Supplier<Block> planks = block(id + "_planks", () -> new WoodBlocks.Planks(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
                 LOGS.put(species, log);
                 PETRIFIED_LOGS.put(species, petrified);
                 LEAVES.put(species, leaves);
@@ -109,34 +106,45 @@ public final class PlantRegistry {
     }
 
     private PlantRegistry() {}
-    public static void register(IEventBus bus) { PlantGameRules.init(); BLOCKS.register(bus); ITEMS.register(bus); FEATURES.register(bus); }
+    public static void init() { PlantGameRules.init(); }
+    /** Vanilla's fire table only knows vanilla wood; register the original wood values after registration. */
+    public static void setup() {
+        FireBlock fire = (FireBlock) Blocks.FIRE;
+        for (PlantSpecies species : PlantSpecies.values()) if (species.isTree()) {
+            fire.setFlammable(log(species).get(), 5, 5);
+            fire.setFlammable(leaves(species).get(), 30, 60);
+            for (String suffix : new String[]{"planks", "stairs", "slab", "fence", "fence_gate"}) {
+                fire.setFlammable(Registry.BLOCK.get(new ResourceLocation(PortMod.MOD_ID, species.id() + "_" + suffix)), 5, 20);
+            }
+        }
+    }
     /** Gets the plant or sapling registered for a species. */
-    public static RegistryObject<Block> plant(PlantSpecies species) { return PLANTS.get(species); }
-    public static RegistryObject<Block> log(PlantSpecies species) { return LOGS.get(species); }
-    public static RegistryObject<Block> petrifiedLog(PlantSpecies species) { return PETRIFIED_LOGS.get(species); }
-    public static RegistryObject<Block> leaves(PlantSpecies species) { return LEAVES.get(species); }
-    public static RegistryObject<Block> planks(PlantSpecies species) { return PLANKS.get(species); }
+    public static Supplier<Block> plant(PlantSpecies species) { return PLANTS.get(species); }
+    public static Supplier<Block> log(PlantSpecies species) { return LOGS.get(species); }
+    public static Supplier<Block> petrifiedLog(PlantSpecies species) { return PETRIFIED_LOGS.get(species); }
+    public static Supplier<Block> leaves(PlantSpecies species) { return LEAVES.get(species); }
+    public static Supplier<Block> planks(PlantSpecies species) { return PLANKS.get(species); }
 
-    private static RegistryObject<Item> seed(String id, PlantSpecies plant, FoodProperties food) {
-        return ITEMS.register(id, () -> {
+    private static Supplier<Item> seed(String id, PlantSpecies plant, FoodProperties food) {
+        return Platform.register(Registry.ITEM_REGISTRY, id, () -> {
             Item.Properties props = new Item.Properties().tab(JurassicContent.TAB);
             if (food != null) props.food(food);
             return new CropSeedItem(plant(plant).get(), props, id);
         });
     }
-    private static RegistryObject<Item> food(String id, int nutrition, float saturation) {
-        return ITEMS.register(id, () -> new Item(new Item.Properties().tab(JurassicContent.TAB)
+    private static Supplier<Item> food(String id, int nutrition, float saturation) {
+        return Platform.register(Registry.ITEM_REGISTRY, id, () -> new Item(new Item.Properties().tab(JurassicContent.TAB)
                 .food(new FoodProperties.Builder().nutrition(nutrition).saturationMod(saturation).build())));
     }
     private static void crop(PlantSpecies species, String name, int maxAge, Supplier<Item> seed) {
-        PLANTS.put(species, BLOCKS.register(name, () -> new AncientCropBlock(maxAge, seed)));
+        PLANTS.put(species, Platform.register(Registry.BLOCK_REGISTRY, name, () -> new AncientCropBlock(maxAge, seed)));
     }
-    private static RegistryObject<Block> bale(String id) {
+    private static Supplier<Block> bale(String id) {
         return block(id, () -> new HayBlock(BlockBehaviour.Properties.copy(Blocks.HAY_BLOCK)));
     }
-    private static RegistryObject<Block> block(String id, Supplier<? extends Block> factory) {
-        RegistryObject<Block> block = BLOCKS.register(id, factory);
-        ITEMS.register(id, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
+    private static Supplier<Block> block(String id, Supplier<? extends Block> factory) {
+        Supplier<Block> block = Platform.register(Registry.BLOCK_REGISTRY, id, factory::get);
+        Platform.register(Registry.ITEM_REGISTRY, id, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
         return block;
     }
     private static BlockBehaviour.Properties plantProperties() {

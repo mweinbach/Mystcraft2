@@ -18,12 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public final class BugCrateBlockEntity extends BlockEntity implements WorldlyContainer,MenuProvider {
     private static final int[] INPUTS={0,1,2,3,4,5}, OUTPUTS={6,7,8};
@@ -31,13 +25,12 @@ public final class BugCrateBlockEntity extends BlockEntity implements WorldlyCon
     private int progress,activeBug=-1,activeFood=-1;
     private ItemStack activeBugStack=ItemStack.EMPTY,activeFoodStack=ItemStack.EMPTY;
     @Nullable private Component customName;
-    private LazyOptional<IItemHandler> input=LazyOptional.empty(),output=LazyOptional.empty(),all=LazyOptional.empty();
     private final ContainerData data=new ContainerData() {
         @Override public int get(int index) { return index==0 ? progress : index==1 ? totalTime() : 0; }
         @Override public void set(int index,int value) { if (index==0) progress=value; }
         @Override public int getCount() { return 2; }
     };
-    public BugCrateBlockEntity(BlockPos pos,BlockState state) { super(BugRegistry.ENTITY.get(),pos,state); createCapabilities(); }
+    public BugCrateBlockEntity(BlockPos pos,BlockState state) { super(BugRegistry.ENTITY.get(),pos,state); }
     private record Recipe(int bug,int food,int count) { int ticks() { return Math.max(1,count/3)*400; } }
     @Nullable private Recipe recipe() {
         for (int bug=0;bug<3;bug++) {
@@ -111,14 +104,4 @@ public final class BugCrateBlockEntity extends BlockEntity implements WorldlyCon
         activeBugStack=tag.contains("Bug",10) ? ItemStack.of(tag.getCompound("Bug")) : ItemStack.EMPTY; activeFoodStack=tag.contains("Food",10) ? ItemStack.of(tag.getCompound("Food")) : ItemStack.EMPTY;
         customName=tag.contains("CustomName",8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
-    private void createCapabilities() {
-        input=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.UP)); output=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.DOWN));
-        all=LazyOptional.of(() -> new CombinedInvWrapper(new SidedInvWrapper(this,Direction.UP),new SidedInvWrapper(this,Direction.DOWN)));
-    }
-    @Override public <T> LazyOptional<T> getCapability(Capability<T> capability,@Nullable Direction side) {
-        if (capability==ForgeCapabilities.ITEM_HANDLER) return (side==null ? all : side==Direction.DOWN ? output : input).cast();
-        return super.getCapability(capability,side);
-    }
-    @Override public void invalidateCaps() { super.invalidateCaps(); input.invalidate(); output.invalidate(); all.invalidate(); }
-    @Override public void reviveCaps() { super.reviveCaps(); createCapabilities(); }
 }

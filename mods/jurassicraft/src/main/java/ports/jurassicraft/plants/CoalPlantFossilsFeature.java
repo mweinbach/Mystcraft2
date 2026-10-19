@@ -4,22 +4,24 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraftforge.common.Tags;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import ports.jurassicraft.content.JurassicContent;
 
 /** After coal veins generate, substitute fossils for one in ten tagged coal ores. */
 final class CoalPlantFossilsFeature extends Feature<NoneFeatureConfiguration> {
+    private static final TagKey<Block> COAL = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation("jurassicraft", "coal_ores"));
     CoalPlantFossilsFeature() { super(NoneFeatureConfiguration.CODEC); }
 
     static boolean isCoal(BlockState state) {
-        return state.is(BlockTags.COAL_ORES) || state.is(Tags.Blocks.ORES_COAL);
+        return state.is(COAL);
     }
 
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {

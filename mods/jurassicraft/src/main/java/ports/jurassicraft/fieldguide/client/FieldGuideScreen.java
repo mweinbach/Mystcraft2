@@ -12,14 +12,11 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 import ports.jurassicraft.entity.DinosaurEntity;
 import ports.jurassicraft.fieldguide.FieldGuideNetwork;
 
 /** A compact, translated field manual with an optional animal examination spread. */
-@OnlyIn(Dist.CLIENT)
 public final class FieldGuideScreen extends Screen {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("jurassicraft", "textures/field_guide/background.png");
     private static final String PREFIX = "gui.jurassicraft.field_guide.";

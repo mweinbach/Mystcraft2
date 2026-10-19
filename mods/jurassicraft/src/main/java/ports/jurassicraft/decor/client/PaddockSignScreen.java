@@ -11,14 +11,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.decor.ParkSignNetwork;
 import ports.jurassicraft.decor.ParkSigns;
 
 /** The original 5-by-3 dinosaur selector, with server-authoritative placement. */
-@OnlyIn(Dist.CLIENT)
 public final class PaddockSignScreen extends Screen {
     private static final int COLUMNS = 5, PER_PAGE = 15, CELL = 60;
     private static final List<String> OPTIONS = ParkSigns.PADDOCKS.stream().sorted().toList();
@@ -52,7 +49,7 @@ public final class PaddockSignScreen extends Screen {
         if (button == 0) for (int i = 0; i < PER_PAGE && page * PER_PAGE + i < OPTIONS.size(); i++) {
             int x = iconX(i), y = iconY(i);
             if (mouseX >= x && mouseX < x + 48 && mouseY >= y && mouseY < y + 48) {
-                ParkSignNetwork.sendSelection(pos, side, hand, OPTIONS.get(page * PER_PAGE + i));
+                ParkSignClientNetwork.sendSelection(pos, side, hand, OPTIONS.get(page * PER_PAGE + i));
                 onClose();
                 return true;
             }

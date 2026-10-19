@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -18,15 +19,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import ports.jurassicraft.PortMod;
 import ports.jurassicraft.content.FossilBlock;
+import ports.jurassicraft.platform.Platform;
 
 /** Adapt the original fossil-research task to the 1.19 villager brain. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID)
 public final class PaleontologistDigGoal extends Goal {
     private static final String ANCHOR = "JurassicraftDigsiteOrigin";
     private final Villager villager;
@@ -40,8 +36,8 @@ public final class PaleontologistDigGoal extends Goal {
     }
 
     /** Install on all villagers because an unemployed villager can later take this profession. */
-    @SubscribeEvent public static void onJoin(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide || !(event.getEntity() instanceof Villager villager)) return;
+    public static void onJoin(Entity entity) {
+        if (entity.level.isClientSide || !(entity instanceof Villager villager)) return;
         if (villager.goalSelector.getAvailableGoals().stream().noneMatch(goal -> goal.getGoal() instanceof PaleontologistDigGoal))
             villager.goalSelector.addGoal(6, new PaleontologistDigGoal(villager));
     }
@@ -51,8 +47,8 @@ public final class PaleontologistDigGoal extends Goal {
                 || villager.isBaby() || villager.isTrading() || villager.isSleeping()
                 || villager.getBrain().isActive(Activity.PANIC) || villager.getBrain().isActive(Activity.RAID)
                 || villager.getBrain().isActive(Activity.PRE_RAID)
-                || !ForgeEventFactory.getMobGriefingEvent(villager.level, villager)) return false;
-        var data = villager.getPersistentData();
+                || !Platform.mobGriefing(villager.level, villager)) return false;
+        var data = Platform.persistentData(villager);
         if (!data.contains(ANCHOR)) data.putLong(ANCHOR, villager.blockPosition().asLong());
         BlockPos anchor = BlockPos.of(data.getLong(ANCHOR));
         double dx = villager.getX() - anchor.getX(), dz = villager.getZ() - anchor.getZ();

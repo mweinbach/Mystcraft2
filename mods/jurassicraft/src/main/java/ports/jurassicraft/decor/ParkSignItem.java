@@ -11,9 +11,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import ports.jurassicraft.content.JurassicContent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import ports.jurassicraft.decor.client.PaddockSignScreen;
 
 public final class ParkSignItem extends Item {
     private final boolean attraction;
@@ -29,11 +26,7 @@ public final class ParkSignItem extends Item {
         if (!player.mayUseItemAt(pos, side, context.getItemInHand())) return InteractionResult.FAIL;
         Level level = context.getLevel();
         if (!attraction) {
-            if (level.isClientSide) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> PaddockSignScreen.open(pos, side, context.getHand()));
-            } else {
-                ParkSignNetwork.begin(player, pos, side, context.getHand());
-            }
+            if (!level.isClientSide) ParkSignNetwork.begin(player, pos, side, context.getHand());
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
         ParkSignEntity sign = new ParkSignEntity(DecorRegistry.ATTRACTION_SIGN_ENTITY.get(), level, pos, side);

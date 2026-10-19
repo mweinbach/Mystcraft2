@@ -11,11 +11,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraftforge.common.Tags;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.biome.Biome;
 import ports.jurassicraft.config.JurassicConfig;
 
 /** Damp peat dries into dirt away from swamp biomes, water and rain. */
 final class PeatBlock extends Block {
+    static final TagKey<Biome> SWAMPS = TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation("jurassicraft", "swamps"));
     private static final IntegerProperty MOISTURE = BlockStateProperties.MOISTURE;
     PeatBlock() {
         super(BlockBehaviour.Properties.copy(Blocks.DIRT).randomTicks());
@@ -25,8 +29,8 @@ final class PeatBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(MOISTURE); }
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!level.isAreaLoaded(pos, 4)) return;
-        boolean swamp = level.getBiome(pos).is(Tags.Biomes.IS_SWAMP);
+        if (!PlantChunks.isAreaLoaded(level, pos, 4)) return;
+        boolean swamp = level.getBiome(pos).is(SWAMPS);
         boolean wet = swamp || level.isRainingAt(pos.above());
         if (!wet) {
             for (BlockPos p : BlockPos.betweenClosed(pos.offset(-4, 0, -4), pos.offset(4, 1, 4))) {

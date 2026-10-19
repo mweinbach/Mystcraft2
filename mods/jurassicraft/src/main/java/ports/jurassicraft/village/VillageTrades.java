@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import ports.jurassicraft.PortMod;
+import ports.jurassicraft.JurassicEvents;
 import ports.jurassicraft.components.ComponentsRegistry;
 import ports.jurassicraft.content.JurassicContent;
 import ports.jurassicraft.content.Species;
@@ -21,28 +18,23 @@ import ports.jurassicraft.hatching.HatcheryRegistry;
 import ports.jurassicraft.machine.DnaMachineRegistry;
 
 /** Original career trade pools, with randomized species-preserving fossil items. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID)
 public final class VillageTrades {
     private VillageTrades() {}
     private static final String[] BONES = {"pelvis", "skull", "tooth", "tail_vertebrae", "shoulder", "ribcage", "neck_vertebrae", "hind_leg_bones", "front_leg_bones", "anal_fin", "caudal_fin", "first_dorsal_fin", "pectoral_fin_bones", "pelvic_fin_bones", "second_dorsal_fin", "spine", "teeth", "arm_bones", "leg_bones", "neck", "foot_bones", "shoulder_bone", "horn", "claw", "skull", "pelvis", "teeth"};
     private static final int[] COSTS = {4,6,4,5,4,4,6,4,4,5,4,4,5,4,4,4,3,5,4,4,6,4,4,5,4,2,2};
 
-    @SubscribeEvent public static void onTrades(VillagerTradesEvent event) {
-        if (event.getType() == VillageRegistry.GENETICIST.get()) {
-            add(event, 1, VillageTrades::geneticistCommon, true);
-            add(event, 2, VillageTrades::geneticistAdvanced, false);
-        } else if (event.getType() == VillageRegistry.PALEONTOLOGIST.get()) {
-            add(event, 1, VillageTrades::paleontologistCommon, false);
-            add(event, 2, VillageTrades::paleontologistCommon, false);
-            add(event, 3, VillageTrades::paleontologistSpecial, true);
-        }
+    public static void addTo(JurassicEvents.TradeSink sink) {
+        add(sink, VillageRegistry.GENETICIST.get(), 1, VillageTrades::geneticistCommon, true);
+        add(sink, VillageRegistry.GENETICIST.get(), 2, VillageTrades::geneticistAdvanced, false);
+        add(sink, VillageRegistry.PALEONTOLOGIST.get(), 1, VillageTrades::paleontologistCommon, false);
+        add(sink, VillageRegistry.PALEONTOLOGIST.get(), 2, VillageTrades::paleontologistCommon, false);
+        add(sink, VillageRegistry.PALEONTOLOGIST.get(), 3, VillageTrades::paleontologistSpecial, true);
     }
     private interface Factory { MerchantOffer create(RandomSource random); }
-    private static void add(VillagerTradesEvent event, int level, Factory factory, boolean optionalSecond) {
-        List<VillagerTrades.ItemListing> trades = event.getTrades().computeIfAbsent(level, ignored -> new ArrayList<>());
-        trades.add((merchant, random) -> factory.create(random));
+    private static void add(JurassicEvents.TradeSink sink, VillagerProfession profession, int level, Factory factory, boolean optionalSecond) {
+        sink.add(profession, level, (merchant, random) -> factory.create(random));
         // The 1.12 career adds a second offer only when both rolls succeed: 10%.
-        if (optionalSecond) trades.add((merchant, random) -> random.nextInt(10) == 0 ? factory.create(random) : null);
+        if (optionalSecond) sink.add(profession, level, (merchant, random) -> random.nextInt(10) == 0 ? factory.create(random) : null);
     }
     private static MerchantOffer trade(ItemStack input, ItemStack output, int xp) { return new MerchantOffer(input, output, 12, xp, 0.05F); }
     private static MerchantOffer sale(RandomSource r, int min, int range, Supplier<? extends Item> item, int count, int more, int xp) {

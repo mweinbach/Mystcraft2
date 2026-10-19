@@ -3,6 +3,7 @@ package ports.jurassicraft.egg;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -23,6 +24,9 @@ public final class FossilNestBlock extends Block implements Cleanable {
 
     public int variant() { return variant; }
     public boolean encased() { return encased; }
+
+    @Override
+    public boolean dropFromExplosion(Explosion explosion) { return encased; }
 
     @Override
     public boolean isCleanable(ItemStack input) {

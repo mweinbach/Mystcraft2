@@ -16,7 +16,7 @@
       "item": "minecraft:iron_ingot"
     },
     "D": {
-      "tag": "forge:nuggets/iron"
+      "tag": "jurassicraft:iron_nuggets"
     },
     "E": {
       "item": "minecraft:stone_button"

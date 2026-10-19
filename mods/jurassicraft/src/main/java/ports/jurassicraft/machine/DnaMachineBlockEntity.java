@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.RandomSource;
@@ -21,12 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import ports.jurassicraft.components.ComponentsRegistry;
 import ports.jurassicraft.genetics.Genetics;
 import ports.jurassicraft.genetics.GeneticsRegistry;
@@ -39,7 +32,6 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
     private final int[] progress = new int[3];
     private boolean hybridizerMode;
     @Nullable private Component customName;
-    private LazyOptional<IItemHandler> inputCap = LazyOptional.empty(), outputCap = LazyOptional.empty(), bothCaps = LazyOptional.empty();
     private final ContainerData data = new ContainerData() {
         @Override public int get(int index) { return index < 3 ? progress[index] : index == 3 ? kind.ticks : hybridizerMode ? 1 : 0; }
         @Override public void set(int index, int value) { if (index < 3) progress[index] = value; else if (index == 4) hybridizerMode = value != 0; }
@@ -50,7 +42,6 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         super(DnaMachineRegistry.ENTITY.get(), pos, state);
         kind = ((DnaMachineBlock) state.getBlock()).kind();
         items = NonNullList.withSize(kind.slots, ItemStack.EMPTY);
-        makeCaps();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, DnaMachineBlockEntity machine) {
@@ -195,26 +186,22 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
     }
     @Override public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
+        tag.putBoolean("VisualSync", true);
         for (int slot = 0; slot < kind.inputs; slot++)
             if (visualSlot(slot)) tag.put("Visual" + slot, items.get(slot).save(new CompoundTag()));
         return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag) {
-        for (int slot = 0; slot < kind.inputs; slot++)
-            if (visualSlot(slot)) items.set(slot, ItemStack.of(tag.getCompound("Visual" + slot)));
-    }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
-    @Override public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
-        if (packet.getTag() != null) handleUpdateTag(packet.getTag());
-    }
     @Override public boolean stillValid(Player player) {
         return level != null && level.getBlockEntity(worldPosition) == this && player.distanceToSqr(worldPosition.getX() + .5, worldPosition.getY() + .5, worldPosition.getZ() + .5) <= 64;
     }
     @Override public boolean canPlaceItem(int slot, ItemStack stack) { return accepts(kind, slot, stack, hybridizerMode); }
     @Override public int[] getSlotsForFace(Direction side) {
         if (kind == DnaMachineKind.COMBINATOR)
-            return side == Direction.DOWN ? new int[]{hybridizerMode ? 11 : 2}
-                    : hybridizerMode ? IntStream.range(3, 11).toArray() : new int[]{0, 1};
+            // Automation wrappers may cache the exposed slots. Keep the set stable across mode
+            // changes; canPlaceItemThroughFace/canTakeItemThroughFace enforce the active mode.
+            return side == Direction.DOWN ? new int[]{2, 11}
+                    : new int[]{0, 1, 3, 4, 5, 6, 7, 8, 9, 10};
         return side == Direction.DOWN ? IntStream.range(kind.inputs, kind.slots).toArray() : IntStream.range(0, kind.inputs).toArray();
     }
     @Override public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction direction) {
@@ -228,9 +215,6 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         if (kind != DnaMachineKind.COMBINATOR || hybridizerMode == mode) return;
         hybridizerMode = mode;
         progress[0] = 0;
-        // CombinedInvWrapper caches slot offsets, which change with the mode.
-        inputCap.invalidate(); outputCap.invalidate(); bothCaps.invalidate();
-        makeCaps();
         setChanged();
     }
     @Override public Component getDisplayName() { return customName != null ? customName : Component.translatable("container.jurassicraft." + kind.id); }
@@ -244,6 +228,12 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         if (customName != null) tag.putString("CustomName", Component.Serializer.toJson(customName));
     }
     @Override public void load(CompoundTag tag) {
+        // Client block-entity updates carry only the rendered inputs.
+        if (tag.getBoolean("VisualSync")) {
+            for (int slot = 0; slot < kind.inputs; slot++)
+                if (visualSlot(slot)) items.set(slot, ItemStack.of(tag.getCompound("Visual" + slot)));
+            return;
+        }
         super.load(tag);
         items = NonNullList.withSize(kind.slots, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, items);
@@ -252,15 +242,4 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         for (int i = 0; i < progress.length; i++) progress[i] = i < saved.length ? Math.max(0, Math.min(kind.ticks - 1, saved[i])) : 0;
         customName = tag.contains("CustomName", 8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
-    private void makeCaps() {
-        inputCap = LazyOptional.of(() -> new SidedInvWrapper(this, Direction.UP));
-        outputCap = LazyOptional.of(() -> new SidedInvWrapper(this, Direction.DOWN));
-        bothCaps = LazyOptional.of(() -> new CombinedInvWrapper(new SidedInvWrapper(this, Direction.UP), new SidedInvWrapper(this, Direction.DOWN)));
-    }
-    @Override public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) return (side == null ? bothCaps : side == Direction.DOWN ? outputCap : inputCap).cast();
-        return super.getCapability(capability, side);
-    }
-    @Override public void invalidateCaps() { super.invalidateCaps(); inputCap.invalidate(); outputCap.invalidate(); bothCaps.invalidate(); }
-    @Override public void reviveCaps() { super.reviveCaps(); makeCaps(); }
 }

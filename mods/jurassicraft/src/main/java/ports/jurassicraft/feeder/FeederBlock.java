@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
+import ports.jurassicraft.platform.Platform;
 
 public final class FeederBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -51,7 +51,7 @@ public final class FeederBlock extends BaseEntityBlock {
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
         if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(pos) instanceof FeederBlockEntity feeder) {
-            NetworkHooks.openScreen(server, feeder, pos);
+            Platform.openMenu(server, feeder, pos);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

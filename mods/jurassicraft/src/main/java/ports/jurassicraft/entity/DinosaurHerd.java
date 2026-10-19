@@ -11,14 +11,14 @@ import net.minecraft.world.entity.player.Player;
 import ports.jurassicraft.content.Species;
 
 /** Ephemeral same-species groups, rebuilt from nearby loaded animals like the original herds. */
-final class DinosaurHerd {
+public final class DinosaurHerd {
     private final Set<DinosaurEntity> members = new LinkedHashSet<>();
     private final Map<LivingEntity, Long> enemies = new LinkedHashMap<>();
     private boolean fleeing;
 
     DinosaurHerd(DinosaurEntity first) { members.add(first); first.setHerd(this); }
 
-    static int maxSize(Species species) {
+    public static int maxSize(Species species) {
         return switch (species) {
             case VELOCIRAPTOR -> 18;
             case COELACANTH -> 1;

@@ -13,15 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.journal.JournalType;
 import ports.jurassicraft.journal.JournalContent;
 
 /** Two-page reader for the original resource-backed journal entries. */
-@OnlyIn(Dist.CLIENT)
 public final class JournalScreen extends Screen {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(PortMod.MOD_ID, "textures/journal/background.png");
     private static final ResourceLocation WIDGETS = new ResourceLocation(PortMod.MOD_ID, "textures/journal/widgets.png");

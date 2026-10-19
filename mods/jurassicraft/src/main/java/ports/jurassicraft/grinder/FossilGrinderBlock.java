@@ -1,5 +1,6 @@
 package ports.jurassicraft.grinder;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 public final class FossilGrinderBlock extends BaseEntityBlock {
     public FossilGrinderBlock() {
@@ -51,7 +51,7 @@ public final class FossilGrinderBlock extends BaseEntityBlock {
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof FossilGrinderBlockEntity grinder) {
-            NetworkHooks.openScreen(serverPlayer, grinder, pos);
+            Platform.openMenu(serverPlayer, grinder, pos);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

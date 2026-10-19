@@ -2,32 +2,18 @@ package ports.jurassicraft.plants;
 
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.extensions.IForgeBlock;
 
-/** Forge flammability is explicit for mod blocks; vanilla's fire table only
- * contains vanilla block instances. */
+/** Wood behavior for the original trees; flammability is added in {@link PlantRegistry#setup()}. */
 final class WoodBlocks {
     private WoodBlocks() {}
-    interface WoodFire extends IForgeBlock {
-        @Override default int getFlammability(BlockState state, BlockGetter world, BlockPos pos, Direction face) { return 20; }
-        @Override default int getFireSpreadSpeed(BlockState state, BlockGetter world, BlockPos pos, Direction face) { return 5; }
-    }
-    interface LogFire extends WoodFire {
-        @Override default int getFlammability(BlockState state, BlockGetter world, BlockPos pos, Direction face) { return 5; }
-    }
-    interface LeafFire extends WoodFire {
-        @Override default int getFlammability(BlockState state, BlockGetter world, BlockPos pos, Direction face) { return 60; }
-        @Override default int getFireSpreadSpeed(BlockState state, BlockGetter world, BlockPos pos, Direction face) { return 30; }
-    }
-    static final class Log extends RotatedPillarBlock implements LogFire {
+    static final class Log extends RotatedPillarBlock {
         private final PlantSpecies species;
         Log(PlantSpecies species, BlockBehaviour.Properties properties) { super(properties); this.species = species; }
         @Override public void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moved) {
@@ -36,7 +22,7 @@ final class WoodBlocks {
             super.onRemove(state, level, pos, replacement, moved);
         }
     }
-    static final class Leaves extends LeavesBlock implements LeafFire {
+    static final class Leaves extends LeavesBlock {
         private static final int RADIUS = 7, SIDE = 2 * RADIUS + 1, VOLUME = SIDE * SIDE * SIDE;
         private static final ThreadLocal<NaturalDecay> NATURAL_DECAY = new ThreadLocal<>();
         private final PlantSpecies species;
@@ -75,7 +61,7 @@ final class WoodBlocks {
         }
         @Override public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
             if (state.getValue(PERSISTENT) || (state.getValue(DISTANCE) != 7 && random.nextInt(32) != 0)) return;
-            if (!level.isAreaLoaded(pos, RADIUS + 2)) return;
+            if (!PlantChunks.isAreaLoaded(level, pos, RADIUS + 2)) return;
             if (hasSupport(level, pos, this, PlantRegistry.log(species).get())) {
                 if (state.getValue(DISTANCE) != 1) level.setBlock(pos, state.setValue(DISTANCE, 1), Block.UPDATE_CLIENTS);
             } else {
@@ -142,19 +128,19 @@ final class WoodBlocks {
             }
         }
     }
-    static final class Planks extends Block implements WoodFire {
+    static final class Planks extends Block {
         Planks(BlockBehaviour.Properties properties) { super(properties); }
     }
-    static final class Stair extends StairBlock implements WoodFire {
-        Stair(Supplier<BlockState> state, BlockBehaviour.Properties properties) { super(state, properties); }
+    static final class Stair extends StairBlock {
+        Stair(Supplier<BlockState> state, BlockBehaviour.Properties properties) { super(state.get(), properties); }
     }
-    static final class Slab extends SlabBlock implements WoodFire {
+    static final class Slab extends SlabBlock {
         Slab(BlockBehaviour.Properties properties) { super(properties); }
     }
-    static final class Fence extends FenceBlock implements WoodFire {
+    static final class Fence extends FenceBlock {
         Fence(BlockBehaviour.Properties properties) { super(properties); }
     }
-    static final class Gate extends FenceGateBlock implements WoodFire {
+    static final class Gate extends FenceGateBlock {
         Gate(BlockBehaviour.Properties properties) { super(properties); }
     }
 }

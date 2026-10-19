@@ -6,35 +6,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
-import ports.jurassicraft.PortMod;
 import ports.jurassicraft.entity.DinosaurEntity;
 import ports.jurassicraft.bugs.BugRegistry;
-import ports.jurassicraft.fieldguide.client.FieldGuideClient;
+import ports.jurassicraft.platform.Network;
+import ports.jurassicraft.platform.Reg;
 
 /** Snapshot sent only to the player inspecting a dinosaur, as in the original guide. */
 public final class FieldGuideNetwork {
-    private static final String VERSION = "2";
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(PortMod.MOD_ID, "field_guide"), () -> VERSION, VERSION::equals, VERSION::equals);
+    public static final ResourceLocation SNAPSHOT = Reg.id("field_guide_snapshot");
     private FieldGuideNetwork() {}
 
-    static void register() {
-        CHANNEL.messageBuilder(Snapshot.class, 0, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(Snapshot::write).decoder(Snapshot::read)
-                .consumerMainThread((message, supplier) -> {
-                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FieldGuideClient.open(message));
-                    supplier.get().setPacketHandled(true);
-                }).add();
-    }
-
     public static void inspect(ServerPlayer player, DinosaurEntity dinosaur) {
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), Snapshot.of(dinosaur));
+        Snapshot snapshot = Snapshot.of(dinosaur);
+        Network.sendToPlayer(player, SNAPSHOT, snapshot::write);
     }
 
     public record Snapshot(int entityId, int energy, int maxEnergy, int water, int maxWater,

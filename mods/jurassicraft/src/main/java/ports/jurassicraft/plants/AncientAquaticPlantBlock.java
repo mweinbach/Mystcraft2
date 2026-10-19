@@ -41,7 +41,7 @@ public class AncientAquaticPlantBlock extends SeagrassBlock {
     }
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!PlantGameRules.canSpread(level) || !level.isAreaLoaded(pos, 5)) return;
+        if (!PlantGameRules.canSpread(level) || !PlantChunks.isAreaLoaded(level, pos, 5)) return;
         int light = level.getRawBrightness(pos, 0);
         if (random.nextInt(100) >= (light >= 5 && light <= 11 ? 11 : 2)) return;
         int count = 0;

@@ -1,7 +1,6 @@
 package ports.jurassicraft.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -12,7 +11,6 @@ import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import ports.jurassicraft.content.Species;
 
 /** Dilophosaurus venom blinds and disorients its target, as in the original mod. */
@@ -24,7 +22,6 @@ public final class VenomEntity extends ThrowableProjectile {
     }
 
     @Override protected void defineSynchedData() {}
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
 
     @Override public void tick() {
         super.tick();

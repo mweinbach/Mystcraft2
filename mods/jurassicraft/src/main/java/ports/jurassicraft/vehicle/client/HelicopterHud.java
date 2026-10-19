@@ -9,16 +9,16 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.vehicle.HelicopterEntity;
 
 /** The original cockpit gauges, driven by server-synchronized flight state. */
-final class HelicopterHud {
+public final class HelicopterHud {
     private static final int WHITE = 0xffffff;
     private HelicopterHud() {}
-    static void render(ForgeGui gui, PoseStack pose, float partialTick, int width, int height) {
-        Minecraft mc = gui.getMinecraft();
+    public static void render(PoseStack pose, float partialTick) {
+        Minecraft mc = Minecraft.getInstance();
+        int height = mc.getWindow().getGuiScaledHeight();
         if (mc.options.hideGui || mc.player == null || !(mc.player.getVehicle() instanceof HelicopterEntity helicopter)
                 || helicopter.getControllingPassenger() != mc.player || !helicopter.isAlive()) return;
         float scale = mc.options.getCameraType().isFirstPerson() ? 1 : .5F;
@@ -26,7 +26,9 @@ final class HelicopterHud {
         pose.pushPose();
         pose.translate(originX, originY, 0);
         pose.scale(scale, scale, 1);
-        gui.setupOverlayRenderState(true, false);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableDepthTest();
 
         gauge(pose, 0, "tachometer", 33 + helicopter.engineRpm() / 300F * 294,
                 33 + Mth.clamp(helicopter.hoverRpm() / 300F, 0, 1) * 294);
@@ -58,6 +60,8 @@ final class HelicopterHud {
         if (!helicopter.autopilot()) mc.font.drawShadow(pose, Component.translatable("hud.jurassicraft.autopilot_disabled"), originX, height - 140, WHITE);
         mc.font.drawShadow(pose, Component.translatable(helicopter.rotationLock()
                 ? "hud.jurassicraft.rotation_lock_on" : "hud.jurassicraft.rotation_lock_off"), originX, height - 130, WHITE);
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
     }
     private static void number(Minecraft mc, PoseStack pose, int index, float value) {
         pose.pushPose();

@@ -1,12 +1,11 @@
 package ports.jurassicraft.genetics;
 
+import net.minecraft.core.Registry;
+import ports.jurassicraft.platform.Platform;
+import java.util.function.Supplier;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.content.JurassicContent;
 import ports.jurassicraft.content.Species;
@@ -14,12 +13,11 @@ import ports.jurassicraft.plants.PlantSpecies;
 
 /** Registrations for both animal and plant genetics. */
 public final class GeneticsRegistry {
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PortMod.MOD_ID);
-    public static final RegistryObject<Item> STORAGE_DISC = ITEMS.register("storage_disc", () -> new GeneticsItem(new Item.Properties().tab(JurassicContent.TAB)));
-    private static final Map<Species, RegistryObject<Item>> TISSUE = new EnumMap<>(Species.class);
-    private static final Map<Species, RegistryObject<Item>> DNA = new EnumMap<>(Species.class);
-    private static final Map<PlantSpecies, RegistryObject<Item>> PLANT_TISSUE = new EnumMap<>(PlantSpecies.class);
-    private static final Map<PlantSpecies, RegistryObject<Item>> PLANT_DNA = new EnumMap<>(PlantSpecies.class);
+    public static final Supplier<Item> STORAGE_DISC = Platform.register(Registry.ITEM_REGISTRY, "storage_disc", () -> new GeneticsItem(new Item.Properties().tab(JurassicContent.TAB)));
+    private static final Map<Species, Supplier<Item>> TISSUE = new EnumMap<>(Species.class);
+    private static final Map<Species, Supplier<Item>> DNA = new EnumMap<>(Species.class);
+    private static final Map<PlantSpecies, Supplier<Item>> PLANT_TISSUE = new EnumMap<>(PlantSpecies.class);
+    private static final Map<PlantSpecies, Supplier<Item>> PLANT_DNA = new EnumMap<>(PlantSpecies.class);
 
     static {
         for (Species species : Species.values()) {
@@ -35,12 +33,12 @@ public final class GeneticsRegistry {
     }
 
     private GeneticsRegistry() {}
-    private static RegistryObject<Item> item(String name, int size) {
-        return ITEMS.register(name, () -> new GeneticsItem(new Item.Properties().tab(JurassicContent.TAB).stacksTo(size)));
+    private static Supplier<Item> item(String name, int size) {
+        return Platform.register(Registry.ITEM_REGISTRY, name, () -> new GeneticsItem(new Item.Properties().tab(JurassicContent.TAB).stacksTo(size)));
     }
-    public static RegistryObject<Item> softTissue(Species species) { return TISSUE.get(species); }
-    public static RegistryObject<Item> dinosaurDna(Species species) { return DNA.get(species); }
-    public static RegistryObject<Item> plantTissue(PlantSpecies species) { return PLANT_TISSUE.get(species); }
-    public static RegistryObject<Item> plantDna(PlantSpecies species) { return PLANT_DNA.get(species); }
-    public static void register(IEventBus bus) { ITEMS.register(bus); }
+    public static Supplier<Item> softTissue(Species species) { return TISSUE.get(species); }
+    public static Supplier<Item> dinosaurDna(Species species) { return DNA.get(species); }
+    public static Supplier<Item> plantTissue(PlantSpecies species) { return PLANT_TISSUE.get(species); }
+    public static Supplier<Item> plantDna(PlantSpecies species) { return PLANT_DNA.get(species); }
+    public static void init() { }
 }

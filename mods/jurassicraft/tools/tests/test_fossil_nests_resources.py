@@ -2,6 +2,8 @@
 
 import json
 import unittest
+
+from layout import placements
 from pathlib import Path
 
 
@@ -73,11 +75,9 @@ class FossilNestResourcesTests(unittest.TestCase):
         height = next(entry["height"] for entry in placed["placement"] if entry["type"] == "minecraft:height_range")
         self.assertEqual(height["min_inclusive"], {"absolute": 30})
         self.assertEqual(height["max_inclusive"], {"absolute": 49})
-        modifier = load(DATA / "forge/biome_modifier/fossil_nests.json")
-        self.assertEqual(modifier["type"], "forge:add_features")
-        self.assertEqual(modifier["biomes"], "#minecraft:is_overworld")
-        self.assertIn("jurassicraft:fossil_nest", modifier["features"])
-        replaceable = set(load(DATA / "tags/blocks/fossil_nest_replaceable.json")["values"])
+        self.assertEqual(("#minecraft:is_overworld", "underground_ores"), placements()["fossil_nest"])
+        replaceable = {value if isinstance(value, str) else value["id"]
+                       for value in load(DATA / "tags/blocks/fossil_nest_replaceable.json")["values"]}
         self.assertIn("#minecraft:base_stone_overworld", replaceable)
         for variant in ("biped_medium", "biped_small", "raptor"):
             self.assertIn(f"jurassicraft:fossilized_trackway_{variant}", replaceable)

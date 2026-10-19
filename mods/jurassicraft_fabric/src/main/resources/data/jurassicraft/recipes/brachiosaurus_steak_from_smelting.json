@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:brachiosaurus_meat"
-  },
-  "result": "jurassicraft:brachiosaurus_steak",
-  "experience": 5.0,
-  "cookingtime": 200
-}

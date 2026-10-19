@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.ForgeEventFactory;
+import ports.jurassicraft.platform.Platform;
 
 /** Uses the original two sapling stages and each species' historic tree layout. */
 public final class AncientSaplingBlock extends SaplingBlock {
@@ -24,13 +24,13 @@ public final class AncientSaplingBlock extends SaplingBlock {
     public void advanceTree(ServerLevel level, BlockPos pos, BlockState state, RandomSource random) {
         if (state.getValue(STAGE) == 0) {
             level.setBlock(pos, state.setValue(STAGE, 1), Block.UPDATE_CLIENTS);
-        } else if (ForgeEventFactory.saplingGrowTree(level, random, pos)) {
+        } else if (Platform.allowTreeGrowth(level, random, pos)) {
             grow(level, pos, random);
         }
     }
 
     void grow(ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!level.isAreaLoaded(pos, 10) || !level.getBlockState(pos).is(this)) return;
+        if (!PlantChunks.isAreaLoaded(level, pos, 10) || !level.getBlockState(pos).is(this)) return;
         AncientTreeShape.Layout shape = AncientTreeShape.create(species, random,
                 PlantRegistry.log(species).get().defaultBlockState(), PlantRegistry.leaves(species).get().defaultBlockState());
         // A blocked trunk or height limit leaves the sapling intact. Branches and

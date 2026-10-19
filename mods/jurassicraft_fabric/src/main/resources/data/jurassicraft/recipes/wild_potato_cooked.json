@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:wild_potato"
-  },
-  "result": "jurassicraft:wild_potato_cooked",
-  "experience": 0.5,
-  "cookingtime": 200
-}

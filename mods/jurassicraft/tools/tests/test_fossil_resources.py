@@ -8,6 +8,8 @@ for loading the resulting data packs and exercising gameplay in Minecraft.
 import json
 import re
 import unittest
+
+from layout import placements
 from pathlib import Path
 
 
@@ -99,17 +101,13 @@ class FossilResourcesTests(unittest.TestCase):
                 self.assertTrue((ASSETS / f"textures/{texture.split(':', 1)[1]}.png").is_file(), texture)
 
     def test_species_worldgen_and_mining_resources_are_connected(self):
-        modifier = read_json(DATA / "forge/biome_modifier/ores.json")
-        self.assertEqual(modifier["type"], "forge:add_features")
-        self.assertEqual(modifier["biomes"], "#minecraft:is_overworld")
-        self.assertEqual(modifier["step"], "underground_ores")
+        self.assertEqual(("#minecraft:is_overworld", "underground_ores"), placements()["{species}_fossil_block"])
         pickaxe = set(read_json(RESOURCES / "data/minecraft/tags/blocks/mineable/pickaxe.json")["values"])
         stone_tier = set(read_json(RESOURCES / "data/minecraft/tags/blocks/needs_stone_tool.json")["values"])
         for name in self.upstream:
             fossil = f"{name}_fossil_block"
             encased = f"{name}_encased_fossil"
             with self.subTest(species=name):
-                self.assertIn(f"jurassicraft:{fossil}", modifier["features"])
                 placed = read_json(DATA / f"worldgen/placed_feature/{fossil}.json")
                 self.assertEqual(placed["feature"], f"jurassicraft:{fossil}")
                 placement_types = {entry["type"] for entry in placed["placement"]}

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -19,9 +20,6 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.content.JurassicContent;
 import ports.jurassicraft.content.Species;
@@ -29,13 +27,12 @@ import ports.jurassicraft.genetics.DNAData;
 import ports.jurassicraft.genetics.Genetics;
 import ports.jurassicraft.genetics.GeneticsRegistry;
 import ports.jurassicraft.plants.PlantSpecies;
+import ports.jurassicraft.platform.Platform;
 
 /** Species and variants that were selected by metadata functions in 1.12.2. */
 public final class DynamicLootEntry extends LootPoolSingletonContainer {
-    private static final DeferredRegister<LootPoolEntryType> TYPES =
-            DeferredRegister.create(Registry.LOOT_POOL_ENTRY_TYPE.key(), PortMod.MOD_ID);
-    private static final RegistryObject<LootPoolEntryType> TYPE =
-            TYPES.register("dynamic_bonus", () -> new LootPoolEntryType(new Serializer()));
+    private static final Supplier<LootPoolEntryType> TYPE =
+            Platform.register(Registry.LOOT_ENTRY_REGISTRY, "dynamic_bonus", () -> new LootPoolEntryType(new Serializer()));
     private static final List<Species> DINOSAURS = List.of(Species.values());
     private static final List<PlantSpecies> PLANTS = Arrays.stream(PlantSpecies.values())
             .filter(PlantSpecies::isPrehistoric).toList();
@@ -53,7 +50,7 @@ public final class DynamicLootEntry extends LootPoolSingletonContainer {
         this.kind = kind;
     }
 
-    public static void register(IEventBus bus) { TYPES.register(bus); }
+    public static void init() { }
     @Override public LootPoolEntryType getType() { return TYPE.get(); }
 
     static Builder<?> entry(Kind kind) {

@@ -1,92 +1,90 @@
 package ports.jurassicraft;
 
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import ports.jurassicraft.assembly.AssemblyRegistry;
+import ports.jurassicraft.bugs.BugRegistry;
+import ports.jurassicraft.cleaning.CleaningStationRegistry;
+import ports.jurassicraft.components.ComponentsRegistry;
 import ports.jurassicraft.content.JurassicContent;
-import ports.jurassicraft.config.JurassicConfig;
 import ports.jurassicraft.cultivator.CultivatorRegistry;
 import ports.jurassicraft.darts.DartRegistry;
 import ports.jurassicraft.decor.DecorRegistry;
-import ports.jurassicraft.components.ComponentsRegistry;
-import ports.jurassicraft.bugs.BugRegistry;
-import ports.jurassicraft.assembly.AssemblyRegistry;
-import ports.jurassicraft.cleaning.CleaningStationRegistry;
-import ports.jurassicraft.egg.FossilizedEggRegistry;
 import ports.jurassicraft.egg.FossilNestRegistry;
+import ports.jurassicraft.egg.FossilizedEggRegistry;
 import ports.jurassicraft.entity.DinosaurRegistry;
 import ports.jurassicraft.feeder.FeederRegistry;
 import ports.jurassicraft.fence.FenceRegistry;
+import ports.jurassicraft.fieldguide.FieldGuideRegistry;
+import ports.jurassicraft.figure.ActionFigureRegistry;
+import ports.jurassicraft.fossil.FossilLootEntry;
 import ports.jurassicraft.genetics.GeneticsRegistry;
 import ports.jurassicraft.goat.GoatRegistry;
 import ports.jurassicraft.grinder.FossilGrinderRegistry;
-import ports.jurassicraft.fieldguide.FieldGuideRegistry;
 import ports.jurassicraft.hatching.HatcheryRegistry;
 import ports.jurassicraft.journal.JournalRegistry;
-import ports.jurassicraft.plants.PlantRegistry;
-import ports.jurassicraft.plantculture.PlantCultureRegistry;
-import ports.jurassicraft.machine.DnaMachineRegistry;
-import ports.jurassicraft.music.MusicRegistry;
-import ports.jurassicraft.mural.MuralRegistry;
-import ports.jurassicraft.supplies.DinosaurSupplies;
-import ports.jurassicraft.souvenir.SouvenirRegistry;
-import ports.jurassicraft.skull.SkullRegistry;
-import ports.jurassicraft.structures.StructureRegistry;
-import ports.jurassicraft.scanner.DinoScannerRegistry;
-import ports.jurassicraft.vehicle.VehicleRegistry;
-import ports.jurassicraft.tourrail.TourRailRegistry;
-import ports.jurassicraft.worldgen.WorldgenRegistry;
-import ports.jurassicraft.fossil.FossilLootEntry;
-import ports.jurassicraft.loot.BonusLoot;
 import ports.jurassicraft.loot.DynamicLootEntry;
-import ports.jurassicraft.figure.ActionFigureItem;
-import ports.jurassicraft.figure.ActionFigureRegistry;
+import ports.jurassicraft.machine.DnaMachineRegistry;
+import ports.jurassicraft.mural.MuralRegistry;
+import ports.jurassicraft.music.MusicRegistry;
+import ports.jurassicraft.plantculture.PlantCultureRegistry;
+import ports.jurassicraft.plants.PlantRegistry;
+import ports.jurassicraft.scanner.DinoScannerRegistry;
+import ports.jurassicraft.skull.SkullRegistry;
+import ports.jurassicraft.souvenir.SouvenirRegistry;
+import ports.jurassicraft.structures.StructureRegistry;
+import ports.jurassicraft.supplies.DinosaurSupplies;
+import ports.jurassicraft.tourrail.TourRailRegistry;
+import ports.jurassicraft.vehicle.VehicleRegistry;
 import ports.jurassicraft.village.VillageRegistry;
+import ports.jurassicraft.worldgen.WorldgenRegistry;
 
-@Mod(PortMod.MOD_ID)
+/** Shared entry point; loader adapters install the platform, then call {@link #init} and {@link #setup}. */
 public final class PortMod {
     public static final String MOD_ID = "jurassicraft";
 
-    public PortMod() {
-        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        JurassicConfig.register();
-        JurassicContent.BLOCKS.register(modBus);
-        JurassicContent.ITEMS.register(modBus);
-        FossilLootEntry.register(modBus);
-        DynamicLootEntry.register(modBus);
-        BonusLoot.setLootPercentSupplier(JurassicConfig.LOOT_SPAWNRATE::get);
-        BonusLoot.setActionFigureFactory(ActionFigureItem::create);
-        ActionFigureRegistry.register(modBus);
-        VillageRegistry.register(modBus);
-        ComponentsRegistry.register(modBus);
-        BugRegistry.register(modBus);
-        CultivatorRegistry.register(modBus);
-        DartRegistry.register(modBus);
-        DecorRegistry.register(modBus);
-        AssemblyRegistry.register(modBus);
-        CleaningStationRegistry.register(modBus);
-        FossilizedEggRegistry.register(modBus);
-        FossilNestRegistry.register(modBus);
-        DinosaurRegistry.register(modBus);
-        FeederRegistry.register(modBus);
-        FenceRegistry.register(modBus);
-        GeneticsRegistry.register(modBus);
-        GoatRegistry.register(modBus);
-        FossilGrinderRegistry.register(modBus);
-        FieldGuideRegistry.register(modBus);
-        HatcheryRegistry.register(modBus);
-        JournalRegistry.register(modBus);
-        PlantRegistry.register(modBus);
-        PlantCultureRegistry.register(modBus);
-        DnaMachineRegistry.register(modBus);
-        MusicRegistry.register(modBus);
-        MuralRegistry.register(modBus);
-        DinosaurSupplies.register(modBus);
-        SouvenirRegistry.register(modBus);
-        SkullRegistry.register(modBus);
-        StructureRegistry.register(modBus);
-        DinoScannerRegistry.register(modBus);
-        VehicleRegistry.register(modBus);
-        TourRailRegistry.register(modBus);
-        WorldgenRegistry.register(modBus);
+    private PortMod() {}
+
+    /** Defines every registry entry, game rule and packet. Registration itself is driven by the loader. */
+    public static void init() {
+        JurassicContent.init();
+        FossilLootEntry.init();
+        DynamicLootEntry.init();
+        SkullRegistry.init();
+        ComponentsRegistry.init();
+        PlantRegistry.init();
+        GeneticsRegistry.init();
+        PlantCultureRegistry.init();
+        DinosaurSupplies.init();
+        AssemblyRegistry.init();
+        CleaningStationRegistry.init();
+        FossilGrinderRegistry.init();
+        FossilizedEggRegistry.init();
+        FossilNestRegistry.init();
+        FenceRegistry.init();
+        BugRegistry.init();
+        FeederRegistry.init();
+        DnaMachineRegistry.init();
+        HatcheryRegistry.init();
+        CultivatorRegistry.init();
+        DinosaurRegistry.init();
+        ActionFigureRegistry.init();
+        MuralRegistry.init();
+        DecorRegistry.init();
+        FieldGuideRegistry.init();
+        JournalRegistry.init();
+        StructureRegistry.init();
+        VillageRegistry.init();
+        GoatRegistry.init();
+        DartRegistry.init();
+        DinoScannerRegistry.init();
+        TourRailRegistry.init();
+        VehicleRegistry.init();
+        MusicRegistry.init();
+        SouvenirRegistry.init();
+        WorldgenRegistry.init();
+    }
+
+    /** Runs once every registry entry exists. */
+    public static void setup() {
+        PlantRegistry.setup();
     }
 }

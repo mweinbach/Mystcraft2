@@ -19,11 +19,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
 
 /** A mural is anchored at its top edge, as in the 1.12.2 original. */
-public final class MuralEntity extends HangingEntity implements IEntityAdditionalSpawnData {
+public final class MuralEntity extends HangingEntity {
     private static final EntityDataAccessor<Integer> ART = SynchedEntityData.defineId(MuralEntity.class, EntityDataSerializers.INT);
     public MuralEntity(EntityType<? extends MuralEntity> type, Level level) { super(type, level); }
     private MuralEntity(Level level, BlockPos pos, Direction side) {
@@ -99,12 +97,11 @@ public final class MuralEntity extends HangingEntity implements IEntityAdditiona
     // Movement packets contain the rendered position, not the hanging anchor.
     // Like vanilla paintings, a stationary mural must ignore interpolation.
     @Override public void lerpTo(double x, double y, double z, float yaw, float pitch, int steps, boolean teleport) {}
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
-    @Override public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeLong(pos.asLong()); buffer.writeByte(direction.get2DDataValue()); buffer.writeByte(artwork().ordinal());
+    @Override public Packet<?> getAddEntityPacket() {
+        return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(this, direction.get3DDataValue(), getPos());
     }
-    @Override public void readSpawnData(FriendlyByteBuf buffer) {
-        pos = BlockPos.of(buffer.readLong()); Direction facing = Direction.from2DDataValue(buffer.readByte());
-        setArtwork(MuralType.byOrdinal(buffer.readUnsignedByte())); setDirection(facing);
+    @Override public void recreateFromPacket(net.minecraft.network.protocol.game.ClientboundAddEntityPacket packet) {
+        super.recreateFromPacket(packet);
+        setDirection(Direction.from3DDataValue(packet.getData()));
     }
 }

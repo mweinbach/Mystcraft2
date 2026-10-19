@@ -3,8 +3,8 @@ package ports.jurassicraft.plants;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,7 +20,7 @@ import ports.jurassicraft.PortMod;
 final class PetrifiedTreeFeature extends Feature<NoneFeatureConfiguration> {
     private static final List<PlantSpecies> TREES = List.of(PlantSpecies.GINKGO, PlantSpecies.CALAMITES,
             PlantSpecies.PSARONIUS, PlantSpecies.PHOENIX, PlantSpecies.ARAUCARIA);
-    private static final TagKey<Block> REPLACEABLE = BlockTags.create(new ResourceLocation(PortMod.MOD_ID, "petrified_tree_replaceable"));
+    private static final TagKey<Block> REPLACEABLE = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(PortMod.MOD_ID, "petrified_tree_replaceable"));
 
     PetrifiedTreeFeature() { super(NoneFeatureConfiguration.CODEC); }
 

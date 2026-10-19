@@ -1,33 +1,36 @@
 package ports.jurassicraft.plants.client;
 
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.FoliageColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import ports.jurassicraft.PortMod;
+import ports.jurassicraft.platform.client.ClientPlatform;
 import ports.jurassicraft.plants.PlantRegistry;
 import ports.jurassicraft.plants.PlantSpecies;
 
 /** The original leaves and moss take their colors from the surrounding biome. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class PlantColors {
     private PlantColors() {}
-    @SubscribeEvent
-    public static void blockColors(RegisterColorHandlersEvent.Block event) {
+    public static void setup() {
         for (PlantSpecies species : PlantSpecies.values()) {
-            if (species.isTree()) event.register((state, world, pos, tint) ->
-                    world == null || pos == null ? FoliageColor.getDefaultColor() : BiomeColors.getAverageFoliageColor(world, pos),
-                    PlantRegistry.leaves(species).get());
+            ClientPlatform.renderLayer(RenderType.cutout(), PlantRegistry.plant(species).get());
+            if (!species.isTree()) continue;
+            ClientPlatform.renderLayer(RenderType.cutoutMipped(), PlantRegistry.leaves(species).get());
+            ClientPlatform.renderLayer(RenderType.cutout(), Registry.BLOCK.get(new ResourceLocation(PortMod.MOD_ID, species.id() + "_door")));
         }
-        event.register((state, world, pos, tint) -> world == null || pos == null
-                ? FoliageColor.getDefaultColor() : BiomeColors.getAverageFoliageColor(world, pos), PlantRegistry.MOSS.get());
+        ClientPlatform.renderLayer(RenderType.cutout(), PlantRegistry.GRACILARIA_SEAWEED.get());
     }
-    @SubscribeEvent
-    public static void itemColors(RegisterColorHandlersEvent.Item event) {
+    public static void colors(ClientPlatform.Colors colors) {
         for (PlantSpecies species : PlantSpecies.values()) {
-            if (species.isTree()) event.register((stack, tint) -> FoliageColor.getDefaultColor(), PlantRegistry.leaves(species).get());
+            if (!species.isTree()) continue;
+            var leaves = PlantRegistry.leaves(species).get();
+            colors.block((state, world, pos, tint) ->
+                    world == null || pos == null ? FoliageColor.getDefaultColor() : BiomeColors.getAverageFoliageColor(world, pos), leaves);
+            colors.item((stack, tint) -> FoliageColor.getDefaultColor(), leaves);
         }
+        colors.block((state, world, pos, tint) -> world == null || pos == null
+                ? FoliageColor.getDefaultColor() : BiomeColors.getAverageFoliageColor(world, pos), PlantRegistry.MOSS.get());
     }
 }
