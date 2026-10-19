@@ -2,8 +2,18 @@
 """Original ICBM industrial visual assets. All pixels/geometry authored here; no upstream art."""
 import json, struct, zlib
 from pathlib import Path
+from payload_visuals import (
+    GLYPH_UV,
+    GRENADE_IDS,
+    PROFILES,
+    catalog,
+    core_pixels,
+    disc_pixels,
+    paint_label,
+    radiation_pixels,
+)
 NS='icbm_port'
-PALETTE=['#d7dfe3','#b0bec8','#ed8d36','#b393d9','#a3c64a','#818d93','#65a0cf','#d875a8','#d7ae55','#7fb85c','#64c8c9','#e1b783','#e66d45','#c1d761','#52aed3','#efb750','#7ac8e7','#b48be7','#7e9fe5','#ab6cd5','#e34e64','#ed7bc2','#a9b6c0']
+GLYPH={'north':GLYPH_UV,'south':GLYPH_UV,'east':GLYPH_UV,'west':GLYPH_UV}
 def rgb(hex):return tuple(bytes.fromhex(hex.lstrip('#')))
 def png(path,w,h,pixels):
  def chunk(k,d):return struct.pack('!I',len(d))+k+d+struct.pack('!I',zlib.crc32(k+d)&0xffffffff)
@@ -27,12 +37,18 @@ def generate(root):
  texture('optic',lambda x,y,f:screen if 3<=x<=12 and 3<=y<=12 else edge)
  texture('panel',lambda x,y,f:edge if x in (0,15) or y in (0,15) else screen if ((x==4+f*2 and 3<=y<=12) or (y==8 and 3<=x<=12) or (x==11 and y==4)) else rgb('#103c40'),4)
  texture('warning',lambda x,y,f:accent if (y>=4 and y<=12 and abs(x-8)<=((y-3)//2)) else edge)
- texture('exhaust',lambda x,y,f:rgb('#f3c66b') if 5<=x<=10 and 5<=y<=10 else edge if 3<=x<=12 and 3<=y<=12 else metal)
+ texture('exhaust',lambda x,y,f:(255,236,170) if 6<=x<=9 and 6<=y<=8+f else (243,150,48) if 5<=x<=10 and 5<=y<=10 else edge if 3<=x<=12 and 3<=y<=12 else metal,4)
  textures={k:NS+':block/'+k for k in ['casing','alloy','carbon','hazard','grille','coil','optic','panel','warning','exhaust']}
  class Model:
   def __init__(self):self.elements=[];self.tex=dict(textures);self.tex['particle']=textures['casing']
-  def box(self,lo,hi,tex='casing',rotation=None,face=None):
-   e={'from':lo,'to':hi,'faces':{side:{'texture':'#'+(face.get(side,tex) if face else tex)} for side in ['up','down','north','south','east','west']}}
+  def box(self,lo,hi,tex='casing',rotation=None,face=None,uv=None):
+   faces={}
+   for side in ['up','down','north','south','east','west']:
+    entry={'texture':'#'+(face.get(side,tex) if face else tex)}
+    # A short element without uv samples v = 16 - y and hides the glyph.
+    if uv and side in uv:entry['uv']=uv[side]
+    faces[side]=entry
+   e={'from':lo,'to':hi,'faces':faces}
    if rotation:e['rotation']=rotation
    self.elements.append(e);return self
   def save(self,path,item=False):
@@ -103,24 +119,47 @@ def generate(root):
    for lo,hi in [([0,5,6],[16,9,10]),([6,5,0],[10,9,16])]:m.box(lo,hi,'carbon')
    m.box([5,11,5],[11,12,11],'hazard')
   m.save('block/'+id)
- # Recessed payload casings with distinct two-digit binary-ish side identification.
- payloads='condensed shrapnel incendiary debilitation chemical anvil repulsive attractive fragmentation contagious sonic breaching thermobaric nuclear emp exothermic endothermic antigravitational ender antimatter redmatter colors smoke'.split()
- for index,(payload,color) in enumerate(zip(payloads,PALETTE)):
-  colorrgb=rgb(color)
-  texture('payload_'+payload,lambda x,y,f,c=colorrgb,i=index:edge if x in (0,15) or y in (0,15) else light if (x,y) in [(2,2),(13,2),(2,13),(13,13)] else c if ((4<=y<=5 and 3<=x<=12) or (7<=y<=10 and 3<=x<=12 and ((i+1)>>((x-3)//2))&1)) else metal)
-  m=Model();m.tex['label']=NS+':block/payload_'+payload
-  m.box([1,0,1],[15,16,15],face={'north':'label','south':'label','east':'label','west':'label','up':'warning'})
+ # Payload identity comes from payload_visuals.PROFILES. Nose stays on local +Y.
+ def label_box(m,lo,hi,tex='label'):
+  m.box(lo,hi,tex,face={'up':'casing','down':'casing','north':'label','south':'label','east':'label','west':'label'},uv=GLYPH)
+ def fins(m,y0=1,y1=6):
+  for lo,hi in [([1,y0,7],[5,y1,9]),([11,y0,7],[15,y1,9]),([7,y0,1],[9,y1,5]),([7,y0,11],[9,y1,15])]:m.box(lo,hi,'carbon')
+ def missile(profile):
+  m=Model();m.tex['label']=NS+':block/payload_'+profile.id
+  m.box([5,0,5],[11,2,11],'exhaust')
+  body=profile.body
+  if body=='canister':
+   label_box(m,[4,2,4],[12,13,12]);m.box([5,13,5],[11,15,11],'alloy');m.box([7,15,7],[9,16,9],'carbon');fins(m,0,4)
+  elif body=='warhead':
+   m.box([6,2,6],[10,8,10],'alloy');m.box([4,7,4],[12,13,12],'casing');label_box(m,[3.8,8,3.8],[12.2,12,12.2])
+   m.box([6,13,6],[10,15,10],'carbon');m.box([7,15,7],[9,16,9],'alloy');fins(m)
+  elif body=='flame':
+   m.box([6,2,6],[10,11,10],'alloy');label_box(m,[5.1,3,5.1],[10.9,10,10.9])
+   m.box([4,11,4],[12,14,12],'warning');m.box([6,14,6],[10,16,10],'exhaust');fins(m)
+  elif body=='core':
+   m.box([6,2,6],[10,5,10],'alloy');m.box([4,5,4],[12,11,12],'carbon');label_box(m,[3.7,6.5,3.7],[12.3,9.5,12.3])
+   m.box([6,11,6],[10,13,10],'alloy');m.box([7,13,7],[9,16,9],'casing');fins(m,1,5)
+  elif body=='coil':
+   m.box([6.5,2,6.5],[9.5,14,9.5],'alloy')
+   for y in (4,8,12):m.box([4,y,4],[12,y+1.2,12],'coil')
+   label_box(m,[5.4,6,5.4],[10.6,8,10.6]);m.box([7,14,7],[9,16,9],'optic');fins(m)
+  else:
+   m.box([6,2,6],[10,12,10],'alloy');label_box(m,[5.05,4,5.05],[10.95,11,10.95])
+   m.box([6.5,12,6.5],[9.5,14,9.5],'carbon');m.box([7,14,7],[9,16,9],'alloy');fins(m)
+  m.save('item/'+profile.id+'_missile',True)
+ for profile in PROFILES:
+  png(assets/f'textures/block/payload_{profile.id}.png',16,16,paint_label(profile))
+  m=Model();m.tex['label']=NS+':block/payload_'+profile.id
+  m.box([1,0,1],[15,16,15],face={'north':'label','south':'label','east':'label','west':'label','up':'warning','down':'casing'},uv=GLYPH)
   for x in [0,14]:
    for z in [0,14]:m.box([x,0,z],[x+2,16,z+2],'carbon')
-  m.box([0,0,0],[16,2,16],'alloy').box([0,14,0],[16,16,16],'alloy');m.box([4,16,6],[12,16.5,10],'carbon');m.save('block/'+payload+'_explosive')
-  # Shared rocket axis matches the velocity-oriented renderer (+Y).
-  for suffix in ['_missile']+(['_grenade','_bomblet'] if payload in payloads[:8]+['colors','smoke'] else []):
-   id=payload+suffix;m=Model();m.tex['label']=NS+':block/payload_'+payload
-   if suffix=='_missile':
-    m.box([5,2,5],[11,12,11],'alloy').box([4.98,7,4.98],[11.02,10,11.02],'label').box([6,12,6],[10,14,10],'carbon').box([7,14,7],[9,16,9],'alloy').box([5,0,5],[11,2,11],'exhaust')
-    for lo,hi in [([1,1,7],[5,6,9]),([11,1,7],[15,6,9]),([7,1,1],[9,6,5]),([7,1,11],[9,6,15])]:m.box(lo,hi,'carbon')
-   else:m.box([4,2,4],[12,11,12],'label').box([5,11,5],[11,13,11],'alloy').box([8,13,6],[12,14,10],'carbon').box([10,11,6],[13,13,10],'hazard')
-   m.save('item/'+id,True)
+  m.box([0,0,0],[16,2,16],'alloy').box([0,14,0],[16,16,16],'alloy');m.box([4,16,6],[12,16.5,10],'carbon');m.save('block/'+profile.id+'_explosive')
+  missile(profile)
+  if profile.id in GRENADE_IDS:
+   for suffix in ['_grenade','_bomblet']:
+    m=Model();m.tex['label']=NS+':block/payload_'+profile.id
+    label_box(m,[4,2,4],[12,11,12]);m.box([5,11,5],[11,13,11],'alloy');m.box([8,13,6],[12,14,10],'carbon');m.box([10,11,6],[13,13,10],'hazard')
+    m.save('item/'+profile.id+suffix,True)
  # Purpose-built held tool silhouettes, rather than recognizable vanilla tools.
  for id in ['rocket_launcher','ballistic_launcher','radar_gun','laser_designator','gps','radio_detonator','defuser','antidote','battery']:
   m=Model()
@@ -185,14 +224,21 @@ def generate(root):
    for x,y in [(3,13),(5,14),(10,14),(12,13)]:dot(x,y,color)
   png(assets/f'textures/item/{id}.png',16,16,canvas)
   put('models/item/'+id+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':NS+':item/'+id}})
+ png(assets/'textures/block/radiation.png',16,16,radiation_pixels())
+ png(assets/'textures/entity/redmatter_core.png',16,16,core_pixels())
+ png(assets/'textures/entity/redmatter_disc.png',16,16,disc_pixels())
+ put('payload_visuals.json',catalog())
+ for block_id,base in [('radioactive_stone','stone'),('radioactive_dirt','dirt')]:
+  put('models/block/'+block_id+'.json',{'parent':'minecraft:block/block','textures':{'particle':'minecraft:block/'+base,'base':'minecraft:block/'+base,'mark':NS+':block/radiation'},'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{face:{'texture':'#base'} for face in ['up','down','north','south','east','west']}},{'from':[5,16.01,5],'to':[11,16.02,11],'faces':{'up':{'texture':'#mark','uv':GLYPH_UV}}}]})
  for id in ['basic_circuit','advanced_circuit','elite_circuit','copper_wire','gold_wire','steel_plate','iron_plate','steel_ingot','steel_clump','empty_bomblet','sulfur_dust','saltpeter_dust','poison_powder','saltpeter_ball']:component(id)
  # Payload-marked rail carts share industrial geometry, never the vanilla TNT cart sprite.
- for payload in payloads:
+ for profile in PROFILES:
+  payload=profile.id
   m=Model();m.tex['label']=NS+':block/payload_'+payload
   m.box([1,3,2],[15,6,14],'carbon').box([1,5,2],[15,7,14],'alloy')
   for x in [0,13]:
    for z in [2,10]:m.box([x,1,z],[x+3,4,z+4],'carbon')
-  m.box([2,7,3],[14,13,13],'label').box([2,13,3],[14,14,13],'alloy')
+  label_box(m,[2,7,3],[14,13,13]);m.box([2,13,3],[14,14,13],'alloy')
   m.box([2,7,2],[14,9,3],'casing').box([2,7,13],[14,9,14],'casing')
   for x in [3,11]:m.box([x,6,1],[x+2,8,15],'hazard')
   m.box([5,14,6],[11,15,10],'warning');m.save('item/'+payload+'_bomb_cart',True)
