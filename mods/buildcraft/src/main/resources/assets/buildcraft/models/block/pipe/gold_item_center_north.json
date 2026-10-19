@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_center_north",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/gold_item"
+  }
+}

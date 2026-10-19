@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "www",
+    " g ",
+    "GpG"
+  ],
+  "key": {
+    "w": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "G": [
+      {
+        "tag": "c:iron_gears"
+      },
+      {
+        "tag": "forge:gears/iron"
+      }
+    ],
+    "p": {
+      "item": "minecraft:piston"
+    }
+  },
+  "result": {
+    "item": "buildcraft:combustion_engine"
+  }
+}

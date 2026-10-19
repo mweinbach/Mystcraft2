@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iri",
+    "gig",
+    "dpd"
+  ],
+  "key": {
+    "i": [
+      {
+        "tag": "c:iron_gears"
+      },
+      {
+        "tag": "forge:gears/iron"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:gold_gears"
+      },
+      {
+        "tag": "forge:gears/gold"
+      }
+    ],
+    "d": [
+      {
+        "tag": "c:diamond_gears"
+      },
+      {
+        "tag": "forge:gears/diamond"
+      }
+    ],
+    "p": {
+      "item": "minecraft:diamond_pickaxe"
+    }
+  },
+  "result": {
+    "item": "buildcraft:quarry"
+  }
+}

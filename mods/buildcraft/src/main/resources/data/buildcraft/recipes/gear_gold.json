@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " o ",
+    "oio",
+    " o "
+  ],
+  "key": {
+    "o": [
+      {
+        "tag": "c:gold_ingots"
+      },
+      {
+        "tag": "forge:ingots/gold"
+      }
+    ],
+    "i": [
+      {
+        "tag": "c:iron_gears"
+      },
+      {
+        "tag": "forge:gears/iron"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:gear_gold"
+  }
+}

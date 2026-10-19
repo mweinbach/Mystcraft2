@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    [
+      {
+        "tag": "c:green_dyes"
+      },
+      {
+        "tag": "forge:dyes/green"
+      },
+      {
+        "tag": "c:slime_balls"
+      },
+      {
+        "tag": "forge:slimeballs"
+      }
+    ]
+  ],
+  "result": {
+    "item": "buildcraft:waterproof"
+  }
+}

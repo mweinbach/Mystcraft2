@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": [
+      {
+        "tag": "c:black_dyes"
+      },
+      {
+        "tag": "forge:dyes/black"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:pipe_void_item",
+    "count": 8
+  }
+}

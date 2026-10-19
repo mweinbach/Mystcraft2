@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " o ",
+    "oio",
+    " o "
+  ],
+  "key": {
+    "o": [
+      {
+        "tag": "c:cobblestone"
+      },
+      {
+        "tag": "forge:cobblestone"
+      }
+    ],
+    "i": [
+      {
+        "tag": "c:wood_gears"
+      },
+      {
+        "tag": "forge:gears/wood"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:gear_stone"
+  }
+}

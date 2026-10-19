@@ -1,0 +1,160 @@
+{
+  "variants": {
+    "facing=up,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue"
+    },
+    "facing=down,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue",
+      "x": 180
+    },
+    "facing=north,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue",
+      "x": 90
+    },
+    "facing=south,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=blue": {
+      "model": "buildcraft:block/engine/wood_blue",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up,stage=green": {
+      "model": "buildcraft:block/engine/wood_green"
+    },
+    "facing=down,stage=green": {
+      "model": "buildcraft:block/engine/wood_green",
+      "x": 180
+    },
+    "facing=north,stage=green": {
+      "model": "buildcraft:block/engine/wood_green",
+      "x": 90
+    },
+    "facing=south,stage=green": {
+      "model": "buildcraft:block/engine/wood_green",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=green": {
+      "model": "buildcraft:block/engine/wood_green",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=green": {
+      "model": "buildcraft:block/engine/wood_green",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow"
+    },
+    "facing=down,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow",
+      "x": 180
+    },
+    "facing=north,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow",
+      "x": 90
+    },
+    "facing=south,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=yellow": {
+      "model": "buildcraft:block/engine/wood_yellow",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up,stage=red": {
+      "model": "buildcraft:block/engine/wood_red"
+    },
+    "facing=down,stage=red": {
+      "model": "buildcraft:block/engine/wood_red",
+      "x": 180
+    },
+    "facing=north,stage=red": {
+      "model": "buildcraft:block/engine/wood_red",
+      "x": 90
+    },
+    "facing=south,stage=red": {
+      "model": "buildcraft:block/engine/wood_red",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=red": {
+      "model": "buildcraft:block/engine/wood_red",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=red": {
+      "model": "buildcraft:block/engine/wood_red",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat"
+    },
+    "facing=down,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat",
+      "x": 180
+    },
+    "facing=north,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat",
+      "x": 90
+    },
+    "facing=south,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=overheat": {
+      "model": "buildcraft:block/engine/wood_overheat",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up,stage=black": {
+      "model": "buildcraft:block/engine/wood_black"
+    },
+    "facing=down,stage=black": {
+      "model": "buildcraft:block/engine/wood_black",
+      "x": 180
+    },
+    "facing=north,stage=black": {
+      "model": "buildcraft:block/engine/wood_black",
+      "x": 90
+    },
+    "facing=south,stage=black": {
+      "model": "buildcraft:block/engine/wood_black",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east,stage=black": {
+      "model": "buildcraft:block/engine/wood_black",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,stage=black": {
+      "model": "buildcraft:block/engine/wood_black",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,48 @@
+// BuildCraft for Forge: shared gameplay plus the Forge registration, capability and client
+// adapters. The Fabric variant builds from the same shared sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'buildcraft-forge-1.19.2'
+
+tasks.withType(Jar).configureEach {
+    from('UPSTREAM.md') {
+        into 'META-INF'
+        rename { 'BuildCraft-UPSTREAM.md' }
+    }
+    from('licenses') { into 'META-INF/licenses/buildcraft' }
+}
+
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
+dependencies {
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
+    }
+}
+
+// In-world tests are a development-only source set; they never enter the production JAR.
+sourceSets {
+    gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = ['src/gametestCommon/resources']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enableGameTest', 'true'
+        property 'forge.enabledGameTestNamespaces', 'buildcraft'
+        property 'emc.values', file('emc/values.json').absolutePath
+        mods { buildcraft { source sourceSets.gametest } }
+    }
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn tasks.named('gametestClasses')
+    doFirst { delete file('run/gameTestServer/world') }
+}

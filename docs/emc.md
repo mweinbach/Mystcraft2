@@ -6,6 +6,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Port | Loaders | Items | Explicit | Excluded | Details |
 | --- | --- | ---: | ---: | ---: | --- |
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
+| BuildCraft | Forge, Fabric | 43 | 0 | 4 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 9 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
@@ -136,6 +137,7 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | --- | --- |
 | JurassiCraft | `./scripts/gradle.sh :jurassicraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithItemAlchemy` |
 | Mystcraft | `./scripts/gradle.sh :mystcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/mystcraft/fabric runGametest -PwithItemAlchemy` |
+| BuildCraft | `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy` |
 | ICBM | `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` |
 | Advanced Genetics | `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy` |
 
@@ -144,7 +146,7 @@ coordinates and data-format regressions.
 
 ## Adding EMC to a port
 
-Use this for BuildCraft, Extreme Reactors or any new port.
+Use this for Extreme Reactors or any new port.
 
 1. **Registry.** Copy `EmcAudit` (Mojang-mapped: `mods/jurassicraft/src/gametestCommon/.../EmcAudit.java`;
    Yarn: `mods/icbm_port/src/gametest/.../EmcAudit.java`) into the port's GameTest sources. Add a one-line test

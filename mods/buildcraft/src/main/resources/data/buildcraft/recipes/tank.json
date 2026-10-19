@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ggg",
+    "g g",
+    "ggg"
+  ],
+  "key": {
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:tank"
+  }
+}

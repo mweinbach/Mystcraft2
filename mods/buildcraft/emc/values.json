@@ -1,0 +1,222 @@
+{
+  "namespace": "buildcraft",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "buildcraft:combustion_engine": {
+      "projecte": 3205,
+      "itemalchemy": 3157,
+      "source": "recipe"
+    },
+    "buildcraft:frame": {
+      "excluded": "Creative-only: the quarry builds its frame from power, frame blocks drop nothing, and there is no frame recipe, so a value would only make creative frames transmutable."
+    },
+    "buildcraft:fuel_light_bucket": {
+      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+    },
+    "buildcraft:gear_diamond": {
+      "projecte": 42004,
+      "itemalchemy": 17392,
+      "source": "recipe"
+    },
+    "buildcraft:gear_gold": {
+      "projecte": 9236,
+      "itemalchemy": 9200,
+      "source": "recipe"
+    },
+    "buildcraft:gear_iron": {
+      "projecte": 1044,
+      "itemalchemy": 1028,
+      "source": "recipe"
+    },
+    "buildcraft:gear_stone": {
+      "projecte": 20,
+      "itemalchemy": 20,
+      "source": "recipe"
+    },
+    "buildcraft:gear_wood": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "buildcraft:mining_well": {
+      "projecte": 3420,
+      "itemalchemy": 3368,
+      "source": "recipe"
+    },
+    "buildcraft:oil_bucket": {
+      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+    },
+    "buildcraft:oil_residue_bucket": {
+      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+    },
+    "buildcraft:pipe_clay_fluid": {
+      "projecte": 24,
+      "itemalchemy": 32,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_clay_item": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_cobblestone_fluid": {
+      "projecte": 8,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_cobblestone_item": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "3/8",
+        "itemalchemy": "3/8"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_cobblestone_power": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_diamond_item": {
+      "projecte": 2048,
+      "itemalchemy": 512,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_gold_fluid": {
+      "projecte": 520,
+      "itemalchemy": 526,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_gold_item": {
+      "projecte": 512,
+      "itemalchemy": 510,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_gold_power": {
+      "projecte": 576,
+      "itemalchemy": 574,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_iron_fluid": {
+      "projecte": 72,
+      "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_iron_item": {
+      "projecte": 64,
+      "itemalchemy": 63,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_quartz_fluid": {
+      "projecte": 264,
+      "itemalchemy": 272,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_quartz_item": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_quartz_power": {
+      "projecte": 320,
+      "itemalchemy": 320,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_sandstone_fluid": {
+      "projecte": 9,
+      "itemalchemy": 17,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_sandstone_item": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_sandstone_power": {
+      "projecte": 65,
+      "itemalchemy": 65,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_stone_fluid": {
+      "projecte": 8,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_stone_item": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "3/8",
+        "itemalchemy": "3/8"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_stone_power": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_void_fluid": {
+      "projecte": 18,
+      "itemalchemy": 26,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_void_item": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_wood_fluid": {
+      "projecte": 10,
+      "itemalchemy": 18,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_wood_item": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_wood_power": {
+      "projecte": 66,
+      "itemalchemy": 66,
+      "source": "recipe"
+    },
+    "buildcraft:pump": {
+      "projecte": 2916,
+      "itemalchemy": 2884,
+      "source": "recipe"
+    },
+    "buildcraft:quarry": {
+      "projecte": 130260,
+      "itemalchemy": 62484,
+      "source": "recipe"
+    },
+    "buildcraft:redstone_engine": {
+      "projecte": 405,
+      "itemalchemy": 401,
+      "source": "recipe"
+    },
+    "buildcraft:stirling_engine": {
+      "projecte": 392,
+      "itemalchemy": 388,
+      "source": "recipe"
+    },
+    "buildcraft:tank": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "recipe"
+    },
+    "buildcraft:waterproof": {
+      "projecte": 8,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "buildcraft:wrench": {
+      "projecte": 788,
+      "itemalchemy": 776,
+      "source": "recipe"
+    }
+  }
+}

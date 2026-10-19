@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_center_south",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/void_fluid"
+  }
+}

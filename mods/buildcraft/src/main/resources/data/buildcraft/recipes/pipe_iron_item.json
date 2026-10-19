@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:pipe_iron_item",
+    "count": 8
+  }
+}

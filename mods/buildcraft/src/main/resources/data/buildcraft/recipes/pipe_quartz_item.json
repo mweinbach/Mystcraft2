@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": [
+      {
+        "tag": "c:quartz_blocks"
+      },
+      {
+        "tag": "forge:storage_blocks/quartz"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:quartz_blocks"
+      },
+      {
+        "tag": "forge:storage_blocks/quartz"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:pipe_quartz_item",
+    "count": 8
+  }
+}

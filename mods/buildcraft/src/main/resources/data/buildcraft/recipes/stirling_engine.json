@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "www",
+    " g ",
+    "GpG"
+  ],
+  "key": {
+    "w": [
+      {
+        "tag": "c:cobblestone"
+      },
+      {
+        "tag": "forge:cobblestone"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "G": [
+      {
+        "tag": "c:stone_gears"
+      },
+      {
+        "tag": "forge:gears/stone"
+      }
+    ],
+    "p": {
+      "item": "minecraft:piston"
+    }
+  },
+  "result": {
+    "item": "buildcraft:stirling_engine"
+  }
+}

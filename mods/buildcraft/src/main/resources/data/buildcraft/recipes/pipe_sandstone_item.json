@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": [
+      {
+        "tag": "c:sandstone"
+      },
+      {
+        "tag": "forge:sandstone"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:sandstone"
+      },
+      {
+        "tag": "forge:sandstone"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:pipe_sandstone_item",
+    "count": 8
+  }
+}

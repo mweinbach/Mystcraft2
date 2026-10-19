@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:clay"
+    },
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": {
+      "item": "minecraft:clay"
+    }
+  },
+  "result": {
+    "item": "buildcraft:pipe_clay_item",
+    "count": 8
+  }
+}

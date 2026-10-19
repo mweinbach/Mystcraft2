@@ -1,0 +1,7 @@
+{
+  "parent": "buildcraft:item/engine_base",
+  "textures": {
+    "back": "buildcraft:block/engine/stone/back",
+    "side": "buildcraft:block/engine/stone/side"
+  }
+}

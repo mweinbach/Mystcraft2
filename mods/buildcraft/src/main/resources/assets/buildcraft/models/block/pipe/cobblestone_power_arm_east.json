@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_arm_east",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/cobblestone_power"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "buildcraft:pipe_quartz_item"
+    },
+    [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ]
+  ],
+  "result": {
+    "item": "buildcraft:pipe_quartz_power"
+  }
+}
