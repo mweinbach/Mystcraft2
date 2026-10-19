@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.technovision.advancedgenetics.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BowItemMixin",
+    "LivingEntityAccessor",
+    "LivingEntityMixin",
+    "MobAccessor",
+    "PlayerMixin",
+    "fabric.PlayerFabricMixin",
+    "fabric.ServerPlayerFabricMixin"
+  ],
+  "client": [
+    "client.MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

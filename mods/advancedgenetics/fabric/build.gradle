@@ -1,0 +1,89 @@
+// Advanced Genetics for Fabric: the shared gameplay in ../src/main plus the adapters in
+// ../src/fabric. Kept as its own Gradle root so Loom stays isolated from ForgeGradle.
+plugins {
+    id 'fabric-loom' version '1.7.4'
+}
+
+def metadata = new Properties()
+file('../port.properties').withInputStream { metadata.load(it) }
+version = metadata.mod_version
+group = metadata.mod_group
+base.archivesName = 'advancedgenetics-fabric-1.19.2'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    include(modImplementation('teamreborn:energy:2.3.0') { exclude group: 'net.fabricmc.fabric-api' })
+    // The config file format Forge reads, so both loaders share config/AdvancedGenetics.toml.
+    include(implementation('com.electronwill.night-config:core:3.6.4'))
+    include(implementation('com.electronwill.night-config:toml:3.6.4'))
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+sourceSets {
+    main {
+        java.setSrcDirs(['../src/main/java', '../src/fabric/java'])
+        resources.setSrcDirs(['../src/main/resources', '../src/fabric/resources'])
+    }
+    test.java.setSrcDirs([])
+    test.resources.setSrcDirs([])
+    // In-world tests are a separate development-only mod; they never enter the production JAR.
+    gametest {
+        java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
+        resources.setSrcDirs(['../src/gametestFabric/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('processResources', ProcessResources) {
+    inputs.properties metadata
+    filesMatching('fabric.mod.json') { expand version: project.version, mod_description: metadata.mod_description }
+    filesMatching('pack.mcmeta') { expand metadata }
+}
+tasks.named('processGametestResources', ProcessResources) {
+    from('../src/gametestCommon/structures') { into 'data/advancedgenetics/gametest/structures' }
+}
+tasks.named('jar', Jar) { from('../LICENSE') }
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+loom {
+    mixin { defaultRefmapName = 'advancedgenetics.fabric.refmap.json' }
+    mods {
+        advancedgenetics { sourceSet sourceSets.main }
+        advancedgenetics_gametest { sourceSet sourceSets.gametest }
+    }
+    runs {
+        client { runDir '../run/fabric-client' }
+        server { runDir '../run/fabric-server'; programArg '--nogui' }
+        gametest {
+            server()
+            name 'Advanced Genetics Fabric Game Tests'
+            source sourceSets.gametest
+            runDir 'build/gametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
+        }
+    }
+}
+tasks.named('runGametest') {
+    doFirst { delete layout.buildDirectory.dir('gametest/world') }
+}
