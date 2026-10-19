@@ -108,6 +108,9 @@ class PolicyTests(unittest.TestCase):
                     {"conversions": [{"name": "c", "why": "w", "output": "t:a", "ingredients": {"t:b": 0}}]},
                     {"conversions": [{"name": "Bad Name", "why": "w", "output": "t:a", "ingredients": {"t:b": 1}}]},
                     {"processes": [{"name": "p", "in": {"t:a": 1}, "out": {"t:b": 1}}]},
+                    {"processes": [{"name": "p", "why": "w", "in": {"t:a": 1}, "out": {"t:b": 1}, "systems": ["x"]}]},
+                    {"vanilla": {"t:a": {"systems": ["projecte"], "emc": 1, "why": "w"}}},
+                    {"vanilla": {"minecraft:dirt": {"emc": 1, "why": "w"}}},
                     {"surprise": 1}):
             with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
                 emc.validate_policy({**base, **bad})
@@ -202,6 +205,43 @@ class PortTests(unittest.TestCase):
               shaped(["d"], {"d": {"item": "testmod:dust"}}, "minecraft:gunpowder"))
         port, _outputs = self.build()
         self.assertTrue(any("devalues vanilla minecraft:gunpowder" in p for p in port.problems), port.problems)
+
+    def add_skull_recipe(self):
+        write(self.dir / "res" / "data" / "testmod" / "recipes" / "bomb.json",
+              shaped(["s"], {"s": {"item": "minecraft:wither_skeleton_skull"}}, "testmod:bomb"))
+        write(self.dir / "emc" / "registry.txt",
+              (self.dir / "emc" / "registry.txt").read_text() + "testmod:bomb\n")
+
+    def test_vanilla_values_fill_gaps_in_one_system(self):
+        self.add_skull_recipe()
+        self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {
+            "systems": ["projecte"], "like": "minecraft:nether_star", "times": "1/3", "why": "w"}}
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
+        self.assertEqual(values["testmod:bomb"], {"projecte": 46421, "itemalchemy": 16, "source": "recipe"})
+        data = self.dir / "res" / "data" / "testmod"
+        before = json.loads(outputs[data / "pe_custom_conversions" / "testmod.json"])["values"]["before"]
+        self.assertEqual(before["minecraft:wither_skeleton_skull"], 46421)
+        itemalchemy = json.loads(outputs[data / "default_emcs" / "testmod.json"])
+        self.assertNotIn("minecraft:wither_skeleton_skull", itemalchemy)
+
+    def test_vanilla_values_never_override_a_default(self):
+        self.policy["vanilla"] = {"minecraft:dirt": {"systems": ["projecte"], "emc": 5, "why": "w"}}
+        port, _outputs = self.build()
+        self.assertTrue(any(p.startswith("vanilla.minecraft:dirt: projecte already values it") for p in port.problems),
+                        port.problems)
+
+    def test_processes_can_be_limited_to_one_system(self):
+        self.add_skull_recipe()
+        self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {"systems": ["projecte"], "emc": 256, "why": "w"}}
+        self.policy["processes"].append({"name": "wither", "why": "w", "systems": ["projecte"],
+                                         "in": {"minecraft:wither_skeleton_skull": 3, "minecraft:soul_sand": 4},
+                                         "out": {"minecraft:nether_star": 1}})
+        port, _outputs = self.build()
+        gains = [p for p in port.problems if "process 'wither'" in p]
+        self.assertEqual(len(gains), 1, port.problems)
+        self.assertTrue(gains[0].startswith("projecte:"))
 
     def test_merge_writes_port_values_into_an_item_alchemy_config(self):
         port, outputs = self.build()
