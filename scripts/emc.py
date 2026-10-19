@@ -152,9 +152,34 @@ def recipe_ingredients(recipe):
     return None
 
 
-def load_recipes(roots):
-    """Recipes ProjectE maps (vanilla types); other types are reported as skipped."""
+def condition_holds(condition, loader, tags, mods):
+    """Evaluate a Forge ``conditions`` or Fabric ``fabric:load_conditions`` entry for a standalone port."""
+    kind = condition.get("condition" if loader == "fabric" else "type")
+    if kind in ("fabric:not", "forge:not"):
+        return not condition_holds(condition["value"], loader, tags, mods)
+    if kind in ("fabric:and", "forge:and"):
+        return all(condition_holds(c, loader, tags, mods) for c in condition["values"])
+    if kind in ("fabric:or", "forge:or"):
+        return any(condition_holds(c, loader, tags, mods) for c in condition["values"])
+    if kind == "fabric:tags_populated" and condition.get("registry", "minecraft:item") == "minecraft:item":
+        return all(tags.members(tag) for tag in condition["values"])
+    if kind == "forge:tag_empty":
+        return not tags.members(condition["tag"])
+    if kind == "fabric:all_mods_loaded":
+        return all(mod in mods for mod in condition["values"])
+    if kind == "fabric:any_mod_loaded":
+        return any(mod in mods for mod in condition["values"])
+    if kind == "forge:mod_loaded":
+        return condition["modid"] in mods
+    if kind in ("forge:true", "forge:false"):
+        return kind == "forge:true"
+    raise PolicyError(f"unsupported recipe condition {kind}")
+
+
+def load_recipes(roots, loader, tags, mods):
+    """Recipes ProjectE maps (vanilla types) whose load conditions hold; other types are reported as skipped."""
     recipes, skipped = {}, {}
+    key = "fabric:load_conditions" if loader == "fabric" else "conditions"
     for root in roots:
         data = root / "data"
         if not data.is_dir():
@@ -164,6 +189,8 @@ def load_recipes(roots):
             for file in sorted(folder.rglob("*.json")):
                 rid = f"{namespace.name}:{file.relative_to(folder).with_suffix('').as_posix()}"
                 recipe = read_json(file)
+                if not all(condition_holds(c, loader, tags, mods) for c in recipe.get(key, [])):
+                    continue
                 if recipe_ingredients(recipe) is None:
                     skipped[rid] = recipe.get("type")
                 else:
@@ -367,7 +394,8 @@ class Port:
         tags = Tags.for_loader(loader)
         tags.add_resources(roots)
         remainders = {**REMAINDERS, **self.policy.get("remainders", {})}
-        recipes, skipped = load_recipes(roots)
+        mods = {"minecraft", self.namespace, loader} | ({"fabric-api"} if loader == "fabric" else set())
+        recipes, skipped = load_recipes(roots, loader, tags, mods)
         return tags, remainders, recipes, skipped
 
     def compute(self):
