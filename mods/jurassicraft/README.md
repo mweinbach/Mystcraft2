@@ -71,6 +71,13 @@ Jade shows dinosaur and machine information on both loaders. JEI (Forge) and
 EMI (Fabric) show machine recipe previews and support transfer into machine
 input slots. The JARs do not bundle these optional mods.
 
+Every item has an EMC value or a documented exclusion for ProjectE 1.1.0
+(Forge) and Item Alchemy 1.1.3 (Fabric), shipped as data in both JARs. See
+[emc/README.md](emc/README.md) and [docs/emc.md](../../docs/emc.md). The
+values were checked against both mods in GameTests (`-PwithProjectE`,
+`-PwithItemAlchemy`). Machine steps and mob drops are not mapped automatically,
+so values for later content need updating in `emc/policy.json`.
+
 ## Limitations
 
 The port is still in progress. World-generation distributions and some

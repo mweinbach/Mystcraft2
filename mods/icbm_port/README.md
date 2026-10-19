@@ -46,6 +46,8 @@ Startup generates payload and battery settings under `config/icbm_port/`, plus `
 
 This remains an alpha while multiplayer and survival balance receive broader testing. Gameplay is adapted to modern Fabric APIs and bounded server work; it is not a binary-compatible Forge port. Legacy worlds, items and configuration files are not converted. Original models and animations replace parts of the presentation, but do not reproduce upstream rendering, shaders or audio. Building blocks and cargo materials may reference vanilla block textures. Material icons and bomb-cart inventory models now use original art. All radio commands, ownership/faction integration and optional Forge-only integrations are not reproduced. Upstream artwork is excluded by its separate license; no upstream artist assets were copied. Visual readability, multiplayer presentation, survival balance and the overall play experience still need broader testing.
 
+Every item has an EMC value or a documented exclusion, shipped as data for Item Alchemy (the Fabric EMC mod) and in ProjectE's format. The nuclear, antimatter and red matter tiers get no EMC. `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` checks the values against Item Alchemy. See [emc/README.md](emc/README.md) and [docs/emc.md](../../docs/emc.md).
+
 [VALIDATION.md](docs/VALIDATION.md) records build, server, resource and client checks. These establish implemented behavior, not exact upstream equivalence.
 
 ## Attribution
