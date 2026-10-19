@@ -25,7 +25,7 @@ public class WoodBehaviour extends DirectionalBehaviour {
         public long receive(long amount, boolean simulate) {
             if (currentDir == null || amount <= 0) return 0;
             long offered = Power.fromUnits(Math.min(amount, Power.toUnits(MAX_REQUEST)));
-            long used = offered - extract(offered, simulate);
+            long used = offered - extractFromSource(offered, simulate);
             if (used <= 0) return 0;
             return Math.min(amount, (used + Power.MICRO_MJ_PER_UNIT - 1) / Power.MICRO_MJ_PER_UNIT);
         }
@@ -63,7 +63,7 @@ public class WoodBehaviour extends DirectionalBehaviour {
     }
 
     /** @return the power left over after extracting. */
-    protected long extract(long power, boolean simulate) {
+    protected long extractFromSource(long power, boolean simulate) {
         if (power <= 0 || currentDir == null) return power;
         if (pipe.flow() instanceof ItemFlow items) {
             int maxItems = (int) Math.min(Integer.MAX_VALUE, power / MJ_PER_ITEM);
