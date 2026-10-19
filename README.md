@@ -10,10 +10,11 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [Mystcraft](mods/mystcraft/) | In progress | Forge + Fabric development port with linking, descriptive books, generated Ages, writing and portals. Full classic parity remains in progress. |
 | [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload simulation, persistent flight/exposure, energy, delivery, defenses, screens and optional JEI. |
 | [JurassiCraft](mods/jurassicraft/) | In progress | Forge + Fabric alpha with shared gameplay: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
+| [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge port of the Fabric 1.0.3 release: all genes, six machines, Forge Energy and server GameTests. Survival and multiplayer play-testing remain. |
 
-Mystcraft and JurassiCraft support Forge and Fabric; ICBM targets Fabric.
-Install the variant matching your game loader; a mod's Forge and Fabric JARs
-cannot be installed together.
+Mystcraft and JurassiCraft support Forge and Fabric; ICBM targets Fabric;
+Advanced Genetics targets Forge. Install the variant matching your game loader;
+a mod's Forge and Fabric JARs cannot be installed together.
 
 ## Get started
 
@@ -46,6 +47,8 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/jurassicraft/fabric build
 ./scripts/gradle.sh :jurassicraft:runGameTestServer
 ./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
+./scripts/gradle.sh :advancedgenetics:build
+./scripts/gradle.sh :advancedgenetics:runGameTestServer
 ```
 
 JARs land in `mods/<mod-id>/build/libs/`; Mystcraft and JurassiCraft Fabric JARs
@@ -87,9 +90,10 @@ docs/                   Porting and development instructions
 `./scripts/gradle.sh build` builds the default variants of all ports. Build
 the Mystcraft and JurassiCraft Fabric variants separately with the commands
 above. GitHub Actions checks metadata, tests the port-management tool, builds
-both variants of Mystcraft and JurassiCraft and ICBM, verifies both mods' loader
-parity, runs ICBM's dedicated-server GameTests and both JurassiCraft GameTest
-suites, and uploads the resulting JARs.
+both variants of Mystcraft and JurassiCraft, ICBM and Advanced Genetics,
+verifies both mods' loader parity, runs the ICBM and Advanced Genetics
+dedicated-server GameTests and both JurassiCraft GameTest suites, and uploads
+the resulting JARs.
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
 tree.
 

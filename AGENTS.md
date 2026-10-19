@@ -16,7 +16,8 @@ Minecraft as part of a port.
 - Validate metadata with `python3 scripts/ports.py check`. For tooling changes,
   run `python3 -m unittest discover -s scripts/tests -v`. Build the affected port
   with `./scripts/gradle.sh :<mod-id>:build`; build all ports for shared changes.
-  Run ICBM's server tests with `./scripts/gradle.sh :icbm_port:runGametest`.
+  Run ICBM's server tests with `./scripts/gradle.sh :icbm_port:runGametest`
+  and Advanced Genetics' with `./scripts/gradle.sh :advancedgenetics:runGameTestServer`.
 - Each task already has an isolated environment. Use the existing checkout;
   do not create a worktree unless requested.
 - Do not describe a scaffold as a working gameplay port. Keep status, provenance,

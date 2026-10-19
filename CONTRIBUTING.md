@@ -12,6 +12,7 @@ python3 scripts/ports.py check
 python3 -m unittest discover -s scripts/tests -v
 ./scripts/gradle.sh build
 ./scripts/gradle.sh :icbm_port:runGametest
+./scripts/gradle.sh :advancedgenetics:runGameTestServer
 ```
 
 For gameplay changes, also run the affected mod's client and dedicated server.
