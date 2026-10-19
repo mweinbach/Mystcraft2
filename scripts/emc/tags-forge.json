@@ -1,0 +1,798 @@
+{
+  "forge:armors": [
+    "#forge:armors/helmets",
+    "#forge:armors/chestplates",
+    "#forge:armors/leggings",
+    "#forge:armors/boots"
+  ],
+  "forge:armors/boots": [
+    "minecraft:leather_boots",
+    "minecraft:chainmail_boots",
+    "minecraft:iron_boots",
+    "minecraft:golden_boots",
+    "minecraft:diamond_boots",
+    "minecraft:netherite_boots"
+  ],
+  "forge:armors/chestplates": [
+    "minecraft:leather_chestplate",
+    "minecraft:chainmail_chestplate",
+    "minecraft:iron_chestplate",
+    "minecraft:golden_chestplate",
+    "minecraft:diamond_chestplate",
+    "minecraft:netherite_chestplate"
+  ],
+  "forge:armors/helmets": [
+    "minecraft:leather_helmet",
+    "minecraft:turtle_helmet",
+    "minecraft:chainmail_helmet",
+    "minecraft:iron_helmet",
+    "minecraft:golden_helmet",
+    "minecraft:diamond_helmet",
+    "minecraft:netherite_helmet"
+  ],
+  "forge:armors/leggings": [
+    "minecraft:leather_leggings",
+    "minecraft:chainmail_leggings",
+    "minecraft:iron_leggings",
+    "minecraft:golden_leggings",
+    "minecraft:diamond_leggings",
+    "minecraft:netherite_leggings"
+  ],
+  "forge:barrels": [
+    "#forge:barrels/wooden"
+  ],
+  "forge:barrels/wooden": [
+    "minecraft:barrel"
+  ],
+  "forge:bones": [
+    "minecraft:bone"
+  ],
+  "forge:bookshelves": [
+    "minecraft:bookshelf"
+  ],
+  "forge:chests": [
+    "#forge:chests/ender",
+    "#forge:chests/trapped",
+    "#forge:chests/wooden"
+  ],
+  "forge:chests/ender": [
+    "minecraft:ender_chest"
+  ],
+  "forge:chests/trapped": [
+    "minecraft:trapped_chest"
+  ],
+  "forge:chests/wooden": [
+    "minecraft:chest",
+    "minecraft:trapped_chest"
+  ],
+  "forge:cobblestone": [
+    "#forge:cobblestone/normal",
+    "#forge:cobblestone/infested",
+    "#forge:cobblestone/mossy",
+    "#forge:cobblestone/deepslate"
+  ],
+  "forge:cobblestone/deepslate": [
+    "minecraft:cobbled_deepslate"
+  ],
+  "forge:cobblestone/infested": [
+    "minecraft:infested_cobblestone"
+  ],
+  "forge:cobblestone/mossy": [
+    "minecraft:mossy_cobblestone"
+  ],
+  "forge:cobblestone/normal": [
+    "minecraft:cobblestone"
+  ],
+  "forge:crops": [
+    "#forge:crops/beetroot",
+    "#forge:crops/carrot",
+    "#forge:crops/nether_wart",
+    "#forge:crops/potato",
+    "#forge:crops/wheat"
+  ],
+  "forge:crops/beetroot": [
+    "minecraft:beetroot"
+  ],
+  "forge:crops/carrot": [
+    "minecraft:carrot"
+  ],
+  "forge:crops/nether_wart": [
+    "minecraft:nether_wart"
+  ],
+  "forge:crops/potato": [
+    "minecraft:potato"
+  ],
+  "forge:crops/wheat": [
+    "minecraft:wheat"
+  ],
+  "forge:dusts": [
+    "#forge:dusts/glowstone",
+    "#forge:dusts/prismarine",
+    "#forge:dusts/redstone"
+  ],
+  "forge:dusts/glowstone": [
+    "minecraft:glowstone_dust"
+  ],
+  "forge:dusts/prismarine": [
+    "minecraft:prismarine_shard"
+  ],
+  "forge:dusts/redstone": [
+    "minecraft:redstone"
+  ],
+  "forge:dyes": [
+    "#forge:dyes/white",
+    "#forge:dyes/orange",
+    "#forge:dyes/magenta",
+    "#forge:dyes/light_blue",
+    "#forge:dyes/yellow",
+    "#forge:dyes/lime",
+    "#forge:dyes/pink",
+    "#forge:dyes/gray",
+    "#forge:dyes/light_gray",
+    "#forge:dyes/cyan",
+    "#forge:dyes/purple",
+    "#forge:dyes/blue",
+    "#forge:dyes/brown",
+    "#forge:dyes/green",
+    "#forge:dyes/red",
+    "#forge:dyes/black"
+  ],
+  "forge:dyes/black": [
+    "minecraft:black_dye"
+  ],
+  "forge:dyes/blue": [
+    "minecraft:blue_dye"
+  ],
+  "forge:dyes/brown": [
+    "minecraft:brown_dye"
+  ],
+  "forge:dyes/cyan": [
+    "minecraft:cyan_dye"
+  ],
+  "forge:dyes/gray": [
+    "minecraft:gray_dye"
+  ],
+  "forge:dyes/green": [
+    "minecraft:green_dye"
+  ],
+  "forge:dyes/light_blue": [
+    "minecraft:light_blue_dye"
+  ],
+  "forge:dyes/light_gray": [
+    "minecraft:light_gray_dye"
+  ],
+  "forge:dyes/lime": [
+    "minecraft:lime_dye"
+  ],
+  "forge:dyes/magenta": [
+    "minecraft:magenta_dye"
+  ],
+  "forge:dyes/orange": [
+    "minecraft:orange_dye"
+  ],
+  "forge:dyes/pink": [
+    "minecraft:pink_dye"
+  ],
+  "forge:dyes/purple": [
+    "minecraft:purple_dye"
+  ],
+  "forge:dyes/red": [
+    "minecraft:red_dye"
+  ],
+  "forge:dyes/white": [
+    "minecraft:white_dye"
+  ],
+  "forge:dyes/yellow": [
+    "minecraft:yellow_dye"
+  ],
+  "forge:eggs": [
+    "minecraft:egg"
+  ],
+  "forge:enchanting_fuels": [
+    "#forge:gems/lapis"
+  ],
+  "forge:end_stones": [
+    "minecraft:end_stone"
+  ],
+  "forge:ender_pearls": [
+    "minecraft:ender_pearl"
+  ],
+  "forge:feathers": [
+    "minecraft:feather"
+  ],
+  "forge:fence_gates": [
+    "#forge:fence_gates/wooden"
+  ],
+  "forge:fence_gates/wooden": [
+    "minecraft:oak_fence_gate",
+    "minecraft:spruce_fence_gate",
+    "minecraft:birch_fence_gate",
+    "minecraft:jungle_fence_gate",
+    "minecraft:acacia_fence_gate",
+    "minecraft:dark_oak_fence_gate",
+    "minecraft:crimson_fence_gate",
+    "minecraft:warped_fence_gate",
+    "minecraft:mangrove_fence_gate"
+  ],
+  "forge:fences": [
+    "#forge:fences/nether_brick",
+    "#forge:fences/wooden"
+  ],
+  "forge:fences/nether_brick": [
+    "minecraft:nether_brick_fence"
+  ],
+  "forge:fences/wooden": [
+    "#minecraft:wooden_fences"
+  ],
+  "forge:gems": [
+    "#forge:gems/amethyst",
+    "#forge:gems/diamond",
+    "#forge:gems/emerald",
+    "#forge:gems/lapis",
+    "#forge:gems/prismarine",
+    "#forge:gems/quartz"
+  ],
+  "forge:gems/amethyst": [
+    "minecraft:amethyst_shard"
+  ],
+  "forge:gems/diamond": [
+    "minecraft:diamond"
+  ],
+  "forge:gems/emerald": [
+    "minecraft:emerald"
+  ],
+  "forge:gems/lapis": [
+    "minecraft:lapis_lazuli"
+  ],
+  "forge:gems/prismarine": [
+    "minecraft:prismarine_crystals"
+  ],
+  "forge:gems/quartz": [
+    "minecraft:quartz"
+  ],
+  "forge:glass": [
+    "#forge:glass/colorless",
+    "#forge:stained_glass",
+    "#forge:glass/tinted"
+  ],
+  "forge:glass/black": [
+    "minecraft:black_stained_glass"
+  ],
+  "forge:glass/blue": [
+    "minecraft:blue_stained_glass"
+  ],
+  "forge:glass/brown": [
+    "minecraft:brown_stained_glass"
+  ],
+  "forge:glass/colorless": [
+    "minecraft:glass"
+  ],
+  "forge:glass/cyan": [
+    "minecraft:cyan_stained_glass"
+  ],
+  "forge:glass/gray": [
+    "minecraft:gray_stained_glass"
+  ],
+  "forge:glass/green": [
+    "minecraft:green_stained_glass"
+  ],
+  "forge:glass/light_blue": [
+    "minecraft:light_blue_stained_glass"
+  ],
+  "forge:glass/light_gray": [
+    "minecraft:light_gray_stained_glass"
+  ],
+  "forge:glass/lime": [
+    "minecraft:lime_stained_glass"
+  ],
+  "forge:glass/magenta": [
+    "minecraft:magenta_stained_glass"
+  ],
+  "forge:glass/orange": [
+    "minecraft:orange_stained_glass"
+  ],
+  "forge:glass/pink": [
+    "minecraft:pink_stained_glass"
+  ],
+  "forge:glass/purple": [
+    "minecraft:purple_stained_glass"
+  ],
+  "forge:glass/red": [
+    "minecraft:red_stained_glass"
+  ],
+  "forge:glass/silica": [
+    "minecraft:glass",
+    "minecraft:black_stained_glass",
+    "minecraft:blue_stained_glass",
+    "minecraft:brown_stained_glass",
+    "minecraft:cyan_stained_glass",
+    "minecraft:gray_stained_glass",
+    "minecraft:green_stained_glass",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:light_gray_stained_glass",
+    "minecraft:lime_stained_glass",
+    "minecraft:magenta_stained_glass",
+    "minecraft:orange_stained_glass",
+    "minecraft:pink_stained_glass",
+    "minecraft:purple_stained_glass",
+    "minecraft:red_stained_glass",
+    "minecraft:white_stained_glass",
+    "minecraft:yellow_stained_glass"
+  ],
+  "forge:glass/tinted": [
+    "minecraft:tinted_glass"
+  ],
+  "forge:glass/white": [
+    "minecraft:white_stained_glass"
+  ],
+  "forge:glass/yellow": [
+    "minecraft:yellow_stained_glass"
+  ],
+  "forge:glass_panes": [
+    "#forge:glass_panes/colorless",
+    "#forge:stained_glass_panes"
+  ],
+  "forge:glass_panes/black": [
+    "minecraft:black_stained_glass_pane"
+  ],
+  "forge:glass_panes/blue": [
+    "minecraft:blue_stained_glass_pane"
+  ],
+  "forge:glass_panes/brown": [
+    "minecraft:brown_stained_glass_pane"
+  ],
+  "forge:glass_panes/colorless": [
+    "minecraft:glass_pane"
+  ],
+  "forge:glass_panes/cyan": [
+    "minecraft:cyan_stained_glass_pane"
+  ],
+  "forge:glass_panes/gray": [
+    "minecraft:gray_stained_glass_pane"
+  ],
+  "forge:glass_panes/green": [
+    "minecraft:green_stained_glass_pane"
+  ],
+  "forge:glass_panes/light_blue": [
+    "minecraft:light_blue_stained_glass_pane"
+  ],
+  "forge:glass_panes/light_gray": [
+    "minecraft:light_gray_stained_glass_pane"
+  ],
+  "forge:glass_panes/lime": [
+    "minecraft:lime_stained_glass_pane"
+  ],
+  "forge:glass_panes/magenta": [
+    "minecraft:magenta_stained_glass_pane"
+  ],
+  "forge:glass_panes/orange": [
+    "minecraft:orange_stained_glass_pane"
+  ],
+  "forge:glass_panes/pink": [
+    "minecraft:pink_stained_glass_pane"
+  ],
+  "forge:glass_panes/purple": [
+    "minecraft:purple_stained_glass_pane"
+  ],
+  "forge:glass_panes/red": [
+    "minecraft:red_stained_glass_pane"
+  ],
+  "forge:glass_panes/white": [
+    "minecraft:white_stained_glass_pane"
+  ],
+  "forge:glass_panes/yellow": [
+    "minecraft:yellow_stained_glass_pane"
+  ],
+  "forge:gravel": [
+    "minecraft:gravel"
+  ],
+  "forge:gunpowder": [
+    "minecraft:gunpowder"
+  ],
+  "forge:heads": [
+    "minecraft:creeper_head",
+    "minecraft:dragon_head",
+    "minecraft:player_head",
+    "minecraft:skeleton_skull",
+    "minecraft:wither_skeleton_skull",
+    "minecraft:zombie_head"
+  ],
+  "forge:ingots": [
+    "#forge:ingots/brick",
+    "#forge:ingots/copper",
+    "#forge:ingots/gold",
+    "#forge:ingots/iron",
+    "#forge:ingots/netherite",
+    "#forge:ingots/nether_brick"
+  ],
+  "forge:ingots/brick": [
+    "minecraft:brick"
+  ],
+  "forge:ingots/copper": [
+    "minecraft:copper_ingot"
+  ],
+  "forge:ingots/gold": [
+    "minecraft:gold_ingot"
+  ],
+  "forge:ingots/iron": [
+    "minecraft:iron_ingot"
+  ],
+  "forge:ingots/nether_brick": [
+    "minecraft:nether_brick"
+  ],
+  "forge:ingots/netherite": [
+    "minecraft:netherite_ingot"
+  ],
+  "forge:leather": [
+    "minecraft:leather"
+  ],
+  "forge:mushrooms": [
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom"
+  ],
+  "forge:nether_stars": [
+    "minecraft:nether_star"
+  ],
+  "forge:netherrack": [
+    "minecraft:netherrack"
+  ],
+  "forge:nuggets": [
+    "#forge:nuggets/iron",
+    "#forge:nuggets/gold"
+  ],
+  "forge:nuggets/gold": [
+    "minecraft:gold_nugget"
+  ],
+  "forge:nuggets/iron": [
+    "minecraft:iron_nugget"
+  ],
+  "forge:obsidian": [
+    "minecraft:obsidian"
+  ],
+  "forge:ore_bearing_ground/deepslate": [
+    "minecraft:deepslate"
+  ],
+  "forge:ore_bearing_ground/netherrack": [
+    "minecraft:netherrack"
+  ],
+  "forge:ore_bearing_ground/stone": [
+    "minecraft:stone"
+  ],
+  "forge:ore_rates/dense": [
+    "minecraft:copper_ore",
+    "minecraft:deepslate_copper_ore",
+    "minecraft:deepslate_lapis_ore",
+    "minecraft:deepslate_redstone_ore",
+    "minecraft:lapis_ore",
+    "minecraft:redstone_ore"
+  ],
+  "forge:ore_rates/singular": [
+    "minecraft:ancient_debris",
+    "minecraft:coal_ore",
+    "minecraft:deepslate_coal_ore",
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:deepslate_emerald_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:diamond_ore",
+    "minecraft:emerald_ore",
+    "minecraft:gold_ore",
+    "minecraft:iron_ore",
+    "minecraft:nether_quartz_ore"
+  ],
+  "forge:ore_rates/sparse": [
+    "minecraft:nether_gold_ore"
+  ],
+  "forge:ores": [
+    "#forge:ores/coal",
+    "#forge:ores/copper",
+    "#forge:ores/diamond",
+    "#forge:ores/emerald",
+    "#forge:ores/gold",
+    "#forge:ores/iron",
+    "#forge:ores/lapis",
+    "#forge:ores/redstone",
+    "#forge:ores/quartz",
+    "#forge:ores/netherite_scrap"
+  ],
+  "forge:ores/coal": [
+    "#minecraft:coal_ores"
+  ],
+  "forge:ores/copper": [
+    "#minecraft:copper_ores"
+  ],
+  "forge:ores/diamond": [
+    "#minecraft:diamond_ores"
+  ],
+  "forge:ores/emerald": [
+    "#minecraft:emerald_ores"
+  ],
+  "forge:ores/gold": [
+    "#minecraft:gold_ores"
+  ],
+  "forge:ores/iron": [
+    "#minecraft:iron_ores"
+  ],
+  "forge:ores/lapis": [
+    "#minecraft:lapis_ores"
+  ],
+  "forge:ores/netherite_scrap": [
+    "minecraft:ancient_debris"
+  ],
+  "forge:ores/quartz": [
+    "minecraft:nether_quartz_ore"
+  ],
+  "forge:ores/redstone": [
+    "#minecraft:redstone_ores"
+  ],
+  "forge:ores_in_ground/deepslate": [
+    "minecraft:deepslate_coal_ore",
+    "minecraft:deepslate_copper_ore",
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:deepslate_emerald_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:deepslate_lapis_ore",
+    "minecraft:deepslate_redstone_ore"
+  ],
+  "forge:ores_in_ground/netherrack": [
+    "minecraft:nether_gold_ore",
+    "minecraft:nether_quartz_ore"
+  ],
+  "forge:ores_in_ground/stone": [
+    "minecraft:coal_ore",
+    "minecraft:copper_ore",
+    "minecraft:diamond_ore",
+    "minecraft:emerald_ore",
+    "minecraft:gold_ore",
+    "minecraft:iron_ore",
+    "minecraft:lapis_ore",
+    "minecraft:redstone_ore"
+  ],
+  "forge:raw_materials": [
+    "#forge:raw_materials/copper",
+    "#forge:raw_materials/gold",
+    "#forge:raw_materials/iron"
+  ],
+  "forge:raw_materials/copper": [
+    "minecraft:raw_copper"
+  ],
+  "forge:raw_materials/gold": [
+    "minecraft:raw_gold"
+  ],
+  "forge:raw_materials/iron": [
+    "minecraft:raw_iron"
+  ],
+  "forge:rods": [
+    "#forge:rods/blaze",
+    "#forge:rods/wooden"
+  ],
+  "forge:rods/blaze": [
+    "minecraft:blaze_rod"
+  ],
+  "forge:rods/wooden": [
+    "minecraft:stick"
+  ],
+  "forge:sand": [
+    "#forge:sand/colorless",
+    "#forge:sand/red"
+  ],
+  "forge:sand/colorless": [
+    "minecraft:sand"
+  ],
+  "forge:sand/red": [
+    "minecraft:red_sand"
+  ],
+  "forge:sandstone": [
+    "minecraft:sandstone",
+    "minecraft:cut_sandstone",
+    "minecraft:chiseled_sandstone",
+    "minecraft:smooth_sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:cut_red_sandstone",
+    "minecraft:chiseled_red_sandstone",
+    "minecraft:smooth_red_sandstone"
+  ],
+  "forge:seeds": [
+    "#forge:seeds/beetroot",
+    "#forge:seeds/melon",
+    "#forge:seeds/pumpkin",
+    "#forge:seeds/wheat"
+  ],
+  "forge:seeds/beetroot": [
+    "minecraft:beetroot_seeds"
+  ],
+  "forge:seeds/melon": [
+    "minecraft:melon_seeds"
+  ],
+  "forge:seeds/pumpkin": [
+    "minecraft:pumpkin_seeds"
+  ],
+  "forge:seeds/wheat": [
+    "minecraft:wheat_seeds"
+  ],
+  "forge:shears": [
+    "minecraft:shears"
+  ],
+  "forge:slimeballs": [
+    "minecraft:slime_ball"
+  ],
+  "forge:stained_glass": [
+    "minecraft:white_stained_glass",
+    "minecraft:orange_stained_glass",
+    "minecraft:magenta_stained_glass",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:yellow_stained_glass",
+    "minecraft:lime_stained_glass",
+    "minecraft:pink_stained_glass",
+    "minecraft:gray_stained_glass",
+    "minecraft:light_gray_stained_glass",
+    "minecraft:cyan_stained_glass",
+    "minecraft:purple_stained_glass",
+    "minecraft:blue_stained_glass",
+    "minecraft:brown_stained_glass",
+    "minecraft:green_stained_glass",
+    "minecraft:red_stained_glass",
+    "minecraft:black_stained_glass"
+  ],
+  "forge:stained_glass_panes": [
+    "minecraft:white_stained_glass_pane",
+    "minecraft:orange_stained_glass_pane",
+    "minecraft:magenta_stained_glass_pane",
+    "minecraft:light_blue_stained_glass_pane",
+    "minecraft:yellow_stained_glass_pane",
+    "minecraft:lime_stained_glass_pane",
+    "minecraft:pink_stained_glass_pane",
+    "minecraft:gray_stained_glass_pane",
+    "minecraft:light_gray_stained_glass_pane",
+    "minecraft:cyan_stained_glass_pane",
+    "minecraft:purple_stained_glass_pane",
+    "minecraft:blue_stained_glass_pane",
+    "minecraft:brown_stained_glass_pane",
+    "minecraft:green_stained_glass_pane",
+    "minecraft:red_stained_glass_pane",
+    "minecraft:black_stained_glass_pane"
+  ],
+  "forge:stone": [
+    "minecraft:andesite",
+    "minecraft:diorite",
+    "minecraft:granite",
+    "minecraft:infested_stone",
+    "minecraft:stone",
+    "minecraft:polished_andesite",
+    "minecraft:polished_diorite",
+    "minecraft:polished_granite",
+    "minecraft:deepslate",
+    "minecraft:polished_deepslate",
+    "minecraft:infested_deepslate",
+    "minecraft:tuff"
+  ],
+  "forge:storage_blocks": [
+    "#forge:storage_blocks/amethyst",
+    "#forge:storage_blocks/coal",
+    "#forge:storage_blocks/copper",
+    "#forge:storage_blocks/diamond",
+    "#forge:storage_blocks/emerald",
+    "#forge:storage_blocks/gold",
+    "#forge:storage_blocks/iron",
+    "#forge:storage_blocks/lapis",
+    "#forge:storage_blocks/quartz",
+    "#forge:storage_blocks/raw_copper",
+    "#forge:storage_blocks/raw_gold",
+    "#forge:storage_blocks/raw_iron",
+    "#forge:storage_blocks/redstone",
+    "#forge:storage_blocks/netherite"
+  ],
+  "forge:storage_blocks/amethyst": [
+    "minecraft:amethyst_block"
+  ],
+  "forge:storage_blocks/coal": [
+    "minecraft:coal_block"
+  ],
+  "forge:storage_blocks/copper": [
+    "minecraft:copper_block"
+  ],
+  "forge:storage_blocks/diamond": [
+    "minecraft:diamond_block"
+  ],
+  "forge:storage_blocks/emerald": [
+    "minecraft:emerald_block"
+  ],
+  "forge:storage_blocks/gold": [
+    "minecraft:gold_block"
+  ],
+  "forge:storage_blocks/iron": [
+    "minecraft:iron_block"
+  ],
+  "forge:storage_blocks/lapis": [
+    "minecraft:lapis_block"
+  ],
+  "forge:storage_blocks/netherite": [
+    "minecraft:netherite_block"
+  ],
+  "forge:storage_blocks/quartz": [
+    "minecraft:quartz_block"
+  ],
+  "forge:storage_blocks/raw_copper": [
+    "minecraft:raw_copper_block"
+  ],
+  "forge:storage_blocks/raw_gold": [
+    "minecraft:raw_gold_block"
+  ],
+  "forge:storage_blocks/raw_iron": [
+    "minecraft:raw_iron_block"
+  ],
+  "forge:storage_blocks/redstone": [
+    "minecraft:redstone_block"
+  ],
+  "forge:string": [
+    "minecraft:string"
+  ],
+  "forge:tools": [
+    "#forge:tools/swords",
+    "#forge:tools/axes",
+    "#forge:tools/pickaxes",
+    "#forge:tools/shovels",
+    "#forge:tools/hoes",
+    "#forge:tools/shields",
+    "#forge:tools/bows",
+    "#forge:tools/crossbows",
+    "#forge:tools/fishing_rods",
+    "#forge:tools/tridents"
+  ],
+  "forge:tools/axes": [
+    "minecraft:wooden_axe",
+    "minecraft:stone_axe",
+    "minecraft:iron_axe",
+    "minecraft:golden_axe",
+    "minecraft:diamond_axe",
+    "minecraft:netherite_axe"
+  ],
+  "forge:tools/bows": [
+    "minecraft:bow"
+  ],
+  "forge:tools/crossbows": [
+    "minecraft:crossbow"
+  ],
+  "forge:tools/fishing_rods": [
+    "minecraft:fishing_rod"
+  ],
+  "forge:tools/hoes": [
+    "minecraft:wooden_hoe",
+    "minecraft:stone_hoe",
+    "minecraft:iron_hoe",
+    "minecraft:golden_hoe",
+    "minecraft:diamond_hoe",
+    "minecraft:netherite_hoe"
+  ],
+  "forge:tools/pickaxes": [
+    "minecraft:wooden_pickaxe",
+    "minecraft:stone_pickaxe",
+    "minecraft:iron_pickaxe",
+    "minecraft:golden_pickaxe",
+    "minecraft:diamond_pickaxe",
+    "minecraft:netherite_pickaxe"
+  ],
+  "forge:tools/shields": [
+    "minecraft:shield"
+  ],
+  "forge:tools/shovels": [
+    "minecraft:wooden_shovel",
+    "minecraft:stone_shovel",
+    "minecraft:iron_shovel",
+    "minecraft:golden_shovel",
+    "minecraft:diamond_shovel",
+    "minecraft:netherite_shovel"
+  ],
+  "forge:tools/swords": [
+    "minecraft:wooden_sword",
+    "minecraft:stone_sword",
+    "minecraft:iron_sword",
+    "minecraft:golden_sword",
+    "minecraft:diamond_sword",
+    "minecraft:netherite_sword"
+  ],
+  "forge:tools/tridents": [
+    "minecraft:trident"
+  ]
+}
