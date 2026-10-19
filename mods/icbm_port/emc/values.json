@@ -29,13 +29,19 @@
       "source": "recipe"
     },
     "icbm_port:antimatter_bomb_cart": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 1490265,
+      "itemalchemy": 1257836,
+      "source": "recipe"
     },
     "icbm_port:antimatter_explosive": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 1488985,
+      "itemalchemy": 1256576,
+      "source": "recipe"
     },
     "icbm_port:antimatter_missile": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 1491143,
+      "itemalchemy": 1258710,
+      "source": "recipe"
     },
     "icbm_port:anvil_bomb_cart": {
       "projecte": 7967,
@@ -478,13 +484,19 @@
       "source": "recipe"
     },
     "icbm_port:nuclear_bomb_cart": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 376153,
+      "itemalchemy": 143724,
+      "source": "recipe"
     },
     "icbm_port:nuclear_explosive": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 374873,
+      "itemalchemy": 142464,
+      "source": "recipe"
     },
     "icbm_port:nuclear_missile": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 377031,
+      "itemalchemy": 144598,
+      "source": "recipe"
     },
     "icbm_port:poison_powder": {
       "projecte": 53,
@@ -522,13 +534,19 @@
       "source": "explicit"
     },
     "icbm_port:redmatter_bomb_cart": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 2604377,
+      "itemalchemy": 2371948,
+      "source": "recipe"
     },
     "icbm_port:redmatter_explosive": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 2603097,
+      "itemalchemy": 2370688,
+      "source": "recipe"
     },
     "icbm_port:redmatter_missile": {
-      "excluded": "World-ending explosives should not be transmutable from EMC. They also need wither skeleton skulls (no ProjectE value) or uranium from another mod, whose pack value a fixed Item Alchemy table cannot follow."
+      "projecte": 2605255,
+      "itemalchemy": 2372822,
+      "source": "recipe"
     },
     "icbm_port:reinforced_concrete": {
       "projecte": 148,
