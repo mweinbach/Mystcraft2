@@ -1,0 +1,53 @@
+// Advanced Genetics: Forge mixins for genes without a Forge event, plus server GameTests.
+
+// Map official-name mixin targets to SRG names for the reobfuscated JAR.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def mixinRefmap = layout.buildDirectory.file('generated/mixin/advancedgenetics.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(mixinRefmap)
+    doFirst { mixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${mixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(mixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'advancedgenetics.mixins.json')
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'advancedgenetics.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
+// GameTests are merged into the mod only for the GameTest server run, never into the JAR.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enableGameTest', 'true'
+        property 'forge.enabledGameTestNamespaces', portMetadata.mod_id
+        mods {
+            "${portMetadata.mod_id}" { source sourceSets.gametest }
+        }
+    }
+}
+def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
+    from 'src/gametest/structures'
+    into 'run/gameTestServer/gameteststructures'
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn copyGameTestStructures, tasks.named('gametestClasses')
+}
