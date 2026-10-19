@@ -5,6 +5,7 @@ import com.technovision.advancedgenetics.api.genetics.Genes;
 import com.technovision.advancedgenetics.common.entity.FireballEntity;
 import com.technovision.advancedgenetics.common.goal.FleePlayerGoal;
 import com.technovision.advancedgenetics.component.PlayerGeneticsComponent;
+import com.technovision.advancedgenetics.mixin.MobAccessor;
 import com.technovision.advancedgenetics.registry.ComponentRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Slime;
@@ -202,10 +204,11 @@ public class GeneticsEvents {
     }
 
     private static void addFleeGoal(PathfinderMob mob, Genes gene, float distance) {
-        boolean present = mob.goalSelector.getAvailableGoals().stream()
+        GoalSelector goals = ((MobAccessor) mob).advancedgenetics$getGoalSelector();
+        boolean present = goals.getAvailableGoals().stream()
                 .anyMatch(goal -> goal.getGoal() instanceof FleePlayerGoal);
         if (!present) {
-            mob.goalSelector.addGoal(3, new FleePlayerGoal(mob, gene, distance, 1.0, 1.2));
+            goals.addGoal(3, new FleePlayerGoal(mob, gene, distance, 1.0, 1.2));
         }
     }
 

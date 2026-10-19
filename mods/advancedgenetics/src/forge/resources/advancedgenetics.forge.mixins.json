@@ -8,6 +8,7 @@
     "BowItemMixin",
     "LivingEntityAccessor",
     "LivingEntityMixin",
+    "MobAccessor",
     "PlayerMixin",
     "forge.ArrowItemMixin"
   ],

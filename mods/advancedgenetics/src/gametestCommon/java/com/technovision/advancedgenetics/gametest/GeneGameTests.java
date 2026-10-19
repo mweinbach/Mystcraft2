@@ -7,6 +7,7 @@ import com.technovision.advancedgenetics.commands.GeneArgumentType;
 import com.technovision.advancedgenetics.common.entity.FireballEntity;
 import com.technovision.advancedgenetics.common.goal.FleePlayerGoal;
 import com.technovision.advancedgenetics.component.PlayerGeneticsComponent;
+import com.technovision.advancedgenetics.mixin.MobAccessor;
 import com.technovision.advancedgenetics.registry.ItemRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -472,6 +473,6 @@ public class GeneGameTests {
     }
 
     private static boolean hasFleeGoal(Mob mob) {
-        return mob.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof FleePlayerGoal);
+        return ((MobAccessor) mob).advancedgenetics$getGoalSelector().getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof FleePlayerGoal);
     }
 }

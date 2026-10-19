@@ -1,5 +1,7 @@
 package com.technovision.advancedgenetics.api.blockentity;
 
+import java.util.function.Function;
+
 /**
  * A machine's energy buffer, matching upstream's {@code SimpleEnergyStorage(capacity, capacity, capacity)}:
  * a single transfer can fill or drain the whole buffer. Each loader exposes it through its energy API.
@@ -9,6 +11,7 @@ public final class MachineEnergy {
     private final int capacity;
     private final Runnable onChanged;
     private int energy;
+    private Object view;
 
     public MachineEnergy(int capacity, Runnable onChanged) {
         this.capacity = Math.max(0, capacity);
@@ -50,5 +53,19 @@ public final class MachineEnergy {
     /** Sets the stored energy without marking the machine changed, for transaction rollbacks. */
     public void restore(int energy) {
         this.energy = Math.max(0, Math.min(energy, capacity));
+    }
+
+    public void markChanged() {
+        onChanged.run();
+    }
+
+    /**
+     * The loader energy API's view of this buffer, created once: transactional APIs must see a
+     * single participant per buffer.
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized <V> V view(Function<MachineEnergy, V> factory) {
+        if (view == null) view = factory.apply(this);
+        return (V) view;
     }
 }
