@@ -1,6 +1,7 @@
 package ports.buildcraft.gametest;
 
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -213,6 +214,55 @@ public final class BCTests {
             require(helper, tank.tank().fluid() == Fluids.WATER && tank.tank().amount() == 1000,
                     "the tank must receive 1000 mB of water, has " + tank.tank().amount());
         });
+    }
+
+    /**
+     * An L-shaped pool whose corner drains into a walled hole: the corner has two horizontal sources, but falling water
+     * below it is neither solid nor a source, so vanilla never refills it and the pool is finite. The scan reaches (2,2,2)
+     * after rejecting the stone at (1,2,2) beside the first cell; that visited stone must not count as water.
+     */
+    public static void pumpDrainsIrregularFinitePool(GameTestHelper helper) {
+        BlockPos[] pool = {new BlockPos(1, 2, 1), new BlockPos(2, 2, 1), new BlockPos(2, 2, 2)};
+        PumpBlockEntity pump = pumpOverPool(helper, pool);
+        BlockPos hole = new BlockPos(2, 1, 1);
+        helper.setBlock(hole.below(), Blocks.STONE);
+        for (Direction side : Direction.Plane.HORIZONTAL) helper.setBlock(hole.relative(side), Blocks.STONE);
+        helper.setBlock(hole, Blocks.AIR);
+        TankBlockEntity tank = tile(helper, pool[0].above(3).north(), TankBlockEntity.class);
+        helper.succeedWhen(() -> {
+            require(helper, !pump.isInfiniteWaterSource(), "an L-shaped pool must not be an infinite water source");
+            require(helper, tank.tank().amount() <= 3000, "the pump must not create water, the tank has " + tank.tank().amount());
+            for (BlockPos cell : pool) require(helper, !helper.getBlockState(cell).is(Blocks.WATER), "water left at " + cell);
+            require(helper, tank.tank().amount() == 3000, "the tank must receive all 3000 mB, has " + tank.tank().amount());
+        });
+    }
+
+    /** A 2x2 pool refills itself in vanilla, so the pump fills its tank without removing the sources. */
+    public static void pumpTreatsSquarePoolAsInfinite(GameTestHelper helper) {
+        BlockPos[] pool = {new BlockPos(1, 1, 1), new BlockPos(2, 1, 1), new BlockPos(1, 1, 2), new BlockPos(2, 1, 2)};
+        PumpBlockEntity pump = pumpOverPool(helper, pool);
+        TankBlockEntity tank = tile(helper, pool[0].above(3).north(), TankBlockEntity.class);
+        helper.succeedWhen(() -> {
+            require(helper, pump.isInfiniteWaterSource(), "a 2x2 pool must be an infinite water source");
+            for (BlockPos cell : pool) require(helper, helper.getBlockState(cell).getFluidState().isSource(), "source drained at " + cell);
+            require(helper, tank.tank().amount() > 4000, "the pump must keep filling, the tank has " + tank.tank().amount());
+        });
+    }
+
+    /** Water sources at {@code pool} walled and floored with stone, a powered pump over the first cell and a tank beside the pump. */
+    private static PumpBlockEntity pumpOverPool(GameTestHelper helper, BlockPos... pool) {
+        Set<BlockPos> cells = Set.of(pool);
+        for (BlockPos cell : pool) {
+            helper.setBlock(cell.below(), Blocks.STONE);
+            for (Direction side : Direction.Plane.HORIZONTAL) {
+                if (!cells.contains(cell.relative(side))) helper.setBlock(cell.relative(side), Blocks.STONE);
+            }
+        }
+        for (BlockPos cell : pool) helper.setBlock(cell, Blocks.WATER);
+        BlockPos pumpPos = pool[0].above(3);
+        helper.setBlock(pumpPos, BCFactory.PUMP.get());
+        helper.setBlock(pumpPos.north(), BCFactory.TANK.get());
+        return fullyPowered(helper, tile(helper, pumpPos, PumpBlockEntity.class));
     }
 
     /** The mining well breaks the block under its tube and hands the drop to an adjacent chest. */

@@ -33,6 +33,12 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void pumpDrainsSourceIntoTank(GameTestHelper helper) { BCTests.pumpDrainsSourceIntoTank(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 800)
+    public static void pumpDrainsIrregularFinitePool(GameTestHelper helper) { BCTests.pumpDrainsIrregularFinitePool(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 800)
+    public static void pumpTreatsSquarePoolAsInfinite(GameTestHelper helper) { BCTests.pumpTreatsSquarePoolAsInfinite(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void miningWellMinesIntoChest(GameTestHelper helper) { BCTests.miningWellMinesIntoChest(helper); }
 

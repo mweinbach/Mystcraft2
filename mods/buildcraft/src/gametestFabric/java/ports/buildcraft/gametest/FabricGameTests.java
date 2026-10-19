@@ -31,6 +31,12 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void pumpDrainsSourceIntoTank(GameTestHelper helper) { BCTests.pumpDrainsSourceIntoTank(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 800)
+    public void pumpDrainsIrregularFinitePool(GameTestHelper helper) { BCTests.pumpDrainsIrregularFinitePool(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 800)
+    public void pumpTreatsSquarePoolAsInfinite(GameTestHelper helper) { BCTests.pumpTreatsSquarePoolAsInfinite(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void miningWellMinesIntoChest(GameTestHelper helper) { BCTests.miningWellMinesIntoChest(helper); }
 
