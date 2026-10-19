@@ -1,0 +1,232 @@
+{
+  "condensed": {
+    "rgb": [
+      255,
+      168,
+      32
+    ],
+    "shape": "burst",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "shrapnel": {
+    "rgb": [
+      214,
+      220,
+      230
+    ],
+    "shape": "burst",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "incendiary": {
+    "rgb": [
+      255,
+      72,
+      0
+    ],
+    "shape": "column",
+    "particle": "flame",
+    "sound": "firecharge"
+  },
+  "debilitation": {
+    "rgb": [
+      186,
+      72,
+      255
+    ],
+    "shape": "cloud",
+    "particle": "sneeze",
+    "sound": "explode"
+  },
+  "chemical": {
+    "rgb": [
+      130,
+      255,
+      48
+    ],
+    "shape": "cloud",
+    "particle": "sneeze",
+    "sound": "explode"
+  },
+  "anvil": {
+    "rgb": [
+      96,
+      108,
+      128
+    ],
+    "shape": "burst",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "repulsive": {
+    "rgb": [
+      0,
+      112,
+      255
+    ],
+    "shape": "ring",
+    "particle": "end_rod",
+    "sound": "explode"
+  },
+  "attractive": {
+    "rgb": [
+      255,
+      32,
+      144
+    ],
+    "shape": "vortex",
+    "particle": "portal",
+    "sound": "explode"
+  },
+  "fragmentation": {
+    "rgb": [
+      255,
+      208,
+      64
+    ],
+    "shape": "burst",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "contagious": {
+    "rgb": [
+      0,
+      176,
+      96
+    ],
+    "shape": "cloud",
+    "particle": "sneeze",
+    "sound": "explode"
+  },
+  "sonic": {
+    "rgb": [
+      0,
+      255,
+      214
+    ],
+    "shape": "spark",
+    "particle": "electric_spark",
+    "sound": "sonic_boom"
+  },
+  "breaching": {
+    "rgb": [
+      196,
+      112,
+      48
+    ],
+    "shape": "column",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "thermobaric": {
+    "rgb": [
+      176,
+      32,
+      0
+    ],
+    "shape": "column",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "nuclear": {
+    "rgb": [
+      196,
+      255,
+      48
+    ],
+    "shape": "mushroom",
+    "particle": "flame",
+    "sound": "explode"
+  },
+  "emp": {
+    "rgb": [
+      96,
+      196,
+      255
+    ],
+    "shape": "spark",
+    "particle": "electric_spark",
+    "sound": "sonic_boom"
+  },
+  "exothermic": {
+    "rgb": [
+      255,
+      128,
+      64
+    ],
+    "shape": "column",
+    "particle": "flame",
+    "sound": "firecharge"
+  },
+  "endothermic": {
+    "rgb": [
+      168,
+      232,
+      255
+    ],
+    "shape": "snow",
+    "particle": "snowflake",
+    "sound": "glass"
+  },
+  "antigravitational": {
+    "rgb": [
+      80,
+      48,
+      255
+    ],
+    "shape": "column",
+    "particle": "end_rod",
+    "sound": "anchor"
+  },
+  "ender": {
+    "rgb": [
+      112,
+      0,
+      224
+    ],
+    "shape": "portal",
+    "particle": "reverse_portal",
+    "sound": "teleport"
+  },
+  "antimatter": {
+    "rgb": [
+      96,
+      32,
+      160
+    ],
+    "shape": "portal",
+    "particle": "reverse_portal",
+    "sound": "explode"
+  },
+  "redmatter": {
+    "rgb": [
+      255,
+      16,
+      48
+    ],
+    "shape": "vortex",
+    "particle": "reverse_portal",
+    "sound": "anchor"
+  },
+  "colors": {
+    "rgb": [
+      255,
+      96,
+      196
+    ],
+    "shape": "prismatic",
+    "particle": "flame",
+    "sound": "twinkle"
+  },
+  "smoke": {
+    "rgb": [
+      144,
+      148,
+      156
+    ],
+    "shape": "cloud",
+    "particle": "smoke",
+    "sound": "explode"
+  }
+}

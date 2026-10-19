@@ -3,7 +3,7 @@
   "textures": {
     "particle": "minecraft:block/dirt",
     "base": "minecraft:block/dirt",
-    "mark": "minecraft:block/lime_concrete"
+    "mark": "icbm_port:block/radiation"
   },
   "elements": [
     {
@@ -51,7 +51,13 @@
       ],
       "faces": {
         "up": {
-          "texture": "#mark"
+          "texture": "#mark",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         }
       }
     }

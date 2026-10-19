@@ -8,7 +8,13 @@ It does not fetch or embed external artwork.
 
 The palette uses dark gunmetal, silver framing, gold hazard markings and teal
 instrument displays. Ten original industrial surface textures include a four-frame
-instrument panel animation; 23 original colored payload labels identify families.
+instrument panel and a four-frame exhaust glow. `tools/payload_visuals.py` is the
+only payload-identity table. It paints 23 glyph labels, chooses one of six missile
+bodies, and writes `payload_visuals.json` for the client blast color, shape, particle,
+and vanilla sound. Nuclear, chemical, incendiary, and redmatter missiles do not share
+a body. Label faces use an explicit full-texture uv so a short sleeve still shows the
+glyph. Redmatter core and disc textures, and the radioactive top mark, are original
+pixels on the same ordinary layers.
 New geometry covers the explosive casings, missiles, grenade/bomblet forms,
 launcher tiers and components, radar, SAM, EMP hardware and major handheld tools.
 Physical projectile models retain the renderer's +Y flight axis.

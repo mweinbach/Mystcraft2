@@ -6,10 +6,14 @@ import java.util.ArrayDeque;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
@@ -22,6 +26,8 @@ public final class BlastEffectsClient {
   private BlastEffectsClient() {}
 
   public static void register() {
+    ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+        .registerReloadListener(new PayloadVisuals());
     ClientPlayNetworking.registerGlobalReceiver(
         BlastEffects.DETONATION,
         (client, handler, packet, response) -> {
@@ -51,37 +57,41 @@ public final class BlastEffectsClient {
         });
   }
 
-  private static void sound(ClientWorld world, Vec3d p, PayloadType type) {
-    var sound =
-        switch (type) {
-          case REDMATTER, ANTI_GRAVITATIONAL -> SoundEvents.BLOCK_RESPAWN_ANCHOR_CHARGE;
-          case EMP, SONIC -> SoundEvents.ENTITY_WARDEN_SONIC_BOOM;
-          case ENDER -> SoundEvents.ENTITY_ENDERMAN_TELEPORT;
-          case COLOR -> SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE;
-          case EXOTHERMIC, INCENDIARY -> SoundEvents.ITEM_FIRECHARGE_USE;
-          case ENDOTHERMIC -> SoundEvents.BLOCK_GLASS_BREAK;
-          default -> SoundEvents.ENTITY_GENERIC_EXPLODE;
-        };
+  private static void sound(ClientWorld world, Vec3d position, PayloadType type) {
+    PayloadVisuals.Profile profile = PayloadVisuals.get(type);
     world.playSound(
-        p.x,
-        p.y,
-        p.z,
-        sound,
+        position.x,
+        position.y,
+        position.z,
+        soundEvent(profile.sound()),
         SoundCategory.BLOCKS,
         type.tier() >= 3 ? 3f : 1.8f,
-        type == PayloadType.REDMATTER ? .45f : .75f,
+        profile.shape() == PayloadVisuals.Shape.VORTEX ? .45f : .75f,
         false);
   }
 
-  public static Vec3f color(PayloadType type) {
-    return switch (type) {
-      case REDMATTER, CONTAGIOUS -> new Vec3f(1f, .07f, .22f);
-      case ANTIMATTER, ENDER -> new Vec3f(.72f, .16f, 1f);
-      case EMP, SONIC, ANTI_GRAVITATIONAL -> new Vec3f(.12f, .8f, 1f);
-      case NUCLEAR, CHEMICAL, DEBILITATION -> new Vec3f(.62f, 1f, .12f);
-      case ENDOTHERMIC -> new Vec3f(.5f, .85f, 1f);
-      case EXOTHERMIC, INCENDIARY, THERMOBARIC -> new Vec3f(1f, .35f, .04f);
-      default -> new Vec3f(1f, .72f, .28f);
+  private static SoundEvent soundEvent(PayloadVisuals.Sound sound) {
+    return switch (sound) {
+      case SONIC_BOOM -> SoundEvents.ENTITY_WARDEN_SONIC_BOOM;
+      case ANCHOR -> SoundEvents.BLOCK_RESPAWN_ANCHOR_CHARGE;
+      case TELEPORT -> SoundEvents.ENTITY_ENDERMAN_TELEPORT;
+      case TWINKLE -> SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE;
+      case FIRECHARGE -> SoundEvents.ITEM_FIRECHARGE_USE;
+      case GLASS -> SoundEvents.BLOCK_GLASS_BREAK;
+      case EXPLODE -> SoundEvents.ENTITY_GENERIC_EXPLODE;
+    };
+  }
+
+  private static ParticleEffect particle(PayloadVisuals.Particle kind) {
+    return switch (kind) {
+      case FLAME -> ParticleTypes.FLAME;
+      case SMOKE -> ParticleTypes.SMOKE;
+      case SNOWFLAKE -> ParticleTypes.SNOWFLAKE;
+      case REVERSE_PORTAL -> ParticleTypes.REVERSE_PORTAL;
+      case ELECTRIC_SPARK -> ParticleTypes.ELECTRIC_SPARK;
+      case SNEEZE -> ParticleTypes.SNEEZE;
+      case END_ROD -> ParticleTypes.END_ROD;
+      case PORTAL -> ParticleTypes.PORTAL;
     };
   }
 
@@ -96,81 +106,111 @@ public final class BlastEffectsClient {
       this.center = center;
       this.type = type;
       this.radius = Math.min(32, Math.max(3, radius));
-      dust = new DustParticleEffect(color(type), type.tier() >= 3 ? 2.5f : 1.5f);
+      PayloadVisuals.Profile profile = PayloadVisuals.get(type);
+      dust = new DustParticleEffect(profile.color(), type.tier() >= 3 ? 2.5f : 1.5f);
     }
 
     private boolean tick(ClientWorld world) {
-      if (++age > (type == PayloadType.NUCLEAR ? 100 : 40)) return true;
-      if (age <= 22) {
-        double ring = radius * age / 22;
-        for (int i = 0; i < 20; i++) {
-          double a = i * Math.PI * 2 / 20 + age * .11;
-          world.addParticle(
-              dust,
-              center.x + Math.cos(a) * ring,
-              center.y + .15 + Math.sin(age * .12) * .2,
-              center.z + Math.sin(a) * ring,
-              0,
-              .015,
-              0);
-        }
-      }
-      if (type == PayloadType.NUCLEAR) {
-        double height = Math.min(28, age * .45);
-        double cap = Math.min(18, 1 + age * .23);
-        // Rising stem, expanding mushroom cap and an illuminated rim.
-        for (int i = 0; i < 8; i++) {
-          double a = age * .35 + i * Math.PI / 4;
-          double r = cap * (.5 + world.random.nextDouble() * .5);
-          world.addParticle(
-              ParticleTypes.CAMPFIRE_COSY_SMOKE,
-              center.x + Math.cos(a) * r,
-              center.y + height,
-              center.z + Math.sin(a) * r,
-              Math.cos(a) * .04,
-              .08,
-              Math.sin(a) * .04);
-          world.addParticle(
-              ParticleTypes.CAMPFIRE_COSY_SMOKE,
-              center.x + world.random.nextGaussian() * 1.2,
-              center.y + height * world.random.nextDouble(),
-              center.z + world.random.nextGaussian() * 1.2,
-              0,
-              .15,
-              0);
-          if (age < 30)
-            world.addParticle(
-                ParticleTypes.FLAME,
-                center.x + Math.cos(a) * cap,
-                center.y + height,
-                center.z + Math.sin(a) * cap,
-                0,
-                .03,
-                0);
-        }
-      } else if (age <= 12) {
-        for (int i = 0; i < 6; i++) {
-          double a = world.random.nextDouble() * Math.PI * 2;
-          double r = world.random.nextDouble() * Math.min(5, radius);
-          var particle =
-              switch (type) {
-                case ENDOTHERMIC -> ParticleTypes.SNOWFLAKE;
-                case REDMATTER, ENDER, ANTIMATTER -> ParticleTypes.REVERSE_PORTAL;
-                case EMP, SONIC, ANTI_GRAVITATIONAL -> ParticleTypes.ELECTRIC_SPARK;
-                case CHEMICAL, DEBILITATION, CONTAGIOUS, SMOKE -> ParticleTypes.CAMPFIRE_COSY_SMOKE;
-                default -> ParticleTypes.FLAME;
-              };
-          world.addParticle(
-              particle,
-              center.x + Math.cos(a) * r,
-              center.y + world.random.nextDouble() * 2,
-              center.z + Math.sin(a) * r,
-              Math.cos(a) * .08,
-              .1,
-              Math.sin(a) * .08);
-        }
-      }
+      PayloadVisuals.Profile profile = PayloadVisuals.get(type);
+      if (++age > (profile.shape() == PayloadVisuals.Shape.MUSHROOM ? 100 : 40)) return true;
+      if (age <= 22) ring(world);
+      if (profile.shape() == PayloadVisuals.Shape.MUSHROOM) mushroom(world);
+      else if (age <= 16) extra(world, profile);
       return false;
+    }
+
+    private void ring(ClientWorld world) {
+      double reach = radius * age / 22;
+      for (int i = 0; i < 20; i++) {
+        double angle = i * Math.PI * 2 / 20 + age * .11;
+        world.addParticle(
+            dust,
+            center.x + Math.cos(angle) * reach,
+            center.y + .15 + Math.sin(age * .12) * .2,
+            center.z + Math.sin(angle) * reach,
+            0,
+            .015,
+            0);
+      }
+    }
+
+    private void mushroom(ClientWorld world) {
+      double height = Math.min(28, age * .45);
+      double cap = Math.min(18, 1 + age * .23);
+      for (int i = 0; i < 8; i++) {
+        double angle = age * .35 + i * Math.PI / 4;
+        double spread = cap * (.5 + world.random.nextDouble() * .5);
+        world.addParticle(
+            ParticleTypes.CAMPFIRE_COSY_SMOKE,
+            center.x + Math.cos(angle) * spread,
+            center.y + height,
+            center.z + Math.sin(angle) * spread,
+            Math.cos(angle) * .04,
+            .08,
+            Math.sin(angle) * .04);
+        world.addParticle(
+            ParticleTypes.CAMPFIRE_COSY_SMOKE,
+            center.x + world.random.nextGaussian() * 1.2,
+            center.y + height * world.random.nextDouble(),
+            center.z + world.random.nextGaussian() * 1.2,
+            0,
+            .15,
+            0);
+        if (age < 30)
+          world.addParticle(
+              ParticleTypes.FLAME,
+              center.x + Math.cos(angle) * cap,
+              center.y + height,
+              center.z + Math.sin(angle) * cap,
+              0,
+              .03,
+              0);
+      }
+    }
+
+    private void extra(ClientWorld world, PayloadVisuals.Profile profile) {
+      ParticleEffect kind = particle(profile.particle());
+      for (int i = 0; i < 6; i++) {
+        double angle = world.random.nextDouble() * Math.PI * 2;
+        double reach =
+            switch (profile.shape()) {
+              case VORTEX -> radius * (1 - age / 18.0);
+              case COLUMN, SPARK -> Math.min(6, radius) * (.3 + world.random.nextDouble() * .7);
+              default -> world.random.nextDouble() * Math.min(5, radius);
+            };
+        double y =
+            switch (profile.shape()) {
+              case COLUMN -> center.y + age * .45 + world.random.nextDouble();
+              case SPARK -> center.y + world.random.nextDouble() * 4;
+              case CLOUD -> center.y + age * .15;
+              default -> center.y + world.random.nextDouble() * 2;
+            };
+        Vec3f motion = motion(profile.shape(), angle);
+        var effect = profile.shape() == PayloadVisuals.Shape.PRISMATIC ? randomDust(world) : kind;
+        world.addParticle(
+            effect,
+            center.x + Math.cos(angle) * reach,
+            y,
+            center.z + Math.sin(angle) * reach,
+            motion.getX(),
+            motion.getY(),
+            motion.getZ());
+      }
+    }
+
+    private Vec3f motion(PayloadVisuals.Shape shape, double angle) {
+      return switch (shape) {
+        case VORTEX -> new Vec3f((float) (-Math.cos(angle) * .12), .02f, (float) (-Math.sin(angle) * .12));
+        case COLUMN -> new Vec3f(0, .12f, 0);
+        case CLOUD -> new Vec3f(0, .04f, 0);
+        case RING -> new Vec3f(0, 0, 0);
+        default -> new Vec3f((float) (Math.cos(angle) * .08), .1f, (float) (Math.sin(angle) * .08));
+      };
+    }
+
+    private DustParticleEffect randomDust(ClientWorld world) {
+      return new DustParticleEffect(
+          new Vec3f(world.random.nextFloat(), world.random.nextFloat(), world.random.nextFloat()), 1.6f);
     }
   }
 }

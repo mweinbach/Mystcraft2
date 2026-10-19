@@ -18,14 +18,7 @@ and the remaining port-specific recipes. `ore_dictionary_mapping.json` defines a
 Recipe advancement unlocks expose
 recipes in the vanilla recipe book. Every placed block has a self-drop loot table.
 
-Explosives use original iron casing and colored bands. All payload missiles,
-cluster/held missiles and SAM ammunition now use original 3D body/nose/fin models,
-with local +Y as their flight axis. Cargo carriers have original canopy/rope/basket
-and balloon models. Spikes use original stepped prong geometry. These models
-reference vanilla textures and do not reproduce upstream art. Grenades, carts and
-tools still use vanilla item sprites; most machines retain temporary cube models.
-Machine power currently has no visual indicator. Glass controls use vanilla model
-templates and state rotations with vanilla glass textures.
+Payload identity lives in `payload_visuals.py`. Generation paints a glyph label per family, builds six missile bodies with the nose on local +Y, and writes `payload_visuals.json`. Cluster, held-item, and SAM rockets keep the shared body. Cargo, spikes, glass, concrete, and radioactive base blocks still reference vanilla block textures. Component items use original sprites. Glass controls use vanilla model templates. Run `python3 tools/check_payload_visuals.py` after generation. It checks distinct labels, full glyph UVs, the four focus silhouettes, and the blast catalog.
 
 The checker parses every JSON, resolves all explicit model parents and textures
 against the supplied vanilla jar or local resources, checks recipe mod-item
