@@ -1,12 +1,16 @@
 package ports.jurassicraft.vehicle;
 
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,7 +27,6 @@ import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 
 /** Shared server-authoritative controls and passenger behavior for JurassiCraft vehicles. */
 public abstract class VehicleEntity extends Entity {
@@ -32,8 +35,11 @@ public abstract class VehicleEntity extends Entity {
             ROTATE_LEFT = VehiclePhysics.ROTATE_LEFT, ROTATE_RIGHT = VehiclePhysics.ROTATE_RIGHT;
     private static final int CONTROL_MASK = FORWARD | BACK | LEFT | RIGHT | UP | DOWN | ROTATE_LEFT | ROTATE_RIGHT;
     private static final float MAX_DAMAGE = 40.0F;
+    private static final class CarDamage extends DamageSource {
+        private CarDamage(String name) { super(name); }
+    }
     private static final DamageSource[] CAR_DAMAGE = {
-            new DamageSource("jurassic.car0"), new DamageSource("jurassic.car1"), new DamageSource("jurassic.car2")
+            new CarDamage("jurassic.car0"), new CarDamage("jurassic.car1"), new CarDamage("jurassic.car2")
     };
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(VehicleEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<ItemStack> RECORD = SynchedEntityData.defineId(VehicleEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -41,6 +47,9 @@ public abstract class VehicleEntity extends Entity {
     private int controls;
     private int controlAge;
     private UUID controlOwner;
+    // A rider may be positioned more than once in a tick. Track each rider's
+    // last vehicle heading so a turn is applied once, independently on each side.
+    private final Map<UUID, Float> riderHeadings = new HashMap<>();
     private int lerpSteps;
     private double lerpX, lerpY, lerpZ;
     private float lerpYaw, lerpPitch;
@@ -52,7 +61,7 @@ public abstract class VehicleEntity extends Entity {
     protected VehicleEntity(EntityType<? extends VehicleEntity> type, Level level) {
         super(type, level);
         blocksBuilding = true;
-        maxUpStep = 1.0F;
+        maxUpStep = 1.5F;
     }
     protected abstract Item vehicleItem();
     protected abstract double[][] seatOffsets();
@@ -120,6 +129,7 @@ public abstract class VehicleEntity extends Entity {
     }
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
+        riderHeadings.put(passenger.getUUID(), getYRot());
         if (!level.isClientSide) {
             passenger.resetFallDistance();
             for (int seat = 0; seat < seatOffsets().length; seat++) {
@@ -155,6 +165,12 @@ public abstract class VehicleEntity extends Entity {
         if (index < 0 || index >= seatOffsets().length) return;
         Vec3 seat = seatPosition(index);
         passenger.setPos(seat.x, seat.y, seat.z);
+        Float previousHeading = riderHeadings.put(passenger.getUUID(), getYRot());
+        if (previousHeading != null) {
+            float turn = Mth.wrapDegrees(getYRot() - previousHeading);
+            passenger.setYRot(passenger.getYRot() + turn);
+            passenger.setYHeadRot(passenger.getYHeadRot() + turn);
+        }
     }
     public Vec3 seatPosition(int index) {
         double[] seat = seatOffsets()[index];
@@ -171,6 +187,7 @@ public abstract class VehicleEntity extends Entity {
         return true;
     }
     @Override protected void removePassenger(Entity passenger) {
+        riderHeadings.remove(passenger.getUUID());
         if (!level.isClientSide) {
             int seat = seatOf(passenger);
             if (seat >= 0) {
@@ -305,5 +322,9 @@ public abstract class VehicleEntity extends Entity {
         else loaded.setCount(1);
         entityData.set(RECORD, loaded);
     }
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
+    @Override public Packet<?> getAddEntityPacket() { return new ClientboundAddEntityPacket(this); }
+    @Override public void startSeenByPlayer(ServerPlayer player) {
+        super.startSeenByPlayer(player);
+        if (!record().isEmpty()) VehicleNetwork.sendRecord(player, this, record());
+    }
 }

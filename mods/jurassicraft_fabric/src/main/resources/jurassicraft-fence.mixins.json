@@ -1,7 +1,0 @@
-{
-  "required": true,
-  "package": "ports.jurassicraft.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": ["FenceClimbMixin"],
-  "injectors": {"defaultRequire": 1}
-}

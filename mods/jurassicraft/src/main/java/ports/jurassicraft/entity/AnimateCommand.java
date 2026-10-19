@@ -17,20 +17,14 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import ports.jurassicraft.PortMod;
 
 /** Original /animate and /anim commands, restricted to poses present for each species. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID)
 public final class AnimateCommand {
     private static final SimpleCommandExceptionType NO_TARGET = new SimpleCommandExceptionType(Component.literal("No dinosaur to animate"));
     private static final DynamicCommandExceptionType UNSUPPORTED = new DynamicCommandExceptionType(
             value -> Component.literal("No selected dinosaur has animation " + value));
     private AnimateCommand() {}
 
-    @SubscribeEvent public static void register(RegisterCommandsEvent event) { register(event.getDispatcher()); }
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var command = dispatcher.register(Commands.literal("animate")
                 .then(Commands.argument("animation", StringArgumentType.word())

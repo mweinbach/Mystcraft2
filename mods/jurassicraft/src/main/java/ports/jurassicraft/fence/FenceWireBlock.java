@@ -108,7 +108,8 @@ public final class FenceWireBlock extends IronBarsBlock {
         }
     }
 
-    @Override public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
+    /** Overrides Forge's ladder hook by signature; Fabric's climb mixin calls it directly. */
+    public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
         return entity instanceof Player || entity instanceof DinosaurEntity dinosaur
                 && (dinosaur.species() == Species.VELOCIRAPTOR || dinosaur.species() == Species.MICRORAPTOR);
     }

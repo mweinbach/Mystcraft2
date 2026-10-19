@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import ports.jurassicraft.entity.DinosaurEntity;
 import ports.jurassicraft.feeder.FeederBlockEntity;
 import ports.jurassicraft.hatching.HatcheryBlockEntity;
@@ -26,15 +25,13 @@ public final class InspectionData {
     }
     public static CompoundTag feeder(FeederBlockEntity feeder) {
         CompoundTag result = new CompoundTag();
-        feeder.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(items -> {
-            int meat = 0, plants = 0;
-            for (int i = 0; i < Math.min(items.getSlots(), FeederBlockEntity.SLOT_COUNT); i++) {
-                int count = items.getStackInSlot(i).getCount();
-                if (i < FeederBlockEntity.MEAT_SLOTS) meat += count; else plants += count;
-            }
-            result.putInt("Meat", Math.max(0, Math.min(9 * 64, meat)));
-            result.putInt("Plants", Math.max(0, Math.min(9 * 64, plants)));
-        });
+        int meat = 0, plants = 0;
+        for (int i = 0; i < Math.min(feeder.getContainerSize(), FeederBlockEntity.SLOT_COUNT); i++) {
+            int count = feeder.getItem(i).getCount();
+            if (i < FeederBlockEntity.MEAT_SLOTS) meat += count; else plants += count;
+        }
+        result.putInt("Meat", Math.max(0, Math.min(9 * 64, meat)));
+        result.putInt("Plants", Math.max(0, Math.min(9 * 64, plants)));
         return result;
     }
     public static CompoundTag incubator(HatcheryBlockEntity incubator) {

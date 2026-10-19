@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:goat_raw"
-  },
-  "result": "jurassicraft:goat_cooked",
-  "experience": 0.5,
-  "cookingtime": 200
-}

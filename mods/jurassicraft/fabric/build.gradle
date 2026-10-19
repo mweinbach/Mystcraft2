@@ -1,0 +1,113 @@
+plugins {
+    id 'fabric-loom' version '1.7.4'
+}
+
+def metadata = new Properties()
+file('../port.properties').withInputStream { metadata.load(it) }
+version = metadata.mod_version
+group = metadata.mod_group
+base.archivesName = 'jurassicraft-fabric-1.19.2'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    modCompileOnly 'maven.modrinth:jade:ZASePpsm'
+    modCompileOnly 'maven.modrinth:emi:fgTjvcl1'
+    if (providers.gradleProperty('withJade').isPresent()) {
+        modRuntimeOnly 'maven.modrinth:jade:ZASePpsm'
+    }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        modRuntimeOnly 'maven.modrinth:emi:fgTjvcl1'
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+sourceSets {
+    main {
+        java.setSrcDirs(['../src/main/java', '../src/fabric/java'])
+        resources.setSrcDirs(['../src/main/resources', '../src/fabric/resources'])
+    }
+    test.java.setSrcDirs(['../src/test/java', '../src/testFabric/java'])
+    test.resources.setSrcDirs([])
+    // In-world tests are a separate development-only mod; they never enter the production JAR.
+    gametest {
+        java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
+        resources.setSrcDirs(['../src/gametestCommon/resources', '../src/gametestFabric/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+// Loader-independent logic checks that run without launching a game server.
+['ports.jurassicraft.genetics.GeneticsLogicTest', 'ports.jurassicraft.vehicle.VehiclePhysicsLogicTest',
+ 'ports.jurassicraft.tourrail.TourRailLogicTest', 'ports.jurassicraft.platform.NetworkLogicTest', 'ports.jurassicraft.fabric.client.MachineObjModelTest'].each { mainClassName ->
+    def taskName = mainClassName.tokenize('.').last().uncapitalize()
+    tasks.register(taskName, JavaExec) {
+        dependsOn tasks.named('testClasses')
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = mainClassName
+        workingDir file('../../..')
+    }
+    tasks.named('check') { dependsOn tasks.named(taskName) }
+}
+
+tasks.named('processResources', ProcessResources) {
+    inputs.properties metadata
+    filesMatching('fabric.mod.json') { expand version: project.version, mod_description: metadata.mod_description }
+    filesMatching('pack.mcmeta') { expand metadata }
+}
+tasks.withType(Jar).configureEach {
+    from('../UPSTREAM.md') {
+        into 'META-INF'
+        rename { 'JurassiCraft-UPSTREAM.md' }
+    }
+    from('../UPSTREAM-LICENSE-HISTORICAL.md') { into 'META-INF' }
+}
+tasks.named('jar', Jar) { from('../LICENSE') }
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+loom {
+    accessWidenerPath = file('../src/fabric/resources/jurassicraft.accesswidener')
+    mixin { defaultRefmapName = 'jurassicraft.fabric.refmap.json' }
+    mods {
+        jurassicraft { sourceSet sourceSets.main }
+        jurassicraft_gametest { sourceSet sourceSets.gametest }
+    }
+    runs {
+        client { runDir '../run/fabric-client' }
+        server { runDir '../run/fabric-server'; programArg '--nogui' }
+        gametest {
+            server()
+            name 'JurassiCraft Fabric Game Tests'
+            source sourceSets.gametest
+            runDir 'build/gametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
+        }
+    }
+}
+tasks.named('runGametest') {
+    doFirst { delete layout.buildDirectory.dir('gametest/world') }
+}

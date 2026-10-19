@@ -7,7 +7,7 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:nuggets/iron"
+      "tag": "jurassicraft:iron_nuggets"
     },
     "B": {
       "item": "minecraft:iron_ingot"

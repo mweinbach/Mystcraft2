@@ -16,12 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 /** A 12-slot, server-ticked grinder with the same 200-tick cycle as upstream. */
 public final class FossilGrinderBlockEntity extends BlockEntity implements WorldlyContainer, net.minecraft.world.MenuProvider {
@@ -35,9 +29,6 @@ public final class FossilGrinderBlockEntity extends BlockEntity implements World
     private int activeSlot = -1;
     private ItemStack activeInput = ItemStack.EMPTY;
     @Nullable private Component customName;
-    private LazyOptional<IItemHandler> inputCap = LazyOptional.empty();
-    private LazyOptional<IItemHandler> outputCap = LazyOptional.empty();
-    private LazyOptional<IItemHandler> unsidedCap = LazyOptional.empty();
 
     private final ContainerData data = new ContainerData() {
         @Override public int get(int index) { return index == 0 ? progress : index == 1 ? PROCESS_TICKS : 0; }
@@ -47,7 +38,6 @@ public final class FossilGrinderBlockEntity extends BlockEntity implements World
 
     public FossilGrinderBlockEntity(BlockPos pos, BlockState state) {
         super(FossilGrinderRegistry.FOSSIL_GRINDER_ENTITY.get(), pos, state);
-        createCapabilities();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, FossilGrinderBlockEntity grinder) {
@@ -156,20 +146,4 @@ public final class FossilGrinderBlockEntity extends BlockEntity implements World
         customName = tag.contains("CustomName", 8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
 
-    private void createCapabilities() {
-        inputCap = LazyOptional.of(() -> new SidedInvWrapper(this, Direction.UP));
-        outputCap = LazyOptional.of(() -> new SidedInvWrapper(this, Direction.DOWN));
-        unsidedCap = LazyOptional.of(() -> new CombinedInvWrapper(new SidedInvWrapper(this, Direction.UP), new SidedInvWrapper(this, Direction.DOWN)));
-    }
-    @Override public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) {
-            return (side == null ? unsidedCap : side == Direction.DOWN ? outputCap : inputCap).cast();
-        }
-        return super.getCapability(capability, side);
-    }
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
-        inputCap.invalidate(); outputCap.invalidate(); unsidedCap.invalidate();
-    }
-    @Override public void reviveCaps() { super.reviveCaps(); createCapabilities(); }
 }

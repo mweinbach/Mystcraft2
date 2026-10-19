@@ -3,6 +3,12 @@ import json
 import unittest
 from pathlib import Path
 
+from layout import packaged_everywhere, placements
+
+
+def model_exists(location):
+    return packaged_everywhere(f"assets/jurassicraft/models/{location.split(':')[1]}.json")
+
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / 'src/main/resources/assets/jurassicraft'
 DATA = ROOT / 'src/main/resources/data'
@@ -32,14 +38,14 @@ class PlantResourcesTest(unittest.TestCase):
         for path in (ASSETS / 'models').rglob('*.json'):
             model = read(path)
             parent = model.get('parent', '')
-            if parent.startswith('jurassicraft:') and not (ASSETS / 'models' / (parent.split(':')[1] + '.json')).exists():
+            if parent.startswith('jurassicraft:') and not model_exists(parent):
                 missing.append((path, parent))
             for tex in model.get('textures', {}).values():
                 if tex.startswith('jurassicraft:') and not (ASSETS / 'textures' / (tex.split(':')[1] + '.png')).exists():
                     missing.append((path, tex))
         for path in (ASSETS / 'blockstates').rglob('*.json'):
             for model in references(read(path)):
-                if model.startswith('jurassicraft:') and not (ASSETS / 'models' / (model.split(':')[1] + '.json')).exists():
+                if model.startswith('jurassicraft:') and not model_exists(model):
                     missing.append((path, model))
         self.assertEqual([], missing)
 
@@ -103,9 +109,7 @@ class PlantResourcesTest(unittest.TestCase):
         self.assertEqual('lower', loot['pools'][0]['conditions'][0]['properties']['half'])
         loot = read(DATA / 'jurassicraft/loot_tables/blocks/gracilaria_seaweed.json')
         self.assertEqual('jurassicraft:gracilaria', loot['pools'][0]['entries'][0]['name'])
-        modifier = read(DATA / 'jurassicraft/forge/biome_modifier/gracilaria.json')
-        self.assertEqual('#minecraft:is_ocean', modifier['biomes'])
-        self.assertEqual('jurassicraft:gracilaria', modifier['features'])
+        self.assertEqual(('#minecraft:is_ocean', 'vegetal_decoration'), placements()['gracilaria'])
 
 
 if __name__ == '__main__':

@@ -4,8 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BiomeTags;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,8 +18,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 
 /** The small underground nest/trackway deposit from the 1.12 world generator. */
 public final class FossilNestFeature extends Feature<NoneFeatureConfiguration> {
-    private static final TagKey<Biome> SANDY = TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation("forge", "is_sandy"));
-    private static final TagKey<Block> REPLACEABLE = BlockTags.create(new ResourceLocation("jurassicraft", "fossil_nest_replaceable"));
+    /** Upstream favored MOUNTAIN, HILLS, MESA and SANDY biome dictionary types. */
+    private static final TagKey<Biome> FAVORED = TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation("jurassicraft", "nest_favored"));
+    private static final TagKey<Block> REPLACEABLE = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation("jurassicraft", "fossil_nest_replaceable"));
 
     public FossilNestFeature() { super(NoneFeatureConfiguration.CODEC); }
 
@@ -31,9 +30,7 @@ public final class FossilNestFeature extends Feature<NoneFeatureConfiguration> {
         RandomSource random = context.random();
         BlockPos origin = context.origin();
         var biome = level.getBiome(origin);
-        boolean favored = biome.is(BiomeTags.IS_MOUNTAIN) || biome.is(BiomeTags.IS_HILL)
-                || biome.is(BiomeTags.IS_BADLANDS) || biome.is(SANDY);
-        if (random.nextInt(favored ? 30 : 100) != 0) return false;
+        if (random.nextInt(biome.is(FAVORED) ? 30 : 100) != 0) return false;
 
         int variant = random.nextInt(3);
         BlockState trackway = FossilNestRegistry.trackway(random.nextInt(3)).get().defaultBlockState()

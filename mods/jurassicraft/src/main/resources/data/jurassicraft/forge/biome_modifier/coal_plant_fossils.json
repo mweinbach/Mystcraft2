@@ -1,6 +1,0 @@
-{
-  "type": "forge:add_features",
-  "biomes": "#minecraft:is_overworld",
-  "features": "jurassicraft:coal_plant_fossils",
-  "step": "underground_decoration"
-}

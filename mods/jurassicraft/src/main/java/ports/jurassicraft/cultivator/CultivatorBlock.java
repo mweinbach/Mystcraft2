@@ -1,5 +1,6 @@
 package ports.jurassicraft.cultivator;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 /** Two-block-tall machine; its lower half owns the only inventory. */
 public final class CultivatorBlock extends BaseEntityBlock {
@@ -57,7 +57,7 @@ public final class CultivatorBlock extends BaseEntityBlock {
     @Override public InteractionResult use(BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit) {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
         BlockPos bottom=state.getValue(HALF)==DoubleBlockHalf.UPPER ? pos.below() : pos;
-        if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(bottom) instanceof CultivatorBlockEntity entity) NetworkHooks.openScreen(server,entity,bottom);
+        if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(bottom) instanceof CultivatorBlockEntity entity) Platform.openMenu(server,entity,bottom);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override public void playerWillDestroy(Level level,BlockPos pos,BlockState state,Player player) {

@@ -1,4 +1,8 @@
-// Put this port's dependencies and build tasks here.
+// JurassiCraft for Forge: shared gameplay plus the Forge lifecycle, transport and
+// integration adapters. The Fabric variant builds from the same sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'jurassicraft-forge-1.19.2'
 
 // JEI is optional at runtime; its API is needed only to compile our plugin.
 repositories {
@@ -33,20 +37,36 @@ tasks.withType(Jar).configureEach {
     from('UPSTREAM-LICENSE-HISTORICAL.md') { into 'META-INF' }
 }
 
-// Exercises NBT validation and genetic data generation without launching a game server.
-tasks.register('geneticsLogicTest', JavaExec) {
-    dependsOn tasks.named('testClasses')
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'ports.jurassicraft.genetics.GeneticsLogicTest'
+// Loader-independent logic checks that run without launching a game server.
+['ports.jurassicraft.genetics.GeneticsLogicTest', 'ports.jurassicraft.vehicle.VehiclePhysicsLogicTest',
+ 'ports.jurassicraft.tourrail.TourRailLogicTest', 'ports.jurassicraft.platform.NetworkLogicTest'].each { mainClassName ->
+    def taskName = mainClassName.tokenize('.').last().uncapitalize()
+    tasks.register(taskName, JavaExec) {
+        dependsOn tasks.named('testClasses')
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = mainClassName
+    }
+    tasks.named('check') { dependsOn tasks.named(taskName) }
 }
-tasks.named('check') { dependsOn tasks.named('geneticsLogicTest') }
 
-// Allow the original plantSpreading gamerule to be registered on Forge 1.19.2.
-minecraft.accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+// Mirrors src/fabric/resources/jurassicraft.accesswidener; each entry documents its use.
+minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
 
-// Opt-in in-world tests for this port; never launched by the normal build.
+// In-world tests and datagen validation live outside the production source set and JAR.
+sourceSets {
+    gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = ['src/gametestCommon/resources', 'src/gametestForge/resources']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
 minecraft.runs {
     gameTestServer {
         property 'forge.enabledGameTestNamespaces', 'jurassicraft'
+        mods { jurassicraft { source sourceSets.gametest } }
+    }
+    data {
+        mods { jurassicraft { source sourceSets.gametest } }
     }
 }

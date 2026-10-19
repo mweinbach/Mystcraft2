@@ -13,8 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.compat.jade.ServerProviders;
 import ports.jurassicraft.hatching.HatcheryRegistry;
@@ -24,7 +22,6 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.Element;
 
-@OnlyIn(Dist.CLIENT)
 public enum IncubatorTooltip implements IBlockComponentProvider {
     INSTANCE;
     @Override public ResourceLocation getUid() { return ServerProviders.INCUBATOR_ID; }

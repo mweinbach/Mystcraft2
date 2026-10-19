@@ -4,8 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,11 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
 
 /** A wall-mounted sign that retains its artwork on breaking, save, and respawn. */
-public final class ParkSignEntity extends HangingEntity implements IEntityAdditionalSpawnData {
+public final class ParkSignEntity extends HangingEntity {
     private static final EntityDataAccessor<String> ARTWORK = SynchedEntityData.defineId(ParkSignEntity.class, EntityDataSerializers.STRING);
     public ParkSignEntity(EntityType<? extends ParkSignEntity> type, Level level) { super(type, level); }
     public ParkSignEntity(EntityType<? extends ParkSignEntity> type, Level level, BlockPos pos, Direction side) {
@@ -83,7 +81,11 @@ public final class ParkSignEntity extends HangingEntity implements IEntityAdditi
     }
     // The rendered position is not the wall anchor; ignore movement interpolation.
     @Override public void lerpTo(double x, double y, double z, float yaw, float pitch, int steps, boolean teleport) {}
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
-    @Override public void writeSpawnData(FriendlyByteBuf buffer) { buffer.writeLong(pos.asLong()); buffer.writeByte(direction.get3DDataValue()); }
-    @Override public void readSpawnData(FriendlyByteBuf buffer) { pos = BlockPos.of(buffer.readLong()); setDirection(Direction.from3DDataValue(buffer.readByte())); }
+    @Override public Packet<?> getAddEntityPacket() {
+        return new ClientboundAddEntityPacket(this, direction.get3DDataValue(), getPos());
+    }
+    @Override public void recreateFromPacket(ClientboundAddEntityPacket packet) {
+        super.recreateFromPacket(packet);
+        setDirection(Direction.from3DDataValue(packet.getData()));
+    }
 }

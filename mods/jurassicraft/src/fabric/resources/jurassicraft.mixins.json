@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.jurassicraft.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": ["EntityPersistentDataMixin", "FenceClimbMixin"],
+  "client": ["client.VehicleCameraMixin"],
+  "injectors": {"defaultRequire": 1}
+}

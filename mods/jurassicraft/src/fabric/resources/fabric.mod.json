@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "jurassicraft",
+  "version": "${version}",
+  "name": "JurassiCraft",
+  "description": "${mod_description}",
+  "authors": ["1.19.2 port contributors"],
+  "environment": "*",
+  "entrypoints": {
+    "main": ["ports.jurassicraft.fabric.FabricMod"],
+    "client": ["ports.jurassicraft.fabric.FabricClientMod"],
+    "jade": ["ports.jurassicraft.compat.jade.JurassicJadePlugin"],
+    "emi": ["ports.jurassicraft.compat.emi.JurassicEmiPlugin"]
+  },
+  "mixins": ["jurassicraft.mixins.json"],
+  "accessWidener": "jurassicraft.accesswidener",
+  "license": "LicenseRef-Unknown",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

@@ -67,7 +67,7 @@ final class GrazePlantsGoal extends MoveToBlockGoal {
         if (PLANTS.isEmpty()) {
             for (PlantSpecies species : PlantSpecies.values()) {
                 var plant = PlantRegistry.plant(species);
-                if (plant != null && plant.isPresent()) PLANTS.put(plant.get(), species);
+                if (plant != null) PLANTS.put(plant.get(), species);
             }
         }
         return PLANTS.get(block);

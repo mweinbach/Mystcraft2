@@ -15,7 +15,7 @@ final class MossBlock extends CarpetBlock {
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         // The original moss spreads only on peat, independently of plantSpreading.
-        if (!level.getBlockState(pos.below()).is(PlantRegistry.PEAT.get()) || random.nextInt(2) != 0 || !level.isAreaLoaded(pos, 4)) return;
+        if (!level.getBlockState(pos.below()).is(PlantRegistry.PEAT.get()) || random.nextInt(2) != 0 || !PlantChunks.isAreaLoaded(level, pos, 4)) return;
         for (int attempt = 0; attempt < 3; attempt++) {
             int x = random.nextInt(7) - 3, z = random.nextInt(7) - 3;
             for (int y = -3; y <= 3; y++) {

@@ -44,7 +44,7 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     private static Mirror readMirror(CompoundTag tag) { return Mirror.valueOf(tag.getString("ParkMirror")); }
     private static StructurePlaceSettings settings(Rotation rotation, Mirror mirror) {
         return new StructurePlaceSettings().setRotation(rotation).setMirror(mirror)
-                .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK).addProcessor(new HangingProcessor());
+                .setIgnoreEntities(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
     }
     @Override protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tag) {
         super.addAdditionalSaveData(context,tag); tag.putString("ParkRotation",rotation.name()); tag.putString("ParkMirror",mirror.name());
@@ -60,6 +60,7 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     @Override public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
             BoundingBox bounds, ChunkPos chunk, BlockPos pivot) {
         super.postProcess(level,structures,generator,random,bounds,chunk,pivot);
+        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
         // Support only this chunk's footprint. Never touch a neighboring chunk during worldgen.
         BoundingBox box = getBoundingBox();
         for (int x=Math.max(box.minX(),bounds.minX());x<=Math.min(box.maxX(),bounds.maxX());x++)

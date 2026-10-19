@@ -2,6 +2,6 @@
   "replace": false,
   "values": [
     "#minecraft:is_jungle",
-    "#forge:is_swamp"
+    "#jurassicraft:swamps"
   ]
 }

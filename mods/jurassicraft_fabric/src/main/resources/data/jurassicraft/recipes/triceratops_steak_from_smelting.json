@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:triceratops_meat"
-  },
-  "result": "jurassicraft:triceratops_steak",
-  "experience": 5.0,
-  "cookingtime": 200
-}

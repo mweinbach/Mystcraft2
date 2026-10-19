@@ -1,83 +1,55 @@
 package ports.jurassicraft.config;
 
 import java.util.EnumMap;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
+import ports.jurassicraft.vehicle.VehicleConfig;
 import ports.jurassicraft.worldgen.WorldgenCategory;
 
 /** Common configuration shared by entity spawning and natural world generation. */
 public final class JurassicConfig {
-    private static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.BooleanValue NATURAL_GOAT_SPAWNING;
-    public static final ForgeConfigSpec.BooleanValue NATURAL_DINOSAUR_SPAWNING;
-    public static final ForgeConfigSpec.IntValue PEAT_SPREAD_DISTANCE;
-    public static final ForgeConfigSpec.BooleanValue ALLOW_CARCASS;
-    public static final ForgeConfigSpec.BooleanValue HUNT_WHEN_HUNGRY;
-    public static final ForgeConfigSpec.BooleanValue DISABLE_GROWTH_SERUM;
-    public static final ForgeConfigSpec.IntValue LOOT_SPAWNRATE;
-    public static final ForgeConfigSpec.BooleanValue GENERATE_VISITOR_CENTRE;
-    public static final ForgeConfigSpec.BooleanValue GENERATE_RAPTOR_PADDOCK;
-    public static final ForgeConfigSpec.IntValue RAPTOR_PADDOCK_RARITY;
-    private static final EnumMap<WorldgenCategory, ForgeConfigSpec.BooleanValue> WORLDGEN = new EnumMap<>(WorldgenCategory.class);
-
+    private static final ConfigOption.File FILE = ConfigOption.File.COMMON;
+    public static final ConfigOption<Boolean> NATURAL_GOAT_SPAWNING = ConfigOption.bool(FILE, null, "naturalGoatSpawning", false, true,
+            "Spawn goats in biomes that spawn pigs; restart required.");
+    public static final ConfigOption<Boolean> NATURAL_DINOSAUR_SPAWNING = ConfigOption.bool(FILE, null, "naturalDinosaurSpawning", false, true,
+            "Enable natural dinosaur spawning; restart required.");
+    public static final ConfigOption<Boolean> ALLOW_CARCASS = ConfigOption.bool(FILE, null, "allowCarcass", true, false,
+            "Leave dinosaur carcasses that can be harvested for meat and bones.");
+    public static final ConfigOption<Boolean> HUNT_WHEN_HUNGRY = ConfigOption.bool(FILE, null, "huntOnlyWhenHungry", false, false,
+            "Only allow dinosaurs to hunt when they are hungry.");
+    public static final ConfigOption<Boolean> DISABLE_GROWTH_SERUM = ConfigOption.bool(FILE, "items", "disableGrowthSerum", false, false,
+            "Disable the growth serum's effect on dinosaurs.");
+    public static final ConfigOption<Integer> LOOT_SPAWNRATE = ConfigOption.range(FILE, "items", "lootSpawnrate", 100, 0, 10000, false,
+            "Percentage of JurassiCraft items added to vanilla chest loot; reload loot tables after changing.");
+    public static final ConfigOption<Boolean> GENERATE_VISITOR_CENTRE = ConfigOption.bool(FILE, "structureGeneration", "visitorCentreGeneration", true, true,
+            "Generate the visitor centre; restart required.");
+    public static final ConfigOption<Boolean> GENERATE_RAPTOR_PADDOCK = ConfigOption.bool(FILE, "structureGeneration", "raptorPaddockGeneration", true, true,
+            "Generate raptor paddocks; restart required.");
+    public static final ConfigOption<Integer> RAPTOR_PADDOCK_RARITY = ConfigOption.range(FILE, "structureGeneration", "paddockRarity", 4000, 1, 16777216, true,
+            "Approximate chance of a paddock per eligible chunk, as one in this number; restart required.");
+    private static final EnumMap<WorldgenCategory, ConfigOption<Boolean>> WORLDGEN = new EnumMap<>(WorldgenCategory.class);
     static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        NATURAL_GOAT_SPAWNING = builder.comment("Spawn goats in biomes that spawn pigs; restart required.")
-                .worldRestart().define("naturalGoatSpawning", false);
-        NATURAL_DINOSAUR_SPAWNING = builder.comment("Enable natural dinosaur spawning; restart required.")
-                .worldRestart().define("naturalDinosaurSpawning", false);
-        ALLOW_CARCASS = builder.comment("Leave dinosaur carcasses that can be harvested for meat and bones.")
-                .define("allowCarcass", true);
-        HUNT_WHEN_HUNGRY = builder.comment("Only allow dinosaurs to hunt when they are hungry.")
-                .define("huntOnlyWhenHungry", false);
-        builder.push("items");
-        DISABLE_GROWTH_SERUM = builder.comment("Disable the growth serum's effect on dinosaurs.")
-                .define("disableGrowthSerum", false);
-        LOOT_SPAWNRATE = builder.comment("Percentage of JurassiCraft items added to vanilla chest loot; reload loot tables after changing.")
-                .defineInRange("lootSpawnrate", 100, 0, 10000);
-        builder.pop();
-        builder.push("structureGeneration");
-        GENERATE_VISITOR_CENTRE = builder.comment("Generate the visitor centre; restart required.")
-                .worldRestart().define("visitorCentreGeneration", true);
-        GENERATE_RAPTOR_PADDOCK = builder.comment("Generate raptor paddocks; restart required.")
-                .worldRestart().define("raptorPaddockGeneration", true);
-        RAPTOR_PADDOCK_RARITY = builder.comment("Approximate chance of a paddock per eligible chunk, as one in this number; restart required.")
-                .worldRestart().defineInRange("paddockRarity", 4000, 1, 16777216);
-        builder.pop();
-        builder.push("mineralGeneration");
-        addWorldgenSettings(builder, "mineralGeneration");
-        builder.pop();
-        builder.push("plantGeneration");
-        addWorldgenSettings(builder, "plantGeneration");
-        PEAT_SPREAD_DISTANCE = builder.comment("Peat spread sampling distance; lower values spread faster. Zero disables spreading.")
-                .defineInRange("peatGenerationSpeed", 20, 0, 1024);
-        builder.pop();
-        SPEC = builder.build();
-    }
-
-    private static void addWorldgenSettings(ForgeConfigSpec.Builder builder, String section) {
         for (WorldgenCategory category : WorldgenCategory.values()) {
-            if (category.section().equals(section)) {
-                WORLDGEN.put(category, builder.comment(category.description() + " Restart required.")
-                        .worldRestart().define(category.key(), true));
-            }
+            if (category.section().equals("mineralGeneration"))
+                WORLDGEN.put(category, ConfigOption.bool(FILE, category.section(), category.key(), true, true, category.description() + " Restart required."));
+        }
+        for (WorldgenCategory category : WorldgenCategory.values()) {
+            if (category.section().equals("plantGeneration"))
+                WORLDGEN.put(category, ConfigOption.bool(FILE, category.section(), category.key(), true, true, category.description() + " Restart required."));
         }
     }
+    public static final ConfigOption<Integer> PEAT_SPREAD_DISTANCE = ConfigOption.range(FILE, "plantGeneration", "peatGenerationSpeed", 20, 0, 1024, false,
+            "Peat spread sampling distance; lower values spread faster. Zero disables spreading.");
 
     private JurassicConfig() {}
 
-    /** Register once during mod construction, before loading a world. */
-    public static void register() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SPEC, "jurassicraft-common.toml");
-    }
+    /** Ensures every option class has defined its settings before a backend enumerates them. */
+    static void load() { VehicleConfig.load(); }
 
     public static boolean worldgenEnabled(WorldgenCategory category) {
         return WORLDGEN.get(category).get();
     }
 
-    /** Data generation decodes placement codecs without loading common configs. */
+    /** Data generation decodes placement codecs before configs load; the default applies until then. */
     public static int paddockRarity() {
-        return SPEC.isLoaded() ? RAPTOR_PADDOCK_RARITY.get() : RAPTOR_PADDOCK_RARITY.getDefault();
+        return RAPTOR_PADDOCK_RARITY.get();
     }
 }

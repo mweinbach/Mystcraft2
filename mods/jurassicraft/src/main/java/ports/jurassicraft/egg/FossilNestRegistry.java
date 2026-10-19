@@ -1,5 +1,7 @@
 package ports.jurassicraft.egg;
 
+import ports.jurassicraft.platform.Platform;
+import java.util.function.Supplier;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.world.InteractionResult;
@@ -8,44 +10,37 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.content.JurassicContent;
 
 /** Standalone nest, trackway and feature registrations. */
 public final class FossilNestRegistry {
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortMod.MOD_ID);
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PortMod.MOD_ID);
-    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registry.FEATURE_REGISTRY, PortMod.MOD_ID);
-    public static final RegistryObject<Feature<?>> FEATURE = FEATURES.register("fossil_nest", FossilNestFeature::new);
-    private static final List<RegistryObject<Block>> NESTS = List.of(
+    public static final Supplier<Feature<?>> FEATURE = Platform.register(Registry.FEATURE_REGISTRY, "fossil_nest", FossilNestFeature::new);
+    private static final List<Supplier<Block>> NESTS = List.of(
             nestBlock("nest_fossil", 0, false), nestBlock("nest_fossil_2", 1, false), nestBlock("nest_fossil_3", 2, false));
-    private static final List<RegistryObject<Block>> ENCASED = List.of(
+    private static final List<Supplier<Block>> ENCASED = List.of(
             nestBlock("encased_nest_fossil", 0, true), nestBlock("encased_nest_fossil_2", 1, true),
             nestBlock("encased_nest_fossil_3", 2, true));
-    private static final List<RegistryObject<Block>> TRACKWAYS = List.of(
+    private static final List<Supplier<Block>> TRACKWAYS = List.of(
             trackwayBlock("fossilized_trackway_biped_medium"), trackwayBlock("fossilized_trackway_biped_small"),
             trackwayBlock("fossilized_trackway_raptor"));
 
     private FossilNestRegistry() {}
 
-    private static RegistryObject<Block> nestBlock(String name, int variant, boolean encased) {
-        RegistryObject<Block> block = BLOCKS.register(name, () -> new FossilNestBlock(variant, encased));
-        ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
+    private static Supplier<Block> nestBlock(String name, int variant, boolean encased) {
+        Supplier<Block> block = Platform.register(Registry.BLOCK_REGISTRY, name, () -> new FossilNestBlock(variant, encased));
+        Platform.register(Registry.ITEM_REGISTRY, name, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
         return block;
     }
 
-    private static RegistryObject<Block> trackwayBlock(String name) {
-        RegistryObject<Block> block = BLOCKS.register(name, FossilTrackwayBlock::new);
-        ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
+    private static Supplier<Block> trackwayBlock(String name) {
+        Supplier<Block> block = Platform.register(Registry.BLOCK_REGISTRY, name, FossilTrackwayBlock::new);
+        Platform.register(Registry.ITEM_REGISTRY, name, () -> new BlockItem(block.get(), new Item.Properties().tab(JurassicContent.TAB)));
         return block;
     }
 
-    public static RegistryObject<Block> nest(int variant, boolean encased) { return (encased ? ENCASED : NESTS).get(variant); }
-    public static RegistryObject<Block> trackway(int variant) { return TRACKWAYS.get(variant); }
+    public static Supplier<Block> nest(int variant, boolean encased) { return (encased ? ENCASED : NESTS).get(variant); }
+    public static Supplier<Block> trackway(int variant) { return TRACKWAYS.get(variant); }
 
     /** Called by the plaster item before its ordinary dinosaur fossil handling. */
     public static InteractionResult tryWrap(UseOnContext context) {
@@ -62,9 +57,6 @@ public final class FossilNestRegistry {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    public static void register(IEventBus bus) {
-        BLOCKS.register(bus);
-        ITEMS.register(bus);
-        FEATURES.register(bus);
+    public static void init() {
     }
 }

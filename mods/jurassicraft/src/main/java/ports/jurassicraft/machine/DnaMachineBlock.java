@@ -1,5 +1,6 @@
 package ports.jurassicraft.machine;
 
+import ports.jurassicraft.platform.Platform;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 public final class DnaMachineBlock extends BaseEntityBlock {
     private final DnaMachineKind kind;
@@ -48,7 +48,7 @@ public final class DnaMachineBlock extends BaseEntityBlock {
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isShiftKeyDown()) return InteractionResult.PASS;
         if (!level.isClientSide && player instanceof ServerPlayer server && level.getBlockEntity(pos) instanceof DnaMachineBlockEntity machine)
-            NetworkHooks.openScreen(server, machine, buffer -> { buffer.writeBlockPos(pos); buffer.writeEnum(kind); });
+            Platform.openMenu(server, machine, buffer -> { buffer.writeBlockPos(pos); buffer.writeEnum(kind); });
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {

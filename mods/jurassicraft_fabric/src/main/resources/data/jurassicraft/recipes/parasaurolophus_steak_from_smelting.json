@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:parasaurolophus_meat"
-  },
-  "result": "jurassicraft:parasaurolophus_steak",
-  "experience": 5.0,
-  "cookingtime": 200
-}

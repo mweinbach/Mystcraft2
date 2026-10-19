@@ -3,6 +3,7 @@ package ports.jurassicraft.entity;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 import ports.jurassicraft.content.Species;
 import ports.jurassicraft.genetics.DNAData;
 import ports.jurassicraft.genetics.DinosaurAttributes;
@@ -111,5 +111,5 @@ public final class DinosaurEggEntity extends Entity {
         family = tag.hasUUID("Family") ? tag.getUUID("Family") : null;
         inherited = DinosaurAttributes.read(tag.getCompound("GeneticAttributes")).orElse(null);
     }
-    @Override public Packet<?> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
+    @Override public Packet<?> getAddEntityPacket() { return new ClientboundAddEntityPacket(this); }
 }

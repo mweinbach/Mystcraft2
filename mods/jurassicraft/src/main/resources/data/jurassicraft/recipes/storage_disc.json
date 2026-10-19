@@ -3,7 +3,7 @@
   "group": "jurassicraft:storage_disc",
   "pattern": [" I ", "ICI", " I "],
   "key": {
-    "I": {"tag": "forge:nuggets/iron"},
+    "I": {"tag": "jurassicraft:iron_nuggets"},
     "C": {"item": "jurassicraft:basic_circuit"}
   },
   "result": {"item": "jurassicraft:storage_disc"}

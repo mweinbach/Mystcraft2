@@ -1,8 +1,0 @@
-{
-  "type": "jurassicraft:land_plant",
-  "config": {
-    "state": {
-      "Name": "jurassicraft:moss"
-    }
-  }
-}

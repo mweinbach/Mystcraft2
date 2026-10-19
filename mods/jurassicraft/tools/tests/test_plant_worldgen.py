@@ -2,6 +2,8 @@ import json
 import unittest
 from pathlib import Path
 
+from layout import placements
+
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'src/main/resources/data/jurassicraft'
 
@@ -20,16 +22,11 @@ class PlantWorldgenResourcesTest(unittest.TestCase):
                 self.assertEqual('jurassicraft:' + feature, placed['feature'])
                 self.assertEqual(['minecraft:in_square', 'minecraft:heightmap', 'minecraft:biome'],
                                  [entry['type'] for entry in placed['placement']])
-                modifier = read(DATA / 'forge/biome_modifier' / f'{feature}.json')
-                self.assertEqual('forge:add_features', modifier['type'])
-                self.assertEqual('#minecraft:is_overworld', modifier['biomes'])
-                self.assertEqual('underground_decoration' if feature == 'coal_plant_fossils' else 'underground_ores',
-                                 modifier['step'])
-                self.assertEqual('jurassicraft:' + feature, modifier['features'])
+                step = 'underground_decoration' if feature == 'coal_plant_fossils' else 'underground_ores'
+                self.assertEqual(('#minecraft:is_overworld', step), placements()[feature])
 
     def test_independent_plant_fossil_ore_is_removed(self):
-        modifier = read(DATA / 'forge/biome_modifier/ores.json')
-        self.assertNotIn('jurassicraft:plant_fossil_block', modifier['features'])
+        self.assertNotIn('plant_fossil_block', placements())
         for folder in ('configured_feature', 'placed_feature'):
             self.assertFalse((DATA / 'worldgen' / folder / 'plant_fossil_block.json').exists())
 

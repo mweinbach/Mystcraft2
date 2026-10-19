@@ -40,10 +40,11 @@ class GoatResourcesTest(unittest.TestCase):
             for location in sounds[event]['sounds']:
                 self.assertTrue((source.NEW / 'sounds' / (location.split(':', 1)[1] + '.ogg')).is_file())
 
-    def test_optional_pig_biome_modifier_and_food_tag_exist(self):
+    def test_optional_pig_spawns_and_food_tag_exist(self):
         data = ROOT / 'src/main/resources/data/jurassicraft'
-        modifier = json.loads((data / 'forge/biome_modifier/goat_spawns.json').read_text())
-        self.assertEqual({'type': 'jurassicraft:goat_spawns'}, modifier)
+        spawns = (ROOT / 'src/main/java/ports/jurassicraft/worldgen/NaturalSpawns.java').read_text()
+        self.assertIn('JurassicConfig.NATURAL_GOAT_SPAWNING.get()', spawns)
+        self.assertIn('biome.spawns(MobCategory.CREATURE, EntityType.PIG)', spawns)
         food = json.loads((data / 'tags/items/goat_food.json').read_text())
         self.assertIn('#jurassicraft:feeder_plants', food['values'])
         self.assertIn('minecraft:carrot', food['values'])

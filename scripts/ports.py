@@ -54,14 +54,20 @@ def ports(root):
         if not path.is_file():
             raise ValueError(f"{directory}: missing port.properties")
         metadata = read_metadata(path)
+        loader = metadata.get("mod_loader", "forge")
         resources = ["build.gradle", "README.md"]
-        if metadata.get("mod_loader", "forge") == "fabric":
-            resources += ["settings.gradle", "src/main/resources/fabric.mod.json"]
+        if loader == "fabric":
+            resources.append("settings.gradle")
+            descriptor = "fabric.mod.json"
         else:
-            resources += ["src/main/resources/META-INF/mods.toml", "src/main/resources/pack.mcmeta"]
+            resources.append("src/main/resources/pack.mcmeta")
+            descriptor = "META-INF/mods.toml"
         for resource in resources:
             if not (directory / resource).is_file():
                 raise ValueError(f"{directory}: missing {resource}")
+        # Multi-loader ports keep each loader's descriptor in that loader's resource overlay.
+        if not any((directory / root / descriptor).is_file() for root in ("src/main/resources", f"src/{loader}/resources")):
+            raise ValueError(f"{directory}: missing src/main/resources/{descriptor}")
         if not list((directory / "src/main/java").rglob("*.java")):
             raise ValueError(f"{directory}: missing Java source")
         found.append(metadata)

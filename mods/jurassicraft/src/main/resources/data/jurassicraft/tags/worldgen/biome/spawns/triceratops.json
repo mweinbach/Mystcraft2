@@ -1,0 +1,32 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    {
+      "id": "#forge:is_plains",
+      "required": false
+    },
+    {
+      "id": "#c:plains",
+      "required": false
+    },
+    {
+      "id": "#forge:is_sparse",
+      "required": false
+    },
+    {
+      "id": "#c:vegetation_sparse",
+      "required": false
+    },
+    "#minecraft:is_forest",
+    {
+      "id": "#forge:is_forest",
+      "required": false
+    },
+    {
+      "id": "#c:forest",
+      "required": false
+    }
+  ]
+}

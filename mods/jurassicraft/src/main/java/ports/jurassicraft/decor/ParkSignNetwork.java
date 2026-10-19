@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,38 +12,31 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-import ports.jurassicraft.PortMod;
+import ports.jurassicraft.platform.Network;
+import ports.jurassicraft.platform.Reg;
 
 /** Each selection must correspond to a recent, server-observed use of the item. */
 public final class ParkSignNetwork {
-    private static final String VERSION = "1";
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(PortMod.MOD_ID, "paddock_sign"),
-            () -> VERSION, VERSION::equals, VERSION::equals);
+    public static final ResourceLocation OPEN = Reg.id("paddock_sign_open");
+    public static final ResourceLocation SELECT = Reg.id("paddock_sign_select");
     private static final Map<Player, Pending> PENDING = new WeakHashMap<>();
     private ParkSignNetwork() {}
-
     public static void register() {
-        CHANNEL.messageBuilder(Selection.class, 0, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(Selection::write).decoder(Selection::read)
-                .consumerMainThread((message, supplier) -> {
-                    ServerPlayer player = supplier.get().getSender();
-                    if (player != null) select(player, message.pos(), message.side(), message.hand(), message.artwork());
-                    supplier.get().setPacketHandled(true);
-                }).add();
+        Network.registerServer(SELECT, (player, buffer) -> {
+            BlockPos pos = buffer.readBlockPos();
+            int side = buffer.readUnsignedByte(), hand = buffer.readUnsignedByte(), artwork = buffer.readUnsignedByte();
+            select(player, pos, side, hand, artwork);
+        });
     }
     static void begin(Player player, BlockPos pos, Direction side, InteractionHand hand) {
-        if (!player.level.isClientSide && side.getAxis().isHorizontal())
-            PENDING.put(player, new Pending(player.level, pos.immutable(), side, hand, player.level.getGameTime() + 2400));
-    }
-    public static void sendSelection(BlockPos pos, Direction side, InteractionHand hand, String artwork) {
-        CHANNEL.sendToServer(new Selection(pos, side.get3DDataValue(), hand.ordinal(), ParkSigns.PADDOCKS.indexOf(artwork)));
+        if (player.level.isClientSide || !side.getAxis().isHorizontal()) return;
+        PENDING.put(player, new Pending(player.level.dimension(), pos.immutable(), side, hand, player.level.getGameTime() + 2400));
+        if (player instanceof ServerPlayer server) Network.sendToPlayer(server, OPEN,
+                buffer -> buffer.writeBlockPos(pos).writeByte(side.get3DDataValue()).writeByte(hand.ordinal()));
     }
     static boolean select(Player player, BlockPos pos, int sideId, int handId, int artwork) {
         Pending pending = PENDING.remove(player);
-        if (pending == null || player.level != pending.level() || player.level.getGameTime() > pending.expires()
+        if (pending == null || !player.level.dimension().equals(pending.level()) || player.level.getGameTime() > pending.expires()
                 || !pending.pos().equals(pos) || pending.side().get3DDataValue() != sideId || pending.hand().ordinal() != handId
                 || artwork < 0 || artwork >= ParkSigns.PADDOCKS.size() || player.isSpectator()) return false;
         Level level = player.level;
@@ -58,9 +51,5 @@ public final class ParkSignNetwork {
         if (!player.getAbilities().instabuild) stack.shrink(1);
         return true;
     }
-    private record Pending(Level level, BlockPos pos, Direction side, InteractionHand hand, long expires) {}
-    private record Selection(BlockPos pos, int side, int hand, int artwork) {
-        void write(FriendlyByteBuf buf) { buf.writeBlockPos(pos); buf.writeByte(side); buf.writeByte(hand); buf.writeByte(artwork); }
-        static Selection read(FriendlyByteBuf buf) { return new Selection(buf.readBlockPos(), buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte()); }
-    }
+    private record Pending(ResourceKey<Level> level, BlockPos pos, Direction side, InteractionHand hand, long expires) {}
 }

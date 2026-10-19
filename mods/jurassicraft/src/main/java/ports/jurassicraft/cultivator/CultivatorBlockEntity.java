@@ -19,12 +19,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import ports.jurassicraft.content.Species;
 import ports.jurassicraft.genetics.Genetics;
 import ports.jurassicraft.hatching.HatcheryRegistry;
@@ -36,13 +30,12 @@ public final class CultivatorBlockEntity extends BlockEntity implements WorldlyC
     private int progress,water,proximates,minerals,vitamins,lipids,temperature;
     private ItemStack active=ItemStack.EMPTY;
     @Nullable private Component customName;
-    private LazyOptional<IItemHandler> input=LazyOptional.empty(),output=LazyOptional.empty(),all=LazyOptional.empty();
     private final ContainerData data=new ContainerData() {
         @Override public int get(int id) { return switch(id) {case 0 -> progress; case 1 -> TICKS; case 2 -> water; case 3 -> proximates; case 4 -> minerals; case 5 -> vitamins; case 6 -> lipids; case 7 -> temperature; default -> 0;}; }
         @Override public void set(int id,int value) { switch(id) {case 0 -> progress=value; case 2 -> water=value; case 3 -> proximates=value; case 4 -> minerals=value; case 5 -> vitamins=value; case 6 -> lipids=value; case 7 -> temperature=value;} }
         @Override public int getCount() { return 8; }
     };
-    public CultivatorBlockEntity(BlockPos pos,BlockState state) { super(CultivatorRegistry.ENTITY.get(),pos,state); createCapabilities(); }
+    public CultivatorBlockEntity(BlockPos pos,BlockState state) { super(CultivatorRegistry.ENTITY.get(),pos,state); }
     public static void tick(Level level,BlockPos pos,BlockState state,CultivatorBlockEntity entity) {
         if (level.isClientSide) return;
         entity.tickServer(level.random);
@@ -120,15 +113,4 @@ public final class CultivatorBlockEntity extends BlockEntity implements WorldlyC
         customName=tag.contains("CustomName",8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
     private static int nutrient(CompoundTag tag,String key) { return Math.max(0,Math.min(MAX_NUTRIENTS,tag.getInt(key))); }
-    private void createCapabilities() {
-        input=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.UP));
-        output=LazyOptional.of(() -> new SidedInvWrapper(this,Direction.DOWN));
-        all=LazyOptional.of(() -> new CombinedInvWrapper(new SidedInvWrapper(this,Direction.UP),new SidedInvWrapper(this,Direction.DOWN)));
-    }
-    @Override public <T> LazyOptional<T> getCapability(Capability<T> capability,@Nullable Direction side) {
-        if (capability==ForgeCapabilities.ITEM_HANDLER) return (side==null ? all : side==Direction.DOWN ? output : input).cast();
-        return super.getCapability(capability,side);
-    }
-    @Override public void invalidateCaps() { super.invalidateCaps(); input.invalidate(); output.invalidate(); all.invalidate(); }
-    @Override public void reviveCaps() { super.reviveCaps(); createCapabilities(); }
 }

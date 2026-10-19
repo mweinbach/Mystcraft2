@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smoking",
-  "ingredient": {
-    "item": "jurassicraft:triceratops_meat"
-  },
-  "result": "jurassicraft:triceratops_steak",
-  "experience": 5.0,
-  "cookingtime": 100
-}

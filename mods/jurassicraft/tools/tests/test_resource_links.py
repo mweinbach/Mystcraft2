@@ -5,11 +5,14 @@ import math
 import unittest
 from pathlib import Path
 
+from layout import OVERLAYS, packaged_everywhere, placements
+
 
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "src/main/resources"
 ASSETS = RES / "assets/jurassicraft"
 DATA = RES / "data/jurassicraft"
+TREES = (RES, *OVERLAYS.values())
 
 
 def local_path(location):
@@ -29,37 +32,42 @@ def descend(value):
 class ResourceLinkTests(unittest.TestCase):
     def test_json_and_local_model_texture_references(self):
         errors = []
-        for path in RES.rglob("*.json"):
+        for root, path in ((root, path) for root in TREES for path in root.rglob("*.json")):
             try:
                 document = json.loads(path.read_text(encoding="utf-8"))
             except (ValueError, UnicodeError) as exc:
-                errors.append(f"{path.relative_to(RES)}: invalid JSON: {exc}")
+                errors.append(f"{path.relative_to(root)}: invalid JSON: {exc}")
                 continue
-            if ASSETS not in path.parents:
+            if root / "assets/jurassicraft" not in path.parents:
                 continue
             for node in descend(document):
                 for key in ("model", "parent"):
                     location = local_path(node.get(key))
                     if location and key == "model" and node.get("loader") == "forge:obj":
-                        target = ASSETS / location
+                        found = (ASSETS / location).is_file()
                     else:
-                        target = ASSETS / f"models/{location}.json"
-                    if location and not target.is_file():
-                        errors.append(f"{path.relative_to(RES)}: missing model {node[key]}")
+                        found = packaged_everywhere(f"assets/jurassicraft/models/{location}.json")
+                    if location and not found:
+                        errors.append(f"{path.relative_to(root)}: missing model {node[key]}")
+                location = local_path(node.get("jurassicraft_obj"))
+                if location and not (ASSETS / location).is_file():
+                    errors.append(f"{path.relative_to(root)}: missing OBJ {node['jurassicraft_obj']}")
                 textures = node.get("textures")
                 if isinstance(textures, dict):
                     for value in textures.values():
                         location = local_path(value)
                         if location and not (ASSETS / f"textures/{location}.png").is_file():
-                            errors.append(f"{path.relative_to(RES)}: missing texture {value}")
+                            errors.append(f"{path.relative_to(root)}: missing texture {value}")
         self.assertFalse(errors, "\n".join(errors))
 
     def test_forge_obj_geometry_materials_and_textures(self):
         errors = []
-        for model_file in (ASSETS / "models").rglob("*.json"):
+        checked = 0
+        for model_file in (OVERLAYS["forge"] / "assets/jurassicraft/models").rglob("*.json"):
             model = json.loads(model_file.read_text(encoding="utf-8"))
             if model.get("loader") != "forge:obj":
                 continue
+            checked += 1
             location = local_path(model.get("model"))
             if not location:
                 continue
@@ -113,9 +121,10 @@ class ResourceLinkTests(unittest.TestCase):
                             raise ValueError()
                     except (ValueError, TypeError):
                         errors.append(f"{obj_file.name}: invalid face index {pair}")
+        self.assertEqual(9, checked, "every DNA machine has a Forge OBJ model")
         self.assertFalse(errors, "\n".join(errors))
 
-    def test_placed_features_and_biome_modifiers_reference_existing_data(self):
+    def test_placed_features_and_biome_placements_reference_existing_data(self):
         errors = []
         placed_root = DATA / "worldgen/placed_feature"
         configured_root = DATA / "worldgen/configured_feature"
@@ -124,15 +133,10 @@ class ResourceLinkTests(unittest.TestCase):
             location = local_path(data.get("feature"))
             if location and not (configured_root / f"{location}.json").is_file():
                 errors.append(f"{path.relative_to(RES)}: missing configured feature {data['feature']}")
-        for path in (DATA / "forge/biome_modifier").rglob("*.json"):
-            data = json.loads(path.read_text(encoding="utf-8"))
-            features = data.get("features", [])
-            if isinstance(features, str):
-                features = [features]
-            for feature in features:
-                location = local_path(feature)
-                if location and not (placed_root / f"{location}.json").is_file():
-                    errors.append(f"{path.relative_to(RES)}: missing placed feature {feature}")
+        for name in placements():
+            placed = name.replace("{species}", "tyrannosaurus")
+            if not (placed_root / f"{placed}.json").is_file():
+                errors.append(f"WorldgenPlacements: missing placed feature {placed}")
         self.assertFalse(errors, "\n".join(errors))
 
     def test_recipe_and_loot_items_and_worldgen_blocks_have_client_resources(self):

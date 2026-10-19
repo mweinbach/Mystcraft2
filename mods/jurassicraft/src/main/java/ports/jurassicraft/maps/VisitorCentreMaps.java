@@ -1,6 +1,5 @@
 package ports.jurassicraft.maps;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -19,26 +18,20 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import ports.jurassicraft.JurassicEvents;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.config.JurassicConfig;
 import ports.jurassicraft.structures.VisitorPlacement;
 
 /** The expert cartographer's map to this world's visitor centre. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID)
 public final class VisitorCentreMaps {
     private static final ResourceLocation STRUCTURE = new ResourceLocation(PortMod.MOD_ID, "visitor_centre");
     static final String MAP_NAME = "filled_map.jurassicraft.visitorcenter";
 
     private VisitorCentreMaps() {}
 
-    @SubscribeEvent
-    public static void onVillagerTrades(VillagerTradesEvent event) {
-        if (event.getType() == VillagerProfession.CARTOGRAPHER) {
-            event.getTrades().computeIfAbsent(4, ignored -> new ArrayList<>()).add(VisitorCentreMaps::offer);
-        }
+    public static void addTo(JurassicEvents.TradeSink sink) {
+        sink.add(VillagerProfession.CARTOGRAPHER, 4, VisitorCentreMaps::offer);
     }
 
     @Nullable

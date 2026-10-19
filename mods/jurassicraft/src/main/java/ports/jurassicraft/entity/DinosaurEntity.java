@@ -1,30 +1,33 @@
 package ports.jurassicraft.entity;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
@@ -43,26 +46,23 @@ import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.network.NetworkHooks;
-import ports.jurassicraft.content.Species;
-import ports.jurassicraft.config.JurassicConfig;
 import ports.jurassicraft.assembly.AssemblyRegistry;
 import ports.jurassicraft.bugs.BugRegistry;
+import ports.jurassicraft.config.JurassicConfig;
+import ports.jurassicraft.content.Species;
 import ports.jurassicraft.genetics.DNAData;
 import ports.jurassicraft.genetics.DinosaurAttributes;
 import ports.jurassicraft.genetics.Genetics;
+import ports.jurassicraft.platform.Platform;
 
 /** Living dinosaurs share growth, genetics, and basic behavior; each has its own entity type. */
 public class DinosaurEntity extends Animal {
@@ -88,9 +88,11 @@ public class DinosaurEntity extends Animal {
     private static final EntityDataAccessor<Boolean> BIRTH_ANIMATING = SynchedEntityData.defineId(DinosaurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> INJURY_ANIMATING = SynchedEntityData.defineId(DinosaurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> INJURY_STARTED = SynchedEntityData.defineId(DinosaurEntity.class, EntityDataSerializers.INT);
-    private static final TagKey<Item> FEEDER_MEAT = ItemTags.create(new ResourceLocation("jurassicraft", "feeder_meat"));
-    private static final TagKey<Item> FEEDER_PLANTS = ItemTags.create(new ResourceLocation("jurassicraft", "feeder_plants"));
-    private static final TagKey<Item> DINOSAUR_FISH = ItemTags.create(new ResourceLocation("jurassicraft", "dinosaur_fish"));
+    private static final EntityDataAccessor<Boolean> ATTACK_ANIMATING = SynchedEntityData.defineId(DinosaurEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> ATTACK_STARTED = SynchedEntityData.defineId(DinosaurEntity.class, EntityDataSerializers.INT);
+    private static final TagKey<Item> FEEDER_MEAT = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("jurassicraft", "feeder_meat"));
+    private static final TagKey<Item> FEEDER_PLANTS = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("jurassicraft", "feeder_plants"));
+    private static final TagKey<Item> DINOSAUR_FISH = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("jurassicraft", "dinosaur_fish"));
     private String genetics = "AAAAAAAAAA";
     private static final DinosaurAttributes DEFAULT_ATTRIBUTES = new DinosaurAttributes(1, 1, 1, 1);
     private DinosaurAttributes geneticAttributes = DEFAULT_ATTRIBUTES;
@@ -113,6 +115,7 @@ public class DinosaurEntity extends Animal {
     private int poseAnimationStart;
     private int poseTicks;
     private int injuryTicks;
+    private int attackTicks;
     private int wireTicks;
     private int disableHerdingTicks;
     private boolean carcassLootExhausted;
@@ -138,7 +141,7 @@ public class DinosaurEntity extends Animal {
     }
 
     public Species species() {
-        ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(getType());
+        ResourceLocation id = Registry.ENTITY_TYPE.getKey(getType());
         if (id == null) throw new IllegalStateException("Dinosaur entity type is not registered");
         return Species.valueOf(id.getPath().toUpperCase(java.util.Locale.ROOT));
     }
@@ -169,7 +172,10 @@ public class DinosaurEntity extends Animal {
     void setAnimationRunning(boolean running) { entityData.set(RUNNING_ANIMATION, running); }
     void setCombatAnimation(CombatAnimation animation) {
         if (!level.isClientSide) {
-            if (animation != CombatAnimation.NONE) finishInjuryAnimation();
+            if (animation != CombatAnimation.NONE) {
+                finishInjuryAnimation();
+                finishAttackAnimation();
+            }
             entityData.set(COMBAT_POSE_INTERRUPTED, false);
             entityData.set(COMBAT_ANIMATION, animation.ordinal());
         }
@@ -182,6 +188,14 @@ public class DinosaurEntity extends Animal {
     public int poseAnimationStart() { return poseAnimationStart; }
     public boolean isBirthing() { return entityData.get(BIRTH_ANIMATING); }
     public boolean isInjuryAnimating() { return entityData.get(INJURY_ANIMATING); }
+    public boolean isAttackAnimating() { return entityData.get(ATTACK_ANIMATING); }
+    /** Use the shared world clock so late-tracking clients seek to the current attack frame. */
+    public int attackAnimationStart() {
+        return tickCount - ((int) level.getGameTime() - entityData.get(ATTACK_STARTED));
+    }
+    public float attackAnimationTime(float age) {
+        return Math.max(0, (float) ((int) level.getGameTime() - entityData.get(ATTACK_STARTED)) + age - tickCount);
+    }
     /** The start is expressed in local entity ticks, for the pose engine's action token. */
     public int injuryAnimationStart() {
         return tickCount - ((int) level.getGameTime() - entityData.get(INJURY_STARTED));
@@ -196,12 +210,15 @@ public class DinosaurEntity extends Animal {
     /** Play an original species pose once, with the imported frame length. */
     public boolean playPose(String animation, int variant, boolean force) {
         if (level.isClientSide || animation == null || variant < 0
-                || (!force && (isForcedPose() || isBirthing() || isInjuryAnimating()))) return false;
+                || (!force && (isForcedPose() || isBirthing() || isInjuryAnimating() || isAttackAnimating()))) return false;
         String name = animation.toUpperCase(java.util.Locale.ROOT);
         if (variant != 0) name += ":" + variant;
         int duration = DinosaurAnimationData.duration(species(), name);
         if (duration <= 0) return false;
-        if (force) finishInjuryAnimation();
+        if (force) {
+            finishInjuryAnimation();
+            finishAttackAnimation();
+        }
         setNaturalRest(false);
         entityData.set(POSE_ANIMATION, (force ? "!" : "") + name);
         if (force) entityData.set(POSE_SERIAL, entityData.get(POSE_SERIAL) + 1);
@@ -218,6 +235,7 @@ public class DinosaurEntity extends Animal {
         entityData.set(ORDER, order.ordinal());
         if (order != Order.WANDER) setNaturalRest(false);
         if (order == Order.SIT) {
+            finishAttackAnimation();
             getNavigation().stop();
             setTarget(null);
             setClimbingTree(false);
@@ -240,7 +258,12 @@ public class DinosaurEntity extends Animal {
         return !target.getUUID().equals(getOwnerUUID()) && super.canAttack(target);
     }
     @Override public boolean doHurtTarget(Entity target) {
-        if (!level.isClientSide) finishInjuryAnimation();
+        if (!level.isClientSide) {
+            finishInjuryAnimation();
+            if (isAlive() && !isCarcass() && !isDinosaurSleeping() && !isOrderedToSit()
+                    && !isBirthing() && !isForcedPose() && combatAnimation() == CombatAnimation.NONE
+                    && !(target instanceof DinosaurEntity dinosaur && dinosaur.isCarcass())) startAttackAnimation();
+        }
         boolean hit = super.doHurtTarget(target);
         if (hit && !level.isClientSide && species() == Species.DILOPHOSAURUS && target instanceof LivingEntity victim)
             victim.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON, 300, 1, false, false));
@@ -331,6 +354,8 @@ public class DinosaurEntity extends Animal {
         entityData.define(BIRTH_ANIMATING, false);
         entityData.define(INJURY_ANIMATING, false);
         entityData.define(INJURY_STARTED, 0);
+        entityData.define(ATTACK_ANIMATING, false);
+        entityData.define(ATTACK_STARTED, 0);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
@@ -382,6 +407,7 @@ public class DinosaurEntity extends Animal {
             DinosaurPresentation.serverTick(this);
             if (isAlive() && growthEnabled() && totalAgeTicks < Long.MAX_VALUE) totalAgeTicks++;
             if (injuryTicks > 0 && --injuryTicks == 0) finishInjuryAnimation();
+            if (attackTicks > 0 && --attackTicks == 0) finishAttackAnimation();
             if (poseTicks > 0 && --poseTicks == 0) entityData.set(POSE_ANIMATION, "");
             if (wireTicks > 0) wireTicks--;
             if (disableHerdingTicks > 0) disableHerdingTicks--;
@@ -461,6 +487,7 @@ public class DinosaurEntity extends Animal {
         else tag.remove("BirthElapsed");
         tag.putInt("BirthRetryTicks", birthRetryTicks);
         tag.putInt("InjuryTicks", injuryTicks);
+        tag.putInt("AttackTicks", attackTicks);
         tag.putInt("TranquilizerTicks", tranquilizerTicks);
         tag.putInt("TicksUntilDeath", ticksUntilDeath);
         tag.putBoolean("NaturalSleeping", isNaturallySleeping());
@@ -518,6 +545,12 @@ public class DinosaurEntity extends Animal {
         injuryTicks = isCarcass() || !isAlive() ? 0 : Mth.clamp(tag.getInt("InjuryTicks"), 0, injuryDuration);
         entityData.set(INJURY_STARTED, (int) level.getGameTime() - (injuryDuration - injuryTicks));
         entityData.set(INJURY_ANIMATING, injuryTicks > 0);
+        int attackDuration = DinosaurAnimationData.duration(species(), "ATTACKING");
+        attackTicks = isCarcass() || !isAlive() || isDinosaurSleeping() || isOrderedToSit() || injuryTicks > 0
+                ? 0 : Mth.clamp(tag.getInt("AttackTicks"), 0, attackDuration);
+        entityData.set(ATTACK_STARTED, (int) level.getGameTime() - (attackDuration - attackTicks));
+        entityData.set(ATTACK_ANIMATING, attackTicks > 0);
+        if (attackTicks > 0) entityData.set(NATURAL_REST, false);
         embryos = tag.getList("Embryos", Tag.TAG_COMPOUND).copy();
         familyBrain.load(tag);
         inventory.load(tag);
@@ -565,6 +598,7 @@ public class DinosaurEntity extends Animal {
                 targetSelector.addGoal(0, new DefendDinosaurOwnerGoal(this, false));
             }
         }
+        goalSelector.addGoal(4, new TemptJuvenileDinosaurGoal(this));
         if (p.carnivore() || isAquatic()) targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this,
                 LivingEntity.class, 20, true, false, target -> growth() > .5f && (herd == null || !herd.isFleeing())
                         && (getOwnerUUID() == null || isStarving())
@@ -578,7 +612,7 @@ public class DinosaurEntity extends Animal {
         if (stack.is(BugRegistry.CRICKETS.get()) || stack.is(BugRegistry.COCKROACHES.get()) || stack.is(BugRegistry.MEALWORM_BEETLES.get()))
             return species() == Species.MICRORAPTOR || (growth() < .25f && (DinosaurProfile.of(species()).carnivore() || species() == Species.GALLIMIMUS));
         if (isAquatic()) return false;
-        var food = stack.getFoodProperties(this);
+        var food = Platform.foodProperties(stack, this);
         if (DinosaurProfile.of(species()).carnivore())
             return stack.is(FEEDER_MEAT) || (food != null && food.isMeat());
         return stack.is(FEEDER_PLANTS) || stack.is(ItemTags.LEAVES) || stack.is(ItemTags.SAPLINGS)
@@ -623,7 +657,7 @@ public class DinosaurEntity extends Animal {
     /** Feed one item without changing the supplied stack; caller removes it after success. */
     public boolean feed(ItemStack stack) {
         if (level.isClientSide || !isAlive() || !needsFood() || !isFood(stack)) return false;
-        var food = stack.getFoodProperties(this);
+        var food = Platform.foodProperties(stack, this);
         int amount = food == null ? 500 : Math.max(500, food.getNutrition() * 650);
         eatNutrition(amount);
         return true;
@@ -656,7 +690,7 @@ public class DinosaurEntity extends Animal {
         if (hand == InteractionHand.MAIN_HAND && !player.isShiftKeyDown() && stack.isEmpty() && isAlive()) {
             if (getOwnerUUID() != null && getOwnerUUID().equals(player.getUUID())) {
                 if (player instanceof ServerPlayer server) {
-                    NetworkHooks.openScreen(server, new SimpleMenuProvider((id, inventory, who) ->
+                    Platform.openMenu(server, new SimpleMenuProvider((id, inventory, who) ->
                             new DinosaurOrderMenu(id, inventory, this), Component.translatable("gui.jurassicraft.select_order")),
                             buffer -> buffer.writeVarInt(getId()));
                 }
@@ -729,7 +763,7 @@ public class DinosaurEntity extends Animal {
                 && getOrder() == Order.WANDER && isOnGround() && !isPassenger()
                 && !isInWaterOrBubble() && !isInLava() && !needsFood() && !isThirsty()
                 && getTarget() == null && getNavigation().isDone()
-                && (herd == null || !herd.isBusyForRest()) && !isBirthing() && !isInjuryAnimating()
+                && (herd == null || !herd.isBusyForRest()) && !isBirthing() && !isInjuryAnimating() && !isAttackAnimating()
                 && combatAnimation() == CombatAnimation.NONE && poseAnimation().isEmpty();
     }
     boolean beginNaturalRest() {
@@ -770,6 +804,7 @@ public class DinosaurEntity extends Animal {
         if (level.isClientSide) return;
         entityData.set(NATURAL_SLEEP, sleeping);
         if (sleeping) {
+            finishAttackAnimation();
             setNaturalRest(false);
             getNavigation().stop();
             setClimbingTree(false);
@@ -813,6 +848,7 @@ public class DinosaurEntity extends Animal {
     private void startInjuryAnimation() {
         int duration = DinosaurAnimationData.duration(species(), "INJURED");
         if (duration <= 0) return;
+        finishAttackAnimation();
         // Keep the combat goal's state intact, but don't visually resume its old action.
         if (combatAnimation() != CombatAnimation.NONE) entityData.set(COMBAT_POSE_INTERRUPTED, true);
         // Birth keeps its saved phase; other interrupted poses should not resume after injury.
@@ -831,16 +867,37 @@ public class DinosaurEntity extends Animal {
         entityData.set(INJURY_ANIMATING, false);
     }
 
+    private void startAttackAnimation() {
+        int duration = DinosaurAnimationData.duration(species(), "ATTACKING");
+        // Upstream does not restart the same animation on a second strike.
+        if (duration <= 0 || isAttackAnimating()) return;
+        setNaturalRest(false);
+        entityData.set(POSE_ANIMATION, "");
+        poseTicks = 0;
+        attackTicks = duration;
+        entityData.set(ATTACK_STARTED, (int) level.getGameTime());
+        entityData.set(ATTACK_ANIMATING, true);
+    }
+
+    private void finishAttackAnimation() {
+        attackTicks = 0;
+        entityData.set(ATTACK_ANIMATING, false);
+    }
+
     @Override public void die(DamageSource source) {
         if (level.isClientSide || isCarcass() || carcassLootExhausted || source.isBypassInvul() || !allowsCarcass()) {
             super.die(source);
-            if (!level.isClientSide && dead) finishInjuryAnimation();
+            if (!level.isClientSide && dead) {
+                finishInjuryAnimation();
+                finishAttackAnimation();
+            }
             if (!level.isClientSide && dead && level instanceof ServerLevel server) DinosaurFamilyData.get(server).remove(getUUID());
             if (!level.isClientSide && dead) inventory.dropContents();
             if (!level.isClientSide && carcassLootExhausted && !dead && getHealth() <= 0) setHealth(1);
             return;
         }
         finishInjuryAnimation();
+        finishAttackAnimation();
         inventory.dropContents();
         if (herd != null && source.getEntity() instanceof LivingEntity attacker) herd.alert(attacker);
         if (herd != null) herd.remove(this);
@@ -903,6 +960,7 @@ public class DinosaurEntity extends Animal {
         if (level.isClientSide || isCarcass() || ticks <= 0) return;
         tranquilizerTicks = (int) Math.min(Integer.MAX_VALUE, (long) ticks + 50 + random.nextInt(50));
         entityData.set(TRANQUILIZED, true);
+        finishAttackAnimation();
         setNaturalRest(false);
         setClimbingTree(false);
         getNavigation().stop();
@@ -986,7 +1044,7 @@ public class DinosaurEntity extends Animal {
     private void tickBirth() {
         if (birthRetryTicks > 0) birthRetryTicks--;
         boolean paused = isDinosaurSleeping() || isOrderedToSit() || isForcedPose()
-                || isInjuryAnimating() || combatAnimation() != CombatAnimation.NONE;
+                || isInjuryAnimating() || isAttackAnimating() || combatAnimation() != CombatAnimation.NONE;
         if (birthElapsed < 0) {
             if (gestationTicks != 0 || embryos.isEmpty() || birthRetryTicks > 0 || paused) return;
             birthElapsed = 0;

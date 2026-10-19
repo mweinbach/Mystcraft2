@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "jurassicraft_gametest",
+  "version": "1.0.0",
+  "name": "JurassiCraft Fabric Game Tests",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.jurassicraft.gametest.FabricGameTestSetup"
+    ],
+    "fabric-gametest": [
+      "ports.jurassicraft.gametest.CoreFossilGameTests",
+      "ports.jurassicraft.gametest.CoreRecipeGameTests",
+      "ports.jurassicraft.cleaning.FossilMachineGameTests",
+      "ports.jurassicraft.entity.DinosaurFabricGameTests",
+      "ports.jurassicraft.skull.SkullGameTests",
+      "ports.jurassicraft.plants.AncientTreeGameTests",
+      "ports.jurassicraft.plants.CoralGameTests",
+      "ports.jurassicraft.plants.PlantWorldgenGameTests",
+      "ports.jurassicraft.vehicle.VehicleGameTests",
+      "ports.jurassicraft.tourrail.TourRailGameTests",
+      "ports.jurassicraft.gametest.GeneticsMachineGameTests",
+      "ports.jurassicraft.bugs.BugFeederGameTests",
+      "ports.jurassicraft.fieldguide.FieldGuideFabricGameTests",
+      "ports.jurassicraft.journal.JournalFabricGameTests",
+      "ports.jurassicraft.mural.MuralGameTests",
+      "ports.jurassicraft.figure.ActionFigureGameTests",
+      "ports.jurassicraft.goat.GoatGameTests",
+      "ports.jurassicraft.darts.PotionDartGameTests",
+      "ports.jurassicraft.darts.DartGameTests",
+      "ports.jurassicraft.scanner.DinoScannerGameTests",
+      "ports.jurassicraft.decor.ParkSignGameTests",
+      "ports.jurassicraft.gametest.FabricDataGameTests",
+      "ports.jurassicraft.egg.FossilNestGameTests",
+      "ports.jurassicraft.worldgen.WorldgenGameTests",
+      "ports.jurassicraft.village.VillageGameTests",
+      "ports.jurassicraft.structures.ParkStructureGameTests",
+      "ports.jurassicraft.structures.VisitorLocateGameTests",
+      "ports.jurassicraft.maps.VisitorCentreMapGameTests",
+      "ports.jurassicraft.compat.jade.InspectionFabricGameTests",
+      "ports.jurassicraft.compat.emi.RecipePreviewFabricGameTests",
+      "ports.jurassicraft.loot.FabricBonusLootGameTests",
+      "ports.jurassicraft.music.MusicGameTests"
+    ]
+  },
+  "depends": {
+    "jurassicraft": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

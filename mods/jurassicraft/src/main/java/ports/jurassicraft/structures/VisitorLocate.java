@@ -21,13 +21,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import ports.jurassicraft.PortMod;
 
 /** Makes vanilla's structure command aware of the single-candidate visitor placement. */
-@Mod.EventBusSubscriber(modid = PortMod.MOD_ID)
 public final class VisitorLocate {
     static final ResourceKey<Structure> VISITOR = ResourceKey.create(Registry.STRUCTURE_REGISTRY,
             new ResourceLocation(PortMod.MOD_ID, "visitor_centre"));
@@ -45,11 +41,7 @@ public final class VisitorLocate {
     };
     private VisitorLocate() {}
 
-    @SubscribeEvent public static void register(RegisterCommandsEvent event) {
-        install(event.getDispatcher().getRoot());
-    }
-
-    static void install(CommandNode<CommandSourceStack> root) {
+    public static void install(CommandNode<CommandSourceStack> root) {
         install(root, WORLD_SEARCH);
     }
 

@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "jurassicraft:gypsum_cobblestone"
-  },
-  "result": "jurassicraft:gypsum_stone",
-  "experience": 1.5,
-  "cookingtime": 200
-}

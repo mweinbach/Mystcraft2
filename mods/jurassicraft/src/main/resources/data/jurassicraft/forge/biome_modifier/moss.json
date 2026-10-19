@@ -1,6 +1,0 @@
-{
-  "type": "forge:add_features",
-  "biomes": "#jurassicraft:moss_biomes",
-  "features": "jurassicraft:moss",
-  "step": "vegetal_decoration"
-}

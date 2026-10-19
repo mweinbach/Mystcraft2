@@ -18,7 +18,7 @@ final class AncientCoralBlock extends AncientAquaticPlantBlock {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!PlantGameRules.canSpread(level) || !level.isAreaLoaded(pos, RADIUS + 1)
+        if (!PlantGameRules.canSpread(level) || !PlantChunks.isAreaLoaded(level, pos, RADIUS + 1)
                 || !passesSpreadRoll(level.getRawBrightness(pos, 0), random) || !hasRoom(level, pos)) return;
         tryPlaceNearby(level, pos, state, random);
     }

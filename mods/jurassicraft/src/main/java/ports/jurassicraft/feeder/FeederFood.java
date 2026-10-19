@@ -7,6 +7,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import ports.jurassicraft.PortMod;
+import ports.jurassicraft.platform.Platform;
 
 /** Tags allow modpacks to customize what the feeder accepts. */
 public final class FeederFood {
@@ -19,14 +20,14 @@ public final class FeederFood {
         if (stack.isEmpty()) return false;
         if (stack.is(MEAT)) return true;
         if (stack.is(PLANTS)) return false;
-        FoodProperties food = stack.getFoodProperties(null);
+        FoodProperties food = Platform.foodProperties(stack, null);
         return food != null && food.isMeat();
     }
 
     public static boolean plant(ItemStack stack) {
         if (stack.isEmpty() || stack.is(MEAT)) return false;
         if (stack.is(PLANTS)) return true;
-        FoodProperties food = stack.getFoodProperties(null);
+        FoodProperties food = Platform.foodProperties(stack, null);
         return food != null && !food.isMeat();
     }
 }

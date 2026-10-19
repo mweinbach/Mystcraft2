@@ -7,8 +7,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import ports.jurassicraft.compat.jade.InspectionData;
 import ports.jurassicraft.compat.jade.ServerProviders;
 import ports.jurassicraft.entity.DinosaurEntity;
@@ -17,7 +15,6 @@ import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-@OnlyIn(Dist.CLIENT)
 public enum DinosaurTooltip implements IEntityComponentProvider {
     INSTANCE;
     @Override public ResourceLocation getUid() { return ServerProviders.DINOSAUR_ID; }

@@ -4,14 +4,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,16 +24,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import ports.jurassicraft.fossil.FossilLootEntry;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import ports.jurassicraft.content.JurassicContent;
 import ports.jurassicraft.content.Species;
+import ports.jurassicraft.fossil.FossilLootEntry;
 
-public final class CleaningStationBlockEntity extends BlockEntity implements MenuProvider {
+public final class CleaningStationBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
     public static final int INPUT = 0;
     public static final int FUEL = 1;
     public static final int FIRST_OUTPUT = 2;
@@ -48,38 +45,8 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
     private ItemStack pendingResult = ItemStack.EMPTY;
     @Nullable private Component customName;
 
-    private final ItemStackHandler inventory = new ItemStackHandler(SLOT_COUNT) {
-        @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            if (slot == INPUT) return isCleanable(stack);
-            if (slot == FUEL) return stack.is(Items.WATER_BUCKET);
-            return false;
-        }
-
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if (slot == INPUT) syncVisuals();
-        }
-    };
-
-    // Automation may insert inputs/fuel, and retrieve outputs and returned buckets.
-    private final IItemHandler automation = new IItemHandler() {
-        @Override public int getSlots() { return inventory.getSlots(); }
-        @Nonnull @Override public ItemStack getStackInSlot(int slot) { return inventory.getStackInSlot(slot); }
-        @Nonnull @Override public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            return inventory.insertItem(slot, stack, simulate);
-        }
-        @Nonnull @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot >= FIRST_OUTPUT || (slot == FUEL && inventory.getStackInSlot(slot).is(Items.BUCKET))) {
-                return inventory.extractItem(slot, amount, simulate);
-            }
-            return ItemStack.EMPTY;
-        }
-        @Override public int getSlotLimit(int slot) { return inventory.getSlotLimit(slot); }
-        @Override public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return inventory.isItemValid(slot, stack); }
-    };
-    private LazyOptional<IItemHandler> itemCapability = LazyOptional.of(() -> automation);
+    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
+    private static final int[] ACCESSIBLE = {0, 1, 2, 3, 4, 5, 6, 7};
 
     private final ContainerData data = new ContainerData() {
         @Override public int get(int index) {
@@ -152,21 +119,14 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
     }
     @Override public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
-        tag.put("VisualInput", inventory.getStackInSlot(INPUT).save(new CompoundTag()));
+        tag.put("VisualInput", getItem(INPUT).save(new CompoundTag()));
         tag.putBoolean("VisualActive", visualActive);
         return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag) {
-        visualInput = ItemStack.of(tag.getCompound("VisualInput"));
-        visualActive = tag.getBoolean("VisualActive");
-    }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
-    @Override public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
-        if (packet.getTag() != null) handleUpdateTag(packet.getTag());
-    }
 
     private void tick(RandomSource random) {
-        ItemStack input = inventory.getStackInSlot(INPUT);
+        ItemStack input = getItem(INPUT);
         if (!ItemStack.isSameItemSameTags(input, pendingInput)) {
             // A selected output belongs to a specific input. Never carry it over to a different fossil.
             pendingInput = input.copy();
@@ -183,8 +143,8 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
         int output = findOutputSlot(pendingResult);
         if (output < 0) { setVisualActive(false); return; } // No water or progress is lost while blocked.
 
-        if (water == 0 && inventory.getStackInSlot(FUEL).is(Items.WATER_BUCKET)) {
-            inventory.setStackInSlot(FUEL, new ItemStack(Items.BUCKET));
+        if (water == 0 && getItem(FUEL).is(Items.WATER_BUCKET)) {
+            setItem(FUEL, new ItemStack(Items.BUCKET));
             water = WATER_TICKS;
         }
         if (water <= 0) { setVisualActive(false); return; }
@@ -192,14 +152,14 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
         setVisualActive(true);
         --water;
         if (++progress >= CLEAN_TICKS) {
-            ItemStack present = inventory.getStackInSlot(output);
-            if (present.isEmpty()) inventory.setStackInSlot(output, pendingResult.copy());
+            ItemStack present = getItem(output);
+            if (present.isEmpty()) setItem(output, pendingResult.copy());
             else {
                 ItemStack combined = present.copy();
                 combined.grow(pendingResult.getCount());
-                inventory.setStackInSlot(output, combined);
+                setItem(output, combined);
             }
-            inventory.extractItem(INPUT, 1, false);
+            removeItem(INPUT, 1);
             progress = 0;
             pendingResult = ItemStack.EMPTY;
         }
@@ -209,8 +169,8 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
     private int findOutputSlot(ItemStack result) {
         if (result.isEmpty()) return -1;
         for (int slot = FIRST_OUTPUT; slot < SLOT_COUNT; slot++) {
-            ItemStack present = inventory.getStackInSlot(slot);
-            int capacity = Math.min(result.getMaxStackSize(), inventory.getSlotLimit(slot));
+            ItemStack present = getItem(slot);
+            int capacity = Math.min(result.getMaxStackSize(), getMaxStackSize());
             if ((present.isEmpty() && result.getCount() <= capacity)
                     || (!present.isEmpty() && ItemStack.isSameItemSameTags(present, result)
                     && present.getCount() + result.getCount() <= capacity)) return slot;
@@ -218,15 +178,41 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
         return -1;
     }
 
-    ItemStackHandler inventory() { return inventory; }
     ContainerData data() { return data; }
 
-    public void dropContents(Level level, BlockPos pos) {
-        for (int slot = 0; slot < SLOT_COUNT; slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty()) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-        }
+    @Override public int getContainerSize() { return SLOT_COUNT; }
+    @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
+    @Override public ItemStack getItem(int slot) { return items.get(slot); }
+    @Override public ItemStack removeItem(int slot, int amount) {
+        ItemStack removed = ContainerHelper.removeItem(items, slot, amount);
+        if (!removed.isEmpty()) { setChanged(); if (slot == INPUT) syncVisuals(); }
+        return removed;
     }
+    @Override public ItemStack removeItemNoUpdate(int slot) {
+        ItemStack removed = ContainerHelper.takeItem(items, slot);
+        if (!removed.isEmpty() && slot == INPUT) syncVisuals();
+        return removed;
+    }
+    @Override public void setItem(int slot, ItemStack stack) {
+        items.set(slot, stack);
+        if (stack.getCount() > getMaxStackSize()) stack.setCount(getMaxStackSize());
+        setChanged();
+        if (slot == INPUT) syncVisuals();
+    }
+    @Override public void clearContent() { items.clear(); setChanged(); syncVisuals(); }
+    @Override public boolean stillValid(Player player) {
+        return level != null && level.getBlockEntity(worldPosition) == this
+                && player.distanceToSqr(worldPosition.getX() + .5, worldPosition.getY() + .5, worldPosition.getZ() + .5) <= 64;
+    }
+    @Override public boolean canPlaceItem(int slot, ItemStack stack) {
+        return slot == INPUT ? isCleanable(stack) : slot == FUEL && stack.is(Items.WATER_BUCKET);
+    }
+    @Override public int[] getSlotsForFace(Direction side) { return ACCESSIBLE; }
+    @Override public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction side) { return canPlaceItem(slot, stack); }
+    @Override public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
+        return slot >= FIRST_OUTPUT || (slot == FUEL && stack.is(Items.BUCKET));
+    }
+    public void dropContents(Level level, BlockPos pos) { Containers.dropContents(level, pos, this); }
 
     public void setCustomName(Component name) { customName = name; setChanged(); }
     @Override public Component getDisplayName() {
@@ -238,7 +224,10 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
 
     @Override protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.put("Inventory", inventory.serializeNBT());
+        CompoundTag inventory = new CompoundTag();
+        inventory.putInt("Size", SLOT_COUNT);
+        ContainerHelper.saveAllItems(inventory, items);
+        tag.put("Inventory", inventory);
         tag.putInt("Water", water);
         tag.putInt("Progress", progress);
         if (!pendingInput.isEmpty()) tag.put("PendingInput", pendingInput.save(new CompoundTag()));
@@ -248,7 +237,14 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
 
     @Override public void load(CompoundTag tag) {
         super.load(tag);
-        inventory.deserializeNBT(tag.getCompound("Inventory"));
+        // Update packets carry only animation state; do not clear the client inventory.
+        if (tag.contains("VisualInput", 10)) {
+            visualInput = ItemStack.of(tag.getCompound("VisualInput"));
+            visualActive = tag.getBoolean("VisualActive");
+            return;
+        }
+        items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(tag.getCompound("Inventory"), items);
         water = Mth.clamp(tag.getInt("Water"), 0, WATER_TICKS);
         progress = Mth.clamp(tag.getInt("Progress"), 0, CLEAN_TICKS - 1);
         pendingInput = ItemStack.of(tag.getCompound("PendingInput"));
@@ -256,10 +252,4 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Men
         customName = tag.contains("CustomName", 8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
     }
 
-    @Nonnull @Override public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) return itemCapability.cast();
-        return super.getCapability(capability, side);
-    }
-    @Override public void invalidateCaps() { super.invalidateCaps(); itemCapability.invalidate(); }
-    @Override public void reviveCaps() { super.reviveCaps(); itemCapability = LazyOptional.of(() -> automation); }
 }

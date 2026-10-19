@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import ports.jurassicraft.platform.Platform;
 
 public final class SkullBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING=BlockStateProperties.FACING;
@@ -44,7 +45,7 @@ public final class SkullBlock extends BaseEntityBlock {
         super.playerWillDestroy(level,pos,state,player);
     }
     @Override public void onRemove(BlockState state,Level level,BlockPos pos,BlockState next,boolean moving) {
-        if (!state.is(next.getBlock()) && !level.isClientSide && !level.restoringBlockSnapshots && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)
+        if (!state.is(next.getBlock()) && !level.isClientSide && !Platform.restoringBlockSnapshots(level) && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)
                 && level.getBlockEntity(pos) instanceof SkullBlockEntity skull && skull.shouldDrop()) {
             Containers.dropItemStack(level,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,skull.skull());
         }
