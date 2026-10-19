@@ -35,7 +35,7 @@ jobs:
       - name: Validate ICBM resources and material mappings
         run: python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
       - name: Test ICBM gameplay on a dedicated Fabric server
-        run: ./gradlew --no-daemon :icbm_port:runGametest
+        run: ./gradlew --no-daemon :icbm_port:runGametest -PwithItemAlchemy
       - name: Test material compatibility and datapack reloads
         run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
       - name: Test Advanced Genetics on a dedicated Forge GameTest server
@@ -61,9 +61,9 @@ jobs:
             JURASSICRAFT_TEST_JAR="$PWD/$jar" python3 -m unittest discover -s mods/jurassicraft/tools/tests -p test_built_jar.py -v
           done
       - name: Test JurassiCraft gameplay on a Forge GameTest server
-        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer
+        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer -PwithProjectE
       - name: Test JurassiCraft gameplay on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
+        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi -PwithItemAlchemy
       # The headless GameTest server reports assertion messages only in these files.
       - name: Upload GameTest reports
         if: failure()

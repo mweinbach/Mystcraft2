@@ -138,9 +138,8 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | Mystcraft | `./scripts/gradle.sh :mystcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/mystcraft/fabric runGametest -PwithItemAlchemy` |
 | ICBM | `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` |
 
-CI runs every EMC audit above without an EMC mod. It also runs Mystcraft's two audits against the real mods,
-which keeps the dependency coordinates and the data formats checked. The other ports were checked against both
-mods when their values were generated.
+CI runs every audit in the table against its real EMC mod. That catches stale values, changed dependency
+coordinates and data-format regressions.
 
 Advanced Genetics has no EMC GameTest yet; its data-only change avoids conflicting with its Fabric
 restructure. Its values were checked once against ProjectE 1.1.0 with a temporary hook, and the audit
