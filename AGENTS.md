@@ -74,5 +74,6 @@ After Advanced Genetics changes, run:
 - `./scripts/gradle.sh :advancedgenetics:build`
 - `./scripts/gradle.sh -p mods/advancedgenetics/fabric build`
 - `python3 mods/advancedgenetics/scripts/check_loader_parity.py`
-- `./scripts/gradle.sh :advancedgenetics:runGameTestServer`
-- `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy`

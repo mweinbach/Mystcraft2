@@ -38,7 +38,11 @@ From the repository root:
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric build
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest
 python3 mods/advancedgenetics/scripts/check_loader_parity.py
+python3 scripts/emc.py check
 ```
+
+Add `-PwithProjectE` to the Forge GameTest run or `-PwithItemAlchemy` to the Fabric one to
+check the EMC values against the real mod, as CI does.
 
 The JARs are written to:
 
@@ -84,6 +88,8 @@ The parity check confirms the following across the two JARs:
   - unknown keys are removed.
 
   Forge reloads the file when it changes; Fabric reads it only at startup.
+- **EMC:** every item has a value for ProjectE and Item Alchemy, shipped as shared data in both
+  JARs. See [`emc/README.md`](emc/README.md) and [docs/emc.md](../../docs/emc.md).
 
 ## Loader adaptation
 
@@ -190,7 +196,7 @@ players, so the loader's actual hooks run. A small `TestPlatform` per loader
 genetics save location and a damage probe. Tests are merged into the mod only for the GameTest
 run and never ship in a JAR.
 
-The 29 shared tests cover:
+The 30 shared tests cover:
 
 - genetics persistence through player NBT, skipping unknown genes;
 - respawn gene copy and Keep Inventory;
@@ -204,7 +210,10 @@ The 29 shared tests cover:
 - recipe loading and network round trips;
 - the cell analyzer's configured time, energy, face rules and menu;
 - every machine stage through syringe injection;
-- automation leaving the infuser's and injector's in-place work alone.
+- automation leaving the infuser's and injector's in-place work alone;
+- the EMC audit: every registered item has a decision in `emc/values.json` and both shipped EMC
+  files load. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) the real EMC mod runs
+  too, and every live value must match.
 
 Fabric adds one test: upstream Cardinal Components saves load, and the current key takes
 precedence over them.
