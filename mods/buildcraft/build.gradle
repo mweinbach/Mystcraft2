@@ -12,6 +12,19 @@ tasks.withType(Jar).configureEach {
     from('licenses') { into 'META-INF/licenses/buildcraft' }
 }
 
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
+dependencies {
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
+    }
+}
+
 // In-world tests are a development-only source set; they never enter the production JAR.
 sourceSets {
     gametest {
@@ -25,6 +38,7 @@ minecraft.runs {
     gameTestServer {
         property 'forge.enableGameTest', 'true'
         property 'forge.enabledGameTestNamespaces', 'buildcraft'
+        property 'emc.values', file('emc/values.json').absolutePath
         mods { buildcraft { source sourceSets.gametest } }
     }
 }

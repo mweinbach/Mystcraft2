@@ -7,7 +7,8 @@
   "entrypoints": {
     "fabric-gametest": [
       "ports.buildcraft.gametest.FabricGameTests",
-      "ports.buildcraft.gametest.FabricAdapterGameTests"
+      "ports.buildcraft.gametest.FabricAdapterGameTests",
+      "ports.buildcraft.gametest.EmcGameTests"
     ]
   },
   "depends": {
