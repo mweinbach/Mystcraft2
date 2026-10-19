@@ -1,0 +1,23 @@
+{
+  "namespace": "advancedgenetics",
+  "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources"],
+    "itemalchemy": ["src/main/resources"]
+  },
+  "output": "src/main/resources",
+  "values": {
+    "advancedgenetics:*_matter": {"emc": 16, "why": "Scraped from a living mob, which is never used up; the cheapest scalpel (iron, 25 uses) costs about 21 EMC per scrape, so every matter is worth 16 whatever the mob, which keeps scraping from creating EMC."}
+  },
+  "conversions": [
+    {"name": "cell_analyzer", "why": "The cell analyzer turns one organic matter into the matching cell (a custom recipe type ProjectE cannot map).", "output": "advancedgenetics:{entity}_cell", "ingredients": {"advancedgenetics:{entity}_matter": 1}},
+    {"name": "dna_extractor", "why": "The DNA extractor turns any cell into one DNA helix; the gene lives in NBT, which transmutation does not copy.", "output": "advancedgenetics:dna_helix", "ingredients": {"#advancedgenetics:cells": 1}}
+  ],
+  "processes": [
+    {"name": "metal_scalpel_scrapes", "why": "An iron scalpel lasts 25 scrapes, each giving one matter of the scraped mob.", "in": {"advancedgenetics:metal_scalpel": 1}, "out": {"advancedgenetics:{entity}_matter": 25}},
+    {"name": "diamond_scalpel_scrapes", "why": "A diamond scalpel lasts 150 scrapes.", "in": {"advancedgenetics:diamond_scalpel": 1}, "out": {"advancedgenetics:{entity}_matter": 150}},
+    {"name": "netherite_scalpel_scrapes", "why": "A netherite scalpel lasts 300 scrapes.", "in": {"advancedgenetics:netherite_scalpel": 1}, "out": {"advancedgenetics:{entity}_matter": 300}},
+    {"name": "decrypt_dna", "why": "The DNA decrypter marks a helix as decoded, one in, one out.", "in": {"advancedgenetics:dna_helix": 1}, "out": {"advancedgenetics:dna_helix": 1}}
+  ],
+  "notes": "Genes such as Emerald Heart, Lay Egg, Milky, Wooly and Meaty make vanilla items renewable on a cooldown; that is gene balance, not an EMC value, and is left to the pack's gene configuration."
+}

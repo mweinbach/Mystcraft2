@@ -1,0 +1,477 @@
+{
+  "namespace": "advancedgenetics",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "advancedgenetics:antiplasmid": {
+      "projecte": 303,
+      "itemalchemy": 320,
+      "source": "recipe"
+    },
+    "advancedgenetics:bat_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:bat_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:bee_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:bee_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:blaze_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:blaze_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:blood_purifier": {
+      "projecte": 2622,
+      "itemalchemy": 2692,
+      "source": "recipe"
+    },
+    "advancedgenetics:cat_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:cat_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:cave_spider_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:cave_spider_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:cell_analyzer": {
+      "projecte": 2223,
+      "itemalchemy": 2238,
+      "source": "recipe"
+    },
+    "advancedgenetics:chicken_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:chicken_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:cow_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:cow_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:creeper_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:creeper_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:crowbar": {
+      "projecte": 824,
+      "itemalchemy": 812,
+      "source": "recipe"
+    },
+    "advancedgenetics:diamond_scalpel": {
+      "projecte": 16396,
+      "itemalchemy": 4108,
+      "source": "recipe"
+    },
+    "advancedgenetics:dna_decrypter": {
+      "projecte": 3106,
+      "itemalchemy": 3085,
+      "source": "recipe"
+    },
+    "advancedgenetics:dna_extractor": {
+      "projecte": 2312,
+      "itemalchemy": 2280,
+      "source": "recipe"
+    },
+    "advancedgenetics:dna_helix": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion dna_extractor"
+    },
+    "advancedgenetics:dragon_health_crystal": {
+      "projecte": 64540,
+      "itemalchemy": 33820,
+      "source": "recipe"
+    },
+    "advancedgenetics:drowned_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:drowned_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:ender_dragon_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:ender_dragon_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:enderman_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:enderman_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:frog_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:frog_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:ghast_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:ghast_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:guardian_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:guardian_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:horse_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:horse_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:husk_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:husk_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:iron_golem_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:iron_golem_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:magma_cube_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:magma_cube_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:metal_scalpel": {
+      "projecte": 524,
+      "itemalchemy": 516,
+      "source": "recipe"
+    },
+    "advancedgenetics:mooshroom_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:mooshroom_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:netherite_scalpel": {
+      "projecte": 114700,
+      "itemalchemy": 114700,
+      "source": "recipe"
+    },
+    "advancedgenetics:ocelot_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:ocelot_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:overclocker": {
+      "projecte": 9536,
+      "itemalchemy": 9500,
+      "source": "recipe"
+    },
+    "advancedgenetics:panda_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:panda_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:phantom_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:phantom_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:pig_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:pig_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:plasmid": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "recipe"
+    },
+    "advancedgenetics:plasmid_infuser": {
+      "projecte": 10076,
+      "itemalchemy": 3908,
+      "source": "recipe"
+    },
+    "advancedgenetics:plasmid_injector": {
+      "projecte": 3260,
+      "itemalchemy": 3416,
+      "source": "recipe"
+    },
+    "advancedgenetics:polar_bear_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:polar_bear_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:rabbit_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:rabbit_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:sheep_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:sheep_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:shulker_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:shulker_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:silverfish_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:silverfish_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:skeleton_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:skeleton_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:slime_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:slime_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:spider_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:spider_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:squid_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:squid_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:stray_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:stray_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:syringe": {
+      "projecte": 367,
+      "itemalchemy": 410,
+      "source": "recipe"
+    },
+    "advancedgenetics:villager_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:villager_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:warden_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:warden_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:wither_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:wither_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:wither_skeleton_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:wither_skeleton_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:wolf_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:wolf_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "advancedgenetics:zombie_cell": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion cell_analyzer"
+    },
+    "advancedgenetics:zombie_matter": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    }
+  }
+}
