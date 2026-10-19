@@ -43,7 +43,7 @@ public class PumpBlockEntity extends MinerBlockEntity {
     private final Map<BlockPos, FluidPath> paths = new HashMap<>();
     private final Deque<BlockPos> queue = new ArrayDeque<>();
     private boolean isInfiniteWaterSource;
-    private long lastRebuild = Long.MIN_VALUE;
+    private long lastRebuild = -REBUILD_DELAY;
     @Nullable private BlockPos targetPos;
 
     public PumpBlockEntity(BlockPos pos, BlockState state) {

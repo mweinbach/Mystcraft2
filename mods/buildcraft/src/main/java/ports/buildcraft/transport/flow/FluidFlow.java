@@ -37,7 +37,7 @@ public final class FluidFlow extends PipeFlow {
     public final int capacity;
     private final Section[] sections = new Section[7];
     private Fluid currentFluid = Fluids.EMPTY;
-    private long lastSyncTime = Long.MIN_VALUE;
+    private long lastSyncTime = -NETWORK_UPDATE_RATE;
 
     private Fluid clientFluid = Fluids.EMPTY;
     private long lastMessage;
