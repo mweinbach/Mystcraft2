@@ -1,4 +1,4 @@
-package com.technovision.advancedgenetics.mixin;
+package com.technovision.advancedgenetics.mixin.forge;
 
 import com.technovision.advancedgenetics.api.genetics.Genes;
 import com.technovision.advancedgenetics.registry.ComponentRegistry;

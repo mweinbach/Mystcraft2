@@ -1,323 +1,244 @@
 package com.technovision.advancedgenetics;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import org.apache.commons.lang3.tuple.Pair;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Config {
+/**
+ * Loader-neutral description of {@code config/AdvancedGenetics.toml}. Each loader binds these
+ * values to the same file; gameplay only reads them. Values hold their defaults until loaded.
+ */
+public final class Config {
 
-    public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final String FILE_NAME = "AdvancedGenetics.toml";
 
-    static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-        COMMON = specPair.getLeft();
-        COMMON_SPEC = specPair.getRight();
+    private static final List<Section> SECTIONS = new ArrayList<>();
+
+    private Config() { }
+
+    /** Every section in file order. */
+    public static List<Section> sections() {
+        Common.init();
+        return Collections.unmodifiableList(SECTIONS);
     }
 
-    public static class Common {
+    public static final class Section {
+        private final String name;
+        private final List<String> comment;
+        private final List<Value<?>> values = new ArrayList<>();
 
-        private static final String categoryGeneralSettings = "general_settings";
-        private static final String categoryGenes = "genes";
-        private static final String categoryCellAnalyzer = "cell_analyzer";
-        private static final String categoryDnaExtractor = "dna_extractor";
-        private static final String categoryDnaDecrypter = "dna_decrypter";
-        private static final String categoryPlasmidInfuser = "plasmid_infuser";
-        private static final String categoryBloodPurifier = "blood_purifier";
-        private static final String categoryPlasmidInjector = "plasmid_injector";
-        private static final String categoryCloningMachine = "cloning_machine";
-
-        public static ForgeConfigSpec.BooleanValue hardMode;
-        public static ForgeConfigSpec.BooleanValue geneSharing;
-        public static ForgeConfigSpec.DoubleValue basicGeneChance;
-        public static ForgeConfigSpec.IntValue plasmidRequirement;
-        public static ForgeConfigSpec.IntValue overclockSpeed;
-        public static ForgeConfigSpec.IntValue overclockEnergy;
-
-        public static ForgeConfigSpec.IntValue cellAnalyzerEnergyCapacity;
-        public static ForgeConfigSpec.IntValue cellAnalyzerEnergyPerTick;
-        public static ForgeConfigSpec.IntValue cellAnalyzerTicksPerOperation;
-        public static ForgeConfigSpec.IntValue cellAnalyzerMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue cellAnalyzerSuccessRate;
-
-        public static ForgeConfigSpec.IntValue dnaExtractorEnergyCapacity;
-        public static ForgeConfigSpec.IntValue dnaExtractorEnergyPerTick;
-        public static ForgeConfigSpec.IntValue dnaExtractorTicksPerOperation;
-        public static ForgeConfigSpec.IntValue dnaExtractorMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue dnaExtractorSuccessRate;
-
-        public static ForgeConfigSpec.IntValue dnaDecrypterEnergyCapacity;
-        public static ForgeConfigSpec.IntValue dnaDecrypterEnergyPerTick;
-        public static ForgeConfigSpec.IntValue dnaDecrypterTicksPerOperation;
-        public static ForgeConfigSpec.IntValue dnaDecrypterMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue dnaDecrypterSuccessRate;
-
-        public static ForgeConfigSpec.IntValue plasmidInfuserEnergyCapacity;
-        public static ForgeConfigSpec.IntValue plasmidInfuserEnergyPerTick;
-        public static ForgeConfigSpec.IntValue plasmidInfuserTicksPerOperation;
-        public static ForgeConfigSpec.IntValue plasmidInfuserMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue plasmidInfuserSuccessRate;
-
-        public static ForgeConfigSpec.IntValue bloodPurifierEnergyCapacity;
-        public static ForgeConfigSpec.IntValue bloodPurifierEnergyPerTick;
-        public static ForgeConfigSpec.IntValue bloodPurifierTicksPerOperation;
-        public static ForgeConfigSpec.IntValue bloodPurifierMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue bloodPurifierSuccessRate;
-
-        public static ForgeConfigSpec.IntValue plasmidInjectorEnergyCapacity;
-        public static ForgeConfigSpec.IntValue plasmidInjectorEnergyPerTick;
-        public static ForgeConfigSpec.IntValue plasmidInjectorTicksPerOperation;
-        public static ForgeConfigSpec.IntValue plasmidInjectorMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue plasmidInjectorSuccessRate;
-
-        public static ForgeConfigSpec.IntValue cloningMachineEnergyCapacity;
-        public static ForgeConfigSpec.IntValue cloningMachineEnergyPerTick;
-        public static ForgeConfigSpec.IntValue cloningMachineTicksPerOperation;
-        public static ForgeConfigSpec.IntValue cloningMachineMaxOverclock;
-        public static ForgeConfigSpec.DoubleValue cloningMachineSuccessRate;
-
-        public static HashMap<String, ForgeConfigSpec.BooleanValue> genes = new HashMap<>();
-
-        public Common(ForgeConfigSpec.Builder builder) {
-
-            // General Settings
-            builder.comment("General Settings").push(categoryGeneralSettings);
-            hardMode = builder
-                    .comment("Increase difficulty by making plasmids no longer accept basic genes.",
-                            "Default: false")
-                    .define("hardMode", false);
-            geneSharing = builder
-                    .comment("Allows players to take the blood of other players and get all of their genes from it.",
-                            "Default: false")
-                    .define("geneSharing", false);
-            basicGeneChance = builder
-                    .comment("Percent chance to receive a basic gene upon DNA decryption.",
-                            "Default: 50% chance")
-                    .defineInRange("basicGeneChance", 0.50, 0.00, 1.00);
-            plasmidRequirement = builder
-                    .comment("The number of decrypted DNA helices needed to fill a plasmid.",
-                            "Default: 24 DNA helices")
-                    .defineInRange("plasmidRequirement", 24, 2, 100);
-            overclockSpeed = builder
-                    .comment("The number of seconds that an overclock item speeds up a machine.",
-                            "Default: 2 seconds faster")
-                    .defineInRange("overclockSpeed", 2, 0, Integer.MAX_VALUE);
-            overclockEnergy = builder
-                    .comment("The amount of extra energy per tick that an overclock item uses.",
-                            "Default: 5 E/t")
-                    .defineInRange("overclockEnergy", 5, 0, Integer.MAX_VALUE);
-            builder.pop();
-
-            // Genes
-            builder.comment("Genes", "Set any gene to 'false' to disable it").push(categoryGenes);
-            genes.put("beelicious", builder.define("beelicious", true));
-            genes.put("climb_walls", builder.define("climb_walls", true));
-            genes.put("dragons_breath", builder.define("dragons_breath", true));
-            genes.put("dragons_health", builder.define("dragons_health", true));
-            genes.put("eat_grass", builder.define("eat_grass", true));
-            genes.put("emerald_heart", builder.define("emerald_heart", true));
-            genes.put("explosive_exit", builder.define("explosive_exit", true));
-            genes.put("fireproof", builder.define("fireproof", true));
-            genes.put("flight", builder.define("flight", true));
-            genes.put("haste", builder.define("haste", true));
-            genes.put("infinity", builder.define("infinity", true));
-            genes.put("invisibility", builder.define("invisibility", true));
-            genes.put("jump_boost", builder.define("jump_boost", true));
-            genes.put("keep_inventory", builder.define("keep_inventory", true));
-            genes.put("lay_egg", builder.define("lay_egg", true));
-            genes.put("luck", builder.define("luck", true));
-            genes.put("meaty", builder.define("meaty", true));
-            genes.put("milky", builder.define("milky", true));
-            genes.put("mob_sight", builder.define("mob_sight", true));
-            genes.put("night_vision", builder.define("night_vision", true));
-            genes.put("no_fall_damage", builder.define("no_fall_damage", true));
-            genes.put("no_hunger", builder.define("no_hunger", true));
-            genes.put("poison_immunity", builder.define("poison_immunity", true));
-            genes.put("regeneration", builder.define("regeneration", true));
-            genes.put("resistance", builder.define("resistance", true));
-            genes.put("scare_creepers", builder.define("scare_creepers", true));
-            genes.put("scare_skeletons", builder.define("scare_skeletons", true));
-            genes.put("shoot_fireballs", builder.define("shoot_fireballs", true));
-            genes.put("slimy", builder.define("slimy", true));
-            genes.put("speed", builder.define("speed", true));
-            genes.put("strength", builder.define("strength", true));
-            genes.put("teleport", builder.define("teleport", true));
-            genes.put("venom", builder.define("venom", true));
-            genes.put("water_breathing", builder.define("water_breathing", true));
-            genes.put("web_walking", builder.define("web_walking", true));
-            genes.put("wither_resistance", builder.define("wither_resistance", true));
-            genes.put("wither_hit", builder.define("wither_hit", true));
-            genes.put("wooly", builder.define("wooly", true));
-            builder.pop();
-
-            // Cell Analyzer
-            builder.comment("Cell Analyzer").push(categoryCellAnalyzer);
-            cellAnalyzerEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the Cell Analyzer.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            cellAnalyzerEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the Cell Analyzer is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            cellAnalyzerTicksPerOperation = builder
-                    .comment("Ticks per operation when using the Cell Analyzer.",
-                            "Default: 400 ticks")
-                    .defineInRange("ticksPerOperation", 400, 20, Integer.MAX_VALUE);
-            cellAnalyzerMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the Cell Analyzer.",
-                            "Default: 10x overclock")
-                    .defineInRange("maxOverclock", 10, 0, Integer.MAX_VALUE);
-            cellAnalyzerSuccessRate = builder
-                    .comment("Percent chance for the Cell Analyzer to successfully create a cell.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // DNA Extractor
-            builder.comment("DNA Extractor").push(categoryDnaExtractor);
-            dnaExtractorEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the DNA Extractor.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            dnaExtractorEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the DNA Extractor is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            dnaExtractorTicksPerOperation = builder
-                    .comment("Ticks per operation when using the DNA Extractor.",
-                            "Default: 200 ticks")
-                    .defineInRange("ticksPerOperation", 200, 20, Integer.MAX_VALUE);
-            dnaExtractorMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the DNA Extractor.",
-                            "Default: 5x overclock")
-                    .defineInRange("maxOverclock", 5, 0, Integer.MAX_VALUE);
-            dnaExtractorSuccessRate = builder
-                    .comment("Percent chance for the DNA Extractor to successfully extract a DNA helix.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // DNA Decrypter
-            builder.comment("DNA Decrypter").push(categoryDnaDecrypter);
-            dnaDecrypterEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the DNA Decrypter.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            dnaDecrypterEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the DNA Decrypter is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            dnaDecrypterTicksPerOperation = builder
-                    .comment("Ticks per operation when using the DNA Decrypter.",
-                            "Default: 200 ticks")
-                    .defineInRange("ticksPerOperation", 200, 20, Integer.MAX_VALUE);
-            dnaDecrypterMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the DNA Decrypter.",
-                            "Default: 5x overclock")
-                    .defineInRange("maxOverclock", 5, 0, Integer.MAX_VALUE);
-            dnaDecrypterSuccessRate = builder
-                    .comment("Percent chance for the DNA Decrypter to successfully decode a DNA helix.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // Plasmid Infuser
-            builder.comment("Plasmid Infuser").push(categoryPlasmidInfuser);
-            plasmidInfuserEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the Plasmid Infuser.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            plasmidInfuserEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the Plasmid Infuser is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            plasmidInfuserTicksPerOperation = builder
-                    .comment("Ticks per operation when using the Plasmid Infuser.",
-                            "Default: 400 ticks")
-                    .defineInRange("ticksPerOperation", 400, 20, Integer.MAX_VALUE);
-            plasmidInfuserMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the Plasmid Infuser.",
-                            "Default: 10x overclock")
-                    .defineInRange("maxOverclock", 10, 0, Integer.MAX_VALUE);
-            plasmidInfuserSuccessRate = builder
-                    .comment("Percent chance for the Plasmid Infuser to successfully add DNA helix to plasmid.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // Blood Purifier
-            builder.comment("Blood Purifier").push(categoryBloodPurifier);
-            bloodPurifierEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the Blood Purifier.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            bloodPurifierEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the Blood Purifier is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            bloodPurifierTicksPerOperation = builder
-                    .comment("Ticks per operation when using the Blood Purifier.",
-                            "Default: 200 ticks")
-                    .defineInRange("ticksPerOperation", 200, 20, Integer.MAX_VALUE);
-            bloodPurifierMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the Blood Purifier.",
-                            "Default: 5x overclock")
-                    .defineInRange("maxOverclock", 5, 0, Integer.MAX_VALUE);
-            bloodPurifierSuccessRate = builder
-                    .comment("Percent chance for the Blood Purifier to successfully purify blood.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // Plasmid Injector
-            builder.comment("Plasmid Injector").push(categoryPlasmidInjector);
-            plasmidInjectorEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the Plasmid Injector.",
-                            "Default: 20,000 (20k E)")
-                    .defineInRange("energyCapacity", 20000, 0, Integer.MAX_VALUE);
-            plasmidInjectorEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the Plasmid Injector is processing.",
-                            "Default: 20 E")
-                    .defineInRange("energyPerTick", 20, 0, Integer.MAX_VALUE);
-            plasmidInjectorTicksPerOperation = builder
-                    .comment("Ticks per operation when using the Plasmid Injector.",
-                            "Default: 400 ticks")
-                    .defineInRange("ticksPerOperation", 400, 20, Integer.MAX_VALUE);
-            plasmidInjectorMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the Plasmid Injector.",
-                            "Default: 10x overclock")
-                    .defineInRange("maxOverclock", 10, 0, Integer.MAX_VALUE);
-            plasmidInjectorSuccessRate = builder
-                    .comment("Percent chance for the Plasmid Injector to successfully inject a tplasmid into the syringe.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
-
-            // Cloning Machine
-            builder.comment("Cloning Machine").push(categoryCloningMachine);
-            cloningMachineEnergyCapacity = builder
-                    .comment("Maximum energy capacity for the Cloning Machine.",
-                            "Default: 500,000 (500k E)")
-                    .defineInRange("energyCapacity", 500000, 0, Integer.MAX_VALUE);
-            cloningMachineEnergyPerTick = builder
-                    .comment("Energy consumed per tick when the Cloning Machine is processing.",
-                            "Default: 1000 E")
-                    .defineInRange("energyPerTick", 1000, 0, Integer.MAX_VALUE);
-            cloningMachineTicksPerOperation = builder
-                    .comment("Ticks per operation when using the Cloning Machine.",
-                            "Default: 600 ticks")
-                    .defineInRange("ticksPerOperation", 600, 20, Integer.MAX_VALUE);
-            cloningMachineMaxOverclock = builder
-                    .comment("The max amount of overclock items that can be used on the Cloning Machine.",
-                            "Default: 5x overclock")
-                    .defineInRange("maxOverclock", 5, 0, Integer.MAX_VALUE);
-            cloningMachineSuccessRate = builder
-                    .comment("Percent chance for the cloning machine to successfully spawn an entity.",
-                            "Default: 100% success rate")
-                    .defineInRange("successRate", 1.00, 0.00, 1.00);
-            builder.pop();
+        private Section(String name, String... comment) {
+            this.name = name;
+            this.comment = List.of(comment);
+            SECTIONS.add(this);
         }
+
+        public String name() { return name; }
+        public List<String> comment() { return comment; }
+        public List<Value<?>> values() { return Collections.unmodifiableList(values); }
+
+        private BoolValue bool(String key, boolean defaultValue, String... comment) {
+            return add(new BoolValue(key, defaultValue, comment));
+        }
+
+        private IntValue range(String key, int defaultValue, int min, int max, String... comment) {
+            return add(new IntValue(key, defaultValue, min, max, comment));
+        }
+
+        private DoubleValue range(String key, double defaultValue, double min, double max, String... comment) {
+            return add(new DoubleValue(key, defaultValue, min, max, comment));
+        }
+
+        private <V extends Value<?>> V add(V value) {
+            values.add(value);
+            return value;
+        }
+    }
+
+    public abstract static sealed class Value<T> permits BoolValue, IntValue, DoubleValue {
+        private final String key;
+        private final List<String> comment;
+        private final T defaultValue;
+        private volatile T value;
+
+        private Value(String key, T defaultValue, String... comment) {
+            this.key = key;
+            this.comment = List.of(comment);
+            this.defaultValue = defaultValue;
+            this.value = defaultValue;
+        }
+
+        public String key() { return key; }
+        public List<String> comment() { return comment; }
+        public T defaultValue() { return defaultValue; }
+        public T get() { return value; }
+
+        public void set(T value) {
+            if (!isValid(value)) throw new IllegalArgumentException(key + " = " + value + " is out of range");
+            this.value = value;
+        }
+
+        public abstract boolean isValid(T value);
+    }
+
+    public static final class BoolValue extends Value<Boolean> {
+        private BoolValue(String key, boolean defaultValue, String... comment) { super(key, defaultValue, comment); }
+        @Override public boolean isValid(Boolean value) { return value != null; }
+    }
+
+    public static final class IntValue extends Value<Integer> {
+        private final int min;
+        private final int max;
+        private IntValue(String key, int defaultValue, int min, int max, String... comment) {
+            super(key, defaultValue, comment);
+            this.min = min;
+            this.max = max;
+        }
+        public int min() { return min; }
+        public int max() { return max; }
+        @Override public boolean isValid(Integer value) { return value != null && value >= min && value <= max; }
+    }
+
+    public static final class DoubleValue extends Value<Double> {
+        private final double min;
+        private final double max;
+        private DoubleValue(String key, double defaultValue, double min, double max, String... comment) {
+            super(key, defaultValue, comment);
+            this.min = min;
+            this.max = max;
+        }
+        public double min() { return min; }
+        public double max() { return max; }
+        @Override public boolean isValid(Double value) { return value != null && value >= min && value <= max; }
+    }
+
+    public static final class Common {
+
+        private static final Section GENERAL = new Section("general_settings", "General Settings");
+
+        public static final BoolValue hardMode = GENERAL.bool("hardMode", false,
+                "Increase difficulty by making plasmids no longer accept basic genes.", "Default: false");
+        public static final BoolValue geneSharing = GENERAL.bool("geneSharing", false,
+                "Allows players to take the blood of other players and get all of their genes from it.", "Default: false");
+        public static final DoubleValue basicGeneChance = GENERAL.range("basicGeneChance", 0.50, 0.00, 1.00,
+                "Percent chance to receive a basic gene upon DNA decryption.", "Default: 50% chance");
+        public static final IntValue plasmidRequirement = GENERAL.range("plasmidRequirement", 24, 2, 100,
+                "The number of decrypted DNA helices needed to fill a plasmid.", "Default: 24 DNA helices");
+        public static final IntValue overclockSpeed = GENERAL.range("overclockSpeed", 2, 0, Integer.MAX_VALUE,
+                "The number of seconds that an overclock item speeds up a machine.", "Default: 2 seconds faster");
+        public static final IntValue overclockEnergy = GENERAL.range("overclockEnergy", 5, 0, Integer.MAX_VALUE,
+                "The amount of extra energy per tick that an overclock item uses.", "Default: 5 E/t");
+
+        private static final Section GENES = new Section("genes", "Genes", "Set any gene to 'false' to disable it");
+
+        public static final Map<String, BoolValue> genes = new HashMap<>();
+
+        static {
+            for (String gene : List.of("beelicious", "climb_walls", "dragons_breath", "dragons_health", "eat_grass",
+                    "emerald_heart", "explosive_exit", "fireproof", "flight", "haste", "infinity", "invisibility",
+                    "jump_boost", "keep_inventory", "lay_egg", "luck", "meaty", "milky", "mob_sight", "night_vision",
+                    "no_fall_damage", "no_hunger", "poison_immunity", "regeneration", "resistance", "scare_creepers",
+                    "scare_skeletons", "shoot_fireballs", "slimy", "speed", "strength", "teleport", "venom",
+                    "water_breathing", "web_walking", "wither_resistance", "wither_hit", "wooly")) {
+                genes.put(gene, GENES.bool(gene, true));
+            }
+        }
+
+        private static final Section CELL_ANALYZER = new Section("cell_analyzer", "Cell Analyzer");
+
+        public static final IntValue cellAnalyzerEnergyCapacity = CELL_ANALYZER.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the Cell Analyzer.", "Default: 20,000 (20k E)");
+        public static final IntValue cellAnalyzerEnergyPerTick = CELL_ANALYZER.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the Cell Analyzer is processing.", "Default: 20 E");
+        public static final IntValue cellAnalyzerTicksPerOperation = CELL_ANALYZER.range("ticksPerOperation", 400, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the Cell Analyzer.", "Default: 400 ticks");
+        public static final IntValue cellAnalyzerMaxOverclock = CELL_ANALYZER.range("maxOverclock", 10, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the Cell Analyzer.", "Default: 10x overclock");
+        public static final DoubleValue cellAnalyzerSuccessRate = CELL_ANALYZER.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the Cell Analyzer to successfully create a cell.", "Default: 100% success rate");
+
+        private static final Section DNA_EXTRACTOR = new Section("dna_extractor", "DNA Extractor");
+
+        public static final IntValue dnaExtractorEnergyCapacity = DNA_EXTRACTOR.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the DNA Extractor.", "Default: 20,000 (20k E)");
+        public static final IntValue dnaExtractorEnergyPerTick = DNA_EXTRACTOR.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the DNA Extractor is processing.", "Default: 20 E");
+        public static final IntValue dnaExtractorTicksPerOperation = DNA_EXTRACTOR.range("ticksPerOperation", 200, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the DNA Extractor.", "Default: 200 ticks");
+        public static final IntValue dnaExtractorMaxOverclock = DNA_EXTRACTOR.range("maxOverclock", 5, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the DNA Extractor.", "Default: 5x overclock");
+        public static final DoubleValue dnaExtractorSuccessRate = DNA_EXTRACTOR.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the DNA Extractor to successfully extract a DNA helix.", "Default: 100% success rate");
+
+        private static final Section DNA_DECRYPTER = new Section("dna_decrypter", "DNA Decrypter");
+
+        public static final IntValue dnaDecrypterEnergyCapacity = DNA_DECRYPTER.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the DNA Decrypter.", "Default: 20,000 (20k E)");
+        public static final IntValue dnaDecrypterEnergyPerTick = DNA_DECRYPTER.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the DNA Decrypter is processing.", "Default: 20 E");
+        public static final IntValue dnaDecrypterTicksPerOperation = DNA_DECRYPTER.range("ticksPerOperation", 200, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the DNA Decrypter.", "Default: 200 ticks");
+        public static final IntValue dnaDecrypterMaxOverclock = DNA_DECRYPTER.range("maxOverclock", 5, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the DNA Decrypter.", "Default: 5x overclock");
+        public static final DoubleValue dnaDecrypterSuccessRate = DNA_DECRYPTER.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the DNA Decrypter to successfully decode a DNA helix.", "Default: 100% success rate");
+
+        private static final Section PLASMID_INFUSER = new Section("plasmid_infuser", "Plasmid Infuser");
+
+        public static final IntValue plasmidInfuserEnergyCapacity = PLASMID_INFUSER.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the Plasmid Infuser.", "Default: 20,000 (20k E)");
+        public static final IntValue plasmidInfuserEnergyPerTick = PLASMID_INFUSER.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the Plasmid Infuser is processing.", "Default: 20 E");
+        public static final IntValue plasmidInfuserTicksPerOperation = PLASMID_INFUSER.range("ticksPerOperation", 400, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the Plasmid Infuser.", "Default: 400 ticks");
+        public static final IntValue plasmidInfuserMaxOverclock = PLASMID_INFUSER.range("maxOverclock", 10, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the Plasmid Infuser.", "Default: 10x overclock");
+        public static final DoubleValue plasmidInfuserSuccessRate = PLASMID_INFUSER.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the Plasmid Infuser to successfully add DNA helix to plasmid.", "Default: 100% success rate");
+
+        private static final Section BLOOD_PURIFIER = new Section("blood_purifier", "Blood Purifier");
+
+        public static final IntValue bloodPurifierEnergyCapacity = BLOOD_PURIFIER.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the Blood Purifier.", "Default: 20,000 (20k E)");
+        public static final IntValue bloodPurifierEnergyPerTick = BLOOD_PURIFIER.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the Blood Purifier is processing.", "Default: 20 E");
+        public static final IntValue bloodPurifierTicksPerOperation = BLOOD_PURIFIER.range("ticksPerOperation", 200, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the Blood Purifier.", "Default: 200 ticks");
+        public static final IntValue bloodPurifierMaxOverclock = BLOOD_PURIFIER.range("maxOverclock", 5, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the Blood Purifier.", "Default: 5x overclock");
+        public static final DoubleValue bloodPurifierSuccessRate = BLOOD_PURIFIER.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the Blood Purifier to successfully purify blood.", "Default: 100% success rate");
+
+        private static final Section PLASMID_INJECTOR = new Section("plasmid_injector", "Plasmid Injector");
+
+        public static final IntValue plasmidInjectorEnergyCapacity = PLASMID_INJECTOR.range("energyCapacity", 20000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the Plasmid Injector.", "Default: 20,000 (20k E)");
+        public static final IntValue plasmidInjectorEnergyPerTick = PLASMID_INJECTOR.range("energyPerTick", 20, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the Plasmid Injector is processing.", "Default: 20 E");
+        public static final IntValue plasmidInjectorTicksPerOperation = PLASMID_INJECTOR.range("ticksPerOperation", 400, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the Plasmid Injector.", "Default: 400 ticks");
+        public static final IntValue plasmidInjectorMaxOverclock = PLASMID_INJECTOR.range("maxOverclock", 10, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the Plasmid Injector.", "Default: 10x overclock");
+        public static final DoubleValue plasmidInjectorSuccessRate = PLASMID_INJECTOR.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the Plasmid Injector to successfully inject a tplasmid into the syringe.", "Default: 100% success rate");
+
+        private static final Section CLONING_MACHINE = new Section("cloning_machine", "Cloning Machine");
+
+        public static final IntValue cloningMachineEnergyCapacity = CLONING_MACHINE.range("energyCapacity", 500000, 0, Integer.MAX_VALUE,
+                "Maximum energy capacity for the Cloning Machine.", "Default: 500,000 (500k E)");
+        public static final IntValue cloningMachineEnergyPerTick = CLONING_MACHINE.range("energyPerTick", 1000, 0, Integer.MAX_VALUE,
+                "Energy consumed per tick when the Cloning Machine is processing.", "Default: 1000 E");
+        public static final IntValue cloningMachineTicksPerOperation = CLONING_MACHINE.range("ticksPerOperation", 600, 20, Integer.MAX_VALUE,
+                "Ticks per operation when using the Cloning Machine.", "Default: 600 ticks");
+        public static final IntValue cloningMachineMaxOverclock = CLONING_MACHINE.range("maxOverclock", 5, 0, Integer.MAX_VALUE,
+                "The max amount of overclock items that can be used on the Cloning Machine.", "Default: 5x overclock");
+        public static final DoubleValue cloningMachineSuccessRate = CLONING_MACHINE.range("successRate", 1.00, 0.00, 1.00,
+                "Percent chance for the cloning machine to successfully spawn an entity.", "Default: 100% success rate");
+
+        private Common() { }
+
+        private static void init() { }
     }
 }

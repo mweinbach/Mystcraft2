@@ -11,9 +11,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -28,57 +29,39 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Handles genes that trigger on rick clicking an item or block.
+ * <p>
+ * Loader adapters call these from equivalent hook points. Handlers returning {@code true} have
+ * handled the action: the caller cancels it and, for interactions, reports success.
  *
  * @author TechnoVision
  */
 public class GeneticsEvents {
 
-    public static void registerEvents() {
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onRightClickBlock);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onEntityInteract);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onPlayerDeath);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onAttackEntity);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onRightClickItem);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onEntityJoinLevel);
-        MinecraftForge.EVENT_BUS.addListener(GeneticsEvents::onPlayerAttacked);
-    }
-
     /**
      * Handles the "Eat Grass" gene
      */
-    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        Player player = event.getEntity();
-        Level world = event.getLevel();
-        if (world.isClientSide() || event.getHand() != InteractionHand.MAIN_HAND || !player.getMainHandItem().isEmpty()) return;
-        BlockPos pos = event.getPos();
-        if (world.getBlockState(pos).getBlock() != Blocks.GRASS_BLOCK) return;
-        if (!ComponentRegistry.getGenetics(player).hasGene(Genes.EAT_GRASS)) return;
+    public static boolean onRightClickBlock(Player player, Level world, InteractionHand hand, BlockPos pos) {
+        if (world.isClientSide() || hand != InteractionHand.MAIN_HAND || !player.getMainHandItem().isEmpty()) return false;
+        if (world.getBlockState(pos).getBlock() != Blocks.GRASS_BLOCK) return false;
+        if (!ComponentRegistry.getGenetics(player).hasGene(Genes.EAT_GRASS)) return false;
         if (player.getFoodData().needsFood()) {
             player.getFoodData().eat(1, 0.0f);
             world.setBlockAndUpdate(pos, Blocks.DIRT.defaultBlockState());
         }
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.SUCCESS);
+        return true;
     }
 
     /**
      * Handles the "Milky", "Beelicious", "Meaty" and "Wooly" genes
      */
-    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        Player player = event.getEntity();
-        if (event.getLevel().isClientSide() || event.getHand() != InteractionHand.MAIN_HAND) return;
-        if (!(event.getTarget() instanceof Player clickedPlayer)) return;
+    public static boolean onEntityInteract(Player player, Level world, InteractionHand hand, Entity target) {
+        if (world.isClientSide() || hand != InteractionHand.MAIN_HAND) return false;
+        if (!(target instanceof Player clickedPlayer)) return false;
 
         PlayerGeneticsComponent component = ComponentRegistry.getGenetics(clickedPlayer);
         ItemStack stack = player.getMainHandItem();
@@ -134,17 +117,13 @@ public class GeneticsEvents {
                 sendCooldownMessage(player, Genes.WOOLY);
             }
         }
-        if (handled) {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.SUCCESS);
-        }
+        return handled;
     }
 
     /**
      * Handles "Explosive Exit", "Emerald Heart", and "Slimy" gene
      */
-    public static void onPlayerDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+    public static void onPlayerDeath(ServerPlayer player) {
         Level world = player.getLevel();
         PlayerGeneticsComponent component = ComponentRegistry.getGenetics(player);
         if (component.hasGene(Genes.EXPLOSIVE_EXIT)) {
@@ -172,33 +151,30 @@ public class GeneticsEvents {
     /**
      * Handles "Wither Hit" and "Venom" gene. Applying either effect cancels the hit, as upstream does.
      */
-    public static void onAttackEntity(AttackEntityEvent event) {
-        Player player = event.getEntity();
-        if (player.level.isClientSide() || !(event.getTarget() instanceof LivingEntity livingEntity)) return;
+    public static boolean onAttackEntity(Player player, Entity target) {
+        if (player.level.isClientSide() || !(target instanceof LivingEntity livingEntity)) return false;
         PlayerGeneticsComponent component = ComponentRegistry.getGenetics(player);
         if (component.hasGene(Genes.WITHER_HIT) && !livingEntity.hasEffect(MobEffects.WITHER)) {
             // Apply wither affect for 1-5 seconds
             int seconds = ThreadLocalRandom.current().nextInt(5) + 1;
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 20*seconds, 0));
-            event.setCanceled(true);
-            return;
+            return true;
         }
         if (component.hasGene(Genes.VENOM) && !livingEntity.hasEffect(MobEffects.POISON)) {
             // 5% chance to apply poison affect for 30 seconds
             if (ThreadLocalRandom.current().nextDouble() <= 0.05) {
                 livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 30, 0));
-                event.setCanceled(true);
+                return true;
             }
         }
+        return false;
     }
 
     /**
      * Handles "Shoot Fireball" gene. Upstream only shoots when the gene is absent or disabled.
      */
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        Player player = event.getEntity();
-        Level world = event.getLevel();
-        if (world.isClientSide() || event.getHand() != InteractionHand.MAIN_HAND) return;
+    public static boolean onRightClickItem(Player player, Level world, InteractionHand hand) {
+        if (world.isClientSide() || hand != InteractionHand.MAIN_HAND) return false;
         if (!ComponentRegistry.getGenetics(player).hasGene(Genes.SHOOT_FIREBALLS)) {
             // Shoots a fire charge if holding blaze rod
             if (player.getMainHandItem().is(Items.FIRE_CHARGE)) {
@@ -207,20 +183,20 @@ public class GeneticsEvents {
                 FireballEntity fireballEntity = new FireballEntity(world, player, v3);
                 world.addFreshEntity(fireballEntity);
                 player.playSound(SoundEvents.FIRECHARGE_USE, 1.0f, 1.0f);
-                event.setCanceled(true);
-                event.setCancellationResult(InteractionResult.SUCCESS);
+                return true;
             }
         }
+        return false;
     }
 
     /**
      * Handles "Scare Creepers" and "Scare Skeletons", replacing upstream's goal-registration mixins.
      */
-    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide()) return;
-        if (event.getEntity() instanceof Creeper creeper) {
+    public static void onEntityJoinLevel(Entity entity, Level world) {
+        if (world.isClientSide()) return;
+        if (entity instanceof Creeper creeper) {
             addFleeGoal(creeper, Genes.SCARE_CREEPERS, 6.0F);
-        } else if (event.getEntity() instanceof AbstractSkeleton skeleton) {
+        } else if (entity instanceof AbstractSkeleton skeleton) {
             addFleeGoal(skeleton, Genes.SCARE_SKELETONS, 10.0F);
         }
     }
@@ -235,13 +211,10 @@ public class GeneticsEvents {
 
     /**
      * Forwards server-side player damage to the gene handlers, replacing upstream's damage mixin.
+     * Returns {@code true} when a gene negates the damage.
      */
-    public static void onPlayerAttacked(LivingAttackEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            if (DamageReceivedEvent.onDamageReceivedEvent(new DamageReceivedEvent(player, event.getSource(), event.getAmount()))) {
-                event.setCanceled(true);
-            }
-        }
+    public static boolean onPlayerAttacked(ServerPlayer player, DamageSource source, float amount) {
+        return DamageReceivedEvent.onDamageReceivedEvent(new DamageReceivedEvent(player, source, amount));
     }
 
     private static void sendCooldownMessage(Player player, Genes gene) {

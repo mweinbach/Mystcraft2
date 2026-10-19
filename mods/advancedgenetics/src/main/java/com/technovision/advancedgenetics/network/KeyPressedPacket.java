@@ -3,9 +3,6 @@ package com.technovision.advancedgenetics.network;
 import com.technovision.advancedgenetics.events.KeyInputEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public record KeyPressedPacket(String geneName) {
 
@@ -19,11 +16,10 @@ public record KeyPressedPacket(String geneName) {
         return new KeyPressedPacket(buf.readUtf(MAX_LENGTH));
     }
 
-    public static void handle(KeyPressedPacket packet, Supplier<NetworkEvent.Context> context) {
-        ServerPlayer player = context.get().getSender();
-        if (player != null) {
-            KeyInputEvents.onKeyPressed(player, packet.geneName);
+    /** Runs on the server thread. */
+    public static void handle(KeyPressedPacket packet, ServerPlayer sender) {
+        if (sender != null) {
+            KeyInputEvents.onKeyPressed(sender, packet.geneName);
         }
-        context.get().setPacketHandled(true);
     }
 }

@@ -2,6 +2,7 @@ package com.technovision.advancedgenetics.api.block;
 
 import com.technovision.advancedgenetics.api.blockentity.AbstractProcessingBlockEntity;
 import com.technovision.advancedgenetics.api.blockentity.ProcessingBlockEntity;
+import com.technovision.advancedgenetics.platform.Platform;
 import com.technovision.advancedgenetics.registry.ItemRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -31,7 +32,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -118,7 +118,7 @@ public abstract class AbstractGeneticsBlock extends BaseEntityBlock {
         if (world.getBlockEntity(pos) instanceof AbstractProcessingBlockEntity processingBlockEntity) {
             if (useTool(processingBlockEntity, world, pos, player, hand)) return InteractionResult.SUCCESS;
             if (player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, processingBlockEntity, pos);
+                Platform.openMenu(serverPlayer, processingBlockEntity, pos);
             }
         }
         return InteractionResult.SUCCESS;

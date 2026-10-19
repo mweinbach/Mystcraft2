@@ -10,7 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ScalpelItem extends Item {
 
@@ -31,7 +32,7 @@ public class ScalpelItem extends Item {
 
     private void scrapeEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
         EntityType<?> type = entity.getType();
-        RegistryObject<OrganicMatterItem> item = ItemRegistry.MATTER.get(type);
+        Supplier<OrganicMatterItem> item = ItemRegistry.MATTER.get(type);
 
         if (item == null) {
             if (type == EntityType.SKELETON_HORSE) {

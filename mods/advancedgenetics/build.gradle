@@ -1,8 +1,12 @@
-// Advanced Genetics: Forge mixins for genes without a Forge event, plus server GameTests.
+// Advanced Genetics for Forge: shared gameplay plus the Forge adapters. The Fabric variant
+// builds from the same sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'advancedgenetics-forge-1.19.2'
 
 // Map official-name mixin targets to SRG names for the reobfuscated JAR.
 dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
-def mixinRefmap = layout.buildDirectory.file('generated/mixin/advancedgenetics.refmap.json')
+def mixinRefmap = layout.buildDirectory.file('generated/mixin/advancedgenetics.forge.refmap.json')
 tasks.named('compileJava', JavaCompile) {
     dependsOn tasks.named('createMcpToSrg')
     outputs.file(mixinRefmap)
@@ -19,10 +23,10 @@ tasks.named('processResources', ProcessResources) {
     from(mixinRefmap)
 }
 tasks.named('jar', Jar) {
-    manifest.attributes('MixinConfigs': 'advancedgenetics.mixins.json')
+    manifest.attributes('MixinConfigs': 'advancedgenetics.forge.mixins.json')
 }
 minecraft.runs.configureEach {
-    args '--mixin.config', 'advancedgenetics.mixins.json'
+    args '--mixin.config', 'advancedgenetics.forge.mixins.json'
     property 'mixin.env.remapRefMap', 'true'
     property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
 }
@@ -31,6 +35,8 @@ tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.nam
 // GameTests are merged into the mod only for the GameTest server run, never into the JAR.
 sourceSets {
     gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = []
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
@@ -45,7 +51,7 @@ minecraft.runs {
     }
 }
 def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
-    from 'src/gametest/structures'
+    from 'src/gametestCommon/structures'
     into 'run/gameTestServer/gameteststructures'
 }
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {

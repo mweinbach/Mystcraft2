@@ -2,12 +2,15 @@ package com.technovision.advancedgenetics.api.component;
 
 import com.technovision.advancedgenetics.api.genetics.Genes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.List;
 import java.util.Map;
 
-public interface EntityGeneticsComponent extends INBTSerializable<CompoundTag> {
+public interface EntityGeneticsComponent {
+
+    CompoundTag serializeNBT();
+
+    void deserializeNBT(CompoundTag nbt);
 
     int geneCount();
 
