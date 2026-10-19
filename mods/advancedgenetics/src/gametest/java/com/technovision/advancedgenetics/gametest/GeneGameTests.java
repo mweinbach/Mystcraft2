@@ -27,6 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -175,6 +176,16 @@ public class GeneGameTests {
         genetics(player).removeGene(Genes.FLIGHT);
         tickSeconds(player, 4);
         check(!player.getAbilities().mayfly, "Flight remained after removing the gene");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void spectatorsKeepFlightWithoutTheGene(GameTestHelper helper) {
+        FakePlayer spectator = player(helper, "ag_spectator");
+        check(spectator.setGameMode(GameType.SPECTATOR), "Could not switch to spectator mode");
+        check(spectator.getAbilities().mayfly && spectator.getAbilities().flying, "Spectator mode did not enable flight");
+        tickSeconds(spectator, 4);
+        check(spectator.getAbilities().mayfly && spectator.getAbilities().flying, "Spectator lost flight without the Flight gene");
         helper.succeed();
     }
 

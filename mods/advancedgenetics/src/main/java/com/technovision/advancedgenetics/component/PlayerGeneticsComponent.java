@@ -123,7 +123,7 @@ public class PlayerGeneticsComponent implements EntityGeneticsComponent {
      * Checks if a user has the flight gene and enables/disables flight.
      */
     private void checkFlightStatus() {
-        if (player.isCreative()) return;
+        if (player.isCreative() || player.isSpectator()) return;
         if (hasGene(Genes.FLIGHT)) {
             player.getAbilities().mayfly = true;
         } else {
