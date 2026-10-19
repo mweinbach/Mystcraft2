@@ -14,6 +14,10 @@ repositories {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
 }
 dependencies {
     compileOnly fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1015')
@@ -24,6 +28,10 @@ dependencies {
     compileOnly fg.deobf('maven.modrinth:jade:8.9.2')
     if (providers.gradleProperty('withJade').isPresent()) {
         runtimeOnly fg.deobf('maven.modrinth:jade:8.9.2')
+    }
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
     }
 }
 
@@ -64,6 +72,7 @@ sourceSets {
 minecraft.runs {
     gameTestServer {
         property 'forge.enabledGameTestNamespaces', 'jurassicraft'
+        property 'emc.values', file('emc/values.json').absolutePath
         mods { jurassicraft { source sourceSets.gametest } }
     }
     data {

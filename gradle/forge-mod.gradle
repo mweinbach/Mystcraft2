@@ -67,6 +67,20 @@ tasks.named('jar', Jar) {
     finalizedBy 'reobfJar'
 }
 
+// With -PwithProjectE (the port declares the runtime dependency), ProjectE writes every
+// computed value to <run dir>/config/ProjectE/pregenerated_emc.json; a stale file would be
+// loaded instead of remapping.
+if (providers.gradleProperty('withProjectE').isPresent()) {
+    tasks.matching { it.name ==~ /run[A-Z].*/ }.configureEach { task ->
+        task.doFirst {
+            def config = file("run/${task.name.substring(3).uncapitalize()}/config/ProjectE")
+            config.mkdirs()
+            new File(config, 'pregenerated_emc.json').delete()
+            new File(config, 'mapping.toml').text = '[general]\n\tpregenerate = true\n'
+        }
+    }
+}
+
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true

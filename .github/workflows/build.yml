@@ -24,8 +24,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Validate port metadata
         run: python3 scripts/ports.py check
-      - name: Test port management
+      - name: Test port management and EMC tooling
         run: python3 -m unittest discover -s scripts/tests -v
+      - name: Check EMC values for every registered item
+        run: python3 scripts/emc.py check
       - name: Test ICBM material tag validation
         run: python3 -m unittest discover -s mods/icbm_port/tools/tests -v
       - name: Build all ports
@@ -33,7 +35,7 @@ jobs:
       - name: Validate ICBM resources and material mappings
         run: python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
       - name: Test ICBM gameplay on a dedicated Fabric server
-        run: ./gradlew --no-daemon :icbm_port:runGametest
+        run: ./gradlew --no-daemon :icbm_port:runGametest -PwithItemAlchemy
       - name: Test material compatibility and datapack reloads
         run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
       - name: Test Advanced Genetics on a dedicated Forge GameTest server
@@ -42,6 +44,10 @@ jobs:
         run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
       - name: Verify Mystcraft loader artifact parity
         run: python3 mods/mystcraft/scripts/check_loader_parity.py
+      - name: Check Mystcraft EMC against ProjectE on a Forge GameTest server
+        run: ./gradlew --no-daemon :mystcraft:runGameTestServer -PwithProjectE
+      - name: Check Mystcraft EMC against Item Alchemy on a Fabric GameTest server
+        run: ./gradlew --no-daemon -p mods/mystcraft/fabric runGametest -PwithItemAlchemy
       - name: Test JurassiCraft resources
         run: python3 -m unittest discover -s mods/jurassicraft/tools/tests -v
       - name: Build JurassiCraft for Fabric
@@ -55,9 +61,9 @@ jobs:
             JURASSICRAFT_TEST_JAR="$PWD/$jar" python3 -m unittest discover -s mods/jurassicraft/tools/tests -p test_built_jar.py -v
           done
       - name: Test JurassiCraft gameplay on a Forge GameTest server
-        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer
+        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer -PwithProjectE
       - name: Test JurassiCraft gameplay on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
+        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi -PwithItemAlchemy
       # The headless GameTest server reports assertion messages only in these files.
       - name: Upload GameTest reports
         if: failure()
@@ -69,6 +75,9 @@ jobs:
             mods/icbm_port/build/gametest/logs/latest.log
             mods/icbm_port/build/materialtest/logs/latest.log
             mods/advancedgenetics/run/gameTestServer/logs/latest.log
+            mods/mystcraft/run/gameTestServer/logs/latest.log
+            mods/mystcraft/fabric/build/gametest-results.xml
+            mods/mystcraft/fabric/build/gametest/logs/latest.log
             mods/jurassicraft/run/gameTestServer/logs/latest.log
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log

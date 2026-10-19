@@ -1,0 +1,33 @@
+{
+  "namespace": "mystcraft",
+  "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources", "src/forge/resources"],
+    "itemalchemy": ["src/main/resources", "src/fabric/resources"]
+  },
+  "output": "src/main/resources",
+  "values": {
+    "mystcraft:crystal": {"like": "minecraft:amethyst_block", "why": "Crystal formations generate only inside Ages and have no recipe; valued like an amethyst block, so eight in a book receptacle cost 1024."}
+  },
+  "conversions": [
+    {"name": "ink_vial_black_dye", "why": "The special ink vial recipe takes two black dyes, a water bucket (returned empty) and a glass bottle; its water-bottle form is the same bottle filled with water.", "output": "mystcraft:ink_vial", "ingredients": {"minecraft:black_dye": 2, "minecraft:water_bucket": 1, "minecraft:bucket": -1, "minecraft:glass_bottle": 1}},
+    {"name": "ink_vial_ink_sac", "why": "The ink vial recipe also accepts ink sacs in place of black dye.", "output": "mystcraft:ink_vial", "ingredients": {"minecraft:ink_sac": 2, "minecraft:water_bucket": 1, "minecraft:bucket": -1, "minecraft:glass_bottle": 1}},
+    {"name": "black_ink_bucket", "why": "A bucket of ink holds the same 1000 mB as a vial and drains into the ink mixer or writing desk the same way; it has no recipe, so it is worth a bucket plus a vial's ink.", "output": "mystcraft:black_ink_bucket", "ingredients": {"minecraft:bucket": 1, "mystcraft:ink_vial": 1, "minecraft:glass_bottle": -1}},
+    {"name": "blank_page", "why": "Paper placed in the book binder comes back out as a blank page, so a page is worth exactly one paper; symbols live in NBT, which transmutation does not copy.", "output": "mystcraft:page", "ingredients": {"minecraft:paper": 1}},
+    {"name": "linking_panel", "why": "The ink mixer consumes a full basin of ink (one vial, returning its bottle) and one paper per linking panel.", "output": "mystcraft:linking_panel", "ingredients": {"minecraft:paper": 1, "mystcraft:ink_vial": 1, "minecraft:glass_bottle": -1}},
+    {"name": "unlinked_link_book", "why": "The special linking book recipe binds one linking panel with one leather.", "output": "mystcraft:unlinked_link_book", "ingredients": {"mystcraft:linking_panel": 1, "minecraft:leather": 1}},
+    {"name": "booster", "why": "Opening a booster pack yields a folder holding sixteen generated pages; it is otherwise bought for 20 emeralds or found as loot.", "output": "mystcraft:booster", "ingredients": {"mystcraft:folder": 1, "mystcraft:page": 16}}
+  ],
+  "exclude": {
+    "mystcraft:link_modifier": "Creative and operator tool with no survival recipe; it rewrites link flags and Age seeds.",
+    "mystcraft:decay_*": "Instability places decay blocks inside Ages, but their loot tables are empty and the items are creative-only.",
+    "mystcraft:linking_book": "Its destination lives in NBT; a transmuted copy links nowhere, and a value would let bound books (or unlinked ones bound by players) be duplicated as teleporters.",
+    "mystcraft:descriptive_book": "Allocates a new Age dimension on first use and carries its pages in NBT; transmuted copies would be invalid books or dimension generators."
+  },
+  "processes": [
+    {"name": "open_booster", "why": "Using a booster consumes it and gives a folder of sixteen pages.", "in": {"mystcraft:booster": 1}, "out": {"mystcraft:folder": 1, "mystcraft:page": 16}},
+    {"name": "copy_pages", "why": "The writing desk copies a symbol page for one paper and 50 mB of ink, twenty copies per vial, keeping the source page.", "in": {"minecraft:paper": 20, "mystcraft:ink_vial": 1}, "out": {"mystcraft:page": 20, "minecraft:glass_bottle": 1}},
+    {"name": "mix_panel_from_vial", "why": "The ink mixer drains a vial (returning the bottle) and turns one paper into a linking panel.", "in": {"mystcraft:ink_vial": 1, "minecraft:paper": 1}, "out": {"mystcraft:linking_panel": 1, "minecraft:glass_bottle": 1}},
+    {"name": "mix_panel_from_bucket", "why": "The ink mixer drains a bucket of ink (returning the bucket) and turns one paper into a linking panel.", "in": {"mystcraft:black_ink_bucket": 1, "minecraft:paper": 1}, "out": {"mystcraft:linking_panel": 1, "minecraft:bucket": 1}}
+  ]
+}

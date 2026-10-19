@@ -1,0 +1,3042 @@
+{
+  "namespace": "jurassicraft",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [
+    "jurassicraft:gametest_environment",
+    "jurassicraft:gametest_environment_item",
+    "jurassicraft:gametest_synthesis",
+    "jurassicraft:gametest_tissue"
+  ],
+  "items": {
+    "jurassicraft:action_figure": {
+      "projecte": 28,
+      "itemalchemy": 40,
+      "source": "recipe"
+    },
+    "jurassicraft:advanced_circuit": {
+      "projecte": 1403,
+      "itemalchemy": 1403,
+      "source": "recipe"
+    },
+    "jurassicraft:ajuginucula_smithii_leaves": {
+      "projecte": 24,
+      "itemalchemy": 24,
+      "source": "explicit"
+    },
+    "jurassicraft:ajuginucula_smithii_oil": {
+      "projecte": 97,
+      "itemalchemy": 144,
+      "source": "recipe"
+    },
+    "jurassicraft:ajuginucula_smithii_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:ajuginucula_smithii_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:ajuginucula_smithii_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:ajuginucula_smithii_seeds": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:amber": {
+      "projecte": 1024,
+      "itemalchemy": 1024,
+      "source": "explicit"
+    },
+    "jurassicraft:amber_aphid": {
+      "projecte": 1024,
+      "itemalchemy": 1024,
+      "source": "explicit"
+    },
+    "jurassicraft:amber_cane": {
+      "projecte": 1032,
+      "itemalchemy": 1032,
+      "source": "recipe"
+    },
+    "jurassicraft:amber_keychain": {
+      "projecte": 1280,
+      "itemalchemy": 1276,
+      "source": "recipe"
+    },
+    "jurassicraft:amber_ore": {
+      "excluded": "Ore; Fortune multiplies its amber, so it gets no EMC, like vanilla ores in ProjectE."
+    },
+    "jurassicraft:ancient_item_holding_block": {
+      "excluded": "Structure decoration from the creative tab; no survival recipe."
+    },
+    "jurassicraft:araucaria_door": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "jurassicraft:araucaria_fence": {
+      "projecte": 13,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "jurassicraft:araucaria_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "jurassicraft:araucaria_leaves": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "tag #minecraft:leaves"
+    },
+    "jurassicraft:araucaria_log": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:logs"
+    },
+    "jurassicraft:araucaria_log_petrified": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:araucaria_planks": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:planks"
+    },
+    "jurassicraft:araucaria_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:araucaria_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:araucaria_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:araucaria_sapling": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:saplings"
+    },
+    "jurassicraft:araucaria_slab": {
+      "projecte": 4,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:wooden_slabs"
+    },
+    "jurassicraft:araucaria_stairs": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "tag #minecraft:wooden_stairs"
+    },
+    "jurassicraft:attraction_sign": {
+      "projecte": 1587,
+      "itemalchemy": 1536,
+      "source": "recipe"
+    },
+    "jurassicraft:aulopora": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:aulopora_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:aulopora_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:aulopora_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:basic_circuit": {
+      "projecte": 542,
+      "itemalchemy": 542,
+      "source": "recipe"
+    },
+    "jurassicraft:bennettitalean_cycadeoidea": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:bennettitalean_cycadeoidea_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:bennettitalean_cycadeoidea_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:bennettitalean_cycadeoidea_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:birthing_wand": {
+      "excluded": "Creative tool that forces births (living-entity duplication)."
+    },
+    "jurassicraft:brachiosaurus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:brachiosaurus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:brachiosaurus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:brachiosaurus_fossil_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:brachiosaurus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:brachiosaurus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:brachiosaurus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:brachiosaurus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:breeding_wand": {
+      "excluded": "Creative tool that forces breeding (living-entity duplication)."
+    },
+    "jurassicraft:bristle_fern": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:bristle_fern_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:bristle_fern_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:bristle_fern_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:bug_crate": {
+      "projecte": 165,
+      "itemalchemy": 170,
+      "source": "recipe"
+    },
+    "jurassicraft:calamites_door": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "jurassicraft:calamites_fence": {
+      "projecte": 13,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "jurassicraft:calamites_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "jurassicraft:calamites_leaves": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "tag #minecraft:leaves"
+    },
+    "jurassicraft:calamites_log": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:logs"
+    },
+    "jurassicraft:calamites_log_petrified": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:calamites_planks": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:planks"
+    },
+    "jurassicraft:calamites_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:calamites_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:calamites_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:calamites_sapling": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:saplings"
+    },
+    "jurassicraft:calamites_slab": {
+      "projecte": 4,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:wooden_slabs"
+    },
+    "jurassicraft:calamites_stairs": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "tag #minecraft:wooden_stairs"
+    },
+    "jurassicraft:car_chassis": {
+      "projecte": 2048,
+      "itemalchemy": 2016,
+      "source": "recipe"
+    },
+    "jurassicraft:car_seats": {
+      "projecte": 1264,
+      "itemalchemy": 1252,
+      "source": "recipe"
+    },
+    "jurassicraft:car_tire": {
+      "projecte": 270,
+      "itemalchemy": 268,
+      "source": "recipe"
+    },
+    "jurassicraft:car_windscreen": {
+      "projecte": 1024,
+      "itemalchemy": 1009,
+      "source": "recipe"
+    },
+    "jurassicraft:chilean_sea_bass": {
+      "projecte": 216,
+      "itemalchemy": 216,
+      "source": "recipe"
+    },
+    "jurassicraft:cinnamon_fern": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:cinnamon_fern_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:cinnamon_fern_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:cinnamon_fern_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:cladochonus": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:cladochonus_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:cladochonus_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:cladochonus_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:cleaning_station": {
+      "projecte": 6272,
+      "itemalchemy": 6189,
+      "source": "recipe"
+    },
+    "jurassicraft:clear_glass": {
+      "projecte": 33,
+      "itemalchemy": 32,
+      "source": "recipe"
+    },
+    "jurassicraft:clear_glass_pane": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "recipe"
+    },
+    "jurassicraft:cockroaches": {
+      "excluded": "The bug crate breeds 16 cockroaches from a pumpkin, which Item Alchemy values at 9, so any whole-number value would create EMC."
+    },
+    "jurassicraft:coelacanth_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:coelacanth_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_anal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:coelacanth_fossil_caudal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_first_dorsal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_pectoral_fin_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_pelvic_fin_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_second_dorsal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_spine": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fossil_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_anal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_caudal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_first_dorsal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_pectoral_fin_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_pelvic_fin_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_second_dorsal_fin": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_spine": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_fresh_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_gestated": {
+      "excluded": "Releases a living coelacanth even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:coelacanth_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:coelacanth_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:coelacanth_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:coelacanth_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:computer_screen": {
+      "projecte": 2454,
+      "itemalchemy": 2451,
+      "source": "recipe"
+    },
+    "jurassicraft:crickets": {
+      "excluded": "The bug crate breeds 7 crickets from a leaf block and 2 from grass (1 EMC each), so any whole-number value would create EMC."
+    },
+    "jurassicraft:cry_pansy": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:cry_pansy_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:cry_pansy_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:cry_pansy_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:cultivate_bottom": {
+      "projecte": 1235,
+      "itemalchemy": 1268,
+      "source": "recipe"
+    },
+    "jurassicraft:cycad_zamites": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:cycad_zamites_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:cycad_zamites_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:cycad_zamites_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:dart_gun": {
+      "projecte": 1571,
+      "itemalchemy": 1555,
+      "source": "recipe"
+    },
+    "jurassicraft:dart_poison_cycasin": {
+      "projecte": 133,
+      "itemalchemy": 133,
+      "source": "recipe"
+    },
+    "jurassicraft:dart_poison_executioner_concoction": {
+      "projecte": 261,
+      "itemalchemy": 261,
+      "source": "recipe"
+    },
+    "jurassicraft:dart_tipped_potion": {
+      "excluded": "The potion lives in NBT and the custom recipe is invisible to ProjectE; transmuted copies would have no effect."
+    },
+    "jurassicraft:dart_tranquilizer": {
+      "projecte": 5,
+      "itemalchemy": 5,
+      "source": "recipe"
+    },
+    "jurassicraft:dicksonia": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:dicksonia_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:dicksonia_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:dicksonia_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:dicroidium_zuberi": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:dicroidium_zuberi_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:dicroidium_zuberi_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:dicroidium_zuberi_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:dictyophyllum": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:dictyophyllum_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:dictyophyllum_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:dictyophyllum_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:dilophosaurus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:dilophosaurus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:dilophosaurus_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_neck": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_neck": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:dilophosaurus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:dilophosaurus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:dilophosaurus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:dilophosaurus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:dino_scanner": {
+      "projecte": 11942,
+      "itemalchemy": 5794,
+      "source": "recipe"
+    },
+    "jurassicraft:dinosaur_meat": {
+      "excluded": "Creative-only generic meat; no survival source."
+    },
+    "jurassicraft:dinosaur_steak": {
+      "excluded": "Only cooked from the creative-only generic meat."
+    },
+    "jurassicraft:disc_dont_move_a_muscle": {
+      "excluded": "Creative-only music discs with no recipe or loot (and not in minecraft:music_discs)."
+    },
+    "jurassicraft:disc_jurassicraft_theme": {
+      "excluded": "Creative-only music discs with no recipe or loot (and not in minecraft:music_discs)."
+    },
+    "jurassicraft:disc_reader": {
+      "projecte": 10710,
+      "itemalchemy": 4563,
+      "source": "recipe"
+    },
+    "jurassicraft:disc_troodons_and_raptors": {
+      "excluded": "Creative-only music discs with no recipe or loot (and not in minecraft:music_discs)."
+    },
+    "jurassicraft:dna_analyzer": {
+      "projecte": 10538,
+      "itemalchemy": 4394,
+      "source": "recipe"
+    },
+    "jurassicraft:dna_combinator_hybridizer": {
+      "projecte": 16672,
+      "itemalchemy": 10511,
+      "source": "recipe"
+    },
+    "jurassicraft:dna_extractor": {
+      "projecte": 24982,
+      "itemalchemy": 12669,
+      "source": "recipe"
+    },
+    "jurassicraft:dna_nucleotides": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:dna_sequencer": {
+      "projecte": 46096,
+      "itemalchemy": 21509,
+      "source": "recipe"
+    },
+    "jurassicraft:dna_synthesizer": {
+      "projecte": 17250,
+      "itemalchemy": 11080,
+      "source": "recipe"
+    },
+    "jurassicraft:embryo_calcification_machine": {
+      "projecte": 5206,
+      "itemalchemy": 5149,
+      "source": "recipe"
+    },
+    "jurassicraft:embryonic_machine": {
+      "projecte": 1303,
+      "itemalchemy": 1294,
+      "source": "recipe"
+    },
+    "jurassicraft:empty_syringe": {
+      "projecte": 112,
+      "itemalchemy": 112,
+      "source": "recipe"
+    },
+    "jurassicraft:empty_test_tube": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/4",
+        "itemalchemy": "1/4"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "jurassicraft:enallhelia": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:enallhelia_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:enallhelia_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:enallhelia_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:encased_nest_fossil": {
+      "excluded": "Cleaning yields one to seven fossilized eggs at random, so no single value is safe."
+    },
+    "jurassicraft:encased_nest_fossil_2": {
+      "excluded": "Cleaning yields one to seven fossilized eggs at random, so no single value is safe."
+    },
+    "jurassicraft:encased_nest_fossil_3": {
+      "excluded": "Cleaning yields one to seven fossilized eggs at random, so no single value is safe."
+    },
+    "jurassicraft:encephalartos": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:encephalartos_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:encephalartos_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:encephalartos_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:engine_system": {
+      "projecte": 3261,
+      "itemalchemy": 3198,
+      "source": "recipe"
+    },
+    "jurassicraft:feeder": {
+      "projecte": 2746,
+      "itemalchemy": 738,
+      "source": "recipe"
+    },
+    "jurassicraft:field_guide": {
+      "projecte": 576,
+      "itemalchemy": 576,
+      "source": "recipe"
+    },
+    "jurassicraft:fine_net": {
+      "projecte": 88,
+      "itemalchemy": 88,
+      "source": "recipe"
+    },
+    "jurassicraft:ford_explorer": {
+      "projecte": 9033,
+      "itemalchemy": 8912,
+      "source": "recipe"
+    },
+    "jurassicraft:fossil_grinder": {
+      "projecte": 4131,
+      "itemalchemy": 4097,
+      "source": "recipe"
+    },
+    "jurassicraft:fossilized_egg": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:fossilized_egg_2": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:fossilized_egg_3": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:fossilized_trackway_biped_medium": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:fossilized_trackway_biped_small": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:fossilized_trackway_raptor": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:fun_fries": {
+      "projecte": 56,
+      "itemalchemy": 68,
+      "source": "recipe"
+    },
+    "jurassicraft:gallimimus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:gallimimus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:gallimimus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:gallimimus_fossil_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:gallimimus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:gallimimus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:gallimimus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:gallimimus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:ginkgo_door": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "jurassicraft:ginkgo_fence": {
+      "projecte": 13,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "jurassicraft:ginkgo_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "jurassicraft:ginkgo_leaves": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "tag #minecraft:leaves"
+    },
+    "jurassicraft:ginkgo_log": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:logs"
+    },
+    "jurassicraft:ginkgo_log_petrified": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:ginkgo_planks": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:planks"
+    },
+    "jurassicraft:ginkgo_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:ginkgo_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:ginkgo_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:ginkgo_sapling": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:saplings"
+    },
+    "jurassicraft:ginkgo_slab": {
+      "projecte": 4,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:wooden_slabs"
+    },
+    "jurassicraft:ginkgo_stairs": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "tag #minecraft:wooden_stairs"
+    },
+    "jurassicraft:goat_cooked": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:goat_raw": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:goat_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:gracilaria": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:graminidites_bambusoides": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:graminidites_bambusoides_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:graminidites_bambusoides_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:graminidites_bambusoides_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:growth_serum": {
+      "projecte": 2056,
+      "itemalchemy": 2056,
+      "source": "recipe"
+    },
+    "jurassicraft:gypsum_bricks": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "jurassicraft:gypsum_cobblestone": {
+      "excluded": "Nothing produces it in survival."
+    },
+    "jurassicraft:gypsum_powder": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:gypsum_stone": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "jurassicraft:heliconia": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:helicopter": {
+      "projecte": 10739,
+      "itemalchemy": 10575,
+      "source": "recipe"
+    },
+    "jurassicraft:hippurites_radiosus": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:hippurites_radiosus_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:hippurites_radiosus_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:hippurites_radiosus_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:ice_shard": {
+      "excluded": "Ore-like worldgen that drops sea lampreys with Fortune; only the drops have EMC."
+    },
+    "jurassicraft:incubator": {
+      "projecte": 2709,
+      "itemalchemy": 2839,
+      "source": "recipe"
+    },
+    "jurassicraft:ingen_journal": {
+      "projecte": 160,
+      "itemalchemy": 160,
+      "source": "explicit"
+    },
+    "jurassicraft:iron_blades": {
+      "projecte": 1028,
+      "itemalchemy": 1012,
+      "source": "recipe"
+    },
+    "jurassicraft:iron_rod": {
+      "projecte": 387,
+      "itemalchemy": 381,
+      "source": "recipe"
+    },
+    "jurassicraft:jeep_wrangler": {
+      "projecte": 9315,
+      "itemalchemy": 9179,
+      "source": "recipe"
+    },
+    "jurassicraft:keyboard": {
+      "projecte": 550,
+      "itemalchemy": 557,
+      "source": "recipe"
+    },
+    "jurassicraft:krill": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:ladinia_simplex": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:ladinia_simplex_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:ladinia_simplex_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:ladinia_simplex_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:largestipule_leather_root": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:largestipule_leather_root_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:largestipule_leather_root_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:largestipule_leather_root_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:laser": {
+      "projecte": 8966,
+      "itemalchemy": 2822,
+      "source": "recipe"
+    },
+    "jurassicraft:liquid_agar": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "jurassicraft:liriodendrites": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:liriodendrites_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:liriodendrites_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:liriodendrites_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:lithostrotion": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:lithostrotion_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:lithostrotion_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:lithostrotion_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:low_security_fence_base": {
+      "projecte": 63,
+      "itemalchemy": 62,
+      "source": "recipe"
+    },
+    "jurassicraft:low_security_fence_pole": {
+      "projecte": 288,
+      "itemalchemy": 284,
+      "source": "recipe"
+    },
+    "jurassicraft:low_security_fence_wire": {
+      "projecte": 100,
+      "itemalchemy": 98,
+      "source": "recipe"
+    },
+    "jurassicraft:lunch_box": {
+      "excluded": "Creative-only souvenir with no recipe or loot."
+    },
+    "jurassicraft:mealworm_beetles": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:microraptor_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:microraptor_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:microraptor_fossil_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:microraptor_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:microraptor_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:microraptor_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:microraptor_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:moss": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "explicit"
+    },
+    "jurassicraft:mr_dna_keychain": {
+      "projecte": 257,
+      "itemalchemy": 253,
+      "source": "recipe"
+    },
+    "jurassicraft:mural": {
+      "projecte": 1296,
+      "itemalchemy": 1280,
+      "source": "recipe"
+    },
+    "jurassicraft:mussaurus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:mussaurus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:mussaurus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:mussaurus_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fossil_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_shoulder": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_fresh_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:mussaurus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:mussaurus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:mussaurus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:mussaurus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:nest_fossil": {
+      "excluded": "Ore-like worldgen; once encased and cleaned a nest yields up to seven fossilized eggs."
+    },
+    "jurassicraft:nest_fossil_2": {
+      "excluded": "Ore-like worldgen; once encased and cleaned a nest yields up to seven fossilized eggs."
+    },
+    "jurassicraft:nest_fossil_3": {
+      "excluded": "Ore-like worldgen; once encased and cleaned a nest yields up to seven fossilized eggs."
+    },
+    "jurassicraft:oiled_potato_strips": {
+      "projecte": 56,
+      "itemalchemy": 68,
+      "source": "recipe"
+    },
+    "jurassicraft:orontium_mackii": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:orontium_mackii_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:orontium_mackii_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:orontium_mackii_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:paddock_sign": {
+      "projecte": 219,
+      "itemalchemy": 192,
+      "source": "recipe"
+    },
+    "jurassicraft:paleo_bale_cycad": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "recipe"
+    },
+    "jurassicraft:paleo_bale_cycadeoidea": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "recipe"
+    },
+    "jurassicraft:paleo_bale_fern": {
+      "projecte": 72,
+      "itemalchemy": 72,
+      "source": "recipe"
+    },
+    "jurassicraft:paleo_bale_leaves": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "jurassicraft:paleo_bale_other": {
+      "projecte": 72,
+      "itemalchemy": 72,
+      "source": "recipe"
+    },
+    "jurassicraft:parasaurolophus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:parasaurolophus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:parasaurolophus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:parasaurolophus_fossil_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fossil_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_fresh_teeth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:parasaurolophus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:parasaurolophus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:parasaurolophus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:parasaurolophus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:peat": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "explicit"
+    },
+    "jurassicraft:peat_moss": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "jurassicraft:petri_dish": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "15/32"
+      },
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "jurassicraft:petri_dish_agar": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "23/32"
+      },
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "jurassicraft:phoenix_door": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "jurassicraft:phoenix_fence": {
+      "projecte": 13,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "jurassicraft:phoenix_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "jurassicraft:phoenix_fruit": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "explicit"
+    },
+    "jurassicraft:phoenix_leaves": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "tag #minecraft:leaves"
+    },
+    "jurassicraft:phoenix_log": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:logs"
+    },
+    "jurassicraft:phoenix_log_petrified": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:phoenix_planks": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:planks"
+    },
+    "jurassicraft:phoenix_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:phoenix_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:phoenix_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:phoenix_sapling": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:saplings"
+    },
+    "jurassicraft:phoenix_seeds": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:phoenix_slab": {
+      "projecte": 4,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:wooden_slabs"
+    },
+    "jurassicraft:phoenix_stairs": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "tag #minecraft:wooden_stairs"
+    },
+    "jurassicraft:plankton": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:plant_cells": {
+      "projecte": 112,
+      "itemalchemy": 112,
+      "source": "conversion plant_cells"
+    },
+    "jurassicraft:plant_cells_petri_dish": {
+      "projecte": 112,
+      "itemalchemy": 113,
+      "source": "recipe"
+    },
+    "jurassicraft:plant_fossil": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:plant_fossil_block": {
+      "excluded": "Ore-like worldgen; mined or cleaned it yields plant fossils, coal, flint or cobblestone, which carry the value."
+    },
+    "jurassicraft:plaster_and_bandage": {
+      "projecte": 20,
+      "itemalchemy": 20,
+      "source": "recipe"
+    },
+    "jurassicraft:pregnancy_test": {
+      "projecte": 160,
+      "itemalchemy": 160,
+      "source": "recipe"
+    },
+    "jurassicraft:psaronius_door": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "jurassicraft:psaronius_fence": {
+      "projecte": 13,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "jurassicraft:psaronius_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "jurassicraft:psaronius_leaves": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "tag #minecraft:leaves"
+    },
+    "jurassicraft:psaronius_log": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:logs"
+    },
+    "jurassicraft:psaronius_log_petrified": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:psaronius_planks": {
+      "projecte": 8,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:planks"
+    },
+    "jurassicraft:psaronius_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:psaronius_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:psaronius_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:psaronius_sapling": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:saplings"
+    },
+    "jurassicraft:psaronius_slab": {
+      "projecte": 4,
+      "itemalchemy": 8,
+      "source": "tag #minecraft:wooden_slabs"
+    },
+    "jurassicraft:psaronius_stairs": {
+      "projecte": 12,
+      "itemalchemy": 12,
+      "source": "tag #minecraft:wooden_stairs"
+    },
+    "jurassicraft:raphaelia": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:raphaelia_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:raphaelia_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:raphaelia_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:reinforced_bricks": {
+      "projecte": 33,
+      "itemalchemy": 32,
+      "source": "recipe"
+    },
+    "jurassicraft:reinforced_glass": {
+      "projecte": 65,
+      "itemalchemy": 63,
+      "source": "recipe"
+    },
+    "jurassicraft:reinforced_glass_pane": {
+      "projecte": 24,
+      "itemalchemy": 23,
+      "source": "recipe"
+    },
+    "jurassicraft:reinforced_stone": {
+      "projecte": 33,
+      "itemalchemy": 32,
+      "source": "recipe"
+    },
+    "jurassicraft:rhacophyton": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:rhacophyton_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:rhacophyton_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:rhacophyton_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:rhamnus_salicifolius_berries": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:rhamnus_salicifolius_seeds": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:rhamnus_salifocifus_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:rhamnus_salifocifus_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:rhamnus_salifocifus_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:scaly_tree_fern": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:scaly_tree_fern_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:scaly_tree_fern_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:scaly_tree_fern_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:sea_lamprey": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:serenna_veriformans": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:serenna_veriformans_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:serenna_veriformans_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:serenna_veriformans_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:skeleton_assembly": {
+      "projecte": 246,
+      "itemalchemy": 290,
+      "source": "recipe"
+    },
+    "jurassicraft:skeleton_display": {
+      "excluded": "Built in the skeleton assembly table; the species lives in NBT, so one value cannot match its parts."
+    },
+    "jurassicraft:small_chain_fern": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:small_chain_fern_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:small_chain_fern_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:small_chain_fern_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:small_cycad": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:small_cycad_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:small_cycad_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:small_cycad_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:small_royal_fern": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:small_royal_fern_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:small_royal_fern_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:small_royal_fern_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:stamp_set": {
+      "projecte": 160,
+      "itemalchemy": 160,
+      "source": "explicit"
+    },
+    "jurassicraft:storage_disc": {
+      "projecte": 654,
+      "itemalchemy": 654,
+      "source": "recipe"
+    },
+    "jurassicraft:stylophyllopsis": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:stylophyllopsis_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:stylophyllopsis_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:stylophyllopsis_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:tempskya": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:tempskya_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:tempskya_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:tempskya_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:tour_rail": {
+      "projecte": 50,
+      "itemalchemy": 39,
+      "source": "recipe"
+    },
+    "jurassicraft:tour_rail_fast": {
+      "projecte": 50,
+      "itemalchemy": 39,
+      "source": "recipe"
+    },
+    "jurassicraft:tour_rail_medium": {
+      "projecte": 50,
+      "itemalchemy": 39,
+      "source": "recipe"
+    },
+    "jurassicraft:tour_rail_slow": {
+      "projecte": 50,
+      "itemalchemy": 39,
+      "source": "recipe"
+    },
+    "jurassicraft:tracker": {
+      "excluded": "Creative-only item with no recipe or use."
+    },
+    "jurassicraft:triceratops_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:triceratops_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:triceratops_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:triceratops_fossil_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_horn": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_front_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_hind_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_horn": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:triceratops_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:triceratops_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:triceratops_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:triceratops_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:twig_fossil": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:tyrannosaurus_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:tyrannosaurus_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:tyrannosaurus_fossil_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_pelvis": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:tyrannosaurus_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:tyrannosaurus_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:tyrannosaurus_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:tyrannosaurus_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:umaltolepis": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:umaltolepis_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:umaltolepis_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:umaltolepis_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:unfinished_car": {
+      "projecte": 8933,
+      "itemalchemy": 8799,
+      "source": "recipe"
+    },
+    "jurassicraft:velociraptor_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:velociraptor_egg": {
+      "projecte": 145,
+      "itemalchemy": 146,
+      "source": "conversion calcification"
+    },
+    "jurassicraft:velociraptor_encased_fossil": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_block": {
+      "excluded": "Ore-like worldgen that drops nothing when mined; like ProjectE's ores, only what it yields has EMC."
+    },
+    "jurassicraft:velociraptor_fossil_claw": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fossil_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_arm_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_claw": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_foot_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_leg_bones": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_neck_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_ribcage": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_shoulder_bone": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_skull": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_tail_vertebrae": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_fresh_tooth": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_hatched_egg": {
+      "excluded": "Places a living dinosaur even without NBT; transmuted copies would act as spawn eggs."
+    },
+    "jurassicraft:velociraptor_meat": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_soft_tissue": {
+      "projecte": 144,
+      "itemalchemy": 144,
+      "source": "explicit"
+    },
+    "jurassicraft:velociraptor_spawn_egg": {
+      "excluded": "Creative spawn eggs; ProjectE gives spawn eggs no EMC."
+    },
+    "jurassicraft:velociraptor_steak": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:velociraptor_syringe": {
+      "projecte": 113,
+      "itemalchemy": 114,
+      "source": "conversion embryonic_syringe"
+    },
+    "jurassicraft:west_indian_lilac": {
+      "projecte": 32,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:west_indian_lilac_berries": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:wild_onion": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:wild_onion_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:wild_onion_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:wild_onion_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:wild_potato": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "jurassicraft:wild_potato_cooked": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "jurassicraft:wild_potato_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:wild_potato_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:wild_potato_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    },
+    "jurassicraft:wild_potato_seeds": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:woolly_stalked_begonia": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "explicit"
+    },
+    "jurassicraft:woolly_stalked_begonia_plant_callus": {
+      "projecte": 225,
+      "itemalchemy": 226,
+      "source": "conversion embryonic_callus"
+    },
+    "jurassicraft:woolly_stalked_begonia_plant_dna": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion dna_synthesizer"
+    },
+    "jurassicraft:woolly_stalked_begonia_plant_tissue": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "explicit"
+    }
+  }
+}

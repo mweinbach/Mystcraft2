@@ -16,7 +16,8 @@
       "dev.icbm.port.energy.EnergyGameTests",
       "dev.icbm.port.exposure.ExposureGameTests",
       "dev.icbm.port.command.CommandApiGameTests",
-      "dev.icbm.port.FlightGameTests"
+      "dev.icbm.port.FlightGameTests",
+      "dev.icbm.port.EmcGameTests"
     ]
   },
   "depends": {

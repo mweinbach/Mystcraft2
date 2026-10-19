@@ -29,6 +29,8 @@ Version **0.4.0-dev** adds the remaining source-derived shop, lectern, book life
 python3 mods/mystcraft/scripts/check_loader_parity.py
 ```
 
+Server GameTests (`./scripts/gradle.sh :mystcraft:runGameTestServer`, `./scripts/gradle.sh -p mods/mystcraft/fabric runGametest`) audit EMC coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against the real EMC mod. Every item has an EMC value or a documented exclusion; linking and descriptive books, decay and the link modifier get none. See [emc/README.md](emc/README.md) and [docs/emc.md](../../docs/emc.md).
+
 Production artifacts are generated under `build/libs/` (Forge) and `fabric/build/libs/` (Fabric). Use a fresh disposable world for development testing. The optional smoke helpers are separate artifacts, enabled by `-PenableSmokeTests`; they are not included in the production JARs. See [server-testing.md](docs/server-testing.md) and the repository’s [Tekxit evidence](../../docs/tekxit4-testing.md).
 
 ## Reference and attribution

@@ -76,6 +76,8 @@ command continues to generate Forge scaffolds.
 Check the upstream license before importing source or assets, retain its notices
 and license text in the port, and record the imported revision in `port.properties`.
 See [the porting guide](docs/porting.md) and [contribution guide](CONTRIBUTING.md).
+To give a port's items EMC values for ProjectE and Item Alchemy, follow
+[docs/emc.md](docs/emc.md).
 
 ## Layout
 
@@ -91,9 +93,10 @@ docs/                   Porting and development instructions
 the Mystcraft and JurassiCraft Fabric variants separately with the commands
 above. GitHub Actions checks metadata, tests the port-management tool, builds
 both variants of Mystcraft and JurassiCraft, ICBM and Advanced Genetics,
-verifies both mods' loader parity, runs the ICBM and Advanced Genetics
-dedicated-server GameTests and both JurassiCraft GameTest suites, and uploads
-the resulting JARs.
+verifies both mods' loader parity, checks EMC coverage and values against
+ProjectE and Item Alchemy, runs the ICBM and Advanced Genetics
+dedicated-server GameTests and both Mystcraft and JurassiCraft GameTest
+suites, and uploads the resulting JARs.
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
 tree.
 

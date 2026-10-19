@@ -40,7 +40,8 @@
       "ports.jurassicraft.compat.jade.InspectionFabricGameTests",
       "ports.jurassicraft.compat.emi.RecipePreviewFabricGameTests",
       "ports.jurassicraft.loot.FabricBonusLootGameTests",
-      "ports.jurassicraft.music.MusicGameTests"
+      "ports.jurassicraft.music.MusicGameTests",
+      "ports.jurassicraft.gametest.EmcGameTests"
     ]
   },
   "depends": {

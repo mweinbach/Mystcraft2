@@ -1,0 +1,312 @@
+{
+  "c:axes": [
+    "#fabric:axes",
+    "minecraft:diamond_axe",
+    "minecraft:golden_axe",
+    "minecraft:wooden_axe",
+    "minecraft:stone_axe",
+    "minecraft:iron_axe",
+    "minecraft:netherite_axe"
+  ],
+  "c:black_dyes": [
+    "minecraft:black_dye"
+  ],
+  "c:blue_dyes": [
+    "minecraft:blue_dye"
+  ],
+  "c:bows": [
+    "minecraft:crossbow",
+    "minecraft:bow"
+  ],
+  "c:brown_dyes": [
+    "minecraft:brown_dye"
+  ],
+  "c:coal": [
+    "#minecraft:coals"
+  ],
+  "c:copper_ingots": [
+    "minecraft:copper_ingot"
+  ],
+  "c:cyan_dyes": [
+    "minecraft:cyan_dye"
+  ],
+  "c:diamonds": [
+    "minecraft:diamond"
+  ],
+  "c:dyes": [
+    "#c:black_dyes",
+    "#c:blue_dyes",
+    "#c:brown_dyes",
+    "#c:green_dyes",
+    "#c:red_dyes",
+    "#c:white_dyes",
+    "#c:yellow_dyes",
+    "#c:light_gray_dyes",
+    "#c:light_blue_dyes",
+    "#c:lime_dyes",
+    "#c:magenta_dyes",
+    "#c:orange_dyes",
+    "#c:pink_dyes",
+    "#c:cyan_dyes",
+    "#c:gray_dyes",
+    "#c:purple_dyes"
+  ],
+  "c:emeralds": [
+    "minecraft:emerald"
+  ],
+  "c:empty_buckets": [
+    "minecraft:bucket"
+  ],
+  "c:foods": [
+    "minecraft:apple",
+    "minecraft:mushroom_stew",
+    "minecraft:bread",
+    "minecraft:porkchop",
+    "minecraft:cooked_porkchop",
+    "minecraft:golden_apple",
+    "minecraft:enchanted_golden_apple",
+    "minecraft:cod",
+    "minecraft:salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "minecraft:cooked_cod",
+    "minecraft:cooked_salmon",
+    "minecraft:cookie",
+    "minecraft:melon_slice",
+    "minecraft:dried_kelp",
+    "minecraft:beef",
+    "minecraft:cooked_beef",
+    "minecraft:chicken",
+    "minecraft:cooked_chicken",
+    "minecraft:rotten_flesh",
+    "minecraft:spider_eye",
+    "minecraft:carrot",
+    "minecraft:potato",
+    "minecraft:baked_potato",
+    "minecraft:poisonous_potato",
+    "minecraft:golden_carrot",
+    "minecraft:pumpkin_pie",
+    "minecraft:rabbit",
+    "minecraft:cooked_rabbit",
+    "minecraft:rabbit_stew",
+    "minecraft:mutton",
+    "minecraft:cooked_mutton",
+    "minecraft:chorus_fruit",
+    "minecraft:beetroot",
+    "minecraft:beetroot_soup",
+    "minecraft:suspicious_stew",
+    "minecraft:sweet_berries",
+    "minecraft:glow_berries",
+    "minecraft:honey_bottle"
+  ],
+  "c:glass_blocks": [
+    "minecraft:glass",
+    "minecraft:gray_stained_glass",
+    "minecraft:black_stained_glass",
+    "minecraft:orange_stained_glass",
+    "minecraft:blue_stained_glass",
+    "minecraft:brown_stained_glass",
+    "minecraft:cyan_stained_glass",
+    "minecraft:green_stained_glass",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:light_gray_stained_glass",
+    "minecraft:lime_stained_glass",
+    "minecraft:magenta_stained_glass",
+    "minecraft:pink_stained_glass",
+    "minecraft:purple_stained_glass",
+    "minecraft:red_stained_glass",
+    "minecraft:tinted_glass",
+    "minecraft:white_stained_glass",
+    "minecraft:yellow_stained_glass"
+  ],
+  "c:glass_panes": [
+    "minecraft:glass_pane",
+    "minecraft:gray_stained_glass_pane",
+    "minecraft:black_stained_glass_pane",
+    "minecraft:orange_stained_glass_pane",
+    "minecraft:blue_stained_glass_pane",
+    "minecraft:brown_stained_glass_pane",
+    "minecraft:cyan_stained_glass_pane",
+    "minecraft:green_stained_glass_pane",
+    "minecraft:light_blue_stained_glass_pane",
+    "minecraft:light_gray_stained_glass_pane",
+    "minecraft:lime_stained_glass_pane",
+    "minecraft:magenta_stained_glass_pane",
+    "minecraft:pink_stained_glass_pane",
+    "minecraft:purple_stained_glass_pane",
+    "minecraft:red_stained_glass_pane",
+    "minecraft:white_stained_glass_pane",
+    "minecraft:yellow_stained_glass_pane"
+  ],
+  "c:gold_ingots": [
+    "minecraft:gold_ingot"
+  ],
+  "c:gray_dyes": [
+    "minecraft:gray_dye"
+  ],
+  "c:green_dyes": [
+    "minecraft:green_dye"
+  ],
+  "c:hoes": [
+    "#fabric:hoes",
+    "minecraft:diamond_hoe",
+    "minecraft:golden_hoe",
+    "minecraft:wooden_hoe",
+    "minecraft:stone_hoe",
+    "minecraft:iron_hoe",
+    "minecraft:netherite_hoe"
+  ],
+  "c:iron_ingots": [
+    "minecraft:iron_ingot"
+  ],
+  "c:lapis": [
+    "minecraft:lapis_lazuli"
+  ],
+  "c:lava_buckets": [
+    "minecraft:lava_bucket"
+  ],
+  "c:light_blue_dyes": [
+    "minecraft:light_blue_dye"
+  ],
+  "c:light_gray_dyes": [
+    "minecraft:light_gray_dye"
+  ],
+  "c:lime_dyes": [
+    "minecraft:lime_dye"
+  ],
+  "c:magenta_dyes": [
+    "minecraft:magenta_dye"
+  ],
+  "c:milk_buckets": [
+    "minecraft:milk_bucket"
+  ],
+  "c:netherite_ingots": [
+    "minecraft:netherite_ingot"
+  ],
+  "c:orange_dyes": [
+    "minecraft:orange_dye"
+  ],
+  "c:ores": [
+    "#minecraft:iron_ores",
+    "#minecraft:copper_ores",
+    "#minecraft:redstone_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:coal_ores",
+    "#minecraft:diamond_ores",
+    "#minecraft:lapis_ores",
+    "#c:quartz_ores",
+    "#minecraft:emerald_ores"
+  ],
+  "c:pickaxes": [
+    "#fabric:pickaxes",
+    "minecraft:diamond_pickaxe",
+    "minecraft:golden_pickaxe",
+    "minecraft:wooden_pickaxe",
+    "minecraft:stone_pickaxe",
+    "minecraft:iron_pickaxe",
+    "minecraft:netherite_pickaxe"
+  ],
+  "c:pink_dyes": [
+    "minecraft:pink_dye"
+  ],
+  "c:potions": [
+    "minecraft:lingering_potion",
+    "minecraft:splash_potion",
+    "minecraft:potion"
+  ],
+  "c:purple_dyes": [
+    "minecraft:purple_dye"
+  ],
+  "c:quartz": [
+    "minecraft:quartz"
+  ],
+  "c:quartz_ores": [
+    "minecraft:nether_quartz_ore"
+  ],
+  "c:raw_copper_blocks": [
+    "minecraft:raw_copper_block"
+  ],
+  "c:raw_copper_ores": [
+    "minecraft:raw_copper"
+  ],
+  "c:raw_gold_blocks": [
+    "minecraft:raw_gold_block"
+  ],
+  "c:raw_gold_ores": [
+    "minecraft:raw_gold"
+  ],
+  "c:raw_iron_blocks": [
+    "minecraft:raw_iron_block"
+  ],
+  "c:raw_iron_ores": [
+    "minecraft:raw_iron"
+  ],
+  "c:red_dyes": [
+    "minecraft:red_dye"
+  ],
+  "c:redstone_dusts": [
+    "minecraft:redstone"
+  ],
+  "c:shears": [
+    "#fabric:shears",
+    "minecraft:shears"
+  ],
+  "c:shields": [
+    "minecraft:shield"
+  ],
+  "c:shovels": [
+    "#fabric:shovels",
+    "minecraft:diamond_shovel",
+    "minecraft:golden_shovel",
+    "minecraft:wooden_shovel",
+    "minecraft:stone_shovel",
+    "minecraft:iron_shovel",
+    "minecraft:netherite_shovel"
+  ],
+  "c:shulker_boxes": [
+    "minecraft:shulker_box",
+    "minecraft:blue_shulker_box",
+    "minecraft:brown_shulker_box",
+    "minecraft:cyan_shulker_box",
+    "minecraft:gray_shulker_box",
+    "minecraft:green_shulker_box",
+    "minecraft:light_blue_shulker_box",
+    "minecraft:light_gray_shulker_box",
+    "minecraft:lime_shulker_box",
+    "minecraft:magenta_shulker_box",
+    "minecraft:orange_shulker_box",
+    "minecraft:pink_shulker_box",
+    "minecraft:purple_shulker_box",
+    "minecraft:red_shulker_box",
+    "minecraft:white_shulker_box",
+    "minecraft:yellow_shulker_box",
+    "minecraft:black_shulker_box"
+  ],
+  "c:spears": [
+    "minecraft:trident"
+  ],
+  "c:swords": [
+    "#fabric:swords",
+    "minecraft:diamond_sword",
+    "minecraft:golden_sword",
+    "minecraft:wooden_sword",
+    "minecraft:stone_sword",
+    "minecraft:iron_sword",
+    "minecraft:netherite_sword"
+  ],
+  "c:water_buckets": [
+    "minecraft:axolotl_bucket",
+    "minecraft:cod_bucket",
+    "minecraft:pufferfish_bucket",
+    "minecraft:tropical_fish_bucket",
+    "minecraft:salmon_bucket",
+    "minecraft:tadpole_bucket",
+    "minecraft:water_bucket"
+  ],
+  "c:white_dyes": [
+    "minecraft:white_dye"
+  ],
+  "c:yellow_dyes": [
+    "minecraft:yellow_dye"
+  ]
+}
