@@ -4,9 +4,9 @@ An unofficial Forge port of [Advanced Genetics](https://github.com/TechnoVisionD
 for **Minecraft 1.19.2**, **Forge 43.5.0** and **Java 17**. Upstream is a Fabric mod; this port is
 based on its 1.0.3 release, commit `f1d8ea28ed3a404446074c8c967c468cd049a458`.
 
-Status: **in progress**. All upstream 1.0.3 gameplay has been ported, and the port passes the
-dedicated-server GameTests listed below. It still needs survival play-testing, multiplayer
-testing and a manual check of the client screens before it is called playable.
+Status: **in progress**. All upstream 1.0.3 gameplay has been ported. The port passes the
+dedicated-server GameTests listed below and a single-player client check. It still needs a
+survival play-through and dedicated-server multiplayer testing before it is called playable.
 
 ## Build and test
 
@@ -92,8 +92,10 @@ Retained upstream behavior:
 - Machine progress and energy are synced through vanilla menu data, which is limited to 16-bit
   values. Very large configured capacities or durations display incorrectly.
 - There is no JEI integration (upstream 1.0.3 had none).
-- The client screens, key bindings, item colors and Mob Sight glow compile and are registered,
-  but they are not covered by automated tests.
+- Client behavior has no automated tests. A development-client check opened all six machine
+  screens. It also ran the cell analyzer with energy and overclocking, and checked its slot
+  filter, the creative tab, cell tints, `/gene` suggestions and the key bindings. The Mob Sight
+  glow, the teleport and dragon's breath keys, and flight have not been checked by hand.
 
 ## GameTests
 
