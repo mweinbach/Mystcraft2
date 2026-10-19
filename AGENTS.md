@@ -77,3 +77,21 @@ After Advanced Genetics changes, run:
 - `python3 scripts/emc.py check`
 - `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy`
+
+## BuildCraft loader support
+
+BuildCraft uses the same layout: gameplay, registries, recipes, assets and EMC
+data in `mods/buildcraft/src/main`; Forge adapters in `src/forge`, Fabric
+adapters in `src/fabric`, and the Loom build in `mods/buildcraft/fabric`. Power
+crosses blocks only as Forge Energy or Team Reborn Energy at 1 MJ = 10 units;
+items and fluids use Forge capabilities or the Fabric Transfer API. Shared
+GameTest bodies live in `src/gametestCommon/.../BCTests.java` and run on both
+loaders. Keep upstream gaps in `mods/buildcraft/docs/PARITY.md`. After
+BuildCraft changes, run:
+
+- `./scripts/gradle.sh :buildcraft:build`
+- `./scripts/gradle.sh -p mods/buildcraft/fabric build`
+- `python3 mods/buildcraft/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy`

@@ -10,10 +10,11 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [Mystcraft](mods/mystcraft/) | In progress | Forge + Fabric development port with linking, descriptive books, generated Ages, writing and portals. Full classic parity remains in progress. |
 | [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload simulation, persistent flight/exposure, energy, delivery, defenses, screens and optional JEI. |
 | [JurassiCraft](mods/jurassicraft/) | In progress | Forge + Fabric alpha with shared gameplay: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
+| [BuildCraft](mods/buildcraft/) | In progress | Fabric + Forge port of BuildCraft 8.0.x: engines, item/fluid/kinesis pipes, tank, pump, mining well and quarry, with Team Reborn Energy/Forge Energy at 1 MJ = 10 units. |
 | [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge + Fabric port of the 1.0.3 release with shared gameplay: all genes, six machines, Forge Energy or Team Reborn Energy, and server GameTests on both loaders. Survival and multiplayer play-testing remain. |
 
-Mystcraft, JurassiCraft and Advanced Genetics support Forge and Fabric; ICBM
-targets Fabric. Install the variant matching your game loader;
+Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics support Forge and Fabric;
+ICBM targets Fabric. Install the variant matching your game loader;
 a mod's Forge and Fabric JARs cannot be installed together.
 
 ## Get started
@@ -47,13 +48,17 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/jurassicraft/fabric build
 ./scripts/gradle.sh :jurassicraft:runGameTestServer
 ./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi
+./scripts/gradle.sh :buildcraft:build
+./scripts/gradle.sh -p mods/buildcraft/fabric build
+./scripts/gradle.sh :buildcraft:runGameTestServer
+./scripts/gradle.sh -p mods/buildcraft/fabric runGametest
 ./scripts/gradle.sh :advancedgenetics:build
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric build
 ./scripts/gradle.sh :advancedgenetics:runGameTestServer
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest
 ```
 
-JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft and Advanced Genetics Fabric JARs
+JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics Fabric JARs
 land in `mods/<mod-id>/fabric/build/libs/`. Fabric also requires Fabric API on server
 and clients. Client, server, and data runs use
 separate directories under that mod's `run/`. A graphical display is required
@@ -92,15 +97,15 @@ docs/                   Porting and development instructions
 ```
 
 `./scripts/gradle.sh build` builds the default variants of all ports. Build
-the Mystcraft, JurassiCraft and Advanced Genetics Fabric variants separately
-with the commands above. GitHub Actions does the following:
+the Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics Fabric variants
+separately with the commands above. GitHub Actions does the following:
 
 - checks metadata and tests the port-management tool;
-- builds ICBM and both variants of Mystcraft, JurassiCraft and Advanced Genetics;
-- verifies loader parity for the three dual-loader ports;
+- builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics;
+- verifies loader parity for the four dual-loader ports;
 - checks EMC coverage and values against ProjectE and Item Alchemy;
 - runs the ICBM dedicated-server GameTests and both the Forge and Fabric
-  GameTest suites of Mystcraft, JurassiCraft and Advanced Genetics;
+  GameTest suites of Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics;
 - uploads the resulting JARs.
 
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
