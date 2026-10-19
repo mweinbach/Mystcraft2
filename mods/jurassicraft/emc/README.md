@@ -114,4 +114,4 @@ ProjectE cannot see these machine or world processes, so `emc.py check` verifies
 | --- | --- |
 | `jurassicraft:gametest_*` | Registered only by the Forge GameTest source set; never in the production JAR. |
 
-Recipe types not mapped by ProjectE and not declared in `policy.json` `recipes`: `jurassicraft:action_figure_cycle`, `jurassicraft:attraction_sign_cycle`, `jurassicraft:dart_tipped_potion`.
+Recipe types ProjectE does not map (their outputs need a conversion, value or exclusion): `jurassicraft:action_figure_cycle`, `jurassicraft:attraction_sign_cycle`, `jurassicraft:dart_tipped_potion`.

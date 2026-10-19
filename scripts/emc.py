@@ -701,7 +701,7 @@ class Port:
                 lines.append(f"| `{key}` | {why} |")
         skipped = sorted(set(self.inputs["projecte"][5].values()) | set(self.inputs["itemalchemy"][5].values()))
         if skipped:
-            lines += ["", "Recipe types not mapped by ProjectE and not declared in `policy.json` `recipes`: "
+            lines += ["", "Recipe types ProjectE does not map (their outputs need a conversion, value or exclusion): "
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
 
