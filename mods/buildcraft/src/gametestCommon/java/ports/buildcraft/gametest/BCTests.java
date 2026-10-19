@@ -20,6 +20,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
@@ -114,10 +115,17 @@ public final class BCTests {
 
     /** The shared viscosity scale is Forge's (water = 1000) on both loaders, which the pump and quarry compare against. */
     public static void fluidViscosityScale(GameTestHelper helper) {
-        require(helper, Platform.get().viscosity(Fluids.WATER) == 1000, "water viscosity must be 1000");
-        require(helper, Platform.get().viscosity(BCEnergy.OIL.source()) == 2000, "oil viscosity must be upstream's 2000");
-        require(helper, Platform.get().viscosity(BCEnergy.FUEL_LIGHT.source()) == 600, "light fuel viscosity must be upstream's 600");
+        requireViscosity(helper, Fluids.WATER, 1000);
+        requireViscosity(helper, Fluids.FLOWING_WATER, 1000);
+        requireViscosity(helper, Fluids.LAVA, 6000);
+        requireViscosity(helper, BCEnergy.OIL.source(), 2000);
+        requireViscosity(helper, BCEnergy.FUEL_LIGHT.source(), 600);
         helper.succeed();
+    }
+
+    private static void requireViscosity(GameTestHelper helper, Fluid fluid, int expected) {
+        int actual = Platform.get().viscosity(fluid);
+        require(helper, actual == expected, Registry.FLUID.getKey(fluid) + " viscosity must be " + expected + ", got " + actual);
     }
 
     // ---- engines -------------------------------------------------------------------------------
