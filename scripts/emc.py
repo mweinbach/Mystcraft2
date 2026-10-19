@@ -325,7 +325,7 @@ def explicit_value(spec, system, baseline, key):
 
 
 def validate_policy(policy):
-    allowed = {"namespace", "loaders", "resources", "output", "ignored", "values", "exclude",
+    allowed = {"namespace", "loaders", "resources", "output", "ignored", "values", "vanilla", "exclude",
                "conversions", "processes", "remainders", "notes"}
     unknown = set(policy) - allowed
     if unknown:
@@ -345,6 +345,14 @@ def validate_policy(policy):
         if items is not None and (not isinstance(items, list) or not items
                                   or not all(isinstance(i, str) and i for i in items)):
             raise PolicyError(f"values.{key}: items must be a non-empty list of item ids or patterns")
+    for key, spec in policy.get("vanilla", {}).items():
+        if not key.startswith("minecraft:") or not ITEM_ID.match(key):
+            raise PolicyError(f"vanilla.{key}: only minecraft: items can be given a value here")
+        if not isinstance(spec, dict) or not spec.get("why") or set(spec) - {"emc", "like", "times", "why", "systems"}:
+            raise PolicyError(f"vanilla.{key}: needs why, systems and emc or like (with optional times) only")
+        systems = spec.get("systems")
+        if not isinstance(systems, list) or not systems or set(systems) - set(SYSTEMS):
+            raise PolicyError(f"vanilla.{key}: systems must list some of {', '.join(SYSTEMS)}")
     for key, entry in policy.get("exclude", {}).items():
         if isinstance(entry, dict) and (set(entry) - {"items", "why"} or not isinstance(entry.get("items"), list)
                                         or not entry["items"]):
@@ -369,8 +377,10 @@ def validate_policy(policy):
         if any(not isinstance(a, int) or isinstance(a, bool) or a == 0 for a in ingredients.values()):
             raise PolicyError(f"conversion {name}: ingredient amounts must be nonzero integers")
     for process in policy.get("processes", []):
-        if set(process) - {"name", "why", "in", "out"} or not all(process.get(k) for k in ("name", "why", "in", "out")):
-            raise PolicyError(f"process {process.get('name')!r}: needs name, why, in and out only")
+        if set(process) - {"name", "why", "in", "out", "systems"} or not all(process.get(k) for k in ("name", "why", "in", "out")):
+            raise PolicyError(f"process {process.get('name')!r}: needs name, why, in and out, and optional systems")
+        if set(process.get("systems", SYSTEMS)) - set(SYSTEMS) or not process.get("systems", SYSTEMS):
+            raise PolicyError(f"process {process['name']!r}: systems must list some of {', '.join(SYSTEMS)}")
 
 
 # ----------------------------------------------------------------------------- the model
@@ -409,7 +419,7 @@ class Port:
         explicit_by = {item: key for item, (label, key) in owners.items() if label == "values"}
         self.excluded_by, self.explicit_by = excluded_by, explicit_by
         self.policy_conversions = self._expand_conversions()
-        self.results, self.sources, self.inputs = {}, {}, {}
+        self.results, self.sources, self.inputs, self.vanilla = {}, {}, {}, {}
         for system in SYSTEMS:
             tags, remainders, recipes, skipped = self.system_inputs(system)
             baseline = {k: Fraction(v) for k, v in read_json(BASELINES / f"{system}-vanilla.json").items()}
@@ -420,6 +430,16 @@ class Port:
                     if item in universe and item not in source:
                         fixed[item] = Fraction(value)
                         source[item] = f"tag #{tag}"
+            self.vanilla[system] = {}
+            for item, spec in self.policy.get("vanilla", {}).items():
+                if system not in spec["systems"]:
+                    continue
+                if item in baseline:
+                    problems.append(f"vanilla.{item}: {system} already values it at {baseline[item]}; a port may "
+                                    f"only fill a missing vanilla value")
+                    continue
+                fixed[item] = explicit_value(spec, system, baseline, f"vanilla.{item}")
+                self.vanilla[system][item] = int(fixed[item])
             for item, key in explicit_by.items():
                 value = explicit_value(self.policy["values"][key], system, baseline, key)
                 if item in source and fixed[item] != value:
@@ -549,7 +569,7 @@ class Port:
                 self.problems.append(f"process {process['name']!r} matches no items")
             checked = 0
             for inputs, binding in cases:
-                for system in SYSTEMS:
+                for system in process.get("systems", SYSTEMS):
                     values = self.results[system]
                     cost = Fraction(0)
                     for pattern, amount in inputs.items():
@@ -598,9 +618,14 @@ class Port:
                     self.problems.append(f"{item} resolves to no {system} value; give it an explicit value or exclude it")
             entry["source"] = self.source_of(item)
             items[item] = entry
-        return {"namespace": self.namespace,
-                "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
-                "ignored": self.ignored, "items": items}
+        document = {"namespace": self.namespace,
+                    "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+                    "ignored": self.ignored, "items": items}
+        vanilla = {item: {system: self.vanilla[system][item] for system in SYSTEMS if item in self.vanilla[system]}
+                   for item in self.policy.get("vanilla", {})}
+        if vanilla:
+            document["vanilla"] = vanilla
+        return document
 
     def source_of(self, item):
         if item in self.explicit_by:
@@ -616,6 +641,7 @@ class Port:
         for item in self.items:
             if self.explicit_by.get(item):
                 before[item] = int(self.results["projecte"][item])
+        before.update(self.vanilla["projecte"])
         conversion = [{"output": item, "ingredients": [NO_EMC]} for item in self.items if item in self.excluded_by]
         groups = {}
         for spec in self.policy.get("conversions", []):
@@ -628,10 +654,12 @@ class Port:
                     entry["ingredients"] = ingredients
                     entries.append(entry)
             groups[f"{self.namespace}_{spec['name']}"] = {"comment": spec["why"], "conversions": entries}
+        vanilla = (" (plus vanilla items ProjectE's defaults leave unvalued, which its recipes need)"
+                   if self.vanilla["projecte"] else "")
         document = {"comment": f"Generated by scripts/emc.py from mods/<port>/emc/policy.json. Explicit values for "
-                               f"uncraftable {self.namespace} items and conversions for machine steps ProjectE cannot "
-                               f"see; the {NO_EMC} conversion never resolves, so excluded items get no EMC. Everything "
-                               f"else is derived from recipes by ProjectE."}
+                               f"uncraftable {self.namespace} items{vanilla} and conversions for machine steps ProjectE "
+                               f"cannot see; the {NO_EMC} conversion never resolves, so excluded items get no EMC. "
+                               f"Everything else is derived from recipes by ProjectE."}
         if groups:
             document["groups"] = groups
         document["values"] = {"before": before, "conversion": conversion}
@@ -641,6 +669,7 @@ class Port:
         document = {}
         for item in self.items:
             document[item] = 0 if item in self.excluded_by else self.final("itemalchemy", item) or 0
+        document.update(self.vanilla["itemalchemy"])
         return document
 
     def readme(self, values):
@@ -665,6 +694,20 @@ class Port:
             pe = sorted({self.final("projecte", i) for i in matched} - {None})
             ia = sorted({self.final("itemalchemy", i) for i in matched} - {None})
             lines.append(f"| {entry_label(key, spec, matched)} | {fmt_range(pe)} | {fmt_range(ia)} | {spec['why']} |")
+        if self.policy.get("vanilla"):
+            lines += ["", "## Vanilla values filled in", "",
+                      "These vanilla items have no value in one EMC mod's defaults. The port ships one so its recipes "
+                      "resolve; the value applies pack-wide, and a system's existing default is never overridden.", "",
+                      "| Item | ProjectE | Item Alchemy | Why |", "| --- | ---: | ---: | --- |"]
+            for item, spec in self.policy["vanilla"].items():
+                cells = []
+                for system in SYSTEMS:
+                    if item in self.vanilla[system]:
+                        cells.append(str(self.vanilla[system][item]))
+                    else:
+                        default = self.inputs[system][3].get(item)
+                        cells.append(f"{int(default)} (default)" if default is not None else "none")
+                lines.append(f"| `{item}` | {cells[0]} | {cells[1]} | {spec['why']} |")
         if self.policy.get("exclude"):
             lines += ["", "## Excluded (no EMC)", "", "| Item | Why |", "| --- | --- |"]
             for key, entry in self.policy["exclude"].items():
@@ -696,8 +739,12 @@ class Port:
             lines += ["", "## Processes checked for EMC gain", "",
                       "ProjectE cannot see these machine or world processes, so `emc.py check` verifies that no "
                       "output is worth more than its input.", "", "| Process | Checks | Why |", "| --- | ---: | --- |"]
+            labels = {"projecte": "ProjectE", "itemalchemy": "Item Alchemy"}
             for process in self.policy["processes"]:
-                lines.append(f"| {process['name']} | {self.process_counts.get(process['name'], 0)} | {process['why']} |")
+                name = process["name"]
+                if set(process.get("systems", SYSTEMS)) != set(SYSTEMS):
+                    name += " (" + ", ".join(labels[s] for s in process["systems"]) + " only)"
+                lines.append(f"| {name} | {self.process_counts.get(process['name'], 0)} | {process['why']} |")
         if self.ignored:
             lines += ["", "## Ignored registry entries", "", "| Item | Why |", "| --- | --- |"]
             for key, why in self.policy["ignored"].items():
@@ -813,7 +860,8 @@ def discover(names):
 def build(directory):
     port = Port(directory)
     outputs = port.outputs()
-    known = set(port.items) | {i for system in SYSTEMS for i in read_json(BASELINES / f"{system}-vanilla.json")}
+    known = set(port.items) | set(port.policy.get("vanilla", {}))
+    known |= {i for system in SYSTEMS for i in read_json(BASELINES / f"{system}-vanilla.json")}
     for path, text in outputs.items():
         document = json.loads(text) if path.suffix == ".json" else None
         if path.parent.name == "pe_custom_conversions":
@@ -865,6 +913,10 @@ def command_merge(args):
             value = 0 if "excluded" in entry else entry["itemalchemy"]
             if config.get(item) != value:
                 config[item] = value
+                changed += 1
+        for item, entry in values.get("vanilla", {}).items():
+            if "itemalchemy" in entry and item not in config:
+                config[item] = entry["itemalchemy"]
                 changed += 1
     config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     print(f"{config_path}: {changed} entries updated; restart the server or run /itemalchemy reloademc")

@@ -7,7 +7,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | --- | --- | ---: | ---: | ---: | --- |
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
 | BuildCraft | Forge, Fabric | 43 | 0 | 4 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
-| ICBM | Fabric | 142 | 3 | 9 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
+| ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
@@ -47,11 +47,13 @@ that file, so on an existing install the defaults are ignored. Merge the port va
 python3 scripts/emc.py merge-itemalchemy path/to/config/itemalchemy/emc_config.json
 ```
 
-Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults, but
-it discards every customisation in the pack's config.
+Values a port fills in for unvalued vanilla items (`vanilla` in the policy) are added only where the config has
+none. Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy resetemc` also picks up the defaults,
+but it discards every customisation in the pack's config.
 
 Tekxit's Item Alchemy config has some quirks of its own: a glass bottle is 48 but a water bottle is 1, coal is
-3904, and a pumpkin is 9 against a melon's 144. The tool uses Tekxit's values as the vanilla baseline and does not
+3904, a pumpkin is 9 against a melon's 144, and a wither skeleton skull is 16, so three transmuted skulls can
+summon a Wither for a nether star worth 139,264. The tool uses Tekxit's values as the vanilla baseline and does not
 change them, so our values stay consistent with the pack. The checks below are run against them.
 
 Item Alchemy also hard-codes values for some vanilla tags (`VanillaEMCDef`, for example `minecraft:fences`), and
@@ -108,8 +110,14 @@ configuration, and from Tekxit's Item Alchemy config, falling back to a fresh on
 - **No devaluing vanilla.** A port recipe that would make a vanilla item cheaper than its fixed value fails the
   check; ICBM's sulfur is three gunpowder for this reason. So does a port item that would become the cheapest
   member of a tag vanilla recipes use.
-- **Explosives** keep their recipe cost, so they are never cheaper to transmute than to craft. ICBM's nuclear,
-  antimatter and red matter tiers are excluded outright.
+- **Explosives** keep their recipe cost, so they are never cheaper to transmute than to craft, and crafting then
+  burning one never gains. This includes ICBM's nuclear, antimatter and red matter tiers, which cost a few
+  hundred thousand to a few million EMC because of their wither skeleton skulls and nether stars.
+- **Vanilla gaps** (`vanilla`): when an EMC mod's defaults leave a vanilla ingredient unvalued, a port may ship a
+  value for that mod only. It applies pack-wide, and `emc.py` refuses to override an existing default. ICBM gives
+  ProjectE's wither skeleton skull a third of a nether star, because three skulls summon a Wither that drops one.
+  A cheaper skull would let transmuted skulls farm nether stars. A `process` limited with `systems` checks this
+  for ProjectE only, since Tekxit's own Item Alchemy skull value already makes it a loop there.
 
 Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 
@@ -159,6 +167,7 @@ Use this for Extreme Reactors or any new port.
    - `resources`: the roots holding recipes and tags. Include loader-specific roots, such as `src/forge/resources`.
    - `output`: the shared resources root. After a restructure, point it at the new shared root.
    - Then `values`, `exclude`, `conversions` and `processes`, each with a `why`.
+   - `vanilla` only for vanilla ingredients an EMC mod leaves unvalued (see the exploit rules).
    - `ignored` is only for test-only registrations.
 3. **Generate and read.** Run `python3 scripts/emc.py generate <id>` and fix every problem it reports:
    - Give base items a `like` anchor.
