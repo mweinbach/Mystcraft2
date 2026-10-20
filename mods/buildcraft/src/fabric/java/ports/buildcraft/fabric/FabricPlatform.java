@@ -49,6 +49,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -193,6 +194,8 @@ final class FabricPlatform implements Platform.Backend {
     @Nullable @Override public EnergyPort findEnergy(Level level, BlockPos pos, Direction side) { return FabricPorts.findEnergy(level, pos, side); }
     @Nullable @Override public ItemPort findItems(Level level, BlockPos pos, Direction side) { return FabricPorts.findItems(level, pos, side); }
     @Nullable @Override public FluidPort findFluids(Level level, BlockPos pos, Direction side) { return FabricPorts.findFluids(level, pos, side); }
+
+    @Override public void invalidatePorts(BlockEntity tile) { FabricPorts.invalidate(tile); }
 
     @Override
     public boolean interactWithFluidContainer(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {

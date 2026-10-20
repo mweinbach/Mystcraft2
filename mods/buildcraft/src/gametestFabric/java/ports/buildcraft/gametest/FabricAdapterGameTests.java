@@ -1,6 +1,8 @@
 package ports.buildcraft.gametest;
 
+import java.util.ArrayList;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -24,6 +26,7 @@ import ports.buildcraft.factory.TankBlockEntity;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.transport.BCTransport;
+import ports.buildcraft.transport.PipeBlockEntity;
 import team.reborn.energy.api.EnergyStorage;
 
 /** BuildCraft blocks as other Fabric mods see them: Team Reborn Energy and Transfer API storages. */
@@ -118,6 +121,35 @@ public final class FabricAdapterGameTests implements FabricGameTest {
             }
             helper.succeedWhen(() -> BCTests.require(helper, BCTests.count(chest, Items.APPLE) == 2,
                     "exactly the committed apples must reach the chest, found " + BCTests.count(chest, Items.APPLE)));
+        });
+    }
+
+    /** A plug closes a pipe face to block API caches and to storages callers kept; removing it opens the face again. */
+    @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 20)
+    public void keptStoragesFollowPlugs(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        BCTests.chest(helper, new BlockPos(0, 1, 1));
+        PipeBlockEntity pipe = BCTests.pipe(helper, pos, BCTransport.STONE_ITEM);
+        BCTests.chest(helper, new BlockPos(2, 1, 1));
+        BlockApiCache<Storage<ItemVariant>, Direction> cache = BlockApiCache.create(ItemStorage.SIDED, helper.getLevel(), helper.absolutePos(pos));
+        ItemVariant apple = ItemVariant.of(Items.APPLE);
+        helper.runAfterDelay(2, () -> {
+            Storage<ItemVariant> kept = cache.find(Direction.WEST);
+            BCTests.require(helper, kept != null && kept.supportsInsertion(), "the pipe must expose an item storage on a connected face");
+            pipe.replacePluggable(Direction.WEST, BCTransport.BLOCKER.create(pipe, Direction.WEST));
+            BCTests.require(helper, cache.find(Direction.WEST) == null, "a cached lookup must see the plug");
+            BCTests.require(helper, !kept.supportsInsertion(), "a kept storage must stop offering insertion behind a plug");
+            try (Transaction transaction = Transaction.openOuter()) {
+                BCTests.require(helper, kept.insert(apple, 1, transaction) == 0, "a kept storage must refuse items behind a plug");
+            }
+            pipe.removePluggable(Direction.WEST, new ArrayList<>());
+            Storage<ItemVariant> reopened = cache.find(Direction.WEST);
+            BCTests.require(helper, reopened != null, "a cached lookup must see the face open again");
+            try (Transaction transaction = Transaction.openOuter()) {
+                BCTests.require(helper, reopened.insert(apple, 1, transaction) == 1 && kept.insert(apple, 1, transaction) == 1,
+                        "both storages must take items once the plug is gone");
+            }
+            helper.succeed();
         });
     }
 }

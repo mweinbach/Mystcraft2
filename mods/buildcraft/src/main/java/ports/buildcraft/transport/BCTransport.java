@@ -22,10 +22,15 @@ import ports.buildcraft.transport.behaviour.PipeBehaviour;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours.Separate.Kind;
 import ports.buildcraft.transport.behaviour.WoodBehaviour;
+import ports.buildcraft.transport.pluggable.BlockerPluggable;
+import ports.buildcraft.transport.pluggable.PluggableDefinition;
+import ports.buildcraft.transport.pluggable.PowerAdaptorPluggable;
+import ports.buildcraft.transport.pluggable.SimplePluggableItem;
 
 /**
  * Upstream {@code BCTransportPipes} and {@code BCTransportConfig}: the ported pipes with their
- * default transfer rates ({@code baseFluidRate = 10} mB/t, {@code basePowerRate = 4} MJ/t).
+ * default transfer rates ({@code baseFluidRate = 10} mB/t, {@code basePowerRate = 4} MJ/t). Also
+ * upstream {@code BCTransportPlugs} and the plug items of {@code BCTransportItems}.
  */
 public final class BCTransport {
     private static final int BASE_FLOW_RATE = 10;
@@ -65,6 +70,9 @@ public final class BCTransport {
     public static final PipeDefinition GOLD_POWER = power("gold_power", SimpleBehaviours.Gold::new, 32, false).build();
     public static final PipeDefinition SANDSTONE_POWER = power("sandstone_power", SimpleBehaviours.Sandstone::new, 4, false).build();
 
+    public static final PipeDefinition STRUCTURE = PipeDefinition.builder("structure", PipeDefinition.Flow.STRUCTURE,
+            SimpleBehaviours.Structure::new, PIPES).build();
+
     public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPE_TYPE = Reg.blockEntity("pipe",
             () -> BlockEntityType.Builder.of(PipeBlockEntity::new, PIPES.stream().map(PipeDefinition::block).toArray(Block[]::new)).build(null));
 
@@ -78,6 +86,13 @@ public final class BCTransport {
     }
 
     public static final Supplier<Item> WATERPROOF = Reg.item("waterproof", () -> new Item(BuildCraft.pipeProperties()));
+
+    public static final PluggableDefinition BLOCKER = PluggableDefinition.register(BuildCraft.id("blocker"), BlockerPluggable::new);
+    public static final PluggableDefinition POWER_ADAPTOR = PluggableDefinition.register(BuildCraft.id("power_adaptor"), PowerAdaptorPluggable::new);
+    public static final Supplier<Item> PLUG_BLOCKER = Reg.item("plug_blocker",
+            () -> new SimplePluggableItem(BuildCraft.pipeProperties(), BLOCKER, null));
+    public static final Supplier<Item> PLUG_POWER_ADAPTOR = Reg.item("plug_power_adaptor",
+            () -> new SimplePluggableItem(BuildCraft.pipeProperties(), POWER_ADAPTOR, SimplePluggableItem.BEHAVIOUR_ACCEPTS_REDSTONE_POWER));
 
     private BCTransport() {}
 

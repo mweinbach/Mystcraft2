@@ -333,6 +333,15 @@
       "itemalchemy": 64,
       "source": "recipe"
     },
+    "buildcraft:pipe_structure": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "3/4",
+        "itemalchemy": "3/4"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
     "buildcraft:pipe_void_fluid": {
       "projecte": 18,
       "itemalchemy": 26,
@@ -356,6 +365,20 @@
     "buildcraft:pipe_wood_power": {
       "projecte": 66,
       "itemalchemy": 66,
+      "source": "recipe"
+    },
+    "buildcraft:plug_blocker": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "3/16",
+        "itemalchemy": "3/16"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "buildcraft:plug_power_adaptor": {
+      "projecte": 534,
+      "itemalchemy": 532,
       "source": "recipe"
     },
     "buildcraft:pump": {

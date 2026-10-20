@@ -57,7 +57,8 @@ public final class ItemFlow extends PipeFlow implements Injectable {
 
     @Override
     public boolean canConnectTile(Direction face, BlockEntity tile) {
-        if (tile instanceof Injectable) return true;
+        boolean blockedPipe = tile instanceof PipeBlockEntity other && other.isBlocked(face.getOpposite());
+        if (tile instanceof Injectable && !blockedPipe) return true;
         return Ports.items(level(), tile.getBlockPos(), face.getOpposite()) != null;
     }
 

@@ -27,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -60,6 +61,8 @@ public final class Platform {
         @Nullable EnergyPort findEnergy(Level level, BlockPos pos, Direction side);
         @Nullable ItemPort findItems(Level level, BlockPos pos, Direction side);
         @Nullable FluidPort findFluids(Level level, BlockPos pos, Direction side);
+        /** Called when one of a {@link PortHolder}'s ports appears or disappears, so the loader drops what it cached. */
+        void invalidatePorts(BlockEntity tile);
         /** Fills or empties a held fluid container against the block's fluid storage. */
         boolean interactWithFluidContainer(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side);
         /** The fluid container in a copy of {@code stack}, counted as one item, or null if it holds no fluid storage. */

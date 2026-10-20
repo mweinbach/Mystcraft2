@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "sis",
+    "sgs",
+    "srs"
+  ],
+  "key": {
+    "s": {
+      "item": "buildcraft:pipe_structure"
+    },
+    "i": {
+      "item": "minecraft:gold_ingot"
+    },
+    "g": [
+      {
+        "tag": "c:stone_gears"
+      },
+      {
+        "tag": "forge:gears/stone"
+      }
+    ],
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "buildcraft:plug_power_adaptor",
+    "count": 4
+  }
+}

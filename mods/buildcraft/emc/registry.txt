@@ -76,11 +76,14 @@ buildcraft:pipe_sandstone_power
 buildcraft:pipe_stone_fluid
 buildcraft:pipe_stone_item
 buildcraft:pipe_stone_power
+buildcraft:pipe_structure
 buildcraft:pipe_void_fluid
 buildcraft:pipe_void_item
 buildcraft:pipe_wood_fluid
 buildcraft:pipe_wood_item
 buildcraft:pipe_wood_power
+buildcraft:plug_blocker
+buildcraft:plug_power_adaptor
 buildcraft:pump
 buildcraft:quarry
 buildcraft:quartz_chipset

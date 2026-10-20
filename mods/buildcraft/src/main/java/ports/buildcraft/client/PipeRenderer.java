@@ -27,10 +27,21 @@ import ports.buildcraft.transport.flow.PowerFlow;
 public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> {
     public static final ResourceLocation POWER_FLOW = BuildCraft.id("block/pipe/power_flow");
     private static final float ITEM_SCALE = 0.7F;
+    /** Upstream's flow renderers were TESRs, which 1.12 drew within 64 blocks. */
+    private static final double FLOW_RANGE = 64;
     private final ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+
+    /** Pluggables are part of the pipe model upstream, so they are drawn as far as chunks are. */
+    @Override
+    public int getViewDistance() {
+        return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
+    }
 
     @Override
     public void render(PipeBlockEntity pipe, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int light, int overlay) {
+        PluggableRenderers.render(pipe, partialTicks, poseStack, buffers, light);
+        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        if (!Vec3.atCenterOf(pipe.getBlockPos()).closerThan(camera, FLOW_RANGE)) return;
         if (pipe.flow() instanceof ItemFlow items) renderItems(pipe, items, partialTicks, poseStack, buffers, light);
         else if (pipe.flow() instanceof FluidFlow fluids) renderFluids(pipe, fluids, partialTicks, poseStack, buffers, light);
         else if (pipe.flow() instanceof PowerFlow power) renderPower(pipe, power, partialTicks, poseStack, buffers);
@@ -162,10 +173,5 @@ public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> 
         float shift = (float) Math.floor(Math.min(uv[a], uv[b]) / 8) * 8;
         uv[a] -= shift;
         uv[b] -= shift;
-    }
-
-    @Override
-    public int getViewDistance() {
-        return 64;
     }
 }

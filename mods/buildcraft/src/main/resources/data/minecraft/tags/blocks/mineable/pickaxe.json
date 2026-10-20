@@ -43,6 +43,7 @@
     "buildcraft:pipe_stone_power",
     "buildcraft:pipe_quartz_power",
     "buildcraft:pipe_gold_power",
-    "buildcraft:pipe_sandstone_power"
+    "buildcraft:pipe_sandstone_power",
+    "buildcraft:pipe_structure"
   ]
 }

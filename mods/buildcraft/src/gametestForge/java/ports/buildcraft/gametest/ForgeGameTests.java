@@ -225,6 +225,17 @@ public final class ForgeGameTests {
     }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { BCTests.plugBlocksConnectionsAndBreaksOff(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1200)
+    public static void powerAdaptorDrivesWoodenPipeThroughBlockedFace(GameTestHelper helper) {
+        BCTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
+    }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { BCTests.structurePipesConnectOnlyToEachOther(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
