@@ -5,7 +5,6 @@
 package ports.extremereactors.corelib.client.gui.databind;
 
 import net.minecraft.world.item.ItemStack;
-import ports.extremereactors.corelib.data.WideAmount;
 import ports.extremereactors.corelib.fluid.FluidStack;
 
 import java.util.Objects;
@@ -14,7 +13,7 @@ import java.util.function.Function;
 /**
  * A binding that reads its value with a function of a source object and only passes on changed values.
  * <p>
- * Item and fluid stacks and wide amounts are mutable, so they are compared by content and a copy is kept.
+ * Item and fluid stacks are mutable, so they are compared by content and a copy is kept.
  */
 public abstract class AbstractBinding<Source, Value>
         implements IBinding {
@@ -68,10 +67,6 @@ public abstract class AbstractBinding<Source, Value>
 
         if (value instanceof FluidStack stack) {
             return (V) stack.copy();
-        }
-
-        if (value instanceof WideAmount amount) {
-            return (V) amount.copy();
         }
 
         return value;
