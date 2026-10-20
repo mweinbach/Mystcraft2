@@ -7,6 +7,7 @@ package ports.extremereactors.platform;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.Optional;
@@ -39,4 +40,7 @@ public interface Network {
 
     /** The level the local player is in. Empty on a dedicated server or when no world is loaded. */
     Optional<Level> clientLevel();
+
+    /** The local player. Empty on a dedicated server or when no world is loaded. */
+    Optional<Player> clientPlayer();
 }

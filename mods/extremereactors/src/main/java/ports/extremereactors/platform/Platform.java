@@ -22,6 +22,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -69,6 +70,9 @@ public final class Platform {
         boolean isModLoaded(String modId);
 
         void addClientReloadListener(Runnable listener);
+
+        /** The recipes the client received from the server, or null on a dedicated server or outside a world. */
+        @Nullable RecipeManager clientRecipeManager();
 
         //region registration
 

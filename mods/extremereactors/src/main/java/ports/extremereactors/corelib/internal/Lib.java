@@ -6,6 +6,7 @@ package ports.extremereactors.corelib.internal;
 
 import net.minecraft.resources.ResourceLocation;
 import ports.extremereactors.corelib.network.NetworkHandler;
+import ports.extremereactors.corelib.network.messages.ContainerDataMessage;
 import ports.extremereactors.corelib.network.messages.TileCommandMessage;
 import ports.extremereactors.corelib.network.messages.TileSyncMessage;
 import ports.extremereactors.multiblock.IMultiblockRegistry;
@@ -27,6 +28,7 @@ public final class Lib {
         s_network = new NetworkHandler(new ResourceLocation(Platform.MOD_ID, "corelib"), "1");
         s_network.registerMessage(TileSyncMessage.class, TileSyncMessage::new);
         s_network.registerMessage(TileCommandMessage.class, TileCommandMessage::new);
+        s_network.registerMessage(ContainerDataMessage.class, ContainerDataMessage::new);
     }
 
     public static NetworkHandler network() {

@@ -18,32 +18,23 @@
 
 package it.zerono.mods.extremereactors.config.conditions;
 
-import com.google.gson.JsonObject;
 import it.zerono.mods.extremereactors.ExtremeReactors;
 import it.zerono.mods.extremereactors.config.Config;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
-public class ConfigCondition
-        implements ICondition {
+/**
+ * The {@code bigreactors:config_condition} recipe condition: a recipe is loaded only if the named config option is on.
+ * JSON: {@code {"type": "bigreactors:config_condition", "config_name": "..."}}. The loader adapters register it with
+ * their own recipe condition systems.
+ */
+public final class ConfigCondition {
 
-    public ConfigCondition(final String configName) {
-        this._configName = configName;
-    }
+    public static final ResourceLocation ID = ExtremeReactors.newID("config_condition");
+    public static final String JSON_CONFIG_NAME = "config_name";
 
-    //region ICondition
+    public static boolean test(final String configName) {
 
-    @Override
-    public ResourceLocation getID() {
-        return ID;
-    }
-
-    @Override
-    public boolean test(final IContext context) {
-
-        switch (this._configName) {
+        switch (configName) {
 
             default:
                 return false;
@@ -61,39 +52,6 @@ public class ConfigCondition
         }
     }
 
-    //endregion
-    //region serializer
-
-    public static class Serializer
-            implements IConditionSerializer<ConfigCondition> {
-
-        public static final Serializer INSTANCE = new Serializer();
-
-        //region IConditionSerializer<ConfigCondition>
-
-        @Override
-        public void write(JsonObject json, ConfigCondition value) {
-            json.addProperty("config_name", value._configName);
-        }
-
-        @Override
-        public ConfigCondition read(JsonObject json) {
-            return new ConfigCondition(GsonHelper.getAsString(json, "config_name"));
-        }
-
-        @Override
-        public ResourceLocation getID() {
-            return ConfigCondition.ID;
-        }
-
-        //endregion
+    private ConfigCondition() {
     }
-
-    //endregion
-    //region internal
-
-    private final static ResourceLocation ID = ExtremeReactors.newID("config_condition");
-    private final String _configName;
-
-    //endregion
 }

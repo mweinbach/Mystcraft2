@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -27,6 +28,7 @@ import ports.extremereactors.corelib.client.model.data.ModelData;
 import ports.extremereactors.corelib.data.nbt.ISyncableEntity;
 import ports.extremereactors.corelib.internal.Lib;
 import ports.extremereactors.corelib.network.messages.TileCommandMessage;
+import ports.extremereactors.platform.Platform;
 import ports.extremereactors.platform.PlatformBlockEntity;
 
 import javax.annotation.Nullable;
@@ -285,6 +287,24 @@ public abstract class AbstractModBlockEntity
 
     public void sendCommandToServer(final String name) {
         this.sendCommandToServer(name, new CompoundTag());
+    }
+
+    //endregion
+    //region screens
+
+    /**
+     * Client side: the block entity a screen was opened for. {@link ModBlock} writes its position as the extra data
+     * of the open-screen packet.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends AbstractModBlockEntity> T getGuiClientBlockEntity(final FriendlyByteBuf networkData) {
+
+        final BlockPos position = networkData.readBlockPos();
+
+        return (T) Platform.network().clientLevel()
+                .map(level -> level.getBlockEntity(position))
+                .filter(AbstractModBlockEntity.class::isInstance)
+                .orElseThrow(() -> new IllegalStateException("No block entity for the screen at " + position.toShortString()));
     }
 
     //endregion
