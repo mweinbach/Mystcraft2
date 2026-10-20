@@ -221,6 +221,7 @@
     "gui.bigreactors.generic.empty": "Empty",
     "gui.bigreactors.generic.disable": "Disable",
     "gui.bigreactors.generic.save": "Save",
+    "gui.bigreactors.generic.help.tooltip": "Open this part's page in the Extreme Book",
     "gui.bigreactors.generic.reset": "Reset",
     "gui.bigreactors.generic.unknown": "Unknown",
     "gui.bigreactors.generic.fuel.label": "Fuel: ",

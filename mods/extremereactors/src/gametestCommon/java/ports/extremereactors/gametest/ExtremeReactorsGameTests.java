@@ -543,8 +543,8 @@ public final class ExtremeReactorsGameTests {
                 "the steel reinforced control rod recipe should not load without steel");
         check(recipes.byKey(id("smelting/graphite_from_coal")).isPresent(),
                 "the config-gated graphite smelting recipe should load by default");
-        check(recipes.byKey(id("misc/book/erguide")).isEmpty(),
-                "the Patchouli book recipe should not load without Patchouli");
+        check(recipes.byKey(id("misc/book/erguide")).isPresent() == Platform.isModLoaded("patchouli"),
+                "the Patchouli book recipe should load only with Patchouli");
 
         final ItemStack yellorium = new ItemStack(Content.Items.YELLORIUM_INGOT.get());
 

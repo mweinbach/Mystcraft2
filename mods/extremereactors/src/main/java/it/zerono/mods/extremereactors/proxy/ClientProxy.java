@@ -29,6 +29,7 @@ import it.zerono.mods.extremereactors.api.reactor.ReactantMappingsRegistry;
 import it.zerono.mods.extremereactors.api.turbine.CoilMaterialRegistry;
 import it.zerono.mods.extremereactors.config.Config;
 import it.zerono.mods.extremereactors.gamecontent.Content;
+import it.zerono.mods.extremereactors.gamecontent.compat.patchouli.PatchouliCompat;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.CachedSprites;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.ChargingPortScreen;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.FluidPortScreen;
@@ -128,6 +129,11 @@ public class ClientProxy
         registerRenderTypes();
         registerTileRenderers();
         registerBlockColors();
+
+        // Patchouli multiblock rendering do not support ModelData-based models
+        if (Platform.isModLoaded("patchouli")) {
+            PatchouliCompat.initialize();
+        }
     }
 
     public void onRegisterModels(final Consumer<ResourceLocation> additionalModels) {

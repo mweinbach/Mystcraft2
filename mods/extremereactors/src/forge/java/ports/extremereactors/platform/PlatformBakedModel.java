@@ -12,6 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.IDynamicBakedModel;
 import ports.extremereactors.corelib.client.model.data.ModelData;
+import ports.extremereactors.corelib.client.model.data.ModelDataOverride;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -40,7 +41,9 @@ public abstract class PlatformBakedModel implements IDynamicBakedModel {
                                           final RandomSource random,
                                           final net.minecraftforge.client.model.data.ModelData extraData,
                                           @Nullable final RenderType renderType) {
-        return this.getQuads(state, side, random, unwrap(extraData), renderType);
+        final ModelData override = ModelDataOverride.get(state);
+
+        return this.getQuads(state, side, random, null != override ? override : unwrap(extraData), renderType);
     }
 
     @Override

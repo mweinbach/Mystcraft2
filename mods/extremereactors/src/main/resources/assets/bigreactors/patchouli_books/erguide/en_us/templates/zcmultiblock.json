@@ -1,7 +1,7 @@
 {
     "components": [
         {
-            "type": "zerocore:zcspt_multiblock",
+            "type": "bigreactors:multiblock_page",
             "multiblock_id": "#multiblock_id",
             "text": "#text",
             "x": 0,

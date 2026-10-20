@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import ports.extremereactors.corelib.client.model.data.ModelData;
+import ports.extremereactors.corelib.client.model.data.ModelDataOverride;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,7 +54,8 @@ public abstract class PlatformBakedModel implements BakedModel, FabricBakedModel
     public void emitBlockQuads(final BlockAndTintGetter view, final BlockState state, final BlockPos position,
                                final Supplier<RandomSource> random, final RenderContext context) {
 
-        final Object attachment = view instanceof RenderAttachedBlockView attached ?
+        final ModelData override = ModelDataOverride.get(state);
+        final Object attachment = null != override ? override : view instanceof RenderAttachedBlockView attached ?
                 attached.getBlockEntityRenderAttachment(position) : null;
 
         context.fallbackConsumer().accept(new Bound(this, attachment instanceof ModelData data ? data : ModelData.EMPTY));
