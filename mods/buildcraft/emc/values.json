@@ -309,6 +309,9 @@
       "itemalchemy": 8,
       "source": "recipe"
     },
+    "buildcraft:water_spring": {
+      "excluded": "Creative-only: upstream never generates water springs, and the block is unbreakable like bedrock and drops nothing; a value would only make an infinite water source transmutable."
+    },
     "buildcraft:waterproof": {
       "projecte": 8,
       "itemalchemy": 16,

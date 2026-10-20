@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -487,6 +488,27 @@ public final class BCTests {
             require(helper, engine.residueTank().fluid() == BCEnergy.OIL_RESIDUE.heat(0).source() && engine.residueTank().amount() >= 1,
                     "burning oil must leave residue, has " + engine.residueTank().amount());
         });
+    }
+
+    /** Upstream {@code EnumSpring.WATER}: the creative water spring puts a water source above itself whenever that space is air. */
+    public static void waterSpringRefills(GameTestHelper helper) {
+        BlockPos spring = new BlockPos(1, 1, 1), covered = new BlockPos(5, 1, 1);
+        helper.setBlock(spring, BCCore.WATER_SPRING.get());
+        helper.setBlock(covered, BCCore.WATER_SPRING.get());
+        helper.setBlock(covered.above(), Blocks.GLASS);
+        require(helper, BCCore.WATER_SPRING.get().defaultBlockState().getDestroySpeed(helper.getLevel(), helper.absolutePos(spring)) < 0,
+                "a spring is unbreakable");
+        helper.runAfterDelay(6, () -> {
+            requireWaterSource(helper, spring.above());
+            helper.assertBlockPresent(Blocks.GLASS, covered.above());
+            helper.setBlock(spring.above(), Blocks.AIR);
+            helper.succeedWhen(() -> requireWaterSource(helper, spring.above()));
+        });
+    }
+
+    private static void requireWaterSource(GameTestHelper helper, BlockPos pos) {
+        FluidState fluid = helper.getLevel().getFluidState(helper.absolutePos(pos));
+        require(helper, fluid.is(Fluids.WATER) && fluid.isSource(), "the spring must keep a water source at " + pos);
     }
 
     /** The distiller splits oil into gaseous fuel out of its top and heavy oil out of its bottom, using power. */

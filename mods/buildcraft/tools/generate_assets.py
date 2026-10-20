@@ -527,6 +527,10 @@ class Generator:
         self.blockstate("oil_spring", {"variants": {"": {"model": "minecraft:block/bedrock"}}})
         self.item_model("oil_spring", "minecraft:block/bedrock")
         self.lang[f"block.{MOD}.oil_spring"] = "Oil Spring"
+        # Upstream spring.json draws both spring types as bedrock.
+        self.blockstate("water_spring", {"variants": {"": {"model": "minecraft:block/bedrock"}}})
+        self.item_model("water_spring", "minecraft:block/bedrock")
+        self.lang[f"block.{MOD}.water_spring"] = "Water Spring"
         # The Forge biome modifier and Fabric's BiomeModifications add this to overworld biomes.
         write_json(DATA / MOD / "worldgen" / "configured_feature" / "oil_well.json", {"type": rl("oil_well"), "config": {}})
         write_json(DATA / MOD / "worldgen" / "placed_feature" / "oil_well.json", {"feature": rl("oil_well"), "placement": []})

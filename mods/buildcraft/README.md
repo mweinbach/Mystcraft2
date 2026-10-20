@@ -50,7 +50,7 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame and oil spring, fragile fluid shards (whose fluid is in their NBT) and the refinery's
+frame, oil spring and water spring, fragile fluid shards (whose fluid is in their NBT) and the refinery's
 by-products and intermediate heats. Oil is valued like lava,
 and light fuel at the two buckets of oil the refinery needs to make one. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).

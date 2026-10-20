@@ -19,6 +19,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void guiTanksTradeContainers(GameTestHelper helper) { BCTests.guiTanksTradeContainers(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void waterSpringRefills(GameTestHelper helper) { BCTests.waterSpringRefills(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public void gaseousFluidsFlowUp(GameTestHelper helper) { BCTests.gaseousFluidsFlowUp(helper); }
 

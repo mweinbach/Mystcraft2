@@ -21,6 +21,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void guiTanksTradeContainers(GameTestHelper helper) { BCTests.guiTanksTradeContainers(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void waterSpringRefills(GameTestHelper helper) { BCTests.waterSpringRefills(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
     public static void gaseousFluidsFlowUp(GameTestHelper helper) { BCTests.gaseousFluidsFlowUp(helper); }
 

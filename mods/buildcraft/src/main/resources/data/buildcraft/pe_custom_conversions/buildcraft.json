@@ -204,6 +204,12 @@
         "ingredients": [
           "FAKE|no_emc"
         ]
+      },
+      {
+        "output": "buildcraft:water_spring",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
       }
     ]
   }

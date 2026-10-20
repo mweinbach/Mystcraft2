@@ -66,6 +66,7 @@
   "block.buildcraft.stirling_engine": "Stirling Engine",
   "block.buildcraft.tank": "Tank",
   "block.buildcraft.tube": "Tube",
+  "block.buildcraft.water_spring": "Water Spring",
   "buildcraft.fluid.heat_0": "%s (\u00a7bCool\u00a7r)",
   "buildcraft.fluid.heat_1": "%s (\u00a76Hot\u00a7r)",
   "buildcraft.fluid.heat_2": "%s (\u00a7cSearing\u00a7r)",

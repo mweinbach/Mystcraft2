@@ -13,7 +13,7 @@ add only loader adapters.
 
 | Area | Content |
 | --- | --- |
-| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). |
+| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). The creative water spring (upstream `EnumSpring.WATER`), which puts a water source above itself every 5 ticks. |
 | Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
 | Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that flow up in the world and fill tanks and pipes from the top. |
 | Combustion fuels | Upstream's nine fuels (gaseous, light, dense, mixed light and mixed heavy fuel; distilled, heavy and dense oil; oil), with power and burn times derived from their refinery amounts as upstream; the dirty fuels leave oil residue. Only the cool stage burns. Water, ice and packed ice cool the engine. |
@@ -75,6 +75,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   masked the fluid's own sprite. Shards of gases are drawn upside down, as upstream's `flipGas`.
 - **Kinesis sections** accept no more than their neighbours requested, so simulated and real
   transfers agree for transactional callers. Upstream sections accept any amount.
+- **Water springs** are not generated in the world, as upstream: its `SpringPopulate` and
+  `generateWaterSprings` option exist at the pinned revision, but nothing registers the generator.
 - **Configuration** is fixed at upstream defaults (mining depth 512, pump distance 64, quarry area
   11×11); there is no config file.
 - **Viscosity** uses Forge's scale on both loaders (water 1000, lava 6000), which is also Fabric's
@@ -108,7 +110,7 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 ## Not ported
 
 - **Core:** markers, landmarks and volume boxes (so the quarry cannot be resized), paintbrush,
-  list, map location, guide book, water springs, decorated blocks, creative engine.
+  list, map location, guide book, decorated blocks, creative engine.
 - **Energy:** the oil desert and oil ocean biomes (upstream's only oil-rich biomes, which also gave
   surface-only oil lakes), and the oil spring's tracking of how much of its well each player has
   pumped, which unlocked upstream's `black_gold` advancement.
@@ -135,7 +137,7 @@ kinesis pipes carrying engine power, oil well rates and determinism over 65,536 
 with the placed feature in the Overworld's lakes step, the refinery chain from oil to light fuel,
 the combustion engine burning oil into residue, the distiller splitting oil and refunding blocked
 progress, heat exchanger rows
-forming, rotating and breaking (dropping shards), a heat exchanger heating oil with lava, fragile
+forming, rotating and breaking (dropping shards), the water spring refilling, a heat exchanger heating oil with lava, fragile
 fluid shards splitting fluid, dropping from every broken fluid holder and emptying into a tank,
 containers clicked and shift-clicked on GUI tanks in survival and creative, and recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages

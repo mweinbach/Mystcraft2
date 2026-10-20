@@ -30,6 +30,7 @@
   "exclude": {
     "buildcraft:frame": "Creative-only: the quarry builds its frame from power, frame blocks drop nothing, and there is no frame recipe, so a value would only make creative frames transmutable.",
     "buildcraft:oil_spring": "Creative-only: the spring under large oil wells is unbreakable like bedrock and drops nothing; the oil it regrows is what gets a value.",
+    "buildcraft:water_spring": "Creative-only: upstream never generates water springs, and the block is unbreakable like bedrock and drops nothing; a value would only make an infinite water source transmutable.",
     "buildcraft:fragile_fluid_shard": "NBT item: a shard only holds the fluid a broken machine or pipe dropped, and a blank shard holds nothing and cannot be filled. Transmutation never copies NBT, so a value could only be paid out for an empty, useless shard.",
     "refinery_fluid_buckets": {
       "items": ["buildcraft:*_heat_?_bucket", "buildcraft:oil_residue_bucket", "buildcraft:oil_heavy_bucket", "buildcraft:oil_dense_bucket",
