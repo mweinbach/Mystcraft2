@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.extremereactors.corelib.LogicalSide;
+import ports.extremereactors.corelib.block.AbstractModBlockEntity;
 import ports.extremereactors.corelib.data.nbt.ISyncableEntity;
 import ports.extremereactors.corelib.network.AbstractModTileMessage;
 
@@ -41,6 +42,10 @@ public class TileSyncMessage extends AbstractModTileMessage {
 
         if (LogicalSide.SERVER == sourceSide && null != this._data && tileEntity instanceof ISyncableEntity) {
             ((ISyncableEntity) tileEntity).syncDataFrom(this._data, ISyncableEntity.SyncReason.NetworkUpdate);
+
+            if (tileEntity instanceof AbstractModBlockEntity modEntity) {
+                modEntity.raiseDataUpdated();
+            }
         }
     }
 

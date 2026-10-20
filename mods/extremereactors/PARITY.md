@@ -56,7 +56,8 @@ and active fluid ports.
 | Reactor multiblock (basic and reinforced) | Ported. Assembly rules, fuel rods, control rods, access ports, power taps, charging ports, fluid ports, redstone ports and the creative water generator. |
 | Reactor simulation | Ported unchanged: radiation, fuel and waste, heat transfer, moderators (solid and fluid), passive energy and active coolant boiling. |
 | Turbine multiblock and simulation | Ported unchanged: rotor bearing, shafts and blades, coils, steam intake, condensation and energy. |
-| Reprocessor and fluidizer | Ported, including recipes. Without screens they are driven by automation only. |
+| Reprocessor and fluidizer | Ported, including recipes. |
+| Screens | All 13 upstream screen classes, for every controller and port that has a menu, with Extreme Reactors' textures, layouts, tooltips and controls, on `corelib`'s GUI layer (see below). |
 | Fuel and coolant registries, modpack API (`modpack_api.json`), IMC | Ported; see the dispatcher note below. |
 | Ores, ingots, dusts, blocks, fluids, buckets, wrench | Ported. Ores generate at upstream's heights and honor the worldgen switches (see below). |
 | Block models, fuel rod and rotor rendering | Ported; the rotor animates from the synchronized rotor speed. |
@@ -64,14 +65,14 @@ and active fluid ports.
 
 ## Known gaps
 
-**Screens are not in this release.** Upstream's 24 screen classes need ZeroCore's
-all-rights-reserved GUI framework, so they are being rebuilt on `corelib` with
-Extreme Reactors' own textures and layouts in the next pull request. Until then,
-right-clicking a controller or port opens nothing, and a machine can only be
-switched on by a redstone port whose setting is placed with NBT, for example
-`{zcvase_payload:{setting:{sensor:"inputActive",behavior:"SetFromSignal",v1:0,v2:0}}}`
-(the turbine also offers `inputEngageCoils`), or by automation through the
-computer port once that is wired up.
+**Screens.** Upstream's screen classes are imported with only their imports and
+Forge's `NonNullSupplier` changed. They are built on ZeroCore's
+all-rights-reserved GUI framework, which `corelib` replaces with its own layout
+engines, controls, data bindings, sprites and tooltips, written from how the
+screens use them. Screens use the same textures, sizes and positions, so they
+match upstream's look, but `corelib` draws them with its own code and is not
+pixel-identical to ZeroCore. The handbook help button upstream shows on each
+screen is hidden, because the Patchouli integration is not ported yet.
 
 **Integrations not yet ported.**
 
@@ -129,6 +130,7 @@ no migration from Extreme Reactors 2 worlds: the mod id is the same
 | Test | Covers |
 | --- | --- |
 | `FuelContainerTest` (JUnit, both builds) | Fuel and waste accounting. |
+| `LayoutEngineTest`, `GuiDataTest` (JUnit, both builds) | `corelib`'s fixed, vertical, horizontal, tabular and anchored layouts; text input constraints, tooltip templates and data bindings. |
 | `basicReactorAssembles`, `basicTurbineAssembles` | Assembly of minimal machines. |
 | `reactorWithoutControllerDoesNotAssemble`, `reactorFuelRodNeedsCasingBase`, `turbineLooseBladeDoesNotAssemble` | Validation errors. |
 | `turbineCoilsBeforeBladesAssembleLikeUpstream` | The upstream coil-validation quirk. |
@@ -143,4 +145,6 @@ no migration from Extreme Reactors 2 worlds: the mod id is the same
 
 A Fabric development client was also run: both machines assemble, the reactor
 fuel rods render their fill level, the turbine rotor spins, and the buckets
-render tinted.
+render tinted. With `/ershowcase` (see the [README](README.md)), every screen
+was opened on a running machine on Fabric, and the reactor and turbine
+controllers on Forge, showing live values, tooltips and working buttons.

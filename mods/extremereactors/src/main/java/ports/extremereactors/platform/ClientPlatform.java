@@ -5,15 +5,22 @@
 package ports.extremereactors.platform;
 
 import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.extremereactors.corelib.fluid.FluidStack;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +55,21 @@ public final class ClientPlatform {
 
         /** True if the block model draws (some of) its quads in the solid chunk layer. */
         boolean isRenderedInSolidLayer(BlockState state, RandomSource random);
+
+        /** The block atlas sprite of the flowing texture of a fluid. */
+        TextureAtlasSprite getFluidFlowingSprite(FluidStack stack);
+
+        /** The ARGB colour a fluid texture is tinted with. */
+        int getFluidTint(FluidStack stack);
+
+        /** Open the screen built by {@code factory} for the menus of a type. Call once the menus are registered. */
+        <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerScreen(
+                MenuType<? extends M> type, ScreenFactory<M, S> factory);
+    }
+
+    @FunctionalInterface
+    public interface ScreenFactory<M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> {
+        S create(M menu, Inventory inventory, Component title);
     }
 
     @FunctionalInterface

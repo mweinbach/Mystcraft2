@@ -131,6 +131,11 @@ public abstract class AbstractModBlockEntity
         this.DataUpdated.raise(Runnable::run);
     }
 
+    /** Raise {@link #DataUpdated}, as when new data for this block entity arrives on the client. */
+    public void raiseDataUpdated() {
+        this.onDataUpdate();
+    }
+
     //endregion
     //region capabilities
 
@@ -181,7 +186,9 @@ public abstract class AbstractModBlockEntity
         }
 
         if (this.calledByLogicalClient()) {
+
             this.markForRenderUpdate();
+            this.raiseDataUpdated();
         }
     }
 

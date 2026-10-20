@@ -50,5 +50,11 @@ minecraft.runs {
         property 'emc.values', file('emc/values.json').absolutePath
         mods { extremereactors { source sourceSets.gametest } }
     }
+    // A client with the development-only /ershowcase command, for screenshots.
+    showcaseClient {
+        parent minecraft.runs.client
+        args '--width', '1600', '--height', '900'
+        mods { extremereactors { source sourceSets.gametest } }
+    }
 }
-tasks.matching { it.name == 'runGameTestServer' }.configureEach { dependsOn tasks.named('gametestClasses') }
+tasks.matching { it.name in ['runGameTestServer', 'runShowcaseClient'] }.configureEach { dependsOn tasks.named('gametestClasses') }

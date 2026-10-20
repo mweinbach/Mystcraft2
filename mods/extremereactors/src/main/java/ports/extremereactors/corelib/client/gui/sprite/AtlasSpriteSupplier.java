@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.platform.ClientPlatform;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -42,18 +43,68 @@ public final class AtlasSpriteSupplier
         ISprite sprite = this._sprite;
 
         if (null == sprite) {
-            this._sprite = sprite = new AtlasSprite(this._atlas.getAtlas().getSprite(this._spriteId));
+            this._sprite = sprite = of(this._atlas.getAtlas().getSprite(this._spriteId));
         }
 
         return sprite;
     }
 
-    private record AtlasSprite(TextureAtlasSprite sprite) implements ISprite {
+    /** A sprite for an entry of a stitched texture atlas. */
+    public static ISprite of(final TextureAtlasSprite sprite) {
+        return new AtlasSprite(sprite, null);
+    }
+
+    private record AtlasSprite(TextureAtlasSprite sprite, @Nullable ISprite overlay) implements ISprite {
 
         @Override
         public Optional<TextureAtlasSprite> getAtlasSprite() {
             return MissingTextureAtlasSprite.getLocation().equals(this.sprite.getName()) ?
                     Optional.empty() : Optional.of(this.sprite);
+        }
+
+        @Override
+        public ResourceLocation getTextureLocation() {
+            return this.sprite.atlas().location();
+        }
+
+        @Override
+        public int getWidth() {
+            return this.sprite.getWidth();
+        }
+
+        @Override
+        public int getHeight() {
+            return this.sprite.getHeight();
+        }
+
+        @Override
+        public float getMinU() {
+            return this.sprite.getU0();
+        }
+
+        @Override
+        public float getMaxU() {
+            return this.sprite.getU1();
+        }
+
+        @Override
+        public float getMinV() {
+            return this.sprite.getV0();
+        }
+
+        @Override
+        public float getMaxV() {
+            return this.sprite.getV1();
+        }
+
+        @Override
+        public Optional<ISprite> getSpriteOverlay() {
+            return Optional.ofNullable(this.overlay);
+        }
+
+        @Override
+        public ISprite copyWith(final ISprite overlay) {
+            return new AtlasSprite(this.sprite, overlay);
         }
     }
 

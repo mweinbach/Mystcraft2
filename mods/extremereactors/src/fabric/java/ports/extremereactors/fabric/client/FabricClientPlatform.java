@@ -9,15 +9,27 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.extremereactors.corelib.fluid.FluidStack;
 import ports.extremereactors.platform.ClientPlatform;
 
 import java.util.List;
@@ -78,6 +90,39 @@ public final class FabricClientPlatform implements ClientPlatform.Backend {
     @Override
     public boolean isRenderedInSolidLayer(final BlockState state, final RandomSource random) {
         return RenderType.solid() == ItemBlockRenderTypes.getChunkRenderType(state);
+    }
+
+    @Override
+    public TextureAtlasSprite getFluidFlowingSprite(final FluidStack stack) {
+
+        final TextureAtlasSprite[] sprites = FluidVariantRendering.getSprites(toVariant(stack));
+
+        if (null != sprites && sprites.length > 1 && null != sprites[1]) {
+            return sprites[1];
+        }
+
+        return null != sprites && sprites.length > 0 && null != sprites[0] ? sprites[0] :
+                Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
+    }
+
+    @Override
+    public int getFluidTint(final FluidStack stack) {
+
+        final int colour = FluidVariantRendering.getColor(toVariant(stack));
+
+        return 0 == (colour >>> 24) ? colour | 0xFF000000 : colour;
+    }
+
+    // Fabric API only widens access to the vanilla screen registry for its own use; this is its public entry point
+    @SuppressWarnings("deprecation")
+    @Override
+    public <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerScreen(
+            final MenuType<? extends M> type, final ClientPlatform.ScreenFactory<M, S> factory) {
+        ScreenRegistry.<M, S>register(type, factory::create);
+    }
+
+    private static FluidVariant toVariant(final FluidStack stack) {
+        return FluidVariant.of(stack.getFluid(), stack.hasTag() ? stack.getTag() : null);
     }
 
     private static final List<Consumer<Map<ResourceLocation, BakedModel>>> BAKING_COMPLETED_HANDLERS = new CopyOnWriteArrayList<>();

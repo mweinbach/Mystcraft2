@@ -17,12 +17,12 @@ anglesite and benitoite ores, ingots, dusts, storage blocks, reactant and
 coolant fluids, and the wrench. Blocks, models, textures and the fuel rod and
 rotor animations are Extreme Reactors' own.
 
-**This release has no machine screens.** Right-clicking a controller or port
-opens nothing yet; the screens are being rebuilt with Extreme Reactors' textures
-and layouts in the next pull request. Until then, machines are switched on by a
-redstone port set up with NBT (see [PARITY.md](PARITY.md)). That file lists every
-gap against upstream, including the ComputerCraft, JEI and Patchouli
-integrations that are not ported yet.
+Every upstream machine screen is ported with Extreme Reactors' own textures and
+layouts: the reactor, turbine, reprocessor and fluidizer controllers, and the
+access, fluid, charging, redstone, control rod and injector ports. Right-click a
+controller or port to open its screen. [PARITY.md](PARITY.md) lists every gap
+against upstream, including the ComputerCraft, JEI and Patchouli integrations
+that are not ported yet.
 
 ## Interoperability
 
@@ -87,6 +87,15 @@ writes `fabric/build/gametest-results.xml`. The Forge GameTest server writes its
 world and logs to `run/gameTestServer` and prints a pass/fail summary. To start
 a development client, run `./scripts/gradle.sh -p mods/extremereactors/fabric runClient`
 or `./scripts/gradle.sh :extremereactors:runClient`.
+
+The `showcaseClient` run on either loader starts a development client with the
+GameTest mod, which adds the `/ershowcase` command. `/ershowcase build` clears
+an area next to the player and builds a passive reactor, an active reactor, a
+turbine, a reprocessor and a fluidizer, loads them with fuel and inputs, then
+keeps the reprocessor and fluidizer powered, the reprocessor watered and the
+active reactor's steam vented. `/ershowcase open <part>` opens a part's screen,
+for example `reactor_controller` or `turbine_fluidport`. Neither the command
+nor the GameTest mod is in the release JARs.
 
 ## License
 

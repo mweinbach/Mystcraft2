@@ -5,7 +5,7 @@
 package ports.extremereactors.corelib.fluid;
 
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import ports.extremereactors.corelib.fluid.handler.EmptyFluidHandler;
@@ -23,12 +23,12 @@ public final class FluidHelper {
         return Registry.FLUID.getKey(fluid);
     }
 
-    public static Component getFluidName(final Fluid fluid) {
-        return Platform.backend().fluidName(fluid);
+    public static MutableComponent getFluidName(final Fluid fluid) {
+        return Platform.backend().fluidName(fluid).copy();
     }
 
-    public static Component getFluidName(final FluidStack stack) {
-        return stack.getDisplayName();
+    public static MutableComponent getFluidName(final FluidStack stack) {
+        return stack.getDisplayName().copy();
     }
 
     /** A new stack of the same fluid and NBT as {@code stack}, with the given amount. */

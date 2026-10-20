@@ -30,6 +30,11 @@ import it.zerono.mods.extremereactors.api.turbine.CoilMaterialRegistry;
 import it.zerono.mods.extremereactors.config.Config;
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.CachedSprites;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.ChargingPortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.FluidPortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.common.container.ChargingPortContainer;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.screen.FluidizerControllerScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.screen.FluidizerSolidInjectorScreen;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.model.FluidizerGlassModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.model.FluidizerModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.FuelRodsLayout;
@@ -38,21 +43,37 @@ import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.mode
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorFuelRodModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorGlassModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.screen.ReactorControlRodScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.screen.ReactorControllerScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.screen.ReactorFluidAccessPortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.screen.ReactorRedstonePortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.screen.ReactorSolidAccessPortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.part.ReactorChargingPortEntity;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.part.ReactorFluidPortEntity;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.variant.ReactorVariant;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorGlassModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorIOModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.render.ReprocessorCollectorRender;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.screen.ReprocessorAccessPortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.screen.ReprocessorControllerScreen;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineGlassModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineRotorModelBuilder;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.render.rotor.RotorBearingEntityRenderer;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.screen.TurbineControllerScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.screen.TurbineRedstonePortScreen;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.part.TurbineChargingPortEntity;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.part.TurbineFluidPortEntity;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.variant.TurbineVariant;
 import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
 import ports.extremereactors.corelib.client.model.ModBakedModelSupplier;
+import ports.extremereactors.corelib.item.inventory.container.ModTileContainer;
 import ports.extremereactors.platform.ClientPlatform;
 import ports.extremereactors.platform.Platform;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.model.BakedModel;
@@ -60,7 +81,10 @@ import java.util.function.Consumer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -100,6 +124,7 @@ public class ClientProxy
 
         CachedSprites.initialize();
 
+        registerScreens();
         registerRenderTypes();
         registerTileRenderers();
         registerBlockColors();
@@ -160,6 +185,39 @@ public class ClientProxy
         ).collect(ImmutableList.toImmutableList());
     }
 
+    private static void registerScreens() {
+
+        // Reactor GUIs
+        registerScreen(Content.ContainerTypes.REACTOR_CONTROLLER, ReactorControllerScreen::new);
+        registerScreen(Content.ContainerTypes.REACTOR_SOLID_ACCESSPORT, ReactorSolidAccessPortScreen::new);
+        registerScreen(Content.ContainerTypes.REACTOR_FLUID_ACCESSPORT, ReactorFluidAccessPortScreen::new);
+        registerScreen(Content.ContainerTypes.REACTOR_REDSTONEPORT, ReactorRedstonePortScreen::new);
+        registerScreen(Content.ContainerTypes.REACTOR_CONTROLROD, ReactorControlRodScreen::new);
+        registerScreen(Content.ContainerTypes.REACTOR_CHARGINGPORT,
+                (ChargingPortContainer<ReactorChargingPortEntity> container, Inventory inventory, Component title) ->
+                        new ChargingPortScreen<>(container, inventory, title, ExtremeReactors.newID("reactor/part-forgechargingport")));
+        registerScreen(Content.ContainerTypes.REACTOR_FLUIDPORT,
+                (ModTileContainer<ReactorFluidPortEntity> container, Inventory inventory, Component title) ->
+                        new FluidPortScreen<>(container, inventory, title, ExtremeReactors.newID("reactor/part-forgefluidport")));
+        // Turbine GUIs
+        registerScreen(Content.ContainerTypes.TURBINE_CONTROLLER, TurbineControllerScreen::new);
+        registerScreen(Content.ContainerTypes.TURBINE_CHARGINGPORT,
+                (ChargingPortContainer<TurbineChargingPortEntity> container, Inventory inventory, Component title) ->
+                        new ChargingPortScreen<>(container, inventory, title, ExtremeReactors.newID("turbine/part-forgechargingport")));
+        registerScreen(Content.ContainerTypes.TURBINE_FLUIDPORT,
+                (ModTileContainer<TurbineFluidPortEntity> container, Inventory inventory, Component title) ->
+                        new FluidPortScreen<>(container, inventory, title, ExtremeReactors.newID("turbine/part-forgefluidport")));
+        registerScreen(Content.ContainerTypes.TURBINE_REDSTONEPORT, TurbineRedstonePortScreen::new);
+
+        // Reprocessor GUIs
+        registerScreen(Content.ContainerTypes.REPROCESSOR_CONTROLLER, ReprocessorControllerScreen::new);
+        registerScreen(Content.ContainerTypes.REPROCESSOR_ACCESSPORT, ReprocessorAccessPortScreen::new);
+
+        // Fluidizer GUIS
+        registerScreen(Content.ContainerTypes.FLUIDIZER_SOLID_INJECTOR, FluidizerSolidInjectorScreen::new);
+        registerScreen(Content.ContainerTypes.FLUIDIZER_CONTROLLER, FluidizerControllerScreen::new);
+    }
+
     private static void registerRenderTypes() {
 
         registerRenderType(RenderType.translucent(),
@@ -178,6 +236,11 @@ public class ClientProxy
     }
 
     //region registration helpers
+
+    private static <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerScreen(
+            final Supplier<MenuType<M>> type, final ClientPlatform.ScreenFactory<M, S> factory) {
+        ClientPlatform.backend().registerScreen(type.get(), factory);
+    }
 
     @SafeVarargs
     private static void registerRenderType(RenderType type, Supplier<? extends Block>... blocks) {
