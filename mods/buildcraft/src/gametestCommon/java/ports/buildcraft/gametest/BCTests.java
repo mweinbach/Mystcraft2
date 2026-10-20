@@ -119,8 +119,8 @@ public final class BCTests {
         requireViscosity(helper, Fluids.WATER, 1000);
         requireViscosity(helper, Fluids.FLOWING_WATER, 1000);
         requireViscosity(helper, Fluids.LAVA, 6000);
-        requireViscosity(helper, BCEnergy.OIL.source(), 2000);
-        requireViscosity(helper, BCEnergy.FUEL_LIGHT.source(), 600);
+        requireViscosity(helper, BCEnergy.OIL.heat(0).source(), 2000);
+        requireViscosity(helper, BCEnergy.FUEL_LIGHT.heat(0).source(), 600);
         helper.succeed();
     }
 
@@ -170,7 +170,7 @@ public final class BCTests {
         CombustionEngineBlockEntity engine = engine(helper, new BlockPos(1, 1, 1), BCEnergy.COMBUSTION_ENGINE.get(), Direction.EAST,
                 CombustionEngineBlockEntity.class);
         FluidPort port = engine.fluidPort(Direction.NORTH);
-        require(helper, port.fill(BCEnergy.FUEL_LIGHT.source(), 1000, false) == 1000, "light fuel must fill the fuel tank");
+        require(helper, port.fill(BCEnergy.FUEL_LIGHT.heat(0).source(), 1000, false) == 1000, "light fuel must fill the fuel tank");
         require(helper, port.fill(Fluids.WATER, 1000, false) == 1000, "water must fill the coolant tank");
         require(helper, port.fill(Fluids.LAVA, 1000, true) == 0, "lava is neither fuel nor coolant");
         require(helper, engine.fuelTank().amount() == 1000 && engine.coolantTank().amount() == 1000, "fuel and coolant must be separate");

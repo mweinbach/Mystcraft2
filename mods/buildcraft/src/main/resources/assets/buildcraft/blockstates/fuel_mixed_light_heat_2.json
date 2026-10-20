@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "buildcraft:block/fuel_mixed_light_heat_2"
+    }
+  }
+}

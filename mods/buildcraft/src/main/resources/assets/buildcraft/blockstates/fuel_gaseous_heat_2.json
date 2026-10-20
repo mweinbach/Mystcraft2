@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "buildcraft:block/fuel_gaseous_heat_2"
+    }
+  }
+}

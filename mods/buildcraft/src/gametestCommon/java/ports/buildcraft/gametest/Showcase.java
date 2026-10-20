@@ -84,7 +84,7 @@ public final class Showcase {
             int x = 4 * i;
             lever(x, 4);
             CombustionEngineBlockEntity engine = engine(x, 0, 4, BCEnergy.COMBUSTION_ENGINE.get(), Direction.EAST);
-            engine.fluidPort(Direction.UP).fill(BCEnergy.FUEL_LIGHT.source(), CombustionEngineBlockEntity.MAX_FLUID, false);
+            engine.fluidPort(Direction.UP).fill(BCEnergy.FUEL_LIGHT.heat(0).source(), CombustionEngineBlockEntity.MAX_FLUID, false);
             BCTests.presetHeat(engine, heats[i]);
             pipe(x + 1, 0, 4, BCTransport.WOOD_POWER);
             pumpOverPool(x + 2, 4);
@@ -196,7 +196,7 @@ public final class Showcase {
                 BCTransport.GOLD_FLUID, BCTransport.SANDSTONE_FLUID);
         fluidLine(11, Fluids.WATER, BCTransport.STONE_FLUID, BCTransport.GOLD_FLUID, BCTransport.QUARTZ_FLUID,
                 BCTransport.QUARTZ_FLUID, BCTransport.SANDSTONE_FLUID);
-        fluidLine(13, BCEnergy.OIL.source(), BCTransport.STONE_FLUID, BCTransport.SANDSTONE_FLUID, BCTransport.GOLD_FLUID,
+        fluidLine(13, BCEnergy.OIL.heat(0).source(), BCTransport.STONE_FLUID, BCTransport.SANDSTONE_FLUID, BCTransport.GOLD_FLUID,
                 BCTransport.COBBLESTONE_FLUID, BCTransport.SANDSTONE_FLUID);
     }
 
@@ -243,7 +243,7 @@ public final class Showcase {
 
     private void combustion(int x, int y, int z, Direction facing) {
         CombustionEngineBlockEntity engine = engine(x, y, z, BCEnergy.COMBUSTION_ENGINE.get(), facing);
-        engine.fluidPort(Direction.UP).fill(BCEnergy.FUEL_LIGHT.source(), CombustionEngineBlockEntity.MAX_FLUID, false);
+        engine.fluidPort(Direction.UP).fill(BCEnergy.FUEL_LIGHT.heat(0).source(), CombustionEngineBlockEntity.MAX_FLUID, false);
         engine.fluidPort(Direction.UP).fill(Fluids.WATER, CombustionEngineBlockEntity.MAX_FLUID, false);
     }
 

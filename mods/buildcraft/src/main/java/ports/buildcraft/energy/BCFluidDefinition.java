@@ -7,11 +7,15 @@ import net.minecraft.world.level.block.LiquidBlock;
 import ports.buildcraft.BuildCraft;
 
 /**
- * One row of upstream {@code BCEnergyFluids}' table at heat 0: density, viscosity, spread and the
- * light/dark colours its sprites are recoloured with.
+ * One heat stage of an upstream {@code BCEnergyFluids} row, with upstream's per-heat adjustments: viscosity
+ * falls by a quarter per stage, the fluid turns gaseous (negative density) at its boiling heat, spreads
+ * further and is 20 degrees warmer per stage.
  */
 public final class BCFluidDefinition {
+    /** Registry name: the family name at heat 0, {@code <family>_heat_<n>} above. */
     public final String name;
+    public final BCFluidFamily family;
+    public final int heat;
     public final int density;
     public final int viscosity;
     public final int quanta;
@@ -23,14 +27,16 @@ public final class BCFluidDefinition {
     Supplier<LiquidBlock> block;
     Supplier<Item> bucket;
 
-    BCFluidDefinition(String name, int density, int viscosity, int quanta, int lightColour, int darkColour) {
-        this.name = name;
-        this.density = density;
-        this.viscosity = viscosity;
-        this.quanta = quanta;
-        this.lightColour = lightColour;
-        this.darkColour = darkColour;
-        this.temperature = 300;
+    BCFluidDefinition(BCFluidFamily family, int heat) {
+        this.family = family;
+        this.heat = heat;
+        this.name = family.name + (heat == 0 ? "" : "_heat_" + heat);
+        this.density = family.density * (heat >= family.boilPoint ? -1 : 1);
+        this.viscosity = family.viscosity * (4 - heat) / 4;
+        this.quanta = family.spread + (family.spread > 6 ? heat : heat / 2);
+        this.lightColour = family.lightColour;
+        this.darkColour = family.darkColour;
+        this.temperature = 300 + 20 * heat;
     }
 
     public BCFluid source() { return source; }

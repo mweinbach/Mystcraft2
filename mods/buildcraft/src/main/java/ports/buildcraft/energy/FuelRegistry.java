@@ -21,27 +21,42 @@ public final class FuelRegistry {
     /**
      * @param powerPerCycle micro-MJ produced per tick of burning
      * @param totalBurningTime ticks of burning per 1000 mB
-     * @param residue residue left per 1000 mB, or empty for clean fuels
+     * @param residuePerBucket mB of residue left per 1000 mB, or 0 for clean fuels
      */
-    public record Fuel(Supplier<? extends Fluid> fluid, long powerPerCycle, int totalBurningTime, FluidAmount residue) {}
+    public record Fuel(Supplier<? extends Fluid> fluid, long powerPerCycle, int totalBurningTime, int residuePerBucket) {
+        /** Fluids resolve after registration, so the residue is looked up when it is needed. */
+        public FluidAmount residue() {
+            return residuePerBucket <= 0 ? FluidAmount.EMPTY : new FluidAmount(BCEnergy.OIL_RESIDUE.heat(0).source(), residuePerBucket);
+        }
+    }
 
     private FuelRegistry() {}
 
+    /** Only the cool stage of each fluid burns, as upstream registers {@code getFirstOrNull} of each family. */
     static void init() {
         FUELS.clear();
-        addFuel(BCEnergy.FUEL_LIGHT::source, 4, 6, 6);
-        addDirtyFuel(BCEnergy.OIL::source, 8, 3, 4);
+        addFuel(BCEnergy.FUEL_GASEOUS, RefineryRecipes.GAS, 8, 4);
+        addFuel(BCEnergy.FUEL_LIGHT, RefineryRecipes.LIGHT, 6, 6);
+        addFuel(BCEnergy.FUEL_DENSE, RefineryRecipes.DENSE, 4, 12);
+
+        addFuel(BCEnergy.FUEL_MIXED_LIGHT, RefineryRecipes.GAS_LIGHT, 3, 5);
+        addFuel(BCEnergy.FUEL_MIXED_HEAVY, RefineryRecipes.LIGHT_DENSE, 5, 8);
+        addDirtyFuel(BCEnergy.OIL_DENSE, RefineryRecipes.DENSE_RESIDUE, 4, 4);
+
+        addFuel(BCEnergy.OIL_DISTILLED, RefineryRecipes.GAS_LIGHT_DENSE, 1, 5);
+        addDirtyFuel(BCEnergy.OIL_HEAVY, RefineryRecipes.LIGHT_DENSE_RESIDUE, 2, 4);
+
+        addDirtyFuel(BCEnergy.OIL, RefineryRecipes.OIL, 3, 4);
     }
 
-    private static void addFuel(Supplier<? extends Fluid> fluid, int amountDiff, int multiplier, int boostOver4) {
+    private static void addFuel(BCFluidFamily family, int amountDiff, int multiplier, int boostOver4) {
         int totalTime = TIME_BASE * boostOver4 / 4 / multiplier / amountDiff;
-        FUELS.add(new Fuel(fluid, multiplier * Power.MJ, totalTime, FluidAmount.EMPTY));
+        FUELS.add(new Fuel(family.heat(0)::source, multiplier * Power.MJ, totalTime, 0));
     }
 
-    private static void addDirtyFuel(Supplier<? extends Fluid> fluid, int amountDiff, int multiplier, int boostOver4) {
+    private static void addDirtyFuel(BCFluidFamily family, int amountDiff, int multiplier, int boostOver4) {
         int totalTime = TIME_BASE * boostOver4 / 4 / multiplier / amountDiff;
-        FluidAmount residue = new FluidAmount(BCEnergy.OIL_RESIDUE.source(), 1000 / amountDiff);
-        FUELS.add(new Fuel(fluid, multiplier * Power.MJ, totalTime, residue));
+        FUELS.add(new Fuel(family.heat(0)::source, multiplier * Power.MJ, totalTime, 1000 / amountDiff));
     }
 
     @Nullable

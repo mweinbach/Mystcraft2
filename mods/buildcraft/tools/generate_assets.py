@@ -33,13 +33,26 @@ OPPOSITE = {"down": "up", "up": "down", "north": "south", "south": "north", "wes
 HORIZONTAL_Y = {"north": 0, "east": 90, "south": 180, "west": 270}
 STAGES = ["blue", "green", "yellow", "red", "overheat", "black"]
 
-# (name, light colour, dark colour) from upstream BCEnergyFluids at heat 0.
-FLUIDS = [
-    ("oil", 0x505050, 0x050505),
-    ("oil_residue", 0x100F10, 0x421042),
-    ("fuel_light", 0xFFFF30, 0xE4CF00),
+# (family, light colour, dark colour, upstream name) from upstream BCEnergyFluids; mirrors BCEnergy.
+FLUID_FAMILIES = [
+    ("oil", 0x505050, 0x050505, "Oil"),
+    ("oil_residue", 0x100F10, 0x421042, "Residue"),
+    ("oil_heavy", 0xA08F1F, 0x423520, "Heavy Oil"),
+    ("oil_dense", 0x876E77, 0x422424, "Dense Oil"),
+    ("oil_distilled", 0xE4AF78, 0xB47F00, "Distilled Oil"),
+    ("fuel_dense", 0xFFAF3F, 0xE07F00, "Dense Fuel"),
+    ("fuel_mixed_heavy", 0xF2A700, 0xC48700, "Mixed Heavy Fuels"),
+    ("fuel_light", 0xFFFF30, 0xE4CF00, "Light Fuel"),
+    ("fuel_mixed_light", 0xF6D700, 0xC4B700, "Mixed Light Fuels"),
+    ("fuel_gaseous", 0xFAF630, 0xE0D900, "Gaseous Fuel"),
 ]
-FLUID_NAMES = {"oil": "Oil", "oil_residue": "Residue", "fuel_light": "Light Fuel"}
+# Upstream lang buildcraft.fluid.heat_N, which every BuildCraft fluid name carries.
+HEAT_NAMES = ["§bCool§r", "§6Hot§r", "§cSearing§r"]
+# (fluid name, heat, light colour, dark colour, display name) for each registered fluid.
+FLUIDS = [(family if heat == 0 else f"{family}_heat_{heat}", heat, light, dark, title)
+          for family, light, dark, title in FLUID_FAMILIES for heat in range(len(HEAT_NAMES))]
+# Upstream ships bucket textures for these two; the others are painted from their fluid.
+UPSTREAM_BUCKETS = {"oil": "bucketOil", "fuel_light": "bucketFuel"}
 
 ENGINES = [("redstone_engine", "wood", "Redstone Engine"), ("stirling_engine", "stone", "Stirling Engine"),
            ("combustion_engine", "iron", "Combustion Engine")]
@@ -187,25 +200,25 @@ class Generator:
             self.copy(f"buildcraftcore/textures/items/gear_{material}.png", f"item/gear_{material}.png")
         self.copy("buildcraftcore/textures/items/wrench.png", "item/wrench.png")
         self.copy("buildcrafttransport/textures/items/pipewaterproof.png", "item/waterproof.png")
-        self.copy("buildcraftenergy/textures/items/bucketOil.png", "item/oil_bucket.png")
-        self.copy("buildcraftenergy/textures/items/bucketFuel.png", "item/fuel_light_bucket.png")
-        self.residue_bucket()
-
         self.copy("buildcraftenergy/textures/gui/steam_engine_gui.png", "gui/stirling_engine.png")
         self.copy("buildcraftenergy/textures/gui/combustion_engine_gui.png", "gui/combustion_engine.png")
         self.copy("buildcrafttransport/textures/gui/filter.png", "gui/diamond_pipe.png")
 
-        for name, light, dark in FLUIDS:
+        for name, heat, light, dark, _ in FLUIDS:
             for kind in ["still", "flow"]:
-                self.recolour_fluid(kind, name, light, dark)
+                self.recolour_fluid(kind, name, heat, light, dark)
+            if name in UPSTREAM_BUCKETS:
+                self.copy(f"buildcraftenergy/textures/items/{UPSTREAM_BUCKETS[name]}.png", f"item/{name}_bucket.png")
+            else:
+                self.paint_bucket(name)
 
         icon = Image.open(self.src / "buildcraftcore/textures/items/gear_iron.png").convert("RGBA")
         icon.resize((128, 128), Image.NEAREST).save(ASSETS / "icon.png")
         shutil.copyfile(self.src / "buildcraft/logo.png", ASSETS / "logo.png")
 
-    def recolour_fluid(self, kind: str, name: str, light: int, dark: int) -> None:
+    def recolour_fluid(self, kind: str, name: str, heat: int, light: int, dark: int) -> None:
         """Upstream AtlasSpriteFluid: each channel blends the dark and light colour by the grey value; alpha is opaque."""
-        source = self.src / f"buildcraftenergy/textures/blocks/fluids/heat_0_{kind}.png"
+        source = self.src / f"buildcraftenergy/textures/blocks/fluids/heat_{heat}_{kind}.png"
         image = Image.open(source).convert("RGBA")
         pixels = image.load()
         for y in range(image.height):
@@ -223,20 +236,24 @@ class Generator:
         image.save(dest)
         shutil.copyfile(source.with_name(source.name + ".mcmeta"), dest.with_name(dest.name + ".mcmeta"))
 
-    def residue_bucket(self) -> None:
-        """Upstream has no residue bucket texture: repaint the pixels where the oil and fuel buckets differ."""
+    def paint_bucket(self, name: str) -> None:
+        """
+        Upstream 1.12 drew other buckets from the fluid sprite at runtime: paint the pixels where the oil
+        and fuel buckets differ (the fluid) with the first frame of this fluid's recoloured still texture.
+        """
         items = self.src / "buildcraftenergy/textures/items"
         oil = Image.open(items / "bucketOil.png").convert("RGBA")
         fuel = Image.open(items / "bucketFuel.png").convert("RGBA")
+        still = Image.open(ASSETS / "textures" / "block" / "fluids" / f"{name}_still.png").convert("RGBA")
         out = oil.copy()
-        light, dark = 0x100F10, 0x421042
-        colour = tuple(((light >> s & 0xFF) + (dark >> s & 0xFF)) // 2 for s in (16, 8, 0)) + (255,)
         for y in range(oil.height):
             for x in range(oil.width):
                 a, b = oil.getpixel((x, y)), fuel.getpixel((x, y))
                 if a[3] > 0 and a != b:
-                    out.putpixel((x, y), colour)
-        out.save(ASSETS / "textures" / "item" / "oil_residue_bucket.png")
+                    out.putpixel((x, y), still.getpixel((x, y)))
+        dest = ASSETS / "textures" / "item" / f"{name}_bucket.png"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        out.save(dest)
 
     # ---- models ---------------------------------------------------------------------------
 
@@ -422,13 +439,21 @@ class Generator:
         self.lang.update({f"block.{MOD}.quarry": "Quarry", f"block.{MOD}.frame": "Frame"})
 
     def fluids(self) -> None:
-        for name, _, _ in FLUIDS:
+        for name, heat, _, _, title in FLUIDS:
             self.model(f"block/{name}", {"textures": {"particle": rl(f"block/fluids/{name}_still")}})
             self.blockstate(name, {"variants": {"": {"model": rl(f"block/{name}")}}})
             self.generated_item(f"{name}_bucket")
-            self.lang[f"block.{MOD}.{name}"] = FLUID_NAMES[name]
-            self.lang[f"fluid.{MOD}.{name}"] = FLUID_NAMES[name]
-            self.lang[f"item.{MOD}.{name}_bucket"] = f"{FLUID_NAMES[name]} Bucket"
+            self.lang[f"block.{MOD}.{name}"] = f"{title} ({HEAT_NAMES[heat]})"
+            self.lang[f"fluid.{MOD}.{name}"] = f"{title} ({HEAT_NAMES[heat]})"
+            self.lang[f"item.{MOD}.{name}_bucket"] = f"{title} Bucket ({HEAT_NAMES[heat]})"
+
+    def oil_wells(self) -> None:
+        self.blockstate("oil_spring", {"variants": {"": {"model": "minecraft:block/bedrock"}}})
+        self.item_model("oil_spring", "minecraft:block/bedrock")
+        self.lang[f"block.{MOD}.oil_spring"] = "Oil Spring"
+        # The Forge biome modifier and Fabric's BiomeModifications add this to overworld biomes.
+        write_json(DATA / MOD / "worldgen" / "configured_feature" / "oil_well.json", {"type": rl("oil_well"), "config": {}})
+        write_json(DATA / MOD / "worldgen" / "placed_feature" / "oil_well.json", {"feature": rl("oil_well"), "placement": []})
 
     def items(self) -> None:
         for material, title in GEARS:
@@ -544,6 +569,7 @@ class Generator:
         self.factory()
         self.builders()
         self.fluids()
+        self.oil_wells()
         self.items()
         self.write_lang()
         self.recipes()
