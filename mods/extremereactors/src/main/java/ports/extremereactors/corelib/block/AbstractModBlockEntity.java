@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 
 /**
  * Base block entity. All persistent and client-synchronized state goes through {@link ISyncableEntity}: disk saves
- * and the initial chunk data use {@link SyncReason#FullSync}, the periodic GUI updates
+ * and the initial chunk data use {@link SyncReason#FullSync}, block entity data packets and the periodic GUI updates
  * {@link SyncReason#NetworkUpdate}.
  */
 public abstract class AbstractModBlockEntity
@@ -160,6 +160,13 @@ public abstract class AbstractModBlockEntity
      */
     public static final String SYNC_PAYLOAD_KEY = "zcvase_payload";
 
+    /**
+     * The key of the compound holding the {@link SyncReason#NetworkUpdate} data in a block entity data packet.
+     * Multiblock parts only cache full-sync controller data until their next validation, so updates for an
+     * already assembled client machine (the turbine rotor speed, the reactor fuel rods) must use this one.
+     */
+    public static final String NETWORK_PAYLOAD_KEY = "zcvase_update";
+
     @Override
     public void load(final CompoundTag data) {
 
@@ -167,6 +174,10 @@ public abstract class AbstractModBlockEntity
 
         if (data.contains(SYNC_PAYLOAD_KEY, Tag.TAG_COMPOUND)) {
             this.syncDataFrom(data.getCompound(SYNC_PAYLOAD_KEY), SyncReason.FullSync);
+        }
+
+        if (data.contains(NETWORK_PAYLOAD_KEY, Tag.TAG_COMPOUND)) {
+            this.syncDataFrom(data.getCompound(NETWORK_PAYLOAD_KEY), SyncReason.NetworkUpdate);
         }
 
         if (this.calledByLogicalClient()) {
@@ -193,7 +204,10 @@ public abstract class AbstractModBlockEntity
     @Nullable
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+        final CompoundTag data = new CompoundTag();
+
+        data.put(NETWORK_PAYLOAD_KEY, this.syncDataTo(new CompoundTag(), SyncReason.NetworkUpdate));
+        return ClientboundBlockEntityDataPacket.create(this, blockEntity -> data);
     }
 
     //endregion

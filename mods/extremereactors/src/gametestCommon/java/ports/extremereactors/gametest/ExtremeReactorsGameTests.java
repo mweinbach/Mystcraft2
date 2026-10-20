@@ -18,6 +18,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -307,6 +309,54 @@ public final class ExtremeReactorsGameTests {
                     check(turbine.getFluidConsumedLastTick() > 0, "the turbine consumed no steam");
                     check(storedEnergy(turbine) > 0, "the turbine generated no energy at "
                             + turbine.getRotorSpeed() + " RPM");
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * Clients learn the rotor speed of an assembled turbine only from block entity data packets, so the idle turbine
+     * plays the client: it must take the running turbine's speed from such a packet.
+     */
+    public static void dataPacketsUpdateAnAssembledTurbine(final GameTestHelper helper) {
+
+        final BlockPos runningOrigin = new BlockPos(1, 1, 1);
+        final BlockPos idleOrigin = new BlockPos(8, 1, 1);
+        final BlockPos runningController = runningOrigin.offset(0, 2, 2);
+        final BlockPos idleController = idleOrigin.offset(0, 2, 2);
+
+        basicTurbine(runningOrigin, 1, 3)
+                .set(2, 2, 0, Content.Blocks.TURBINE_CREATIVE_STEAM_GENERATOR_BASIC)
+                .place(helper);
+        basicTurbine(idleOrigin, 1, 3).place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+
+                    assembledTurbine(helper, runningController);
+                    assembledTurbine(helper, idleController);
+                })
+                .thenExecute(() -> {
+
+                    final MultiblockTurbine turbine = assembledTurbine(helper, runningController);
+
+                    turbine.setInductorEngaged(true);
+                    turbine.setMachineActive(true);
+                })
+                .thenWaitUntil(() -> check(assembledTurbine(helper, runningController).getRotorSpeed() > 0,
+                        "the rotor is not spinning"))
+                .thenExecute(() -> {
+
+                    final float speed = assembledTurbine(helper, runningController).getRotorSpeed();
+                    final Packet<?> packet = saveDelegate(helper, runningOrigin, 5).getUpdatePacket();
+
+                    check(packet instanceof ClientboundBlockEntityDataPacket, "no block entity data packet");
+                    check(0 == assembledTurbine(helper, idleController).getRotorSpeed(), "the idle rotor is spinning");
+
+                    saveDelegate(helper, idleOrigin, 5).load(((ClientboundBlockEntityDataPacket) packet).getTag());
+
+                    final float synced = assembledTurbine(helper, idleController).getRotorSpeed();
+
+                    check(speed == synced, "the data packet carried " + synced + " RPM instead of " + speed);
                 })
                 .thenSucceed();
     }
@@ -621,6 +671,20 @@ public final class ExtremeReactorsGameTests {
         }
 
         throw new GameTestAssertException("no multiblock part at " + position);
+    }
+
+    private static AbstractMultiblockPart<?> saveDelegate(final GameTestHelper helper, final BlockPos origin,
+                                                          final int size) {
+
+        for (final BlockPos position : BlockPos.betweenClosed(origin, origin.offset(size - 1, size - 1, size - 1))) {
+
+            if (helper.getBlockEntity(position) instanceof AbstractMultiblockPart<?> part
+                    && part.isMultiblockSaveDelegate()) {
+                return part;
+            }
+        }
+
+        throw new GameTestAssertException("the machine at " + origin + " has no save delegate");
     }
 
     private static BlockEntity blockEntity(final GameTestHelper helper, final BlockPos position) {

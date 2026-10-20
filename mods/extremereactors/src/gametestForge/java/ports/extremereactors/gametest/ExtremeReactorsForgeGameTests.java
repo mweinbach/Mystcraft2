@@ -87,6 +87,12 @@ public final class ExtremeReactorsForgeGameTests {
 
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
             timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public static void dataPacketsUpdateAnAssembledTurbine(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.dataPacketsUpdateAnAssembledTurbine(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
     public static void reactorItemsAndEnergyThroughLoaderApis(final GameTestHelper helper) {
         ExtremeReactorsGameTests.reactorItemsAndEnergyThroughLoaderApis(helper, ForgeLoaderApis.INSTANCE);
     }

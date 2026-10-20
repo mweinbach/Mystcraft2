@@ -74,6 +74,11 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public void dataPacketsUpdateAnAssembledTurbine(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.dataPacketsUpdateAnAssembledTurbine(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
     public void reactorItemsAndEnergyThroughLoaderApis(final GameTestHelper helper) {
         ExtremeReactorsGameTests.reactorItemsAndEnergyThroughLoaderApis(helper, FabricLoaderApis.INSTANCE);
     }
