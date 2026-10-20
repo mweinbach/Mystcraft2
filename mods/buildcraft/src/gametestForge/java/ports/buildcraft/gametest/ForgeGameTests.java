@@ -61,6 +61,24 @@ public final class ForgeGameTests {
     public static void quarryBuildsFrameAndDigs(GameTestHelper helper) { BCTests.quarryBuildsFrameAndDigs(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void landMarksConnectIntoBox(GameTestHelper helper) { BCTests.landMarksConnectIntoBox(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void pathMarksFormPathsAndLoops(GameTestHelper helper) { BCTests.pathMarksFormPathsAndLoops(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void markerConnectorJoinsMarks(GameTestHelper helper) { BCTests.markerConnectorJoinsMarks(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void markersRotateAndNeedSupport(GameTestHelper helper) { BCTests.markersRotateAndNeedSupport(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void quarryTakesLandMarkArea(GameTestHelper helper) { BCTests.quarryTakesLandMarkArea(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void quarryFindsLandMarkBoxEdge(GameTestHelper helper) { BCTests.quarryFindsLandMarkBoxEdge(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
