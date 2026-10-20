@@ -25,6 +25,12 @@
       "why": "The refinery's routes all yield half a bucket of light fuel per bucket of oil, so a bucket of light fuel is worth the oil from two buckets, returning one bucket. The lava and water that heat and cool it, and the by-products, are left out so that no route makes light fuel for less than its value.",
       "output": "buildcraft:fuel_light_bucket",
       "ingredients": {"buildcraft:oil_bucket": 2, "minecraft:bucket": -1}
+    },
+    {
+      "name": "architect_table_records",
+      "why": "The architect table records an area onto a blank template or blueprint and hands back the recorded one, so a recorded item is worth its blank. Transmutation never copies NBT, and a recorded item without its header acts as a blank one: the table records onto it again.",
+      "output": "buildcraft:{kind}_used",
+      "ingredients": {"buildcraft:{kind}_clean": 1}
     }
   ],
   "exclude": {

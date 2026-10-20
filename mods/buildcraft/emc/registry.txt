@@ -1,3 +1,6 @@
+buildcraft:architect_table
+buildcraft:blueprint_clean
+buildcraft:blueprint_used
 buildcraft:combustion_engine
 buildcraft:distiller
 buildcraft:filler
@@ -74,6 +77,8 @@ buildcraft:quarry
 buildcraft:redstone_engine
 buildcraft:stirling_engine
 buildcraft:tank
+buildcraft:template_clean
+buildcraft:template_used
 buildcraft:volume_box
 buildcraft:water_spring
 buildcraft:waterproof

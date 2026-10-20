@@ -12,6 +12,23 @@
           }
         }
       ]
+    },
+    "buildcraft_architect_table_records": {
+      "comment": "The architect table records an area onto a blank template or blueprint and hands back the recorded one, so a recorded item is worth its blank. Transmutation never copies NBT, and a recorded item without its header acts as a blank one: the table records onto it again.",
+      "conversions": [
+        {
+          "output": "buildcraft:blueprint_used",
+          "ingredients": {
+            "buildcraft:blueprint_clean": 1
+          }
+        },
+        {
+          "output": "buildcraft:template_used",
+          "ingredients": {
+            "buildcraft:template_clean": 1
+          }
+        }
+      ]
     }
   },
   "values": {
