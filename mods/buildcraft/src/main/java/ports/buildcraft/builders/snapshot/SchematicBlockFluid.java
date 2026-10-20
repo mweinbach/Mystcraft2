@@ -85,6 +85,11 @@ public class SchematicBlockFluid implements SchematicBlock {
     }
 
     @Override
+    public BlockState getPreviewState() {
+        return blockState;
+    }
+
+    @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.put("blockState", NbtUtils.writeBlockState(blockState));

@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -19,6 +22,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.ElectronicLibraryBlockEntity;
+import ports.buildcraft.builders.SnapshotTooltip;
+import ports.buildcraft.builders.snapshot.Snapshot;
+import ports.buildcraft.builders.snapshot.SnapshotPackets;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.core.marker.volume.ClientVolumeBoxes;
@@ -88,11 +95,32 @@ public final class BCClient {
         MenuScreens.register(BCBuilders.FILLER_MENU.get(), FillerScreen::new);
         MenuScreens.register(BCBuilders.ARCHITECT_TABLE_MENU.get(), ArchitectTableScreen::new);
         MenuScreens.register(BCBuilders.BUILDER_MENU.get(), BuilderScreen::new);
+        MenuScreens.register(BCBuilders.ELECTRONIC_LIBRARY_MENU.get(), ElectronicLibraryScreen::new);
+        MenuScreens.register(BCBuilders.REPLACER_MENU.get(), ReplacerScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
     public static Map<ResourceLocation, Consumer<FriendlyByteBuf>> receivers() {
-        return Map.of(VolumeBoxes.CHANNEL, ClientVolumeBoxes::receive);
+        return Map.of(VolumeBoxes.CHANNEL, ClientVolumeBoxes::receive,
+                SnapshotPackets.RESPONSE_CHANNEL, ClientSnapshots::receive,
+                ElectronicLibraryBlockEntity.DOWN_CHANNEL, ElectronicLibraryBlockEntity::receiveDown,
+                ElectronicLibraryBlockEntity.UP_REQUEST_CHANNEL, BCClient::receiveUploadRequest);
+    }
+
+    /** The server asks for the snapshot selected in a library; only a client holding it answers. */
+    private static void receiveUploadRequest(FriendlyByteBuf buffer) {
+        BlockPos pos = buffer.readBlockPos();
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null || !(minecraft.level.getBlockEntity(pos) instanceof ElectronicLibraryBlockEntity library)) return;
+        Snapshot.Key selected = library.getSelected();
+        if (selected == null) return;
+        ElectronicLibraryBlockEntity.upload(pos, selected, ElectronicLibraryBlockEntity.UPLOAD_PART_BYTES,
+                payload -> ClientPlatform.get().sendToServer(ElectronicLibraryBlockEntity.UP_CHANNEL, payload));
+    }
+
+    /** The client half of the snapshot drawn in template, blueprint and single schematic tooltips. */
+    public static ClientTooltipComponent tooltipComponent(SnapshotTooltip tooltip) {
+        return new SnapshotTooltipComponent(tooltip);
     }
 
     /** Called after translucent blocks with the level's pose stack, which carries the camera's rotation but not its position. */

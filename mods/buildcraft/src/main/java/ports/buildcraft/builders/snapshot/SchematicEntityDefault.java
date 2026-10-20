@@ -124,6 +124,14 @@ public class SchematicEntityDefault implements SchematicEntity {
     @Nullable
     @Override
     public Entity build(Level level, BlockPos basePos) {
+        Entity entity = createPreview(level, basePos);
+        if (entity != null) level.addFreshEntity(entity);
+        return entity;
+    }
+
+    @Nullable
+    @Override
+    public Entity createPreview(Level level, BlockPos basePos) {
         CompoundTag replaceNbt = rules().stream().map(rule -> rule.replaceNbt).filter(Objects::nonNull)
                 .map(Tag.class::cast).reduce(NbtJson::merge).map(CompoundTag.class::cast).orElse(null);
         Vec3 placePos = Vec3.atLowerCornerOf(basePos).add(pos);
@@ -151,7 +159,6 @@ public class SchematicEntityDefault implements SchematicEntity {
         if (created.isEmpty()) return null;
         Entity entity = created.get();
         if (rotate) entity.moveTo(placePos.x, placePos.y, placePos.z, entity.rotate(entityRotation), entity.getXRot());
-        level.addFreshEntity(entity);
         return entity;
     }
 

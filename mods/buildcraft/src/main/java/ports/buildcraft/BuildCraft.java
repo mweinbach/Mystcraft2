@@ -7,6 +7,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import ports.buildcraft.builders.ArchitectTableMenu;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.ElectronicLibraryBlockEntity;
+import ports.buildcraft.builders.snapshot.SnapshotPackets;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
@@ -45,7 +47,10 @@ public final class BuildCraft {
 
     /** Client-to-server messages by channel; loaders hand each payload over on the server thread. */
     public static Map<ResourceLocation, Platform.ServerReceiver> serverReceivers() {
-        return Map.of(ArchitectTableMenu.NAME_CHANNEL, ArchitectTableMenu::receiveName);
+        return Map.of(ArchitectTableMenu.NAME_CHANNEL, ArchitectTableMenu::receiveName,
+                ElectronicLibraryBlockEntity.SELECT_CHANNEL, ElectronicLibraryBlockEntity::receiveSelect,
+                ElectronicLibraryBlockEntity.UP_CHANNEL, ElectronicLibraryBlockEntity::receiveUp,
+                SnapshotPackets.REQUEST_CHANNEL, SnapshotPackets::receiveRequest);
     }
 
     /** Loads every module so its registry entries are queued, in upstream module order. */
