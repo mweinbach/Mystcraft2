@@ -127,9 +127,10 @@ public final class BuilderTests {
         return count;
     }
 
+    /** Dropped stacks are split into item entities of random sizes, so their counts are summed. */
     static boolean dropped(GameTestHelper helper, BlockPos pos, ItemStack stack) {
-        return !helper.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(pos)).inflate(1),
-                item -> ItemStack.isSameItemSameTags(item.getItem(), stack) && item.getItem().getCount() == stack.getCount()).isEmpty();
+        return helper.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(pos)).inflate(1),
+                item -> ItemStack.isSameItemSameTags(item.getItem(), stack)).stream().mapToInt(item -> item.getItem().getCount()).sum() == stack.getCount();
     }
 
     /**
