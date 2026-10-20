@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,6 +15,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.builders.SchematicSingleItem;
 import ports.buildcraft.core.BCCoreEvents;
 import ports.buildcraft.platform.Platform;
 
@@ -42,6 +44,7 @@ public final class FabricMod implements ModInitializer {
                         }
                     });
                 }));
+        UseBlockCallback.EVENT.register(SchematicSingleItem::useFirst);
         ServerTickEvents.END_WORLD_TICK.register(BCCoreEvents::onLevelTick);
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (entity instanceof ServerPlayer player) BCCoreEvents.onPlayerJoinLevel(player, level);

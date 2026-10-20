@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -23,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
+import ports.buildcraft.builders.SnapshotTooltip;
 import ports.buildcraft.client.BCClient;
 import ports.buildcraft.client.ClientPlatform;
 import ports.buildcraft.energy.BCEnergy;
@@ -53,6 +55,7 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
                 }
             });
         }));
+        TooltipComponentCallback.EVENT.register(data -> data instanceof SnapshotTooltip tooltip ? BCClient.tooltipComponent(tooltip) : null);
         WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> BCClient.renderLevel(context.matrixStack(), context.camera()));
     }
 

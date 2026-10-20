@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -17,6 +18,7 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import ports.buildcraft.builders.SnapshotTooltip;
 import ports.buildcraft.client.BCClient;
 import ports.buildcraft.client.ClientPlatform;
 
@@ -39,6 +41,7 @@ final class ForgeClient implements ClientPlatform.Backend {
             if (event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS)) BCClient.extraSprites().forEach(event::addSprite);
         });
         modBus.addListener((RegisterColorHandlersEvent.Item event) -> BCClient.registerItemColours(event::register));
+        modBus.addListener((RegisterClientTooltipComponentFactoriesEvent event) -> event.register(SnapshotTooltip.class, BCClient::tooltipComponent));
         modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(() -> {
             BCClient.registerScreens();
             BCClient.registerItemProperties(ItemProperties::register);

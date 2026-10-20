@@ -33,6 +33,12 @@ public interface SchematicEntity {
     @Nullable
     Entity buildWithoutChecks(Level level, BlockPos basePos);
 
+    /** The entity {@link #build} would add, made but not added, for a snapshot preview to draw. */
+    @Nullable
+    default Entity createPreview(Level level, BlockPos basePos) {
+        return null;
+    }
+
     CompoundTag serializeNBT();
 
     void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException;

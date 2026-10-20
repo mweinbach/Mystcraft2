@@ -23,6 +23,12 @@ public final class DeltaInt {
         entries.add(new Entry(now + start, now + end, delta));
     }
 
+    /** Upstream {@code setValue}: drops every scheduled span. */
+    public void setValue(int value) {
+        entries.clear();
+        staticValue = value;
+    }
+
     /** Folds finished spans into the static value. */
     public void tick(long now) {
         for (Iterator<Entry> iterator = entries.iterator(); iterator.hasNext(); ) {

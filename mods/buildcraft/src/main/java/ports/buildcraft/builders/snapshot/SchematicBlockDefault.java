@@ -239,6 +239,17 @@ public class SchematicBlockDefault implements SchematicBlock {
     }
 
     @Override
+    public BlockState getPreviewState() {
+        return blockState;
+    }
+
+    @Nullable
+    @Override
+    public CompoundTag getPreviewTileNbt() {
+        return blockState.hasBlockEntity() ? tileNbt : null;
+    }
+
+    @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.put("requiredBlockOffsets", posList(requiredBlockOffsets));

@@ -154,6 +154,18 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void builderMenuSavingAndDrops(GameTestHelper helper) { BuilderTests.builderMenuSavingAndDrops(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void libraryCopiesSnapshotsDownAndUp(GameTestHelper helper) { LibraryTests.libraryCopiesSnapshotsDownAndUp(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void replacerSwapsBlueprintBlocks(GameTestHelper helper) { LibraryTests.replacerSwapsBlueprintBlocks(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void singleSchematicRecordsAndPlaces(GameTestHelper helper) { LibraryTests.singleSchematicRecordsAndPlaces(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 

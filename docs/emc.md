@@ -6,7 +6,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Port | Loaders | Items | Explicit | Excluded | Details |
 | --- | --- | ---: | ---: | ---: | --- |
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
-| BuildCraft | Forge, Fabric | 86 | 1 | 35 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
+| BuildCraft | Forge, Fabric | 90 | 1 | 39 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
