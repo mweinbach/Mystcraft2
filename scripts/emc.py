@@ -152,15 +152,19 @@ def recipe_ingredients(recipe):
     return None
 
 
-def condition_holds(condition, loader, tags, mods):
-    """Evaluate a Forge ``conditions`` or Fabric ``fabric:load_conditions`` entry for a standalone port."""
+def condition_holds(condition, loader, tags, mods, custom=None):
+    """Evaluate a Forge ``conditions`` or Fabric ``fabric:load_conditions`` entry for a standalone port.
+
+    ``custom`` maps a port's own condition types to the outcome the policy fixes for them."""
     kind = condition.get("condition" if loader == "fabric" else "type")
+    if custom and kind in custom:
+        return custom[kind]
     if kind in ("fabric:not", "forge:not"):
-        return not condition_holds(condition["value"], loader, tags, mods)
+        return not condition_holds(condition["value"], loader, tags, mods, custom)
     if kind in ("fabric:and", "forge:and"):
-        return all(condition_holds(c, loader, tags, mods) for c in condition["values"])
+        return all(condition_holds(c, loader, tags, mods, custom) for c in condition["values"])
     if kind in ("fabric:or", "forge:or"):
-        return any(condition_holds(c, loader, tags, mods) for c in condition["values"])
+        return any(condition_holds(c, loader, tags, mods, custom) for c in condition["values"])
     if kind == "fabric:tags_populated" and condition.get("registry", "minecraft:item") == "minecraft:item":
         return all(tags.members(tag) for tag in condition["values"])
     if kind == "forge:tag_empty":
@@ -176,7 +180,7 @@ def condition_holds(condition, loader, tags, mods):
     raise PolicyError(f"unsupported recipe condition {kind}")
 
 
-def load_recipes(roots, loader, tags, mods):
+def load_recipes(roots, loader, tags, mods, custom=None):
     """Recipes ProjectE maps (vanilla types) whose load conditions hold; other types are reported as skipped."""
     recipes, skipped = {}, {}
     key = "fabric:load_conditions" if loader == "fabric" else "conditions"
@@ -189,7 +193,7 @@ def load_recipes(roots, loader, tags, mods):
             for file in sorted(folder.rglob("*.json")):
                 rid = f"{namespace.name}:{file.relative_to(folder).with_suffix('').as_posix()}"
                 recipe = read_json(file)
-                if not all(condition_holds(c, loader, tags, mods) for c in recipe.get(key, [])):
+                if not all(condition_holds(c, loader, tags, mods, custom) for c in recipe.get(key, [])):
                     continue
                 if recipe_ingredients(recipe) is None:
                     skipped[rid] = recipe.get("type")
@@ -326,7 +330,7 @@ def explicit_value(spec, system, baseline, key):
 
 def validate_policy(policy):
     allowed = {"namespace", "loaders", "resources", "output", "ignored", "values", "vanilla", "exclude",
-               "conversions", "processes", "remainders", "notes"}
+               "conversions", "processes", "remainders", "conditions", "notes"}
     unknown = set(policy) - allowed
     if unknown:
         raise PolicyError(f"unknown policy keys: {', '.join(sorted(unknown))}")
@@ -362,6 +366,10 @@ def validate_policy(policy):
     for key, why in policy.get("ignored", {}).items():
         if not isinstance(why, str) or not why:
             raise PolicyError(f"ignored.{key} needs a reason")
+    for kind, entry in policy.get("conditions", {}).items():
+        if (not isinstance(entry, dict) or set(entry) != {"holds", "why"} or not isinstance(entry["holds"], bool)
+                or not entry["why"] or not kind.startswith(policy["namespace"] + ":")):
+            raise PolicyError(f"conditions.{kind}: the port's own condition type, with a boolean holds and a why")
     names = set()
     for conversion in policy.get("conversions", []):
         name = conversion.get("name")
@@ -405,7 +413,8 @@ class Port:
         tags.add_resources(roots)
         remainders = {**REMAINDERS, **self.policy.get("remainders", {})}
         mods = {"minecraft", self.namespace, loader} | ({"fabric-api"} if loader == "fabric" else set())
-        recipes, skipped = load_recipes(roots, loader, tags, mods)
+        custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
+        recipes, skipped = load_recipes(roots, loader, tags, mods, custom)
         return tags, remainders, recipes, skipped
 
     def compute(self):
