@@ -26,6 +26,12 @@ public final class FabricGameTests implements FabricGameTest {
     public void combustionEngineBurnsFuel(GameTestHelper helper) { BCTests.combustionEngineBurnsFuel(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void engineTrunkFollowsHeat(GameTestHelper helper) { BCTests.engineTrunkFollowsHeat(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 500)
+    public void redstoneEngineWarmsButNeverOverheats(GameTestHelper helper) { BCTests.redstoneEngineWarmsButNeverOverheats(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void tankColumnFillsFromTheBottom(GameTestHelper helper) { BCTests.tankColumnFillsFromTheBottom(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
