@@ -11,6 +11,8 @@ repositories {
     }
 }
 dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {
         runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
@@ -26,12 +28,11 @@ tasks.withType(Jar).configureEach {
 }
 
 // Loader-independent simulation checks that run without a game server.
-tasks.register('simulationTest', JavaExec) {
-    dependsOn tasks.named('testClasses')
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'ports.extremereactors.test.SimulationLogicTest'
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
 }
-tasks.named('check') { dependsOn tasks.named('simulationTest') }
 
 // In-world tests live outside the production source set and JAR.
 sourceSets {

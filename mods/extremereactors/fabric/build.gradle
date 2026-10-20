@@ -25,6 +25,8 @@ dependencies {
     // Team Reborn Energy is the Fabric energy standard; it is bundled so the mod has no extra install step.
     include(modImplementation('teamreborn:energy:2.3.0'))
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // Item Alchemy 1.1.3, the Fabric EMC mod, checks the shipped default_emcs data against real values.
     if (providers.gradleProperty('withItemAlchemy').isPresent()) {
         modRuntimeOnly 'maven.modrinth:item-alchemy:1AYUTFS2'
@@ -58,12 +60,11 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // Loader-independent simulation checks that run without a game server.
-tasks.register('simulationTest', JavaExec) {
-    dependsOn tasks.named('testClasses')
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'ports.extremereactors.test.SimulationLogicTest'
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
 }
-tasks.named('check') { dependsOn tasks.named('simulationTest') }
 
 tasks.named('processResources', ProcessResources) {
     inputs.properties metadata
