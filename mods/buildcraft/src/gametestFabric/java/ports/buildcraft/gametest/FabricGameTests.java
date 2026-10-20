@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests} and {@link BuilderTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests} and {@link PluggableTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -221,6 +221,17 @@ public final class FabricGameTests implements FabricGameTest {
     public void assemblyTablePagesRecipesAndDropsStaleOutputs(GameTestHelper helper) {
         SiliconTests.assemblyTablePagesRecipesAndDropsStaleOutputs(helper);
     }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { PluggableTests.plugBlocksConnectionsAndBreaksOff(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 1200)
+    public void powerAdaptorDrivesWoodenPipeThroughBlockedFace(GameTestHelper helper) {
+        PluggableTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { PluggableTests.structurePipesConnectOnlyToEachOther(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

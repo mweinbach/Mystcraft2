@@ -1326,7 +1326,7 @@ public final class BCTests {
             "redstone_engine", "stirling_engine", "combustion_engine", "tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "waterproof",
             "marker_volume", "marker_path", "marker_connector",
             "laser", "assembly_table", "advanced_crafting_table", "integration_table", "redstone_chipset", "iron_chipset", "gold_chipset",
-            "quartz_chipset", "diamond_chipset");
+            "quartz_chipset", "diamond_chipset", "plug_blocker", "plug_power_adaptor");
 
     /** Upstream recipes are loaded, accept both conventional and Forge tags, and gears and wrenches carry both tags. */
     public static void recipesAndTags(GameTestHelper helper) {
