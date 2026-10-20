@@ -17,6 +17,8 @@ import net.minecraft.world.item.ItemStack;
 public abstract class BCMenu extends AbstractContainerMenu {
     protected final BlockPos pos;
     protected int machineSlotStart = 36;
+    /** Shift-clicked stacks go into machine slots before this index; later slots are display or output only. */
+    protected int machineSlotEnd = Integer.MAX_VALUE;
     private List<GuiTank> guiTanks = List.of();
     private List<GuiTank> quickMoveTanks = List.of();
 
@@ -80,7 +82,8 @@ public abstract class BCMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            if (machineSlotStart >= slots.size() || !moveItemStackTo(stack, machineSlotStart, slots.size(), false)) return ItemStack.EMPTY;
+            int end = Math.min(machineSlotEnd, slots.size());
+            if (machineSlotStart >= end || !moveItemStackTo(stack, machineSlotStart, end, false)) return ItemStack.EMPTY;
         } else if (!moveItemStackTo(stack, 0, machineSlotStart, true)) {
             return ItemStack.EMPTY;
         }
