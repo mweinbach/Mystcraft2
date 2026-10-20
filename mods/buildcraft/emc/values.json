@@ -96,6 +96,21 @@
       "itemalchemy": 3067,
       "source": "recipe"
     },
+    "buildcraft:marker_connector": {
+      "projecte": 872,
+      "itemalchemy": 860,
+      "source": "recipe"
+    },
+    "buildcraft:marker_path": {
+      "projecte": 76,
+      "itemalchemy": 84,
+      "source": "recipe"
+    },
+    "buildcraft:marker_volume": {
+      "projecte": 932,
+      "itemalchemy": 932,
+      "source": "recipe"
+    },
     "buildcraft:mining_well": {
       "projecte": 3420,
       "itemalchemy": 3368,
