@@ -7,6 +7,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | --- | --- | ---: | ---: | ---: | --- |
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
 | BuildCraft | Forge, Fabric | 73 | 1 | 30 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
+| Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
@@ -143,6 +144,7 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 
 | Port | Run |
 | --- | --- |
+| Extreme Reactors | `./scripts/gradle.sh :extremereactors:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/extremereactors/fabric runGametest -PwithItemAlchemy` |
 | JurassiCraft | `./scripts/gradle.sh :jurassicraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithItemAlchemy` |
 | Mystcraft | `./scripts/gradle.sh :mystcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/mystcraft/fabric runGametest -PwithItemAlchemy` |
 | BuildCraft | `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy` |
@@ -169,6 +171,8 @@ Use this for Extreme Reactors or any new port.
    - Then `values`, `exclude`, `conversions` and `processes`, each with a `why`.
    - `vanilla` only for vanilla ingredients an EMC mod leaves unvalued (see the exploit rules).
    - `ignored` is only for test-only registrations.
+   - `conditions` fixes the outcome of the port's own recipe condition types, such as Extreme Reactors'
+     `bigreactors:config_condition`, with `holds` set to the shipped config default and a `why`.
 3. **Generate and read.** Run `python3 scripts/emc.py generate <id>` and fix every problem it reports:
    - Give base items a `like` anchor.
    - Turn each custom machine recipe into a conversion.

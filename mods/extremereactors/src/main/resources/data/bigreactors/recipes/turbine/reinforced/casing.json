@@ -11,7 +11,7 @@
   ],
   "fabric:load_conditions": [
     {
-      "condition": "fabric:item_tags_populated",
+      "condition": "fabric:tags_populated",
       "values": [
         "forge:ingots/steel"
       ]
