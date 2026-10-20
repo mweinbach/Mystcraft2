@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "buildcraft:block/marker_path"
+    },
+    "facing=down": {
+      "model": "buildcraft:block/marker_path",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "buildcraft:block/marker_path",
+      "y": 90,
+      "x": 90
+    },
+    "facing=south": {
+      "model": "buildcraft:block/marker_path",
+      "y": 180,
+      "x": 90
+    },
+    "facing=west": {
+      "model": "buildcraft:block/marker_path",
+      "y": 270,
+      "x": 90
+    },
+    "facing=north": {
+      "model": "buildcraft:block/marker_path",
+      "x": 90
+    }
+  }
+}
