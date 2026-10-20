@@ -20,6 +20,9 @@ worlds do not migrate between them or from 1.12.
   fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void) and kinesis (wood,
   cobblestone, stone, quartz, gold, sandstone).
 - Factory and builders: tank, pump, mining well, quarry and its frame.
+- Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
+  area), path marks that connect into paths and loops, and the marker connector, with upstream's
+  lasers.
 - Oil: medium and large oil wells in the Overworld (surface lake, underground deposit and
   gushing spout), with an oil spring under large wells that slowly regrows oil, and the oil desert
   and oil ocean biomes, where wells are thirty times as common.
@@ -29,7 +32,7 @@ worlds do not migrate between them or from 1.12.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
 **This is not full BuildCraft.** Gates and wires, facades, lasers and silicon,
-builders other than the quarry, markers and landmarks, robots and several pipe types are not
+builders other than the quarry, volume boxes, robots and several pipe types are not
 ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
