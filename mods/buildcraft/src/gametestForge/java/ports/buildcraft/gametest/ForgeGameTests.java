@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests} and {@link PluggableTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests} and {@link SiliconTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -225,15 +225,15 @@ public final class ForgeGameTests {
     }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
-    public static void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { PluggableTests.plugBlocksConnectionsAndBreaksOff(helper); }
+    public static void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { BCTests.plugBlocksConnectionsAndBreaksOff(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1200)
     public static void powerAdaptorDrivesWoodenPipeThroughBlockedFace(GameTestHelper helper) {
-        PluggableTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
+        BCTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
     }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
-    public static void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { PluggableTests.structurePipesConnectOnlyToEachOther(helper); }
+    public static void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { BCTests.structurePipesConnectOnlyToEachOther(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
