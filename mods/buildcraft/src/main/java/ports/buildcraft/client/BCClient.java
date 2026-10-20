@@ -43,6 +43,8 @@ public final class BCClient {
         sink.register(BCFactory.HEAT_EXCHANGER_TYPE.get(), context -> new HeatExchangerRenderer());
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
+        sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
+        sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
     }
 
     public interface ItemColourSink {
@@ -78,7 +80,7 @@ public final class BCClient {
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */
     public static List<Block> cutoutBlocks() {
         List<Block> blocks = new ArrayList<>(List.of(BCFactory.TANK.get(), BCFactory.TUBE.get(), BCFactory.DISTILLER.get(),
-                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get()));
+                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get(), BCCore.MARKER_VOLUME.get(), BCCore.MARKER_PATH.get()));
         for (PipeDefinition pipe : BCTransport.PIPES) blocks.add(pipe.block());
         return blocks;
     }
@@ -89,6 +91,7 @@ public final class BCClient {
                 MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE));
         sprites.addAll(EngineRenderer.sprites());
         sprites.addAll(DistillerRenderer.sprites());
+        sprites.addAll(LaserRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());
