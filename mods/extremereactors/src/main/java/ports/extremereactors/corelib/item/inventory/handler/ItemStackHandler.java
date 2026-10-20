@@ -6,12 +6,13 @@ package ports.extremereactors.corelib.item.inventory.handler;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import ports.extremereactors.corelib.data.nbt.ICompoundSerializable;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
 /** A plain item inventory backed by a list of stacks. */
-public class ItemStackHandler implements IItemHandlerModifiable {
+public class ItemStackHandler implements IItemHandlerModifiable, ICompoundSerializable {
 
     public ItemStackHandler() {
         this(1);

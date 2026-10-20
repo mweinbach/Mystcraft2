@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import ports.extremereactors.corelib.data.nbt.ICompoundSerializable;
 import ports.extremereactors.corelib.data.nbt.ISyncableEntity;
 import ports.extremereactors.corelib.data.stack.AbstractStackHolder;
 import ports.extremereactors.corelib.item.inventory.handler.IItemHandlerModifiable;
@@ -17,7 +18,7 @@ import ports.extremereactors.corelib.item.inventory.handler.ItemHandlerHelper;
 
 /** A fixed number of item slots with change notifications and an optional per-slot validator. */
 public class ItemStackHolder extends AbstractStackHolder<ItemStackHolder, ItemStack>
-        implements IItemHandlerModifiable, ISyncableEntity {
+        implements IItemHandlerModifiable, ISyncableEntity, ICompoundSerializable {
 
     public ItemStackHolder(final int size) {
         this(size, (slot, stack) -> true);

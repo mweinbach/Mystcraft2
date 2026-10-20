@@ -35,7 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+import ports.extremereactors.corelib.client.model.data.ModelData;
 import ports.extremereactors.corelib.fluid.FluidStack;
 import ports.extremereactors.corelib.fluid.handler.IFluidHandler;
 import ports.extremereactors.corelib.item.inventory.handler.IItemHandlerModifiable;

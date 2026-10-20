@@ -4,6 +4,7 @@
  */
 package ports.extremereactors.corelib.data.nbt;
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.nbt.CompoundTag;
 
 /** Something that saves its state to, and restores it from, NBT; for disk saves and client updates. */
@@ -40,5 +41,27 @@ public interface ISyncableEntity {
     default void syncChildDataEntityTo(final ISyncableEntity child, final String key, final CompoundTag data,
                                        final SyncReason syncReason) {
         data.put(key, child.syncDataTo(new CompoundTag(), syncReason));
+    }
+
+    default void syncDataElementFrom(final String key, final CompoundTag data, final ICompoundSerializable element) {
+
+        if (data.contains(key)) {
+            element.deserializeNBT(data.getCompound(key));
+        }
+    }
+
+    default void syncDataElementTo(final String key, final CompoundTag data, final ICompoundSerializable element) {
+        data.put(key, element.serializeNBT());
+    }
+
+    default void syncBooleanElementFrom(final String key, final CompoundTag data, final BooleanConsumer consumer) {
+
+        if (data.contains(key)) {
+            consumer.accept(data.getBoolean(key));
+        }
+    }
+
+    default void syncBooleanElementTo(final String key, final CompoundTag data, final boolean value) {
+        data.putBoolean(key, value);
     }
 }
