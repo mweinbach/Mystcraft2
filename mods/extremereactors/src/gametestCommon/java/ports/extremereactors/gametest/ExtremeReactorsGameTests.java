@@ -410,6 +410,11 @@ public final class ExtremeReactorsGameTests {
                     check(500 == extracted, "extracted " + extracted + " of 500 FE from the power tap");
                     check(Math.abs(before - after - extracted) < 1e-6, "the reactor buffer went from "
                             + before + " to " + after + " FE after extracting " + extracted);
+
+                    final String unit = reactor.getOutputEnergySystem().getUnit();
+
+                    check(apis.energyUnit().equals(unit), "the screens label energy as " + unit + " instead of "
+                            + apis.energyUnit() + ", the unit of the API the energy was extracted through");
                 })
                 .thenSucceed();
     }

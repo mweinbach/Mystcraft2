@@ -203,6 +203,17 @@ public final class FabricPlatform implements Platform.Backend {
         return FabricLoader.getInstance().isModLoaded(modId);
     }
 
+    /** Team Reborn Energy's unit, as Tech Reborn shows it. */
+    @Override
+    public String energyUnit() {
+        return "E";
+    }
+
+    @Override
+    public String energyUnitName() {
+        return "Energy";
+    }
+
     @Override
     public void addClientReloadListener(final Runnable listener) {
 

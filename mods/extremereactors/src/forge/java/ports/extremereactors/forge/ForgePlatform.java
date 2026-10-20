@@ -157,6 +157,16 @@ public final class ForgePlatform implements Platform.Backend {
     }
 
     @Override
+    public String energyUnit() {
+        return "FE";
+    }
+
+    @Override
+    public String energyUnitName() {
+        return "Forge Energy";
+    }
+
+    @Override
     public void addClientReloadListener(final Runnable listener) {
         this._clientReloadListeners.add(listener);
     }

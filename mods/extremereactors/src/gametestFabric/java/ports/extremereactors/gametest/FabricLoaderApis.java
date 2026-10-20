@@ -70,6 +70,11 @@ final class FabricLoaderApis implements LoaderApis {
         }
     }
 
+    @Override
+    public String energyUnit() {
+        return "E";
+    }
+
     private static <T> T found(final T lookupResult, final String what, final BlockPos position) {
 
         if (null == lookupResult) {

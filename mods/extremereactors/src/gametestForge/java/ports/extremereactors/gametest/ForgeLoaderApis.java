@@ -51,6 +51,11 @@ final class ForgeLoaderApis implements LoaderApis {
         return handler.extractEnergy((int) Math.min(Integer.MAX_VALUE, maxAmount), false);
     }
 
+    @Override
+    public String energyUnit() {
+        return "FE";
+    }
+
     private static <T> T capability(final ServerLevel level, final BlockPos position, final Capability<T> capability,
                                     final Direction side) {
 

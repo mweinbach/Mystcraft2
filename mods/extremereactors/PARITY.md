@@ -23,6 +23,7 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | Service | Forge | Fabric |
 | --- | --- | --- |
 | Energy | Forge Energy through `ForgeCapabilities.ENERGY` | Team Reborn Energy 2.3.0 (`EnergyStorage.SIDED`, bundled), 1 E per FE |
+| Energy unit shown | `FE` (Forge Energy) | `E` (Energy), Tech Reborn's label for Reborn Energy |
 | Items | `ForgeCapabilities.ITEM_HANDLER` | Transfer API `ItemStorage.SIDED`, with transactions |
 | Fluids | `ForgeCapabilities.FLUID_HANDLER`, in mB | Transfer API `FluidStorage.SIDED`; 81 droplets per mB, amounts that are not whole mB are refused |
 | Charging ports | Forge Energy item capability | Reborn Energy `EnergyStorage.ITEM` |
@@ -82,6 +83,19 @@ screen is hidden, because the Patchouli integration is not ported yet.
 | JEI (Forge), EMI (Fabric) recipe categories | Planned for a later pull request. |
 | Patchouli handbook | Its book data and templates are kept, but the handbook recipe and item are off: the templates need ZeroCore's Patchouli multiblock component. |
 | Mekanism gas ports | The `reinforced_reactorfluidport_mekanism_passive` block exists, but its handler is empty, so it moves nothing. |
+
+**Energy unit label.** Extreme Reactors 2 has no energy-unit setting: its
+screens and computer API always say `FE`, the only unit ZeroCore's
+`EnergySystem` enables on 1.19. The port keeps one internal unit, still saved
+as `ForgeEnergy`, and takes its label from the loader. Forge shows `FE`;
+Fabric shows `E`, the unit of the Team Reborn Energy API its power taps and
+charging ports speak, 1:1 with FE. This covers the reactor, turbine,
+reprocessor and fluidizer screens, the JEI energy tooltips, and the computer
+port's `getEnergyStoredAsText` and `energySystem` stat. There is no config
+switch for it. Not relabeled: the block names `Power Tap (FE)` and
+`Charging Port (FE)` (upstream's lang keys and registry names say `fe`), and
+the handbook text, which comes from upstream unchanged.
+`reactorItemsAndEnergyThroughLoaderApis` checks the label on each loader.
 
 **Fabric fluid physics.** Fabric has no equivalent of Forge's `FluidType`
 motion hooks. Extreme Reactors' fluids flow, render and transfer the same, but

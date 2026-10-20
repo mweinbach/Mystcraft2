@@ -24,4 +24,7 @@ public interface LoaderApis {
 
     /** Extract up to the given energy and return how much was extracted. */
     long extractEnergy(ServerLevel level, BlockPos position, Direction side, long maxAmount);
+
+    /** The label players know the loader's energy unit by. */
+    String energyUnit();
 }

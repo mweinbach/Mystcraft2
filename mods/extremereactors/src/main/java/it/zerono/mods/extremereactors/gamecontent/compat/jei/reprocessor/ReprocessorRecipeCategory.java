@@ -35,6 +35,7 @@ import ports.extremereactors.corelib.client.gui.Padding;
 import ports.extremereactors.corelib.compat.jei.AbstractModRecipeCategory;
 import ports.extremereactors.corelib.compat.jei.drawable.ProgressBarDrawable;
 import ports.extremereactors.corelib.data.geometry.Rectangle;
+import ports.extremereactors.corelib.energy.EnergySystem;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -95,7 +96,8 @@ public class ReprocessorRecipeCategory
         this._powerBarTooltips.add(Component.translatable("compat.bigreactors.jei.common.recipecategory.energy.tooltip.title")
                 .setStyle(CommonConstants.STYLE_TOOLTIP_TITLE));
         this._powerBarTooltips.add(CodeHelper.TEXT_EMPTY_LINE);
-        this._powerBarTooltips.add(Component.literal(String.format("%d FE", MultiblockReprocessor.TICK_ENERGY_COST * MultiblockReprocessor.TICKS))
+        this._powerBarTooltips.add(Component.literal(String.format("%d %s", MultiblockReprocessor.TICK_ENERGY_COST * MultiblockReprocessor.TICKS,
+                        EnergySystem.ForgeEnergy.getUnit()))
                 .setStyle(CommonConstants.STYLE_TOOLTIP_VALUE));
     }
 

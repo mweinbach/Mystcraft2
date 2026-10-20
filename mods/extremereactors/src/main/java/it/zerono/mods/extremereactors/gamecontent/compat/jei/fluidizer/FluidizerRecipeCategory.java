@@ -42,6 +42,7 @@ import ports.extremereactors.corelib.compat.jei.AbstractModRecipeCategory;
 import ports.extremereactors.corelib.compat.jei.JeiFluids;
 import ports.extremereactors.corelib.compat.jei.drawable.ProgressBarDrawable;
 import ports.extremereactors.corelib.data.geometry.Rectangle;
+import ports.extremereactors.corelib.energy.EnergySystem;
 import ports.extremereactors.corelib.recipe.ModRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -135,7 +136,7 @@ public abstract class FluidizerRecipeCategory<T extends ModRecipe & IFluidizerRe
         this.addTooltips(this._powerBarArea,
                 Component.translatable("compat.bigreactors.jei.common.recipecategory.energy.tooltip.title").setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
                 CodeHelper.TEXT_EMPTY_LINE,
-                Component.literal(String.format("%d FE", energyCost)).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE));
+                Component.literal(String.format("%d %s", energyCost, EnergySystem.ForgeEnergy.getUnit())).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE));
 
         // recipe output
 
