@@ -34,6 +34,7 @@
       "ports.jurassicraft.egg.FossilNestGameTests",
       "ports.jurassicraft.worldgen.WorldgenGameTests",
       "ports.jurassicraft.village.VillageGameTests",
+      "ports.jurassicraft.village.PaleontologistFabricGameTests",
       "ports.jurassicraft.structures.ParkStructureGameTests",
       "ports.jurassicraft.structures.VisitorLocateGameTests",
       "ports.jurassicraft.maps.VisitorCentreMapGameTests",
