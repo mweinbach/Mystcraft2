@@ -62,6 +62,7 @@ import ports.buildcraft.builders.snapshot.EnumSnapshotType;
 import ports.buildcraft.builders.snapshot.InvalidSnapshotException;
 import ports.buildcraft.builders.snapshot.SchematicBlock;
 import ports.buildcraft.builders.snapshot.SchematicBlockContext;
+import ports.buildcraft.builders.snapshot.SchematicBlockFluid;
 import ports.buildcraft.builders.snapshot.SchematicBlockManager;
 import ports.buildcraft.builders.snapshot.SchematicEntity;
 import ports.buildcraft.builders.snapshot.Snapshot;
@@ -73,6 +74,7 @@ import ports.buildcraft.builders.snapshot.rules.RulesLoader;
 import ports.buildcraft.core.marker.volume.Lock;
 import ports.buildcraft.core.marker.volume.VolumeBox;
 import ports.buildcraft.core.marker.volume.VolumeBoxes;
+import ports.buildcraft.energy.BCEnergy;
 
 /** Loader-neutral GameTest bodies for the architect table, snapshots, schematics and the builder rules. */
 public final class ArchitectTests {
@@ -449,6 +451,14 @@ public final class ArchitectTests {
         }
         ChestBlockEntity rebuilt = tile(helper, chest, ChestBlockEntity.class);
         require(helper, rebuilt.getItem(0).is(Items.EMERALD) && rebuilt.getItem(0).getCount() == 7, "the chest must be rebuilt with its contents");
+        helper.setBlock(stone, Blocks.AIR);
+        require(helper, schematics.get(0).buildWithoutChecks(helper.getLevel(), helper.absolutePos(stone)) && helper.getBlockState(stone).is(Blocks.STONE),
+                "placing stone without checks must report success");
+        BlockPos oil = new BlockPos(7, 2, 4);
+        helper.setBlock(oil, BCEnergy.OIL.heat(0).source().defaultFluidState().createLegacyBlock());
+        require(helper, schematic(helper, oil) instanceof SchematicBlockFluid,
+                "fluid sources are recorded whatever their namespace, as upstream's SchematicBlockFluid");
+        helper.setBlock(oil, Blocks.AIR);
         helper.succeed();
     }
 

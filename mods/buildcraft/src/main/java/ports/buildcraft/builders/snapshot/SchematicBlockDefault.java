@@ -201,13 +201,9 @@ public class SchematicBlockDefault implements SchematicBlock {
 
     @Override
     public boolean buildWithoutChecks(Level level, BlockPos pos) {
-        if (level.setBlock(pos, blockState, 0)) {
-            if (tileNbt != null && blockState.hasBlockEntity()) {
-                placeBlockEntity(level, pos, blockState, withPos(tileNbt, pos));
-                return true;
-            }
-        }
-        return false;
+        if (!level.setBlock(pos, blockState, 0)) return false;
+        if (tileNbt != null && blockState.hasBlockEntity()) placeBlockEntity(level, pos, blockState, withPos(tileNbt, pos));
+        return true;
     }
 
     private static CompoundTag withPos(CompoundTag tileNbt, BlockPos pos) {
