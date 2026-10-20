@@ -147,9 +147,12 @@ public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolde
         }
     }
 
-    /** Upstream: progress made on a recipe that can no longer run returns to the battery. */
+    /**
+     * Progress made on a recipe that can no longer run returns to the battery, even a full one: upstream
+     * discarded it then. The refund is at most one recipe's power, below where the battery bleeds.
+     */
     private void refundProgress() {
-        if (!battery.isFull()) battery.addPower(distillPower);
+        battery.addPower(distillPower);
         if (distillPower != 0) setChanged();
         distillPower = 0;
         active = false;

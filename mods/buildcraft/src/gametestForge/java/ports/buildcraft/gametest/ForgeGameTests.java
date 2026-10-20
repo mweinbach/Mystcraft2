@@ -63,6 +63,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void distillerSplitsOil(GameTestHelper helper) { BCTests.distillerSplitsOil(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void distillerRefundsBlockedProgress(GameTestHelper helper) { BCTests.distillerRefundsBlockedProgress(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void heatExchangerFormsRows(GameTestHelper helper) { BCTests.heatExchangerFormsRows(helper); }
 

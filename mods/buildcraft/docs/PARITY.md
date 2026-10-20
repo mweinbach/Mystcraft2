@@ -99,6 +99,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   coolant and heatant use the fluid's animated sprite, where upstream used its first frame.
 - **Distiller GUI** shows the tanks but does not fill or empty a held container clicked on them;
   use the block or pipes.
+- **Distiller progress** on a recipe whose input runs out or whose output is blocked returns to the
+  battery even when the battery has refilled to capacity; upstream discarded it then.
 
 ## Not ported
 
@@ -128,7 +130,8 @@ redstone engine driving a wooden pipe that delivers items through stone and gold
 columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, oil well rates and determinism over 65,536 seeded chunks
 with the placed feature in the Overworld's lakes step, the refinery chain from oil to light fuel,
-the combustion engine burning oil into residue, the distiller splitting oil, heat exchanger rows
+the combustion engine burning oil into residue, the distiller splitting oil and refunding blocked
+progress, heat exchanger rows
 forming, rotating and breaking, a heat exchanger heating oil with lava, and recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
 (`FabricAdapterGameTests`), including transaction rollback. `EmcGameTests` audits EMC coverage and,

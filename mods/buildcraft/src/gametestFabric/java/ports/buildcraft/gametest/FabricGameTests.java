@@ -61,6 +61,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void distillerSplitsOil(GameTestHelper helper) { BCTests.distillerSplitsOil(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void distillerRefundsBlockedProgress(GameTestHelper helper) { BCTests.distillerRefundsBlockedProgress(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void heatExchangerFormsRows(GameTestHelper helper) { BCTests.heatExchangerFormsRows(helper); }
 

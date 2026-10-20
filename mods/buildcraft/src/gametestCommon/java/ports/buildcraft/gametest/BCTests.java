@@ -462,6 +462,27 @@ public final class BCTests {
         });
     }
 
+    /** Power spent on a recipe whose output gets blocked returns to the battery, even after the battery refilled. */
+    public static void distillerRefundsBlockedProgress(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, pos, DistillerBlockEntity.class);
+        distiller.fluidPort(Direction.NORTH).fill(BCEnergy.OIL.heat(0).source(), 1000, false);
+        long capacity = distiller.battery().capacity();
+        distiller.battery().set(capacity);
+        // Crude oil needs 32 MJ at no more than 6 MJ/t, so three ticks leave a recipe part done.
+        helper.runAfterDelay(3, () -> {
+            require(helper, distiller.gasTank().isEmpty(), "no recipe may finish within three ticks");
+            distiller.battery().set(capacity);
+            distiller.gasTank().fill(Fluids.WATER, 1, false);
+            helper.runAfterDelay(1, () -> {
+                require(helper, distiller.battery().stored() > capacity,
+                        "the blocked recipe's progress must return to the full battery, has " + distiller.battery().stored());
+                helper.succeed();
+            });
+        });
+    }
+
     /** Three exchangers facing west, from start at z 1 to end at z 3 (the start is clockwise of the facing). */
     private static HeatExchangerBlockEntity[] heatExchangerRow(GameTestHelper helper, int x, int length) {
         BlockState state = BCFactory.HEAT_EXCHANGER.get().defaultBlockState().setValue(HeatExchangerBlock.FACING, Direction.WEST);
