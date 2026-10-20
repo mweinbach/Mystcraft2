@@ -3,6 +3,8 @@
   "biome.buildcraft.oil_ocean": "Ocean Oil Field",
   "block.buildcraft.architect_table": "Architect Table",
   "block.buildcraft.architect_table.tip": "Not usable in survival",
+  "block.buildcraft.builder": "Builder",
+  "block.buildcraft.builder.tip": "Not usable in survival",
   "block.buildcraft.combustion_engine": "Combustion Engine",
   "block.buildcraft.distiller": "Distiller",
   "block.buildcraft.filler": "Filler",

@@ -602,6 +602,32 @@ class Generator:
             f"item.{MOD}.snapshot.blank": "Blank",
         })
 
+    def builder(self) -> None:
+        for part in ["back", "bottom", "front", "side", "top", "slot_empty", "slot_template", "slot_blueprint"]:
+            self.copy(f"buildcraftbuilders/textures/blocks/builder/{part}.png", f"block/builder/{part}.png")
+        self.copy("buildcraftbuilders/textures/gui/builder.png", "gui/builder.png")
+        self.copy("buildcraftbuilders/textures/gui/builder_blueprint.png", "gui/builder_blueprint.png")
+        self.copy("buildcraftcore/textures/lasers/stripes_write_direction.png", "lasers/stripes_write_direction.png")
+        upstream = self.src / "buildcraftbuilders/models/block/builder"
+        for part in ["main", "slot_empty", "slot_template", "slot_blueprint"]:
+            model = json.loads((upstream / f"{part}.json").read_text(encoding="utf-8"))
+            if "parent" in model:
+                model["parent"] = "minecraft:" + model["parent"]
+            model["textures"] = {key: texture.replace("buildcraftbuilders:blocks/", rl("block/"))
+                                 for key, texture in model["textures"].items()}
+            self.model(f"block/builder/{part}", model)
+        # Upstream's forge_marker blockstate applies the slot submodel with the facing's rotation.
+        multipart = []
+        for facing, y in HORIZONTAL_Y.items():
+            rotation = {"y": y} if y else {}
+            multipart.append({"when": {"facing": facing}, "apply": dict({"model": rl("block/builder/main")}, **rotation)})
+            for snapshot_type, slot in [("none", "slot_empty"), ("template", "slot_template"), ("blueprint", "slot_blueprint")]:
+                multipart.append({"when": {"facing": facing, "snapshot_type": snapshot_type},
+                                  "apply": dict({"model": rl(f"block/builder/{slot}")}, **rotation)})
+        self.blockstate("builder", {"multipart": multipart})
+        self.item_model("builder", rl("block/builder/main"))
+        self.lang.update({f"block.{MOD}.builder": "Builder", f"block.{MOD}.builder.tip": "Not usable in survival"})
+
     def markers(self) -> None:
         for kind in ["volume", "path"]:
             self.copy(f"buildcraftcore/textures/blocks/marker_{kind}.png", f"block/marker_{kind}.png")
@@ -810,11 +836,11 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder"] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "builder", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -836,6 +862,7 @@ class Generator:
         self.builders()
         self.filler()
         self.architect()
+        self.builder()
         self.markers()
         self.fluids()
         self.oil_wells()
