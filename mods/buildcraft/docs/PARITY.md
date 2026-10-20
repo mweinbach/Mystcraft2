@@ -78,6 +78,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Engine model** is upstream's `engine_base.json` split in two: the base plate is a static block
   model, and `EngineRenderer` draws the piston plate, chamber and trunk. Upstream's trunk light
   (`stage_light`: 4 green, 7 yellow, 10 red and overheat) is applied as a minimum block light.
+  Upstream's engine TESR stops at 1.12's 64-block range, hiding the whole engine; the port's renderer
+  draws out to the chunk render distance.
 - **Infinite water** detection uses vanilla's refill rule: the pump stops removing water sources
   only when a cell in the pool has two horizontal water sources over a solid block or a water
   source. Upstream also counted every already-scanned neighbour, including rejected air and stone,

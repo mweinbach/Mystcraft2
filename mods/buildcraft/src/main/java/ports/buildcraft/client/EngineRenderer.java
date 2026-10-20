@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -21,6 +22,10 @@ import ports.buildcraft.energy.PowerStage;
  * The moving and stage-dependent parts of upstream {@code engine_base.json}: the piston plate, the
  * bellows chamber and the trunk, whose texture and light follow the power stage. The base plate is
  * the static block model.
+ *
+ * <p>Upstream renders the whole engine with a fast TESR, so engines vanish past 1.12's 64-block
+ * TESR range. Here the renderer draws as far as the chunks it sits in are drawn, so distant engines
+ * keep their trunk and piston instead of showing only the base plate.
  */
 public final class EngineRenderer<T extends EngineBlockEntity> implements BlockEntityRenderer<T> {
     public static final ResourceLocation CHAMBER = BuildCraft.id("block/engine/chamber");
@@ -62,6 +67,11 @@ public final class EngineRenderer<T extends EngineBlockEntity> implements BlockE
         List<ResourceLocation> sprites = new ArrayList<>(List.of(CHAMBER));
         for (PowerStage stage : PowerStage.values()) sprites.add(trunkTexture(stage));
         return sprites;
+    }
+
+    @Override
+    public int getViewDistance() {
+        return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
     }
 
     @Override
