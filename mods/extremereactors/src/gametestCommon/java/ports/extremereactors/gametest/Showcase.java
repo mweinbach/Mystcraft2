@@ -52,12 +52,7 @@ public final class Showcase {
 
     public static void build(final ServerLevel level, final BlockPos origin) {
 
-        SCREENS.clear();
-        s_powered.clear();
-        s_watered.clear();
-        s_vented.clear();
-        s_pending.clear();
-        s_level = level;
+        reset(level);
 
         final BlockPos base = origin.offset(2, 0, 2);
 
@@ -74,8 +69,7 @@ public final class Showcase {
     /** A large running reactor and turbine with every reinforced port on their front faces, for texture reviews. */
     public static void buildPlant(final ServerLevel level, final BlockPos origin) {
 
-        s_level = level;
-        s_fueled.clear();
+        reset(level);
 
         final BlockPos base = origin.offset(2, 0, 2);
 
@@ -375,6 +369,9 @@ public final class Showcase {
         parts.put(new BlockPos(6, 1, 0), Content.Blocks.REACTOR_FLUIDTPORT_FORGE_ACTIVE_REINFORCED.get());
         parts.put(new BlockPos(7, 1, 0), Content.Blocks.REACTOR_FLUIDPORT_MEKANISM_PASSIVE_REINFORCED.get());
         parts.put(new BlockPos(2, 2, 0), Content.Blocks.REACTOR_CREATIVE_WATER_GENERATOR_REINFORCED.get());
+        parts.put(new BlockPos(5, 2, 0), Content.Blocks.REACTOR_POWERTAP_FE_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(6, 2, 0), Content.Blocks.REACTOR_POWERTAP_FE_ACTIVE_REINFORCED.get());
+        parts.put(new BlockPos(7, 2, 0), Content.Blocks.REACTOR_CHARGINGPORT_FE_REINFORCED.get());
 
         cuboid(level, at, 9, 9, 9, Content.Blocks.REACTOR_CASING_REINFORCED.get(), parts);
         screen("large_reactor_controller", at.offset(4, 2, 0));
@@ -428,7 +425,9 @@ public final class Showcase {
         parts.put(new BlockPos(2, 1, 0), Content.Blocks.TURBINE_REDSTONEPORT_REINFORCED.get());
         parts.put(new BlockPos(4, 1, 0), Content.Blocks.TURBINE_COMPUTERPORT_REINFORCED.get());
         parts.put(new BlockPos(5, 1, 0), Content.Blocks.TURBINE_CHARGINGPORT_FE_REINFORCED.get());
+        parts.put(new BlockPos(6, 1, 2), Content.Blocks.TURBINE_POWERTAP_FE_ACTIVE_REINFORCED.get());
         parts.put(new BlockPos(6, 1, 3), Content.Blocks.TURBINE_POWERTAP_FE_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(6, 1, 4), Content.Blocks.TURBINE_FLUIDPORT_FORGE_ACTIVE_REINFORCED.get());
         parts.put(new BlockPos(3, 5, 6), Content.Blocks.TURBINE_CREATIVE_STEAM_GENERATOR_REINFORCED.get());
 
         cuboid(level, at, 7, 12, 7, Content.Blocks.TURBINE_CASING_REINFORCED.get(), parts);
@@ -449,6 +448,18 @@ public final class Showcase {
 
     private interface Filler {
         void fill(AbstractMultiblockController<?> controller);
+    }
+
+    /** Forgets the previous build, so its machines and pending fillers are no longer ticked. */
+    private static void reset(final ServerLevel level) {
+
+        SCREENS.clear();
+        s_powered.clear();
+        s_watered.clear();
+        s_fueled.clear();
+        s_vented.clear();
+        s_pending.clear();
+        s_level = level;
     }
 
     private static void screen(final String name, final BlockPos position) {
