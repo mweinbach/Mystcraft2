@@ -89,18 +89,25 @@ public final class PaleontologistDigGoal extends Goal {
         elapsed = 0; travelTicks = 0; dug = false;
         duration = 60 + villager.getRandom().nextInt(40);
         if (villager.getMainHandItem().isEmpty()) villager.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SHOVEL));
-        walkToStand();
+        holdStand();
     }
-    private void walkToStand() {
-        villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(stand, 0.4F, 0));
+    /**
+     * Goal flags do not stop the villager brain: idle strolling and socialising pick a new walk target
+     * whenever none is set, which includes the moment the villager reaches its stand. Re-asserting the
+     * stand every tick keeps the villager at the dig, as upstream's move-to-block task did.
+     */
+    private void holdStand() {
+        boolean held = villager.getBrain().getMemory(MemoryModuleType.WALK_TARGET)
+                .map(target -> target.getTarget().currentBlockPosition().equals(stand)).orElse(false);
+        if (!held) villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(stand, 0.4F, 0));
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {
         if (!canContinueToUse()) return;
+        holdStand();
         BlockPos here = villager.blockPosition();
         if (here.getX() != stand.getX() || here.getZ() != stand.getZ() || Math.abs(here.getY() - stand.getY()) > 2) {
             travelTicks++;
-            if (travelTicks % 20 == 0) walkToStand();
             return;
         }
         villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(sand));

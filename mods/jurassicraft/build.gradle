@@ -79,3 +79,7 @@ minecraft.runs {
         mods { jurassicraft { source sourceSets.gametest } }
     }
 }
+// Like the Fabric suite and CI, start from a fresh world so entities saved by an earlier run cannot reload into new tests.
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst { delete file('run/gameTestServer/world') }
+}
