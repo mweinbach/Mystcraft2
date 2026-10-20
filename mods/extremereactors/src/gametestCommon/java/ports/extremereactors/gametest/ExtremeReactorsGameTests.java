@@ -44,6 +44,7 @@ import net.minecraft.world.level.material.Fluids;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
 import ports.extremereactors.corelib.compat.computer.IComputerPort;
 import ports.extremereactors.corelib.compat.computer.MultiblockComputerPeripheral;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
 import ports.extremereactors.corelib.data.IoDirection;
 import ports.extremereactors.corelib.energy.EnergySystem;
 import ports.extremereactors.corelib.fluid.FluidStack;
@@ -71,6 +72,7 @@ public final class ExtremeReactorsGameTests {
     public static final int BOILING_TIMEOUT = 2400;
 
     private static final int SIMULATION_TICKS = 200;
+    private static final ResourceLocation MEKANISM_STEAM = new ResourceLocation(MekanismGas.MOD_ID, "steam");
 
     private ExtremeReactorsGameTests() {
     }
@@ -442,6 +444,71 @@ public final class ExtremeReactorsGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * With Mekanism, the Mekanism port offers the reactor's vapor tank as a gas handler, converting through Mekanism's
+     * rotary recipes: steam becomes {@code mekanism:steam}. Without Mekanism the port exposes nothing.
+     */
+    public static void reactorMekanismPortFollowsMekanism(final GameTestHelper helper, final LoaderApis apis) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos mekanismPort = origin.offset(2, 1, 1);
+        final boolean mekanism = Platform.isModLoaded(MekanismGas.MOD_ID);
+
+        reinforcedActiveReactor(origin)
+                .set(2, 1, 1, Content.Blocks.REACTOR_FLUIDPORT_MEKANISM_PASSIVE_REINFORCED)
+                .place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+
+                    reactor.getFluidHandler(IoDirection.Input)
+                            .orElseThrow(() -> new GameTestAssertException("the active reactor has no coolant input"))
+                            .fill(new FluidStack(Fluids.WATER, 4000), IFluidHandler.FluidAction.EXECUTE);
+                    insertFuel(helper, origin.offset(1, 1, 0), Direction.NORTH, 64);
+                    reactor.setMachineActive(true);
+                })
+                .thenWaitUntil(() -> check(assembledReactor(helper, controller).getVaporAmount() > 0, "no steam yet"))
+                .thenExecute(() -> {
+
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+                    final Optional<LoaderApis.GasTank> gas = apis.mekanismGas(helper.getLevel(),
+                            helper.absolutePos(mekanismPort), Direction.EAST);
+                    final boolean exposed = CapabilityHelper.getCapability(helper.getLevel(),
+                            helper.absolutePos(mekanismPort), MekanismGas.HANDLER, Direction.EAST).isPresent();
+
+                    check(mekanism == exposed, "the Mekanism port " + (exposed ? "exposes" : "does not expose")
+                            + " its gas tank with Mekanism " + (mekanism ? "loaded" : "absent"));
+                    check(mekanism == gas.isPresent(), "Mekanism " + (mekanism ? "does not see" : "sees")
+                            + " a gas handler on the Mekanism port");
+
+                    gas.ifPresent(tank -> {
+
+                        final int vaporCapacity = reactor.getFluidHandler(IoDirection.Output)
+                                .orElseThrow(() -> new GameTestAssertException("the active reactor has no vapor output"))
+                                .getTankCapacity(0);
+                        final int steam = reactor.getVaporAmount();
+
+                        check(vaporCapacity == tank.capacity(), "the gas tank holds " + tank.capacity()
+                                + " instead of the vapor tank's " + vaporCapacity);
+                        check(MEKANISM_STEAM.equals(tank.gas()) && steam == tank.stored(), "the reactor's "
+                                + steam + " mB of steam is offered as " + tank.stored() + " of " + tank.gas());
+
+                        final long extracted = apis.extractMekanismGas(helper.getLevel(),
+                                helper.absolutePos(mekanismPort), Direction.EAST, steam);
+                        final int left = reactor.getVaporAmount();
+
+                        check(steam == extracted && 0 == left, "extracting " + steam + " steam took " + extracted
+                                + " and left " + left + " mB in the reactor");
+                    });
+                })
+                .thenSucceed();
+    }
+
+
     //endregion
     //region computer ports
 
@@ -542,14 +609,21 @@ public final class ExtremeReactorsGameTests {
 
         final RecipeManager recipes = helper.getLevel().getRecipeManager();
 
-        check(recipes.byKey(id("reactor/reinforced/controlrod_alt")).isPresent(),
-                "the steel-free reinforced control rod recipe should load when no steel exists");
-        check(recipes.byKey(id("reactor/reinforced/controlrod")).isEmpty(),
-                "the steel reinforced control rod recipe should not load without steel");
+        final boolean steel = Registry.ITEM.getTag(itemTag("forge", "ingots/steel"))
+                .map(items -> items.size() > 0)
+                .orElse(false);
+
+        check(recipes.byKey(id("reactor/reinforced/controlrod_alt")).isPresent() != steel,
+                "the steel-free reinforced control rod recipe should load only when no steel exists");
+        check(recipes.byKey(id("reactor/reinforced/controlrod")).isPresent() == steel,
+                "the steel reinforced control rod recipe should load only with steel");
         check(recipes.byKey(id("smelting/graphite_from_coal")).isPresent(),
                 "the config-gated graphite smelting recipe should load by default");
         check(recipes.byKey(id("misc/book/erguide")).isPresent() == Platform.isModLoaded("patchouli"),
                 "the Patchouli book recipe should load only with Patchouli");
+        check(recipes.byKey(id("reactor/reinforced/passivefluidport_mekanism")).isPresent()
+                        == Platform.isModLoaded(MekanismGas.MOD_ID),
+                "the Mekanism port recipe should load only with Mekanism");
 
         final ItemStack yellorium = new ItemStack(Content.Items.YELLORIUM_INGOT.get());
 

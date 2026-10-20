@@ -24,6 +24,10 @@ repositories {
             includeGroup 'vazkii.patchouli'
         }
     }
+    maven {
+        url = 'https://modmaven.dev/'
+        content { includeGroup 'mekanism' }
+    }
 }
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
@@ -33,10 +37,15 @@ dependencies {
     compileOnly(fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1024')) { transitive = false }
     // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
     compileOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
+    compileOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13:api')) { transitive = false }
     if (providers.gradleProperty('withCompat').isPresent()) {
         runtimeOnly fg.deobf('maven.modrinth:cc-tweaked:pCQZNkje')
         runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
         runtimeOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
+    }
+    // Mekanism is Forge-only on 1.19.2. -PwithMekanism adds it to the GameTest server too.
+    if (providers.gradleProperty('withCompat').isPresent() || providers.gradleProperty('withMekanism').isPresent()) {
+        runtimeOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13')) { transitive = false }
     }
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {

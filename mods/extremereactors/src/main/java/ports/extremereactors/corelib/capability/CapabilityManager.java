@@ -19,6 +19,14 @@ public final class CapabilityManager {
         return (Capability<T>) CAPABILITIES.computeIfAbsent(type.getName(), Capability::new);
     }
 
+    /**
+     * A capability that hands out a handler of an existing type with a different meaning, told apart by its name.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Capability<T> get(final String name, final Class<T> type) {
+        return (Capability<T>) CAPABILITIES.computeIfAbsent(name, Capability::new);
+    }
+
     private static final ConcurrentMap<String, Capability<?>> CAPABILITIES = new ConcurrentHashMap<>();
 
     private CapabilityManager() {

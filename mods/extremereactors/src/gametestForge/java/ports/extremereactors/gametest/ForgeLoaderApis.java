@@ -18,6 +18,10 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
+import ports.extremereactors.platform.Platform;
+
+import java.util.Optional;
 
 /**
  * {@link LoaderApis} through Forge capabilities.
@@ -54,6 +58,17 @@ final class ForgeLoaderApis implements LoaderApis {
     @Override
     public String energyUnit() {
         return "FE";
+    }
+
+    @Override
+    public Optional<GasTank> mekanismGas(final ServerLevel level, final BlockPos position, final Direction side) {
+        return Platform.isModLoaded(MekanismGas.MOD_ID) ? ForgeMekanismGas.find(level, position, side) : Optional.empty();
+    }
+
+    @Override
+    public long extractMekanismGas(final ServerLevel level, final BlockPos position, final Direction side,
+                                   final long maxAmount) {
+        return Platform.isModLoaded(MekanismGas.MOD_ID) ? ForgeMekanismGas.extract(level, position, side, maxAmount) : 0;
     }
 
     private static <T> T capability(final ServerLevel level, final BlockPos position, final Capability<T> capability,
