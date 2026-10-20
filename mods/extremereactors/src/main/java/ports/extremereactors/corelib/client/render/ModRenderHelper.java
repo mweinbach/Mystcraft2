@@ -209,6 +209,25 @@ public final class ModRenderHelper {
         }
     }
 
+    /**
+     * Fill the bottom {@code progress} part of a rectangle with tiled copies of a sprite, as a vertical gauge.
+     *
+     * @param minimumHeight the height painted for any progress above zero, so that a nearly empty gauge still shows
+     * @param progress from 0 (nothing painted) to 1 (the whole rectangle)
+     */
+    public static void paintVerticalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int z, final int width,
+                                                   final int height, final int minimumHeight, final double progress) {
+
+        if (progress <= 0) {
+            return;
+        }
+
+        final int filled = Math.min(height, Math.max(minimumHeight, (int) Math.round(height * Math.min(1.0, progress))));
+
+        paintTiledSprite(matrix, sprite, tint, x, y + height - filled, z, width, filled, false, true);
+    }
+
     public static void paintTexturedQuad(final PoseStack matrix, final ResourceLocation texture, final Colour tint,
                                          final int x1, final int y1, final int x2, final int y2, final int z,
                                          final float u0, final float v0, final float u1, final float v1) {

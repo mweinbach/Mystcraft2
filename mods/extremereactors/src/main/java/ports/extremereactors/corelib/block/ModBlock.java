@@ -14,6 +14,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -39,6 +40,11 @@ public class ModBlock extends Block {
 
     public BlockItem createBlockItem(final Item.Properties properties) {
         return new BlockItem(this, properties);
+    }
+
+    /** A stack of one of this block's item. */
+    public ItemStack createItemStack() {
+        return new ItemStack(this);
     }
 
     /**

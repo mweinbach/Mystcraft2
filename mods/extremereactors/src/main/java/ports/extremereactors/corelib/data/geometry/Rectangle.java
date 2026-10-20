@@ -44,6 +44,10 @@ public final class Rectangle {
         return x >= this.getX1() && x < this.getX2() && y >= this.getY1() && y < this.getY2();
     }
 
+    public boolean contains(final double x, final double y) {
+        return x >= this.getX1() && x < this.getX2() && y >= this.getY1() && y < this.getY2();
+    }
+
     public boolean isEmpty() {
         return 0 == this.Width || 0 == this.Height;
     }

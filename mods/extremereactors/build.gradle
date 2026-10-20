@@ -17,14 +17,23 @@ repositories {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'vazkii.patchouli'
+        }
+    }
 }
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // Optional integrations: only their APIs are needed to compile. -PwithCompat adds the mods to the dev runs.
     compileOnly(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.3:api')) { transitive = false }
+    compileOnly(fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1024')) { transitive = false }
     if (providers.gradleProperty('withCompat').isPresent()) {
         runtimeOnly fg.deobf('maven.modrinth:cc-tweaked:pCQZNkje')
+        runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
     }
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {

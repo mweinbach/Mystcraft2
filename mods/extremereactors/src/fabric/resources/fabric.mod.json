@@ -23,6 +23,9 @@
     ],
     "client": [
       "ports.extremereactors.fabric.client.FabricClientMod"
+    ],
+    "jei_mod_plugin": [
+      "it.zerono.mods.extremereactors.gamecontent.compat.jei.ExtremeReactorsJeiPlugin"
     ]
   },
   "mixins": [
