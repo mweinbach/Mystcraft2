@@ -22,11 +22,12 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import ports.buildcraft.core.CustomRotationHandler;
+import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.platform.Platform;
 
 /**
  * Upstream {@code BlockBCTile_Neptune} with {@code IBlockWithFacing}: faces the player who placed it, opens its
- * GUI when used, turns clockwise under a wrench used while sneaking, and drops its slots when broken.
+ * GUI when used, turns clockwise under a wrench, and drops its slots when broken.
  */
 public abstract class FacingMachineBlock extends BaseEntityBlock implements CustomRotationHandler {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -48,6 +49,10 @@ public abstract class FacingMachineBlock extends BaseEntityBlock implements Cust
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (Wrenches.isWrench(player.getItemInHand(hand))) {
+            if (!level.isClientSide) attemptRotation(level, pos, state, hit.getDirection());
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider provider) {
             Platform.openMenu((ServerPlayer) player, provider, pos);
         }
