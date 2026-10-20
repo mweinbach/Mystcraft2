@@ -395,7 +395,9 @@ public class ReprocessorControllerScreen
             display.setStack(stack);
         }
 
-        if (!stack.isEmpty()) {
+        if (stack.isEmpty()) {
+            display.setTooltips(ImmutableList.of());
+        } else {
             display.setTooltips(Component.literal(String.format("%dx ", stack.getCount()))
                     .append(Component.translatable(stack.getItem().getDescriptionId()).setStyle(Style.EMPTY.withBold(true))));
         }
