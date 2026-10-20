@@ -761,5 +761,9 @@
     "zerocore:api.multiblock.validation.invalid_part_for_sides": "This part can't be used on the machine's sides",
     "zerocore:api.multiblock.validation.invalid_part_for_interior": "This part can't be used inside the machine",
     "zerocore:api.multiblock.validation.machine_too_large": "The machine is too large: it can be at most %1$s blocks along the %2$s axis",
-    "zerocore:api.multiblock.validation.machine_too_small": "The machine is too small: it must be at least %1$s blocks along the %2$s axis"
+    "zerocore:api.multiblock.validation.machine_too_small": "The machine is too small: it must be at least %1$s blocks along the %2$s axis",
+
+    "_comment": "Port corelib widgets",
+    "gui.bigreactors.corelib.energybar.title": "Energy Buffer",
+    "gui.bigreactors.corelib.bar.full": "% full"
 }

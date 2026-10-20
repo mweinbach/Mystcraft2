@@ -6,14 +6,22 @@ package ports.extremereactors.forge.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +29,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import ports.extremereactors.corelib.fluid.FluidStack;
 import ports.extremereactors.platform.ClientPlatform;
 
 import java.util.List;
@@ -101,6 +110,30 @@ final class ForgeClientPlatform implements ClientPlatform.Backend {
     public boolean isRenderedInSolidLayer(final BlockState state, final RandomSource random) {
         return Minecraft.getInstance().getBlockRenderer().getBlockModel(state)
                 .getRenderTypes(state, random, ModelData.EMPTY).contains(RenderType.solid());
+    }
+
+    @Override
+    public TextureAtlasSprite getFluidFlowingSprite(final FluidStack stack) {
+
+        final ResourceLocation texture = IClientFluidTypeExtensions.of(stack.getFluid()).getFlowingTexture(toForge(stack));
+
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(texture);
+    }
+
+    @Override
+    public int getFluidTint(final FluidStack stack) {
+        return IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(toForge(stack));
+    }
+
+    @Override
+    public <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerScreen(
+            final MenuType<? extends M> type, final ClientPlatform.ScreenFactory<M, S> factory) {
+        MenuScreens.<M, S>register(type, factory::create);
+    }
+
+    private static net.minecraftforge.fluids.FluidStack toForge(final FluidStack stack) {
+        return new net.minecraftforge.fluids.FluidStack(stack.getFluid(), Math.max(1, stack.getAmount()),
+                stack.hasTag() ? stack.getTag() : null);
     }
 
     private record AtlasSprite(ResourceLocation atlas, ResourceLocation sprite) {

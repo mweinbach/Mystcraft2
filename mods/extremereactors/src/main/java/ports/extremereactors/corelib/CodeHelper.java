@@ -27,6 +27,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import ports.extremereactors.corelib.client.ClientResourceReload;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
@@ -70,6 +72,11 @@ public final class CodeHelper {
     /** Runs {@code listener} after each client resource reload. Client only. */
     public static void addResourceReloadListener(final Runnable listener) {
         Platform.addClientReloadListener(listener);
+    }
+
+    /** Runs a vanilla reload listener, with the client resource manager, after each client resource reload. */
+    public static void addResourceReloadListener(final PreparableReloadListener listener) {
+        Platform.addClientReloadListener(() -> ClientResourceReload.reload(listener));
     }
 
     /** Hides the multiblock validation error currently shown to the local player, if any. Client only. */
@@ -216,6 +223,16 @@ public final class CodeHelper {
         return optional.isPresent() ? optional : alternative.get();
     }
 
+    /** A supplier of the value of {@code value}, or of {@code fallback} when {@code value} gives null. */
+    public static <T> Supplier<T> asNonNull(final Supplier<T> value, final Supplier<T> fallback) {
+        return () -> {
+
+            final T result = value.get();
+
+            return null != result ? result : fallback.get();
+        };
+    }
+
     //endregion
     //region text
 
@@ -243,6 +260,14 @@ public final class CodeHelper {
                 DecimalFormatSymbols.getInstance(Locale.ROOT));
 
         return (value < 0 ? "-" : "") + format.format(scaled) + " " + MAGNITUDE_PREFIXES[magnitude] + unit;
+    }
+
+    public static String formatAsMillibuckets(final int amount) {
+        return String.format(Locale.ROOT, "%d mB", amount);
+    }
+
+    public static String formatAsMillibuckets(final double amount) {
+        return String.format(Locale.ROOT, "%.3f mB", amount);
     }
 
     public static ResourceLocation getObjectId(final Fluid fluid) {

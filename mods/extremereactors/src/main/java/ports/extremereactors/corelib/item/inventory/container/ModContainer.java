@@ -15,6 +15,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import ports.extremereactors.corelib.event.Event;
+import ports.extremereactors.corelib.event.IEvent;
 import ports.extremereactors.corelib.internal.Lib;
 import ports.extremereactors.corelib.item.inventory.container.data.IContainerData;
 import ports.extremereactors.corelib.item.inventory.container.slot.ItemHandlerSlot;
@@ -25,9 +27,11 @@ import ports.extremereactors.corelib.network.messages.ContainerDataMessage;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * A container whose slots come from a {@link ContainerFactory} layout and whose extra values are kept in sync
@@ -41,6 +45,9 @@ public class ModContainer
 
     public static final String INVENTORYNAME_PLAYER_INVENTORY = "playerinventory";
 
+    /** Raised on the client after the container data received from the server is applied. */
+    public final IEvent<Runnable> DataUpdated = new Event<>();
+
     protected ModContainer(final ContainerFactory factory, @Nullable final MenuType<?> type, final int windowId,
                            final Inventory playerInventory) {
 
@@ -50,6 +57,7 @@ public class ModContainer
         this._handlers = new HashMap<>();
         this._containers = new HashMap<>();
         this._slotTypes = new ArrayList<>();
+        this._slotInventories = new ArrayList<>();
         this._data = new ArrayList<>();
     }
 
@@ -90,7 +98,48 @@ public class ModContainer
 
             this.addSlot(slot);
             this._slotTypes.add(entry.template().getType());
+            this._slotInventories.add(entry.inventoryName());
         }
+    }
+
+    /**
+     * The indices, in this container, of the slots of an inventory, ordered by their index in the inventory.
+     *
+     * @param type only the slots of this type, or all of them if null
+     */
+    public List<Integer> getSlotIndices(final String inventoryName, @Nullable final SlotType type) {
+        return IntStream.range(0, this._slotInventories.size())
+                .filter(i -> inventoryName.equals(this._slotInventories.get(i)))
+                .filter(i -> null == type || type == this._slotTypes.get(i))
+                .boxed()
+                .sorted(Comparator.comparingInt(i -> this.slots.get(i).getContainerSlot()))
+                .toList();
+    }
+
+    /**
+     * Move a slot of this container. Slot positions are fixed, so the slot is replaced by a copy at the new position;
+     * screens only do this on their client side container.
+     */
+    public void repositionSlot(final int index, final int x, final int y) {
+
+        final Slot slot = this.slots.get(index);
+
+        if (slot.x == x && slot.y == y) {
+            return;
+        }
+
+        final Slot copy;
+
+        if (slot instanceof ItemHandlerSlot handlerSlot) {
+            copy = handlerSlot.copyAt(x, y);
+        } else if (slot instanceof TemplateSlot templateSlot) {
+            copy = templateSlot.copyAt(x, y);
+        } else {
+            return;
+        }
+
+        copy.index = index;
+        this.slots.set(index, copy);
     }
 
     public void addContainerData(final IContainerData data) {
@@ -109,11 +158,13 @@ public class ModContainer
             final int index = buffer.readVarInt();
 
             if (index < 0 || index >= this._data.size()) {
-                return;
+                break;
             }
 
             this._data.get(index).decode(buffer);
         }
+
+        this.DataUpdated.raise(Runnable::run);
     }
 
     //region AbstractContainerMenu
@@ -291,6 +342,10 @@ public class ModContainer
             this._template = template;
         }
 
+        TemplateSlot copyAt(final int x, final int y) {
+            return new TemplateSlot(this.container, this.getContainerSlot(), this._template, x, y);
+        }
+
         @Override
         public boolean mayPlace(final ItemStack stack) {
             return this._template.canPlace(this.getContainerSlot(), stack) && super.mayPlace(stack);
@@ -309,6 +364,7 @@ public class ModContainer
     private final Map<String, IItemHandler> _handlers;
     private final Map<String, Container> _containers;
     private final List<SlotType> _slotTypes;
+    private final List<String> _slotInventories;
     private final List<IContainerData> _data;
 
     //endregion

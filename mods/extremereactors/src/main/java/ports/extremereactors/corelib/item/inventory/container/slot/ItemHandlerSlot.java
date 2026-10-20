@@ -35,6 +35,11 @@ public class ItemHandlerSlot
         return this._template;
     }
 
+    /** A slot for the same handler slot at another position. */
+    public ItemHandlerSlot copyAt(final int x, final int y) {
+        return new ItemHandlerSlot(this._handler, this._index, this._template, x, y);
+    }
+
     /**
      * Insert as much of the stack as the handler accepts, honoring the template.
      *
