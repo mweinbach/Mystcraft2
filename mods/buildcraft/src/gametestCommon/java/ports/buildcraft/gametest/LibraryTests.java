@@ -7,10 +7,13 @@ import static ports.buildcraft.gametest.BuilderTests.record;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -19,6 +22,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -95,6 +100,22 @@ public final class LibraryTests {
         return parts.get();
     }
 
+    /** Sends {@code snapshot} as one upload part, as a client that builds its own parts could. */
+    private static void uploadWhole(GameTestHelper helper, ServerPlayer player, Snapshot.Key key, CompoundTag snapshot) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try {
+            NbtIo.writeCompressed(snapshot, bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        FriendlyByteBuf part = buffer();
+        part.writeBlockPos(helper.absolutePos(LIBRARY));
+        part.writeNbt(key.serializeNBT());
+        part.writeBoolean(true);
+        part.writeByteArray(bytes.toByteArray());
+        ElectronicLibraryBlockEntity.receiveUp(player, part);
+    }
+
     /** As upstream, a local library keeps one file per snapshot contents, so an earlier run's copy would shadow this one's header. */
     private static void removeContents(SnapshotStorage storage, Snapshot.Key key) {
         storage.getList().stream().filter(stored -> Arrays.equals(stored.hash, key.hash)).forEach(storage::removeSnapshot);
@@ -120,8 +141,8 @@ public final class LibraryTests {
      * A recording put in {@code downIn} comes out of {@code downOut} after 50 ticks, the arrow filling as it
      * goes, and its snapshot reaches the client store keyed with its header. A snapshot selected from the
      * client store is uploaded in parts and stored on the server, and a recording of it replaces the item in
-     * {@code upIn}. Uploads count only from a player with this library open, and only while {@code upIn} holds
-     * an item; selections only for the library that is open.
+     * {@code upIn}. Uploads count only from a player with this library open, only while {@code upIn} holds
+     * an item, and only for snapshots of 1 to 2^24 blocks; selections only for the library that is open.
      */
     public static void libraryCopiesSnapshotsDownAndUp(GameTestHelper helper) {
         helper.setBlock(new BlockPos(7, 2, 7), Blocks.STONE);
@@ -188,6 +209,15 @@ public final class LibraryTests {
                 "an upload from a player without the GUI open must be ignored");
 
         player.containerMenu = menu;
+        CompoundTag uploadedTag = Snapshot.writeToNBT(client.getSnapshot(uploaded));
+        for (BlockPos size : List.of(new BlockPos(512, 256, 256), new BlockPos(65536, 65536, 1), new BlockPos(-4, 4, 4))) {
+            CompoundTag resized = uploadedTag.copy();
+            resized.put("size", NbtUtils.writeBlockPos(size));
+            uploadWhole(helper, player, uploaded, resized);
+            require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(),
+                    "an upload spanning " + size.toShortString() + " must be refused");
+        }
+
         upload(helper, player, uploaded, 16);
         ItemStack out = library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT);
         Snapshot.Header outHeader = SnapshotItem.getHeader(out);
@@ -328,7 +358,7 @@ public final class LibraryTests {
      * A blank single schematic used on a block records it, one blank of a stack at a time, and refuses air; the
      * block's own use does not run, so a chest does not open. A recorded one builds the block on the clicked face
      * from the player's inventory, even in creative, and refuses without the items or where it is already built.
-     * Sneaking wipes it. Recorded schematics, templates and blueprints show their snapshot in the tooltip, and a
+     * It builds in place of grass, which a refused build leaves alone. Sneaking wipes it. Recorded schematics, templates and blueprints show their snapshot in the tooltip, and a
      * snapshot survives the encoding the server sends it in.
      */
     public static void singleSchematicRecordsAndPlaces(GameTestHelper helper) {
@@ -374,6 +404,20 @@ public final class LibraryTests {
                 && helper.getBlockState(stonePos.west()).is(Blocks.STONE), "building on a side face builds beside the block");
         require(helper, SchematicSingleItem.useFirst(player, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, stonePos, Direction.WEST)) == InteractionResult.FAIL,
                 "a block already built there must not be built again");
+
+        BlockPos grassPos = new BlockPos(1, 2, 5);
+        helper.setBlock(grassPos.below(), Blocks.DIRT);
+        helper.setBlock(grassPos, Blocks.GRASS);
+        require(helper, SchematicSingleItem.useFirst(player, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, grassPos, Direction.UP)) == InteractionResult.FAIL
+                && helper.getBlockState(grassPos).is(Blocks.GRASS), "a build without the items must leave the grass it would replace");
+        ItemStack stoneSchematic = player.getMainHandItem();
+        player.setItemInHand(InteractionHand.MAIN_HAND, SchematicSingleItem.getUsed(schematicAt(helper, grassPos)));
+        require(helper, SchematicSingleItem.useFirst(player, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, grassPos, Direction.UP)) == InteractionResult.FAIL
+                && helper.getBlockState(grassPos).is(Blocks.GRASS), "a schematic of the grass already there builds nothing");
+        player.setItemInHand(InteractionHand.MAIN_HAND, stoneSchematic);
+        player.getInventory().setItem(5, new ItemStack(Items.STONE));
+        require(helper, SchematicSingleItem.useFirst(player, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, grassPos, Direction.UP)) == InteractionResult.SUCCESS
+                && helper.getBlockState(grassPos).is(Blocks.STONE) && player.getInventory().getItem(5).isEmpty(), "a build replaces the grass in place");
 
         Optional<TooltipComponent> tooltip = player.getMainHandItem().getTooltipImage();
         require(helper, tooltip.isPresent() && tooltip.get() instanceof SnapshotTooltip snapshotTooltip && snapshotTooltip.snapshot() instanceof Blueprint preview

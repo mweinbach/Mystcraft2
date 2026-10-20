@@ -191,7 +191,9 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Electronic library:** upstream stored any upload, from any player, and filled `upOut` even when
   `upIn` was empty, which made recordings from nothing. Here an upload counts only from a player with
   that library's GUI open and only while `upIn` holds an item; each player has one upload in progress,
-  of at most 32 MiB, and the server reads no snapshot that expands past 64 MiB. Upstream filled the down
+  of at most 32 MiB, and the server reads no snapshot that expands past 64 MiB or spans more than
+  16,777,216 blocks (a 256-block cube, the most a blueprint's data fits in 64 MiB). Snapshots read
+  anywhere must be at least one block along each axis and fewer than 2^31 blocks. Upstream filled the down
   arrow with a negative width, which drew texels beside it instead of the arrow; it fills from the right
   here. Upstream drew every row of the list, running past its panel over the inventory, with no
   scrolling; here the 13 rows that fit on the panel are drawn and clickable, so a local library of more
@@ -205,7 +207,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Single block schematic:** upstream recorded the whole held stack into one unstackable item, losing
   the rest of a stack of blanks; here one blank of the stack is recorded. Upstream used Forge's
   `onItemUseFirst`; each loader's block click event (`PlayerInteractEvent.RightClickBlock`,
-  `UseBlockCallback`) runs it here.
+  `UseBlockCallback`) runs it here. Upstream removed a clicked replaceable block such as tall grass or
+  snow before checking the schematic and the items, so a failed build destroyed it and a schematic of
+  that same block rebuilt it at a cost; here the block is removed only once the build can go ahead,
+  put back if the build fails, and a schematic of the block already there builds nothing.
 - **Snapshot previews:** upstream built each snapshot into a fake world and drew its chunk buffer. Here
   each block's model is baked once into vertex buffers without a world, so blocks take no shape or tint
   from their neighbours (fences do not join, grass takes its default colour), blocks with every side
