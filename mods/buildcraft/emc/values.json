@@ -18,6 +18,9 @@
       "itemalchemy": 1120,
       "source": "conversion architect_table_records"
     },
+    "buildcraft:builder": {
+      "excluded": "Creative-only: upstream has no recipe for the builder, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+    },
     "buildcraft:combustion_engine": {
       "projecte": 3205,
       "itemalchemy": 3157,
