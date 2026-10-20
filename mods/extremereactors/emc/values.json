@@ -1,0 +1,560 @@
+{
+  "namespace": "bigreactors",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "bigreactors:anglesite_crystal": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "bigreactors:anglesite_ore": {
+      "excluded": "Drops a Fortune-boosted number of crystals; only the crystals are valued, as ProjectE does for ores."
+    },
+    "bigreactors:basic_reactorcasing": {
+      "projecte": 1153,
+      "itemalchemy": 1137,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorchargingportfe": {
+      "projecte": 8966,
+      "itemalchemy": 8902,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorcontroller": {
+      "projecte": 21523,
+      "itemalchemy": 15360,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorcontrolrod": {
+      "projecte": 5568,
+      "itemalchemy": 5492,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorfuelrod": {
+      "projecte": 5186,
+      "itemalchemy": 5170,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorglass": {
+      "projecte": 1155,
+      "itemalchemy": 1139,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorpowertapfe_active": {
+      "projecte": 6980,
+      "itemalchemy": 6916,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorpowertapfe_passive": {
+      "projecte": 5444,
+      "itemalchemy": 5380,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorredstoneport": {
+      "projecte": 7838,
+      "itemalchemy": 7806,
+      "source": "recipe"
+    },
+    "bigreactors:basic_reactorsolidaccessport": {
+      "projecte": 6880,
+      "itemalchemy": 6784,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinecasing": {
+      "projecte": 9792,
+      "itemalchemy": 9776,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinechargingportfe": {
+      "projecte": 42562,
+      "itemalchemy": 42498,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinecontroller": {
+      "projecte": 84751,
+      "itemalchemy": 78588,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinecreativesteamgenerator": {
+      "excluded": "Creative-only generators that produce steam or water from nothing; they have no survival recipe."
+    },
+    "bigreactors:basic_turbinefluidport_forge_active": {
+      "projecte": 39424,
+      "itemalchemy": 39360,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinefluidport_forge_passive": {
+      "projecte": 39232,
+      "itemalchemy": 39168,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbineglass": {
+      "projecte": 9794,
+      "itemalchemy": 9778,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinepowertapfe_active": {
+      "projecte": 41536,
+      "itemalchemy": 41472,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinepowertapfe_passive": {
+      "projecte": 40000,
+      "itemalchemy": 39936,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbineredstoneport": {
+      "projecte": 42394,
+      "itemalchemy": 42362,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinerotorbearing": {
+      "projecte": 6784,
+      "itemalchemy": 6696,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinerotorblade": {
+      "projecte": 2560,
+      "itemalchemy": 2552,
+      "source": "recipe"
+    },
+    "bigreactors:basic_turbinerotorshaft": {
+      "projecte": 3072,
+      "itemalchemy": 3056,
+      "source": "recipe"
+    },
+    "bigreactors:benitoite_crystal": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "bigreactors:benitoite_ore": {
+      "excluded": "Drops a Fortune-boosted number of crystals; only the crystals are valued, as ProjectE does for ores."
+    },
+    "bigreactors:blutonium_block": {
+      "projecte": 36855,
+      "itemalchemy": 36855,
+      "source": "recipe"
+    },
+    "bigreactors:blutonium_bucket": {
+      "projecte": 4863,
+      "itemalchemy": 4863,
+      "source": "conversion fluidizer_bucket"
+    },
+    "bigreactors:blutonium_dust": {
+      "projecte": 4095,
+      "itemalchemy": 4095,
+      "source": "conversion dust"
+    },
+    "bigreactors:blutonium_ingot": {
+      "projecte": 4095,
+      "itemalchemy": 4095,
+      "source": "conversion reprocess_cyanite"
+    },
+    "bigreactors:blutonium_nugget": {
+      "projecte": 455,
+      "itemalchemy": 455,
+      "source": "recipe"
+    },
+    "bigreactors:cryomisi_bucket": {
+      "projecte": 904,
+      "itemalchemy": 904,
+      "source": "conversion cryomisi_bucket"
+    },
+    "bigreactors:cyanite_block": {
+      "projecte": 18432,
+      "itemalchemy": 18432,
+      "source": "recipe"
+    },
+    "bigreactors:cyanite_bucket": {
+      "projecte": 2816,
+      "itemalchemy": 2816,
+      "source": "conversion fluidizer_bucket"
+    },
+    "bigreactors:cyanite_dust": {
+      "projecte": 2048,
+      "itemalchemy": 2048,
+      "source": "conversion dust"
+    },
+    "bigreactors:cyanite_ingot": {
+      "projecte": 2048,
+      "itemalchemy": 2048,
+      "source": "explicit"
+    },
+    "bigreactors:fluidizercasing": {
+      "projecte": 17408,
+      "itemalchemy": 17392,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizercontroller": {
+      "projecte": 95055,
+      "itemalchemy": 79164,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizerfluidinjector": {
+      "projecte": 186396,
+      "itemalchemy": 186328,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizerglass": {
+      "projecte": 17410,
+      "itemalchemy": 17394,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizeroutputport": {
+      "projecte": 85431,
+      "itemalchemy": 85367,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizerpowerport": {
+      "projecte": 87371,
+      "itemalchemy": 75019,
+      "source": "recipe"
+    },
+    "bigreactors:fluidizersolidinjector": {
+      "projecte": 78332,
+      "itemalchemy": 78264,
+      "source": "recipe"
+    },
+    "bigreactors:graphite_block": {
+      "projecte": 288,
+      "itemalchemy": 288,
+      "source": "recipe"
+    },
+    "bigreactors:graphite_dust": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "conversion dust"
+    },
+    "bigreactors:graphite_ingot": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "recipe"
+    },
+    "bigreactors:inanite_block": {
+      "projecte": 901048,
+      "itemalchemy": 901048,
+      "source": "recipe"
+    },
+    "bigreactors:inanite_dust": {
+      "projecte": 48119,
+      "itemalchemy": 48119,
+      "source": "conversion dust"
+    },
+    "bigreactors:inanite_ingot": {
+      "projecte": 48119,
+      "itemalchemy": 48119,
+      "source": "conversion reprocess_ridiculite"
+    },
+    "bigreactors:insanite_block": {
+      "projecte": 982952,
+      "itemalchemy": 982952,
+      "source": "recipe"
+    },
+    "bigreactors:insanite_dust": {
+      "projecte": 10238,
+      "itemalchemy": 10238,
+      "source": "conversion dust"
+    },
+    "bigreactors:insanite_ingot": {
+      "projecte": 10238,
+      "itemalchemy": 10238,
+      "source": "conversion reprocess_benitoite"
+    },
+    "bigreactors:ludicrite_block": {
+      "projecte": 87799,
+      "itemalchemy": 87799,
+      "source": "recipe"
+    },
+    "bigreactors:ludicrite_dust": {
+      "projecte": 10238,
+      "itemalchemy": 10238,
+      "source": "conversion dust"
+    },
+    "bigreactors:ludicrite_ingot": {
+      "projecte": 10238,
+      "itemalchemy": 10238,
+      "source": "conversion reprocess_blutonium"
+    },
+    "bigreactors:magentite_block": {
+      "projecte": 18432,
+      "itemalchemy": 18432,
+      "source": "recipe"
+    },
+    "bigreactors:magentite_bucket": {
+      "projecte": 2816,
+      "itemalchemy": 2816,
+      "source": "conversion fluidizer_bucket"
+    },
+    "bigreactors:magentite_dust": {
+      "projecte": 2048,
+      "itemalchemy": 2048,
+      "source": "conversion dust"
+    },
+    "bigreactors:magentite_ingot": {
+      "projecte": 2048,
+      "itemalchemy": 2048,
+      "source": "explicit"
+    },
+    "bigreactors:redfrigium_bucket": {
+      "projecte": 5188,
+      "itemalchemy": 5188,
+      "source": "conversion redfrigium_bucket"
+    },
+    "bigreactors:reinforced_reactorcasing": {
+      "projecte": 10497,
+      "itemalchemy": 10337,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorchargingportfe": {
+      "projecte": 62214,
+      "itemalchemy": 61574,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorcomputerport": {
+      "projecte": 66276,
+      "itemalchemy": 65564,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorcontroller": {
+      "projecte": 124435,
+      "itemalchemy": 68544,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorcontrolrod": {
+      "projecte": 47040,
+      "itemalchemy": 46324,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorcreativewatergenerator": {
+      "excluded": "Creative-only generators that produce steam or water from nothing; they have no survival recipe."
+    },
+    "bigreactors:reinforced_reactorfluidaccessport": {
+      "projecte": 49056,
+      "itemalchemy": 48320,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorfluidport_forge_active": {
+      "projecte": 42244,
+      "itemalchemy": 41604,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorfluidport_forge_passive": {
+      "projecte": 42052,
+      "itemalchemy": 41412,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorfluidport_mekanism_passive": {
+      "projecte": 189572,
+      "itemalchemy": 46084,
+      "source": "conversion mekanism_fluid_port"
+    },
+    "bigreactors:reinforced_reactorfuelrod": {
+      "projecte": 13378,
+      "itemalchemy": 13234,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorglass": {
+      "projecte": 10499,
+      "itemalchemy": 10339,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorpowertapfe_active": {
+      "projecte": 44356,
+      "itemalchemy": 43716,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorpowertapfe_passive": {
+      "projecte": 42820,
+      "itemalchemy": 42180,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorredstoneport": {
+      "projecte": 65694,
+      "itemalchemy": 65027,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_reactorsolidaccessport": {
+      "projecte": 48352,
+      "itemalchemy": 47616,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinecasing": {
+      "projecte": 19712,
+      "itemalchemy": 19532,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinechargingportfe": {
+      "projecte": 86594,
+      "itemalchemy": 85874,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinecomputerport": {
+      "projecte": 103136,
+      "itemalchemy": 102344,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinecontroller": {
+      "projecte": 189967,
+      "itemalchemy": 133996,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinecreativesteamgenerator": {
+      "excluded": "Creative-only generators that produce steam or water from nothing; they have no survival recipe."
+    },
+    "bigreactors:reinforced_turbinefluidport_forge_active": {
+      "projecte": 79104,
+      "itemalchemy": 78384,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinefluidport_forge_passive": {
+      "projecte": 78912,
+      "itemalchemy": 78192,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbineglass": {
+      "projecte": 19714,
+      "itemalchemy": 19534,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinepowertapfe_active": {
+      "projecte": 81216,
+      "itemalchemy": 80496,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinepowertapfe_passive": {
+      "projecte": 79680,
+      "itemalchemy": 78960,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbineredstoneport": {
+      "projecte": 86170,
+      "itemalchemy": 85418,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinerotorbearing": {
+      "projecte": 14976,
+      "itemalchemy": 14760,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinerotorblade": {
+      "projecte": 6656,
+      "itemalchemy": 6584,
+      "source": "recipe"
+    },
+    "bigreactors:reinforced_turbinerotorshaft": {
+      "projecte": 11264,
+      "itemalchemy": 11120,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorcasing": {
+      "projecte": 9216,
+      "itemalchemy": 9200,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorcollector": {
+      "projecte": 153408,
+      "itemalchemy": 153316,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorcontroller": {
+      "projecte": 58063,
+      "itemalchemy": 42172,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorfluidinjector": {
+      "projecte": 39964,
+      "itemalchemy": 39896,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorglass": {
+      "projecte": 9218,
+      "itemalchemy": 9202,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessoroutputport": {
+      "projecte": 52663,
+      "itemalchemy": 52599,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorpowerport": {
+      "projecte": 54603,
+      "itemalchemy": 42251,
+      "source": "recipe"
+    },
+    "bigreactors:reprocessorwasteinjector": {
+      "projecte": 41468,
+      "itemalchemy": 41400,
+      "source": "recipe"
+    },
+    "bigreactors:ridiculite_block": {
+      "projecte": 319456,
+      "itemalchemy": 319456,
+      "source": "recipe"
+    },
+    "bigreactors:ridiculite_dust": {
+      "projecte": 22524,
+      "itemalchemy": 22524,
+      "source": "conversion dust"
+    },
+    "bigreactors:ridiculite_ingot": {
+      "projecte": 22524,
+      "itemalchemy": 22524,
+      "source": "conversion reprocess_ludicrite"
+    },
+    "bigreactors:rossinite_bucket": {
+      "projecte": 3839,
+      "itemalchemy": 3839,
+      "source": "conversion rossinite_bucket"
+    },
+    "bigreactors:steam_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion steam_bucket"
+    },
+    "bigreactors:tangerium_bucket": {
+      "projecte": 9472,
+      "itemalchemy": 9472,
+      "source": "conversion tangerium_bucket"
+    },
+    "bigreactors:verderium_bucket": {
+      "projecte": 6911,
+      "itemalchemy": 6911,
+      "source": "conversion verderium_bucket"
+    },
+    "bigreactors:wrench": {
+      "projecte": 1128,
+      "itemalchemy": 1120,
+      "source": "recipe"
+    },
+    "bigreactors:yellorite_ore": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "explicit"
+    },
+    "bigreactors:yellorium_block": {
+      "projecte": 36864,
+      "itemalchemy": 36864,
+      "source": "recipe"
+    },
+    "bigreactors:yellorium_bucket": {
+      "projecte": 4864,
+      "itemalchemy": 4864,
+      "source": "conversion fluidizer_bucket"
+    },
+    "bigreactors:yellorium_dust": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion dust"
+    },
+    "bigreactors:yellorium_ingot": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "explicit"
+    },
+    "bigreactors:yellorium_nugget": {
+      "excluded": "ProjectE fixes a yellorium ingot at 4096, which nine nuggets cannot split evenly: any nugget value lets crafting ingots into nuggets, or nuggets into ingots, gain EMC."
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:cyanite_dust",
+    {
+      "id": "#c:cyanite_dusts",
+      "required": false
+    }
+  ]
+}

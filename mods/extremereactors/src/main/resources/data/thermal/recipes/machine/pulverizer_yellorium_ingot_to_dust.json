@@ -1,0 +1,27 @@
+{
+  "type": "thermal:pulverizer",
+  "conditions": [
+    {
+      "modid": "thermal_expansion",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "thermal_expansion"
+      ]
+    }
+  ],
+  "ingredient": {
+    "item": "bigreactors:yellorium_ingot"
+  },
+  "result": [
+    {
+      "item": "bigreactors:yellorium_dust",
+      "count": 1
+    }
+  ],
+  "energy_mod": 0.5
+}

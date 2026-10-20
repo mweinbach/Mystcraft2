@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:electrum_blocks",
+      "required": false
+    }
+  ]
+}

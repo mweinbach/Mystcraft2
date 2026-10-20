@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:magentite_dust",
+    {
+      "id": "#c:magentite_dusts",
+      "required": false
+    }
+  ]
+}

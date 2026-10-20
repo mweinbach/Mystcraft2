@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:rossinite",
+    "bigreactors:rossinite_flowing",
+    {
+      "id": "#c:rossinite",
+      "required": false
+    }
+  ]
+}

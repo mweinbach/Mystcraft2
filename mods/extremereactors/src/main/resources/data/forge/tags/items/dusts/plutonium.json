@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:blutonium_dust",
+    {
+      "id": "#c:plutonium_dusts",
+      "required": false
+    }
+  ]
+}

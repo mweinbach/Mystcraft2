@@ -1,0 +1,69 @@
+package it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.network;
+/*
+ * UpdateClientsFuelRodsLayout
+ *
+ * This file is part of Extreme Reactors 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Do not remove or edit this header
+ *
+ */
+
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.part.AbstractReactorEntity;
+import ports.extremereactors.corelib.data.nbt.ISyncableEntity;
+import ports.extremereactors.corelib.network.AbstractModTileMessage;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import ports.extremereactors.corelib.LogicalSide;
+
+public class UpdateClientsFuelRodsLayout
+    extends AbstractModTileMessage {
+
+    public UpdateClientsFuelRodsLayout(final AbstractReactorEntity referencePart, final ISyncableEntity fuelContainer) {
+
+        super(referencePart.getWorldPosition());
+        this._fuelContainerData = fuelContainer.syncDataTo(new CompoundTag(), ISyncableEntity.SyncReason.NetworkUpdate);
+    }
+
+    public UpdateClientsFuelRodsLayout(final FriendlyByteBuf buffer) {
+
+        super(buffer);
+        this._fuelContainerData = buffer.readNbt();
+    }
+
+    public CompoundTag getFuelContainerData() {
+        return this._fuelContainerData;
+    }
+
+    //region AbstractModTileMessage
+
+    @Override
+    public void encodeTo(final FriendlyByteBuf buffer) {
+
+        super.encodeTo(buffer);
+        buffer.writeNbt(this._fuelContainerData);
+    }
+
+    @Override
+    protected void processTileEntityMessage(final LogicalSide sourceSide, final BlockEntity tileEntity) {
+
+        if (LogicalSide.SERVER == sourceSide && tileEntity instanceof AbstractReactorEntity) {
+            ((AbstractReactorEntity)tileEntity).onUpdateClientsFuelRodsLayout(this);
+        }
+    }
+
+    //endregion
+    //region internals
+
+    private final CompoundTag _fuelContainerData;
+
+    //endregion
+}

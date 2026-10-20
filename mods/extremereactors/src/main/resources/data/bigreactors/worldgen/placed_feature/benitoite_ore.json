@@ -1,0 +1,27 @@
+{
+    "feature":"bigreactors:benitoite_ore",
+    "placement":[
+        {
+            "type":"count",
+            "count":{
+                "type":"constant",
+                "value":10
+            }
+        },
+        {
+            "type":"in_square"
+        },
+        {
+            "type":"height_range",
+            "height":{
+                "type":"uniform",
+                "min_inclusive":{
+                    "absolute":3
+                },
+                "max_inclusive":{
+                    "absolute":126
+                }
+            }
+        }
+    ]
+}

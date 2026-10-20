@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:ludicrite_block",
+    {
+      "id": "#c:ludicrite_blocks",
+      "required": false
+    }
+  ]
+}

@@ -78,6 +78,19 @@ class ConditionTests(unittest.TestCase):
         with self.assertRaises(emc.PolicyError):
             self.holds({"condition": "othermod:something"})
 
+    def test_port_conditions_take_the_policy_outcome(self):
+        custom = {"a:config": False}
+        condition = {"condition": "fabric:not", "value": {"condition": "a:config", "config_name": "x"}}
+        self.assertTrue(emc.condition_holds(condition, "fabric", self.tags, set(), custom))
+        self.assertFalse(emc.condition_holds({"type": "a:config"}, "forge", self.tags, set(), custom))
+        base = {"namespace": "a", "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+                "resources": {"projecte": ["r"], "itemalchemy": ["r"]}}
+        emc.validate_policy({**base, "conditions": {"a:config": {"holds": True, "why": "w"}}})
+        for bad in ({"b:config": {"holds": True, "why": "w"}}, {"a:config": {"holds": "yes", "why": "w"}},
+                    {"a:config": {"holds": True}}):
+            with self.assertRaises(emc.PolicyError):
+                emc.validate_policy({**base, "conditions": bad})
+
 
 class PolicyTests(unittest.TestCase):
     def test_exact_ids_beat_patterns_and_ties_are_reported(self):

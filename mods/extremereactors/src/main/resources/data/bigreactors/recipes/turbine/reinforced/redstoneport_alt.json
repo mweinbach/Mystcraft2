@@ -1,0 +1,46 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
+    {
+      "tag": "forge:ingots/steel",
+      "type": "forge:tag_empty"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:tags_populated",
+        "values": [
+          "forge:ingots/steel"
+        ]
+      }
+    }
+  ],
+  "group": "bigreactors:turbine",
+  "pattern": [
+    "CZC",
+    "MGM",
+    "CXC"
+  ],
+  "key": {
+    "C": {
+      "item": "bigreactors:reinforced_turbinecasing"
+    },
+    "M": {
+      "tag": "forge:storage_blocks/iron"
+    },
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "Z": {
+      "item": "minecraft:comparator"
+    },
+    "X": {
+      "item": "minecraft:repeater"
+    }
+  },
+  "result": {
+    "item": "bigreactors:reinforced_turbineredstoneport"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:refined_obsidian_blocks",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:smelting",
+  "conditions": [
+    {
+      "config_name": "registerCoalForSmelting",
+      "type": "bigreactors:config_condition"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "bigreactors:config_condition",
+      "config_name": "registerCoalForSmelting"
+    }
+  ],
+  "ingredient": {
+    "item": "minecraft:coal"
+  },
+  "result": "bigreactors:graphite_ingot",
+  "experience": 1.0,
+  "cookingtime": 200
+}

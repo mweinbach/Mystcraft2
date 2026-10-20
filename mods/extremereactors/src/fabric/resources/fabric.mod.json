@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "bigreactors",
+  "version": "${version}",
+  "name": "Extreme Reactors",
+  "description": "${mod_description}",
+  "authors": [
+    "ZeroNoRyouki",
+    "erogenousbeef",
+    "1.19.2 port contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/ZeroNoRyouki/ExtremeReactors2",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/extremereactors",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
+  },
+  "icon": "logo.png",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.extremereactors.fabric.FabricMod"
+    ],
+    "client": [
+      "ports.extremereactors.fabric.client.FabricClientMod"
+    ]
+  },
+  "mixins": [
+    "extremereactors.fabric.mixins.json"
+  ],
+  "accessWidener": "extremereactors.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "team_reborn_energy": ">=2.3.0",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

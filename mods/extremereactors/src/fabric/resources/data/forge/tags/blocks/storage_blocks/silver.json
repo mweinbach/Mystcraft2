@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:silver_blocks",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:diamond_block",
+    {
+      "id": "#c:diamond_blocks",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+// Extreme Reactors for Forge: the shared core plus the Forge adapters. The Fabric variant
+// builds from the same shared sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'extremereactors-forge-1.19.2'
+
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
+    }
+}
+
+tasks.withType(Jar).configureEach {
+    from('UPSTREAM.md') {
+        into 'META-INF'
+        rename { 'ExtremeReactors-UPSTREAM.md' }
+    }
+    from('licenses') { into 'META-INF/licenses/extremereactors' }
+}
+
+// Loader-independent simulation checks that run without a game server.
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+// In-world tests live outside the production source set and JAR.
+sourceSets {
+    gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = ['src/gametestCommon/resources', 'src/gametestForge/resources']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+// The run's mod group name only groups class roots; the mod ID comes from mods.toml.
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enabledGameTestNamespaces', 'bigreactors'
+        property 'emc.values', file('emc/values.json').absolutePath
+        mods { extremereactors { source sourceSets.gametest } }
+    }
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach { dependsOn tasks.named('gametestClasses') }

@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:blutonium",
+    "bigreactors:blutonium_flowing",
+    {
+      "id": "#c:blutonium",
+      "required": false
+    }
+  ]
+}

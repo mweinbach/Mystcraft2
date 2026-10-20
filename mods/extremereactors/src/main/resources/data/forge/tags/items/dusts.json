@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:yellorium_dust",
+    "bigreactors:cyanite_dust",
+    "bigreactors:graphite_dust",
+    "bigreactors:blutonium_dust",
+    "bigreactors:magentite_dust"
+  ]
+}

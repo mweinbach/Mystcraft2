@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:cyanite",
+    "bigreactors:cyanite_flowing",
+    {
+      "id": "#c:cyanite",
+      "required": false
+    }
+  ]
+}

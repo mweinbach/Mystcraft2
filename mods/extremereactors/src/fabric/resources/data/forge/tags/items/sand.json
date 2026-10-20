@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:sand",
+    "minecraft:red_sand",
+    {
+      "id": "#c:sand",
+      "required": false
+    }
+  ]
+}

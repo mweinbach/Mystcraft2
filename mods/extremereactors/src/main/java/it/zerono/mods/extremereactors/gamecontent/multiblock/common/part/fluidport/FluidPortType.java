@@ -1,0 +1,57 @@
+/*
+ *
+ * FluidPortType.java
+ *
+ * This file is part of Extreme Reactors 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.extremereactors.gamecontent.multiblock.common.part.fluidport;
+
+import ports.extremereactors.corelib.base.multiblock.part.AbstractMultiblockEntity;
+import ports.extremereactors.corelib.base.multiblock.part.io.fluid.EmptyFluidPortHandler;
+import ports.extremereactors.corelib.base.multiblock.part.io.fluid.FluidPortHandlerForge;
+import ports.extremereactors.corelib.base.multiblock.part.io.fluid.IFluidPort;
+import ports.extremereactors.corelib.base.multiblock.part.io.fluid.IFluidPortHandler;
+import ports.extremereactors.corelib.data.IoMode;
+import ports.extremereactors.multiblock.cuboid.AbstractCuboidMultiblockController;
+
+public enum FluidPortType {
+
+    /**
+     * Standard Forge IFluidHandler capability
+     */
+    Forge,
+
+    /**
+     * Mekanism IGasHandler capability
+     */
+    Mekanism
+    ;
+
+    public static <Controller extends AbstractCuboidMultiblockController<Controller>,
+            T extends AbstractMultiblockEntity<Controller> & IFluidPort>
+    IFluidPortHandler create(FluidPortType type, IoMode mode, T part) {
+
+        switch (type) {
+
+            case Forge:
+                return new FluidPortHandlerForge<>(part, mode);
+
+            case Mekanism:
+                return new EmptyFluidPortHandler();
+        }
+
+        throw new IllegalArgumentException("Unsupported Fluid Port: " + type);
+    }
+}

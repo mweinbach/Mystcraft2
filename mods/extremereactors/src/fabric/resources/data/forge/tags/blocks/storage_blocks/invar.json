@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:invar_blocks",
+      "required": false
+    }
+  ]
+}

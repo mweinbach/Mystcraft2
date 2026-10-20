@@ -95,3 +95,24 @@ BuildCraft changes, run:
 - `python3 scripts/emc.py check`
 - `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy`
+
+## Extreme Reactors loader support
+
+Extreme Reactors uses the same layout: Extreme Reactors 2's gameplay, assets and
+data live in `mods/extremereactors/src/main`; Forge adapters in `src/forge`,
+Fabric adapters in `src/fabric`, and the Loom build in
+`mods/extremereactors/fabric`. ZeroCore 2 is all rights reserved except its MIT
+multiblock package: never read, copy or translate other ZeroCore 2 code or
+assets, and implement what Extreme Reactors needs in `ports.extremereactors.corelib`
+from its call sites, observable behavior and the vanilla, Forge and Fabric APIs.
+Record changes to upstream files in `mods/extremereactors/UPSTREAM.md` and gaps
+in `mods/extremereactors/PARITY.md`. Shared GameTest bodies live in
+`src/gametestCommon/.../ExtremeReactorsGameTests.java` and every one must be
+forwarded by both loaders. After Extreme Reactors changes, run:
+
+- `./scripts/gradle.sh :extremereactors:build`
+- `./scripts/gradle.sh -p mods/extremereactors/fabric build`
+- `python3 mods/extremereactors/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :extremereactors:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/extremereactors/fabric runGametest -PwithItemAlchemy`

@@ -1,0 +1,51 @@
+{
+  "namespace": "bigreactors",
+  "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources", "src/forge/resources"],
+    "itemalchemy": ["src/main/resources", "src/fabric/resources"]
+  },
+  "output": "src/main/resources",
+  "conditions": {
+    "bigreactors:config_condition": {"holds": true, "why": "The three recipe options it reads (registerCharcoalForSmelting, registerCoalForSmelting and registerCoalBlockForSmelting) all default to true."}
+  },
+  "values": {
+    "bigreactors:yellorium_ingot": {"emc": 4096, "why": "Upstream tags yellorium ingots forge:ingots/uranium, which ProjectE 1.1.0 values at 4096; Item Alchemy gets the same value so both systems agree."},
+    "bigreactors:yellorite_ore": {"emc": 4096, "why": "Yellorite ore drops itself (no Fortune bonus) and smelts into one yellorium ingot, so it is worth one ingot."},
+    "bigreactors:cyanite_ingot": {"emc": 2048, "why": "Reactor waste: burning one yellorium ingot leaves one cyanite ingot. Waste is valued at half its fuel, so two cyanite reprocess (with water) into one blutonium ingot worth a yellorium ingot."},
+    "bigreactors:magentite_ingot": {"emc": 2048, "why": "Reactor waste of blutonium, valued like cyanite at half its fuel."},
+    "bigreactors:anglesite_crystal": {"like": "minecraft:quartz", "why": "Fortune-boosted gem from End ore veins about as common as nether quartz; valued like quartz."},
+    "bigreactors:benitoite_crystal": {"like": "minecraft:quartz", "why": "Fortune-boosted gem from Nether ore veins about as common as nether quartz; valued like quartz."}
+  },
+  "conversions": [
+    {"name": "dust", "why": "Dusts come from grinding an ingot (Thermal's pulverizer on Forge) and smelt back into one ingot, so a dust is worth its ingot.", "output": "bigreactors:{metal}_dust", "ingredients": {"bigreactors:{metal}_ingot": 1}},
+    {"name": "fluidizer_bucket", "why": "The fluidizer melts one ingot into 1000 mB of its reactant fluid, one bucketful.", "output": "bigreactors:{metal}_bucket", "ingredients": {"bigreactors:{metal}_ingot": 1, "minecraft:bucket": 1}},
+    {"name": "verderium_bucket", "why": "The fluidizer mixes two yellorium ingots and one blutonium ingot into 2000 mB of verderium.", "output": "bigreactors:verderium_bucket", "count": 2, "ingredients": {"bigreactors:yellorium_ingot": 2, "bigreactors:blutonium_ingot": 1, "minecraft:bucket": 2}},
+    {"name": "rossinite_bucket", "why": "Reactor waste of verderium, which only exists as a fluid; valued like cyanite and magentite at half its fuel, so four buckets hold half the ingots behind four buckets of verderium.", "output": "bigreactors:rossinite_bucket", "count": 4, "ingredients": {"bigreactors:yellorium_ingot": 2, "bigreactors:blutonium_ingot": 1, "minecraft:bucket": 4}},
+    {"name": "cryomisi_bucket", "why": "The fluidizer mixes one redstone and one snow block into 500 mB of cryomisi.", "output": "bigreactors:cryomisi_bucket", "ingredients": {"minecraft:redstone": 2, "minecraft:snow_block": 2, "minecraft:bucket": 1}},
+    {"name": "tangerium_bucket", "why": "The fluidizer mixes one anglesite crystal and four ender pearls into 500 mB of tangerium.", "output": "bigreactors:tangerium_bucket", "ingredients": {"bigreactors:anglesite_crystal": 2, "minecraft:ender_pearl": 8, "minecraft:bucket": 1}},
+    {"name": "redfrigium_bucket", "why": "The fluidizer mixes 1000 mB each of cryomisi and tangerium into 2000 mB of redfrigium.", "output": "bigreactors:redfrigium_bucket", "count": 2, "ingredients": {"bigreactors:cryomisi_bucket": 1, "bigreactors:tangerium_bucket": 1}},
+    {"name": "steam_bucket", "why": "Reactors and turbines turn water into steam and back one millibucket for one, so steam is worth the water it came from.", "output": "bigreactors:steam_bucket", "ingredients": {"minecraft:water_bucket": 1}},
+    {"name": "reprocess_cyanite", "why": "The reprocessor turns two cyanite ingots and 1000 mB of water into one blutonium ingot.", "output": "bigreactors:blutonium_ingot", "ingredients": {"bigreactors:cyanite_ingot": 2, "minecraft:water_bucket": 1, "minecraft:bucket": -1}},
+    {"name": "reprocess_blutonium", "why": "The reprocessor turns two blutonium ingots and 1000 mB of cyanite into one ludicrite ingot.", "output": "bigreactors:ludicrite_ingot", "ingredients": {"bigreactors:blutonium_ingot": 2, "bigreactors:cyanite_bucket": 1, "minecraft:bucket": -1}},
+    {"name": "reprocess_ludicrite", "why": "The reprocessor turns two ludicrite ingots and 1000 mB of magentite into one ridiculite ingot.", "output": "bigreactors:ridiculite_ingot", "ingredients": {"bigreactors:ludicrite_ingot": 2, "bigreactors:magentite_bucket": 1, "minecraft:bucket": -1}},
+    {"name": "reprocess_ridiculite", "why": "The reprocessor turns two ridiculite ingots and 1000 mB of rossinite into one inanite ingot.", "output": "bigreactors:inanite_ingot", "ingredients": {"bigreactors:ridiculite_ingot": 2, "bigreactors:rossinite_bucket": 1, "minecraft:bucket": -1}},
+    {"name": "reprocess_benitoite", "why": "The reprocessor turns sixteen benitoite crystals and 2000 mB of rossinite into one insanite ingot.", "output": "bigreactors:insanite_ingot", "ingredients": {"bigreactors:benitoite_crystal": 16, "bigreactors:rossinite_bucket": 2, "minecraft:bucket": -2}},
+    {"name": "mekanism_fluid_port", "why": "Its recipe only loads with Mekanism: four reinforced casings, two lava and two water buckets (returned empty) around an emerald block.", "output": "bigreactors:reinforced_reactorfluidport_mekanism_passive", "ingredients": {"bigreactors:reinforced_reactorcasing": 4, "minecraft:lava_bucket": 2, "minecraft:water_bucket": 2, "minecraft:bucket": -4, "minecraft:emerald_block": 1}}
+  ],
+  "exclude": {
+    "bigreactors:*creative*": "Creative-only generators that produce steam or water from nothing; they have no survival recipe.",
+    "bigreactors:yellorium_nugget": "ProjectE fixes a yellorium ingot at 4096, which nine nuggets cannot split evenly: any nugget value lets crafting ingots into nuggets, or nuggets into ingots, gain EMC.",
+    "bigreactors:anglesite_ore": "Drops a Fortune-boosted number of crystals; only the crystals are valued, as ProjectE does for ores.",
+    "bigreactors:benitoite_ore": "Drops a Fortune-boosted number of crystals; only the crystals are valued, as ProjectE does for ores."
+  },
+  "processes": [
+    {"name": "burn_yellorium", "why": "A reactor burns yellorium fuel into the same amount of cyanite waste.", "in": {"bigreactors:yellorium_ingot": 1}, "out": {"bigreactors:cyanite_ingot": 1}},
+    {"name": "burn_yellorium_fluid", "why": "A fluid-fuelled reactor burns 1000 mB of yellorium into 1000 mB of cyanite.", "in": {"bigreactors:yellorium_bucket": 1}, "out": {"bigreactors:cyanite_bucket": 1}},
+    {"name": "burn_blutonium", "why": "A reactor burns blutonium fuel into the same amount of magentite waste.", "in": {"bigreactors:blutonium_ingot": 1}, "out": {"bigreactors:magentite_ingot": 1}},
+    {"name": "burn_blutonium_fluid", "why": "A fluid-fuelled reactor burns 1000 mB of blutonium into 1000 mB of magentite.", "in": {"bigreactors:blutonium_bucket": 1}, "out": {"bigreactors:magentite_bucket": 1}},
+    {"name": "burn_verderium", "why": "A fluid-fuelled reactor burns 1000 mB of verderium into 1000 mB of rossinite.", "in": {"bigreactors:verderium_bucket": 1}, "out": {"bigreactors:rossinite_bucket": 1}},
+    {"name": "boil_water", "why": "An actively cooled reactor boils water into the same amount of steam.", "in": {"minecraft:water_bucket": 1}, "out": {"bigreactors:steam_bucket": 1}},
+    {"name": "condense_steam", "why": "A turbine condenses the steam it uses back into the same amount of water.", "in": {"bigreactors:steam_bucket": 1}, "out": {"minecraft:water_bucket": 1}}
+  ]
+}

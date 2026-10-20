@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:yellorium_block",
+    {
+      "id": "#c:yellorium_blocks",
+      "required": false
+    }
+  ]
+}

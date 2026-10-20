@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:yellorium_nugget",
+    {
+      "id": "#c:yellorium_nuggets",
+      "required": false
+    }
+  ]
+}

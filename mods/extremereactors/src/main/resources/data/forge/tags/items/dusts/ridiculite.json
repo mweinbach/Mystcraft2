@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:ridiculite_dust",
+    {
+      "id": "#c:ridiculite_dusts",
+      "required": false
+    }
+  ]
+}

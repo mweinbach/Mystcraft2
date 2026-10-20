@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "bigreactors:inanite_dust",
+    {
+      "id": "#c:inanite_dusts",
+      "required": false
+    }
+  ]
+}
