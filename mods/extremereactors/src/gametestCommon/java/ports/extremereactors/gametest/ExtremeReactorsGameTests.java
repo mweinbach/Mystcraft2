@@ -42,6 +42,8 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.material.Fluids;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
+import ports.extremereactors.corelib.compat.computer.IComputerPort;
+import ports.extremereactors.corelib.compat.computer.MultiblockComputerPeripheral;
 import ports.extremereactors.corelib.data.IoDirection;
 import ports.extremereactors.corelib.energy.EnergySystem;
 import ports.extremereactors.corelib.fluid.FluidStack;
@@ -436,6 +438,99 @@ public final class ExtremeReactorsGameTests {
     }
 
     //endregion
+    //region computer ports
+
+    /**
+     * Drives a reactor through its computer port the way a ComputerCraft script does: numbers arrive as doubles,
+     * tables as maps keyed by doubles, and bad arguments raise errors.
+     */
+    public static void computerPortControlsTheReactor(final GameTestHelper helper) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos computerPort = origin.offset(2, 1, 1);
+
+        reinforcedComputerReactor(origin).place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final MultiblockComputerPeripheral<?, ?> peripheral = computerPeripheral(helper, computerPort);
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+
+                    check("extremereactor-reactorComputerPort".equals(peripheral.getPeripheralStaticName()),
+                            "unexpected peripheral type " + peripheral.getPeripheralStaticName());
+                    check(Boolean.TRUE.equals(peripheral.invoke("getConnected", new Object[0])), "getConnected() is not true");
+                    check(Integer.valueOf(1).equals(peripheral.invoke("getNumberOfControlRods", new Object[0])),
+                            "getNumberOfControlRods() is not 1");
+                    check(Map.of("x", helper.absolutePos(origin).getX(), "y", helper.absolutePos(origin).getY(),
+                                    "z", helper.absolutePos(origin).getZ())
+                                    .equals(peripheral.invoke("getMinimumCoordinate", new Object[0])),
+                            "getMinimumCoordinate() is not the reactor's corner");
+
+                    insertFuel(helper, origin.offset(1, 1, 0), Direction.NORTH, 16);
+                    peripheral.invoke("setAllControlRodLevels", new Object[]{40.0});
+                    check(40 == reactor.getControlRodByIndex(0).map(rod -> (int) rod.getInsertionRatio()).orElse(-1),
+                            "setAllControlRodLevels(40) did not move the control rod");
+
+                    peripheral.invoke("setControlRodsLevels", new Object[]{Map.of(0.0, 25.0)});
+                    check(Map.of(0, 25).equals(peripheral.invoke("getControlRodsLevels", new Object[0])),
+                            "setControlRodsLevels({[0]=25}) did not move the control rod");
+
+                    peripheral.invoke("setControlRodName", new Object[]{0.0, "core"});
+                    check("core".equals(peripheral.invoke("getControlRodName", new Object[]{0.0})),
+                            "the control rod was not renamed");
+
+                    expectComputerError(() -> peripheral.invoke("setControlRodLevel", new Object[]{0.0, 101.0}),
+                            "setControlRodLevel(0, 101)");
+                    expectComputerError(() -> peripheral.invoke("setActive", new Object[]{"yes"}), "setActive(\"yes\")");
+                    expectComputerError(() -> peripheral.invoke("noSuchMethod", new Object[0]), "noSuchMethod()");
+
+                    peripheral.invoke("setActive", new Object[]{true});
+                    check(Boolean.TRUE.equals(peripheral.invoke("getActive", new Object[0])), "setActive(true) did not start the reactor");
+                })
+                .thenWaitUntil(() -> {
+
+                    final Object stats = computerPeripheral(helper, computerPort).invoke("getFuelStats", new Object[0]);
+
+                    check(stats instanceof Map<?, ?> map && map.get("fuelAmount") instanceof Number amount
+                                    && amount.doubleValue() > 0,
+                            "getFuelStats() reports no fuel: " + stats);
+                })
+                .thenExecute(() -> helper.setBlock(controller, Content.Blocks.REACTOR_CASING_REINFORCED.get()))
+                .thenWaitUntil(() -> {
+
+                    final MultiblockComputerPeripheral<?, ?> peripheral = computerPeripheral(helper, computerPort);
+
+                    check(Boolean.FALSE.equals(peripheral.invoke("getConnected", new Object[0])),
+                            "getConnected() is still true without a controller");
+                    expectComputerError(() -> peripheral.invoke("getActive", new Object[0]), "getActive() on a broken reactor");
+                })
+                .thenSucceed();
+    }
+
+    private static MultiblockComputerPeripheral<?, ?> computerPeripheral(final GameTestHelper helper, final BlockPos position) {
+
+        if (blockEntity(helper, position) instanceof IComputerPort port) {
+            return port.getComputerPeripheral();
+        }
+
+        throw new GameTestAssertException("no computer port at " + position);
+    }
+
+    private static void expectComputerError(final Runnable call, final String what) {
+
+        try {
+            call.run();
+        } catch (final IllegalArgumentException | IllegalStateException expected) {
+            return;
+        }
+
+        throw new GameTestAssertException(what + " did not raise an error");
+    }
+
+    //endregion
     //region data
 
     public static void recipeConditionsAndTags(final GameTestHelper helper) {
@@ -556,6 +651,17 @@ public final class ExtremeReactorsGameTests {
                 .set(0, 1, 1, Content.Blocks.REACTOR_CONTROLLER_REINFORCED)
                 .set(1, 1, 0, Content.Blocks.REACTOR_SOLID_ACCESSPORT_REINFORCED)
                 .set(1, 1, 2, Content.Blocks.REACTOR_FLUIDPORT_FORGE_PASSIVE_REINFORCED);
+    }
+
+    /** A 3x3x3 passive reinforced reactor with a computer port. */
+    private static Structure reinforcedComputerReactor(final BlockPos origin) {
+        return new Structure(origin, 3, 3, 3, Content.Blocks.REACTOR_CASING_REINFORCED.get())
+                .set(1, 2, 1, Content.Blocks.REACTOR_CONTROLROD_REINFORCED)
+                .set(1, 1, 1, Content.Blocks.REACTOR_FUELROD_REINFORCED)
+                .set(0, 1, 1, Content.Blocks.REACTOR_CONTROLLER_REINFORCED)
+                .set(1, 1, 0, Content.Blocks.REACTOR_SOLID_ACCESSPORT_REINFORCED)
+                .set(1, 1, 2, Content.Blocks.REACTOR_POWERTAP_FE_PASSIVE_REINFORCED)
+                .set(2, 1, 1, Content.Blocks.REACTOR_COMPUTERPORT_REINFORCED);
     }
 
     /** A 5x5x5 basic reactor with a three rods column and the given block in every other interior position. */
