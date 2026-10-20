@@ -47,7 +47,7 @@ MIT multiblock package. The other classes cover blocks and block entities, item
 and fluid handlers, energy, networking, recipes, menus and container data,
 configuration, tags, client models and rendering, the computer-port API and
 debugging helpers. They are replaced by `ports.extremereactors.corelib`, about
-180 classes and 14,000 lines written for this port and licensed with it.
+240 classes and 20,000 lines written for this port and licensed with it.
 
 Rules followed while writing `corelib`:
 
@@ -69,7 +69,8 @@ Reactors' loot tables copy machine settings from that compound.
 
 Without ZeroCore's language file, the multiblock API's validation keys
 (`zerocore:api.multiblock.validation.*`) would show untranslated. The port adds
-English messages of its own wording for them to the end of `en_us.json`.
+English messages of its own wording for them to the end of `en_us.json`, followed
+by the two strings `corelib`'s energy and gauge bars show in their tooltips.
 
 ## Changes to Extreme Reactors 2
 
@@ -128,7 +129,13 @@ import mapping, these upstream files were changed:
   neighbor renders in the solid layer. `BlockVariantsModelBuilder.addBlock` lost
   its fourth argument.
 - `proxy/ClientProxy`: installed by the client entrypoint through
-  `ExtremeReactors.setProxy()`.
+  `ExtremeReactors.setProxy()`. Screens are registered through the platform
+  layer instead of `MenuScreens`, and the Patchouli setup is not called.
+- Screens (`client/screen/*` in `common`, `reactor`, `turbine`, `reprocessor`
+  and `fluidizer`): no `@OnlyIn`, and Forge `NonNullSupplier` became
+  `java.util.function.Supplier`. Nothing else changed.
+- `compat/patchouli/PatchouliCompat`: only `HANDBOOK_ID` is kept, so the screens
+  compile; the rest of the class needs ZeroCore's Patchouli component.
 
 In the MIT multiblock package:
 
@@ -167,9 +174,8 @@ Resources:
 | Upstream files | Why |
 | --- | --- |
 | `datagen/*` (19 files) | The generated resources are imported as they are; the port does not regenerate them. |
-| `client/screen/*` (24 files) | Screens are rebuilt on `corelib`'s GUI layer in the next pull request. |
 | `compat/jei/*` (20 files) | JEI and EMI integration is planned for a later pull request. |
-| `compat/patchouli/*` (2 files) | Needs ZeroCore's Patchouli multiblock component, which is all rights reserved. |
+| `compat/patchouli/*` (2 files), apart from `PatchouliCompat.HANDBOOK_ID` | Needs ZeroCore's Patchouli multiblock component, which is all rights reserved. |
 | `FluidPortHandlerMekanism` | Uses Mekanism's Forge-only gas API. |
 | `proxy/ProxySafeReferent` | Not needed without Forge's `DistExecutor`. |
 
