@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "cgc"
+  ],
+  "key": {
+    "c": [
+      {
+        "tag": "c:cobblestone"
+      },
+      {
+        "tag": "forge:cobblestone"
+      }
+    ],
+    "g": {
+      "item": "minecraft:gravel"
+    }
+  },
+  "result": {
+    "item": "buildcraft:pipe_structure",
+    "count": 8
+  }
+}

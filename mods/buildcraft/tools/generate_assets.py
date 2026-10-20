@@ -68,10 +68,13 @@ FLOW_NAMES = {"item": "Transport", "fluid": "Fluid", "power": "Kinesis"}
 
 
 def pipe(name: str, texture: str | None = None, special: str | None = None, faces: dict[str, str] | None = None,
-         item_texture: str | None = None) -> dict:
+         item_texture: str | None = None, title: str | None = None) -> dict:
     texture = texture or name
+    if title is None:
+        material, flow = name.rsplit("_", 1)
+        title = f"{MATERIAL_NAMES[material]} {FLOW_NAMES[flow]} Pipe"
     return {"name": name, "faces": faces or {d: texture for d in DIRECTIONS}, "special": special,
-            "item": item_texture or texture}
+            "item": item_texture or texture, "title": title}
 
 
 # Mirrors ports.buildcraft.transport.BCTransport.
@@ -87,6 +90,7 @@ PIPES = [
     pipe("clay_fluid"), pipe("void_fluid"),
     pipe("wood_power", "wood_power_clear", "wood_power_filled"),
     pipe("cobblestone_power"), pipe("stone_power"), pipe("quartz_power"), pipe("gold_power"), pipe("sandstone_power"),
+    pipe("structure", title="Cobblestone Structure Pipe"),
 ]
 
 
@@ -400,8 +404,34 @@ class Generator:
                 multipart.append({"when": {direction: "special"}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
             self.blockstate(name, {"multipart": multipart})
             self.model(f"item/{name}", {"parent": rl("item/pipe_base"), "textures": {"pipe": rl("block/pipe/" + definition["item"])}})
-            material, flow = definition["name"].rsplit("_", 1)
-            self.lang[f"block.{MOD}.{name}"] = f"{MATERIAL_NAMES[material]} {FLOW_NAMES[flow]} Pipe"
+            self.lang[f"block.{MOD}.{name}"] = definition["title"]
+        self.lang[f"tip.block.{MOD}.pipe_structure"] = "Support pipe"
+
+    # Upstream ModelItemSimple.TRANSFORM_PLUG_AS_ITEM, the display of ModelPluggableItem.
+    PLUG_ITEM_DISPLAY = {
+        "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375]},
+        "thirdperson_righthand": {"rotation": [75, 225, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375]},
+        "firstperson_lefthand": {"rotation": [0, 225, 0], "translation": [0, 0, -4], "scale": [0.4, 0.4, 0.4]},
+        "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, 0, -4], "scale": [0.4, 0.4, 0.4]},
+        "head": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]},
+        "gui": {"rotation": [0, 90, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]},
+        "ground": {"rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.5, 0.5, 0.5]},
+        "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [0.85, 0.85, 0.85]},
+    }
+
+    def plug_item(self, item: str, upstream: str, textures: dict[str, str]) -> None:
+        """An item model of an upstream plug model's elements, which upstream's ModelPluggableItem drew from the same quads."""
+        model = json.loads((self.src / upstream).read_text(encoding="utf-8"))
+        self.model(f"item/{item}", {"gui_light": "front", "textures": dict(textures, particle="#all"), "elements": model["elements"],
+                                    "display": self.PLUG_ITEM_DISPLAY})
+
+    def plugs(self) -> None:
+        self.copy("buildcrafttransport/textures/pipes/plug.png", "block/pipe/plug.png")
+        self.copy("buildcrafttransport/textures/pipes/power_adapter.png", "block/pipe/power_adapter.png")
+        self.plug_item("plug_blocker", "buildcrafttransport/models/plugs/blocker.json", {"all": rl("block/pipe/plug")})
+        self.plug_item("plug_power_adaptor", "buildcrafttransport/models/plugs/power_adapter.json", {"all": rl("block/pipe/power_adapter")})
+        self.lang[f"item.{MOD}.plug_blocker"] = "Pipe Plug"
+        self.lang[f"item.{MOD}.plug_power_adaptor"] = "Power Adapter"
 
     def factory(self) -> None:
         self.model("block/tank", {
@@ -891,6 +921,11 @@ class Generator:
             "b": tags("black_dyes", "dyes/black"), "m": {"item": rl("marker_volume")}, "y": tags("yellow_dyes", "dyes/yellow"),
             "c": {"item": "minecraft:crafting_table"}, "d": gear("diamond"), "s": {"item": rl("blueprint_clean")}})
 
+        structure = {"item": rl("pipe_structure")}
+        self.shaped("plug_blocker", "plug_blocker", ["s"], {"s": structure}, count=4)
+        self.shaped("plug_power_adaptor", "plug_power_adaptor", ["sis", "sgs", "srs"],
+                    {"s": structure, "i": {"item": "minecraft:gold_ingot"}, "g": gear("stone"), "r": {"item": "minecraft:redstone"}}, count=4)
+
         self.shapeless("waterproof", "waterproof", [SEALANT_SOURCES])
         self.shapeless("waterproof_from_residue", "waterproof", [{"item": rl("oil_residue_bucket")}], count=8)
 
@@ -898,7 +933,10 @@ class Generator:
         for material, (left, right) in PIPE_MATERIALS.items():
             if f"{material}_item" in names:
                 self.shaped(f"pipe_{material}_item", f"pipe_{material}_item", ["lgr"], {"l": left, "g": GLASS, "r": right}, count=8)
+        self.shaped("pipe_structure", "pipe_structure", ["cgc"], {"c": COBBLESTONE, "g": {"item": "minecraft:gravel"}}, count=8)
         for definition in PIPES:
+            if definition["name"] == "structure":
+                continue
             material, flow = definition["name"].rsplit("_", 1)
             if flow == "item":
                 continue
@@ -961,6 +999,7 @@ class Generator:
         self.textures()
         self.engines()
         self.pipes()
+        self.plugs()
         self.factory()
         self.refinery()
         self.builders()

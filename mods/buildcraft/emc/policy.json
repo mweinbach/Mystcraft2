@@ -7,7 +7,7 @@
   },
   "output": "src/main/resources",
   "notes": [
-    "Every survival BuildCraft item in this port apart from fluid buckets is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, land and path marks, the marker connector, waterproof and all pipes (including the shapeless recipes that turn fluid and kinesis pipes back into item pipes).",
+    "Every survival BuildCraft item in this port apart from fluid buckets is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, land and path marks, the marker connector, waterproof, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
     "",
     "The mining well, quarry and pump take blocks and fluids from the world for power alone, as a player with a pickaxe or bucket would; they consume no items, so there is no item process to check for EMC gain.",
     "",
