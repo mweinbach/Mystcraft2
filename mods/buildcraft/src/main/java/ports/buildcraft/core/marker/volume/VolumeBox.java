@@ -73,8 +73,10 @@ public final class VolumeBox {
         oldPlayer = null;
     }
 
+    /** Also drops any paused editor, so a player rejoining cannot resume an edit someone else has finished. */
     public void setPlayer(Player player) {
         this.player = player.getGameProfile().getId();
+        oldPlayer = null;
     }
 
     @Nullable

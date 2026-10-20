@@ -133,6 +133,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   networking API) in place of upstream's `MessageVolumeBoxes`. A connector click on a box is predicted
   from the boxes the client was sent, and a click that does nothing falls through to the other hand,
   as upstream's FAIL did in 1.12.
+- **Volume box locks and paused edits:** a removal lock keeps a box from the connector's sneak-click
+  as well as a resize lock; upstream only checked for a resize lock. A player who takes over an edit
+  that was paused when its player left also ends the absent player's claim, so the absent player
+  cannot resume it on rejoining; upstream kept the claim and resumed an edit with no held corner.
 - **Marker block state:** upstream's `active` property, which its model ignored, is not ported.
 - **Path mark permissions** only check that the player may build; upstream also asked the
   permission API, which nothing in the port provides.

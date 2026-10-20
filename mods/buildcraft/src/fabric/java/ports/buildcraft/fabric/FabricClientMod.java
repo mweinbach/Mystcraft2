@@ -42,7 +42,13 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
         ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlas, registry) -> BCClient.extraSprites().forEach(registry::register));
         BCClient.receivers().forEach((channel, receiver) -> ClientPlayNetworking.registerGlobalReceiver(channel, (client, handler, buffer, sender) -> {
             FriendlyByteBuf payload = new FriendlyByteBuf(buffer.copy());
-            client.execute(() -> receiver.accept(payload));
+            client.execute(() -> {
+                try {
+                    receiver.accept(payload);
+                } finally {
+                    payload.release();
+                }
+            });
         }));
         WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> BCClient.renderLevel(context.matrixStack(), context.camera()));
     }

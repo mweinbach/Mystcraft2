@@ -660,6 +660,15 @@ public final class BCTests {
         requireBox(helper, volumeBox, new BlockPos(4, 2, 4), new BlockPos(4, 2, 7), "cancelling must restore the box");
 
         lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, player, false) && volumeBox.isEditingBy(player), "the box must be grabbable again");
+        volumeBoxes.tick(id -> null);
+        Player other = helper.makeMockPlayer();
+        lookSouthFrom(helper, other, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, other, false) && volumeBox.isEditingBy(other) && !volumeBox.isPausedEditingBy(player),
+                "another player taking over a paused edit must end the absent player's claim");
+        require(helper, useConnector(helper, other, false) && !volumeBox.isEditing(), "the new editor's click must confirm");
+
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
         require(helper, useConnector(helper, player, true) && !volumeBoxes.volumeBoxes.contains(volumeBox), "sneaking at a box must remove it");
         helper.succeed();
     }
@@ -680,6 +689,12 @@ public final class BCTests {
         helper.setBlock(cause, Blocks.AIR);
         volumeBoxes.tick();
         require(helper, volumeBox.locks.isEmpty(), "the lock must lapse once its block is gone");
+
+        helper.setBlock(cause, Blocks.GOLD_BLOCK);
+        volumeBox.locks.add(new Lock(new Lock.CauseBlock(helper.absolutePos(cause), Blocks.GOLD_BLOCK), new Lock.Remove()));
+        require(helper, !useConnector(helper, player, true) && volumeBoxes.volumeBoxes.contains(volumeBox), "a removal lock alone must keep the box");
+        helper.setBlock(cause, Blocks.AIR);
+        volumeBoxes.tick();
         require(helper, useConnector(helper, player, true) && !volumeBoxes.volumeBoxes.contains(volumeBox), "an unlocked box must be removable");
         helper.succeed();
     }

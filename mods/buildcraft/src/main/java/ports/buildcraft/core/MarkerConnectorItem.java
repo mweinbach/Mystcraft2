@@ -97,7 +97,7 @@ public class MarkerConnectorItem extends Item {
         if (player.isShiftKeyDown()) {
             for (VolumeBox volumeBox : volumeBoxes) {
                 if (!volumeBox.box.isInitialized() || intercept(volumeBox.box.boundingBox(), start, end) == null) continue;
-                if (volumeBox.isLockedFor(Lock.Resize.class)) return false;
+                if (volumeBox.isLockedFor(Lock.Remove.class) || volumeBox.isLockedFor(Lock.Resize.class)) return false;
                 if (data != null) {
                     volumeBoxes.remove(volumeBox);
                     data.markDirty();
