@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests} and {@link FillerTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -84,6 +84,27 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void quarryFindsLandMarkBoxEdge(GameTestHelper helper) { BCTests.quarryFindsLandMarkBoxEdge(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void fillerPatternsMakeTemplates(GameTestHelper helper) { FillerTests.fillerPatternsMakeTemplates(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void patternStatementKeepsParameters(GameTestHelper helper) { FillerTests.patternStatementKeepsParameters(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void fillerTakesVolumeBox(GameTestHelper helper) { FillerTests.fillerTakesVolumeBox(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void fillerTakesLandMarkArea(GameTestHelper helper) { FillerTests.fillerTakesLandMarkArea(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void fillerSettingsAndSaving(GameTestHelper helper) { FillerTests.fillerSettingsAndSaving(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void fillerBuildsBox(GameTestHelper helper) { FillerTests.fillerBuildsBox(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void fillerClearsOnlyWhenExcavating(GameTestHelper helper) { FillerTests.fillerClearsOnlyWhenExcavating(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
