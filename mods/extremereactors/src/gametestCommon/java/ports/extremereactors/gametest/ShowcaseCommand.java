@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 
 /**
  * The development-only {@code /ershowcase} command: {@code build} lays out the {@link Showcase} machines at the
- * caller's feet, {@code status} reports whether they assembled and {@code open <part>} opens a part's screen.
+ * caller's feet, {@code plant} builds a large reactor and turbine there, {@code status} reports whether they assembled and {@code open <part>} opens a part's screen.
  */
 public final class ShowcaseCommand {
 
@@ -24,6 +24,11 @@ public final class ShowcaseCommand {
                 .then(Commands.literal("build").executes(context -> {
 
                     Showcase.build(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
+                    return 1;
+                }))
+                .then(Commands.literal("plant").executes(context -> {
+
+                    Showcase.buildPlant(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                     return 1;
                 }))
                 .then(Commands.literal("status").executes(context -> {

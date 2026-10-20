@@ -71,6 +71,21 @@ public final class Showcase {
         fluidizer(level, base.offset(31, 0, 1));
     }
 
+    /** A large running reactor and turbine with every reinforced port on their front faces, for texture reviews. */
+    public static void buildPlant(final ServerLevel level, final BlockPos origin) {
+
+        s_level = level;
+        s_fueled.clear();
+
+        final BlockPos base = origin.offset(2, 0, 2);
+
+        fill(level, origin.offset(-2, -1, -2), origin.offset(24, -1, 12), Blocks.SMOOTH_STONE);
+        fill(level, origin.offset(-2, 0, -2), origin.offset(24, 13, 12), Blocks.AIR);
+
+        largeReactor(level, base);
+        largeTurbine(level, base.offset(12, 0, 1));
+    }
+
     /** Opens the screen of the named part for the player, as if they right-clicked it with an empty hand. */
     public static boolean open(final ServerPlayer player, final String name) {
 
@@ -117,7 +132,7 @@ public final class Showcase {
 
     /**
      * Fills the machines once they assembled, powers the reprocessor and fluidizer, waters the
-     * reprocessor and vents the active reactor's steam.
+     * reprocessor, refuels the large reactor and vents the active reactors' steam.
      */
     public static void tick(final MinecraftServer server) {
 
@@ -134,6 +149,10 @@ public final class Showcase {
 
         for (final BlockPos position : s_watered) {
             insertFluid(s_level, position, Fluids.WATER, WATER_PER_TICK);
+        }
+
+        for (final BlockPos position : s_fueled) {
+            insertItems(s_level, position, new ItemStack(Content.Items.YELLORIUM_INGOT.get(), 64));
         }
 
         for (final BlockPos position : s_vented) {
@@ -315,6 +334,116 @@ public final class Showcase {
         });
     }
 
+    /** 9x9x9 active reactor: nine fuel columns between graphite pillars, glass on two faces, a row of ports. */
+    private static void largeReactor(final ServerLevel level, final BlockPos at) {
+
+        final Map<BlockPos, Block> parts = new LinkedHashMap<>();
+
+        for (int x = 1; x < 8; ++x) {
+            for (int z = 1; z < 8; ++z) {
+
+                final boolean fuel = 0 == x % 2 && 0 == z % 2;
+                final boolean graphite = 1 == x % 2 && 1 == z % 2 && x > 1 && x < 7 && z > 1 && z < 7;
+
+                for (int y = 1; y < 8; ++y) {
+                    if (fuel) {
+                        parts.put(new BlockPos(x, y, z), Content.Blocks.REACTOR_FUELROD_REINFORCED.get());
+                    } else if (graphite) {
+                        parts.put(new BlockPos(x, y, z), Content.Blocks.GRAPHITE_BLOCK.get());
+                    }
+                }
+
+                if (fuel) {
+                    parts.put(new BlockPos(x, 8, z), Content.Blocks.REACTOR_CONTROLROD_REINFORCED.get());
+                }
+            }
+        }
+
+        for (int x = 2; x < 7; ++x) {
+            for (int y = 3; y < 8; ++y) {
+                parts.put(new BlockPos(x, y, 0), Content.Blocks.REACTOR_GLASS_REINFORCED.get());
+                parts.put(new BlockPos(8, y, x), Content.Blocks.REACTOR_GLASS_REINFORCED.get());
+            }
+        }
+
+        parts.put(new BlockPos(4, 2, 0), Content.Blocks.REACTOR_CONTROLLER_REINFORCED.get());
+        parts.put(new BlockPos(1, 1, 0), Content.Blocks.REACTOR_SOLID_ACCESSPORT_REINFORCED.get());
+        parts.put(new BlockPos(2, 1, 0), Content.Blocks.REACTOR_FLUID_ACCESSPORT_REINFORCED.get());
+        parts.put(new BlockPos(3, 1, 0), Content.Blocks.REACTOR_REDSTONEPORT_REINFORCED.get());
+        parts.put(new BlockPos(4, 1, 0), Content.Blocks.REACTOR_COMPUTERPORT_REINFORCED.get());
+        parts.put(new BlockPos(5, 1, 0), Content.Blocks.REACTOR_FLUIDPORT_FORGE_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(6, 1, 0), Content.Blocks.REACTOR_FLUIDTPORT_FORGE_ACTIVE_REINFORCED.get());
+        parts.put(new BlockPos(7, 1, 0), Content.Blocks.REACTOR_FLUIDPORT_MEKANISM_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(2, 2, 0), Content.Blocks.REACTOR_CREATIVE_WATER_GENERATOR_REINFORCED.get());
+
+        cuboid(level, at, 9, 9, 9, Content.Blocks.REACTOR_CASING_REINFORCED.get(), parts);
+        screen("large_reactor_controller", at.offset(4, 2, 0));
+        s_vented.add(at.offset(4, 2, 0));
+
+        whenAssembled(level, at.offset(4, 2, 0), controller -> {
+
+            s_fueled.add(at.offset(1, 1, 0));
+            activate(controller);
+        });
+    }
+
+    /** 7x12x7 turbine: a bottom bearing, two-block blades along most of the shaft and ludicrite coils on top. */
+    private static void largeTurbine(final ServerLevel level, final BlockPos at) {
+
+        final Map<BlockPos, Block> parts = new LinkedHashMap<>();
+
+        parts.put(new BlockPos(3, 0, 3), Content.Blocks.TURBINE_ROTORBEARING_REINFORCED.get());
+
+        for (int y = 1; y < 11; ++y) {
+            parts.put(new BlockPos(3, y, 3), Content.Blocks.TURBINE_ROTORSHAFT_REINFORCED.get());
+        }
+
+        for (final Direction direction : Direction.Plane.HORIZONTAL) {
+            for (int y = 1; y < 7; ++y) {
+                for (int distance = 1; distance < 3; ++distance) {
+                    parts.put(new BlockPos(3 + direction.getStepX() * distance, y, 3 + direction.getStepZ() * distance),
+                            Content.Blocks.TURBINE_ROTORBLADE_REINFORCED.get());
+                }
+            }
+        }
+
+        for (int y = 8; y < 11; ++y) {
+            for (int x = 2; x < 5; ++x) {
+                for (int z = 2; z < 5; ++z) {
+                    if (x != 3 || z != 3) {
+                        parts.put(new BlockPos(x, y, z), Content.Blocks.LUDICRITE_BLOCK.get());
+                    }
+                }
+            }
+        }
+
+        for (int x = 1; x < 6; ++x) {
+            for (int y = 2; y < 10; ++y) {
+                parts.put(new BlockPos(x, y, 0), Content.Blocks.TURBINE_GLASS_REINFORCED.get());
+            }
+        }
+
+        parts.put(new BlockPos(3, 1, 0), Content.Blocks.TURBINE_CONTROLLER_REINFORCED.get());
+        parts.put(new BlockPos(1, 1, 0), Content.Blocks.TURBINE_FLUIDPORT_FORGE_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(2, 1, 0), Content.Blocks.TURBINE_REDSTONEPORT_REINFORCED.get());
+        parts.put(new BlockPos(4, 1, 0), Content.Blocks.TURBINE_COMPUTERPORT_REINFORCED.get());
+        parts.put(new BlockPos(5, 1, 0), Content.Blocks.TURBINE_CHARGINGPORT_FE_REINFORCED.get());
+        parts.put(new BlockPos(6, 1, 3), Content.Blocks.TURBINE_POWERTAP_FE_PASSIVE_REINFORCED.get());
+        parts.put(new BlockPos(3, 5, 6), Content.Blocks.TURBINE_CREATIVE_STEAM_GENERATOR_REINFORCED.get());
+
+        cuboid(level, at, 7, 12, 7, Content.Blocks.TURBINE_CASING_REINFORCED.get(), parts);
+        screen("large_turbine_controller", at.offset(3, 1, 0));
+
+        whenAssembled(level, at.offset(3, 1, 0), controller -> {
+
+            if (controller instanceof MultiblockTurbine turbine) {
+                turbine.setInductorEngaged(true);
+            }
+
+            activate(controller);
+        });
+    }
+
     //endregion
     //region helpers
 
@@ -403,6 +532,8 @@ public final class Showcase {
     private static final Map<String, BlockPos> SCREENS = new LinkedHashMap<>();
     private static final List<BlockPos> s_powered = new ArrayList<>();
     private static final List<BlockPos> s_watered = new ArrayList<>();
+    /** Access ports kept stocked with fuel, so a large core fills up instead of running on one stack. */
+    private static final List<BlockPos> s_fueled = new ArrayList<>();
     /** Active reactors whose steam has nowhere to go, so it is thrown away to keep them cooling. */
     private static final List<BlockPos> s_vented = new ArrayList<>();
     private static final List<Supplier<Boolean>> s_pending = new ArrayList<>();
