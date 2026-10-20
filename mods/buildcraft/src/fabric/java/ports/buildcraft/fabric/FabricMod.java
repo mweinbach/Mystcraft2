@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import ports.buildcraft.BuildCraft;
@@ -24,8 +25,8 @@ public final class FabricMod implements ModInitializer {
                 .toArray(BlockEntityType<?>[]::new);
         FabricPorts.register(types);
         FabricShardStorage.register();
-        // Forge adds the same placed feature through data/buildcraft/forge/biome_modifier/oil_well.json.
-        BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.LAKES,
-                ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));
+        // Forge adds the same placed feature to #minecraft:is_overworld through data/buildcraft/forge/biome_modifier/oil_well.json.
+        BiomeModifications.addFeature(BiomeSelectors.foundInOverworld().or(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD)),
+                GenerationStep.Decoration.LAKES, ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));
     }
 }

@@ -27,6 +27,7 @@ import ports.buildcraft.builders.QuarryBlockEntity;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
 import ports.buildcraft.energy.EngineBlock;
+import ports.buildcraft.energy.OilBiomes;
 import ports.buildcraft.energy.OilWellFeature;
 import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.factory.BCFactory;
@@ -82,12 +83,13 @@ public final class Showcase {
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
     @Nullable
-    public static OilWellFeature.Well nearestWell(long seed, int cx, int cz, int minY, int radius, @Nullable OilWellFeature.WellType type) {
+    public static OilWellFeature.Well nearestWell(ServerLevel level, int cx, int cz, int radius, @Nullable OilWellFeature.WellType type) {
         for (int r = 0; r <= radius; r++) {
             for (int dx = -r; dx <= r; dx++) {
                 for (int dz = -r; dz <= r; dz++) {
                     if (Math.max(Math.abs(dx), Math.abs(dz)) != r) continue;
-                    OilWellFeature.Well well = OilWellFeature.well(seed, cx + dx, cz + dz, minY);
+                    OilWellFeature.Well well = OilWellFeature.well(level.getSeed(), cx + dx, cz + dz, level.getMinBuildHeight(),
+                            pos -> level.getBiome(pos).is(OilBiomes.EXCESSIVE_OIL));
                     if (well != null && (type == null || well.type() == type)) return well;
                 }
             }

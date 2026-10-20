@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "buildcraft:oil_desert",
+    "buildcraft:oil_ocean"
+  ]
+}

@@ -17,7 +17,7 @@ add only loader adapters.
 | Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
 | Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that flow up in the world and fill tanks and pipes from the top. |
 | Combustion fuels | Upstream's nine fuels (gaseous, light, dense, mixed light and mixed heavy fuel; distilled, heavy and dense oil; oil), with power and burn times derived from their refinery amounts as upstream; the dirty fuels leave oil residue. Only the cool stage burns. Water, ice and packed ice cool the engine. |
-| Oil worldgen | Upstream `OilGenerator` with its default configuration: from the world seed each chunk rolls a large (0.04%) or medium (0.1%) oil well in the Overworld, but never in a flat world. A well is a surface oil lake with tendrils, an oil sphere at y 20–29, and a spout from the sphere that gushes 10–20 (large) or 6–12 (medium) blocks above the surface. Large wells also run an oil tube down to an oil spring at the bottom of the world, which every 6000 ticks and on random ticks has a one in eight chance to put an oil source above itself. |
+| Oil worldgen | Upstream `OilGenerator` with its default configuration: from the world seed each chunk rolls a large (0.04%) or medium (0.1%) oil well in the Overworld, but never in a flat world. A well is a surface oil lake with tendrils, an oil sphere at y 20–29, and a spout from the sphere that gushes 10–20 (large) or 6–12 (medium) blocks above the surface. Large wells also run an oil tube down to an oil spring at the bottom of the world, which every 6000 ticks and on random ticks has a one in eight chance to put an oil source above itself. The oil desert and oil ocean biomes (upstream `BiomeOilDesert`, `BiomeOilOcean` and `GenLayerBiomeReplacer`) replace deserts and oceans wherever upstream's seeded simplex noise passes its thresholds (scale 0.001 over 0.7 for deserts, 0.0005 over 0.9 for oceans), and wells are thirty times likelier in them, as upstream's default `excessiveBiomes`. |
 | Refinery | Distiller (upstream `TileDistiller_BC8`: 4000 mB tanks, up to 6 MJ/t, upstream's ten distillations, each at its own heat stage; gas leaves the top and liquid the bottom; GUI with upstream gauges and animation) and heat exchanger (upstream `TileHeatExchange`: rows of three to five form a start, middles and an end; the coolant must be hotter than the fluid it heats; 5, 10 or 20 mB/t for one to three middles after a 120-tick warm-up; lava heats and water cools; the wrench turns a row around). |
 | Factory | Tank (stacks into columns, fills bottom-up, balances), pump (drains connected fluid bodies up to 64 blocks away, outputs into tanks or pipes), mining well (mines straight down, outputs into inventories or pipes). |
 | Builders | Quarry with frame building, digging and its tool head, using upstream's default 11×11 area. |
@@ -94,6 +94,20 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Oil well placement** drops 1.12's eight-block decoration offset, so a well is centred inside the
   chunk that rolled it. Wells generate in the Overworld's lakes step through a Forge biome modifier
   or Fabric's biome API, which matches upstream's default dimension and biome exclusions.
+- **Oil biomes** are placed by a mixin on the multi-noise biome source, since 1.19.2 has no biome
+  layers: each biome it picks for the Overworld's quarter-block cells goes through upstream's ocean
+  then desert replacer, with the noise read at the cell's first block as 1.12's block-resolution
+  layer did. Both layers share upstream's offsets from `new Random(seed)`, so the fields correlate
+  as upstream's did. Deserts and oceans are matched by the `buildcraft:oil_desert_replaceable` and
+  `buildcraft:oil_ocean_replaceable` biome tags instead of upstream's biome dictionary: its hot, dry
+  and sandy types become vanilla's desert plus `forge:is_desert` and `c:desert`, and its ocean type
+  every `minecraft:is_ocean` biome. The oil biomes carry the matching Forge and `c:` tags. The biomes copy their
+  parent's 1.19.2 climate, features, spawns and colours, and keep the parent's surface: surface rules
+  that name the desert or ocean also match their oil field. They join the parent's mineshaft, ruined
+  portal, ocean ruin, rabbit, frog and music tags but not its village, pyramid, temple or monument
+  tags, since upstream only allowed villages in vanilla's own biomes and oil fields are meant to be
+  open ground. The 1.12 config toggles for the biomes and the excessive and surface-deposit biome
+  lists are not ported; as upstream's defaults, no biome forces surface-only lake wells.
 - **Gaseous fluids in the world** flow up, as upstream's negative-density fluid blocks did: a gas
   rises in a column, spreads under ceilings and seeks the nearest way up, mirroring vanilla's
   downward spread with the same slope-find distance and drop-off. They are still drawn by vanilla's
@@ -111,9 +125,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 
 - **Core:** markers, landmarks and volume boxes (so the quarry cannot be resized), paintbrush,
   list, map location, guide book, decorated blocks, creative engine.
-- **Energy:** the oil desert and oil ocean biomes (upstream's only oil-rich biomes, which also gave
-  surface-only oil lakes), and the oil spring's tracking of how much of its well each player has
-  pumped, which unlocked upstream's `black_gold` advancement.
+- **Energy:** the oil spring's tracking of how much of its well each player has pumped, which
+  unlocked upstream's `black_gold` advancement.
 - **Factory:** auto workbench, flood gate, chute, water gel.
 - **Builders:** filler, builder, architect table, electronic library, replacer, blueprints and templates.
 - **Transport:** diamond fluid, diamond-wood, obsidian, lapis, daizuli, emzuli and stripes pipes;
@@ -134,7 +147,9 @@ Shared GameTest bodies in `src/gametestCommon` run on both loaders (`ForgeGameTe
 redstone engine driving a wooden pipe that delivers items through stone and gold pipes, tank
 columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, oil well rates and determinism over 65,536 seeded chunks
-with the placed feature in the Overworld's lakes step, the refinery chain from oil to light fuel,
+with the placed feature in the Overworld's lakes step, the oil biomes' thirtyfold well bonus, the
+oil desert and ocean replacing deserts and oceans where upstream's noise says (recomputed
+independently over a 65,536-block square) with their parents' climate, tags and surface, the refinery chain from oil to light fuel,
 the combustion engine burning oil into residue, the distiller splitting oil and refunding blocked
 progress, heat exchanger rows
 forming, rotating and breaking (dropping shards), the water spring refilling, a heat exchanger heating oil with lava, fragile

@@ -62,6 +62,12 @@ public final class FabricGameTests implements FabricGameTest {
     public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void oilBiomesHaveThirtyTimesTheWells(GameTestHelper helper) { BCTests.oilBiomesHaveThirtyTimesTheWells(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void oilBiomesReplaceDesertsAndOceans(GameTestHelper helper) { BCTests.oilBiomesReplaceDesertsAndOceans(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void lightFuelChainFromOil(GameTestHelper helper) { BCTests.lightFuelChainFromOil(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 600)

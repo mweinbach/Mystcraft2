@@ -1,4 +1,6 @@
 {
+  "biome.buildcraft.oil_desert": "Desert Oil Field",
+  "biome.buildcraft.oil_ocean": "Ocean Oil Field",
   "block.buildcraft.combustion_engine": "Combustion Engine",
   "block.buildcraft.distiller": "Distiller",
   "block.buildcraft.frame": "Frame",

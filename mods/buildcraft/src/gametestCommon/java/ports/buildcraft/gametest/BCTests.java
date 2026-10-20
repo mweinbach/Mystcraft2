@@ -3,12 +3,16 @@ package ports.buildcraft.gametest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -16,6 +20,7 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -35,7 +40,15 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.phys.AABB;
 import ports.buildcraft.BuildCraft;
@@ -51,6 +64,7 @@ import ports.buildcraft.energy.CombustionEngineMenu;
 import ports.buildcraft.energy.EngineBlock;
 import ports.buildcraft.energy.EngineBlockEntity;
 import ports.buildcraft.energy.FuelRegistry;
+import ports.buildcraft.energy.OilBiomes;
 import ports.buildcraft.energy.OilWellFeature;
 import ports.buildcraft.energy.PowerStage;
 import ports.buildcraft.energy.RefineryRecipes;
@@ -66,6 +80,7 @@ import ports.buildcraft.factory.PumpBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
+import ports.buildcraft.lib.SimplexNoise;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.transport.BCTransport;
@@ -417,8 +432,8 @@ public final class BCTests {
         int large = 0, medium = 0;
         for (int cx = -128; cx < 128; cx++) {
             for (int cz = -128; cz < 128; cz++) {
-                OilWellFeature.Well well = OilWellFeature.well(seed, cx, cz, -64);
-                OilWellFeature.Well again = OilWellFeature.well(seed, cx, cz, -64);
+                OilWellFeature.Well well = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
+                OilWellFeature.Well again = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
                 require(helper, (well == null) == (again == null) && (well == null || well.centre().equals(again.centre())),
                         "the well in chunk " + cx + "," + cz + " must not depend on anything but the seed");
                 if (well == null) continue;
@@ -443,6 +458,108 @@ public final class BCTests {
         List<HolderSet<PlacedFeature>> steps = biome.getGenerationSettings().features();
         int lakes = GenerationStep.Decoration.LAKES.ordinal();
         require(helper, steps.size() > lakes && steps.get(lakes).contains(placed), "the overworld biome must generate oil wells at the lakes step");
+        helper.succeed();
+    }
+
+    /** Upstream's excessive biomes roll wells with thirty times the chance; other chunks roll the same wells as before. */
+    public static void oilBiomesHaveThirtyTimesTheWells(GameTestHelper helper) {
+        long seed = 1234567L;
+        int large = 0, medium = 0, asked = 0, chunks = 0;
+        for (int cx = -128; cx < 128; cx++) {
+            for (int cz = -128; cz < 128; cz++) {
+                chunks++;
+                int[] queries = {0};
+                int chunkX = cx, chunkZ = cz;
+                OilWellFeature.Well rich = OilWellFeature.well(seed, cx, cz, -64, pos -> {
+                    queries[0]++;
+                    require(helper, pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ && pos.getY() == 62,
+                            "the biome bonus must be read at the well's own column, got " + pos);
+                    return true;
+                });
+                require(helper, queries[0] <= 1, "a chunk must read its biome at most once");
+                asked += queries[0];
+                OilWellFeature.Well plain = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
+                require(helper, plain == null || rich != null && rich.centre().getX() == plain.centre().getX()
+                        && rich.centre().getZ() == plain.centre().getZ(), "an oil biome must keep every well that it would roll elsewhere");
+                if (rich == null) continue;
+                if (rich.type() == OilWellFeature.WellType.LARGE) large++;
+                else medium++;
+            }
+        }
+        // 65536 chunks: about 786 large wells (1.2%) and 1942 medium ones (3% of the rest).
+        require(helper, large >= 700 && large <= 870, "expected about 786 large wells in oil biomes, rolled " + large);
+        require(helper, medium >= 1800 && medium <= 2090, "expected about 1942 medium wells in oil biomes, rolled " + medium);
+        require(helper, asked < chunks / 10, "the biome must only be read when a roll depends on it, read " + asked + " times");
+        helper.succeed();
+    }
+
+    /** Upstream {@code GenLayerAddOilDesert} and {@code GenLayerAddOilOcean} over the overworld's multi-noise biomes. */
+    public static void oilBiomesReplaceDesertsAndOceans(GameTestHelper helper) {
+        RegistryAccess registries = helper.getLevel().registryAccess();
+        Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
+        OilBiomes.State state = OilBiomes.current();
+        require(helper, state != null && state.seed() == helper.getLevel().getSeed(), "the server must install the oil biomes for its seed");
+        Holder<Biome> oilDesert = biomes.getHolderOrThrow(OilBiomes.OIL_DESERT);
+        Holder<Biome> oilOcean = biomes.getHolderOrThrow(OilBiomes.OIL_OCEAN);
+        Biome desert = biomes.getOrThrow(Biomes.DESERT), ocean = biomes.getOrThrow(Biomes.OCEAN);
+        require(helper, oilDesert.value().getBaseTemperature() == desert.getBaseTemperature() && oilDesert.value().getPrecipitation() == Biome.Precipitation.NONE
+                && oilOcean.value().getBaseTemperature() == ocean.getBaseTemperature(), "the oil biomes must keep their parents' climates");
+        require(helper, oilDesert.is(OilBiomes.EXCESSIVE_OIL) && oilOcean.is(OilBiomes.EXCESSIVE_OIL) && oilDesert.is(BiomeTags.IS_OVERWORLD)
+                && oilOcean.is(BiomeTags.IS_OVERWORLD) && oilOcean.is(BiomeTags.IS_OCEAN), "the oil biomes must be tagged as overworld, ocean and excessive");
+        require(helper, !oilDesert.is(BiomeTags.HAS_DESERT_PYRAMID) && !oilDesert.is(BiomeTags.HAS_VILLAGE_DESERT),
+                "upstream's oil desert has no temples or villages");
+        Holder<PlacedFeature> oilWell = registries.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY)
+                .getHolderOrThrow(ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));
+        for (Holder<Biome> oil : List.of(oilDesert, oilOcean)) {
+            List<HolderSet<PlacedFeature>> steps = oil.value().getGenerationSettings().features();
+            require(helper, steps.get(GenerationStep.Decoration.LAKES.ordinal()).contains(oilWell), "the oil biomes must generate oil wells");
+        }
+        require(helper, biomes.getHolderOrThrow(Biomes.DESERT).is(OilBiomes.DESERT_REPLACEABLE) && biomes.getHolderOrThrow(Biomes.DEEP_FROZEN_OCEAN)
+                .is(OilBiomes.OCEAN_REPLACEABLE) && !biomes.getHolderOrThrow(Biomes.PLAINS).is(OilBiomes.DESERT_REPLACEABLE),
+                "deserts and every ocean must be replaceable, plains not");
+
+        MultiNoiseBiomeSource source = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomes);
+        require(helper, source.possibleBiomes().contains(oilDesert) && source.possibleBiomes().contains(oilOcean),
+                "the overworld must list the oil biomes as possible, so that they are decorated");
+        require(helper, !MultiNoiseBiomeSource.Preset.NETHER.biomeSource(biomes).possibleBiomes().contains(oilDesert), "the nether has no oil biomes");
+
+        // Upstream GenLayerBiomeReplacer: offsets from the world seed, then noise over block coordinates.
+        Random rand = new Random(state.seed());
+        double xOffset = rand.nextInt(500000) - 250000, zOffset = rand.nextInt(500000) - 250000;
+        Climate.Sampler sampler = RandomState.create(registries, NoiseGeneratorSettings.OVERWORLD, state.seed()).sampler();
+        int[] found = new int[4];
+        for (int x = -32768; x <= 32768; x += 256) {
+            for (int z = -32768; z <= 32768; z += 256) {
+                boolean oilyDesert = SimplexNoise.noise((x + xOffset) * 0.001, (z + zOffset) * 0.001) > 0.7;
+                boolean oilyOcean = SimplexNoise.noise((x + xOffset) * 0.0005, (z + zOffset) * 0.0005) > 0.9;
+                if (!oilyDesert && !oilyOcean && (x | z) % 1024 != 0) continue;
+                int qx = QuartPos.fromBlock(x), qy = QuartPos.fromBlock(64), qz = QuartPos.fromBlock(z);
+                Holder<Biome> raw = source.getNoiseBiome(sampler.sample(qx, qy, qz));
+                Holder<Biome> placed = source.getNoiseBiome(qx, qy, qz, sampler);
+                Holder<Biome> expected = raw.is(OilBiomes.OCEAN_REPLACEABLE) && oilyOcean ? oilOcean
+                        : raw.is(OilBiomes.DESERT_REPLACEABLE) && oilyDesert ? oilDesert : raw;
+                require(helper, placed == expected, "at " + x + ", " + z + " " + raw.unwrapKey().orElseThrow().location() + " must become "
+                        + expected.unwrapKey().orElseThrow().location() + ", got " + placed.unwrapKey().orElseThrow().location());
+                if (raw.is(OilBiomes.DESERT_REPLACEABLE)) found[oilyDesert ? 0 : 1]++;
+                if (raw.is(OilBiomes.OCEAN_REPLACEABLE)) found[oilyOcean ? 2 : 3]++;
+            }
+        }
+        require(helper, Arrays.stream(found).allMatch(n -> n > 0), "the scan must cover deserts and oceans inside and outside the oil fields, found "
+                + Arrays.toString(found));
+
+        // The oil biomes take their parents' surfaces: sand for the oil desert.
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(registries.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
+                registries.registryOrThrow(Registry.NOISE_REGISTRY), source,
+                registries.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).getHolderOrThrow(NoiseGeneratorSettings.OVERWORLD));
+        RandomState random = RandomState.create(registries, NoiseGeneratorSettings.OVERWORLD, state.seed());
+        SurfaceRules.RuleSource sand = SurfaceRules.ifTrue(SurfaceRules.isBiome(Biomes.DESERT), SurfaceRules.state(Blocks.SAND.defaultBlockState()));
+        CarvingContext carving = new CarvingContext(generator, registries, helper.getLevel(), null, random, sand);
+        for (Holder<Biome> biome : List.of(oilDesert, biomes.getHolderOrThrow(Biomes.DESERT), biomes.getHolderOrThrow(Biomes.PLAINS), oilOcean)) {
+            boolean expected = biome == oilDesert || biome.is(Biomes.DESERT);
+            Optional<BlockState> top = random.surfaceSystem().topMaterial(sand, carving, pos -> biome, null, null, new BlockPos(0, 64, 0), false);
+            require(helper, top.isPresent() == expected, biome.unwrapKey().orElseThrow().location() + (expected ? " must" : " must not")
+                    + " pass a surface rule for deserts");
+        }
         helper.succeed();
     }
 
