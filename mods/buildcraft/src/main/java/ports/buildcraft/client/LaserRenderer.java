@@ -61,6 +61,7 @@ public final class LaserRenderer {
     public static final ResourceLocation MARKER_DEFAULT_POSSIBLE_SPRITE = BuildCraft.id("lasers/marker_default_possible");
     public static final ResourceLocation STRIPES_READ_SPRITE = BuildCraft.id("lasers/stripes_read");
     public static final ResourceLocation STRIPES_WRITE_SPRITE = BuildCraft.id("lasers/stripes_write");
+    public static final ResourceLocation STRIPES_WRITE_DIRECTION_SPRITE = BuildCraft.id("lasers/stripes_write_direction");
     public static final ResourceLocation POWER_LOW_SPRITE = BuildCraft.id("lasers/power_low");
     public static final ResourceLocation POWER_MED_SPRITE = BuildCraft.id("lasers/power_med");
     public static final ResourceLocation POWER_HIGH_SPRITE = BuildCraft.id("lasers/power_high");
@@ -76,6 +77,8 @@ public final class LaserRenderer {
     /** Volume boxes that machines read from or write to. */
     public static final Type STRIPES_READ;
     public static final Type STRIPES_WRITE;
+    /** A builder's path. */
+    public static final Type STRIPES_WRITE_DIRECTION;
     /** Builder lasers from red (low) to blue (full), by how much of a block's break power has been spent. */
     public static final Type[] POWERS;
 
@@ -102,6 +105,7 @@ public final class LaserRenderer {
         MARKER_DEFAULT_POSSIBLE = MARKER_VOLUME_POSSIBLE.withSprite(MARKER_DEFAULT_POSSIBLE_SPRITE);
         STRIPES_READ = MARKER_VOLUME_CONNECTED.withSprite(STRIPES_READ_SPRITE);
         STRIPES_WRITE = MARKER_VOLUME_CONNECTED.withSprite(STRIPES_WRITE_SPRITE);
+        STRIPES_WRITE_DIRECTION = MARKER_PATH_CONNECTED.withSprite(STRIPES_WRITE_DIRECTION_SPRITE);
         POWERS = new Type[] {MARKER_VOLUME_POSSIBLE.withSprite(POWER_LOW_SPRITE), MARKER_VOLUME_POSSIBLE.withSprite(POWER_MED_SPRITE),
                 MARKER_VOLUME_POSSIBLE.withSprite(POWER_HIGH_SPRITE), MARKER_VOLUME_POSSIBLE.withSprite(POWER_FULL_SPRITE)};
     }
@@ -110,7 +114,7 @@ public final class LaserRenderer {
 
     public static List<ResourceLocation> sprites() {
         return List.of(MARKER_VOLUME_CONNECTED_SPRITE, MARKER_VOLUME_POSSIBLE_SPRITE, MARKER_VOLUME_SIGNAL_SPRITE, MARKER_PATH_CONNECTED_SPRITE,
-                MARKER_PATH_POSSIBLE_SPRITE, MARKER_DEFAULT_POSSIBLE_SPRITE, STRIPES_READ_SPRITE, STRIPES_WRITE_SPRITE,
+                MARKER_PATH_POSSIBLE_SPRITE, MARKER_DEFAULT_POSSIBLE_SPRITE, STRIPES_READ_SPRITE, STRIPES_WRITE_SPRITE, STRIPES_WRITE_DIRECTION_SPRITE,
                 POWER_LOW_SPRITE, POWER_MED_SPRITE, POWER_HIGH_SPRITE, POWER_FULL_SPRITE);
     }
 

@@ -1,6 +1,7 @@
 buildcraft:architect_table
 buildcraft:blueprint_clean
 buildcraft:blueprint_used
+buildcraft:builder
 buildcraft:combustion_engine
 buildcraft:distiller
 buildcraft:filler

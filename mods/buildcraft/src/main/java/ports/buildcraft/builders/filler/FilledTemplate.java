@@ -19,6 +19,12 @@ public final class FilledTemplate {
         this.data = new BitSet(dataSize());
     }
 
+    /** A recorded template's blocks, which use the same index order. */
+    public FilledTemplate(BlockPos size, BitSet blocks) {
+        this(size);
+        data.or(blocks);
+    }
+
     public BlockPos getSize() {
         return size;
     }
