@@ -47,6 +47,14 @@ public final class CombustionEngineScreen extends BCScreen<CombustionEngineMenu>
     }
 
     @Override
+    protected int tankAt(double mouseX, double mouseY) {
+        for (int tank = 0; tank < 3; tank++) {
+            if (mouseX >= TANK_X[tank] && mouseX < TANK_X[tank] + TANK_WIDTH && mouseY >= TANK_Y && mouseY < TANK_Y + TANK_HEIGHT) return tank;
+        }
+        return -1;
+    }
+
+    @Override
     protected void renderTooltip(PoseStack poseStack, int mouseX, int mouseY) {
         super.renderTooltip(poseStack, mouseX, mouseY);
         for (int tank = 0; tank < 3; tank++) {

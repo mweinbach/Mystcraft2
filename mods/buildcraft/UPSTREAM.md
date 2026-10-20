@@ -22,8 +22,8 @@ classes, which each port class names in its Javadoc (`Upstream {@code ...}`). Th
 | Port package | Upstream sources |
 | --- | --- |
 | `core` | `BCCoreItems`, `ItemFragileFluidContainer`, `api.items.FluidItemDrops`, `lib.fluid.TankManager` drops |
-| `lib` | `buildcraft.lib.mj.MjBattery`, `lib.misc.BlockUtil`, `lib.inventory` transactors, `lib.fluid.Tank`, `lib.misc.data.Box`/`BoxIterator`, `api.mj.MjAPI` |
-| `energy` | `TileEngineBase_BC8`, `TileEngineRedstone_BC8`, `TileEngineStone_BC8`, `TileEngineIron_BC8`, `EnumPowerStage`, `BCEnergyFluids`, `BCEnergyRecipes`, `BCEnergyConfig`, `OilGenerator`, `OilGenStructure`, `BlockSpring`, `EnumSpring` |
+| `lib` | `buildcraft.lib.mj.MjBattery`, `lib.misc.BlockUtil`, `lib.inventory` transactors, `lib.fluid.Tank` (including `transferStackToTank`), `lib.gui.widget.WidgetFluidTank`, `lib.misc.data.Box`/`BoxIterator`, `api.mj.MjAPI` |
+| `energy` | `TileEngineBase_BC8`, `TileEngineRedstone_BC8`, `TileEngineStone_BC8`, `TileEngineIron_BC8`, `EnumPowerStage`, `BCEnergyFluids`, `BCEnergyRecipes`, `BCEnergyConfig`, `OilGenerator`, `OilGenStructure`, `BlockSpring`, `EnumSpring`, `ContainerEngineIron_BC8`, `lib.fluid.BCFluidBlock` and Forge 1.12 `BlockFluidClassic` (gases rising) |
 | `factory` | `TileMiner`, `TileMiningWell`, `TilePump`, `TileTank`, `TileDistiller_BC8`, `TileHeatExchange`, `BlockTube`, `BlockTank`, `BlockPump`, `BlockDistiller`, `BlockHeatExchange`, `ContainerDistiller` |
 | `builders` | `TileQuarry`, `BlockQuarry`, `BlockFrame`, `BCBuildersConfig` |
 | `transport` | `TilePipeHolder`, `BlockPipeHolder`, `PipeFlowItems`, `PipeFlowFluids`, `PipeFlowPower`, `TravellingItem`, `DelayedList`, `BCTransportPipes` and the `PipeBehaviour*` classes |

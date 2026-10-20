@@ -206,7 +206,7 @@ public class CombustionEngineBlockEntity extends EngineBlockEntity implements Me
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new CombustionEngineMenu(id, inventory, worldPosition, data);
+        return new CombustionEngineMenu(id, inventory, worldPosition, data, this);
     }
 
     @Override

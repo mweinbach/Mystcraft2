@@ -12,12 +12,16 @@ import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -26,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,6 +51,8 @@ import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.FluidPort;
+import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.platform.ItemFluids;
 import ports.buildcraft.platform.ItemPort;
 import ports.buildcraft.platform.Platform;
 
@@ -185,5 +192,61 @@ final class FabricPlatform implements Platform.Backend {
     public boolean interactWithFluidContainer(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
         Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos, side);
         return storage != null && FluidStorageUtil.interactWithFluidStorage(storage, player, hand);
+    }
+
+    @Nullable
+    @Override
+    public ItemFluids itemFluids(ItemStack stack) {
+        ItemStack single = stack.copy();
+        single.setCount(1);
+        ContainerItemContext context = ContainerItemContext.withInitial(single);
+        Storage<FluidVariant> storage = context.find(FluidStorage.ITEM);
+        if (storage == null) return null;
+        return new ItemFluids() {
+            @Override
+            public FluidAmount drain(long max, boolean simulate) {
+                FluidVariant fluid = StorageUtil.findStoredResource(storage, variant -> !variant.hasNbt());
+                if (fluid == null) return FluidAmount.EMPTY;
+                long moved = wholeMillibuckets(max, simulate, (droplets, transaction) -> storage.extract(fluid, droplets, transaction));
+                return moved <= 0 ? FluidAmount.EMPTY : new FluidAmount(fluid.getFluid(), moved);
+            }
+
+            @Override
+            public long fill(FluidAmount fluid, boolean simulate) {
+                if (fluid.isEmpty()) return 0;
+                FluidVariant variant = FluidVariant.of(fluid.fluid());
+                return wholeMillibuckets(fluid.amount(), simulate, (droplets, transaction) -> storage.insert(variant, droplets, transaction));
+            }
+
+            @Override
+            public ItemStack container() {
+                ItemVariant variant = context.getItemVariant();
+                return variant.isBlank() ? ItemStack.EMPTY : variant.toStack((int) context.getAmount());
+            }
+        };
+    }
+
+    private interface DropletMove {
+        long move(long droplets, Transaction transaction);
+    }
+
+    /** Moves the most whole millibuckets, up to {@code max}, that the storage accepts in full. */
+    private static long wholeMillibuckets(long max, boolean simulate, DropletMove move) {
+        long mb;
+        try (Transaction transaction = Transaction.openOuter()) {
+            mb = move.move(max * FabricPorts.DROPLETS_PER_MB, transaction) / FabricPorts.DROPLETS_PER_MB;
+        }
+        if (mb <= 0 || simulate) return Math.max(0, mb);
+        try (Transaction transaction = Transaction.openOuter()) {
+            if (move.move(mb * FabricPorts.DROPLETS_PER_MB, transaction) != mb * FabricPorts.DROPLETS_PER_MB) return 0;
+            transaction.commit();
+        }
+        return mb;
+    }
+
+    @Override
+    public SoundEvent bucketSound(Fluid fluid, boolean fill) {
+        FluidVariant variant = FluidVariant.of(fluid);
+        return fill ? FluidVariantAttributes.getFillSound(variant) : FluidVariantAttributes.getEmptySound(variant);
     }
 }

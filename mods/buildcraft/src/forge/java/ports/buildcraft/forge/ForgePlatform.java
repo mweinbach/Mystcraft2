@@ -12,6 +12,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -27,10 +29,14 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -39,6 +45,8 @@ import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.FluidPort;
+import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.platform.ItemFluids;
 import ports.buildcraft.platform.ItemPort;
 import ports.buildcraft.platform.Platform;
 
@@ -130,5 +138,46 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public boolean interactWithFluidContainer(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
         return FluidUtil.interactWithFluidHandler(player, hand, level, pos, side);
+    }
+
+    @Nullable
+    @Override
+    public ItemFluids itemFluids(ItemStack stack) {
+        ItemStack single = stack.copy();
+        single.setCount(1);
+        IFluidHandlerItem handler = FluidUtil.getFluidHandler(single).resolve().orElse(null);
+        if (handler == null) return null;
+        return new ItemFluids() {
+            @Override
+            public FluidAmount drain(long max, boolean simulate) {
+                FluidStack offered = handler.drain(clamp(max), IFluidHandler.FluidAction.SIMULATE);
+                if (offered.isEmpty() || offered.hasTag()) return FluidAmount.EMPTY;
+                FluidStack drained = simulate ? offered : handler.drain(offered, IFluidHandler.FluidAction.EXECUTE);
+                return new FluidAmount(drained.getFluid(), drained.getAmount());
+            }
+
+            @Override
+            public long fill(FluidAmount fluid, boolean simulate) {
+                if (fluid.isEmpty()) return 0;
+                return handler.fill(new FluidStack(fluid.fluid(), clamp(fluid.amount())),
+                        simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+            }
+
+            @Override
+            public ItemStack container() {
+                return handler.getContainer();
+            }
+        };
+    }
+
+    private static int clamp(long amount) {
+        return (int) Math.min(Integer.MAX_VALUE, amount);
+    }
+
+    @Override
+    public SoundEvent bucketSound(Fluid fluid, boolean fill) {
+        SoundEvent sound = fluid.getFluidType().getSound(fill ? SoundActions.BUCKET_FILL : SoundActions.BUCKET_EMPTY);
+        if (sound != null) return sound;
+        return fill ? SoundEvents.BUCKET_FILL : SoundEvents.BUCKET_EMPTY;
     }
 }

@@ -214,6 +214,14 @@ public final class DistillerScreen extends BCScreen<DistillerMenu> {
     }
 
     @Override
+    protected int tankAt(double mouseX, double mouseY) {
+        for (int tank = 0; tank < TANKS.length; tank++) {
+            if (TANKS[tank].contains((int) Math.floor(mouseX), (int) Math.floor(mouseY))) return tank;
+        }
+        return -1;
+    }
+
+    @Override
     protected void renderTooltip(PoseStack poseStack, int mouseX, int mouseY) {
         super.renderTooltip(poseStack, mouseX, mouseY);
         for (int tank = 0; tank < TANKS.length; tank++) {

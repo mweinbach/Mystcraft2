@@ -46,6 +46,7 @@ import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
+import ports.buildcraft.energy.CombustionEngineMenu;
 import ports.buildcraft.energy.EngineBlock;
 import ports.buildcraft.energy.EngineBlockEntity;
 import ports.buildcraft.energy.FuelRegistry;
@@ -55,6 +56,7 @@ import ports.buildcraft.energy.RefineryRecipes;
 import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.DistillerBlockEntity;
+import ports.buildcraft.factory.DistillerMenu;
 import ports.buildcraft.factory.HeatExchangerBlock;
 import ports.buildcraft.factory.HeatExchangerBlockEntity;
 import ports.buildcraft.factory.MinerBlockEntity;
@@ -703,6 +705,62 @@ public final class BCTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, FragileFluidShardItem.of(new FluidAmount(oil, 300)));
         Platform.get().interactWithFluidContainer(player, InteractionHand.MAIN_HAND, helper.getLevel(), helper.absolutePos(pos), Direction.UP);
         require(helper, tank.tank().fluid() == Fluids.WATER && tank.tank().amount() == 1000, "a shard can never be filled from a tank");
+        helper.succeed();
+    }
+
+    /**
+     * Upstream {@code WidgetFluidTank}: a carried container clicked on a GUI tank empties into it or fills
+     * from it, survival players trade one item for its new container and creative players keep theirs,
+     * shift-clicked containers go to the distiller's input or the engine's tanks, and ice cools an engine.
+     */
+    public static void guiTanksTradeContainers(GameTestHelper helper) {
+        helper.setBlock(new BlockPos(1, 1, 1), BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, new BlockPos(1, 1, 1), DistillerBlockEntity.class);
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        Fluid gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        Player player = helper.makeMockPlayer();
+        DistillerMenu menu = (DistillerMenu) distiller.createMenu(0, player.getInventory(), player);
+
+        menu.setCarried(new ItemStack(oil.getBucket()));
+        require(helper, menu.clickMenuButton(player, DistillerMenu.TANK_IN), "a GUI tank must accept a click");
+        require(helper, distiller.inputTank().amount() == 1000 && menu.getCarried().is(Items.BUCKET),
+                "an oil bucket must empty into the input and leave an empty bucket, input has " + distiller.inputTank().amount());
+        menu.setCarried(new ItemStack(Items.WATER_BUCKET));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 1000 && menu.getCarried().is(Items.WATER_BUCKET), "water cannot enter the input");
+
+        distiller.gasTank().set(gas, 1500);
+        menu.setCarried(new ItemStack(Items.BUCKET, 2));
+        menu.clickMenuButton(player, DistillerMenu.TANK_GAS);
+        require(helper, distiller.gasTank().amount() == 500 && menu.getCarried().is(Items.BUCKET) && menu.getCarried().getCount() == 1
+                && player.getInventory().countItem(gas.getBucket()) == 1, "one of two buckets must fill with gas and go to the inventory");
+        menu.clickMenuButton(player, DistillerMenu.TANK_GAS);
+        require(helper, distiller.gasTank().amount() == 500 && menu.getCarried().getCount() == 1, "a bucket cannot take a partial 500 mB");
+
+        player.getInventory().setItem(8, new ItemStack(oil.getBucket()));
+        require(helper, menu.quickMoveStack(player, 35).isEmpty() && distiller.inputTank().amount() == 2000
+                && player.getInventory().getItem(8).is(Items.BUCKET), "a shift-clicked oil bucket must empty into the input");
+
+        player.getAbilities().instabuild = true;
+        menu.setCarried(new ItemStack(oil.getBucket()));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 3000 && menu.getCarried().is(oil.getBucket()), "a creative player keeps the full bucket");
+        player.getAbilities().instabuild = false;
+
+        menu.setCarried(FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 3300 && menu.getCarried().isEmpty(), "a shard must empty into the input and be used up");
+
+        CombustionEngineBlockEntity engine = engine(helper, new BlockPos(4, 1, 1), BCEnergy.COMBUSTION_ENGINE.get(), Direction.UP, CombustionEngineBlockEntity.class);
+        CombustionEngineMenu engineMenu = (CombustionEngineMenu) engine.createMenu(1, player.getInventory(), player);
+        engineMenu.setCarried(new ItemStack(Items.ICE, 2));
+        engineMenu.clickMenuButton(player, 1);
+        require(helper, engine.coolantTank().fluid() == Fluids.WATER && engine.coolantTank().amount() == 1500 && engineMenu.getCarried().getCount() == 1,
+                "ice clicked on the coolant gauge must melt into 1500 mB of water");
+        Fluid fuel = BCEnergy.FUEL_LIGHT.heat(0).source();
+        player.getInventory().setItem(7, new ItemStack(fuel.getBucket()));
+        engineMenu.quickMoveStack(player, 34);
+        require(helper, engine.fuelTank().fluid() == fuel && engine.fuelTank().amount() == 1000, "a shift-clicked fuel bucket must fill the fuel tank");
         helper.succeed();
     }
 

@@ -24,7 +24,7 @@ add only loader adapters.
 | Item pipes | Wood (extracts when powered by an engine), cobblestone, stone, quartz, gold, sandstone, iron, diamond (filter GUI), clay, void. |
 | Fluid pipes | Wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void, with upstream capacities and transfer rates. |
 | Kinesis pipes | Wood, cobblestone, stone, quartz, gold, sandstone, with upstream power limits. |
-| Client | Upstream engine model (base plate, stroking piston plate and chamber, trunk textured and lit by heat stage), pipe contents, tank, mining tube and quarry renderers; distiller (bobbing power indicators coloured by power use, three fluid tanks) and heat exchanger (input and output tanks, coolant and heatant flowing through the row while it runs) renderers on upstream's block models; Stirling, Combustion, distiller and diamond pipe screens; upstream textures. |
+| Client | Upstream engine model (base plate, stroking piston plate and chamber, trunk textured and lit by heat stage), pipe contents, tank, mining tube and quarry renderers; distiller (bobbing power indicators coloured by power use, three fluid tanks) and heat exchanger (input and output tanks, coolant and heatant flowing through the row while it runs) renderers on upstream's block models; Stirling, Combustion, distiller and diamond pipe screens; upstream textures. As upstream's `WidgetFluidTank`, a container carried onto a distiller or combustion engine gauge empties into that tank or fills from it (ice melts into the engine's coolant), and shift-clicked containers go to the distiller's input or try the engine's fuel, coolant and residue tanks in turn. |
 
 Pipe connection rules follow upstream: separate-material pipes (cobblestone, stone, quartz) do not
 join each other, wooden pipes do not join wooden pipes, and sandstone pipes do not connect to
@@ -102,8 +102,6 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   tanks to the new row's start or end; a broken start or end, or one left in a row shorter than
   three, drops its fluid as fragile fluid shards, as upstream. Middle sections accept and give no fluid. The flowing
   coolant and heatant use the fluid's animated sprite, where upstream used its first frame.
-- **Distiller GUI** shows the tanks but does not fill or empty a held container clicked on them;
-  use the block or pipes.
 - **Distiller progress** on a recipe whose input runs out or whose output is blocked returns to the
   battery even when the battery has refilled to capacity; upstream discarded it then.
 
@@ -138,8 +136,8 @@ with the placed feature in the Overworld's lakes step, the refinery chain from o
 the combustion engine burning oil into residue, the distiller splitting oil and refunding blocked
 progress, heat exchanger rows
 forming, rotating and breaking (dropping shards), a heat exchanger heating oil with lava, fragile
-fluid shards splitting fluid, dropping from every broken fluid holder and emptying into a tank, and
-recipes and tags. Loader-specific tests check the Forge
+fluid shards splitting fluid, dropping from every broken fluid holder and emptying into a tank,
+containers clicked and shift-clicked on GUI tanks in survival and creative, and recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
 (`FabricAdapterGameTests`), including transaction rollback and draining shards. `EmcGameTests` audits EMC coverage and,
 with `-PwithProjectE` or `-PwithItemAlchemy`, the live values.
