@@ -23,7 +23,6 @@ import ports.extremereactors.corelib.base.multiblock.part.io.fluid.EmptyFluidPor
 import ports.extremereactors.corelib.base.multiblock.part.io.fluid.FluidPortHandlerForge;
 import ports.extremereactors.corelib.base.multiblock.part.io.fluid.IFluidPort;
 import ports.extremereactors.corelib.base.multiblock.part.io.fluid.IFluidPortHandler;
-import ports.extremereactors.corelib.compat.Mods;
 import ports.extremereactors.corelib.data.IoMode;
 import ports.extremereactors.multiblock.cuboid.AbstractCuboidMultiblockController;
 
@@ -50,9 +49,7 @@ public enum FluidPortType {
                 return new FluidPortHandlerForge<>(part, mode);
 
             case Mekanism:
-                return Mods.MEKANISM
-                        .map(() -> (IFluidPortHandler) new FluidPortHandlerMekanism<>(part, mode))
-                        .orElseGet(EmptyFluidPortHandler::new);
+                return new EmptyFluidPortHandler();
         }
 
         throw new IllegalArgumentException("Unsupported Fluid Port: " + type);

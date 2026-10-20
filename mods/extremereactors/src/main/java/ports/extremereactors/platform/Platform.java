@@ -13,8 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -32,10 +34,14 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import ports.extremereactors.corelib.capability.Capability;
 import ports.extremereactors.corelib.capability.LazyOptional;
+import ports.extremereactors.corelib.energy.IEnergyStorage;
+import ports.extremereactors.corelib.fluid.handler.IFluidHandler;
+import ports.extremereactors.corelib.item.inventory.handler.IItemHandlerModifiable;
 import ports.extremereactors.platform.registry.DeferredRegister;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -74,7 +80,12 @@ public final class Platform {
 
         void openMenu(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> extraData);
 
-        CreativeModeTab creativeTab(ResourceLocation id, Supplier<ItemStack> icon);
+        /**
+         * @param id the tab id; its title is the {@code itemGroup.<namespace>.<path>} translation
+         * @param contents the stacks listed in the tab, in order, or null to list the items that declare the tab
+         */
+        CreativeModeTab creativeTab(ResourceLocation id, Supplier<ItemStack> icon,
+                                    @Nullable Supplier<List<ItemStack>> contents);
 
         //endregion
         //region fluids
@@ -103,6 +114,19 @@ public final class Platform {
         <T> LazyOptional<T> foreignCapability(Level level, BlockPos position, BlockState state,
                                               @Nullable BlockEntity blockEntity, Capability<T> capability,
                                               @Nullable Direction side);
+
+        /**
+         * An energy view of the item in a slot, or null if that item cannot hold energy. Changes made through the
+         * view are written back to the slot.
+         */
+        @Nullable IEnergyStorage itemEnergy(IItemHandlerModifiable inventory, int slot);
+
+        /**
+         * Let the player fill or empty the held fluid container with the given handler.
+         *
+         * @return true if some fluid was moved
+         */
+        boolean interactWithFluidHandler(Player player, InteractionHand hand, IFluidHandler handler);
 
         //endregion
         //region events

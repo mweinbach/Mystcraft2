@@ -28,7 +28,12 @@ public interface ISyncableEntity {
 
     void syncDataFrom(CompoundTag data, SyncReason syncReason);
 
-    CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason);
+    /**
+     * @return the given compound, with this entity data added to it
+     */
+    default CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
+        return data;
+    }
 
     default void syncChildDataEntityFrom(final ISyncableEntity child, final String key, final CompoundTag data,
                                          final SyncReason syncReason) {

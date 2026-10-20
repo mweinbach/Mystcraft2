@@ -20,20 +20,17 @@ package it.zerono.mods.extremereactors.gamecontent;
 
 import com.google.common.collect.ImmutableList;
 import it.zerono.mods.extremereactors.ExtremeReactors;
-import it.zerono.mods.extremereactors.gamecontent.compat.patchouli.PatchouliCompat;
-import ports.extremereactors.corelib.compat.Mods;
 import ports.extremereactors.corelib.item.ItemHelper;
 import ports.extremereactors.corelib.item.ModItemGroup;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import vazkii.patchouli.api.PatchouliAPI;
 
 import java.util.function.Supplier;
 
 public final class ItemGroups {
 
-    public static final CreativeModeTab GENERAL = new ModItemGroup(ExtremeReactors.MOD_ID + ".general",
+    public static final CreativeModeTab GENERAL = ModItemGroup.create(ExtremeReactors.MOD_ID + ".general",
             () -> stack(Content.Items.YELLORITE_ORE_BLOCK),
             () -> {
 
@@ -51,8 +48,6 @@ public final class ItemGroups {
                         stack(Content.Items.YELLORIUM_NUGGET), stack(Content.Items.BLUTONIUM_NUGGET),
                         stack(Content.Items.ANGLESITE_CRYSTAL), stack(Content.Items.BENITOITE_CRYSTAL),
                         stack(Content.Items.WRENCH));
-
-                Mods.PATCHOULI.map(() -> PatchouliAPI.get().getBookStack(PatchouliCompat.HANDBOOK_ID)).ifPresent(builder::add);
 
                 builder.add(stack(Content.Blocks.REPROCESSOR_CASING), stack(Content.Blocks.REPROCESSOR_GLASS),
                         stack(Content.Blocks.REPROCESSOR_CONTROLLER), stack(Content.Blocks.REPROCESSOR_COLLECTOR),
@@ -72,7 +67,7 @@ public final class ItemGroups {
                 return builder.build();
             });
 
-    public static final CreativeModeTab REACTOR = new ModItemGroup(ExtremeReactors.MOD_ID + ".reactor",
+    public static final CreativeModeTab REACTOR = ModItemGroup.create(ExtremeReactors.MOD_ID + ".reactor",
             () -> stack(Content.Blocks.REACTOR_FUELROD_BASIC),
             () -> ImmutableList.of(
                     stack(Content.Blocks.REACTOR_CONTROLLER_BASIC), stack(Content.Blocks.REACTOR_CASING_BASIC),
@@ -94,7 +89,7 @@ public final class ItemGroups {
                     stack(Content.Blocks.REACTOR_CREATIVE_WATER_GENERATOR_REINFORCED)
             ));
 
-    public static final CreativeModeTab TURBINE = new ModItemGroup(ExtremeReactors.MOD_ID + ".turbine",
+    public static final CreativeModeTab TURBINE = ModItemGroup.create(ExtremeReactors.MOD_ID + ".turbine",
             () -> stack(Content.Blocks.TURBINE_ROTORSHAFT_BASIC),
             () -> ImmutableList.of(
                     stack(Content.Blocks.TURBINE_CONTROLLER_BASIC), stack(Content.Blocks.TURBINE_CASING_BASIC),

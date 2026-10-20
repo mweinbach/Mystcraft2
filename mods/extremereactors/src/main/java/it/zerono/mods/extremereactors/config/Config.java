@@ -20,9 +20,8 @@ package it.zerono.mods.extremereactors.config;
 
 import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.corelib.config.ConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
+import ports.extremereactors.platform.Platform;
 
 public final class Config {
 
@@ -31,8 +30,8 @@ public final class Config {
 
     public static void initialize() {
 
-        register(ModConfig.Type.CLIENT, Config.s_clientSpec);
-        register(ModConfig.Type.COMMON, Config.s_commonSpec);
+        register("client", Config.s_clientSpec);
+        register("common", Config.s_commonSpec);
     }
 
     //region internals
@@ -56,8 +55,8 @@ public final class Config {
         s_commonSpec = pair2.getRight();
     }
 
-    private static void register(final ModConfig.Type type, final ConfigSpec spec) {
-        ModLoadingContext.get().registerConfig(type, spec, String.format("extremereactors/%s.toml", type.extension()));
+    private static void register(final String type, final ConfigSpec spec) {
+        spec.load(Platform.configDirectory().resolve(String.format("extremereactors/%s.toml", type)));
     }
 
     //endregion

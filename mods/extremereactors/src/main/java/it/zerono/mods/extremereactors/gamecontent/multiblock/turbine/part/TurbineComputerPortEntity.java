@@ -18,110 +18,30 @@
 
 package it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.part;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
-
 import it.zerono.mods.extremereactors.gamecontent.Content;
-import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.MultiblockTurbine;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.computer.TurbineComputerPeripheral;
-import ports.extremereactors.corelib.compat.Mods;
-import ports.extremereactors.corelib.compat.computer.ConnectorComputerCraft;
-import ports.extremereactors.corelib.compat.computer.MultiblockComputerPeripheral;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.extremereactors.corelib.capability.Capability;
-import ports.extremereactors.corelib.capability.CapabilityManager;
-import ports.extremereactors.corelib.capability.CapabilityToken;
-import ports.extremereactors.corelib.capability.LazyOptional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import ports.extremereactors.corelib.compat.computer.IComputerPort;
 
 public class TurbineComputerPortEntity
-        extends AbstractTurbineEntity {
+        extends AbstractTurbineEntity
+        implements IComputerPort {
 
     public TurbineComputerPortEntity(final BlockPos position, final BlockState blockState) {
-
         super(Content.TileEntityTypes.TURBINE_COMPUTERPORT.get(), position, blockState);
-
-        this._ccConnector = Mods.COMPUTERCRAFT
-                .map(() -> LazyOptional.of(() -> ConnectorComputerCraft.create("BigReactors-Turbine", this.getPeripheral())))
-                .orElse(null);
-        // TODO OC
     }
 
-    //region ISyncableEntity
-
-    /**
-     * Sync the entity data from the given {@link CompoundTag}
-     *
-     * @param data       the {@link CompoundTag} to read from
-     * @param syncReason the reason why the synchronization is necessary
-     */
-    public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
-
-        super.syncDataFrom(data, syncReason);
-
-//        this.executeOnComputerCraftConnector(c -> c.syncDataFrom(data, syncReason));
-        if (null != this._ccConnector) {
-            this._ccConnector.ifPresent(c -> c.syncDataFrom(data, syncReason));
-        }
-    }
-
-    /**
-     * Sync the entity data to the given {@link CompoundTag}
-     *
-     * @param data       the {@link CompoundTag} to write to
-     * @param syncReason the reason why the synchronization is necessary
-     * @return the {@link CompoundTag} the data was written to (usually {@code data})
-     */
-    public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
-
-        super.syncDataTo(data, syncReason);
-
-        if (null != this._ccConnector) {
-            this._ccConnector.ifPresent(c -> c.syncDataTo(data, syncReason));
-        }
-
-        return data;
-    }
-
-    //endregion
-    //region AbstractReactorEntity
+    //region IComputerPort
 
     @Override
-    public void onAttached(MultiblockTurbine newController) {
+    public TurbineComputerPeripheral getComputerPeripheral() {
 
-        super.onAttached(newController);
-
-        if (null != this._ccConnector) {
-            //noinspection Convert2MethodRef
-            this._ccConnector.ifPresent(c -> c.onAttachedToController());
-        }
-    }
-
-    @Override
-    public void onDetached(MultiblockTurbine oldController) {
-
-        super.onDetached(oldController);
-        if (null != this._ccConnector) {
-            //noinspection Convert2MethodRef
-            this._ccConnector.ifPresent(c -> c.onDetachedFromController());
-        }
-    }
-
-    //endregion
-    //region TileEntity
-
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-
-        if (!this.isRemoved() && (null != this._ccConnector) && CAPABILITY_CC_PERIPHERAL == capability) {
-            return this._ccConnector.cast();
+        if (null == this._peripheral) {
+            this._peripheral = new TurbineComputerPeripheral(this);
         }
 
-        return super.getCapability(capability, side);
+        return this._peripheral;
     }
 
     //endregion
@@ -134,20 +54,6 @@ public class TurbineComputerPortEntity
 
     //endregion
     //region internals
-
-    private TurbineComputerPeripheral getPeripheral() {
-
-        if (null == this._peripheral) {
-            this._peripheral = new TurbineComputerPeripheral(this);
-        }
-
-        return this._peripheral;
-    }
-
-    @SuppressWarnings("FieldMayBeFinal")
-    public static Capability<IPeripheral> CAPABILITY_CC_PERIPHERAL = CapabilityManager.get(new CapabilityToken<>(){});
-
-    private final LazyOptional<ConnectorComputerCraft<MultiblockComputerPeripheral<MultiblockTurbine, TurbineComputerPortEntity>>> _ccConnector;
 
     private TurbineComputerPeripheral _peripheral;
 
