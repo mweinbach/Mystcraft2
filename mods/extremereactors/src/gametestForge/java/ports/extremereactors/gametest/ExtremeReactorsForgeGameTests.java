@@ -109,6 +109,16 @@ public final class ExtremeReactorsForgeGameTests {
     }
 
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
+    public static void oreFeaturesPlaceAtUpstreamHeights(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.oreFeaturesPlaceAtUpstreamHeights(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
+    public static void oreGenerationFollowsConfig(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.oreGenerationFollowsConfig(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
     public static void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
         final List<String> failures = EmcAudit.run(helper.getLevel().getServer(), Platform.MOD_ID);

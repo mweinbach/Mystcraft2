@@ -4,9 +4,13 @@
  */
 package ports.extremereactors.gametest;
 
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import it.zerono.mods.extremereactors.api.reactor.ModeratorsRegistry;
 import it.zerono.mods.extremereactors.api.reactor.ReactantType;
 import it.zerono.mods.extremereactors.api.turbine.CoilMaterialRegistry;
+import it.zerono.mods.extremereactors.config.Config;
+import it.zerono.mods.extremereactors.config.Worldgen;
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.MultiblockReactor;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.OperationalMode;
@@ -14,12 +18,14 @@ import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.ReactantHel
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.MultiblockTurbine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -27,9 +33,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.material.Fluids;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
 import ports.extremereactors.corelib.data.IoDirection;
@@ -455,6 +465,73 @@ public final class ExtremeReactorsGameTests {
                 "the graphite block is not a reactor moderator");
 
         helper.succeed();
+    }
+
+    //endregion
+    //region world generation
+
+    /** The heights upstream's placed features decode to on 1.19.2. */
+    public static void oreFeaturesPlaceAtUpstreamHeights(final GameTestHelper helper) {
+
+        final Registry<PlacedFeature> placed = helper.getLevel().registryAccess()
+                .registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+
+        checkOreHeights(placed, "yellorite_ore", 0, 32);
+        checkOreHeights(placed, "yellorite_deepslate_ore", -64, -48);
+        checkOreHeights(placed, "anglesite_ore", 5, 200);
+        checkOreHeights(placed, "benitoite_ore", 3, 126);
+        helper.succeed();
+    }
+
+    public static void oreGenerationFollowsConfig(final GameTestHelper helper) {
+
+        final Worldgen worldgen = Config.COMMON.worldgen;
+
+        checkOreInBiome(helper, Biomes.PLAINS, "yellorite_ore", worldgen.generatesYellorite());
+        checkOreInBiome(helper, Biomes.PLAINS, "yellorite_deepslate_ore", worldgen.generatesYellorite());
+        checkOreInBiome(helper, Biomes.END_HIGHLANDS, "anglesite_ore", worldgen.generatesAnglesite());
+        checkOreInBiome(helper, Biomes.NETHER_WASTES, "benitoite_ore", worldgen.generatesBenitoite());
+        checkOreInBiome(helper, Biomes.PLAINS, "benitoite_ore", false);
+        helper.succeed();
+    }
+
+    private static void checkOreHeights(final Registry<PlacedFeature> placed, final String name,
+                                        final int minY, final int maxY) {
+
+        final PlacedFeature feature = placed.getOptional(id(name))
+                .orElseThrow(() -> new GameTestAssertException("missing placed feature " + name));
+        final JsonObject height = feature.placement().stream()
+                .map(modifier -> PlacementModifier.CODEC.encodeStart(JsonOps.INSTANCE, modifier)
+                        .getOrThrow(false, message -> {}).getAsJsonObject())
+                .filter(json -> "minecraft:height_range".equals(json.get("type").getAsString()))
+                .findFirst()
+                .orElseThrow(() -> new GameTestAssertException(name + " has no height range"))
+                .getAsJsonObject("height");
+
+        checkAbsoluteAnchor(name + " minimum", height.getAsJsonObject("min_inclusive"), minY);
+        checkAbsoluteAnchor(name + " maximum", height.getAsJsonObject("max_inclusive"), maxY);
+    }
+
+    private static void checkAbsoluteAnchor(final String what, final JsonObject anchor, final int y) {
+
+        final JsonObject expected = new JsonObject();
+
+        expected.addProperty("absolute", y);
+        check(expected.equals(anchor), what + ": expected " + expected + ", got " + anchor);
+    }
+
+    private static void checkOreInBiome(final GameTestHelper helper, final ResourceKey<Biome> biomeKey,
+                                        final String name, final boolean expected) {
+
+        final ResourceKey<PlacedFeature> featureKey = ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, id(name));
+        final Biome biome = helper.getLevel().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY)
+                .getOrThrow(biomeKey);
+        final boolean present = biome.getGenerationSettings().features().stream()
+                .flatMap(HolderSet::stream)
+                .anyMatch(holder -> holder.is(featureKey));
+
+        check(expected == present, name + (present ? " generates" : " does not generate") + " in " +
+                biomeKey.location() + ", expected the opposite");
     }
 
     //endregion

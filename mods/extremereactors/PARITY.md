@@ -46,7 +46,7 @@ and active fluid ports.
 - the Fabric mixin refmap;
 - the same platform class set on both loaders;
 - identical GameTest names and timeouts, with every shared test forwarded by both loaders;
-- the Forge biome modifiers match the Fabric `addOre` calls;
+- the Forge biome modifiers match the Fabric `addOre` calls, including each ore's config switch;
 - every `forge:` tag that recipes, moderators, coils or reactant mappings reference resolves on Fabric.
 
 ## Gameplay status
@@ -58,7 +58,7 @@ and active fluid ports.
 | Turbine multiblock and simulation | Ported unchanged: rotor bearing, shafts and blades, coils, steam intake, condensation and energy. |
 | Reprocessor and fluidizer | Ported, including recipes. Without screens they are driven by automation only. |
 | Fuel and coolant registries, modpack API (`modpack_api.json`), IMC | Ported; see the dispatcher note below. |
-| Ores, ingots, dusts, blocks, fluids, buckets, wrench | Ported. |
+| Ores, ingots, dusts, blocks, fluids, buckets, wrench | Ported. Ores generate at upstream's heights and honor the worldgen switches (see below). |
 | Block models, fuel rod and rotor rendering | Ported; the rotor animates from the synchronized rotor speed. |
 | EMC | Every item has a value or a documented exclusion; see [emc/README.md](emc/README.md). |
 
@@ -97,6 +97,16 @@ calls through Forge IMC, dropping calls made after loading. The port queues
 other mods' calls until IMC processing and runs late calls directly. The order
 is the same on both loaders.
 
+**Worldgen options.** Upstream defines the worldgen options but never reads them,
+so its ores always generate. The port honors `enableWorldGen` and the per-ore
+`yelloriteOreEnableWorldGen`, `anglesiteOreEnableWorldGen` and
+`benitoiteOreEnableWorldGen`, read when a server starts. They default to on, so
+default worlds match upstream. The cluster count, cluster size and
+`yelloriteOreMaxY` options stay inert, as upstream: the counts, sizes and
+heights come from the placed and configured features, which a datapack can
+override. `enableWorldRegeneration` and `userWorldGenVersion` are inert too;
+already generated chunks are never regenerated.
+
 **Kept upstream quirks.** These are reproduced on purpose and pinned by tests
 where possible:
 
@@ -127,6 +137,8 @@ no migration from Extreme Reactors 2 worlds: the mod id is the same
 | `dataPacketsUpdateAnAssembledTurbine` | Block entity packets update an already assembled client machine. |
 | `reactorItemsAndEnergyThroughLoaderApis`, `reactorCoolantThroughLoaderApis` | Forge capabilities on Forge; the Transfer API and Reborn Energy on Fabric. |
 | `recipeConditionsAndTags` | Config conditions, the steel gate, `c:` and `forge:` tags, reactant, coil and moderator lookups. |
+| `oreFeaturesPlaceAtUpstreamHeights` | The ore placed features decode to upstream's heights. |
+| `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
 | `everyItemHasAnEmcDecision` | EMC coverage; with `-PwithProjectE` or `-PwithItemAlchemy`, the live values. |
 
 A Fabric development client was also run: both machines assemble, the reactor

@@ -5,6 +5,8 @@
 package ports.extremereactors.fabric;
 
 import it.zerono.mods.extremereactors.ExtremeReactors;
+import it.zerono.mods.extremereactors.config.Config;
+import it.zerono.mods.extremereactors.config.Worldgen;
 import it.zerono.mods.extremereactors.config.conditions.ConfigCondition;
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import net.fabricmc.api.ModInitializer;
@@ -21,6 +23,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import ports.extremereactors.platform.Platform;
 
+import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
 /**
@@ -40,10 +43,12 @@ public final class FabricMod implements ModInitializer {
         Content.onCommonInit();
         ExtremeReactors.getInstance().onCommonInit();
 
-        addOre(BiomeTags.IS_OVERWORLD, "yellorite_ore");
-        addOre(BiomeTags.IS_OVERWORLD, "yellorite_deepslate_ore");
-        addOre(BiomeTags.IS_END, "anglesite_ore");
-        addOre(BiomeTags.IS_NETHER, "benitoite_ore");
+        final Worldgen worldgen = Config.COMMON.worldgen;
+
+        addOre(BiomeTags.IS_OVERWORLD, "yellorite_ore", worldgen::generatesYellorite);
+        addOre(BiomeTags.IS_OVERWORLD, "yellorite_deepslate_ore", worldgen::generatesYellorite);
+        addOre(BiomeTags.IS_END, "anglesite_ore", worldgen::generatesAnglesite);
+        addOre(BiomeTags.IS_NETHER, "benitoite_ore", worldgen::generatesBenitoite);
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> processApiMessages());
     }
@@ -61,8 +66,12 @@ public final class FabricMod implements ModInitializer {
         }
     }
 
-    private static void addOre(final TagKey<Biome> biomes, final String placedFeature) {
-        BiomeModifications.addFeature(BiomeSelectors.tag(biomes), GenerationStep.Decoration.UNDERGROUND_ORES,
+    /**
+     * The selector, and so the config switch, is evaluated when a server starts, as Forge applies its biome modifiers.
+     */
+    private static void addOre(final TagKey<Biome> biomes, final String placedFeature, final BooleanSupplier enabled) {
+        BiomeModifications.addFeature(BiomeSelectors.tag(biomes).and(context -> enabled.getAsBoolean()),
+                GenerationStep.Decoration.UNDERGROUND_ORES,
                 ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, ExtremeReactors.newID(placedFeature)));
     }
 

@@ -125,9 +125,11 @@ def check_ore_generation():
     for path in (SRC / 'forge/resources/data' / MOD_ID / 'forge/biome_modifier').glob('*.json'):
         modifier = json.loads(path.read_text())
         biomes = modifier['biomes'].removeprefix('#minecraft:').upper()
-        modifiers.add((biomes, modifier['feature'].removeprefix(MOD_ID + ':')))
+        ore = modifier['type'].removeprefix(MOD_ID + ':oregen_')
+        modifiers.add((biomes, modifier['feature'].removeprefix(MOD_ID + ':'), ore))
     fabric_mod = (SRC / 'fabric/java/ports/extremereactors/fabric/FabricMod.java').read_text()
-    fabric_ores = set(re.findall(r'addOre\(BiomeTags\.(\w+), "(\w+)"\)', fabric_mod))
+    fabric_ores = {(biomes, feature, ore.lower()) for biomes, feature, ore in
+                   re.findall(r'addOre\(BiomeTags\.(\w+), "(\w+)", worldgen::generates(\w+)\)', fabric_mod)}
     require(modifiers == fabric_ores, f'ore generation differs: Forge-only {sorted(modifiers - fabric_ores)}, '
             f'Fabric-only {sorted(fabric_ores - modifiers)}')
     return len(modifiers)

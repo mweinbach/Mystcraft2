@@ -94,6 +94,16 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY)
+    public void oreFeaturesPlaceAtUpstreamHeights(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.oreFeaturesPlaceAtUpstreamHeights(helper);
+    }
+
+    @GameTest(template = EMPTY)
+    public void oreGenerationFollowsConfig(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.oreGenerationFollowsConfig(helper);
+    }
+
+    @GameTest(template = EMPTY)
     public void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
         final List<String> failures = EmcAudit.run(helper.getLevel().getServer(), Platform.MOD_ID);

@@ -137,4 +137,20 @@ public class Worldgen {
 
         builder.pop();
     }
+
+    //region 1.19.2 port: ore switches, read by both loaders when a server adds the ore features to its biomes
+
+    public boolean generatesYellorite() {
+        return this.enableWorldGen.get() && this.yelloriteOreEnableWorldGen.get();
+    }
+
+    public boolean generatesAnglesite() {
+        return this.enableWorldGen.get() && this.anglesiteOreEnableWorldGen.get();
+    }
+
+    public boolean generatesBenitoite() {
+        return this.enableWorldGen.get() && this.benitoiteOreEnableWorldGen.get();
+    }
+
+    //endregion
 }

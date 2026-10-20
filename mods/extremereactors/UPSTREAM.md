@@ -92,6 +92,9 @@ import mapping, these upstream files were changed:
   `config/extremereactors/<type>.toml` through `corelib.config.ConfigSpec`
   instead of Forge `ModConfig`. The file names are unchanged; they are read once
   at startup on both loaders.
+- `config/Worldgen`: `generatesYellorite()`, `generatesAnglesite()` and
+  `generatesBenitoite()` combine `enableWorldGen` with each ore's switch.
+  Upstream never read these options; both loaders' ore registrations now do.
 - `config/conditions/ConfigCondition`: the Forge condition serializer moved to
   `src/forge`; Fabric registers the same `bigreactors:config_condition` as a
   resource condition. The option switch is shared.
@@ -100,7 +103,8 @@ import mapping, these upstream files were changed:
   platform layer, with the same tints, densities, light levels and rarities;
   fluid blocks use `ModLiquidBlock` and buckets `PlatformBucketItem`. Block
   entity and menu types are created by the platform layer. The biome modifier
-  codec moved to the Forge adapter (`ForgeBiomes`, `OreBiomeModifier`).
+  codec moved to the Forge adapter (`ForgeBiomes`, `OreBiomeModifier`), and
+  `OreBiomeModifier` adds nothing when its ore's switch is off.
   `onCommonInit` wraps Extreme Reactors' API registrations in
   `InternalDispatcher.runInternal`.
 - `gamecontent/fluid/ReactorFluidType` and `ReactantFluidBlock`: fluid
@@ -136,6 +140,11 @@ In the MIT multiblock package:
 
 Resources:
 
+- Each height anchor in the four ore placed features keeps only its `absolute`
+  form. Upstream listed `absolute`, `above_bottom` and `below_top` together,
+  which 1.19.2's anchor codec silently decodes as `absolute`, so ores generate
+  at the same heights as upstream: yellorite 0 to 32, deepslate yellorite -64
+  to -48, anglesite 5 to 200 and benitoite 3 to 126.
 - Recipes that upstream wrapped in a single-recipe `forge:conditional` are
   flattened into top-level Forge `conditions` with equivalent
   `fabric:load_conditions`. Steel-gated recipes use `forge:tag_empty` /

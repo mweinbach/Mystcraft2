@@ -40,6 +40,9 @@ Every item has an EMC value or a documented exclusion for ProjectE 1.1.0
 
 Both loaders read `config/extremereactors/common.toml` and
 `config/extremereactors/client.toml`, with upstream's options and defaults.
+The worldgen switches (`enableWorldGen` and each ore's `...EnableWorldGen`)
+apply when a server starts. The cluster count, cluster size and height options
+are inert, as upstream; datapacks can override the placed features instead.
 Modpacks can add reactants, moderators, coolants and coils with
 `config/extremereactors/modpack_api.json`, as described in
 [upstream/README.md](upstream/README.md); an example is in
