@@ -765,5 +765,9 @@
 
     "_comment": "Port corelib widgets",
     "gui.bigreactors.corelib.energybar.title": "Energy Buffer",
-    "gui.bigreactors.corelib.bar.full": "% full"
+    "gui.bigreactors.corelib.bar.full": "% full",
+
+    "_comment": "Port machine effects",
+    "subtitles.bigreactors.effects.alarm": "Reactor alarm blares",
+    "subtitles.bigreactors.effects.scram": "Reactor SCRAM klaxon sounds"
 }

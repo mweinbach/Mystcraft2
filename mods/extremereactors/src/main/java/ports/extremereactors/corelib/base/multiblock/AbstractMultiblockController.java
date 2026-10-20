@@ -8,6 +8,9 @@ import net.minecraft.world.level.Level;
 import ports.extremereactors.multiblock.cuboid.AbstractCuboidMultiblockController;
 import ports.extremereactors.multiblock.variant.IMultiblockDimensionVariant;
 
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
 /**
  * A cuboid multiblock controller whose size limits come from its dimension variant.
  *
@@ -108,10 +111,36 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
     @Override
     protected void updateClient() {
+        s_clientTickListener.accept(this);
+    }
+
+    //endregion
+    //region client tick listener
+
+    /**
+     * Set the code to run once per client tick for every assembled machine on the client. Subclasses that
+     * override {@link #updateClient()} without calling it are skipped.
+     */
+    public static void setClientTickListener(final Consumer<AbstractMultiblockController<?, ?>> listener) {
+        s_clientTickListener = listener;
+    }
+
+    //endregion
+    //region parts
+
+    /**
+     * @return the connected parts that are instances of the given type
+     */
+    public <T> Stream<T> getConnectedParts(final Class<T> type) {
+        return this.getConnectedParts().stream()
+                .filter(type::isInstance)
+                .map(type::cast);
     }
 
     //endregion
     //region internals
+
+    private static Consumer<AbstractMultiblockController<?, ?>> s_clientTickListener = controller -> {};
 
     private boolean _interiorInvisible;
     private int _ticksSinceLastClientUpdate;
