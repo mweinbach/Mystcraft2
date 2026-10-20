@@ -3,8 +3,10 @@ package ports.buildcraft.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.lib.Power;
@@ -13,7 +15,8 @@ import ports.buildcraft.silicon.EnumAssemblyRecipeState;
 
 /**
  * Upstream {@code GuiAssemblyTable}: the ingredients, the recipes they allow marked saved, saved with enough and
- * active, a progress bar for the active recipe, and upstream {@code LedgerTablePower} on the right.
+ * active, a progress bar for the active recipe, and upstream {@code LedgerTablePower} on the right. Past twelve
+ * recipes, arrows under the list page through them.
  */
 public final class AssemblyTableScreen extends LaserTableScreen<AssemblyTableMenu> {
     private static final ResourceLocation ENGINE_ACTIVE = BuildCraft.id("textures/gui/engine_active.png");
@@ -24,6 +27,13 @@ public final class AssemblyTableScreen extends LaserTableScreen<AssemblyTableMen
     private static final int SUB_HEADER_COLOUR = 0xFFAAAFB8;
     private static final int TEXT_COLOUR = 0xFF000000;
     private static final int LINE = 12;
+    private static final int PAGER_LEFT = 116;
+    private static final int PAGER_RIGHT = 170;
+    private static final int PAGER_Y = 108;
+    private static final int PAGER_HEIGHT = 14;
+    private static final int PAGER_BUTTON_WIDTH = 9;
+    private static final int PAGER_COLOUR = 0xFF404040;
+    private static final int PAGER_HOVER_COLOUR = 0xFFFFFFA0;
 
     private final Ledger ledger = new Ledger("silicon.all_tables.power", LEDGER_COLOUR);
 
@@ -114,11 +124,40 @@ public final class AssemblyTableScreen extends LaserTableScreen<AssemblyTableMen
             ledger.toggle();
             return true;
         }
+        if (button == 0 && menu.pages() > 1) {
+            int pageButton = pageButtonAt(mouseX, mouseY);
+            if (pageButton >= 0) {
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, pageButton);
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+                return true;
+            }
+        }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private int pageButtonAt(double mouseX, double mouseY) {
+        double y = mouseY - topPos;
+        if (y < PAGER_Y || y >= PAGER_Y + PAGER_HEIGHT) return -1;
+        double x = mouseX - leftPos;
+        if (x >= PAGER_LEFT && x < PAGER_LEFT + PAGER_BUTTON_WIDTH) return AssemblyTableMenu.BUTTON_PREVIOUS_PAGE;
+        if (x >= PAGER_RIGHT - PAGER_BUTTON_WIDTH && x < PAGER_RIGHT) return AssemblyTableMenu.BUTTON_NEXT_PAGE;
+        return -1;
     }
 
     @Override
     protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
         drawTitle(poseStack, 15);
+        if (menu.pages() > 1) renderPager(poseStack, mouseX, mouseY);
+    }
+
+    private void renderPager(PoseStack poseStack, int mouseX, int mouseY) {
+        int hovered = pageButtonAt(mouseX, mouseY);
+        int textY = PAGER_Y + (PAGER_HEIGHT - font.lineHeight) / 2 + 1;
+        font.draw(poseStack, "<", PAGER_LEFT + 2, textY,
+                hovered == AssemblyTableMenu.BUTTON_PREVIOUS_PAGE ? PAGER_HOVER_COLOUR : PAGER_COLOUR);
+        font.draw(poseStack, ">", PAGER_RIGHT - PAGER_BUTTON_WIDTH + 2, textY,
+                hovered == AssemblyTableMenu.BUTTON_NEXT_PAGE ? PAGER_HOVER_COLOUR : PAGER_COLOUR);
+        String label = (menu.page() + 1) + "/" + menu.pages();
+        font.draw(poseStack, label, (PAGER_LEFT + PAGER_RIGHT - font.width(label)) / 2f, textY, PAGER_COLOUR);
     }
 }

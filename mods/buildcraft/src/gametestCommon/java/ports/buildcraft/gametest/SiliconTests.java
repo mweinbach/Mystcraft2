@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -197,6 +198,66 @@ public final class SiliconTests {
                     && loaded.getItem(0).getCount() == 5, "saving must keep the recipe states, power and inputs");
             helper.setBlock(TABLE, Blocks.AIR);
             require(helper, dropped(helper, TABLE, new ItemStack(Items.REDSTONE, 5)), "a broken table drops its ingredients");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * A nether star enables thirteen GameTest recipes. Each viewer pages through them twelve at a time, and a click
+     * on the second page saves the thirteenth. A saved recipe whose output its current recipe no longer makes, as
+     * after a datapack reload, is dropped rather than made, and the table makes the recipe's current output.
+     */
+    public static void assemblyTablePagesRecipesAndDropsStaleOutputs(GameTestHelper helper) {
+        ChestBlockEntity chest = chest(helper, TABLE.above());
+        AssemblyTableBlockEntity table = assemblyTable(helper, TABLE, new ItemStack(Items.NETHER_STAR));
+        Player player = helper.makeMockPlayer();
+        AssemblyTableMenu menu = new AssemblyTableMenu(0, player.getInventory(), table);
+        AssemblyTableMenu other = new AssemblyTableMenu(1, player.getInventory(), table);
+        int display = MACHINE_SLOTS + AssemblyTableBlockEntity.SLOTS;
+
+        helper.runAfterDelay(1, () -> {
+            require(helper, table.recipesStates().size() == 13 && menu.pages() == 2 && menu.page() == 0,
+                    "thirteen recipes make two pages, listed " + table.recipesStates().size());
+            require(helper, menu.state(11) == EnumAssemblyRecipeState.POSSIBLE && menu.getSlot(display).getItem().is(Items.APPLE),
+                    "the first page shows the first twelve recipes");
+            require(helper, !menu.clickMenuButton(player, 2), "only the two page buttons exist");
+            menu.clickMenuButton(player, AssemblyTableMenu.BUTTON_NEXT_PAGE);
+            menu.clickMenuButton(player, AssemblyTableMenu.BUTTON_NEXT_PAGE);
+            require(helper, menu.page() == 1 && other.page() == 0, "next stops at the last page and pages are per viewer");
+            require(helper, menu.getSlot(display).getItem().is(Items.PAPER) && menu.state(0) == EnumAssemblyRecipeState.POSSIBLE
+                    && menu.state(1) == null && menu.getSlot(display + 1).getItem().isEmpty(), "the second page shows the thirteenth recipe");
+            menu.clicked(display, 0, ClickType.PICKUP, player);
+        });
+        helper.runAfterDelay(2, () -> {
+            require(helper, menu.state(0) == EnumAssemblyRecipeState.SAVED_ENOUGH_ACTIVE && other.state(0) == EnumAssemblyRecipeState.POSSIBLE,
+                    "a click on the second page saves the thirteenth recipe, got " + menu.state(0));
+            menu.clickMenuButton(player, AssemblyTableMenu.BUTTON_PREVIOUS_PAGE);
+            menu.clickMenuButton(player, AssemblyTableMenu.BUTTON_PREVIOUS_PAGE);
+            require(helper, menu.page() == 0, "previous stops at the first page");
+
+            CompoundTag tag = table.saveWithoutMetadata();
+            ListTag states = new ListTag();
+            for (int i = 0; i < 2; i++) {
+                CompoundTag entry = new CompoundTag();
+                entry.putString("recipe", BuildCraft.id("gametest_assembly_00").toString());
+                entry.put("output", new ItemStack(i == 0 ? Items.APPLE : Items.DIRT).save(new CompoundTag()));
+                entry.putInt("state", EnumAssemblyRecipeState.SAVED.ordinal());
+                states.add(entry);
+            }
+            tag.put("recipes_states", states);
+            table.load(tag);
+        });
+        helper.runAfterDelay(3, () -> {
+            List<Item> listed = new ArrayList<>();
+            table.recipesStates().keySet().forEach(instruction -> listed.add(instruction.output.getItem()));
+            require(helper, !listed.contains(Items.DIRT) && listed.size() == 13
+                    && table.recipesStates().values().stream().filter(state -> state == EnumAssemblyRecipeState.SAVED_ENOUGH_ACTIVE).count() == 1,
+                    "a saved output the recipe no longer makes is dropped, listed " + listed);
+            table.receiveLaserPower(table.getRequiredLaserPower());
+        });
+        helper.runAfterDelay(4, () -> {
+            require(helper, chest.countItem(Items.APPLE) == 1 && chest.countItem(Items.DIRT) == 0 && table.isEmpty(),
+                    "the table makes the current recipe's output");
             helper.succeed();
         });
     }

@@ -220,6 +220,11 @@ public final class ForgeGameTests {
     public static void assemblyTableMakesSavedChipsets(GameTestHelper helper) { SiliconTests.assemblyTableMakesSavedChipsets(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void assemblyTablePagesRecipesAndDropsStaleOutputs(GameTestHelper helper) {
+        SiliconTests.assemblyTablePagesRecipesAndDropsStaleOutputs(helper);
+    }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)

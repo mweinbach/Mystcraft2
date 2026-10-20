@@ -218,6 +218,11 @@ public final class FabricGameTests implements FabricGameTest {
     public void assemblyTableMakesSavedChipsets(GameTestHelper helper) { SiliconTests.assemblyTableMakesSavedChipsets(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void assemblyTablePagesRecipesAndDropsStaleOutputs(GameTestHelper helper) {
+        SiliconTests.assemblyTablePagesRecipesAndDropsStaleOutputs(helper);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)

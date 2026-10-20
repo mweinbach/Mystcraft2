@@ -1,0 +1,14 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "minecraft:clay_ball"
+  },
+  "MJ": 1,
+  "components": [
+    {
+      "ingredient": {
+        "item": "minecraft:nether_star"
+      }
+    }
+  ]
+}

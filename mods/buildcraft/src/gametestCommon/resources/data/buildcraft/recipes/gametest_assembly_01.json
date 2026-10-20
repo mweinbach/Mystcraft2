@@ -1,0 +1,14 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "minecraft:arrow"
+  },
+  "MJ": 1,
+  "components": [
+    {
+      "ingredient": {
+        "item": "minecraft:nether_star"
+      }
+    }
+  ]
+}

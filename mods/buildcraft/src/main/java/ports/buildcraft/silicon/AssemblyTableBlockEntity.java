@@ -71,6 +71,11 @@ public class AssemblyTableBlockEntity extends LaserTableBlockEntity {
         return level.getRecipeManager().byKey(id).filter(AssemblyRecipe.class::isInstance).map(AssemblyRecipe.class::cast);
     }
 
+    /** The output the current recipe makes for a listed instruction, if a reload has not removed or changed it. */
+    private Optional<ItemStack> currentOutput(AssemblyRecipe recipe, Instruction instruction) {
+        return recipe.getOutputPreviews().stream().filter(output -> ItemStack.matches(output, instruction.output)).findFirst();
+    }
+
     public Map<Instruction, EnumAssemblyRecipeState> recipesStates() {
         return recipesStates;
     }
@@ -88,7 +93,7 @@ public class AssemblyTableBlockEntity extends LaserTableBlockEntity {
             Map.Entry<Instruction, EnumAssemblyRecipeState> entry = iterator.next();
             Instruction instruction = entry.getKey();
             Optional<AssemblyRecipe> recipe = recipe(instruction.recipeId);
-            if (recipe.isEmpty()) {
+            if (recipe.isEmpty() || currentOutput(recipe.get(), instruction).isEmpty()) {
                 iterator.remove();
                 continue;
             }
@@ -180,8 +185,9 @@ public class AssemblyTableBlockEntity extends LaserTableBlockEntity {
         if (target > 0 && power >= target) {
             Instruction instruction = getActiveRecipe();
             AssemblyRecipe recipe = recipe(instruction.recipeId).orElseThrow();
-            extract(inv, recipe.getInputsFor(instruction.output), false, false);
-            InventoryUtil.addToBestAcceptor(level, worldPosition, null, instruction.output.copy());
+            ItemStack output = currentOutput(recipe, instruction).orElseThrow();
+            extract(inv, recipe.getInputsFor(output), false, false);
+            InventoryUtil.addToBestAcceptor(level, worldPosition, null, output.copy());
             power -= target;
             activateNextRecipe();
         }
