@@ -59,6 +59,8 @@ public final class LaserRenderer {
     public static final ResourceLocation MARKER_PATH_CONNECTED_SPRITE = BuildCraft.id("lasers/marker_path_connected");
     public static final ResourceLocation MARKER_PATH_POSSIBLE_SPRITE = BuildCraft.id("lasers/marker_path_possible");
     public static final ResourceLocation MARKER_DEFAULT_POSSIBLE_SPRITE = BuildCraft.id("lasers/marker_default_possible");
+    public static final ResourceLocation STRIPES_READ_SPRITE = BuildCraft.id("lasers/stripes_read");
+    public static final ResourceLocation STRIPES_WRITE_SPRITE = BuildCraft.id("lasers/stripes_write");
 
     /** Upstream {@code BuildCraftLaserManager}'s marker lasers. */
     public static final Type MARKER_VOLUME_CONNECTED;
@@ -67,6 +69,9 @@ public final class LaserRenderer {
     public static final Type MARKER_PATH_CONNECTED;
     public static final Type MARKER_PATH_POSSIBLE;
     public static final Type MARKER_DEFAULT_POSSIBLE;
+    /** Volume boxes that machines read from or write to. */
+    public static final Type STRIPES_READ;
+    public static final Type STRIPES_WRITE;
 
     static {
         ResourceLocation sprite = MARKER_VOLUME_CONNECTED_SPRITE;
@@ -89,13 +94,15 @@ public final class LaserRenderer {
         MARKER_VOLUME_SIGNAL = MARKER_VOLUME_CONNECTED.withSprite(MARKER_VOLUME_SIGNAL_SPRITE);
         MARKER_PATH_POSSIBLE = MARKER_VOLUME_POSSIBLE.withSprite(MARKER_PATH_POSSIBLE_SPRITE);
         MARKER_DEFAULT_POSSIBLE = MARKER_VOLUME_POSSIBLE.withSprite(MARKER_DEFAULT_POSSIBLE_SPRITE);
+        STRIPES_READ = MARKER_VOLUME_CONNECTED.withSprite(STRIPES_READ_SPRITE);
+        STRIPES_WRITE = MARKER_VOLUME_CONNECTED.withSprite(STRIPES_WRITE_SPRITE);
     }
 
     private LaserRenderer() {}
 
     public static List<ResourceLocation> sprites() {
         return List.of(MARKER_VOLUME_CONNECTED_SPRITE, MARKER_VOLUME_POSSIBLE_SPRITE, MARKER_VOLUME_SIGNAL_SPRITE, MARKER_PATH_CONNECTED_SPRITE,
-                MARKER_PATH_POSSIBLE_SPRITE, MARKER_DEFAULT_POSSIBLE_SPRITE);
+                MARKER_PATH_POSSIBLE_SPRITE, MARKER_DEFAULT_POSSIBLE_SPRITE, STRIPES_READ_SPRITE, STRIPES_WRITE_SPRITE);
     }
 
     /** Upstream {@code LaserBoxRenderer.renderLaserBoxStatic}: the twelve edges of the box, through block centres when {@code center}. */

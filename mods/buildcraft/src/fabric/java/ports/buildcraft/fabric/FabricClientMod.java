@@ -2,7 +2,9 @@ package ports.buildcraft.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
@@ -14,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
@@ -37,6 +40,11 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
                     new SimpleFluidRenderHandler(fluid.stillTexture(), fluid.flowingTexture()));
         }
         ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlas, registry) -> BCClient.extraSprites().forEach(registry::register));
+        BCClient.receivers().forEach((channel, receiver) -> ClientPlayNetworking.registerGlobalReceiver(channel, (client, handler, buffer, sender) -> {
+            FriendlyByteBuf payload = new FriendlyByteBuf(buffer.copy());
+            client.execute(() -> receiver.accept(payload));
+        }));
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> BCClient.renderLevel(context.matrixStack(), context.camera()));
     }
 
     @Override
