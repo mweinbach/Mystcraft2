@@ -61,6 +61,11 @@ public abstract class Snapshot {
         return getDataSize(size);
     }
 
+    /** The block count of a box of {@code size}, which may exceed an {@code int}. */
+    public static long getVolume(BlockPos size) {
+        return (long) size.getX() * size.getY() * size.getZ();
+    }
+
     public static CompoundTag writeToNBT(Snapshot snapshot) {
         CompoundTag tag = snapshot.serializeNBT();
         tag.putString("type", snapshot.getType().name());
@@ -91,6 +96,9 @@ public abstract class Snapshot {
     public void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException {
         key = new Key(tag.getCompound("key"));
         size = NbtUtils.readBlockPos(tag.getCompound("size"));
+        if (size.getX() < 1 || size.getY() < 1 || size.getZ() < 1 || getVolume(size) > Integer.MAX_VALUE) {
+            throw new InvalidSnapshotException("Invalid size " + size.toShortString());
+        }
         try {
             facing = Direction.valueOf(tag.getString("facing"));
         } catch (IllegalArgumentException e) {

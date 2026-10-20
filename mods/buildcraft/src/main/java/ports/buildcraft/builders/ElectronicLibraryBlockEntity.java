@@ -55,6 +55,8 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
     public static final int UPLOAD_PART_BYTES = 4 * 1024;
     /** The most an upload may send in all, well past what any blueprint compresses to. */
     private static final int MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
+    /** The most blocks an upload may span: a blueprint's data alone takes 4 bytes a block of the 64 MiB the server reads. */
+    private static final long MAX_UPLOAD_VOLUME = 1 << 24;
     public static final ResourceLocation DOWN_CHANNEL = BuildCraft.id("library_down");
     public static final ResourceLocation UP_REQUEST_CHANNEL = BuildCraft.id("library_up_request");
     public static final ResourceLocation UP_CHANNEL = BuildCraft.id("library_up");
@@ -234,6 +236,10 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
         uploads.remove(player);
         try {
             Snapshot uploaded = SnapshotPackets.decompress(upload.bytes().toByteArray());
+            if (Snapshot.getVolume(uploaded.size) > MAX_UPLOAD_VOLUME) {
+                LOGGER.warn("Refused a snapshot of {} blocks uploaded to the electronic library", uploaded.size.toShortString());
+                return;
+            }
             Snapshot.Header header = uploaded.key.header;
             if (header == null || items.get(SLOT_UP_IN).isEmpty() || !items.get(SLOT_UP_OUT).isEmpty()) return;
             Snapshot snapshot = uploaded.copy();
@@ -243,7 +249,8 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
             items.set(SLOT_UP_OUT, SnapshotItem.getUsed(snapshot.getType(), header));
             items.set(SLOT_UP_IN, ItemStack.EMPTY);
             setChanged();
-        } catch (IOException | InvalidSnapshotException e) {
+        } catch (IOException | InvalidSnapshotException | RuntimeException e) {
+            // NbtAccounter reports a tag past its limit with a bare RuntimeException.
             LOGGER.error("Failed to read a snapshot uploaded to the electronic library", e);
         }
     }
