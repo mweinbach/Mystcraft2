@@ -17,6 +17,7 @@
       "ports.jurassicraft.plants.AncientTreeGameTests",
       "ports.jurassicraft.plants.CoralGameTests",
       "ports.jurassicraft.plants.PlantWorldgenGameTests",
+      "ports.jurassicraft.plantculture.PlantCultureFabricGameTests",
       "ports.jurassicraft.vehicle.VehicleGameTests",
       "ports.jurassicraft.tourrail.TourRailGameTests",
       "ports.jurassicraft.gametest.GeneticsMachineGameTests",
