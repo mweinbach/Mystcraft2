@@ -21,6 +21,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import ports.extremereactors.fabric.compat.FabricComputerCraft;
 import ports.extremereactors.platform.Platform;
 
 import java.util.function.BooleanSupplier;
@@ -42,6 +43,10 @@ public final class FabricMod implements ModInitializer {
 
         Content.onCommonInit();
         ExtremeReactors.getInstance().onCommonInit();
+
+        if (Platform.isModLoaded("computercraft")) {
+            FabricComputerCraft.initialize();
+        }
 
         final Worldgen worldgen = Config.COMMON.worldgen;
 

@@ -9,10 +9,23 @@ repositories {
         url = 'https://cursemaven.com'
         content { includeGroup 'curse.maven' }
     }
+    maven {
+        url = 'https://squiddev.cc/maven/'
+        content { includeGroup 'org.squiddev' }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
 }
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Optional integrations: only their APIs are needed to compile. -PwithCompat adds the mods to the dev runs.
+    compileOnly(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.3:api')) { transitive = false }
+    if (providers.gradleProperty('withCompat').isPresent()) {
+        runtimeOnly fg.deobf('maven.modrinth:cc-tweaked:pCQZNkje')
+    }
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {
         runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
