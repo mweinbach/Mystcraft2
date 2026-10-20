@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:yellorite_ore"
+    "bigreactors:yellorite_ore",
+    {
+      "id": "#c:uranium_ores",
+      "required": false
+    }
   ]
 }

@@ -2,6 +2,10 @@
   "replace": false,
   "values": [
     "bigreactors:magentite",
-    "bigreactors:magentite_flowing"
+    "bigreactors:magentite_flowing",
+    {
+      "id": "#c:magentite",
+      "required": false
+    }
   ]
 }

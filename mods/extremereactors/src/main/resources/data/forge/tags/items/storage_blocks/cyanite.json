@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:cyanite_block"
+    "bigreactors:cyanite_block",
+    {
+      "id": "#c:cyanite_blocks",
+      "required": false
+    }
   ]
 }

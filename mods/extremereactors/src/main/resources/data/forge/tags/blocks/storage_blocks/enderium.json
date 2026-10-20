@@ -4,6 +4,10 @@
     {
       "id": "ftbic:enderium_block",
       "required": false
+    },
+    {
+      "id": "#c:enderium_blocks",
+      "required": false
     }
   ]
 }

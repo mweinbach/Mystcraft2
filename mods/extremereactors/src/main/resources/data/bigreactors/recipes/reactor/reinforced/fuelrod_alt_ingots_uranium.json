@@ -1,39 +1,43 @@
 {
-  "type": "forge:conditional",
-  "recipes": [
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
     {
-      "conditions": [
-        {
-          "tag": "forge:ingots/steel",
-          "type": "forge:tag_empty"
-        }
-      ],
-      "recipe": {
-        "type": "minecraft:crafting_shaped",
-        "group": "bigreactors:reactor",
-        "pattern": [
-          "MGM",
-          "LYL",
-          "MGM"
-        ],
-        "key": {
-          "M": {
-            "tag": "forge:storage_blocks/iron"
-          },
-          "Y": {
-            "tag": "forge:ingots/uranium"
-          },
-          "G": {
-            "tag": "forge:ingots/graphite"
-          },
-          "L": {
-            "tag": "forge:glass"
-          }
-        },
-        "result": {
-          "item": "bigreactors:reinforced_reactorfuelrod"
-        }
+      "tag": "forge:ingots/steel",
+      "type": "forge:tag_empty"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:item_tags_populated",
+        "values": [
+          "forge:ingots/steel"
+        ]
       }
     }
-  ]
+  ],
+  "group": "bigreactors:reactor",
+  "pattern": [
+    "MGM",
+    "LYL",
+    "MGM"
+  ],
+  "key": {
+    "M": {
+      "tag": "forge:storage_blocks/iron"
+    },
+    "Y": {
+      "tag": "forge:ingots/uranium"
+    },
+    "G": {
+      "tag": "forge:ingots/graphite"
+    },
+    "L": {
+      "tag": "forge:glass"
+    }
+  },
+  "result": {
+    "item": "bigreactors:reinforced_reactorfuelrod"
+  }
 }

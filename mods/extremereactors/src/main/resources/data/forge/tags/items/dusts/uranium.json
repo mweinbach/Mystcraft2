@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:yellorium_dust"
+    "bigreactors:yellorium_dust",
+    {
+      "id": "#c:uranium_dusts",
+      "required": false
+    }
   ]
 }

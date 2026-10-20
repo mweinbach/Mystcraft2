@@ -18,7 +18,7 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
 
     private static final String EMPTY = Platform.MOD_ID + ":" + ExtremeReactorsGameTests.EMPTY_TEMPLATE;
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(template = EMPTY)
     public void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
         final List<String> failures = EmcAudit.run(helper.getLevel().getServer(), Platform.MOD_ID);

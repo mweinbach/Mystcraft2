@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:blutonium_nugget"
+    "bigreactors:blutonium_nugget",
+    {
+      "id": "#c:blutonium_nuggets",
+      "required": false
+    }
   ]
 }

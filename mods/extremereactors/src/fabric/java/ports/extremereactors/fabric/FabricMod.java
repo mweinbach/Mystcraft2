@@ -5,15 +5,18 @@
 package ports.extremereactors.fabric;
 
 import it.zerono.mods.extremereactors.ExtremeReactors;
+import it.zerono.mods.extremereactors.config.conditions.ConfigCondition;
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import ports.extremereactors.platform.Platform;
@@ -31,6 +34,8 @@ public final class FabricMod implements ModInitializer {
         Platform.install(new FabricPlatform());
         ExtremeReactors.initialize();
         FabricPlatform.get().registerAll();
+        ResourceConditions.register(ConfigCondition.ID,
+                json -> ConfigCondition.test(GsonHelper.getAsString(json, ConfigCondition.JSON_CONFIG_NAME)));
 
         Content.onCommonInit();
         ExtremeReactors.getInstance().onCommonInit();

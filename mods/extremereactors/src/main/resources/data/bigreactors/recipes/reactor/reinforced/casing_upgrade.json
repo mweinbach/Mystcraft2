@@ -1,39 +1,40 @@
 {
-  "type": "forge:conditional",
-  "recipes": [
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
     {
-      "conditions": [
-        {
-          "value": {
-            "tag": "forge:ingots/steel",
-            "type": "forge:tag_empty"
-          },
-          "type": "forge:not"
-        }
-      ],
-      "recipe": {
-        "type": "minecraft:crafting_shaped",
-        "group": "bigreactors:reactor",
-        "pattern": [
-          "IGI",
-          "GCG",
-          "IGI"
-        ],
-        "key": {
-          "I": {
-            "tag": "forge:ingots/steel"
-          },
-          "C": {
-            "item": "bigreactors:basic_reactorcasing"
-          },
-          "G": {
-            "tag": "forge:ingots/graphite"
-          }
-        },
-        "result": {
-          "item": "bigreactors:reinforced_reactorcasing"
-        }
-      }
+      "value": {
+        "tag": "forge:ingots/steel",
+        "type": "forge:tag_empty"
+      },
+      "type": "forge:not"
     }
-  ]
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:item_tags_populated",
+      "values": [
+        "forge:ingots/steel"
+      ]
+    }
+  ],
+  "group": "bigreactors:reactor",
+  "pattern": [
+    "IGI",
+    "GCG",
+    "IGI"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/steel"
+    },
+    "C": {
+      "item": "bigreactors:basic_reactorcasing"
+    },
+    "G": {
+      "tag": "forge:ingots/graphite"
+    }
+  },
+  "result": {
+    "item": "bigreactors:reinforced_reactorcasing"
+  }
 }

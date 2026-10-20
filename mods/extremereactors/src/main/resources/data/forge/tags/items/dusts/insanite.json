@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:insanite_dust"
+    "bigreactors:insanite_dust",
+    {
+      "id": "#c:insanite_dusts",
+      "required": false
+    }
   ]
 }

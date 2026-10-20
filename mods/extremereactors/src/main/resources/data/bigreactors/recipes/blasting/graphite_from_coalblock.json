@@ -1,22 +1,21 @@
 {
-  "type": "forge:conditional",
-  "recipes": [
+  "type": "minecraft:blasting",
+  "conditions": [
     {
-      "conditions": [
-        {
-          "config_name": "registerCoalBlockForSmelting",
-          "type": "bigreactors:config_condition"
-        }
-      ],
-      "recipe": {
-        "type": "minecraft:blasting",
-        "ingredient": {
-          "item": "minecraft:coal_block"
-        },
-        "result": "bigreactors:graphite_block",
-        "experience": 0.9,
-        "cookingtime": 900
-      }
+      "config_name": "registerCoalBlockForSmelting",
+      "type": "bigreactors:config_condition"
     }
-  ]
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "bigreactors:config_condition",
+      "config_name": "registerCoalBlockForSmelting"
+    }
+  ],
+  "ingredient": {
+    "item": "minecraft:coal_block"
+  },
+  "result": "bigreactors:graphite_block",
+  "experience": 0.9,
+  "cookingtime": 900
 }

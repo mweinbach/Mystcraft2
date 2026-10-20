@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:ridiculite_ingot"
+    "bigreactors:ridiculite_ingot",
+    {
+      "id": "#c:ridiculite_ingots",
+      "required": false
+    }
   ]
 }

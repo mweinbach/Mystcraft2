@@ -2,6 +2,10 @@
   "replace": false,
   "values": [
     "bigreactors:yellorium",
-    "bigreactors:yellorium_flowing"
+    "bigreactors:yellorium_flowing",
+    {
+      "id": "#c:yellorium",
+      "required": false
+    }
   ]
 }

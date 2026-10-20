@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:graphite_block"
+    "bigreactors:graphite_block",
+    {
+      "id": "#c:graphite_blocks",
+      "required": false
+    }
   ]
 }

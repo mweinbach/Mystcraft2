@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:brass_blocks",
+      "required": false
+    }
+  ]
+}

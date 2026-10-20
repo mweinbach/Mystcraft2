@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:magentite_block"
+    "bigreactors:magentite_block",
+    {
+      "id": "#c:magentite_blocks",
+      "required": false
+    }
   ]
 }

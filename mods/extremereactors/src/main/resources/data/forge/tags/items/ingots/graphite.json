@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "bigreactors:graphite_ingot"
+    "bigreactors:graphite_ingot",
+    {
+      "id": "#c:graphite_ingots",
+      "required": false
+    }
   ]
 }

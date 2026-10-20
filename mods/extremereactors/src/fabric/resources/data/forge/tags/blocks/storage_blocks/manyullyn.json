@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:manyullyn_blocks",
+      "required": false
+    }
+  ]
+}

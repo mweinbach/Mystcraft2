@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:steel_blocks",
+      "required": false
+    }
+  ]
+}
