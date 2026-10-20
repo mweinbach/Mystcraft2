@@ -18,6 +18,7 @@
 
 package it.zerono.mods.extremereactors;
 
+import it.zerono.mods.extremereactors.api.internal.InternalDispatcher;
 import it.zerono.mods.extremereactors.api.internal.modpack.wrapper.ApiWrapper;
 import it.zerono.mods.extremereactors.config.Config;
 import it.zerono.mods.extremereactors.gamecontent.Content;
@@ -100,8 +101,10 @@ public class ExtremeReactors {
     public void onInterModProcess(final Function<String, Stream<Runnable>> imcMessages) {
 
         for (final String method : IMC_METHODS) {
-            imcMessages.apply(method).forEach(Runnable::run);
+            Stream.concat(imcMessages.apply(method), InternalDispatcher.drain(method)).forEach(Runnable::run);
         }
+
+        InternalDispatcher.open();
 
         // ModPack API Wrapper
         ApiWrapper.processFile();

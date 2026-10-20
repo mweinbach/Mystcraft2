@@ -19,6 +19,7 @@
 package it.zerono.mods.extremereactors.gamecontent;
 
 import it.zerono.mods.extremereactors.ExtremeReactors;
+import it.zerono.mods.extremereactors.api.internal.InternalDispatcher;
 import it.zerono.mods.extremereactors.gamecontent.fluid.ReactantFluidBlock;
 import it.zerono.mods.extremereactors.gamecontent.fluid.ReactorFluidType;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.container.ChargingPortContainer;
@@ -1159,7 +1160,10 @@ public final class Content {
      */
     public static void onCommonInit() {
 
-        ReactorGameData.register();
-        TurbineGameData.register();
+        InternalDispatcher.runInternal(() -> {
+
+            ReactorGameData.register();
+            TurbineGameData.register();
+        });
     }
 }
