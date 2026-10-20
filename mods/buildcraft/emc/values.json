@@ -13,6 +13,9 @@
       "itemalchemy": 17552,
       "source": "recipe"
     },
+    "buildcraft:filler": {
+      "excluded": "Creative-only: upstream has no recipe for the filler, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+    },
     "buildcraft:fragile_fluid_shard": {
       "excluded": "NBT item: a shard only holds the fluid a broken machine or pipe dropped, and a blank shard holds nothing and cannot be filled. Transmutation never copies NBT, so a value could only be paid out for an empty, useless shard."
     },
@@ -94,6 +97,21 @@
     "buildcraft:heat_exchange": {
       "projecte": 3115,
       "itemalchemy": 3067,
+      "source": "recipe"
+    },
+    "buildcraft:marker_connector": {
+      "projecte": 872,
+      "itemalchemy": 860,
+      "source": "recipe"
+    },
+    "buildcraft:marker_path": {
+      "projecte": 76,
+      "itemalchemy": 84,
+      "source": "recipe"
+    },
+    "buildcraft:marker_volume": {
+      "projecte": 932,
+      "itemalchemy": 932,
       "source": "recipe"
     },
     "buildcraft:mining_well": {
@@ -308,6 +326,9 @@
       "projecte": 8,
       "itemalchemy": 8,
       "source": "recipe"
+    },
+    "buildcraft:volume_box": {
+      "excluded": "Creative-only: upstream has no recipe for the volume box, and its boxes are free-standing marks rather than material, so a value would only make a creative item transmutable."
     },
     "buildcraft:water_spring": {
       "excluded": "Creative-only: upstream never generates water springs, and the block is unbreakable like bedrock and drops nothing; a value would only make an infinite water source transmutable."

@@ -1,5 +1,6 @@
 buildcraft:combustion_engine
 buildcraft:distiller
+buildcraft:filler
 buildcraft:fragile_fluid_shard
 buildcraft:frame
 buildcraft:fuel_dense_bucket
@@ -23,6 +24,9 @@ buildcraft:gear_iron
 buildcraft:gear_stone
 buildcraft:gear_wood
 buildcraft:heat_exchange
+buildcraft:marker_connector
+buildcraft:marker_path
+buildcraft:marker_volume
 buildcraft:mining_well
 buildcraft:oil_bucket
 buildcraft:oil_dense_bucket
@@ -70,6 +74,7 @@ buildcraft:quarry
 buildcraft:redstone_engine
 buildcraft:stirling_engine
 buildcraft:tank
+buildcraft:volume_box
 buildcraft:water_spring
 buildcraft:waterproof
 buildcraft:wrench

@@ -1,6 +1,7 @@
 {
   "buildcraft:combustion_engine": 3157,
   "buildcraft:distiller": 17552,
+  "buildcraft:filler": 0,
   "buildcraft:fragile_fluid_shard": 0,
   "buildcraft:frame": 0,
   "buildcraft:fuel_dense_bucket": 0,
@@ -24,6 +25,9 @@
   "buildcraft:gear_stone": 20,
   "buildcraft:gear_wood": 16,
   "buildcraft:heat_exchange": 3067,
+  "buildcraft:marker_connector": 860,
+  "buildcraft:marker_path": 84,
+  "buildcraft:marker_volume": 932,
   "buildcraft:mining_well": 3368,
   "buildcraft:oil_bucket": 832,
   "buildcraft:oil_dense_bucket": 0,
@@ -71,6 +75,7 @@
   "buildcraft:redstone_engine": 401,
   "buildcraft:stirling_engine": 388,
   "buildcraft:tank": 8,
+  "buildcraft:volume_box": 0,
   "buildcraft:water_spring": 0,
   "buildcraft:waterproof": 16,
   "buildcraft:wrench": 776

@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -248,5 +250,12 @@ final class FabricPlatform implements Platform.Backend {
     public SoundEvent bucketSound(Fluid fluid, boolean fill) {
         FluidVariant variant = FluidVariant.of(fluid);
         return fill ? FluidVariantAttributes.getFillSound(variant) : FluidVariantAttributes.getEmptySound(variant);
+    }
+
+    @Override
+    public void sendToPlayer(ServerPlayer player, ResourceLocation channel, Consumer<FriendlyByteBuf> payload) {
+        FriendlyByteBuf buffer = PacketByteBufs.create();
+        payload.accept(buffer);
+        ServerPlayNetworking.send(player, channel, buffer);
     }
 }

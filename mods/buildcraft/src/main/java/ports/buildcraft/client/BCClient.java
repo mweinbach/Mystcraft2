@@ -1,11 +1,16 @@
 package ports.buildcraft.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -16,6 +21,8 @@ import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.core.marker.volume.ClientVolumeBoxes;
+import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.factory.BCFactory;
@@ -42,7 +49,10 @@ public final class BCClient {
         sink.register(BCFactory.DISTILLER_TYPE.get(), context -> new DistillerRenderer());
         sink.register(BCFactory.HEAT_EXCHANGER_TYPE.get(), context -> new HeatExchangerRenderer());
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
+        sink.register(BCBuilders.FILLER_TYPE.get(), context -> new FillerRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
+        sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
+        sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
     }
 
     public interface ItemColourSink {
@@ -73,12 +83,23 @@ public final class BCClient {
         MenuScreens.register(BCEnergy.COMBUSTION_ENGINE_MENU.get(), CombustionEngineScreen::new);
         MenuScreens.register(BCFactory.DISTILLER_MENU.get(), DistillerScreen::new);
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
+        MenuScreens.register(BCBuilders.FILLER_MENU.get(), FillerScreen::new);
+    }
+
+    /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
+    public static Map<ResourceLocation, Consumer<FriendlyByteBuf>> receivers() {
+        return Map.of(VolumeBoxes.CHANNEL, ClientVolumeBoxes::receive);
+    }
+
+    /** Called after translucent blocks with the level's pose stack, which carries the camera's rotation but not its position. */
+    public static void renderLevel(PoseStack poseStack, Camera camera) {
+        VolumeBoxRenderer.render(poseStack, camera);
     }
 
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */
     public static List<Block> cutoutBlocks() {
         List<Block> blocks = new ArrayList<>(List.of(BCFactory.TANK.get(), BCFactory.TUBE.get(), BCFactory.DISTILLER.get(),
-                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get()));
+                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get(), BCCore.MARKER_VOLUME.get(), BCCore.MARKER_PATH.get()));
         for (PipeDefinition pipe : BCTransport.PIPES) blocks.add(pipe.block());
         return blocks;
     }
@@ -86,9 +107,10 @@ public final class BCClient {
     /** Sprites drawn only by renderers, which no block model would otherwise put on the block atlas. */
     public static List<ResourceLocation> extraSprites() {
         List<ResourceLocation> sprites = new ArrayList<>(List.of(PipeRenderer.POWER_FLOW, QuarryRenderer.DRILL, QuarryRenderer.FRAME,
-                MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE));
+                MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE, FillerRenderer.ROBOT));
         sprites.addAll(EngineRenderer.sprites());
         sprites.addAll(DistillerRenderer.sprites());
+        sprites.addAll(LaserRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());

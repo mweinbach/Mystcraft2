@@ -10,6 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -61,6 +62,9 @@ public final class Platform {
         /** The fluid container in a copy of {@code stack}, counted as one item, or null if it holds no fluid storage. */
         @Nullable ItemFluids itemFluids(ItemStack stack);
         SoundEvent bucketSound(Fluid fluid, boolean fill);
+
+        /** Sends a server-to-client message; the client hands its payload to the receiver registered for {@code channel}. */
+        void sendToPlayer(ServerPlayer player, ResourceLocation channel, Consumer<FriendlyByteBuf> payload);
     }
 
     @FunctionalInterface

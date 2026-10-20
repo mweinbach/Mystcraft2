@@ -15,20 +15,24 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.energy.OilWellFeature;
 
 /**
  * Development-only commands for screenshots: {@code /bcshowcase build} lays out {@link Showcase} at the caller's feet,
  * {@code /bcshowcase engines} builds the engine close-up bench there, {@code /bcshowcase refinery} a running refinery,
- * {@code /bcshowcase oilwell} reports the nearest oil well and {@code /bcshowcase use <pos>} right-clicks a block
- * with an empty hand to open its screen.
+ * {@code /bcshowcase oilwell} reports the nearest oil well, {@code /bcshowcase use <pos>} right-clicks a block
+ * with an empty hand to open its screen and {@code /bcshowcase useitem} right-clicks with the held item where the caller looks.
  */
 public final class FabricShowcase implements ModInitializer {
     private static final int FILL_DELAY_TICKS = 5;
     private static final int WELL_SEARCH_RADIUS = 256;
+    private static final double USE_REACH = 5;
 
     private record Delayed(int dueTick, Runnable task) {}
 
@@ -65,7 +69,22 @@ public final class FabricShowcase implements ModInitializer {
                             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
                             player.getLevel().getBlockState(pos).use(player.getLevel(), player, InteractionHand.MAIN_HAND, hit);
                             return 1;
-                        })))));
+                        })))
+                        .then(Commands.literal("useitem").executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ItemStack stack = player.getMainHandItem();
+                            InteractionResult result = InteractionResult.PASS;
+                            if (player.pick(USE_REACH, 1, false) instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK) {
+                                result = player.gameMode.useItemOn(player, player.getLevel(), stack, InteractionHand.MAIN_HAND, hit);
+                                context.getSource().sendSuccess(Component.literal("Used " + stack + " on " + hit.getBlockPos().toShortString()
+                                        + " " + hit.getDirection() + ": " + result), false);
+                            }
+                            if (!result.consumesAction()) {
+                                result = player.gameMode.useItem(player, player.getLevel(), stack, InteractionHand.MAIN_HAND);
+                                context.getSource().sendSuccess(Component.literal("Used " + stack + ": " + result), false);
+                            }
+                            return 1;
+                        }))));
     }
 
     private static int reportWell(CommandSourceStack source, @Nullable OilWellFeature.WellType type) {

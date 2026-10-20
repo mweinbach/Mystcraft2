@@ -19,7 +19,12 @@ worlds do not migrate between them or from 1.12.
 - Pipes: item (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void),
   fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void) and kinesis (wood,
   cobblestone, stone, quartz, gold, sandstone).
-- Factory and builders: tank, pump, mining well, quarry and its frame.
+- Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
+  fills the land mark area or volume box behind it with one of upstream's 18 patterns from the
+  block items it holds and clears what the pattern leaves empty.
+- Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
+  area), path marks that connect into paths and loops, and the marker connector, with upstream's
+  lasers; creative volume boxes that the connector resizes and removes.
 - Oil: medium and large oil wells in the Overworld (surface lake, underground deposit and
   gushing spout), with an oil spring under large wells that slowly regrows oil, and the oil desert
   and oil ocean biomes, where wells are thirty times as common.
@@ -29,7 +34,7 @@ worlds do not migrate between them or from 1.12.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
 **This is not full BuildCraft.** Gates and wires, facades, lasers and silicon,
-builders other than the quarry, markers and landmarks, robots and several pipe types are not
+builders other than the quarry and filler, robots and several pipe types are not
 ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
@@ -51,7 +56,7 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame, oil spring and water spring, fragile fluid shards (whose fluid is in their NBT) and the refinery's
+frame, filler, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT) and the refinery's
 by-products and intermediate heats. Oil is valued like lava,
 and light fuel at the two buckets of oil the refinery needs to make one. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).
