@@ -11,6 +11,7 @@
     "OilBiomeNoiseMixin",
     "OilBiomeServerMixin",
     "OilBiomeSourceMixin",
-    "OilBiomeSurfaceRuleMixin"
+    "OilBiomeSurfaceRuleMixin",
+    "ServerLevelBlockUpdateMixin"
   ]
 }

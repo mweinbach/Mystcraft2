@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** Upstream {@code buildcraft.lib.misc.data.Box}: an inclusive block-aligned box. */
 public final class Box {
@@ -59,6 +60,14 @@ public final class Box {
     /** The box's extent in blocks along each axis, counting both ends. */
     public BlockPos size() {
         return isInitialized() ? max.subtract(min).offset(1, 1, 1) : BlockPos.ZERO;
+    }
+
+    public Vec3 centerExact() {
+        return Vec3.atLowerCornerOf(size()).scale(0.5).add(Vec3.atLowerCornerOf(min));
+    }
+
+    public BlockPos center() {
+        return new BlockPos(centerExact());
     }
 
     /** Upstream {@code getBoundingBox}: the box's blocks as one AABB. */
