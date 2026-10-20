@@ -2,6 +2,7 @@ package ports.buildcraft.gametest;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -26,8 +27,13 @@ import ports.buildcraft.builders.QuarryBlockEntity;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
 import ports.buildcraft.energy.EngineBlock;
+import ports.buildcraft.energy.OilWellFeature;
 import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.factory.BCFactory;
+import ports.buildcraft.factory.DistillerBlock;
+import ports.buildcraft.factory.DistillerBlockEntity;
+import ports.buildcraft.factory.HeatExchangerBlock;
+import ports.buildcraft.factory.HeatExchangerBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
@@ -63,6 +69,72 @@ public final class Showcase {
      */
     public static void buildEngineBench(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).engineBench();
+    }
+
+    /**
+     * Builds a running refinery: a combustion engine at full power distilling crude oil, a Stirling engine
+     * distilling hot oil slowly, and heat exchanger rows of three and five. Exchangers form a row on their
+     * first tick and drop fluid given before that, so the returned task fills them and must run a few ticks later.
+     */
+    public static Runnable buildRefinery(ServerLevel level, BlockPos origin) {
+        return new Showcase(level, origin).refinery();
+    }
+
+    /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
+    @Nullable
+    public static OilWellFeature.Well nearestWell(long seed, int cx, int cz, int minY, int radius, @Nullable OilWellFeature.WellType type) {
+        for (int r = 0; r <= radius; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) continue;
+                    OilWellFeature.Well well = OilWellFeature.well(seed, cx + dx, cz + dz, minY);
+                    if (well != null && (type == null || well.type() == type)) return well;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Runnable refinery() {
+        prepare(-3, 14, -3, 8);
+        redstone(0, 0, 0);
+        CombustionEngineBlockEntity combustion = engine(1, 0, 0, BCEnergy.COMBUSTION_ENGINE.get(), Direction.EAST);
+        combustion.fluidPort(Direction.UP).fill(BCEnergy.FUEL_LIGHT.heat(0).source(), CombustionEngineBlockEntity.MAX_FLUID, false);
+        combustion.fluidPort(Direction.UP).fill(Fluids.WATER, CombustionEngineBlockEntity.MAX_FLUID, false);
+        distiller(2, 0, BCEnergy.OIL.heat(0).source());
+
+        redstone(0, 0, 4);
+        StirlingEngineBlockEntity stirling = engine(1, 0, 4, BCEnergy.STIRLING_ENGINE.get(), Direction.EAST);
+        stirling.setItem(0, new ItemStack(Items.COAL_BLOCK, 64));
+        distiller(2, 4, BCEnergy.OIL.heat(1).source());
+
+        HeatExchangerBlockEntity[] small = heatExchangerRow(7, 0, 3);
+        HeatExchangerBlockEntity[] large = heatExchangerRow(10, 0, 5);
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+        return () -> {
+            for (HeatExchangerBlockEntity[] row : List.of(small, large)) {
+                row[0].fluidPort(Direction.DOWN).fill(BCEnergy.OIL.heat(0).source(), HeatExchangerBlockEntity.CAPACITY, false);
+                row[row.length - 1].fluidPort(HeatExchangerBlock.toEnd(Direction.WEST)).fill(Fluids.LAVA, HeatExchangerBlockEntity.CAPACITY, false);
+            }
+        };
+    }
+
+    private void distiller(int x, int z, Fluid input) {
+        set(x, 0, z, BCFactory.DISTILLER.get().defaultBlockState().setValue(DistillerBlock.FACING, Direction.WEST));
+        if (level.getBlockEntity(at(x, 0, z)) instanceof DistillerBlockEntity distiller) {
+            distiller.fluidPort(Direction.WEST).fill(input, DistillerBlockEntity.CAPACITY, false);
+        }
+    }
+
+    /** Exchangers facing west, from the start at {@code z} southwards to the end. */
+    private HeatExchangerBlockEntity[] heatExchangerRow(int x, int z, int length) {
+        BlockState state = BCFactory.HEAT_EXCHANGER.get().defaultBlockState().setValue(HeatExchangerBlock.FACING, Direction.WEST);
+        HeatExchangerBlockEntity[] row = new HeatExchangerBlockEntity[length];
+        for (int i = 0; i < length; i++) {
+            set(x, 0, z + i, state);
+            row[i] = (HeatExchangerBlockEntity) level.getBlockEntity(at(x, 0, z + i));
+        }
+        return row;
     }
 
     private void engineBench() {
