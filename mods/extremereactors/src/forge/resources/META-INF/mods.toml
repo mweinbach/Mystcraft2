@@ -1,13 +1,14 @@
 modLoader="javafml"
 loaderVersion="[43,44)"
 license="${mod_license}"
-issueTrackerURL="https://github.com/ZeroNoRyouki/ExtremeReactors2"
+issueTrackerURL="https://github.com/mweinbach/Mystcraft2/issues"
 logoFile="logo.png"
 
 [[mods]]
 modId="bigreactors"
 version="${mod_version}"
 displayName="${mod_name}"
+displayURL="https://github.com/ZeroNoRyouki/ExtremeReactors2"
 authors="${mod_authors}"
 description='''${mod_description}'''
 

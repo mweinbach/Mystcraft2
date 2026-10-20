@@ -10,7 +10,9 @@
     "1.19.2 port contributors"
   ],
   "contact": {
-    "sources": "https://github.com/ZeroNoRyouki/ExtremeReactors2"
+    "homepage": "https://github.com/ZeroNoRyouki/ExtremeReactors2",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/extremereactors",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
   },
   "icon": "logo.png",
   "license": "MIT",
