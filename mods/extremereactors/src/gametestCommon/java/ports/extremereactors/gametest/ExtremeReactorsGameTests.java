@@ -19,9 +19,11 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -305,6 +307,70 @@ public final class ExtremeReactorsGameTests {
                     check(turbine.getFluidConsumedLastTick() > 0, "the turbine consumed no steam");
                     check(storedEnergy(turbine) > 0, "the turbine generated no energy at "
                             + turbine.getRotorSpeed() + " RPM");
+                })
+                .thenSucceed();
+    }
+
+    //endregion
+    //region loader interop
+
+    public static void reactorItemsAndEnergyThroughLoaderApis(final GameTestHelper helper, final LoaderApis apis) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos accessPort = helper.absolutePos(origin.offset(1, 1, 0));
+        final BlockPos powerTap = helper.absolutePos(origin.offset(2, 1, 1));
+        final ServerLevel level = helper.getLevel();
+
+        basicReactor(origin).place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final long dirt = apis.insertItems(level, accessPort, Direction.NORTH, new ItemStack(Items.DIRT, 4));
+                    final long fuel = apis.insertItems(level, accessPort, Direction.NORTH,
+                            new ItemStack(Content.Items.YELLORIUM_INGOT.get(), 16));
+
+                    check(0 == dirt, "the access port accepted " + dirt + " dirt");
+                    check(16 == fuel, "the access port accepted " + fuel + " of 16 yellorium ingots");
+                    assembledReactor(helper, controller).setMachineActive(true);
+                })
+                .thenWaitUntil(() -> check(storedEnergy(assembledReactor(helper, controller)) > 1000,
+                        "the reactor has not generated 1000 FE yet"))
+                .thenExecute(() -> {
+
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+                    final double before = storedEnergy(reactor);
+                    final long extracted = apis.extractEnergy(level, powerTap, Direction.EAST, 500);
+                    final double after = storedEnergy(reactor);
+
+                    check(500 == extracted, "extracted " + extracted + " of 500 FE from the power tap");
+                    check(Math.abs(before - after - extracted) < 1e-6, "the reactor buffer went from "
+                            + before + " to " + after + " FE after extracting " + extracted);
+                })
+                .thenSucceed();
+    }
+
+    public static void reactorCoolantThroughLoaderApis(final GameTestHelper helper, final LoaderApis apis) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos fluidPort = helper.absolutePos(origin.offset(1, 1, 2));
+
+        reinforcedActiveReactor(origin).place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final long lava = apis.insertFluid(helper.getLevel(), fluidPort, Direction.SOUTH, Fluids.LAVA, 1000);
+                    final long water = apis.insertFluid(helper.getLevel(), fluidPort, Direction.SOUTH, Fluids.WATER, 1000);
+                    final int coolant = assembledReactor(helper, controller).getCoolantAmount();
+
+                    check(0 == lava, "the fluid port accepted " + lava + " mB of lava");
+                    check(1000 == water, "the fluid port accepted " + water + " of 1000 mB of water");
+                    check(1000 == coolant, "the reactor holds " + coolant + " mB of coolant");
                 })
                 .thenSucceed();
     }

@@ -85,6 +85,18 @@ public final class ExtremeReactorsForgeGameTests {
         ExtremeReactorsGameTests.turbineSpinsOnSteam(helper);
     }
 
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public static void reactorItemsAndEnergyThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.reactorItemsAndEnergyThroughLoaderApis(helper, ForgeLoaderApis.INSTANCE);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public static void reactorCoolantThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.reactorCoolantThroughLoaderApis(helper, ForgeLoaderApis.INSTANCE);
+    }
+
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
     public static void recipeConditionsAndTags(final GameTestHelper helper) {
         ExtremeReactorsGameTests.recipeConditionsAndTags(helper);

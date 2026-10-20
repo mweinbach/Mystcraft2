@@ -73,6 +73,16 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
         ExtremeReactorsGameTests.turbineSpinsOnSteam(helper);
     }
 
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public void reactorItemsAndEnergyThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.reactorItemsAndEnergyThroughLoaderApis(helper, FabricLoaderApis.INSTANCE);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public void reactorCoolantThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.reactorCoolantThroughLoaderApis(helper, FabricLoaderApis.INSTANCE);
+    }
+
     @GameTest(template = EMPTY)
     public void recipeConditionsAndTags(final GameTestHelper helper) {
         ExtremeReactorsGameTests.recipeConditionsAndTags(helper);
