@@ -4,19 +4,18 @@
  */
 package ports.extremereactors.corelib.fluid;
 
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.FlowingFluid;
+import ports.extremereactors.platform.PlatformLiquidBlock;
 
 import java.util.function.Supplier;
 
 /**
- * A liquid block that can be declared before its fluid exists. Both loaders populate the fluid registry before the
- * block registry, so the fluid is resolved when the block is created.
+ * A liquid block that can be declared before its fluid exists.
  */
 public class ModLiquidBlock
-        extends LiquidBlock {
+        extends PlatformLiquidBlock {
 
     public ModLiquidBlock(final Supplier<? extends FlowingFluid> fluid, final Properties properties) {
-        super(fluid.get(), properties);
+        super(fluid, properties);
     }
 }

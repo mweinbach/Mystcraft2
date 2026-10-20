@@ -68,11 +68,14 @@ import ports.extremereactors.platform.registry.RegistryObject;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -101,7 +104,7 @@ public final class FabricPlatform implements Platform.Backend {
     FabricPlatform() {
 
         this._registers = new ArrayList<>();
-        this._blockEntityTypes = new ArrayList<>();
+        this._blocksWithEntities = new LinkedHashSet<>();
         this._fluids = new IdentityHashMap<>();
         this._levelTickHandlers = new CopyOnWriteArrayList<>();
         this._levelUnloadHandlers = new CopyOnWriteArrayList<>();
@@ -139,7 +142,7 @@ public final class FabricPlatform implements Platform.Backend {
         }
 
         this._registers.clear();
-        FabricTransfer.registerBlockEntityLookups(this._blockEntityTypes.toArray(new BlockEntityType<?>[0]));
+        FabricTransfer.registerBlockLookups(this._blocksWithEntities.toArray(new Block[0]));
     }
 
     public Map<Fluid, FluidDefinition> getFluids() {
@@ -234,10 +237,8 @@ public final class FabricPlatform implements Platform.Backend {
     public <T extends BlockEntity> BlockEntityType<T> blockEntityType(final Platform.BlockEntityFactory<T> factory,
                                                                      final Block... validBlocks) {
 
-        final BlockEntityType<T> type = FabricBlockEntityTypeBuilder.create(factory::create, validBlocks).build();
-
-        this._blockEntityTypes.add(type);
-        return type;
+        this._blocksWithEntities.addAll(Arrays.asList(validBlocks));
+        return FabricBlockEntityTypeBuilder.create(factory::create, validBlocks).build();
     }
 
     @Override
@@ -385,7 +386,7 @@ public final class FabricPlatform implements Platform.Backend {
     }
 
     private final List<DeferredRegister<?>> _registers;
-    private final List<BlockEntityType<?>> _blockEntityTypes;
+    private final Set<Block> _blocksWithEntities;
     private final Map<Fluid, FluidDefinition> _fluids;
     private final List<Consumer<Level>> _levelTickHandlers;
     private final List<Consumer<LevelAccessor>> _levelUnloadHandlers;

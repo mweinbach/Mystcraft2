@@ -64,6 +64,7 @@ import ports.extremereactors.corelib.recipe.ModRecipe;
 import ports.extremereactors.corelib.recipe.ModRecipeType;
 import ports.extremereactors.platform.FluidDefinition;
 import ports.extremereactors.platform.Platform;
+import ports.extremereactors.platform.PlatformBucketItem;
 import ports.extremereactors.platform.registry.DeferredRegister;
 import ports.extremereactors.platform.registry.RegistryObject;
 import net.minecraft.core.Registry;
@@ -645,7 +646,7 @@ public final class Content {
         }
 
         private static RegistryObject<BucketItem> registerBucket(final String name, final Supplier<? extends Fluid> sourceFluid) {
-            return ITEMS.register(name, () -> new BucketItem(sourceFluid.get(), new Item.Properties()
+            return ITEMS.register(name, () -> new PlatformBucketItem(sourceFluid, new Item.Properties()
                     .craftRemainder(net.minecraft.world.item.Items.BUCKET)
                     .stacksTo(1)
                     .tab(CreativeModeTab.TAB_MISC)));

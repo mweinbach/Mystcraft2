@@ -312,8 +312,8 @@ public final class ForgePlatform implements Platform.Backend {
     //region internals
 
     /**
-     * Forge fires one event per registry, vanilla registries first and in vanilla order, so fluids exist before
-     * the blocks and buckets that refer to them.
+     * Forge fires one event per registry, blocks and items before fluids: our liquid blocks and buckets resolve
+     * their fluid lazily.
      */
     private void onRegister(final RegisterEvent event) {
 

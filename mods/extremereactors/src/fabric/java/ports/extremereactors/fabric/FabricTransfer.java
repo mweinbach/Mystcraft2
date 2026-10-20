@@ -22,8 +22,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import ports.extremereactors.corelib.capability.Capability;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
@@ -50,11 +50,17 @@ public final class FabricTransfer {
 
     public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / 1000;
 
-    public static void registerBlockEntityLookups(final BlockEntityType<?>... types) {
+    /**
+     * Expose the handlers of the block entities of these blocks. Registered per block rather than per block entity
+     * type because a block may be listed by more than one type.
+     */
+    public static void registerBlockLookups(final Block... blocks) {
 
-        ItemStorage.SIDED.registerForBlockEntities(FabricTransfer::itemStorageOf, types);
-        FluidStorage.SIDED.registerForBlockEntities(FabricTransfer::fluidStorageOf, types);
-        FabricEnergy.registerBlockEntityLookups(types);
+        ItemStorage.SIDED.registerForBlocks((level, position, state, blockEntity, side) ->
+                null == blockEntity ? null : itemStorageOf(blockEntity, side), blocks);
+        FluidStorage.SIDED.registerForBlocks((level, position, state, blockEntity, side) ->
+                null == blockEntity ? null : fluidStorageOf(blockEntity, side), blocks);
+        FabricEnergy.registerBlockLookups(blocks);
     }
 
     @SuppressWarnings("unchecked")

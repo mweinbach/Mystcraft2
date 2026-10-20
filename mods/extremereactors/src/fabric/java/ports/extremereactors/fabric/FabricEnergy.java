@@ -13,8 +13,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
 import ports.extremereactors.corelib.capability.ICapabilityProvider;
@@ -30,8 +30,9 @@ import javax.annotation.Nullable;
  */
 final class FabricEnergy {
 
-    static void registerBlockEntityLookups(final BlockEntityType<?>... types) {
-        EnergyStorage.SIDED.registerForBlockEntities(FabricEnergy::energyStorageOf, types);
+    static void registerBlockLookups(final Block... blocks) {
+        EnergyStorage.SIDED.registerForBlocks((level, position, state, blockEntity, side) ->
+                null == blockEntity ? null : energyStorageOf(blockEntity, side), blocks);
     }
 
     static LazyOptional<IEnergyStorage> foreignEnergy(final Level level, final BlockPos position, final BlockState state,

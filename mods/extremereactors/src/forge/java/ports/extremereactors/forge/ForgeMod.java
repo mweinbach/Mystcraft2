@@ -7,6 +7,7 @@ package ports.extremereactors.forge;
 import it.zerono.mods.extremereactors.ExtremeReactors;
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import it.zerono.mods.extremereactors.loader.forge.gamecontent.worldgen.ForgeBiomes;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -14,6 +15,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import ports.extremereactors.forge.client.ForgeClientSetup;
 import ports.extremereactors.platform.Platform;
 
@@ -34,6 +37,12 @@ public final class ForgeMod {
 
         modBus.addListener(EventPriority.NORMAL, false, FMLCommonSetupEvent.class, this::onCommonSetup);
         modBus.addListener(EventPriority.NORMAL, false, InterModProcessEvent.class, this::onInterModProcess);
+        modBus.addListener(EventPriority.NORMAL, false, RegisterEvent.class, event -> {
+
+            if (event.getRegistryKey().equals(ForgeRegistries.Keys.RECIPE_SERIALIZERS)) {
+                CraftingHelper.register(ForgeConfigCondition.SERIALIZER);
+            }
+        });
 
         if (FMLEnvironment.dist.isClient()) {
             ForgeClientSetup.initialize(modBus, platform);
