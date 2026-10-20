@@ -22,6 +22,10 @@ worlds do not migrate between them or from 1.12.
 - Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
   fills the land mark area or volume box behind it with one of upstream's 18 patterns from the
   block items it holds and clears what the pattern leaves empty.
+- Blueprints: the architect table records the land mark area or volume box behind it onto
+  templates (which blocks are filled) and blueprints (each block, what it costs and what must be
+  built first, following upstream's builder rules restated for 1.19.2 blocks). Nothing builds
+  from them yet; the builder is not ported.
 - Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
   area), path marks that connect into paths and loops, and the marker connector, with upstream's
   lasers; creative volume boxes that the connector resizes and removes.
@@ -33,9 +37,8 @@ worlds do not migrate between them or from 1.12.
 - Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
-**This is not full BuildCraft.** Gates and wires, facades, lasers and silicon,
-builders other than the quarry and filler, robots and several pipe types are not
-ported. The port has passed GameTests on dedicated servers for both loaders but has not been
+**This is not full BuildCraft.** Gates and wires, facades, lasers and silicon, the builder,
+electronic library and replacer, robots and several pipe types are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
 
@@ -58,11 +61,14 @@ coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they als
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
 frame, filler, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT) and the refinery's
 by-products and intermediate heats. Oil is valued like lava,
-and light fuel at the two buckets of oil the refinery needs to make one. See [emc/README.md](emc/README.md) and
+light fuel at the two buckets of oil the refinery needs to make one, and a recorded template or
+blueprint like a blank one. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).
 
 Assets and data are regenerated from an upstream checkout with
-`python3 mods/buildcraft/tools/generate_assets.py --upstream <path>`; the GameTest arena with
+`python3 mods/buildcraft/tools/generate_assets.py --upstream <path>`; the builder rules with
+`python3 mods/buildcraft/tools/generate_builder_rules.py <blockstates folder>` from Minecraft
+1.19.2's block state files (see the script for how to extract them); the GameTest arena with
 `python3 mods/buildcraft/tools/generate_test_structure.py`.
 
 ## Attribution

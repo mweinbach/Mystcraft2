@@ -23,8 +23,8 @@ import ports.buildcraft.builders.ClientArchitectTables;
 
 /**
  * Upstream {@code RenderArchitectTables}: blocks an architect table scanned recently glow through the world,
- * fading out over {@link ClientArchitectTables#START_SCANNED_BLOCK_VALUE} ticks. Only blocks inside a box a
- * table is scanning are drawn. Upstream could clip them to the box with the stencil buffer when its config
+ * fading out over {@link ClientArchitectTables#START_SCANNED_BLOCK_VALUE} ticks. Only blocks inside a loaded
+ * table's box are drawn. Upstream could clip them to the box with the stencil buffer when its config
  * allowed; this is its other path, which draws over everything.
  */
 public final class ArchitectTablesRenderer {
