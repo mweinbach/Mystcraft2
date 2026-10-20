@@ -17,7 +17,9 @@ anglesite and benitoite ores, ingots, dusts, storage blocks, reactant and
 coolant fluids, and the wrench. Blocks, models and the fuel rod and rotor
 animations are Extreme Reactors' own. The machine textures are a cohesive set
 redrawn for this port; ores, items, fluids and screens keep upstream's (see
-[PARITY.md](PARITY.md#machine-textures)).
+[PARITY.md](PARITY.md#machine-textures)). The port also adds cosmetic,
+client-side machine effects: control rod drives, a Cherenkov glow, steam,
+alarms and SCRAM visuals (see [PARITY.md](PARITY.md#machine-effects)).
 
 Every upstream machine screen is ported with Extreme Reactors' own textures and
 layouts: the reactor, turbine, reprocessor and fluidizer controllers, and the
@@ -49,6 +51,11 @@ Modpacks can add reactants, moderators, coolants and coils with
 `config/extremereactors/modpack_api.json`, as described in
 [upstream/README.md](upstream/README.md); an example is in
 [upstream/modpack_api.json](upstream/modpack_api.json).
+
+Clients also read `config/extremereactors/effects.toml`, the port's own file,
+which turns each machine effect on or off and sets their range, glow strength,
+particle density, alarm volume and alarm thresholds. It is read when the client
+starts.
 
 ## Source layout
 
@@ -98,11 +105,16 @@ keeps the reprocessor and fluidizer powered, the reprocessor watered and the
 active reactor's steam vented. `/ershowcase plant` builds a running 9×9×9
 reinforced reactor and a 7×12×7 reinforced turbine with every reinforced port
 variant, for reviewing textures; the turbine's power taps and active fluid port
-are on its east face. Each build replaces the previous one, including the
-machines `/ershowcase` keeps supplied. `/ershowcase open <part>` opens a part's
-screen, for example `reactor_controller` or `turbine_fluidport`. Neither the
-command nor the GameTest mod is in the release JARs. After editing
-`scripts/generate_textures.py`, run it to redraw the textures.
+are on its east face. Its turbine vents all its exhaust and one reactor fluid
+port outputs steam into the open. Each build replaces the previous one,
+including the machines `/ershowcase` keeps supplied. `/ershowcase rods <insertion>`,
+`/ershowcase scram` and `/ershowcase start` set the rods of, SCRAM and restart
+the showcase reactors, for reviewing the machine effects.
+`/ershowcase open <part>` opens a part's screen, for example
+`reactor_controller` or `turbine_fluidport`. Neither the command nor the
+GameTest mod is in the release JARs. After editing
+`scripts/generate_textures.py` or `scripts/generate_sounds.py`, run it to redraw
+the textures or resynthesize the effect sounds.
 
 ## License
 

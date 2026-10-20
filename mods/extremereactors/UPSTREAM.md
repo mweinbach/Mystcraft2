@@ -132,6 +132,13 @@ import mapping, these upstream files were changed:
 - `proxy/ClientProxy`: installed by the client entrypoint through
   `ExtremeReactors.setProxy()`. Screens are registered through the platform
   layer instead of `MenuScreens`, and the Patchouli setup is not called.
+  `onClientInit` also calls `MachineEffects.initialize()`, which loads the
+  port's client-side machine effects (see [Machine effects](PARITY.md#machine-effects)).
+- `gamecontent/multiblock/reactor/MultiblockReactor`: `updateServer` also sends
+  the reactor's state to nearby clients when its fuel temperature or tank levels
+  change noticeably, at most every two seconds (`effects.StatusSyncTracker`), so
+  their alarms follow the reactor without its screen open. The turbine already
+  did this for its rotor speed.
 - Screens (`client/screen/*` in `common`, `reactor`, `turbine`, `reprocessor`
   and `fluidizer`): no `@OnlyIn`, and Forge `NonNullSupplier` became
   `java.util.function.Supplier`. Nothing else changed.
@@ -171,7 +178,11 @@ Resources:
 - Fabric-only `assets/forge/models/item/bucket_drip.json` and
   `assets/bigreactors/textures/item/bucket_fluid_overlay.png` stand in for
   Forge's dynamic bucket model. The overlay is the port's own texture.
-- The multiblock validation messages appended to `en_us.json`.
+- The multiblock validation messages and the effect sound subtitles appended to
+  `en_us.json`.
+- The port's own effect assets: `sounds.json`, `sounds/effects/alarm.ogg` and
+  `scram.ogg` (synthesized by `scripts/generate_sounds.py`), and the control rod
+  drive textures under `textures/effects/` (drawn by `scripts/generate_textures.py`).
 - The machine textures are redrawn (see [Machine textures](PARITY.md#machine-textures)).
   Every reactor, turbine, reprocessor and fluidizer part, the fuel column fill
   and the nine storage blocks, including graphite, have new images under the
