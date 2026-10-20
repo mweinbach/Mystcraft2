@@ -5,11 +5,11 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -142,7 +142,7 @@ public final class BCTests {
         helper.setBlock(new BlockPos(1, 3, 1), Blocks.REDSTONE_BLOCK);
         helper.succeedWhen(() -> {
             require(helper, engine.getPowerStage() == PowerStage.BLUE || engine.getPowerStage() == PowerStage.GREEN,
-                    "redstone engines never pass green, got " + engine.getPowerStage());
+                    "a freshly powered redstone engine must still be cool, got " + engine.getPowerStage());
             require(helper, count(target, Items.COBBLESTONE) >= 1, "cobblestone must reach the far chest; source has "
                     + count(source, Items.COBBLESTONE) + ", engine pumping " + engine.isPumping() + " at " + engine.getPowerStage()
                     + ", wooden pipe faces " + ((DirectionalBehaviour) wood.behaviour()).currentDir()
@@ -179,6 +179,47 @@ public final class BCTests {
         helper.succeedWhen(() -> {
             require(helper, engine.fuelTank().amount() < 1000, "fuel must burn");
             require(helper, well.battery().stored() > 0, "the mining well must receive power");
+        });
+    }
+
+    /** Sets an engine's heat the way {@code /data merge block} would, through its saved NBT. */
+    static void presetHeat(EngineBlockEntity engine, double heat) {
+        CompoundTag tag = engine.saveWithoutMetadata();
+        tag.putDouble("heat", heat);
+        engine.load(tag);
+    }
+
+    /** The block state's stage, which selects the trunk texture, follows upstream's heat thresholds. */
+    public static void engineTrunkFollowsHeat(GameTestHelper helper) {
+        double[] heats = {30, 100, 160, 200, 240};
+        PowerStage[] stages = {PowerStage.BLUE, PowerStage.GREEN, PowerStage.YELLOW, PowerStage.RED, PowerStage.OVERHEAT};
+        for (int i = 0; i < heats.length; i++) {
+            presetHeat(engine(helper, new BlockPos(i + 1, 1, 1), BCEnergy.COMBUSTION_ENGINE.get(), Direction.UP,
+                    CombustionEngineBlockEntity.class), heats[i]);
+        }
+        helper.runAfterDelay(5, () -> {
+            for (int i = 0; i < heats.length; i++) {
+                BlockPos pos = new BlockPos(i + 1, 1, 1);
+                PowerStage stage = helper.getBlockState(pos).getValue(EngineBlock.STAGE);
+                require(helper, stage == stages[i], "heat " + heats[i] + " must show the " + stages[i] + " trunk, got " + stage);
+            }
+            helper.succeed();
+        });
+    }
+
+    /** A powered redstone engine warms up through the stages but stops short of overheating, as upstream. */
+    public static void redstoneEngineWarmsButNeverOverheats(GameTestHelper helper) {
+        EngineBlockEntity cold = engine(helper, new BlockPos(1, 1, 1), BCEnergy.REDSTONE_ENGINE.get(), Direction.UP, EngineBlockEntity.class);
+        EngineBlockEntity hot = engine(helper, new BlockPos(3, 1, 1), BCEnergy.REDSTONE_ENGINE.get(), Direction.UP, EngineBlockEntity.class);
+        helper.setBlock(new BlockPos(1, 1, 2), Blocks.REDSTONE_BLOCK);
+        helper.setBlock(new BlockPos(3, 1, 2), Blocks.REDSTONE_BLOCK);
+        presetHeat(hot, 195);
+        helper.onEachTick(() -> require(helper, hot.getPowerStage() != PowerStage.OVERHEAT, "a redstone engine must never overheat, heat " + hot.getHeat()));
+        helper.runAtTickTime(400, () -> {
+            require(helper, cold.getHeat() > EngineBlockEntity.MIN_HEAT + 10, "a powered redstone engine must warm up, heat " + cold.getHeat());
+            require(helper, hot.getPowerStage() == PowerStage.RED, "a hot redstone engine must settle at red, got " + hot.getPowerStage()
+                    + " at heat " + hot.getHeat());
+            helper.succeed();
         });
     }
 
@@ -318,7 +359,7 @@ public final class BCTests {
             require(helper, flow.itemCount() == 3, "the stack must be travelling, count " + flow.itemCount());
             helper.succeedWhen(() -> {
                 require(helper, flow.itemCount() == 0, "the void pipe must destroy its items");
-                helper.assertEntityNotPresent(EntityType.ITEM);
+                helper.assertItemEntityNotPresent(Items.DIAMOND, new BlockPos(1, 1, 1), 3);
             });
         });
     }

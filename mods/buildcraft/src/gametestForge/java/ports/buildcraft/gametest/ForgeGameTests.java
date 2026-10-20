@@ -28,6 +28,12 @@ public final class ForgeGameTests {
     public static void combustionEngineBurnsFuel(GameTestHelper helper) { BCTests.combustionEngineBurnsFuel(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void engineTrunkFollowsHeat(GameTestHelper helper) { BCTests.engineTrunkFollowsHeat(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 500)
+    public static void redstoneEngineWarmsButNeverOverheats(GameTestHelper helper) { BCTests.redstoneEngineWarmsButNeverOverheats(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void tankColumnFillsFromTheBottom(GameTestHelper helper) { BCTests.tankColumnFillsFromTheBottom(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)

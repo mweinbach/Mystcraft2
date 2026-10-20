@@ -5,6 +5,9 @@
   "name": "BuildCraft Game Tests",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "ports.buildcraft.gametest.FabricShowcase"
+    ],
     "fabric-gametest": [
       "ports.buildcraft.gametest.FabricGameTests",
       "ports.buildcraft.gametest.FabricAdapterGameTests",

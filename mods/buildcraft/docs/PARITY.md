@@ -14,14 +14,14 @@ add only loader adapters.
 | Area | Content |
 | --- | --- |
 | Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. |
-| Engines | Redstone (pulses 1 MJ while powered, never overheats past green), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
+| Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
 | Fluids | Oil, oil residue and light fuel with upstream density, viscosity and colours, source and flowing forms, buckets. |
 | Factory | Tank (stacks into columns, fills bottom-up, balances), pump (drains connected fluid bodies up to 64 blocks away, outputs into tanks or pipes), mining well (mines straight down, outputs into inventories or pipes). |
 | Builders | Quarry with frame building, digging and its tool head, using upstream's default 11×11 area. |
 | Item pipes | Wood (extracts when powered by an engine), cobblestone, stone, quartz, gold, sandstone, iron, diamond (filter GUI), clay, void. |
 | Fluid pipes | Wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void, with upstream capacities and transfer rates. |
 | Kinesis pipes | Wood, cobblestone, stone, quartz, gold, sandstone, with upstream power limits. |
-| Client | Engine, pipe contents, tank, mining tube and quarry renderers; Stirling, Combustion and diamond pipe screens; upstream textures. |
+| Client | Upstream engine model (base plate, stroking piston plate and chamber, trunk textured and lit by heat stage), pipe contents, tank, mining tube and quarry renderers; Stirling, Combustion and diamond pipe screens; upstream textures. |
 
 Pipe connection rules follow upstream: separate-material pipes (cobblestone, stone, quartz) do not
 join each other, wooden pipes do not join wooden pipes, and sandstone pipes do not connect to
@@ -75,6 +75,11 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Viscosity** uses Forge's scale on both loaders (water 1000, lava 6000), which is also Fabric's
   `FluidConstants` scale. The mining well and quarry pass through fluids up to water's viscosity,
   as upstream.
+- **Engine model** is upstream's `engine_base.json` split in two: the base plate is a static block
+  model, and `EngineRenderer` draws the piston plate, chamber and trunk. Upstream's trunk light
+  (`stage_light`: 4 green, 7 yellow, 10 red and overheat) is applied as a minimum block light.
+  Upstream's engine TESR stops at 1.12's 64-block range, hiding the whole engine; the port's renderer
+  draws out to the chunk render distance.
 - **Infinite water** detection uses vanilla's refill rule: the pump stops removing water sources
   only when a cell in the pool has two horizontal water sources over a solid block or a water
   source. Upstream also counted every already-scanned neighbour, including rejected air and stone,
@@ -104,7 +109,7 @@ the Forge and Fabric builds are not supported.
 Shared GameTest bodies in `src/gametestCommon` run on both loaders (`ForgeGameTests`,
 `FabricGameTests`): the MJ/energy ratio, the viscosity scale, every engine powering a receiver, a
 redstone engine driving a wooden pipe that delivers items through stone and gold pipes, tank
-columns, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
+columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, and recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
 (`FabricAdapterGameTests`), including transaction rollback. `EmcGameTests` audits EMC coverage and,
