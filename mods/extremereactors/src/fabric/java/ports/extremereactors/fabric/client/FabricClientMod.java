@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FlowingFluid;
@@ -89,6 +91,15 @@ public final class FabricClientMod implements ClientModInitializer {
                         new SimpleFluidRenderHandler(definition.stillTexture(), definition.flowingTexture(),
                                 definition.overlayTexture(), definition.tint() & 0xffffff));
                 BlockRenderLayerMap.INSTANCE.putFluids(RenderType.translucent(), flowing, flowing.getFlowing());
+
+                if (Items.AIR != flowing.getBucket()) {
+
+                    final int tint = definition.tint() & 0xffffff;
+
+                    // Forge draws these buckets with its dynamic bucket model; on Fabric, forge:item/bucket_drip is
+                    // the vanilla bucket with a fluid overlay in layer 1.
+                    ColorProviderRegistry.ITEM.register((stack, layer) -> 1 == layer ? tint : -1, flowing.getBucket());
+                }
             }
         });
     }

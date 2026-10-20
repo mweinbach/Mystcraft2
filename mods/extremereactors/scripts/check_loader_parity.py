@@ -21,10 +21,12 @@ version = metadata['mod_version']
 forge = MOD / 'build/libs' / f'extremereactors-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'extremereactors-fabric-1.19.2-{version}.jar'
 
-# Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod) and the
-# Fabric bridges that give forge: tags their vanilla members and c: equivalents.
+# Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod), the Fabric
+# bridges that give forge: tags their vanilla members and c: equivalents, and the Fabric stand-in for Forge's dynamic
+# bucket model that the shared bucket item models use as their parent.
 FORGE_ONLY = ('data/bigreactors/forge/biome_modifier/',)
-FABRIC_ONLY = ('data/forge/tags/',)
+FABRIC_ONLY = ('data/forge/tags/', 'assets/forge/models/item/bucket_drip.json',
+               'assets/bigreactors/textures/item/bucket_fluid_overlay.png')
 # Referenced by upstream with a typo (storage_block, not storage_blocks): they never match on Forge either.
 UPSTREAM_UNDEFINED_TAGS = {('blocks', 'storage_block/apatite'), ('blocks', 'storage_block/cinnabar')}
 
