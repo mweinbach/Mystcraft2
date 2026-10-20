@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.buildcraft.energy.OilBiomes;
 
-/** Runs the oil biome layers over every biome that the multi-noise source picks, as upstream's layers did. */
+/** Runs the oil biome layers over every biome that the overworld's multi-noise source picks, as upstream's layers did. */
 @Mixin(MultiNoiseBiomeSource.class)
 public abstract class OilBiomeNoiseMixin {
     @Inject(method = "getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;",
@@ -19,6 +19,6 @@ public abstract class OilBiomeNoiseMixin {
     private void buildcraft$placeOilBiomes(int x, int y, int z, Climate.Sampler sampler, CallbackInfoReturnable<Holder<Biome>> callback) {
         OilBiomes.State state = OilBiomes.current();
         // 1.12's visible biome layer had block resolution, so the noise is read at the quart's first block.
-        if (state != null) callback.setReturnValue(state.replace(callback.getReturnValue(), QuartPos.toBlock(x), QuartPos.toBlock(z)));
+        if (state != null && state.appliesTo((MultiNoiseBiomeSource) (Object) this)) callback.setReturnValue(state.replace(callback.getReturnValue(), QuartPos.toBlock(x), QuartPos.toBlock(z)));
     }
 }

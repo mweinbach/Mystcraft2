@@ -39,7 +39,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
@@ -497,8 +500,16 @@ public final class BCTests {
     public static void oilBiomesReplaceDesertsAndOceans(GameTestHelper helper) {
         RegistryAccess registries = helper.getLevel().registryAccess();
         Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
-        OilBiomes.State state = OilBiomes.current();
-        require(helper, state != null && state.seed() == helper.getLevel().getSeed(), "the server must install the oil biomes for its seed");
+        MinecraftServer server = helper.getLevel().getServer();
+        BiomeSource overworld = server.overworld().getChunkSource().getGenerator().getBiomeSource();
+        BiomeSource nether = server.getLevel(Level.NETHER).getChunkSource().getGenerator().getBiomeSource();
+        OilBiomes.State installed = OilBiomes.current();
+        if (overworld instanceof MultiNoiseBiomeSource) {
+            require(helper, installed != null && installed.seed() == helper.getLevel().getSeed() && installed.appliesTo(overworld)
+                    && !installed.appliesTo(nether), "the server must install the oil biomes for its seed and overworld only");
+        } else {
+            require(helper, installed == null, "a world without a multi-noise overworld has no oil biomes");
+        }
         Holder<Biome> oilDesert = biomes.getHolderOrThrow(OilBiomes.OIL_DESERT);
         Holder<Biome> oilOcean = biomes.getHolderOrThrow(OilBiomes.OIL_OCEAN);
         Biome desert = biomes.getOrThrow(Biomes.DESERT), ocean = biomes.getOrThrow(Biomes.OCEAN);
@@ -518,10 +529,28 @@ public final class BCTests {
                 .is(OilBiomes.OCEAN_REPLACEABLE) && !biomes.getHolderOrThrow(Biomes.PLAINS).is(OilBiomes.DESERT_REPLACEABLE),
                 "deserts and every ocean must be replaceable, plains not");
 
+        require(helper, !nether.possibleBiomes().contains(oilDesert) && !nether.possibleBiomes().contains(oilOcean), "the nether has no oil biomes");
+
+        // The test server's overworld is flat, so install the layers for a multi-noise overworld source for this check.
         MultiNoiseBiomeSource source = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomes);
+        OilBiomes.State state = OilBiomes.State.create(registries, helper.getLevel().getSeed(), source);
+        OilBiomes.install(state);
+        try {
+            checkOilBiomePlacement(helper, registries, state, source, oilDesert, oilOcean);
+        } finally {
+            OilBiomes.install(installed);
+        }
+        helper.succeed();
+    }
+
+    private static void checkOilBiomePlacement(GameTestHelper helper, RegistryAccess registries, OilBiomes.State state, MultiNoiseBiomeSource source,
+            Holder<Biome> oilDesert, Holder<Biome> oilOcean) {
+        Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
         require(helper, source.possibleBiomes().contains(oilDesert) && source.possibleBiomes().contains(oilOcean),
                 "the overworld must list the oil biomes as possible, so that they are decorated");
-        require(helper, !MultiNoiseBiomeSource.Preset.NETHER.biomeSource(biomes).possibleBiomes().contains(oilDesert), "the nether has no oil biomes");
+        MultiNoiseBiomeSource otherDimension = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomes);
+        require(helper, !otherDimension.possibleBiomes().contains(oilDesert) && !otherDimension.possibleBiomes().contains(oilOcean),
+                "a dimension reusing the overworld preset must keep its biomes");
 
         // Upstream GenLayerBiomeReplacer: offsets from the world seed, then noise over block coordinates.
         Random rand = new Random(state.seed());
@@ -540,6 +569,8 @@ public final class BCTests {
                         : raw.is(OilBiomes.DESERT_REPLACEABLE) && oilyDesert ? oilDesert : raw;
                 require(helper, placed == expected, "at " + x + ", " + z + " " + raw.unwrapKey().orElseThrow().location() + " must become "
                         + expected.unwrapKey().orElseThrow().location() + ", got " + placed.unwrapKey().orElseThrow().location());
+                require(helper, otherDimension.getNoiseBiome(qx, qy, qz, sampler) == raw, "at " + x + ", " + z
+                        + " a dimension reusing the overworld preset must keep " + raw.unwrapKey().orElseThrow().location());
                 if (raw.is(OilBiomes.DESERT_REPLACEABLE)) found[oilyDesert ? 0 : 1]++;
                 if (raw.is(OilBiomes.OCEAN_REPLACEABLE)) found[oilyOcean ? 2 : 3]++;
             }
@@ -560,7 +591,6 @@ public final class BCTests {
             require(helper, top.isPresent() == expected, biome.unwrapKey().orElseThrow().location() + (expected ? " must" : " must not")
                     + " pass a surface rule for deserts");
         }
-        helper.succeed();
     }
 
     /** Light fuel is reachable from crude oil through the heat exchanger and the distiller, as upstream's chain. */

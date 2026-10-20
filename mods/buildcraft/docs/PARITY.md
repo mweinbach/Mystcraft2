@@ -97,7 +97,9 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Oil biomes** are placed by a mixin on the multi-noise biome source, since 1.19.2 has no biome
   layers: each biome it picks for the Overworld's quarter-block cells goes through upstream's ocean
   then desert replacer, with the noise read at the cell's first block as 1.12's block-resolution
-  layer did. Both layers share upstream's offsets from `new Random(seed)`, so the fields correlate
+  layer did. Only the overworld's own biome source is touched, as upstream only wrapped the
+  overworld's layers; other dimensions keep their biomes even when they reuse the overworld preset,
+  and a flat or single-biome overworld has no oil biomes. Both layers share upstream's offsets from `new Random(seed)`, so the fields correlate
   as upstream's did. Deserts and oceans are matched by the `buildcraft:oil_desert_replaceable` and
   `buildcraft:oil_ocean_replaceable` biome tags instead of upstream's biome dictionary: its hot, dry
   and sandy types become vanilla's desert plus `forge:is_desert` and `c:desert`, and its ocean type

@@ -15,7 +15,9 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.lib.SimplexNoise;
 
@@ -23,7 +25,7 @@ import ports.buildcraft.lib.SimplexNoise;
  * Upstream {@code BiomeOilDesert}, {@code BiomeOilOcean} and the {@code GenLayerAddOil*} layers that
  * {@code BiomeInitializer} put over the overworld's biomes. Each layer replaces the biomes it may replace
  * wherever a seeded simplex noise field passes its threshold. The loaders' mixins install a state when a
- * server is created and apply it to what {@code MultiNoiseBiomeSource} picks.
+ * server is created and apply it to what the overworld's {@code MultiNoiseBiomeSource} picks.
  */
 public final class OilBiomes {
     public static final ResourceKey<Biome> OIL_DESERT = ResourceKey.create(Registry.BIOME_REGISTRY, BuildCraft.id("oil_desert"));
@@ -46,9 +48,12 @@ public final class OilBiomes {
     /** One {@code GenLayerBiomeReplacer}. */
     public record Layer(TagKey<Biome> replaceable, Holder<Biome> biome, double noiseScale, double noiseThreshold) {}
 
-    /** The layers of one world: both share the noise offsets that upstream rolls from the world seed. */
-    public record State(long seed, double xOffset, double zOffset, List<Layer> layers, List<Holder<Biome>> oilBiomes) {
-        public static State create(RegistryAccess registries, long seed) {
+    /**
+     * The layers of one world's overworld biome source, as {@code BiomeInitializer} only wrapped the overworld's
+     * layers: both share the noise offsets that upstream rolls from the world seed.
+     */
+    public record State(BiomeSource source, long seed, double xOffset, double zOffset, List<Layer> layers, List<Holder<Biome>> oilBiomes) {
+        public static State create(RegistryAccess registries, long seed, BiomeSource source) {
             Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
             Holder<Biome> desert = biomes.getHolderOrThrow(OIL_DESERT);
             Holder<Biome> ocean = biomes.getHolderOrThrow(OIL_OCEAN);
@@ -57,7 +62,12 @@ public final class OilBiomes {
             double zOffset = rand.nextInt(OFFSET_RANGE) - (OFFSET_RANGE / 2);
             // BiomeInitializer stacks the desert layer over the ocean layer.
             List<Layer> layers = List.of(new Layer(OCEAN_REPLACEABLE, ocean, 0.0005, 0.9), new Layer(DESERT_REPLACEABLE, desert, 0.001, 0.7));
-            return new State(seed, xOffset, zOffset, layers, List.of(desert, ocean));
+            return new State(source, seed, xOffset, zOffset, layers, List.of(desert, ocean));
+        }
+
+        /** Other dimensions keep their biomes, even when they reuse the overworld's biome source preset. */
+        public boolean appliesTo(BiomeSource biomeSource) {
+            return biomeSource == source;
         }
 
         public double noise(Layer layer, int blockX, int blockZ) {
@@ -93,8 +103,13 @@ public final class OilBiomes {
     /** A biome source's possible biomes under {@code state}, kept together so that threads never see them mismatched. */
     public record PossibleBiomes(State state, Set<Holder<Biome>> biomes) {}
 
-    public static void install(RegistryAccess registries, long seed) {
-        current = State.create(registries, seed);
+    /** Installs the layers for a server's overworld, or none when it has no multi-noise overworld. */
+    public static void install(RegistryAccess registries, long seed, @Nullable BiomeSource overworld) {
+        install(overworld instanceof MultiNoiseBiomeSource ? State.create(registries, seed, overworld) : null);
+    }
+
+    public static void install(@Nullable State state) {
+        current = state;
     }
 
     @Nullable
