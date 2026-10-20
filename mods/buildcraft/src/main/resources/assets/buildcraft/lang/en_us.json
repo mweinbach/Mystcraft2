@@ -1,5 +1,6 @@
 {
   "block.buildcraft.combustion_engine": "Combustion Engine",
+  "block.buildcraft.distiller": "Distiller",
   "block.buildcraft.frame": "Frame",
   "block.buildcraft.fuel_dense": "Dense Fuel (\u00a7bCool\u00a7r)",
   "block.buildcraft.fuel_dense_heat_1": "Dense Fuel (\u00a76Hot\u00a7r)",
@@ -16,6 +17,7 @@
   "block.buildcraft.fuel_mixed_light": "Mixed Light Fuels (\u00a7bCool\u00a7r)",
   "block.buildcraft.fuel_mixed_light_heat_1": "Mixed Light Fuels (\u00a76Hot\u00a7r)",
   "block.buildcraft.fuel_mixed_light_heat_2": "Mixed Light Fuels (\u00a7cSearing\u00a7r)",
+  "block.buildcraft.heat_exchange": "Heat Exchanger",
   "block.buildcraft.mining_well": "Mining Well",
   "block.buildcraft.oil": "Oil (\u00a7bCool\u00a7r)",
   "block.buildcraft.oil_dense": "Dense Oil (\u00a7bCool\u00a7r)",

@@ -17,14 +17,21 @@ public final class TankRenderer implements BlockEntityRenderer<TankBlockEntity> 
 
     @Override
     public void render(TankBlockEntity tank, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int light, int overlay) {
-        Fluid fluid = tank.fluidForRender();
-        float amount = tank.amountForRender(partialTicks);
+        fluid(poseStack, buffers, tank.fluidForRender(), tank.amountForRender(partialTicks), TankBlockEntity.CAPACITY,
+                MIN, 0.01F * 16, MIN, MAX, 0.99F * 16, MAX, light);
+    }
+
+    /**
+     * Upstream {@code FluidRenderer.renderFluid}: fills the box, in pixels, in proportion to the amount,
+     * from the bottom for liquids and from the top for gases.
+     */
+    public static void fluid(PoseStack poseStack, MultiBufferSource buffers, Fluid fluid, float amount, int capacity,
+            float x1, float y1, float z1, float x2, float y2, float z2, int light) {
         if (fluid == Fluids.EMPTY || amount <= 0) return;
-        float height = Math.min(1, amount / TankBlockEntity.CAPACITY) * (0.99F - 0.01F) * 16;
-        boolean gas = Platform.get().isGaseous(fluid);
-        float y1 = gas ? 0.99F * 16 - height : 0.01F * 16;
+        float height = Math.min(1, amount / capacity) * (y2 - y1);
+        float bottom = Platform.get().isGaseous(fluid) ? y2 - height : y1;
         RenderUtil.box(poseStack, buffers.getBuffer(RenderType.entityTranslucentCull(InventoryMenu.BLOCK_ATLAS)),
-                ClientPlatform.get().fluidSprite(fluid), RenderUtil.AUTO, MIN, y1, MIN, MAX, y1 + height, MAX,
+                ClientPlatform.get().fluidSprite(fluid), RenderUtil.AUTO, x1, bottom, z1, x2, bottom + height, z2,
                 ClientPlatform.get().fluidColour(fluid), light);
     }
 }

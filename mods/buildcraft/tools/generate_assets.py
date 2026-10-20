@@ -31,6 +31,8 @@ CUTOUT = {"render_type": "minecraft:cutout"}
 DIRECTIONS = ["down", "up", "north", "south", "west", "east"]
 OPPOSITE = {"down": "up", "up": "down", "north": "south", "south": "north", "west": "east", "east": "west"}
 HORIZONTAL_Y = {"north": 0, "east": 90, "south": 180, "west": 270}
+# Rotations for upstream models built facing west.
+WEST_Y = {"west": 0, "north": 90, "east": 180, "south": 270}
 STAGES = ["blue", "green", "yellow", "red", "overheat", "black"]
 
 # (family, light colour, dark colour, upstream name) from upstream BCEnergyFluids; mirrors BCEnergy.
@@ -193,6 +195,11 @@ class Generator:
         for state in ["normal", "connected"]:
             for part in ["back", "bottom", "front", "side", "top"]:
                 self.copy(f"buildcraftbuilders/textures/blocks/quarry/{state}/{part}.png", f"block/quarry/{state}/{part}.png")
+        for part in ["power_sprite_a", "power_sprite_b", "power_sprite_c", "power_sprite_d", "tank_sprite_a", "tank_sprite_b"]:
+            self.copy(f"buildcraftfactory/textures/blocks/distiller/{part}.png", f"block/distiller/{part}.png")
+        for part in "abcde":
+            self.copy(f"buildcraftfactory/textures/blocks/heat_exchange/sprite_{part}.png", f"block/heat_exchange/sprite_{part}.png")
+        self.copy("buildcraftfactory/textures/gui/distiller.png", "gui/distiller.png")
         self.copy("buildcraftbuilders/textures/blocks/quarry/drill.png", "block/quarry/drill.png")
         self.copy("buildcraftbuilders/textures/blocks/frame/default.png", "block/frame/default.png")
 
@@ -405,6 +412,66 @@ class Generator:
         self.lang.update({f"block.{MOD}.tank": "Tank", f"block.{MOD}.pump": "Pump", f"block.{MOD}.mining_well": "Mining Well",
                           f"block.{MOD}.tube": "Tube"})
 
+    def upstream_model(self, path: str) -> dict:
+        return json.loads((self.src / f"buildcraftfactory/models/{path}.json").read_text(encoding="utf-8"))
+
+    @staticmethod
+    def both_sides(element: dict) -> list[dict]:
+        """
+        Upstream "both_sides": the element and an inside-out copy (from > to), whose faces named after the
+        opposite side lie on the original faces' planes and face inward.
+        """
+        inverted = {"from": element["to"], "to": element["from"],
+                    "faces": {OPPOSITE[d]: face for d, face in element["faces"].items()}}
+        return [element, inverted]
+
+    def refinery(self) -> None:
+        # Upstream block/distiller.json is a vanilla model; the power blocks and fluids are DistillerRenderer's.
+        distiller_textures = {"particle": rl("block/distiller/tank_sprite_a"), "sprite_a": rl("block/distiller/tank_sprite_a"),
+                              "sprite_b": rl("block/distiller/tank_sprite_b")}
+        self.model("block/distiller", {**CUTOUT, "textures": distiller_textures,
+                                       "elements": self.upstream_model("block/distiller")["elements"]})
+        self.blockstate("distiller", {"variants": {f"facing={f}": dict({"model": rl("block/distiller")}, **({"y": y} if y else {}))
+                                                   for f, y in WEST_Y.items()}})
+        item = self.upstream_model("item/distiller")
+        self.model("item/distiller", {"parent": "minecraft:block/block", **CUTOUT, "elements": item["elements"],
+                                      "textures": dict(distiller_textures, power=rl("block/distiller/power_sprite_a"))})
+
+        # Upstream models/tiles/heat_exchange_static.json, facing west, split by each element's "visible"
+        # condition into multipart models. Its face rotations count quarter turns.
+        static = self.upstream_model("tiles/heat_exchange_static")
+        textures = {"particle": rl("block/heat_exchange/sprite_a")}
+        textures.update({key.lstrip("#"): value.replace("buildcraftfactory:blocks/", rl("block/"))
+                         for key, value in static["textures"].items()})
+        parts: dict[str, list[dict]] = {}
+        names = {"Inner Pipe": "inner", "Outer Pipe": "outer", "Middle pipe cap (if its not connected on the left side)": "cap_left",
+                 "Middle pipe cap (if its not connected on the right side)": "cap_right",
+                 "Start outer pipe - vertical connector (down)": "start", "End outer pipe - vertical connector (up)": "end"}
+        for element in static["elements"]:
+            faces = {}
+            for direction, face in element["faces"].items():
+                converted = {"uv": face["uv"], "texture": face["texture"]}
+                if face.get("rotation"):
+                    converted["rotation"] = face["rotation"] * 90
+                faces[direction] = converted
+            converted = {"from": element["from"], "to": element["to"], "faces": faces}
+            parts[names[element["comment"]]] = self.both_sides(converted) if element.get("both_sides") == "true" else [converted]
+        for name, elements in parts.items():
+            self.model(f"block/heat_exchange/{name}", {**CUTOUT, "textures": textures, "elements": elements})
+        conditions = {"inner": {}, "outer": {"part": "middle"}, "cap_left": {"part": "middle", "connected_left": "false"},
+                      "cap_right": {"part": "middle", "connected_right": "false"}, "start": {"part": "start"}, "end": {"part": "end"}}
+        multipart = []
+        for facing, y in WEST_Y.items():
+            for name, when in conditions.items():
+                apply = {"model": rl(f"block/heat_exchange/{name}")}
+                if y:
+                    apply["y"] = y
+                multipart.append({"when": dict({"facing": facing}, **when), "apply": apply})
+        self.blockstate("heat_exchange", {"multipart": multipart})
+        self.model("item/heat_exchange", {"parent": "minecraft:block/block", **CUTOUT, "textures": textures,
+                                          "elements": [e for n in ["inner", "outer", "cap_left", "cap_right"] for e in parts[n]]})
+        self.lang.update({f"block.{MOD}.distiller": "Distiller", f"block.{MOD}.heat_exchange": "Heat Exchanger"})
+
     def builders(self) -> None:
         textures = {"down": "bottom", "up": "top", "north": "front", "south": "back", "west": "side", "east": "side"}
         multipart = []
@@ -510,6 +577,9 @@ class Generator:
                     {"i": IRON, "r": REDSTONE, "g": gear("iron"), "t": {"item": rl("tank")}, "b": {"item": "minecraft:bucket"}})
         self.shaped("mining_well", "mining_well", ["iri", "igi", "ipi"],
                     {"i": IRON, "r": REDSTONE, "g": gear("iron"), "p": {"item": "minecraft:iron_pickaxe"}})
+        self.shaped("distiller", "distiller", ["rtr", "tgt"],
+                    {"r": {"item": "minecraft:redstone_torch"}, "t": {"item": rl("tank")}, "g": gear("diamond")})
+        self.shaped("heat_exchange", "heat_exchange", ["igi", "###", "igi"], {"i": IRON, "g": gear("iron"), "#": GLASS})
         self.shaped("quarry", "quarry", ["iri", "gig", "dpd"],
                     {"i": gear("iron"), "r": REDSTONE, "g": gear("gold"), "d": gear("diamond"), "p": {"item": "minecraft:diamond_pickaxe"}})
 
@@ -547,11 +617,11 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "quarry", "frame"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame"] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "quarry"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -567,6 +637,7 @@ class Generator:
         self.engines()
         self.pipes()
         self.factory()
+        self.refinery()
         self.builders()
         self.fluids()
         self.oil_wells()
