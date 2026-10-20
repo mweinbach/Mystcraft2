@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/torch_center_lit",
+  "textures": {
+    "all": "buildcraft:block/marker_path"
+  }
+}

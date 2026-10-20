@@ -22,6 +22,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import ports.buildcraft.core.MarkerVolumeBlockEntity;
+import ports.buildcraft.core.marker.MarkerCaches;
+import ports.buildcraft.core.marker.VolumeConnection;
+import ports.buildcraft.core.marker.VolumeSubCache;
+import ports.buildcraft.lib.AreaProvider;
 import ports.buildcraft.lib.BlockUtil;
 import ports.buildcraft.lib.Box;
 import ports.buildcraft.lib.BoxIterator;
@@ -139,9 +144,43 @@ public class QuarryBlockEntity extends SyncedBlockEntity implements PortHolder {
         return frameBox.isOnEdge(p);
     }
 
-    /** Upstream {@code onPlacedBy}: the default 11x11 area behind the quarry (landmarks are not ported). */
+    /**
+     * Upstream {@code onPlacedBy}: the box of the land marks behind the quarry, or of a box whose bottom
+     * edge the quarry sits next to, removing its marks; otherwise the default
+     * 11x11 area behind the quarry.
+     */
     void onPlaced() {
         Direction facing = getBlockState().getValue(QuarryBlock.FACING);
+        BlockPos areaPos = worldPosition.relative(facing.getOpposite());
+        if (level.getBlockEntity(areaPos) instanceof AreaProvider provider) {
+            BlockPos min = provider.min();
+            BlockPos max = provider.max();
+            if (max.getX() - min.getX() >= 3 && max.getZ() - min.getZ() >= 3) {
+                provider.removeFromWorld();
+                setArea(min, max);
+                return;
+            }
+        }
+        VolumeSubCache cache = MarkerCaches.VOLUME.getSubCache(level);
+        for (BlockPos markerPos : cache.getAllMarkers()) {
+            if (!(cache.getMarker(markerPos) instanceof MarkerVolumeBlockEntity marker)) continue;
+            VolumeConnection connection = marker.getCurrentConnection();
+            if (connection == null) continue;
+            Box volBox = connection.getBox();
+            Box box2 = connection.getBox();
+            if (!box2.isInitialized()) continue;
+            if (worldPosition.getY() != box2.min().getY()) continue;
+            if (box2.contains(worldPosition)) continue;
+            if (!box2.contains(areaPos)) continue;
+            if (box2.size().getX() < 3 || box2.size().getZ() < 3) continue;
+            box2.expand(1);
+            box2.setMin(box2.min().above());
+            if (box2.isOnEdge(worldPosition)) {
+                marker.removeFromWorld();
+                setArea(volBox.min(), volBox.max());
+                return;
+            }
+        }
         BlockPos min;
         BlockPos max;
         switch (facing.getOpposite()) {

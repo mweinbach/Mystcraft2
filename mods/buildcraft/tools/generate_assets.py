@@ -512,6 +512,32 @@ class Generator:
         self.item_model("frame", rl("block/frame_base"))
         self.lang.update({f"block.{MOD}.quarry": "Quarry", f"block.{MOD}.frame": "Frame"})
 
+    def markers(self) -> None:
+        for kind in ["volume", "path"]:
+            self.copy(f"buildcraftcore/textures/blocks/marker_{kind}.png", f"block/marker_{kind}.png")
+            self.copy(f"buildcraftcore/textures/items/marker_{kind}.png", f"item/marker_{kind}.png")
+        self.copy("buildcraftcore/textures/items/marker_connector.png", "item/marker_connector.png")
+        for laser in ["marker_volume_connected", "marker_volume_possible", "marker_volume_signal", "marker_path_connected",
+                      "marker_path_possible", "marker_default_possible"]:
+            self.copy(f"buildcraftcore/textures/lasers/{laser}.png", f"lasers/{laser}.png")
+
+        torch = json.loads((self.src / "buildcraftcore/models/block/torch_center_lit.json").read_text(encoding="utf-8"))
+        for element in torch["elements"]:
+            element.pop("comment", None)
+        self.model("block/torch_center_lit", {**CUTOUT, **torch})
+        # Upstream's "active" state changed nothing in the model, so only the facing is kept.
+        facings = {"up": {}, "down": {"x": 180}, "east": {"y": 90, "x": 90}, "south": {"y": 180, "x": 90},
+                   "west": {"y": 270, "x": 90}, "north": {"x": 90}}
+        for kind in ["volume", "path"]:
+            name = f"marker_{kind}"
+            self.model(f"block/{name}", {"parent": rl("block/torch_center_lit"), "textures": {"all": rl(f"block/{name}")}})
+            self.blockstate(name, {"variants": {f"facing={facing}": dict({"model": rl(f"block/{name}")}, **rotation)
+                                                for facing, rotation in facings.items()}})
+            self.generated_item(name)
+        self.generated_item("marker_connector", parent="minecraft:item/handheld")
+        self.lang.update({f"block.{MOD}.marker_volume": "Land Mark", f"block.{MOD}.marker_path": "Path Mark",
+                          f"item.{MOD}.marker_connector": "Marker Connector"})
+
     def fluids(self) -> None:
         for heat, suffix in enumerate(HEAT_NAMES):
             self.lang[f"buildcraft.fluid.heat_{heat}"] = f"%s ({suffix})"
@@ -644,6 +670,11 @@ class Generator:
         self.shaped("quarry", "quarry", ["iri", "gig", "dpd"],
                     {"i": gear("iron"), "r": REDSTONE, "g": gear("gold"), "d": gear("diamond"), "p": {"item": "minecraft:diamond_pickaxe"}})
 
+        self.shaped("marker_volume", "marker_volume", ["l", "t"], {"l": {"item": "minecraft:lapis_lazuli"}, "t": {"item": "minecraft:redstone_torch"}})
+        self.shaped("marker_path", "marker_path", ["g", "t"], {"g": {"item": "minecraft:green_dye"}, "t": {"item": "minecraft:redstone_torch"}})
+        self.shaped("marker_connector", "marker_connector", ["r", "g", "w"],
+                    {"r": {"item": "minecraft:redstone_torch"}, "g": gear("wood"), "w": {"item": rl("wrench")}})
+
         self.shapeless("waterproof", "waterproof", [SEALANT_SOURCES])
         self.shapeless("waterproof_from_residue", "waterproof", [{"item": rl("oil_residue_bucket")}], count=8)
 
@@ -682,7 +713,7 @@ class Generator:
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -700,6 +731,7 @@ class Generator:
         self.factory()
         self.refinery()
         self.builders()
+        self.markers()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()

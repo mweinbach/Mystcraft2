@@ -2,6 +2,8 @@ package ports.buildcraft.gametest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -14,6 +16,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -23,6 +26,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -54,12 +58,21 @@ import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.QuarryBlock;
 import ports.buildcraft.builders.QuarryBlockEntity;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.core.MarkerBlock;
+import ports.buildcraft.core.MarkerPathBlockEntity;
+import ports.buildcraft.core.MarkerVolumeBlockEntity;
 import ports.buildcraft.core.Wrenches;
+import ports.buildcraft.core.marker.MarkerCaches;
+import ports.buildcraft.core.marker.PathSubCache;
+import ports.buildcraft.core.marker.VolumeConnection;
+import ports.buildcraft.core.marker.VolumeSubCache;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
@@ -84,6 +97,7 @@ import ports.buildcraft.factory.TankBlockEntity;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.lib.SimplexNoise;
+import ports.buildcraft.lib.marker.MarkerSubCache;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.transport.BCTransport;
@@ -97,7 +111,7 @@ import ports.buildcraft.transport.flow.ItemFlow;
  * that the same gameplay assertions run against both loader adapters.
  */
 public final class BCTests {
-    /** The shared 9x8x9 template: a stone floor at y = 0 under open air. */
+    /** The shared 9x8x9 template: a stone floor under open air. Vanilla places it one block above the structure block, so the floor is at y = 1. */
     public static final String TEMPLATE = "arena";
 
     private BCTests() {}
@@ -422,6 +436,183 @@ public final class BCTests {
                     "blocks inside the frame must be cleared");
             require(helper, helper.getBlockState(new BlockPos(2, 1, 2)).isAir(), "the quarry must dig inside the frame");
         });
+    }
+
+    // ---- markers -------------------------------------------------------------------------------
+
+    static <T extends BlockEntity> T marker(GameTestHelper helper, BlockPos pos, MarkerBlock block, Class<T> type) {
+        helper.setBlock(pos, block.defaultBlockState().setValue(MarkerBlock.FACING, Direction.UP));
+        return tile(helper, pos, type);
+    }
+
+    static Set<BlockPos> absolute(GameTestHelper helper, BlockPos... positions) {
+        Set<BlockPos> set = new HashSet<>();
+        for (BlockPos p : positions) set.add(helper.absolutePos(p));
+        return set;
+    }
+
+    /**
+     * Using a land mark connects it to the nearest mark along each free axis and takes in marks on the new
+     * box's corners; breaking marks shrinks the box, and redstone shows the signal lasers. The connection
+     * survives a save and reaches clients through the marks' block entity data.
+     */
+    public static void landMarksConnectIntoBox(GameTestHelper helper) {
+        BlockPos a = new BlockPos(5, 1, 5), b = new BlockPos(1, 1, 5), c = new BlockPos(5, 1, 1), d = new BlockPos(1, 1, 1);
+        MarkerVolumeBlockEntity markA = marker(helper, a, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        MarkerVolumeBlockEntity markB = marker(helper, b, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        marker(helper, c, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        marker(helper, d, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        require(helper, markA.getCurrentConnection() == null, "marks must not connect until used");
+
+        markA.onManualConnectionAttempt();
+        VolumeConnection box = markA.getCurrentConnection();
+        require(helper, box != null && new HashSet<>(box.getMarkerPositions()).equals(absolute(helper, a, b, c, d)),
+                "using a mark must connect it along both free axes and take in the mark on the far corner, got " + (box == null ? null : box.getMarkerPositions()));
+        require(helper, markB.getCurrentConnection() == box, "every mark must share the connection");
+        require(helper, markA.min().equals(helper.absolutePos(d)) && markA.max().equals(helper.absolutePos(a)), "the area must span the marks");
+        require(helper, box.getConnectedAxis().equals(EnumSet.of(Direction.Axis.X, Direction.Axis.Z)), "the box must use the X and Z axes");
+
+        VolumeSubCache cache = MarkerCaches.VOLUME.getSubCache(helper.getLevel());
+        VolumeSubCache saved = new VolumeSubCache(helper.getLevel());
+        saved.load(cache.save(new CompoundTag()));
+        VolumeConnection reloaded = saved.getConnection(helper.absolutePos(a));
+        require(helper, reloaded != null && new HashSet<>(reloaded.getMarkerPositions()).equals(absolute(helper, a, b, c, d)), "the box must survive a save");
+        require(helper, saved.hasLoadedOrUnloadedMarker(helper.absolutePos(b)) && saved.getMarker(helper.absolutePos(b)) == null,
+                "saved marks must start unloaded");
+
+        VolumeSubCache client = new VolumeSubCache(helper.getLevel());
+        CompoundTag sync = markA.getUpdateTag();
+        client.receiveConnection(helper.absolutePos(a), MarkerSubCache.readPositions(sync.getList("connection", Tag.TAG_COMPOUND)));
+        require(helper, client.getConnection(helper.absolutePos(c)) != null && client.getConnection(helper.absolutePos(c)).getMarkerPositions().size() == 4,
+                "the mark's update data must carry its connection");
+
+        helper.setBlock(d, Blocks.AIR);
+        require(helper, box.getMarkerPositions().size() == 3 && markA.getCurrentConnection() == box, "breaking a corner mark must leave three");
+        client.receiveConnection(helper.absolutePos(a), MarkerSubCache.readPositions(markA.getUpdateTag().getList("connection", Tag.TAG_COMPOUND)));
+        require(helper, client.getConnection(helper.absolutePos(d)) == null && client.getConnection(helper.absolutePos(a)).getMarkerPositions().size() == 3,
+                "clients must follow the smaller box");
+        helper.setBlock(c, Blocks.AIR);
+        helper.setBlock(b, Blocks.AIR);
+        require(helper, markA.getCurrentConnection() == null, "a lone mark has no connection");
+        require(helper, !cache.hasLoadedOrUnloadedMarker(helper.absolutePos(b)), "broken marks must leave the cache");
+
+        require(helper, !markA.isShowingSignals(), "an unpowered mark shows no signals");
+        helper.setBlock(a.east(), Blocks.REDSTONE_BLOCK);
+        require(helper, markA.isShowingSignals(), "a powered mark must show signals");
+        helper.setBlock(a.east(), Blocks.AIR);
+        require(helper, !markA.isShowingSignals(), "the signals must stop with the power");
+        helper.succeed();
+    }
+
+    /**
+     * Path marks join end to end into a path that can close into a loop and be reversed; breaking a middle
+     * mark splits the path, and lone marks drop out.
+     */
+    public static void pathMarksFormPathsAndLoops(GameTestHelper helper) {
+        BlockPos p1 = new BlockPos(1, 1, 1), p2 = new BlockPos(4, 1, 1), p3 = new BlockPos(4, 1, 4), p4 = new BlockPos(1, 1, 4);
+        MarkerPathBlockEntity first = marker(helper, p1, BCCore.MARKER_PATH.get(), MarkerPathBlockEntity.class);
+        for (BlockPos p : List.of(p2, p3, p4)) marker(helper, p, BCCore.MARKER_PATH.get(), MarkerPathBlockEntity.class);
+        PathSubCache cache = MarkerCaches.PATH.getSubCache(helper.getLevel());
+        BlockPos a1 = helper.absolutePos(p1), a2 = helper.absolutePos(p2), a3 = helper.absolutePos(p3), a4 = helper.absolutePos(p4);
+        require(helper, cache.getValidConnections(a1).containsAll(List.of(a2, a3, a4)), "path marks connect to any mark in range");
+        require(helper, cache.tryConnect(a1, a2) && cache.tryConnect(a2, a3) && cache.tryConnect(a3, a4), "the path must extend from its end");
+        require(helper, first.getPath().equals(List.of(a1, a2, a3, a4)), "the path must keep its order, got " + first.getPath());
+        require(helper, !cache.canConnect(a2, a4), "a middle mark cannot join");
+        require(helper, cache.tryConnect(a4, a1), "joining the ends must close the loop");
+        require(helper, first.getPath().equals(List.of(a1, a2, a3, a4, a1)), "a loop lists its start again at the end, got " + first.getPath());
+
+        PathSubCache saved = new PathSubCache(helper.getLevel());
+        saved.load(cache.save(new CompoundTag()));
+        require(helper, saved.getConnection(a3) != null && saved.getConnection(a3).isLoop() && saved.getConnection(a3).getMarkerPositions().equals(first.getPath()),
+                "the loop must survive a save");
+
+        first.reverseDirection();
+        require(helper, first.getPath().equals(List.of(a4, a3, a2, a1, a4)), "using a path mark must reverse the path, got " + first.getPath());
+        helper.setBlock(p2, Blocks.AIR);
+        require(helper, first.getPath().isEmpty() && cache.getConnection(a4) != null && cache.getConnection(a4).getMarkerPositions().equals(List.of(a4, a3)),
+                "breaking a middle mark must split the path and drop the lone end, got " + cache.getConnection(a4));
+        helper.succeed();
+    }
+
+    /** Using the marker connector while looking along the line between two marks connects them. */
+    public static void markerConnectorJoinsMarks(GameTestHelper helper) {
+        MarkerVolumeBlockEntity west = marker(helper, new BlockPos(1, 1, 4), BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        marker(helper, new BlockPos(5, 1, 4), BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        Player player = helper.makeMockPlayer();
+        Vec3 eyes = Vec3.atCenterOf(helper.absolutePos(new BlockPos(3, 2, 2)));
+        player.moveTo(eyes.x, eyes.y - player.getEyeHeight(), eyes.z, 0, 0);
+        ItemStack connector = new ItemStack(BCCore.MARKER_CONNECTOR.get());
+        player.setItemInHand(InteractionHand.MAIN_HAND, connector);
+        InteractionResult missed = connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
+        require(helper, west.getCurrentConnection() == null && !missed.consumesAction(), "looking over the line must not connect the marks");
+        player.moveTo(eyes.x, eyes.y - player.getEyeHeight() - 0.9, eyes.z + 0.5, 0, 0);
+        InteractionResult connected = connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
+        require(helper, west.getCurrentConnection() != null && west.getCurrentConnection().getMarkerPositions().size() == 2,
+                "looking along the line must connect the marks");
+        require(helper, connected.consumesAction(), "connecting marks must consume the click so it does not reach the other hand");
+        helper.succeed();
+    }
+
+    /** Sneaking with the wrench turns a mark to the next face it can stand on; path marks fall off without support, land marks stay. */
+    public static void markersRotateAndNeedSupport(GameTestHelper helper) {
+        BlockPos path = new BlockPos(4, 2, 4);
+        marker(helper, path, BCCore.MARKER_PATH.get(), MarkerPathBlockEntity.class);
+        helper.setBlock(path.east(), Blocks.STONE);
+        BlockState state = helper.getBlockState(path);
+        InteractionResult result = BCCore.MARKER_PATH.get().attemptRotation(helper.getLevel(), helper.absolutePos(path), state, Direction.UP);
+        require(helper, result == InteractionResult.SUCCESS && helper.getBlockState(path).getValue(MarkerBlock.FACING) == Direction.WEST,
+                "the wrench must turn the mark onto the stone beside it, got " + result + " and " + helper.getBlockState(path));
+        helper.setBlock(path.east(), Blocks.AIR);
+        require(helper, helper.getBlockState(path).isAir(), "a path mark must break without its support");
+
+        BlockPos volume = new BlockPos(2, 3, 2);
+        helper.setBlock(volume.below(), Blocks.STONE);
+        marker(helper, volume, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        helper.setBlock(volume.below(), Blocks.AIR);
+        require(helper, helper.getBlockState(volume).is(BCCore.MARKER_VOLUME.get()), "upstream land marks stay when their support goes");
+        helper.succeed();
+    }
+
+    static void landMarkBox(GameTestHelper helper, BlockPos corner, BlockPos alongX, BlockPos alongZ) {
+        marker(helper, corner, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        marker(helper, alongX, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        marker(helper, alongZ, BCCore.MARKER_VOLUME.get(), MarkerVolumeBlockEntity.class);
+        VolumeSubCache cache = MarkerCaches.VOLUME.getSubCache(helper.getLevel());
+        require(helper, cache.tryConnect(helper.absolutePos(corner), helper.absolutePos(alongX))
+                && cache.tryConnect(helper.absolutePos(corner), helper.absolutePos(alongZ)), "the land marks must connect");
+    }
+
+    static QuarryBlockEntity placeQuarry(GameTestHelper helper, BlockPos pos, Direction facing) {
+        BlockState state = BCBuilders.QUARRY.get().defaultBlockState().setValue(QuarryBlock.FACING, facing);
+        helper.setBlock(pos, state);
+        BCBuilders.QUARRY.get().setPlacedBy(helper.getLevel(), helper.absolutePos(pos), state, null, ItemStack.EMPTY);
+        return tile(helper, pos, QuarryBlockEntity.class);
+    }
+
+    /** A quarry placed with its back against a land mark takes the marks' box as its area and removes the marks. */
+    public static void quarryTakesLandMarkArea(GameTestHelper helper) {
+        landMarkBox(helper, new BlockPos(2, 1, 1), new BlockPos(6, 1, 1), new BlockPos(2, 1, 5));
+        QuarryBlockEntity quarry = placeQuarry(helper, new BlockPos(1, 1, 1), Direction.WEST);
+        require(helper, quarry.frameBox.min().equals(helper.absolutePos(new BlockPos(2, 1, 1)))
+                && quarry.frameBox.max().equals(helper.absolutePos(new BlockPos(6, 5, 5))),
+                "the frame must cover the marks' box, raised to the minimum height, got " + quarry.frameBox.min() + " to " + quarry.frameBox.max());
+        for (BlockPos p : List.of(new BlockPos(2, 1, 1), new BlockPos(6, 1, 1), new BlockPos(2, 1, 5))) {
+            require(helper, helper.getBlockState(p).isAir(), "the quarry must remove the land mark at " + p);
+        }
+        require(helper, !helper.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(BlockPos.ZERO), helper.absolutePos(new BlockPos(8, 8, 8))),
+                item -> item.getItem().is(BCCore.MARKER_VOLUME_ITEM.get())).isEmpty(), "removed land marks must drop");
+        helper.succeed();
+    }
+
+    /** A quarry beside the bottom edge of a land mark box, facing into it, takes the box even away from the marks. */
+    public static void quarryFindsLandMarkBoxEdge(GameTestHelper helper) {
+        landMarkBox(helper, new BlockPos(2, 1, 1), new BlockPos(6, 1, 1), new BlockPos(2, 1, 5));
+        QuarryBlockEntity quarry = placeQuarry(helper, new BlockPos(1, 1, 3), Direction.WEST);
+        require(helper, quarry.frameBox.min().equals(helper.absolutePos(new BlockPos(2, 1, 1)))
+                && quarry.frameBox.max().equals(helper.absolutePos(new BlockPos(6, 5, 5))),
+                "the frame must cover the box the quarry faces, got " + quarry.frameBox.min() + " to " + quarry.frameBox.max());
+        require(helper, helper.getBlockState(new BlockPos(6, 1, 1)).isAir(), "the quarry must remove the box's marks");
+        helper.succeed();
     }
 
     // ---- oil and refining ----------------------------------------------------------------------
@@ -986,7 +1177,8 @@ public final class BCTests {
     // ---- data ----------------------------------------------------------------------------------
 
     private static final List<String> RECIPES = List.of("gear_wood", "gear_stone", "gear_iron", "gear_gold", "gear_diamond", "wrench",
-            "redstone_engine", "stirling_engine", "combustion_engine", "tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "waterproof");
+            "redstone_engine", "stirling_engine", "combustion_engine", "tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "waterproof",
+            "marker_volume", "marker_path", "marker_connector");
 
     /** Upstream recipes are loaded, accept both conventional and Forge tags, and gears and wrenches carry both tags. */
     public static void recipesAndTags(GameTestHelper helper) {

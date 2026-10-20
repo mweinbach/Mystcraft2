@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "buildcraft:block/marker_volume"
+    },
+    "facing=down": {
+      "model": "buildcraft:block/marker_volume",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "buildcraft:block/marker_volume",
+      "y": 90,
+      "x": 90
+    },
+    "facing=south": {
+      "model": "buildcraft:block/marker_volume",
+      "y": 180,
+      "x": 90
+    },
+    "facing=west": {
+      "model": "buildcraft:block/marker_volume",
+      "y": 270,
+      "x": 90
+    },
+    "facing=north": {
+      "model": "buildcraft:block/marker_volume",
+      "x": 90
+    }
+  }
+}

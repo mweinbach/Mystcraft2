@@ -59,6 +59,24 @@ public final class FabricGameTests implements FabricGameTest {
     public void quarryBuildsFrameAndDigs(GameTestHelper helper) { BCTests.quarryBuildsFrameAndDigs(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void landMarksConnectIntoBox(GameTestHelper helper) { BCTests.landMarksConnectIntoBox(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void pathMarksFormPathsAndLoops(GameTestHelper helper) { BCTests.pathMarksFormPathsAndLoops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void markerConnectorJoinsMarks(GameTestHelper helper) { BCTests.markerConnectorJoinsMarks(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void markersRotateAndNeedSupport(GameTestHelper helper) { BCTests.markersRotateAndNeedSupport(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void quarryTakesLandMarkArea(GameTestHelper helper) { BCTests.quarryTakesLandMarkArea(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void quarryFindsLandMarkBoxEdge(GameTestHelper helper) { BCTests.quarryFindsLandMarkBoxEdge(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)

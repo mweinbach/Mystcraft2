@@ -13,18 +13,18 @@ add only loader adapters.
 
 | Area | Content |
 | --- | --- |
-| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). The creative water spring (upstream `EnumSpring.WATER`), which puts a water source above itself every 5 ticks. |
+| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). The creative water spring (upstream `EnumSpring.WATER`), which puts a water source above itself every 5 ticks. Markers (upstream `BlockMarkerVolume`, `BlockMarkerPath`, `TileMarker*`, `MarkerCache` and the `core.marker` caches), placed on a solid face and turned to another face by sneak-using the wrench: using a land mark connects it to the nearest land mark within 64 blocks along each free axis and takes in marks standing on the new box's corners, so up to three axes outline a box; a mark placed on a box's corner joins it, breaking a mark shrinks the box, and a redstone signal shows lasers along the mark's free axes. Path marks connect end to end into paths and closed loops, using a path mark reverses its path, and breaking a middle mark splits it; path marks break without their support, while land marks stay, as upstream. The marker connector connects the two marks whose line the player is looking along (within 3 blocks and 0.3 blocks of the line, upstream `MarkerLineInteraction`). Connections are saved per dimension under upstream's names. |
 | Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
 | Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that flow up in the world and fill tanks and pipes from the top. |
 | Combustion fuels | Upstream's nine fuels (gaseous, light, dense, mixed light and mixed heavy fuel; distilled, heavy and dense oil; oil), with power and burn times derived from their refinery amounts as upstream; the dirty fuels leave oil residue. Only the cool stage burns. Water, ice and packed ice cool the engine. |
 | Oil worldgen | Upstream `OilGenerator` with its default configuration: from the world seed each chunk rolls a large (0.04%) or medium (0.1%) oil well in the Overworld, but never in a flat world. A well is a surface oil lake with tendrils, an oil sphere at y 20–29, and a spout from the sphere that gushes 10–20 (large) or 6–12 (medium) blocks above the surface. Large wells also run an oil tube down to an oil spring at the bottom of the world, which every 6000 ticks and on random ticks has a one in eight chance to put an oil source above itself. The oil desert and oil ocean biomes (upstream `BiomeOilDesert`, `BiomeOilOcean` and `GenLayerBiomeReplacer`) replace deserts and oceans wherever upstream's seeded simplex noise passes its thresholds (scale 0.001 over 0.7 for deserts, 0.0005 over 0.9 for oceans), and wells are thirty times likelier in them, as upstream's default `excessiveBiomes`. |
 | Refinery | Distiller (upstream `TileDistiller_BC8`: 4000 mB tanks, up to 6 MJ/t, upstream's ten distillations, each at its own heat stage; gas leaves the top and liquid the bottom; GUI with upstream gauges and animation) and heat exchanger (upstream `TileHeatExchange`: rows of three to five form a start, middles and an end; the coolant must be hotter than the fluid it heats; 5, 10 or 20 mB/t for one to three middles after a 120-tick warm-up; lava heats and water cools; the wrench turns a row around). |
 | Factory | Tank (stacks into columns, fills bottom-up, balances), pump (drains connected fluid bodies up to 64 blocks away, outputs into tanks or pipes), mining well (mines straight down, outputs into inventories or pipes). |
-| Builders | Quarry with frame building, digging and its tool head, using upstream's default 11×11 area. |
+| Builders | Quarry with frame building, digging and its tool head. As upstream's `TileQuarry.onPlacedBy`, a quarry placed with its back against a land mark whose box spans at least four blocks along X and Z takes that box as its area, and otherwise one whose back faces the bottom edge of a loaded land mark box at its own height, at least three blocks along X and Z; either way it breaks the box's marks, which drop. Without marks it uses upstream's default 11×11 area. |
 | Item pipes | Wood (extracts when powered by an engine), cobblestone, stone, quartz, gold, sandstone, iron, diamond (filter GUI), clay, void. |
 | Fluid pipes | Wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void, with upstream capacities and transfer rates. |
 | Kinesis pipes | Wood, cobblestone, stone, quartz, gold, sandstone, with upstream power limits. |
-| Client | Upstream engine model (base plate, stroking piston plate and chamber, trunk textured and lit by heat stage), pipe contents, tank, mining tube and quarry renderers; distiller (bobbing power indicators coloured by power use, three fluid tanks) and heat exchanger (input and output tanks, coolant and heatant flowing through the row while it runs) renderers on upstream's block models; Stirling, Combustion, distiller and diamond pipe screens; upstream textures. As upstream's `WidgetFluidTank`, a container carried onto a distiller or combustion engine gauge empties into that tank or fills from it (ice melts into the engine's coolant), and shift-clicked containers go to the distiller's input or try the engine's fuel, coolant and residue tanks in turn. |
+| Client | Upstream engine model (base plate, stroking piston plate and chamber, trunk textured and lit by heat stage), pipe contents, tank, mining tube and quarry renderers; distiller (bobbing power indicators coloured by power use, three fluid tanks) and heat exchanger (input and output tanks, coolant and heatant flowing through the row while it runs) renderers on upstream's block models; Stirling, Combustion, distiller and diamond pipe screens; upstream textures. Marker lasers follow upstream's `LaserRenderer_BC8` and `BuildCraftLaserManager` (laser textures, row layout, scales and colours): land mark boxes, signal lasers 64 blocks along a powered land mark's free axes, path lasers along each step, and, while a marker connector is held, the connections it could make, in the default colour for the one the player is looking along. As upstream's `WidgetFluidTank`, a container carried onto a distiller or combustion engine gauge empties into that tank or fills from it (ice melts into the engine's coolant), and shift-clicked containers go to the distiller's input or try the engine's fuel, coolant and residue tanks in turn. |
 
 Pipe connection rules follow upstream: separate-material pipes (cobblestone, stone, quartz) do not
 join each other, wooden pipes do not join wooden pipes, and sandstone pipes do not connect to
@@ -78,7 +78,7 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Water springs** are not generated in the world, as upstream: its `SpringPopulate` and
   `generateWaterSprings` option exist at the pinned revision, but nothing registers the generator.
 - **Configuration** is fixed at upstream defaults (mining depth 512, pump distance 64, quarry area
-  11×11); there is no config file.
+  11×11, marker range 64); there is no config file.
 - **Viscosity** uses Forge's scale on both loaders (water 1000, lava 6000), which is also Fabric's
   `FluidConstants` scale. The mining well and quarry pass through fluids up to water's viscosity,
   as upstream.
@@ -122,11 +122,22 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   coolant and heatant use the fluid's animated sprite, where upstream used its first frame.
 - **Distiller progress** on a recipe whose input runs out or whose output is blocked returns to the
   battery even when the battery has refilled to capacity; upstream discarded it then.
+- **Marker sync** uses each mark's block entity data instead of upstream's `MessageMarker`: a mark
+  sends the positions of its connection when the connection changes, and clients rebuild the
+  connection from it. Clients therefore only know the marks they have loaded, so the possible
+  connections drawn while holding a connector skip unloaded marks, and a connection is drawn from
+  the first of its marks the client has loaded. Closing a path into a loop from its last mark
+  resyncs the path, which upstream left to the next change. A connector click that connects marks
+  is consumed, so it does not also use the item in the other hand; upstream let it fall through.
+- **Marker block state:** upstream's `active` property, which its model ignored, is not ported.
+- **Path mark permissions** only check that the player may build; upstream also asked the
+  permission API, which nothing in the port provides.
 
 ## Not ported
 
-- **Core:** markers, landmarks and volume boxes (so the quarry cannot be resized), paintbrush,
-  list, map location, guide book, decorated blocks, creative engine.
+- **Core:** volume boxes and the marker connector's box editing (they belong to the filler),
+  paintbrush, list, map location, guide book, decorated blocks, creative engine, and the
+  `markers` and `path_markers` advancements.
 - **Energy:** the oil spring's tracking of how much of its well each player has pumped, which
   unlocked upstream's `black_gold` advancement.
 - **Factory:** auto workbench, flood gate, chute, water gel.
@@ -147,7 +158,10 @@ the Forge and Fabric builds are not supported.
 Shared GameTest bodies in `src/gametestCommon` run on both loaders (`ForgeGameTests`,
 `FabricGameTests`): the MJ/energy ratio, the viscosity scale, gases rising in the world, every engine powering a receiver, a
 redstone engine driving a wooden pipe that delivers items through stone and gold pipes, tank
-columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
+columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, land marks
+connecting into a box (saved, synced to clients, shrinking as marks break, showing signals when powered), path marks forming
+paths and loops that save, reverse and split, the marker connector joining marks, marks turning with the wrench and
+breaking without support, a quarry taking a land mark box from a mark behind it or from the box's edge, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, oil well rates and determinism over 65,536 seeded chunks
 with the placed feature in the Overworld's lakes step, the oil biomes' thirtyfold well bonus, the
 oil desert and ocean replacing deserts and oceans where upstream's noise says (recomputed
