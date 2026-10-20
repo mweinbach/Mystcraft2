@@ -109,6 +109,30 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 600)
     public void fillerKeepsToItsPowerAndCountsQueuedWork(GameTestHelper helper) { FillerTests.fillerKeepsToItsPowerAndCountsQueuedWork(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void architectScansTemplate(GameTestHelper helper) { ArchitectTests.architectScansTemplate(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void architectScansBlueprint(GameTestHelper helper) { ArchitectTests.architectScansBlueprint(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void architectNeedsAnArea(GameTestHelper helper) { ArchitectTests.architectNeedsAnArea(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void architectMenuNameAndSaving(GameTestHelper helper) { ArchitectTests.architectMenuNameAndSaving(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void snapshotStorageRoundTrip(GameTestHelper helper) { ArchitectTests.snapshotStorageRoundTrip(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void builderRulesCover119Blocks(GameTestHelper helper) { ArchitectTests.builderRulesCover119Blocks(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void schematicsBuildBack(GameTestHelper helper) { ArchitectTests.schematicsBuildBack(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void architectRecipes(GameTestHelper helper) { ArchitectTests.architectRecipes(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 
