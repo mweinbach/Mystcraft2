@@ -55,7 +55,6 @@ sourceSets {
 tasks.withType(JavaCompile).configureEach {
     options.release = 17
     options.encoding = 'UTF-8'
-    options.compilerArgs += ['-Xmaxerrs', '20000'] // TEMP
 }
 
 // Loader-independent simulation checks that run without a game server.

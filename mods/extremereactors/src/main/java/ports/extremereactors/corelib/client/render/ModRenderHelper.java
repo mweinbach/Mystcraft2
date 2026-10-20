@@ -88,9 +88,6 @@ public final class ModRenderHelper {
         }
     }
 
-    /**
-     * @return the system time, in milliseconds, at which the last frame finished rendering
-     */
     public static void markBlockRangeForRenderUpdate(final BlockPos min, final BlockPos max) {
 
         final Minecraft mc = Minecraft.getInstance();
@@ -100,6 +97,9 @@ public final class ModRenderHelper {
         }
     }
 
+    /**
+     * @return the system time, in milliseconds, at which the last frame finished rendering
+     */
     public static long getLastRenderTime() {
         return s_lastRenderTime;
     }

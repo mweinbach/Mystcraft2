@@ -4,7 +4,11 @@
   "version": "${version}",
   "name": "Extreme Reactors",
   "description": "${mod_description}",
-  "authors": ["ZeroNoRyouki", "erogenousbeef", "1.19.2 port contributors"],
+  "authors": [
+    "ZeroNoRyouki",
+    "erogenousbeef",
+    "1.19.2 port contributors"
+  ],
   "contact": {
     "sources": "https://github.com/ZeroNoRyouki/ExtremeReactors2"
   },
@@ -12,9 +16,16 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": ["ports.extremereactors.fabric.FabricMod"],
-    "client": ["ports.extremereactors.fabric.FabricClientMod"]
+    "main": [
+      "ports.extremereactors.fabric.FabricMod"
+    ],
+    "client": [
+      "ports.extremereactors.fabric.client.FabricClientMod"
+    ]
   },
+  "mixins": [
+    "extremereactors.fabric.mixins.json"
+  ],
   "accessWidener": "extremereactors.accesswidener",
   "depends": {
     "fabricloader": ">=0.16.14",
