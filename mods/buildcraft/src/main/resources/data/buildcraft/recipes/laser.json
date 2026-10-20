@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "rro",
+    "rdd",
+    "rro"
+  ],
+  "key": {
+    "r": [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ],
+    "d": [
+      {
+        "tag": "c:diamonds"
+      },
+      {
+        "tag": "forge:gems/diamond"
+      }
+    ],
+    "o": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "buildcraft:laser"
+  }
+}

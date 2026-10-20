@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OtO",
+    "OcO",
+    "OrO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "t": {
+      "item": "minecraft:crafting_table"
+    },
+    "c": [
+      {
+        "tag": "c:wooden_chests"
+      },
+      {
+        "tag": "forge:chests/wooden"
+      }
+    ],
+    "r": {
+      "item": "buildcraft:redstone_chipset"
+    }
+  },
+  "result": {
+    "item": "buildcraft:advanced_crafting_table"
+  }
+}

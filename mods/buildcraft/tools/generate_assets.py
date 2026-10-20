@@ -141,7 +141,24 @@ MATERIAL_TAGS = {
     ("lapis", "gems/lapis"): ["minecraft:lapis_lazuli"],
     ("slime_balls", "slimeballs"): ["minecraft:slime_ball"],
     ("wooden_rods", "rods/wooden"): ["minecraft:stick"],
+    ("wooden_chests", "chests/wooden"): ["minecraft:chest", "minecraft:trapped_chest"],
+    ("quartz", "gems/quartz"): ["minecraft:quartz"],
 }
+
+# Upstream EnumRedstoneChipset and its assembly_recipes_examples: (id, texture, name, MJ, extra ingredient).
+CHIPSETS = [
+    ("redstone_chipset", "red", "Redstone Chipset", 10000, None),
+    ("iron_chipset", "iron", "Iron Chipset", 20000, IRON),
+    ("gold_chipset", "gold", "Golden Chipset", 40000, GOLD),
+    ("quartz_chipset", "quartz", "Quartz Chipset", 60000, tags("quartz", "gems/quartz")),
+    ("diamond_chipset", "diamond", "Diamond Chipset", 80000, DIAMOND),
+]
+# Mirrors ports.buildcraft.silicon.BCSilicon: (block id, upstream model, texture parts, name).
+LASER_TABLES = [
+    ("assembly_table", "assembly", ["bottom", "side", "top"], "Assembly Table"),
+    ("advanced_crafting_table", "advanced_crafting", ["bottom", "middle", "side", "top"], "Advanced Crafting Table"),
+    ("integration_table", "integration", ["bottom", "center", "middle", "side", "top"], "Integration Table"),
+]
 
 
 def write_json(path: Path, value) -> None:
@@ -769,6 +786,48 @@ class Generator:
         })
         self.lang[f"item.{MOD}.{shard}"] = "Fragile %s Shard"
 
+    def silicon_model(self, upstream: str, name: str) -> None:
+        model = json.loads((self.src / f"buildcraftsilicon/models/block/{upstream}.json").read_text(encoding="utf-8"))
+        model["parent"] = "minecraft:" + model["parent"]
+        model["textures"] = {key: texture.replace("buildcraftsilicon:blocks/", rl("block/"))
+                             for key, texture in model["textures"].items()}
+        self.model(f"block/{name}", dict(model, **CUTOUT))
+
+    def silicon(self) -> None:
+        for part in ["bottom", "side", "top"]:
+            self.copy(f"buildcraftsilicon/textures/blocks/laser/{part}.png", f"block/laser/{part}.png")
+        self.silicon_model("laser", "laser")
+        # Upstream's forge_marker blockstate: the model faces up and turns to each facing.
+        rotations = {"up": {}, "down": {"x": 180}, "north": {"x": 90}, "east": {"x": 90, "y": 90},
+                     "south": {"x": 90, "y": 180}, "west": {"x": 90, "y": 270}}
+        self.blockstate("laser", {"variants": {f"facing={facing}": dict({"model": rl("block/laser")}, **rotation)
+                                               for facing, rotation in rotations.items()}})
+        self.item_model("laser", rl("block/laser"))
+        for block, upstream, parts, title in LASER_TABLES:
+            for part in parts:
+                self.copy(f"buildcraftsilicon/textures/blocks/table/{upstream}/{part}.png", f"block/table/{upstream}/{part}.png")
+            self.silicon_model(f"table/{upstream}", f"table/{upstream}")
+            self.blockstate(block, {"variants": {"": {"model": rl(f"block/table/{upstream}")}}})
+            self.item_model(block, rl(f"block/table/{upstream}"))
+            self.copy(f"buildcraftsilicon/textures/gui/{block}.png", f"gui/{block}.png")
+            self.lang[f"block.{MOD}.{block}"] = title
+        for name, texture, title, _, _ in CHIPSETS:
+            self.copy(f"buildcraftsilicon/textures/items/redstone_chipset/{texture}.png", f"item/chipset/{texture}.png")
+            self.generated_item(name, f"chipset/{texture}")
+            self.lang[f"item.{MOD}.{name}"] = title
+        for icon in ["engine_active", "engine_inactive"]:
+            self.copy(f"buildcraftlib/textures/icons/{icon}.png", f"gui/{icon}.png")
+        self.lang.update({
+            f"block.{MOD}.laser": "Laser",
+            f"block.{MOD}.integration_table.tip": "No recipes use this!",
+            "gui.power": "Power",
+            "gui.stored": "Stored",
+            "gui.assemblyRate": "Rate",
+            "gui.assemblyCurrentRequired": "Required",
+            "buildcraft.mj.static.short": "%s MJ",
+            "buildcraft.mj.flow.seconds.short": "%s MJ/s",
+        })
+
     def write_lang(self) -> None:
         self.lang.update({
             f"itemGroup.{MOD}.main": "BuildCraft",
@@ -849,6 +908,20 @@ class Generator:
             self.shapeless(target, target, [{"item": rl(source)}, extra])
             self.shapeless(f"{target}_undo", source, [{"item": rl(target)}])
 
+    def silicon_recipes(self) -> None:
+        obsidian = {"item": "minecraft:obsidian"}
+        self.shaped("laser", "laser", ["rro", "rdd", "rro"], {"r": REDSTONE, "d": DIAMOND, "o": obsidian})
+        self.shaped("assembly_table", "assembly_table", ["OdO", "OrO", "OgO"],
+                    {"O": obsidian, "d": DIAMOND, "r": REDSTONE, "g": gear("diamond")})
+        self.shaped("advanced_crafting_table", "advanced_crafting_table", ["OtO", "OcO", "OrO"],
+                    {"O": obsidian, "t": {"item": "minecraft:crafting_table"}, "c": tags("wooden_chests", "chests/wooden"),
+                     "r": {"item": rl("redstone_chipset")}})
+        self.shaped("integration_table", "integration_table", ["OiO", "OrO", "OgO"],
+                    {"O": obsidian, "i": GOLD, "r": {"item": rl("iron_chipset")}, "g": gear("diamond")})
+        for name, _, _, mj, extra in CHIPSETS:
+            components = [{"ingredient": REDSTONE}] + ([{"ingredient": extra}] if extra else [])
+            self.recipe(name, {"type": rl("assembly"), "result": {"item": rl(name)}, "MJ": mj, "components": components})
+
     def tag(self, registry: str, namespace: str, path: str, values: list[str | dict]) -> None:
         write_json(DATA / namespace / "tags" / registry / f"{path}.json", {"replace": False, "values": values})
 
@@ -866,11 +939,12 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder", "electronic_library", "replacer"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder", "electronic_library", "replacer",
+                                                    "laser"] + [t for t, _, _, _ in LASER_TABLES] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "builder", "electronic_library", "replacer", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "builder", "electronic_library", "replacer", "marker_volume", "marker_path", "laser"] + [t for t, _, _, _ in LASER_TABLES] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -895,12 +969,14 @@ class Generator:
         self.builder()
         self.library()
         self.markers()
+        self.silicon()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
         self.items()
         self.write_lang()
         self.recipes()
+        self.silicon_recipes()
         self.data_tags()
         self.loot_tables()
 

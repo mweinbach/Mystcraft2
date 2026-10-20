@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OiO",
+    "OrO",
+    "OgO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "i": [
+      {
+        "tag": "c:gold_ingots"
+      },
+      {
+        "tag": "forge:ingots/gold"
+      }
+    ],
+    "r": {
+      "item": "buildcraft:iron_chipset"
+    },
+    "g": [
+      {
+        "tag": "c:diamond_gears"
+      },
+      {
+        "tag": "forge:gears/diamond"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:integration_table"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:iron_chipset"
+  },
+  "MJ": 20000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:iron_ingots"
+        },
+        {
+          "tag": "forge:ingots/iron"
+        }
+      ]
+    }
+  ]
+}

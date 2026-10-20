@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OdO",
+    "OrO",
+    "OgO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "d": [
+      {
+        "tag": "c:diamonds"
+      },
+      {
+        "tag": "forge:gems/diamond"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:diamond_gears"
+      },
+      {
+        "tag": "forge:gears/diamond"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:assembly_table"
+  }
+}
