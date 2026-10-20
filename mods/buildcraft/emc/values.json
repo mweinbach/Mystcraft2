@@ -324,6 +324,9 @@
       "itemalchemy": 8,
       "source": "recipe"
     },
+    "buildcraft:volume_box": {
+      "excluded": "Creative-only: upstream has no recipe for the volume box, and its boxes are free-standing marks rather than material, so a value would only make a creative item transmutable."
+    },
     "buildcraft:water_spring": {
       "excluded": "Creative-only: upstream never generates water springs, and the block is unbreakable like bedrock and drops nothing; a value would only make an infinite water source transmutable."
     },

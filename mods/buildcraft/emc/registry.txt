@@ -73,6 +73,7 @@ buildcraft:quarry
 buildcraft:redstone_engine
 buildcraft:stirling_engine
 buildcraft:tank
+buildcraft:volume_box
 buildcraft:water_spring
 buildcraft:waterproof
 buildcraft:wrench
