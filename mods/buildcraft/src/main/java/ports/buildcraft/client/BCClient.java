@@ -50,6 +50,7 @@ public final class BCClient {
         sink.register(BCFactory.HEAT_EXCHANGER_TYPE.get(), context -> new HeatExchangerRenderer());
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
         sink.register(BCBuilders.FILLER_TYPE.get(), context -> new FillerRenderer());
+        sink.register(BCBuilders.ARCHITECT_TABLE_TYPE.get(), context -> new ArchitectTableRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
         sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
         sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
@@ -84,6 +85,7 @@ public final class BCClient {
         MenuScreens.register(BCFactory.DISTILLER_MENU.get(), DistillerScreen::new);
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
         MenuScreens.register(BCBuilders.FILLER_MENU.get(), FillerScreen::new);
+        MenuScreens.register(BCBuilders.ARCHITECT_TABLE_MENU.get(), ArchitectTableScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
@@ -94,6 +96,7 @@ public final class BCClient {
     /** Called after translucent blocks with the level's pose stack, which carries the camera's rotation but not its position. */
     public static void renderLevel(PoseStack poseStack, Camera camera) {
         VolumeBoxRenderer.render(poseStack, camera);
+        ArchitectTablesRenderer.render(poseStack, camera);
     }
 
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */
