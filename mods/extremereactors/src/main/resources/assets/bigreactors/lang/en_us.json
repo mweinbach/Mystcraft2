@@ -748,5 +748,18 @@
     "compat.bigreactors.jei.vaporization.recipecategory.title": "Vaporization",
     "compat.bigreactors.jei.condensation.recipecategory.title": "Condensation",
     "compat.bigreactors.jei.coolantmappings.recipecategory.title": "Fluid <=> Coolant",
-    "compat.bigreactors.jei.vapormappings.recipecategory.title": "Fluid <=> Vapor"
+    "compat.bigreactors.jei.vapormappings.recipecategory.title": "Fluid <=> Vapor",
+
+    "_comment": "1.19.2 port - multiblock validation messages (the port's own wording)",
+    "zerocore:api.multiblock.validation.too_few_parts": "The machine is missing parts",
+    "zerocore:api.multiblock.validation.block_not_connected": "A part is not connected to the rest of the machine",
+    "zerocore:api.multiblock.validation.invalid_part": "A part belongs to a different kind of machine",
+    "zerocore:api.multiblock.validation.invalid_foreign_part": "A part from another machine is in the way",
+    "zerocore:api.multiblock.validation.invalid_part_for_frame": "This part can't be used on the machine's frame",
+    "zerocore:api.multiblock.validation.invalid_part_for_top": "This part can't be used on the machine's top face",
+    "zerocore:api.multiblock.validation.invalid_part_for_bottom": "This part can't be used on the machine's bottom face",
+    "zerocore:api.multiblock.validation.invalid_part_for_sides": "This part can't be used on the machine's sides",
+    "zerocore:api.multiblock.validation.invalid_part_for_interior": "This part can't be used inside the machine",
+    "zerocore:api.multiblock.validation.machine_too_large": "The machine is too large: it can be at most %1$s blocks along the %2$s axis",
+    "zerocore:api.multiblock.validation.machine_too_small": "The machine is too small: it must be at least %1$s blocks along the %2$s axis"
 }
