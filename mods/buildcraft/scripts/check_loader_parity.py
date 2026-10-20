@@ -14,6 +14,8 @@ forge = MOD / 'build/libs' / f'buildcraft-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'buildcraft-fabric-1.19.2-{version}.jar'
 SHARED_CLASSES = 'ports/buildcraft/'
 LOADER_PACKAGES = ('ports/buildcraft/forge/', 'ports/buildcraft/fabric/')
+# Fabric adds the oil well placed feature to biomes in code instead.
+FORGE_ONLY = {'data/buildcraft/forge/biome_modifier/oil_well.json'}
 
 
 def require(condition, message):
@@ -62,7 +64,9 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
             + ', '.join(sorted(classes ^ shared_classes(b))[:10]))
     require(not any('gametest' in n for n in a.namelist() + b.namelist()), 'GameTest classes leaked into a JAR')
 
-    paths = gameplay_resources(a)
+    forge_paths = gameplay_resources(a)
+    require(FORGE_ONLY <= forge_paths, 'Forge biome modifier missing')
+    paths = forge_paths - FORGE_ONLY
     require(paths == gameplay_resources(b), 'gameplay resource path mismatch: '
             + ', '.join(sorted(paths ^ gameplay_resources(b))[:10]))
     for name in sorted(paths):
