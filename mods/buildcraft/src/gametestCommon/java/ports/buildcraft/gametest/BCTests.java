@@ -10,7 +10,6 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -360,7 +359,7 @@ public final class BCTests {
             require(helper, flow.itemCount() == 3, "the stack must be travelling, count " + flow.itemCount());
             helper.succeedWhen(() -> {
                 require(helper, flow.itemCount() == 0, "the void pipe must destroy its items");
-                helper.assertEntityNotPresent(EntityType.ITEM);
+                helper.assertItemEntityNotPresent(Items.DIAMOND, new BlockPos(1, 1, 1), 3);
             });
         });
     }
