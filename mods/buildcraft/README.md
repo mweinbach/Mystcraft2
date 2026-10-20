@@ -27,7 +27,10 @@ worlds do not migrate between them or from 1.12.
   built first, following upstream's builder rules restated for 1.19.2 blocks). The creative
   builder builds a recorded template or blueprint behind it, turned to its own facing, from the
   items and fluids it holds, including a blueprint's chest contents and entities, and builds it
-  again at every block along a path of path marks placed behind it.
+  again at every block along a path of path marks placed behind it. The creative electronic
+  library copies recordings between the server and each player's local library, the creative
+  replacer swaps one block for another throughout a blueprint, and the creative single block
+  schematic records and rebuilds one block; recordings show their snapshot turning in their tooltip.
 - Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
   area), path marks that connect into paths and loops, and the marker connector, with upstream's
   lasers; creative volume boxes that the connector resizes and removes.
@@ -39,8 +42,8 @@ worlds do not migrate between them or from 1.12.
 - Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
-**This is not full BuildCraft.** Gates and wires, facades, lasers and silicon, the
-electronic library and replacer, robots and several pipe types are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
+**This is not full BuildCraft.** Gates and wires, facades, lasers and silicon, robots and
+several pipe types are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
 
@@ -61,7 +64,7 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame, filler, builder, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT) and the refinery's
+frame, filler, builder, electronic library, replacer, single block schematics, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT) and the refinery's
 by-products and intermediate heats. Oil is valued like lava,
 light fuel at the two buckets of oil the refinery needs to make one, and a recorded template or
 blueprint like a blank one. See [emc/README.md](emc/README.md) and
