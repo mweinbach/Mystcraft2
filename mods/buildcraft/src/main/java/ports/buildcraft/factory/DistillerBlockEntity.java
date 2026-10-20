@@ -212,7 +212,7 @@ public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolde
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new DistillerMenu(id, inventory, worldPosition, data);
+        return new DistillerMenu(id, inventory, worldPosition, data, this);
     }
 
     @Override

@@ -98,6 +98,12 @@ public class HeatExchangerBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof HeatExchangerBlockEntity exchanger) exchanger.dropTanks();
+        super.onRemove(state, level, pos, newState, moving);
+    }
+
+    @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }

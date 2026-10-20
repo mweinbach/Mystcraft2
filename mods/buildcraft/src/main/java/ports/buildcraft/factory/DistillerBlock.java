@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.platform.Platform;
 
@@ -74,5 +75,13 @@ public class DistillerBlock extends BaseEntityBlock {
         if (!held.isEmpty() && Platform.get().interactWithFluidContainer(player, hand, level, pos, null)) return InteractionResult.CONSUME;
         Platform.openMenu((ServerPlayer) player, distiller, pos);
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof DistillerBlockEntity distiller) {
+            FragileFluidShardItem.dropTanks(level, pos, distiller.inputTank(), distiller.gasTank(), distiller.liquidTank());
+        }
+        super.onRemove(state, level, pos, newState, moving);
     }
 }

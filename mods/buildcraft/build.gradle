@@ -25,6 +25,35 @@ dependencies {
     }
 }
 
+// The shared mixins name official members; production Forge needs their SRG names from a refmap.
+// Loom writes the Fabric refmap under the same name.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def mixinRefmap = layout.buildDirectory.file('generated/mixin/buildcraft.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(mixinRefmap)
+    doFirst { mixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${mixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(mixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'buildcraft.mixins.json')
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'buildcraft.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
 // In-world tests are a development-only source set; they never enter the production JAR.
 sourceSets {
     gametest {

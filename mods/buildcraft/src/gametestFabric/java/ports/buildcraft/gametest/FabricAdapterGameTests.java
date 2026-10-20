@@ -1,6 +1,7 @@
 package ports.buildcraft.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -13,10 +14,14 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.MiningWellBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.transport.BCTransport;
 import team.reborn.energy.api.EnergyStorage;
@@ -66,6 +71,32 @@ public final class FabricAdapterGameTests implements FabricGameTest {
             transaction.commit();
         }
         BCTests.require(helper, tank.tank().amount() == 2000, "the tank must keep 2000 mB, has " + tank.tank().amount());
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 20)
+    public void transferApiShardStorage(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        ContainerItemContext context = ContainerItemContext.withInitial(FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        Storage<FluidVariant> fluids = context.find(FluidStorage.ITEM);
+        BCTests.require(helper, fluids != null, "the shard must expose a fluid storage");
+        FluidVariant variant = FluidVariant.of(oil);
+        try (Transaction transaction = Transaction.openOuter()) {
+            BCTests.require(helper, fluids.insert(variant, 100 * DROPLETS_PER_MB, transaction) == 0, "a shard cannot be filled");
+            BCTests.require(helper, fluids.extract(FluidVariant.of(Fluids.WATER), 100 * DROPLETS_PER_MB, transaction) == 0, "a shard holds only its fluid");
+            BCTests.require(helper, fluids.extract(variant, 100 * DROPLETS_PER_MB, transaction) == 100 * DROPLETS_PER_MB, "draining must return oil");
+        }
+        BCTests.require(helper, FragileFluidShardItem.getFluid(context.getItemVariant().toStack()).amount() == 300, "an aborted drain must roll back");
+        try (Transaction transaction = Transaction.openOuter()) {
+            BCTests.require(helper, fluids.extract(variant, 100 * DROPLETS_PER_MB, transaction) == 100 * DROPLETS_PER_MB, "draining must return oil");
+            transaction.commit();
+        }
+        BCTests.require(helper, FragileFluidShardItem.getFluid(context.getItemVariant().toStack()).amount() == 200, "draining 100 mB must leave 200 mB");
+        try (Transaction transaction = Transaction.openOuter()) {
+            BCTests.require(helper, fluids.extract(variant, 1000 * DROPLETS_PER_MB, transaction) == 200 * DROPLETS_PER_MB, "the rest must drain");
+            transaction.commit();
+        }
+        BCTests.require(helper, context.getItemVariant().isBlank(), "an emptied shard must be used up");
         helper.succeed();
     }
 

@@ -1,5 +1,6 @@
 package ports.buildcraft.lib;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
@@ -9,10 +10,15 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-/** Upstream {@code ContainerBC_Neptune}: player inventory first, then machine slots. */
+/**
+ * Upstream {@code ContainerBC_Neptune}: player inventory first, then machine slots. GUI tanks are
+ * clicked through vanilla's menu button packet, whose id is the tank's index.
+ */
 public abstract class BCMenu extends AbstractContainerMenu {
     protected final BlockPos pos;
     protected int machineSlotStart = 36;
+    private List<GuiTank> guiTanks = List.of();
+    private List<GuiTank> quickMoveTanks = List.of();
 
     protected BCMenu(@Nullable MenuType<?> type, int id, BlockPos pos) {
         super(type, id);
@@ -30,6 +36,15 @@ public abstract class BCMenu extends AbstractContainerMenu {
         }
     }
 
+    /**
+     * Server side only: the tanks a carried container can be clicked on, by button id, and those a
+     * shift-clicked inventory container tries in order, as upstream's {@code transferStackInSlot}.
+     */
+    protected void setGuiTanks(List<GuiTank> clickable, List<GuiTank> quickMove) {
+        guiTanks = List.copyOf(clickable);
+        quickMoveTanks = List.copyOf(quickMove);
+    }
+
     public BlockPos pos() {
         return pos;
     }
@@ -41,12 +56,26 @@ public abstract class BCMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id < 0 || id >= guiTanks.size()) return false;
+        setCarried(guiTanks.get(id).transferStackToTank(player, getCarried()));
+        return true;
+    }
+
+    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         Slot slot = slots.get(index);
         if (!slot.hasItem()) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
         if (index < machineSlotStart) {
+            for (GuiTank tank : quickMoveTanks) {
+                ItemStack result = tank.transferStackToTank(player, stack);
+                if (!ItemStack.matches(result, original)) {
+                    slot.set(result);
+                    return ItemStack.EMPTY;
+                }
+            }
             if (machineSlotStart >= slots.size() || !moveItemStackTo(stack, machineSlotStart, slots.size(), false)) return ItemStack.EMPTY;
         } else if (!moveItemStackTo(stack, 0, machineSlotStart, true)) {
             return ItemStack.EMPTY;

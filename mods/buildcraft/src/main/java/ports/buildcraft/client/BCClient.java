@@ -2,16 +2,25 @@ package ports.buildcraft.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.core.BCCore;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.factory.BCFactory;
+import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.platform.Platform;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeDefinition;
 
@@ -34,6 +43,28 @@ public final class BCClient {
         sink.register(BCFactory.HEAT_EXCHANGER_TYPE.get(), context -> new HeatExchangerRenderer());
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
+    }
+
+    public interface ItemColourSink {
+        void register(ItemColor colour, ItemLike item);
+    }
+
+    public interface ItemPropertySink {
+        void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
+    }
+
+    /** The shard's fluid layer is tinted with the average colour of the fluid it holds. */
+    public static void registerItemColours(ItemColourSink sink) {
+        sink.register((stack, layer) -> layer == 1 ? FluidColours.average(FragileFluidShardItem.getFluid(stack).fluid()) : -1,
+                BCCore.FRAGILE_FLUID_SHARD.get());
+    }
+
+    /** Upstream's shard model sets {@code flipGas}: shards of gaseous fluids are drawn upside down. */
+    public static void registerItemProperties(ItemPropertySink sink) {
+        sink.register(BCCore.FRAGILE_FLUID_SHARD.get(), BuildCraft.id("gaseous"), (stack, level, entity, seed) -> {
+            FluidAmount fluid = FragileFluidShardItem.getFluid(stack);
+            return !fluid.isEmpty() && Platform.get().isGaseous(fluid.fluid()) ? 1 : 0;
+        });
     }
 
     /** Called on the client thread once registries are populated. */

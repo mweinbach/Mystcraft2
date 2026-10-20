@@ -42,4 +42,19 @@ abstract class BCScreen<M extends AbstractContainerMenu> extends AbstractContain
     }
 
     protected void renderExtras(PoseStack poseStack, float partialTicks) {}
+
+    /** The index of the GUI tank under the mouse, matching the menu's clickable tanks, or -1. */
+    protected int tankAt(double mouseX, double mouseY) {
+        return -1;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int tank = tankAt(mouseX - leftPos, mouseY - topPos);
+        if (tank >= 0 && !menu.getCarried().isEmpty() && minecraft != null && minecraft.gameMode != null) {
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, tank);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 }

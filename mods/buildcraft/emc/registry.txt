@@ -1,5 +1,6 @@
 buildcraft:combustion_engine
 buildcraft:distiller
+buildcraft:fragile_fluid_shard
 buildcraft:frame
 buildcraft:fuel_dense_bucket
 buildcraft:fuel_dense_heat_1_bucket
@@ -69,5 +70,6 @@ buildcraft:quarry
 buildcraft:redstone_engine
 buildcraft:stirling_engine
 buildcraft:tank
+buildcraft:water_spring
 buildcraft:waterproof
 buildcraft:wrench
