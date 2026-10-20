@@ -45,7 +45,7 @@ public final class ArchitectTablesRenderer {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
         long now = minecraft.level.getGameTime();
-        ClientArchitectTables.expire(now);
+        ClientArchitectTables.expire(minecraft.level);
         if (ClientArchitectTables.BOXES.isEmpty() || ClientArchitectTables.SCANNED_BLOCKS.isEmpty()) return;
         Vec3 cameraPos = camera.getPosition();
         List<AABB> boxes = new ArrayList<>(ClientArchitectTables.BOXES.keySet());

@@ -109,7 +109,7 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
     void clientTick() {
         long now = level.getGameTime();
         deltaProgress.tick(now);
-        if (box.isInitialized()) ClientArchitectTables.putBox(box.boundingBox(), now);
+        if (box.isInitialized()) ClientArchitectTables.putBox(level, box.boundingBox());
     }
 
     void serverTick() {
@@ -370,7 +370,6 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
         markerBox = tag.getBoolean("markerBox");
         name = tag.getString("name");
         deltaProgress.load(tag.getCompound("progress"));
-        long now = level.getGameTime();
-        for (long scan : tag.getLongArray("scans")) ClientArchitectTables.putScannedBlock(BlockPos.of(scan), now);
+        for (long scan : tag.getLongArray("scans")) ClientArchitectTables.putScannedBlock(level, BlockPos.of(scan));
     }
 }
