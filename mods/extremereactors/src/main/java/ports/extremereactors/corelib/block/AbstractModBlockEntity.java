@@ -26,6 +26,8 @@ import ports.extremereactors.corelib.capability.ICapabilityProvider;
 import ports.extremereactors.corelib.capability.LazyOptional;
 import ports.extremereactors.corelib.client.model.data.ModelData;
 import ports.extremereactors.corelib.data.nbt.ISyncableEntity;
+import ports.extremereactors.corelib.event.Event;
+import ports.extremereactors.corelib.event.IEvent;
 import ports.extremereactors.corelib.internal.Lib;
 import ports.extremereactors.corelib.network.messages.TileCommandMessage;
 import ports.extremereactors.platform.Platform;
@@ -34,6 +36,7 @@ import ports.extremereactors.platform.PlatformBlockEntity;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Base block entity. All persistent and client-synchronized state goes through {@link ISyncableEntity}: disk saves
@@ -103,6 +106,29 @@ public abstract class AbstractModBlockEntity
         if (null != this.level) {
             CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
         }
+    }
+
+    public <T> T callOnLogicalServer(final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+        return this.calledByLogicalServer() ? code.get() : invalidSideReturnValue.get();
+    }
+
+    public <T> T callOnLogicalClient(final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+        return this.calledByLogicalClient() ? code.get() : invalidSideReturnValue.get();
+    }
+
+    //endregion
+    //region data updates
+
+    /**
+     * Raised by {@link #onDataUpdate()}: the data this block entity shows in its screen changed.
+     */
+    public final IEvent<Runnable> DataUpdated = new Event<>();
+
+    /**
+     * The data shown by this block entity changed, for example because its multiblock controller updated.
+     */
+    protected void onDataUpdate() {
+        this.DataUpdated.raise(Runnable::run);
     }
 
     //endregion

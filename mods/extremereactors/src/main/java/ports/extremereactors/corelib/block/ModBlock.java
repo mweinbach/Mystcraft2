@@ -6,6 +6,7 @@ package ports.extremereactors.corelib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -38,6 +39,13 @@ public class ModBlock extends Block {
 
     public BlockItem createBlockItem(final Item.Properties properties) {
         return new BlockItem(this, properties);
+    }
+
+    /**
+     * @return the display name of the block, for use as a translation argument
+     */
+    public static Component getNameForTranslation(final Block block) {
+        return block.getName();
     }
 
     //region block state

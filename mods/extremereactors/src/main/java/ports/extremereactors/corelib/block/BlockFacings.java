@@ -7,7 +7,9 @@ package ports.extremereactors.corelib.block;
 import net.minecraft.core.Direction;
 import ports.extremereactors.corelib.block.property.BlockFacingsProperty;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * An immutable set of block faces, stored as a 6-bit mask indexed by {@link Direction#get3DDataValue()}.
@@ -63,6 +65,13 @@ public final class BlockFacings {
 
     public boolean isSet(final Direction direction) {
         return 0 != (this._mask & bit(direction));
+    }
+
+    /**
+     * @return the set directions, in {@link Direction} order
+     */
+    public Stream<Direction> stream() {
+        return Arrays.stream(Direction.values()).filter(this::isSet);
     }
 
     public boolean none() {

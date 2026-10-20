@@ -23,6 +23,10 @@ public interface IMultiblockPartTypeProvider<Controller extends IMultiblockContr
                 Optional.of((PartType) block.getPartType()) : Optional.empty();
     }
 
+    default boolean isTypeOfPart(final PartType type) {
+        return this.getPartType().filter(type::equals).isPresent();
+    }
+
     default PartType getPartTypeOrDefault(final PartType defaultType) {
         return this.getPartType().orElse(defaultType);
     }

@@ -91,6 +91,13 @@ public enum BlockFacingsProperty
         return this._mask;
     }
 
+    /**
+     * @return this value as written in a blockstate file variant key, e.g. {@code facings=all}
+     */
+    public String asVariantString() {
+        return FACINGS.getName() + "=" + this.getSerializedName();
+    }
+
     public BlockFacings toFacings() {
         return BlockFacings.fromMask(this._mask);
     }

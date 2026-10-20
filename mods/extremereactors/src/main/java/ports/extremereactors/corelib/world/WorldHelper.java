@@ -15,6 +15,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.extremereactors.corelib.client.render.ModRenderHelper;
+import ports.extremereactors.platform.Platform;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -114,6 +116,17 @@ public final class WorldHelper {
     public static void notifyBlockUpdate(final Level world, final BlockPos position, final BlockState oldState,
                                          final BlockState newState) {
         world.sendBlockUpdated(position, oldState, newState, Block.UPDATE_ALL);
+    }
+
+    /**
+     * Client: re-render every block between the two corners (inclusive). Does nothing on a dedicated server or when
+     * called off the render thread.
+     */
+    public static void markBlockRangeForRenderUpdate(final BlockPos min, final BlockPos max) {
+
+        if (Platform.isPhysicalClient()) {
+            ModRenderHelper.markBlockRangeForRenderUpdate(min, max);
+        }
     }
 
     public static void notifyNeighborsOfStateChange(final Level world, final BlockPos position, final Block blockType) {

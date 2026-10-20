@@ -21,6 +21,7 @@ package it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.part;
 import it.zerono.mods.extremereactors.ExtremeReactors;
 import it.zerono.mods.extremereactors.gamecontent.CommonConstants;
 import it.zerono.mods.extremereactors.gamecontent.Content;
+import ports.extremereactors.corelib.capability.CapabilityHelper;
 import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.corelib.DebuggableHelper;
 import ports.extremereactors.corelib.IDebugMessages;
@@ -255,7 +256,7 @@ public class FluidizerFluidInjectorEntity
     private LazyOptional<IFluidHandler> getNeighborCapability() {
         return CodeHelper.optionalFlatMap(this.getPartWorld(), this.getOutwardDirection(),
                         (world, direction) -> WorldHelper.getTile(world, this.getWorldPosition().relative(direction))
-                                .map(te -> te.getCapability(FLUID_HANDLER_CAPABILITY, direction.getOpposite())))
+                                .map(te -> CapabilityHelper.getCapability(te, FLUID_HANDLER_CAPABILITY, direction.getOpposite())))
                 .orElse(LazyOptional.empty());
     }
 

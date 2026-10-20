@@ -116,7 +116,7 @@ public class ItemHandlerSlot
         return this._handler.extractItem(this._index, amount, false);
     }
 
-    @Override
+    /** Overrides the Forge slot method on Forge; unused on Fabric. */
     public boolean isSameInventory(final Slot other) {
         return other instanceof ItemHandlerSlot slot && slot._handler == this._handler;
     }

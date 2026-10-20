@@ -24,7 +24,8 @@ public interface INeighborChangeListener {
      *
      * @param state the state of the listener block
      */
-    void onNeighborTileChanged(BlockState state, BlockPos neighborPosition);
+    default void onNeighborTileChanged(BlockState state, BlockPos neighborPosition) {
+    }
 
     /**
      * Implemented by blocks whose block entities tell the adjacent listeners when they appear, disappear or change.

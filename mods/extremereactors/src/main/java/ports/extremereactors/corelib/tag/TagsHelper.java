@@ -32,6 +32,10 @@ public final class TagsHelper<T> {
         return TagKey.create(this._registry.key(), new ResourceLocation(id));
     }
 
+    public TagKey<T> createKey(final ResourceLocation id) {
+        return TagKey.create(this._registry.key(), id);
+    }
+
     public TagKey<T> createKey(final String name, final Function<String, ResourceLocation> idFactory) {
         return TagKey.create(this._registry.key(), idFactory.apply(name));
     }

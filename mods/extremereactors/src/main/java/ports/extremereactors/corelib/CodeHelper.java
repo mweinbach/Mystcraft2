@@ -152,6 +152,38 @@ public final class CodeHelper {
         return world.isClientSide() ? code.get() : invalidSideReturnValue.get();
     }
 
+    public static boolean callOnLogicalServer(final Level world, final BooleanSupplier code) {
+        return !world.isClientSide() && code.getAsBoolean();
+    }
+
+    public static int callOnLogicalServer(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
+        return world.isClientSide() ? invalidSideReturnValue : code.getAsInt();
+    }
+
+    public static long callOnLogicalServer(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
+        return world.isClientSide() ? invalidSideReturnValue : code.getAsLong();
+    }
+
+    public static double callOnLogicalServer(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
+        return world.isClientSide() ? invalidSideReturnValue : code.getAsDouble();
+    }
+
+    public static boolean callOnLogicalClient(final Level world, final BooleanSupplier code) {
+        return world.isClientSide() && code.getAsBoolean();
+    }
+
+    public static int callOnLogicalClient(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
+        return world.isClientSide() ? code.getAsInt() : invalidSideReturnValue;
+    }
+
+    public static long callOnLogicalClient(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
+        return world.isClientSide() ? code.getAsLong() : invalidSideReturnValue;
+    }
+
+    public static double callOnLogicalClient(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
+        return world.isClientSide() ? code.getAsDouble() : invalidSideReturnValue;
+    }
+
     //endregion
     //region Optional helpers
 

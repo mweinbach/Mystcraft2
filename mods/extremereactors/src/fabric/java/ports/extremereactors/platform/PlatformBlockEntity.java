@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import ports.extremereactors.corelib.client.model.data.ModelData;
 
 /**
@@ -17,8 +18,19 @@ import ports.extremereactors.corelib.client.model.data.ModelData;
  */
 public abstract class PlatformBlockEntity extends BlockEntity implements RenderAttachmentBlockEntity {
 
+    public static final AABB INFINITE_EXTENT_AABB = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+            Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+
     protected PlatformBlockEntity(final BlockEntityType<?> type, final BlockPos position, final BlockState state) {
         super(type, position, state);
+    }
+
+    /**
+     * Mirrors Forge's render bounding box. Fabric does not cull block entity renderers by it: renderers that draw
+     * outside their block override {@code BlockEntityRenderer#shouldRenderOffScreen} instead.
+     */
+    public AABB getRenderBoundingBox() {
+        return new AABB(this.getBlockPos());
     }
 
     protected abstract ModelData getCurrentModelData();

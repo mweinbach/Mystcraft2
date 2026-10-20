@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -90,6 +91,15 @@ public final class ModRenderHelper {
     /**
      * @return the system time, in milliseconds, at which the last frame finished rendering
      */
+    public static void markBlockRangeForRenderUpdate(final BlockPos min, final BlockPos max) {
+
+        final Minecraft mc = Minecraft.getInstance();
+
+        if (mc.isSameThread() && null != mc.levelRenderer) {
+            mc.levelRenderer.setBlocksDirty(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
+        }
+    }
+
     public static long getLastRenderTime() {
         return s_lastRenderTime;
     }
