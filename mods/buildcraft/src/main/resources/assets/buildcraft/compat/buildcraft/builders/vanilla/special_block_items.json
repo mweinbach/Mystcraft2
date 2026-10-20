@@ -1,0 +1,331 @@
+[
+  {
+    "selectors": [
+      "minecraft:cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:wheat"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:wheat_seeds"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pumpkin_stem",
+      "minecraft:attached_pumpkin_stem"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pumpkin_seeds"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:melon_stem",
+      "minecraft:attached_melon_stem"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:melon_seeds"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:beetroots"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:beetroot_seeds"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:carrots"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:carrot"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potatoes"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:potato"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sugar_cane"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sugar_cane"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:acacia_sign",
+      "minecraft:acacia_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:acacia_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:birch_sign",
+      "minecraft:birch_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:birch_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:crimson_sign",
+      "minecraft:crimson_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:crimson_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:dark_oak_sign",
+      "minecraft:dark_oak_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:dark_oak_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:jungle_sign",
+      "minecraft:jungle_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:jungle_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:mangrove_sign",
+      "minecraft:mangrove_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:mangrove_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:oak_sign",
+      "minecraft:oak_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:oak_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:spruce_sign",
+      "minecraft:spruce_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:spruce_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:warped_sign",
+      "minecraft:warped_wall_sign"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:warped_sign"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:tall_grass[half=lower]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:tall_grass"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:grass"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:grass"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:fern"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:fern"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cauldron",
+      "minecraft:water_cauldron",
+      "minecraft:lava_cauldron",
+      "minecraft:powder_snow_cauldron"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cauldron"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,9 +1,11 @@
 package ports.buildcraft;
 
+import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import ports.buildcraft.builders.ArchitectTableMenu;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.energy.BCEnergy;
@@ -39,6 +41,11 @@ public final class BuildCraft {
     private static CreativeModeTab pipeTab() {
         if (pipeTab == null) pipeTab = Platform.get().creativeTab("pipes", () -> new ItemStack(BCTransport.ITEM_PIPES.get(0).item()));
         return pipeTab;
+    }
+
+    /** Client-to-server messages by channel; loaders hand each payload over on the server thread. */
+    public static Map<ResourceLocation, Platform.ServerReceiver> serverReceivers() {
+        return Map.of(ArchitectTableMenu.NAME_CHANNEL, ArchitectTableMenu::receiveName);
     }
 
     /** Loads every module so its registry entries are queued, in upstream module order. */

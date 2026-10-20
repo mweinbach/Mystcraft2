@@ -1,7 +1,11 @@
 package ports.buildcraft.forge;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -38,6 +42,10 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -185,5 +193,23 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public void sendToPlayer(ServerPlayer player, ResourceLocation channel, Consumer<FriendlyByteBuf> payload) {
         ForgeNetwork.send(player, channel, payload);
+    }
+
+    @Override
+    public Path gameDirectory() {
+        return FMLPaths.GAMEDIR.get();
+    }
+
+    @Override
+    public List<String> modIds() {
+        return ModList.get().getMods().stream().map(IModInfo::getModId).toList();
+    }
+
+    @Override
+    public Optional<Path> modResource(String modId, String path) {
+        IModFileInfo file = ModList.get().getModFileById(modId);
+        if (file == null) return Optional.empty();
+        Path resource = file.getFile().findResource(path);
+        return Files.isRegularFile(resource) ? Optional.of(resource) : Optional.empty();
     }
 }

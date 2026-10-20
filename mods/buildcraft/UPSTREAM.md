@@ -25,9 +25,9 @@ classes, which each port class names in its Javadoc (`Upstream {@code ...}`). Th
 | `lib` | `buildcraft.lib.misc.data.SimplexNoise` (Stefan Gustavson's public-domain simplex noise), `buildcraft.lib.mj.MjBattery`, `lib.misc.BlockUtil`, `lib.inventory` transactors, `lib.fluid.Tank` (including `transferStackToTank`), `lib.gui.widget.WidgetFluidTank`, `lib.misc.data.Box`/`BoxIterator`, `api.mj.MjAPI`, `api.core.IAreaProvider`; `lib.marker`: `MarkerCache`, `MarkerSubCache`, `MarkerConnection`, `MarkerSavedData`, `lib.tile.TileMarker` |
 | `energy` | `TileEngineBase_BC8`, `TileEngineRedstone_BC8`, `TileEngineStone_BC8`, `TileEngineIron_BC8`, `EnumPowerStage`, `BCEnergyFluids`, `BCEnergyRecipes`, `BCEnergyConfig`, `OilGenerator` (including the `excessiveBiomes` bonus), `OilGenStructure`, `BiomeOilDesert`, `BiomeOilOcean`, `BiomeInitializer`, `GenLayerBiomeReplacer`, `GenLayerAddOilDesert`, `GenLayerAddOilOcean`, `BCEnergyWorldGen`, `BlockSpring`, `EnumSpring`, `ContainerEngineIron_BC8`, `lib.fluid.BCFluidBlock` and Forge 1.12 `BlockFluidClassic` (gases rising) |
 | `factory` | `TileMiner`, `TileMiningWell`, `TilePump`, `TileTank`, `TileDistiller_BC8`, `TileHeatExchange`, `BlockTube`, `BlockTank`, `BlockPump`, `BlockDistiller`, `BlockHeatExchange`, `ContainerDistiller` |
-| `builders` | `TileQuarry`, `BlockQuarry`, `BlockFrame`, `BCBuildersConfig`, `TileFiller`, `BlockFiller`, `ContainerFiller`, `BCBuildersStatements`; `builders.filler`: `FillerStatementContext`, `FillerUtil`; `builders.snapshot.pattern`: `Pattern`, `PatternNone`, `PatternClear`, `PatternFill`, `PatternBox`, `PatternFrame`, `PatternPyramid`, `PatternStairs`, `PatternShape2d*`, `PatternSphere`, `PatternSpherePart` and the `parameter` package; `Template.FilledTemplate`, `api.filler.IFilledTemplate`; `lib.statement.FullStatement`; `builders.snapshot`: `SnapshotBuilder`, `TemplateBuilder`, `ITileForSnapshotBuilder`, `ITileForTemplateBuilder`, `Template.BuildingInfo` |
+| `builders` | `TileQuarry`, `BlockQuarry`, `BlockFrame`, `BCBuildersConfig`, `TileFiller`, `BlockFiller`, `ContainerFiller`, `BCBuildersStatements`; `builders.filler`: `FillerStatementContext`, `FillerUtil`; `builders.snapshot.pattern`: `Pattern`, `PatternNone`, `PatternClear`, `PatternFill`, `PatternBox`, `PatternFrame`, `PatternPyramid`, `PatternStairs`, `PatternShape2d*`, `PatternSphere`, `PatternSpherePart` and the `parameter` package; `Template.FilledTemplate`, `api.filler.IFilledTemplate`; `lib.statement.FullStatement`; `builders.snapshot`: `SnapshotBuilder`, `TemplateBuilder`, `ITileForSnapshotBuilder`, `ITileForTemplateBuilder`, `Template.BuildingInfo`; `TileArchitectTable`, `BlockArchitectTable`, `ContainerArchitectTable`, `ItemSnapshot`, `BCBuildersSchematics`, `client.ClientArchitectTables`; `builders.snapshot`: `Snapshot`, `Template`, `Blueprint`, `GlobalSavedDataSnapshots`, `SchematicBlockManager`, `SchematicBlockDefault`, `SchematicBlockFluid`, `SchematicBlockAir`, `SchematicEntityManager`, `SchematicEntityDefault`, `RulesLoader`, `JsonRule`, `JsonSelector`, `RequiredExtractor*`, `ItemStackRef`, `FluidStackRef`, `NbtRef`, `NbtPath`, `EnumNbtCompareOperation`; `api.schematics` (`ISchematicBlock`, `ISchematicEntity`, `SchematicBlockContext`, `SchematicEntityContext`, the factory registries); `api.enums.EnumSnapshotType`; `lib.misc.HashUtil`, `lib.misc.NBTUtilBC`, `lib.delta.DeltaInt` |
 | `transport` | `TilePipeHolder`, `BlockPipeHolder`, `PipeFlowItems`, `PipeFlowFluids`, `PipeFlowPower`, `TravellingItem`, `DelayedList`, `BCTransportPipes` and the `PipeBehaviour*` classes |
-| `client` | `RenderEngine_BC8`, `PipeFlowRenderer*`, `RenderTank`, `RenderTube`, `RenderQuarry`, `RenderDistiller`, `RenderHeatExchange`, `FluidRenderer`, `GuiDiamondPipe`, `GuiDistiller`, `GuiEngine*`, `lib.client.render.laser` (`LaserRenderer_BC8`, `LaserData_BC8`, `LaserBoxRenderer`, `LaserContext`), `BuildCraftLaserManager`, `lib.client.render.MarkerRenderer`, `RenderMarkerVolume`, `RenderTickListener` (possible marker connections), `RenderVolumeBoxes`, `RenderFiller`, `RenderSnapshotBuilder`, `GuiFiller` and its `filler.json` layout, `lib.gui.statement` (`GuiElementStatement`, `GuiElementStatementSource`, `GuiElementStatementVariant`), `lib.gui.ledger.Ledger_Neptune` |
+| `client` | `RenderEngine_BC8`, `PipeFlowRenderer*`, `RenderTank`, `RenderTube`, `RenderQuarry`, `RenderDistiller`, `RenderHeatExchange`, `FluidRenderer`, `GuiDiamondPipe`, `GuiDistiller`, `GuiEngine*`, `lib.client.render.laser` (`LaserRenderer_BC8`, `LaserData_BC8`, `LaserBoxRenderer`, `LaserContext`), `BuildCraftLaserManager`, `lib.client.render.MarkerRenderer`, `RenderMarkerVolume`, `RenderTickListener` (possible marker connections), `RenderVolumeBoxes`, `RenderFiller`, `RenderSnapshotBuilder`, `GuiFiller` and its `filler.json` layout, `GuiArchitectTable`, `RenderArchitectTable`, `RenderArchitectTables`, `lib.gui.statement` (`GuiElementStatement`, `GuiElementStatementSource`, `GuiElementStatementVariant`), `lib.gui.ledger.Ledger_Neptune` |
 
 `src/forge` and `src/fabric` contain only loader adapters written for this port (registration,
 capabilities, Transfer API and Team Reborn Energy bridges, client hooks).
@@ -35,7 +35,7 @@ capabilities, Transfer API and Team Reborn Energy bridges, client hooks).
 ## Assets and data
 
 `tools/generate_assets.py --upstream <checkout>` produces every file under `src/main/resources`
-except the EMC data:
+except the builder rules and the EMC data:
 
 - Textures are copied from upstream `buildcraft_resources`; fluid sprites are recoloured with the
   light and dark colours from upstream `BCEnergyFluids`, as upstream does at runtime.
@@ -45,6 +45,12 @@ except the EMC data:
 - The oil desert and oil ocean biome JSON start from vanilla 1.19.2's desert and ocean, which
   `tools/vanilla/worldgen/biome` holds as dumped by the Minecraft 1.19.2 server's `--reports`
   option, as upstream's oil biomes extended `BiomeDesert` and `BiomeOcean`.
+
+`tools/generate_builder_rules.py` writes the builder rules under
+`assets/buildcraft/compat/buildcraft/builders`: upstream's
+`buildcraftbuilders/compat/buildcraft/builders/vanilla` rule files restated for 1.19.2 ids, with each block
+family read from Minecraft 1.19.2's block state files, plus `port_additions.json` for 1.19.2 blocks upstream's
+files had no counterpart for.
 
 `src/main/resources/data/buildcraft/{pe_custom_conversions,default_emcs}` are generated by
 `scripts/emc.py` from [`emc/policy.json`](emc/policy.json); see [`emc/README.md`](emc/README.md).

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ppp",
+    "pbp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "b": [
+      {
+        "tag": "c:black_dyes"
+      },
+      {
+        "tag": "forge:dyes/black"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:template_clean"
+  }
+}

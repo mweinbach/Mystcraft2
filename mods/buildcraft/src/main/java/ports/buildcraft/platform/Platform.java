@@ -1,6 +1,9 @@
 package ports.buildcraft.platform;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -65,6 +68,20 @@ public final class Platform {
 
         /** Sends a server-to-client message; the client hands its payload to the receiver registered for {@code channel}. */
         void sendToPlayer(ServerPlayer player, ResourceLocation channel, Consumer<FriendlyByteBuf> payload);
+
+        /** The instance folder on clients and the server folder on dedicated servers. */
+        Path gameDirectory();
+
+        List<String> modIds();
+
+        /** The file at {@code path} inside the jar of the mod {@code modId}, if it has one. */
+        Optional<Path> modResource(String modId, String path);
+    }
+
+    /** A client-to-server message, handled on the server thread. */
+    @FunctionalInterface
+    public interface ServerReceiver {
+        void receive(ServerPlayer player, FriendlyByteBuf payload);
     }
 
     @FunctionalInterface

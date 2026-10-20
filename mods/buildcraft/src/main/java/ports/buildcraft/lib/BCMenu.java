@@ -26,13 +26,17 @@ public abstract class BCMenu extends AbstractContainerMenu {
     }
 
     protected void addFullPlayerInventory(Inventory inventory, int startY) {
+        addFullPlayerInventory(inventory, 8, startY);
+    }
+
+    protected void addFullPlayerInventory(Inventory inventory, int startX, int startY) {
         for (int sy = 0; sy < 3; sy++) {
             for (int sx = 0; sx < 9; sx++) {
-                addSlot(new Slot(inventory, sx + sy * 9 + 9, 8 + sx * 18, startY + sy * 18));
+                addSlot(new Slot(inventory, sx + sy * 9 + 9, startX + sx * 18, startY + sy * 18));
             }
         }
         for (int sx = 0; sx < 9; sx++) {
-            addSlot(new Slot(inventory, sx, 8 + sx * 18, startY + 58));
+            addSlot(new Slot(inventory, sx, startX + sx * 18, startY + 58));
         }
     }
 

@@ -137,6 +137,8 @@ MATERIAL_TAGS = {
     ("sandstone", "sandstone"): ["minecraft:sandstone", "minecraft:chiseled_sandstone", "minecraft:cut_sandstone"],
     ("black_dyes", "dyes/black"): ["minecraft:black_dye"],
     ("green_dyes", "dyes/green"): ["minecraft:green_dye"],
+    ("yellow_dyes", "dyes/yellow"): ["minecraft:yellow_dye"],
+    ("lapis", "gems/lapis"): ["minecraft:lapis_lazuli"],
     ("slime_balls", "slimeballs"): ["minecraft:slime_ball"],
     ("wooden_rods", "rods/wooden"): ["minecraft:stick"],
 }
@@ -570,6 +572,36 @@ class Generator:
             "tip.filler.invert.off": "Do Not Invert",
         })
 
+    def architect(self) -> None:
+        for part in ["back", "bottom", "front_off", "front_on", "left", "right", "top"]:
+            self.copy(f"buildcraftbuilders/textures/blocks/architect/{part}.png", f"block/architect/{part}.png")
+        self.copy("buildcraftbuilders/textures/blocks/scan.png", "block/scan.png")
+        self.copy("buildcraftbuilders/textures/gui/architect.png", "gui/architect.png")
+        for state in ["off", "on"]:
+            model = json.loads((self.src / f"buildcraftbuilders/models/block/architect_{state}.json").read_text(encoding="utf-8"))
+            model["parent"] = "minecraft:block/orientable"
+            model["textures"] = {face: texture.replace("buildcraftbuilders:blocks/", rl("block/"))
+                                 for face, texture in model["textures"].items()}
+            self.model(f"block/architect_{state}", model)
+        self.blockstate("architect_table", {"variants": {
+            f"facing={facing},valid={valid}": dict({"model": rl(f"block/architect_{state}")}, **({"y": y} if y else {}))
+            for valid, state in [("true", "on"), ("false", "off")] for facing, y in HORIZONTAL_Y.items()}})
+        self.item_model("architect_table", rl("block/architect_off"))
+        for kind in ["template", "blueprint"]:
+            for state in ["clean", "used"]:
+                self.copy(f"buildcraftbuilders/textures/items/{kind}/{state}.png", f"item/{kind}/{state}.png")
+                self.generated_item(f"{kind}_{state}", f"{kind}/{state}")
+        self.lang.update({
+            f"block.{MOD}.architect_table": "Architect Table",
+            f"block.{MOD}.architect_table.tip": "Not usable in survival",
+            f"item.{MOD}.template_clean": "Template",
+            f"item.{MOD}.template_used": "Template",
+            f"item.{MOD}.blueprint_clean": "Blueprint",
+            f"item.{MOD}.blueprint_used": "Blueprint",
+            f"item.{MOD}.snapshot.author": "by",
+            f"item.{MOD}.snapshot.blank": "Blank",
+        })
+
     def markers(self) -> None:
         for kind in ["volume", "path"]:
             self.copy(f"buildcraftcore/textures/blocks/marker_{kind}.png", f"block/marker_{kind}.png")
@@ -737,6 +769,12 @@ class Generator:
         self.shaped("marker_path", "marker_path", ["g", "t"], {"g": {"item": "minecraft:green_dye"}, "t": {"item": "minecraft:redstone_torch"}})
         self.shaped("marker_connector", "marker_connector", ["r", "g", "w"],
                     {"r": {"item": "minecraft:redstone_torch"}, "g": gear("wood"), "w": {"item": rl("wrench")}})
+        paper = {"item": "minecraft:paper"}
+        self.shaped("template", "template_clean", ["ppp", "pbp", "ppp"], {"p": paper, "b": tags("black_dyes", "dyes/black")})
+        self.shaped("blueprint", "blueprint_clean", ["ppp", "pbp", "ppp"], {"p": paper, "b": tags("lapis", "gems/lapis")})
+        self.shaped("architect_table", "architect_table", ["bmb", "ycy", "dsd"], {
+            "b": tags("black_dyes", "dyes/black"), "m": {"item": rl("marker_volume")}, "y": tags("yellow_dyes", "dyes/yellow"),
+            "c": {"item": "minecraft:crafting_table"}, "d": gear("diamond"), "s": {"item": rl("blueprint_clean")}})
 
         self.shapeless("waterproof", "waterproof", [SEALANT_SOURCES])
         self.shapeless("waterproof_from_residue", "waterproof", [{"item": rl("oil_residue_bucket")}], count=8)
@@ -772,11 +810,11 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table"] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -785,9 +823,11 @@ class Generator:
             })
 
     def run(self) -> None:
-        for path in [ASSETS, DATA / MOD, DATA / "c", DATA / "forge", DATA / "minecraft"]:
-            if path.exists():
+        for path in [*(child for child in ASSETS.glob("*") if child.name != "compat"), DATA / MOD, DATA / "c", DATA / "forge", DATA / "minecraft"]:
+            if path.is_dir():
                 shutil.rmtree(path)
+            elif path.exists():
+                path.unlink()
         self.textures()
         self.engines()
         self.pipes()
@@ -795,6 +835,7 @@ class Generator:
         self.refinery()
         self.builders()
         self.filler()
+        self.architect()
         self.markers()
         self.fluids()
         self.oil_wells()

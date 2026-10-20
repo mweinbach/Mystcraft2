@@ -1,0 +1,1585 @@
+[
+  {
+    "selectors": [
+      "minecraft:candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:white_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:white_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:white_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:white_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:white_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:white_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:white_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:white_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:orange_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:orange_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:orange_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:orange_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:orange_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:orange_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:orange_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:orange_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:magenta_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:magenta_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:magenta_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:magenta_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:magenta_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:magenta_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:magenta_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:magenta_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_blue_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_blue_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_blue_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_blue_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_blue_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_blue_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_blue_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_blue_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:yellow_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:yellow_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:yellow_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:yellow_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:yellow_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:yellow_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:yellow_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:yellow_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lime_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:lime_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lime_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:lime_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lime_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:lime_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lime_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:lime_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pink_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pink_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pink_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pink_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pink_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pink_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pink_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pink_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:gray_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:gray_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:gray_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:gray_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:gray_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:gray_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:gray_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:gray_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_gray_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_gray_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_gray_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_gray_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_gray_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_gray_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_gray_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:light_gray_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cyan_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cyan_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cyan_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cyan_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cyan_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cyan_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cyan_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cyan_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:purple_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:purple_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:purple_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:purple_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:purple_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:purple_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:purple_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:purple_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:blue_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:blue_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:blue_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:blue_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:blue_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:blue_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:blue_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:blue_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:brown_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:brown_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:brown_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:brown_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:brown_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:brown_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:brown_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:brown_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:green_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:green_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:green_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:green_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:green_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:green_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:green_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:green_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:red_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:red_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:red_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:red_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:black_candle[candles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:black_candle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:black_candle[candles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:black_candle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:black_candle[candles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:black_candle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:black_candle[candles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:black_candle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sea_pickle[pickles=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sea_pickle",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sea_pickle[pickles=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sea_pickle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sea_pickle[pickles=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sea_pickle",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sea_pickle[pickles=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sea_pickle",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:turtle_egg[eggs=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:turtle_egg",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:turtle_egg[eggs=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:turtle_egg",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:turtle_egg[eggs=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:turtle_egg",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:turtle_egg[eggs=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:turtle_egg",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:white_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:white_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:orange_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:orange_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:magenta_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:magenta_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_blue_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:light_blue_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:yellow_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:yellow_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lime_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:lime_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:pink_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:pink_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:gray_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:gray_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:light_gray_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:light_gray_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cyan_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:cyan_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:purple_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:purple_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:blue_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:blue_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:brown_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:brown_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:green_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:green_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:red_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:red_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:black_candle_cake"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cake"
+          },
+          {
+            "item": "minecraft:black_candle"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:campfire",
+      "minecraft:soul_campfire"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "item_from_block"
+      },
+      {
+        "type": "items_list",
+        "path": [
+          "Items"
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:lectern"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "item_from_block"
+      },
+      {
+        "type": "item",
+        "path": [
+          "Book"
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:jukebox"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "item_from_block"
+      },
+      {
+        "type": "item",
+        "path": [
+          "RecordItem"
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sticky_piston"
+    ],
+    "canBeReplacedWithBlocks": [
+      "minecraft:sticky_piston",
+      "minecraft:moving_piston"
+    ],
+    "ignoredProperties": [
+      "extended"
+    ]
+  }
+]

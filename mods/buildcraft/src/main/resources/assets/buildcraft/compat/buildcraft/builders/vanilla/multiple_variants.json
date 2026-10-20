@@ -1,0 +1,94 @@
+[
+  {
+    "selectors": [
+      "minecraft:repeater"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:repeater"
+          }
+        ]
+      }
+    ],
+    "ignoredProperties": [
+      "powered"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:comparator"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:comparator"
+          }
+        ]
+      }
+    ],
+    "ignoredProperties": [
+      "powered"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:redstone_ore",
+      "minecraft:deepslate_redstone_ore"
+    ],
+    "ignoredProperties": [
+      "lit"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:redstone_torch",
+      "minecraft:redstone_wall_torch"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:redstone_torch"
+          }
+        ]
+      }
+    ],
+    "ignoredProperties": [
+      "lit"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:redstone_lamp"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:redstone_lamp"
+          }
+        ]
+      }
+    ],
+    "ignoredProperties": [
+      "lit"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:furnace",
+      "minecraft:smoker",
+      "minecraft:blast_furnace"
+    ],
+    "ignoredProperties": [
+      "lit"
+    ]
+  }
+]

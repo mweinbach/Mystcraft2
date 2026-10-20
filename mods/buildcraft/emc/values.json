@@ -3,6 +3,21 @@
   "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
   "ignored": [],
   "items": {
+    "buildcraft:architect_table": {
+      "projecte": 86156,
+      "itemalchemy": 36932,
+      "source": "recipe"
+    },
+    "buildcraft:blueprint_clean": {
+      "projecte": 1120,
+      "itemalchemy": 1120,
+      "source": "recipe"
+    },
+    "buildcraft:blueprint_used": {
+      "projecte": 1120,
+      "itemalchemy": 1120,
+      "source": "conversion architect_table_records"
+    },
     "buildcraft:combustion_engine": {
       "projecte": 3205,
       "itemalchemy": 3157,
@@ -326,6 +341,16 @@
       "projecte": 8,
       "itemalchemy": 8,
       "source": "recipe"
+    },
+    "buildcraft:template_clean": {
+      "projecte": 272,
+      "itemalchemy": 272,
+      "source": "recipe"
+    },
+    "buildcraft:template_used": {
+      "projecte": 272,
+      "itemalchemy": 272,
+      "source": "conversion architect_table_records"
     },
     "buildcraft:volume_box": {
       "excluded": "Creative-only: upstream has no recipe for the volume box, and its boxes are free-standing marks rather than material, so a value would only make a creative item transmutable."

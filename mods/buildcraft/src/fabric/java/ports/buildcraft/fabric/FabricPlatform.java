@@ -1,10 +1,13 @@
 package ports.buildcraft.fabric;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -24,6 +27,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -257,5 +261,20 @@ final class FabricPlatform implements Platform.Backend {
         FriendlyByteBuf buffer = PacketByteBufs.create();
         payload.accept(buffer);
         ServerPlayNetworking.send(player, channel, buffer);
+    }
+
+    @Override
+    public Path gameDirectory() {
+        return FabricLoader.getInstance().getGameDir();
+    }
+
+    @Override
+    public List<String> modIds() {
+        return FabricLoader.getInstance().getAllMods().stream().map(mod -> mod.getMetadata().getId()).toList();
+    }
+
+    @Override
+    public Optional<Path> modResource(String modId, String path) {
+        return FabricLoader.getInstance().getModContainer(modId).flatMap(mod -> mod.findPath(path)).filter(Files::isRegularFile);
     }
 }

@@ -8,7 +8,9 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import java.util.function.Consumer;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.Minecraft;
@@ -17,6 +19,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
@@ -62,5 +65,12 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
     @Override
     public int fluidColour(Fluid fluid) {
         return FluidVariantRendering.getColor(FluidVariant.of(fluid)) | 0xFF000000;
+    }
+
+    @Override
+    public void sendToServer(ResourceLocation channel, Consumer<FriendlyByteBuf> payload) {
+        FriendlyByteBuf buffer = PacketByteBufs.create();
+        payload.accept(buffer);
+        ClientPlayNetworking.send(channel, buffer);
     }
 }

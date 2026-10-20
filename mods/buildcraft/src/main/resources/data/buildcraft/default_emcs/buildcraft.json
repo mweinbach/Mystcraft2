@@ -1,4 +1,7 @@
 {
+  "buildcraft:architect_table": 36932,
+  "buildcraft:blueprint_clean": 1120,
+  "buildcraft:blueprint_used": 1120,
   "buildcraft:combustion_engine": 3157,
   "buildcraft:distiller": 17552,
   "buildcraft:filler": 0,
@@ -75,6 +78,8 @@
   "buildcraft:redstone_engine": 401,
   "buildcraft:stirling_engine": 388,
   "buildcraft:tank": 8,
+  "buildcraft:template_clean": 272,
+  "buildcraft:template_used": 272,
   "buildcraft:volume_box": 0,
   "buildcraft:water_spring": 0,
   "buildcraft:waterproof": 16,
