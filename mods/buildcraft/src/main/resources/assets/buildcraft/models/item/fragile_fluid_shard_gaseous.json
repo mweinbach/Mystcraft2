@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "buildcraft:item/fragile_fluid_shard_base_gaseous",
+    "layer1": "buildcraft:item/fragile_fluid_shard_fluid_gaseous"
+  }
+}

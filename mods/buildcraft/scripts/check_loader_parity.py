@@ -16,6 +16,9 @@ SHARED_CLASSES = 'ports/buildcraft/'
 LOADER_PACKAGES = ('ports/buildcraft/forge/', 'ports/buildcraft/fabric/')
 # Fabric adds the oil well placed feature to biomes in code instead.
 FORGE_ONLY = {'data/buildcraft/forge/biome_modifier/oil_well.json'}
+# One mixin config serves both loaders; each build writes its own refmap under the same name.
+MIXIN_CONFIG = 'buildcraft.mixins.json'
+MIXIN_REFMAP = 'buildcraft.refmap.json'
 
 
 def require(condition, message):
@@ -56,6 +59,12 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
                 body = jar.read(name)
                 for marker in forbidden:
                     require(marker not in body, f'wrong-loader reference {marker.decode()} in {name}')
+    for jar in (a, b):
+        require(MIXIN_CONFIG in jar.namelist() and MIXIN_REFMAP in jar.namelist(), 'missing the shared mixin config or its refmap')
+    # Loom rewrites the config's formatting.
+    require(json.loads(a.read(MIXIN_CONFIG)) == json.loads(b.read(MIXIN_CONFIG)), 'mixin config differs')
+    require(MIXIN_CONFIG in a.read('META-INF/MANIFEST.MF').decode().replace('\r\n ', ''), 'Forge manifest must list the mixin config')
+    require(MIXIN_CONFIG in bm.get('mixins', []), 'fabric.mod.json must list the mixin config')
     for jar, package in ((a, LOADER_PACKAGES[0]), (b, LOADER_PACKAGES[1])):
         require(any(n.startswith(package) for n in jar.namelist()), f'{package} adapters are missing')
 

@@ -18,6 +18,15 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void fluidViscosityScale(GameTestHelper helper) { BCTests.fluidViscosityScale(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void guiTanksTradeContainers(GameTestHelper helper) { BCTests.guiTanksTradeContainers(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void waterSpringRefills(GameTestHelper helper) { BCTests.waterSpringRefills(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void gaseousFluidsFlowUp(GameTestHelper helper) { BCTests.gaseousFluidsFlowUp(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1200)
     public static void redstoneEngineDrivesWoodenPipe(GameTestHelper helper) { BCTests.redstoneEngineDrivesWoodenPipe(helper); }
 
@@ -55,6 +64,12 @@ public final class ForgeGameTests {
     public static void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void oilBiomesHaveThirtyTimesTheWells(GameTestHelper helper) { BCTests.oilBiomesHaveThirtyTimesTheWells(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void oilBiomesReplaceDesertsAndOceans(GameTestHelper helper) { BCTests.oilBiomesReplaceDesertsAndOceans(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void lightFuelChainFromOil(GameTestHelper helper) { BCTests.lightFuelChainFromOil(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
@@ -71,6 +86,15 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void heatExchangerHeatsOilWithLava(GameTestHelper helper) { BCTests.heatExchangerHeatsOilWithLava(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void fragileShardsSplitFluid(GameTestHelper helper) { BCTests.fragileShardsSplitFluid(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void brokenMachinesDropFluidShards(GameTestHelper helper) { BCTests.brokenMachinesDropFluidShards(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void shardEmptiesIntoTank(GameTestHelper helper) { BCTests.shardEmptiesIntoTank(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void voidPipeDestroysItems(GameTestHelper helper) { BCTests.voidPipeDestroysItems(helper); }

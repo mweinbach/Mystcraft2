@@ -77,6 +77,7 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 loom {
+    mixin { defaultRefmapName = 'buildcraft.refmap.json' }
     mods {
         buildcraft { sourceSet sourceSets.main }
         buildcraft_gametest { sourceSet sourceSets.gametest }

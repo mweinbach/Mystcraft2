@@ -1,18 +1,29 @@
 package ports.buildcraft.gametest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -26,33 +37,53 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.phys.AABB;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.builders.QuarryBlockEntity;
 import ports.buildcraft.core.BCCore;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.energy.BCEnergy;
+import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
+import ports.buildcraft.energy.CombustionEngineMenu;
 import ports.buildcraft.energy.EngineBlock;
 import ports.buildcraft.energy.EngineBlockEntity;
 import ports.buildcraft.energy.FuelRegistry;
+import ports.buildcraft.energy.OilBiomes;
 import ports.buildcraft.energy.OilWellFeature;
 import ports.buildcraft.energy.PowerStage;
 import ports.buildcraft.energy.RefineryRecipes;
 import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.DistillerBlockEntity;
+import ports.buildcraft.factory.DistillerMenu;
 import ports.buildcraft.factory.HeatExchangerBlock;
 import ports.buildcraft.factory.HeatExchangerBlockEntity;
 import ports.buildcraft.factory.MinerBlockEntity;
 import ports.buildcraft.factory.MiningWellBlockEntity;
 import ports.buildcraft.factory.PumpBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
+import ports.buildcraft.lib.SimplexNoise;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.transport.BCTransport;
@@ -140,6 +171,44 @@ public final class BCTests {
     private static void requireViscosity(GameTestHelper helper, Fluid fluid, int expected) {
         int actual = Platform.get().viscosity(fluid);
         require(helper, actual == expected, Registry.FLUID.getKey(fluid) + " viscosity must be " + expected + ", got " + actual);
+    }
+
+    /**
+     * A gas source in a sealed stone box rises to the ceiling and spreads under it but never along the
+     * floor, while a liquid source on the roof flows down as usual.
+     */
+    public static void gaseousFluidsFlowUp(GameTestHelper helper) {
+        require(helper, BCEnergy.FUEL_GASEOUS.heat(0).isGaseous() && BCEnergy.FUEL_LIGHT.heat(1).isGaseous()
+                && !BCEnergy.FUEL_LIGHT.heat(0).isGaseous() && !BCEnergy.OIL.heat(2).isGaseous(), "gases are the stages at or above their boiling heat");
+        for (int x = 1; x <= 7; x++) {
+            for (int z = 1; z <= 7; z++) {
+                helper.setBlock(new BlockPos(x, 4, z), Blocks.STONE);
+                if (x == 1 || x == 7 || z == 1 || z == 7) {
+                    for (int y = 1; y <= 3; y++) helper.setBlock(new BlockPos(x, y, z), Blocks.STONE);
+                }
+            }
+        }
+        Fluid gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        helper.setBlock(new BlockPos(4, 1, 4), gas.defaultFluidState().createLegacyBlock());
+        helper.setBlock(new BlockPos(4, 6, 4), oil.defaultFluidState().createLegacyBlock());
+        helper.succeedWhen(() -> {
+            requireFluid(helper, new BlockPos(4, 2, 4), gas, true);
+            requireFluid(helper, new BlockPos(4, 3, 4), gas, true);
+            requireFluid(helper, new BlockPos(2, 3, 4), gas, true);
+            requireFluid(helper, new BlockPos(6, 3, 6), gas, true);
+            requireFluid(helper, new BlockPos(5, 1, 4), gas, false);
+            requireFluid(helper, new BlockPos(2, 2, 4), gas, false);
+            requireFluid(helper, new BlockPos(4, 5, 4), oil, true);
+            requireFluid(helper, new BlockPos(4, 7, 4), oil, false);
+            require(helper, helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(4, 2, 4))).getValue(BCFluid.FALLING),
+                    "a rising gas column must be marked as moving vertically");
+        });
+    }
+
+    private static void requireFluid(GameTestHelper helper, BlockPos pos, Fluid fluid, boolean present) {
+        boolean found = helper.getLevel().getFluidState(helper.absolutePos(pos)).getType().isSame(fluid);
+        require(helper, found == present, Registry.FLUID.getKey(fluid) + (present ? " must reach " : " must not reach ") + pos);
     }
 
     // ---- engines -------------------------------------------------------------------------------
@@ -366,8 +435,8 @@ public final class BCTests {
         int large = 0, medium = 0;
         for (int cx = -128; cx < 128; cx++) {
             for (int cz = -128; cz < 128; cz++) {
-                OilWellFeature.Well well = OilWellFeature.well(seed, cx, cz, -64);
-                OilWellFeature.Well again = OilWellFeature.well(seed, cx, cz, -64);
+                OilWellFeature.Well well = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
+                OilWellFeature.Well again = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
                 require(helper, (well == null) == (again == null) && (well == null || well.centre().equals(again.centre())),
                         "the well in chunk " + cx + "," + cz + " must not depend on anything but the seed");
                 if (well == null) continue;
@@ -393,6 +462,135 @@ public final class BCTests {
         int lakes = GenerationStep.Decoration.LAKES.ordinal();
         require(helper, steps.size() > lakes && steps.get(lakes).contains(placed), "the overworld biome must generate oil wells at the lakes step");
         helper.succeed();
+    }
+
+    /** Upstream's excessive biomes roll wells with thirty times the chance; other chunks roll the same wells as before. */
+    public static void oilBiomesHaveThirtyTimesTheWells(GameTestHelper helper) {
+        long seed = 1234567L;
+        int large = 0, medium = 0, asked = 0, chunks = 0;
+        for (int cx = -128; cx < 128; cx++) {
+            for (int cz = -128; cz < 128; cz++) {
+                chunks++;
+                int[] queries = {0};
+                int chunkX = cx, chunkZ = cz;
+                OilWellFeature.Well rich = OilWellFeature.well(seed, cx, cz, -64, pos -> {
+                    queries[0]++;
+                    require(helper, pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ && pos.getY() == 62,
+                            "the biome bonus must be read at the well's own column, got " + pos);
+                    return true;
+                });
+                require(helper, queries[0] <= 1, "a chunk must read its biome at most once");
+                asked += queries[0];
+                OilWellFeature.Well plain = OilWellFeature.well(seed, cx, cz, -64, pos -> false);
+                require(helper, plain == null || rich != null && rich.centre().getX() == plain.centre().getX()
+                        && rich.centre().getZ() == plain.centre().getZ(), "an oil biome must keep every well that it would roll elsewhere");
+                if (rich == null) continue;
+                if (rich.type() == OilWellFeature.WellType.LARGE) large++;
+                else medium++;
+            }
+        }
+        // 65536 chunks: about 786 large wells (1.2%) and 1942 medium ones (3% of the rest).
+        require(helper, large >= 700 && large <= 870, "expected about 786 large wells in oil biomes, rolled " + large);
+        require(helper, medium >= 1800 && medium <= 2090, "expected about 1942 medium wells in oil biomes, rolled " + medium);
+        require(helper, asked < chunks / 10, "the biome must only be read when a roll depends on it, read " + asked + " times");
+        helper.succeed();
+    }
+
+    /** Upstream {@code GenLayerAddOilDesert} and {@code GenLayerAddOilOcean} over the overworld's multi-noise biomes. */
+    public static void oilBiomesReplaceDesertsAndOceans(GameTestHelper helper) {
+        RegistryAccess registries = helper.getLevel().registryAccess();
+        Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
+        MinecraftServer server = helper.getLevel().getServer();
+        BiomeSource overworld = server.overworld().getChunkSource().getGenerator().getBiomeSource();
+        BiomeSource nether = server.getLevel(Level.NETHER).getChunkSource().getGenerator().getBiomeSource();
+        OilBiomes.State installed = OilBiomes.current();
+        if (overworld instanceof MultiNoiseBiomeSource) {
+            require(helper, installed != null && installed.seed() == helper.getLevel().getSeed() && installed.appliesTo(overworld)
+                    && !installed.appliesTo(nether), "the server must install the oil biomes for its seed and overworld only");
+        } else {
+            require(helper, installed == null, "a world without a multi-noise overworld has no oil biomes");
+        }
+        Holder<Biome> oilDesert = biomes.getHolderOrThrow(OilBiomes.OIL_DESERT);
+        Holder<Biome> oilOcean = biomes.getHolderOrThrow(OilBiomes.OIL_OCEAN);
+        Biome desert = biomes.getOrThrow(Biomes.DESERT), ocean = biomes.getOrThrow(Biomes.OCEAN);
+        require(helper, oilDesert.value().getBaseTemperature() == desert.getBaseTemperature() && oilDesert.value().getPrecipitation() == Biome.Precipitation.NONE
+                && oilOcean.value().getBaseTemperature() == ocean.getBaseTemperature(), "the oil biomes must keep their parents' climates");
+        require(helper, oilDesert.is(OilBiomes.EXCESSIVE_OIL) && oilOcean.is(OilBiomes.EXCESSIVE_OIL) && oilDesert.is(BiomeTags.IS_OVERWORLD)
+                && oilOcean.is(BiomeTags.IS_OVERWORLD) && oilOcean.is(BiomeTags.IS_OCEAN), "the oil biomes must be tagged as overworld, ocean and excessive");
+        require(helper, !oilDesert.is(BiomeTags.HAS_DESERT_PYRAMID) && !oilDesert.is(BiomeTags.HAS_VILLAGE_DESERT),
+                "upstream's oil desert has no temples or villages");
+        Holder<PlacedFeature> oilWell = registries.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY)
+                .getHolderOrThrow(ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));
+        for (Holder<Biome> oil : List.of(oilDesert, oilOcean)) {
+            List<HolderSet<PlacedFeature>> steps = oil.value().getGenerationSettings().features();
+            require(helper, steps.get(GenerationStep.Decoration.LAKES.ordinal()).contains(oilWell), "the oil biomes must generate oil wells");
+        }
+        require(helper, biomes.getHolderOrThrow(Biomes.DESERT).is(OilBiomes.DESERT_REPLACEABLE) && biomes.getHolderOrThrow(Biomes.DEEP_FROZEN_OCEAN)
+                .is(OilBiomes.OCEAN_REPLACEABLE) && !biomes.getHolderOrThrow(Biomes.PLAINS).is(OilBiomes.DESERT_REPLACEABLE),
+                "deserts and every ocean must be replaceable, plains not");
+
+        require(helper, !nether.possibleBiomes().contains(oilDesert) && !nether.possibleBiomes().contains(oilOcean), "the nether has no oil biomes");
+
+        // The test server's overworld is flat, so install the layers for a multi-noise overworld source for this check.
+        MultiNoiseBiomeSource source = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomes);
+        OilBiomes.State state = OilBiomes.State.create(registries, helper.getLevel().getSeed(), source);
+        OilBiomes.install(state);
+        try {
+            checkOilBiomePlacement(helper, registries, state, source, oilDesert, oilOcean);
+        } finally {
+            OilBiomes.install(installed);
+        }
+        helper.succeed();
+    }
+
+    private static void checkOilBiomePlacement(GameTestHelper helper, RegistryAccess registries, OilBiomes.State state, MultiNoiseBiomeSource source,
+            Holder<Biome> oilDesert, Holder<Biome> oilOcean) {
+        Registry<Biome> biomes = registries.registryOrThrow(Registry.BIOME_REGISTRY);
+        require(helper, source.possibleBiomes().contains(oilDesert) && source.possibleBiomes().contains(oilOcean),
+                "the overworld must list the oil biomes as possible, so that they are decorated");
+        MultiNoiseBiomeSource otherDimension = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(biomes);
+        require(helper, !otherDimension.possibleBiomes().contains(oilDesert) && !otherDimension.possibleBiomes().contains(oilOcean),
+                "a dimension reusing the overworld preset must keep its biomes");
+
+        // Upstream GenLayerBiomeReplacer: offsets from the world seed, then noise over block coordinates.
+        Random rand = new Random(state.seed());
+        double xOffset = rand.nextInt(500000) - 250000, zOffset = rand.nextInt(500000) - 250000;
+        Climate.Sampler sampler = RandomState.create(registries, NoiseGeneratorSettings.OVERWORLD, state.seed()).sampler();
+        int[] found = new int[4];
+        for (int x = -32768; x <= 32768; x += 256) {
+            for (int z = -32768; z <= 32768; z += 256) {
+                boolean oilyDesert = SimplexNoise.noise((x + xOffset) * 0.001, (z + zOffset) * 0.001) > 0.7;
+                boolean oilyOcean = SimplexNoise.noise((x + xOffset) * 0.0005, (z + zOffset) * 0.0005) > 0.9;
+                if (!oilyDesert && !oilyOcean && (x | z) % 1024 != 0) continue;
+                int qx = QuartPos.fromBlock(x), qy = QuartPos.fromBlock(64), qz = QuartPos.fromBlock(z);
+                Holder<Biome> raw = source.getNoiseBiome(sampler.sample(qx, qy, qz));
+                Holder<Biome> placed = source.getNoiseBiome(qx, qy, qz, sampler);
+                Holder<Biome> expected = raw.is(OilBiomes.OCEAN_REPLACEABLE) && oilyOcean ? oilOcean
+                        : raw.is(OilBiomes.DESERT_REPLACEABLE) && oilyDesert ? oilDesert : raw;
+                require(helper, placed == expected, "at " + x + ", " + z + " " + raw.unwrapKey().orElseThrow().location() + " must become "
+                        + expected.unwrapKey().orElseThrow().location() + ", got " + placed.unwrapKey().orElseThrow().location());
+                require(helper, otherDimension.getNoiseBiome(qx, qy, qz, sampler) == raw, "at " + x + ", " + z
+                        + " a dimension reusing the overworld preset must keep " + raw.unwrapKey().orElseThrow().location());
+                if (raw.is(OilBiomes.DESERT_REPLACEABLE)) found[oilyDesert ? 0 : 1]++;
+                if (raw.is(OilBiomes.OCEAN_REPLACEABLE)) found[oilyOcean ? 2 : 3]++;
+            }
+        }
+        require(helper, Arrays.stream(found).allMatch(n -> n > 0), "the scan must cover deserts and oceans inside and outside the oil fields, found "
+                + Arrays.toString(found));
+
+        // The oil biomes take their parents' surfaces: sand for the oil desert.
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(registries.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY),
+                registries.registryOrThrow(Registry.NOISE_REGISTRY), source,
+                registries.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).getHolderOrThrow(NoiseGeneratorSettings.OVERWORLD));
+        RandomState random = RandomState.create(registries, NoiseGeneratorSettings.OVERWORLD, state.seed());
+        SurfaceRules.RuleSource sand = SurfaceRules.ifTrue(SurfaceRules.isBiome(Biomes.DESERT), SurfaceRules.state(Blocks.SAND.defaultBlockState()));
+        CarvingContext carving = new CarvingContext(generator, registries, helper.getLevel(), null, random, sand);
+        for (Holder<Biome> biome : List.of(oilDesert, biomes.getHolderOrThrow(Biomes.DESERT), biomes.getHolderOrThrow(Biomes.PLAINS), oilOcean)) {
+            boolean expected = biome == oilDesert || biome.is(Biomes.DESERT);
+            Optional<BlockState> top = random.surfaceSystem().topMaterial(sand, carving, pos -> biome, null, null, new BlockPos(0, 64, 0), false);
+            require(helper, top.isPresent() == expected, biome.unwrapKey().orElseThrow().location() + (expected ? " must" : " must not")
+                    + " pass a surface rule for deserts");
+        }
     }
 
     /** Light fuel is reachable from crude oil through the heat exchanger and the distiller, as upstream's chain. */
@@ -437,6 +635,27 @@ public final class BCTests {
             require(helper, engine.residueTank().fluid() == BCEnergy.OIL_RESIDUE.heat(0).source() && engine.residueTank().amount() >= 1,
                     "burning oil must leave residue, has " + engine.residueTank().amount());
         });
+    }
+
+    /** Upstream {@code EnumSpring.WATER}: the creative water spring puts a water source above itself whenever that space is air. */
+    public static void waterSpringRefills(GameTestHelper helper) {
+        BlockPos spring = new BlockPos(1, 1, 1), covered = new BlockPos(5, 1, 1);
+        helper.setBlock(spring, BCCore.WATER_SPRING.get());
+        helper.setBlock(covered, BCCore.WATER_SPRING.get());
+        helper.setBlock(covered.above(), Blocks.GLASS);
+        require(helper, BCCore.WATER_SPRING.get().defaultBlockState().getDestroySpeed(helper.getLevel(), helper.absolutePos(spring)) < 0,
+                "a spring is unbreakable");
+        helper.runAfterDelay(6, () -> {
+            requireWaterSource(helper, spring.above());
+            helper.assertBlockPresent(Blocks.GLASS, covered.above());
+            helper.setBlock(spring.above(), Blocks.AIR);
+            helper.succeedWhen(() -> requireWaterSource(helper, spring.above()));
+        });
+    }
+
+    private static void requireWaterSource(GameTestHelper helper, BlockPos pos) {
+        FluidState fluid = helper.getLevel().getFluidState(helper.absolutePos(pos));
+        require(helper, fluid.is(Fluids.WATER) && fluid.isSource(), "the spring must keep a water source at " + pos);
     }
 
     /** The distiller splits oil into gaseous fuel out of its top and heavy oil out of its bottom, using power. */
@@ -494,7 +713,10 @@ public final class BCTests {
         return row;
     }
 
-    /** A row of three or more forms; breaking it unforms it, and a wrench turns a formed row around with its fluid. */
+    /**
+     * A row of three or more forms and a wrench turns it around with its fluid. Breaking the start drops its fluid as
+     * shards; the two left behind unform and drop theirs, as upstream's {@code removeSection}.
+     */
     public static void heatExchangerFormsRows(GameTestHelper helper) {
         HeatExchangerBlockEntity[] row = heatExchangerRow(helper, 1, 3);
         HeatExchangerBlockEntity[] pair = heatExchangerRow(helper, 3, 2);
@@ -520,13 +742,15 @@ public final class BCTests {
                         && end.part() == HeatExchangerBlock.Part.END, "a wrenched row must turn around");
                 require(helper, start.inputTank().fluid() == oil && end.inputTank().fluid() == Fluids.LAVA, "the tanks must move with the start and end");
 
-                helper.setBlock(new BlockPos(1, 1, 2), Blocks.AIR);
+                helper.destroyBlock(new BlockPos(1, 1, 3));
+                requireShards(helper, new BlockPos(1, 1, 3), oil, 500, 500);
                 helper.runAfterDelay(2, () -> {
-                    for (int z : new int[] {1, 3}) {
+                    for (int z : new int[] {1, 2}) {
                         HeatExchangerBlockEntity lone = tile(helper, new BlockPos(1, 1, z), HeatExchangerBlockEntity.class);
                         require(helper, lone.part() == HeatExchangerBlock.Part.MIDDLE && lone.inputTank().isEmpty(),
-                                "a broken row must unform and lose its fluid, " + z + " is " + lone.part());
+                                "a broken row must unform and empty its tanks, " + z + " is " + lone.part());
                     }
+                    requireShards(helper, new BlockPos(1, 1, 1), Fluids.LAVA, 500, 500);
                     helper.succeed();
                 });
             });
@@ -559,6 +783,154 @@ public final class BCTests {
                 require(helper, same[0].inputTank().amount() == 1000 && same[2].outputTank().isEmpty(), "equal heats must not exchange");
             });
         });
+    }
+
+    // ---- fragile fluid shards ------------------------------------------------------------------
+
+    /** The fragile fluid shards lying within a block of {@code pos}. */
+    static List<ItemStack> shardsAt(GameTestHelper helper, BlockPos pos) {
+        AABB box = new AABB(helper.absolutePos(pos)).inflate(1);
+        return helper.getLevel().getEntitiesOfClass(ItemEntity.class, box, entity -> entity.getItem().is(BCCore.FRAGILE_FLUID_SHARD.get()))
+                .stream().map(ItemEntity::getItem).toList();
+    }
+
+    static void requireShards(GameTestHelper helper, BlockPos pos, Fluid fluid, int... amounts) {
+        List<Integer> found = shardsAt(helper, pos).stream().map(FragileFluidShardItem::getFluid)
+                .filter(held -> held.fluid() == fluid).map(held -> (int) held.amount()).sorted().toList();
+        List<Integer> expected = Arrays.stream(amounts).sorted().boxed().toList();
+        require(helper, found.equals(expected), "expected " + Registry.FLUID.getKey(fluid) + " shards of " + expected + " mB at " + pos + ", found " + found);
+    }
+
+    /** Upstream {@code addFluidDrops}: whole 500 mB shards and one for the rest, named after the fluid and its heat. */
+    public static void fragileShardsSplitFluid(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(1).source();
+        List<ItemStack> drops = new ArrayList<>();
+        FragileFluidShardItem.addFluidDrops(drops, new FluidAmount(oil, 1250));
+        require(helper, drops.size() == 3 && drops.stream().allMatch(stack -> stack.getMaxStackSize() == 1),
+                "1250 mB must make three unstackable shards, made " + drops.size());
+        require(helper, drops.stream().mapToLong(stack -> FragileFluidShardItem.getFluid(stack).amount()).sum() == 1250
+                && FragileFluidShardItem.getFluid(drops.get(2)).amount() == 250, "the shards must hold 500, 500 and 250 mB");
+
+        ItemStack shard = drops.get(2);
+        require(helper, FragileFluidShardItem.drain(shard, Fluids.WATER, 100, false).isEmpty(), "a shard only gives up its own fluid");
+        FluidAmount drained = FragileFluidShardItem.drain(shard, null, 100, false);
+        require(helper, drained.fluid() == oil && drained.amount() == 100 && FragileFluidShardItem.getFluid(shard).amount() == 150,
+                "draining 100 mB must leave 150 mB");
+        FragileFluidShardItem.drain(shard, oil, 1000, false);
+        require(helper, FragileFluidShardItem.getFluid(shard).isEmpty() && !shard.hasTag(), "a drained shard must hold nothing");
+
+        if (!(drops.get(0).getHoverName().getContents() instanceof TranslatableContents name)) throw new GameTestAssertException("shard names must translate");
+        require(helper, name.getKey().equals("buildcraft.fluid.heat_1") && name.getArgs()[0] instanceof Component inner
+                && inner.getContents() instanceof TranslatableContents item && item.getKey().equals("item.buildcraft.fragile_fluid_shard")
+                && item.getArgs()[0] instanceof Component bare && bare.getContents() instanceof TranslatableContents family
+                && family.getKey().equals("fluid_family.buildcraft.oil"), "a hot oil shard must read \"Fragile Oil Shard (Hot)\", got " + name);
+        helper.succeed();
+    }
+
+    /** A tank, distiller, combustion engine, pump and fluid pipe drop the fluid they hold as shards when broken. */
+    public static void brokenMachinesDropFluidShards(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(0).source(), fuel = BCEnergy.FUEL_LIGHT.heat(0).source(), gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        BlockPos tankPos = new BlockPos(1, 1, 1), distillerPos = new BlockPos(4, 1, 1), enginePos = new BlockPos(7, 1, 1);
+        BlockPos pumpPos = new BlockPos(1, 1, 5), pipePos = new BlockPos(5, 1, 5);
+        helper.setBlock(tankPos, BCFactory.TANK.get());
+        tile(helper, tankPos, TankBlockEntity.class).tank().fill(Fluids.WATER, 1250, false);
+        helper.setBlock(distillerPos, BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, distillerPos, DistillerBlockEntity.class);
+        distiller.inputTank().fill(oil, 700, false);
+        distiller.gasTank().fill(gas, 300, false);
+        CombustionEngineBlockEntity engine = engine(helper, enginePos, BCEnergy.COMBUSTION_ENGINE.get(), Direction.UP, CombustionEngineBlockEntity.class);
+        engine.fuelTank().fill(fuel, 500, false);
+        engine.coolantTank().fill(Fluids.WATER, 100, false);
+        helper.setBlock(pumpPos, BCFactory.PUMP.get());
+        tile(helper, pumpPos, PumpBlockEntity.class).tank().fill(Fluids.LAVA, 1000, false);
+        helper.setBlock(pipePos.west(), BCFactory.TANK.get());
+        PipeBlockEntity pipe = pipe(helper, pipePos, BCTransport.STONE_FLUID);
+        helper.runAfterDelay(2, () -> {
+            require(helper, pipe.fluidPort(Direction.WEST).fill(Fluids.WATER, 10, false) == 10, "the pipe must take water from its tank side");
+            for (BlockPos pos : List.of(tankPos, distillerPos, enginePos, pumpPos, pipePos)) helper.destroyBlock(pos);
+            requireShards(helper, tankPos, Fluids.WATER, 500, 500, 250);
+            requireShards(helper, distillerPos, oil, 500, 200);
+            requireShards(helper, distillerPos, gas, 300);
+            requireShards(helper, enginePos, fuel, 500);
+            requireShards(helper, enginePos, Fluids.WATER, 100);
+            requireShards(helper, pumpPos, Fluids.LAVA, 500, 500);
+            requireShards(helper, pipePos, Fluids.WATER, 10);
+            helper.succeed();
+        });
+    }
+
+    /** A shard empties into a tank through each loader's held-container interaction. */
+    public static void shardEmptiesIntoTank(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, BCFactory.TANK.get());
+        TankBlockEntity tank = tile(helper, pos, TankBlockEntity.class);
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        Player player = helper.makeMockPlayer();
+        player.setItemInHand(InteractionHand.MAIN_HAND, FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        require(helper, Platform.get().interactWithFluidContainer(player, InteractionHand.MAIN_HAND, helper.getLevel(), helper.absolutePos(pos), Direction.UP),
+                "a shard must empty into the tank");
+        require(helper, tank.tank().fluid() == oil && tank.tank().amount() == 300, "the tank must receive the shard's 300 mB, has " + tank.tank().amount());
+        tank.tank().set(Fluids.WATER, 1000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        Platform.get().interactWithFluidContainer(player, InteractionHand.MAIN_HAND, helper.getLevel(), helper.absolutePos(pos), Direction.UP);
+        require(helper, tank.tank().fluid() == Fluids.WATER && tank.tank().amount() == 1000, "a shard can never be filled from a tank");
+        helper.succeed();
+    }
+
+    /**
+     * Upstream {@code WidgetFluidTank}: a carried container clicked on a GUI tank empties into it or fills
+     * from it, survival players trade one item for its new container and creative players keep theirs,
+     * shift-clicked containers go to the distiller's input or the engine's tanks, and ice cools an engine.
+     */
+    public static void guiTanksTradeContainers(GameTestHelper helper) {
+        helper.setBlock(new BlockPos(1, 1, 1), BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, new BlockPos(1, 1, 1), DistillerBlockEntity.class);
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        Fluid gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        Player player = helper.makeMockPlayer();
+        DistillerMenu menu = (DistillerMenu) distiller.createMenu(0, player.getInventory(), player);
+
+        menu.setCarried(new ItemStack(oil.getBucket()));
+        require(helper, menu.clickMenuButton(player, DistillerMenu.TANK_IN), "a GUI tank must accept a click");
+        require(helper, distiller.inputTank().amount() == 1000 && menu.getCarried().is(Items.BUCKET),
+                "an oil bucket must empty into the input and leave an empty bucket, input has " + distiller.inputTank().amount());
+        menu.setCarried(new ItemStack(Items.WATER_BUCKET));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 1000 && menu.getCarried().is(Items.WATER_BUCKET), "water cannot enter the input");
+
+        distiller.gasTank().set(gas, 1500);
+        menu.setCarried(new ItemStack(Items.BUCKET, 2));
+        menu.clickMenuButton(player, DistillerMenu.TANK_GAS);
+        require(helper, distiller.gasTank().amount() == 500 && menu.getCarried().is(Items.BUCKET) && menu.getCarried().getCount() == 1
+                && player.getInventory().countItem(gas.getBucket()) == 1, "one of two buckets must fill with gas and go to the inventory");
+        menu.clickMenuButton(player, DistillerMenu.TANK_GAS);
+        require(helper, distiller.gasTank().amount() == 500 && menu.getCarried().getCount() == 1, "a bucket cannot take a partial 500 mB");
+
+        player.getInventory().setItem(8, new ItemStack(oil.getBucket()));
+        require(helper, menu.quickMoveStack(player, 35).isEmpty() && distiller.inputTank().amount() == 2000
+                && player.getInventory().getItem(8).is(Items.BUCKET), "a shift-clicked oil bucket must empty into the input");
+
+        player.getAbilities().instabuild = true;
+        menu.setCarried(new ItemStack(oil.getBucket()));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 3000 && menu.getCarried().is(oil.getBucket()), "a creative player keeps the full bucket");
+        player.getAbilities().instabuild = false;
+
+        menu.setCarried(FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        menu.clickMenuButton(player, DistillerMenu.TANK_IN);
+        require(helper, distiller.inputTank().amount() == 3300 && menu.getCarried().isEmpty(), "a shard must empty into the input and be used up");
+
+        CombustionEngineBlockEntity engine = engine(helper, new BlockPos(4, 1, 1), BCEnergy.COMBUSTION_ENGINE.get(), Direction.UP, CombustionEngineBlockEntity.class);
+        CombustionEngineMenu engineMenu = (CombustionEngineMenu) engine.createMenu(1, player.getInventory(), player);
+        engineMenu.setCarried(new ItemStack(Items.ICE, 2));
+        engineMenu.clickMenuButton(player, 1);
+        require(helper, engine.coolantTank().fluid() == Fluids.WATER && engine.coolantTank().amount() == 1500 && engineMenu.getCarried().getCount() == 1,
+                "ice clicked on the coolant gauge must melt into 1500 mB of water");
+        Fluid fuel = BCEnergy.FUEL_LIGHT.heat(0).source();
+        player.getInventory().setItem(7, new ItemStack(fuel.getBucket()));
+        engineMenu.quickMoveStack(player, 34);
+        require(helper, engine.fuelTank().fluid() == fuel && engine.fuelTank().amount() == 1000, "a shift-clicked fuel bucket must fill the fuel tank");
+        helper.succeed();
     }
 
     // ---- transport -----------------------------------------------------------------------------

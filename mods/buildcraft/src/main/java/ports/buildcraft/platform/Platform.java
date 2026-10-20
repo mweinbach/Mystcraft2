@@ -11,6 +11,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -57,6 +58,9 @@ public final class Platform {
         @Nullable FluidPort findFluids(Level level, BlockPos pos, Direction side);
         /** Fills or empties a held fluid container against the block's fluid storage. */
         boolean interactWithFluidContainer(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side);
+        /** The fluid container in a copy of {@code stack}, counted as one item, or null if it holds no fluid storage. */
+        @Nullable ItemFluids itemFluids(ItemStack stack);
+        SoundEvent bucketSound(Fluid fluid, boolean fill);
     }
 
     @FunctionalInterface

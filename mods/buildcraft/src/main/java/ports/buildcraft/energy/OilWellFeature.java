@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import com.google.common.base.Suppliers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,7 +22,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 
 /**
  * Upstream {@code OilGenerator} and {@code OilGenStructure}. Each chunk rolls, from the world seed, whether
- * it holds a large (0.04%) or medium (0.1%) oil well: an oil lake on the surface with tendrils, a sphere of
+ * it holds a large (0.04%) or medium (0.1%) oil well, thirty times likelier in the oil biomes: an oil lake on the surface with tendrils, a sphere of
  * oil underground, a spout joining the two that gushes above the surface and, for large wells, a tube down
  * to an oil spring on the bottom of the world. A well spans several chunks, so every chunk generates the
  * parts of the wells around it that fall inside it.
@@ -33,6 +35,8 @@ public class OilWellFeature extends Feature<NoneFeatureConfiguration> {
     /** Upstream {@code BCEnergyConfig} defaults, given there as percentages. */
     public static final double LARGE_PROBABILITY = 0.04 / 100;
     public static final double MEDIUM_PROBABILITY = 0.1 / 100;
+    /** Upstream's bonus for {@code excessiveBiomes}. */
+    public static final double EXCESSIVE_BONUS = 30;
     private static final int LARGE_SPOUT_MIN_HEIGHT = 10, LARGE_SPOUT_MAX_HEIGHT = 20;
     private static final int SMALL_SPOUT_MIN_HEIGHT = 6, SMALL_SPOUT_MAX_HEIGHT = 12;
 
@@ -55,7 +59,8 @@ public class OilWellFeature extends Feature<NoneFeatureConfiguration> {
         boolean placed = false;
         for (int dx = -MAX_CHUNK_RADIUS; dx <= MAX_CHUNK_RADIUS; dx++) {
             for (int dz = -MAX_CHUNK_RADIUS; dz <= MAX_CHUNK_RADIUS; dz++) {
-                Well well = well(level.getSeed(), chunk.x + dx, chunk.z + dz, level.getMinBuildHeight());
+                Well well = well(level.getSeed(), chunk.x + dx, chunk.z + dz, level.getMinBuildHeight(),
+                        pos -> level.getBiome(pos).is(OilBiomes.EXCESSIVE_OIL));
                 if (well == null) continue;
                 for (Structure structure : well.structures()) placed |= structure.generate(level, box);
             }
@@ -63,16 +68,21 @@ public class OilWellFeature extends Feature<NoneFeatureConfiguration> {
         return placed;
     }
 
-    /** Upstream {@code getStructures}: the well rolled for chunk {@code (cx, cz)}, or null. */
+    /**
+     * Upstream {@code getStructures}: the well rolled for chunk {@code (cx, cz)}, or null. {@code excessive}
+     * tells whether a position's biome has the bonus; it is only asked when a roll depends on it.
+     */
     @Nullable
-    public static Well well(long seed, int cx, int cz, int minY) {
+    public static Well well(long seed, int cx, int cz, int minY, Predicate<BlockPos> excessive) {
         Random rand = randomForChunk(seed, cx, cz);
         int x = cx * 16 + rand.nextInt(16);
         int z = cz * 16 + rand.nextInt(16);
+        // Upstream reads the biome at y 0, the bottom of a 1.12 world whose biomes had no height.
+        Supplier<Boolean> bonus = Suppliers.memoize(() -> excessive.test(new BlockPos(x, 62, z)));
 
         WellType type;
-        if (rand.nextDouble() <= LARGE_PROBABILITY) type = WellType.LARGE;
-        else if (rand.nextDouble() <= MEDIUM_PROBABILITY) type = WellType.MEDIUM;
+        if (rolls(rand.nextDouble(), LARGE_PROBABILITY, bonus)) type = WellType.LARGE;
+        else if (rolls(rand.nextDouble(), MEDIUM_PROBABILITY, bonus)) type = WellType.MEDIUM;
         else return null;
 
         List<Structure> structures = new ArrayList<>();
@@ -95,6 +105,10 @@ public class OilWellFeature extends Feature<NoneFeatureConfiguration> {
             structures.add(new Spring(new BlockPos(x, minY, z)));
         }
         return new Well(type, new BlockPos(x, wellY, z), structures);
+    }
+
+    private static boolean rolls(double roll, double probability, Supplier<Boolean> bonus) {
+        return roll <= probability || roll <= probability * EXCESSIVE_BONUS && bonus.get();
     }
 
     /** Upstream {@code RandUtil.createRandomForChunk}. */

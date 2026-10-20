@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.core.BCCore;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.platform.Reg;
 
@@ -36,8 +37,7 @@ public final class BCEnergy {
     public static final List<BCFluidFamily> FLUID_FAMILIES = List.copyOf(FAMILIES);
     public static final List<BCFluidDefinition> FLUIDS = FLUID_FAMILIES.stream().flatMap(family -> family.heats().stream()).toList();
 
-    public static final Supplier<OilSpringBlock> OIL_SPRING = Reg.block("oil_spring", () -> new OilSpringBlock(
-            BlockBehaviour.Properties.of(Material.STONE).strength(-1.0F, 3_600_000.0F).sound(SoundType.STONE).noLootTable().isValidSpawn((s, l, p, e) -> false)));
+    public static final Supplier<OilSpringBlock> OIL_SPRING = Reg.block("oil_spring", () -> new OilSpringBlock(BCCore.springProperties()));
     public static final Supplier<Item> OIL_SPRING_ITEM = Reg.blockItem("oil_spring", OIL_SPRING, BuildCraft.itemProperties());
     public static final Supplier<OilWellFeature> OIL_WELL = Platform.register(Registry.FEATURE_REGISTRY, "oil_well", OilWellFeature::new);
 

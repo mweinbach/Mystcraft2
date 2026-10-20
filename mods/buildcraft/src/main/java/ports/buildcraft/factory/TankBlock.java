@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.platform.Platform;
 
 /** Upstream {@code BlockTank}: a 16-bucket glass tank that joins with tanks above and below. */
@@ -95,6 +96,14 @@ public class TankBlock extends BaseEntityBlock {
         boolean changed = Platform.get().interactWithFluidContainer(player, hand, level, pos, hit.getDirection());
         tank.setPlayerInteracting(false);
         return changed ? InteractionResult.CONSUME : InteractionResult.PASS;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof TankBlockEntity tank) {
+            FragileFluidShardItem.dropTanks(level, pos, tank.tank());
+        }
+        super.onRemove(state, level, pos, newState, moving);
     }
 
     @Override

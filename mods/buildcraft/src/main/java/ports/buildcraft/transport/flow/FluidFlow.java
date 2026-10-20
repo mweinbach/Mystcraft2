@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Fluids2;
 import ports.buildcraft.lib.Ports;
@@ -257,7 +258,7 @@ public final class FluidFlow extends PipeFlow {
 
     @Override
     public void addDrops(List<ItemStack> drops) {
-        // Upstream drops fragile fluid shards; the fluid is simply lost here (see PARITY.md).
+        if (currentFluid != Fluids.EMPTY) FragileFluidShardItem.addFluidDrops(drops, new FluidAmount(currentFluid, totalAmount()));
     }
 
     @Nullable

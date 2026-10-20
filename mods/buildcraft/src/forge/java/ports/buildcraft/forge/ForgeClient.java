@@ -1,10 +1,12 @@
 package ports.buildcraft.forge;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,7 +24,11 @@ final class ForgeClient implements ClientPlatform.Backend {
         modBus.addListener((TextureStitchEvent.Pre event) -> {
             if (event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS)) BCClient.extraSprites().forEach(event::addSprite);
         });
-        modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(BCClient::registerScreens));
+        modBus.addListener((RegisterColorHandlersEvent.Item event) -> BCClient.registerItemColours(event::register));
+        modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(() -> {
+            BCClient.registerScreens();
+            BCClient.registerItemProperties(ItemProperties::register);
+        }));
     }
 
     @Override

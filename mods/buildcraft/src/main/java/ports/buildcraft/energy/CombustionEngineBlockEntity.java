@@ -3,6 +3,7 @@ package ports.buildcraft.energy;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -19,6 +20,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.lib.Tank;
@@ -64,6 +66,14 @@ public class CombustionEngineBlockEntity extends EngineBlockEntity implements Me
     public Tank fuelTank() { return tankFuel; }
     public Tank coolantTank() { return tankCoolant; }
     public Tank residueTank() { return tankResidue; }
+
+    /** Upstream {@code TankManager.addDrops}: the fuel, coolant and residue as fragile fluid shards. */
+    @Override
+    public NonNullList<ItemStack> drops() {
+        NonNullList<ItemStack> drops = NonNullList.create();
+        for (Tank tank : List.of(tankFuel, tankCoolant, tankResidue)) FragileFluidShardItem.addFluidDrops(drops, tank.contents());
+        return drops;
+    }
 
     @Override protected boolean isRedstoneOnly() { return false; }
     @Override public boolean hasMenu() { return true; }
@@ -196,7 +206,7 @@ public class CombustionEngineBlockEntity extends EngineBlockEntity implements Me
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new CombustionEngineMenu(id, inventory, worldPosition, data);
+        return new CombustionEngineMenu(id, inventory, worldPosition, data, this);
     }
 
     @Override

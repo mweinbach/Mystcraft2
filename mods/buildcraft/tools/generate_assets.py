@@ -24,6 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = ROOT / "src" / "main" / "resources"
 ASSETS = RESOURCES / "assets" / MOD
 DATA = RESOURCES / "data"
+# Minecraft 1.19.2's own desert and ocean, from its data generator's --reports output.
+VANILLA_BIOMES = Path(__file__).resolve().parent / "vanilla" / "worldgen" / "biome"
 
 # Forge reads the chunk layer from models; Fabric registers the same blocks in BCClient.cutoutBlocks().
 CUTOUT = {"render_type": "minecraft:cutout"}
@@ -206,6 +208,11 @@ class Generator:
         for material, _ in GEARS:
             self.copy(f"buildcraftcore/textures/items/gear_{material}.png", f"item/gear_{material}.png")
         self.copy("buildcraftcore/textures/items/wrench.png", "item/wrench.png")
+        for layer in ["base", "fluid"]:
+            self.copy(f"buildcraftcore/textures/items/fragile_fluid_shard_{layer}.png", f"item/fragile_fluid_shard_{layer}.png")
+            # Forge's bucket model turned the whole shard upside down for gases ("flipGas").
+            image = Image.open(ASSETS / "textures" / "item" / f"fragile_fluid_shard_{layer}.png")
+            image.rotate(180).save(ASSETS / "textures" / "item" / f"fragile_fluid_shard_{layer}_gaseous.png")
         self.copy("buildcrafttransport/textures/items/pipewaterproof.png", "item/waterproof.png")
         self.copy("buildcraftenergy/textures/gui/steam_engine_gui.png", "gui/stirling_engine.png")
         self.copy("buildcraftenergy/textures/gui/combustion_engine_gui.png", "gui/combustion_engine.png")
@@ -506,6 +513,10 @@ class Generator:
         self.lang.update({f"block.{MOD}.quarry": "Quarry", f"block.{MOD}.frame": "Frame"})
 
     def fluids(self) -> None:
+        for heat, suffix in enumerate(HEAT_NAMES):
+            self.lang[f"buildcraft.fluid.heat_{heat}"] = f"%s ({suffix})"
+        for family, _, _, title in FLUID_FAMILIES:
+            self.lang[f"fluid_family.{MOD}.{family}"] = title
         for name, heat, _, _, title in FLUIDS:
             self.model(f"block/{name}", {"textures": {"particle": rl(f"block/fluids/{name}_still")}})
             self.blockstate(name, {"variants": {"": {"model": rl(f"block/{name}")}}})
@@ -518,9 +529,48 @@ class Generator:
         self.blockstate("oil_spring", {"variants": {"": {"model": "minecraft:block/bedrock"}}})
         self.item_model("oil_spring", "minecraft:block/bedrock")
         self.lang[f"block.{MOD}.oil_spring"] = "Oil Spring"
+        # Upstream spring.json draws both spring types as bedrock.
+        self.blockstate("water_spring", {"variants": {"": {"model": "minecraft:block/bedrock"}}})
+        self.item_model("water_spring", "minecraft:block/bedrock")
+        self.lang[f"block.{MOD}.water_spring"] = "Water Spring"
         # The Forge biome modifier and Fabric's BiomeModifications add this to overworld biomes.
         write_json(DATA / MOD / "worldgen" / "configured_feature" / "oil_well.json", {"type": rl("oil_well"), "config": {}})
         write_json(DATA / MOD / "worldgen" / "placed_feature" / "oil_well.json", {"feature": rl("oil_well"), "placement": []})
+
+    def oil_biomes(self) -> None:
+        # Upstream BiomeOilDesert and BiomeOilOcean copy BiomeDesert's and BiomeOcean's properties.
+        biomes = DATA / MOD / "worldgen" / "biome"
+        biomes.mkdir(parents=True, exist_ok=True)
+        for oil, parent, title in [("oil_desert", "desert", "Desert Oil Field"), ("oil_ocean", "ocean", "Ocean Oil Field")]:
+            shutil.copyfile(VANILLA_BIOMES / f"{parent}.json", biomes / f"{oil}.json")
+            self.lang[f"biome.{MOD}.{oil}"] = title
+        desert, ocean = rl("oil_desert"), rl("oil_ocean")
+
+        def optional(tag: str) -> dict:
+            return {"id": tag, "required": False}
+
+        def biome_tag(namespace: str, path: str, values: list[str | dict]) -> None:
+            self.tag("worldgen/biome", namespace, path, values)
+
+        # Upstream's layers replace biomes of the HOT, DRY and SANDY types, and of the OCEAN type.
+        biome_tag(MOD, "oil_desert_replaceable", ["minecraft:desert", optional("#forge:is_desert"), optional("#c:desert")])
+        biome_tag(MOD, "oil_ocean_replaceable", ["#minecraft:is_ocean"])
+        biome_tag(MOD, "excessive_oil", [desert, ocean])
+        # Forge's biome dictionary typed the oil biomes as their parents. 1.12 kept villages, desert temples
+        # and ocean monuments out of them but placed mineshafts and, above sea level, strongholds anywhere.
+        for path in ["is_overworld", "has_structure/mineshaft"]:
+            biome_tag("minecraft", path, [desert, ocean])
+        for path in ["only_allows_snow_and_gold_rabbits", "spawns_warm_variant_frogs", "stronghold_biased_to",
+                     "has_structure/ruined_portal_desert"]:
+            biome_tag("minecraft", path, [desert])
+        for path in ["is_ocean", "has_structure/ocean_ruin_cold", "has_structure/ruined_portal_ocean",
+                     "plays_underwater_music", "water_on_map_outlines"]:
+            biome_tag("minecraft", path, [ocean])
+        for path in ["is_desert", "is_sandy", "is_hot/overworld", "is_dry/overworld"]:
+            biome_tag("forge", path, [desert])
+        biome_tag("c", "in_overworld", [desert, ocean])
+        biome_tag("c", "desert", [desert])
+        biome_tag("c", "shallow_ocean", [ocean])
 
     def items(self) -> None:
         for material, title in GEARS:
@@ -530,6 +580,17 @@ class Generator:
         self.generated_item("waterproof")
         self.lang[f"item.{MOD}.wrench"] = "Wrench"
         self.lang[f"item.{MOD}.waterproof"] = "Pipe Sealant"
+
+        # Upstream's forge:forgebucket model: the base and a fluid mask, which BCClient tints with the fluid.
+        shard = "fragile_fluid_shard"
+        self.model(f"item/{shard}_gaseous", {"parent": "minecraft:item/generated", "textures": {
+            "layer0": rl(f"item/{shard}_base_gaseous"), "layer1": rl(f"item/{shard}_fluid_gaseous")}})
+        self.model(f"item/{shard}", {
+            "parent": "minecraft:item/generated",
+            "textures": {"layer0": rl(f"item/{shard}_base"), "layer1": rl(f"item/{shard}_fluid")},
+            "overrides": [{"predicate": {rl("gaseous"): 1}, "model": rl(f"item/{shard}_gaseous")}],
+        })
+        self.lang[f"item.{MOD}.{shard}"] = "Fragile %s Shard"
 
     def write_lang(self) -> None:
         self.lang.update({
@@ -600,7 +661,7 @@ class Generator:
             self.shapeless(target, target, [{"item": rl(source)}, extra])
             self.shapeless(f"{target}_undo", source, [{"item": rl(target)}])
 
-    def tag(self, registry: str, namespace: str, path: str, values: list[str]) -> None:
+    def tag(self, registry: str, namespace: str, path: str, values: list[str | dict]) -> None:
         write_json(DATA / namespace / "tags" / registry / f"{path}.json", {"replace": False, "values": values})
 
     def data_tags(self) -> None:
@@ -641,6 +702,7 @@ class Generator:
         self.builders()
         self.fluids()
         self.oil_wells()
+        self.oil_biomes()
         self.items()
         self.write_lang()
         self.recipes()

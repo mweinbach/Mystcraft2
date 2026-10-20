@@ -71,7 +71,7 @@ public final class FabricShowcase implements ModInitializer {
     private static int reportWell(CommandSourceStack source, @Nullable OilWellFeature.WellType type) {
         ServerLevel level = source.getLevel();
         ChunkPos chunk = new ChunkPos(new BlockPos(source.getPosition()));
-        OilWellFeature.Well well = Showcase.nearestWell(level.getSeed(), chunk.x, chunk.z, level.getMinBuildHeight(), WELL_SEARCH_RADIUS, type);
+        OilWellFeature.Well well = Showcase.nearestWell(level, chunk.x, chunk.z, WELL_SEARCH_RADIUS, type);
         String message = well == null ? "No oil well within " + WELL_SEARCH_RADIUS + " chunks"
                 : "Nearest oil well: " + well.type() + " at " + well.centre().toShortString();
         source.sendSuccess(Component.literal(message), false);
