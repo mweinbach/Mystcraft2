@@ -63,7 +63,8 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/extremereactors/fabric runGametest
 ```
 
-JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics Fabric JARs
+JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme
+Reactors Fabric JARs
 land in `mods/<mod-id>/fabric/build/libs/`. Fabric also requires Fabric API on server
 and clients. Client, server, and data runs use
 separate directories under that mod's `run/`. A graphical display is required
@@ -102,15 +103,17 @@ docs/                   Porting and development instructions
 ```
 
 `./scripts/gradle.sh build` builds the default variants of all ports. Build
-the Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics Fabric variants
-separately with the commands above. GitHub Actions does the following:
+the Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme Reactors Fabric
+variants separately with the commands above. GitHub Actions does the following:
 
 - checks metadata and tests the port-management tool;
-- builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics;
-- verifies loader parity for the four dual-loader ports;
+- builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and
+  Extreme Reactors;
+- verifies loader parity for the five dual-loader ports;
 - checks EMC coverage and values against ProjectE and Item Alchemy;
 - runs the ICBM dedicated-server GameTests and both the Forge and Fabric
-  GameTest suites of Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics;
+  GameTest suites of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme
+  Reactors;
 - uploads the resulting JARs.
 
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
