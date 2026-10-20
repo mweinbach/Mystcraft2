@@ -121,8 +121,9 @@ checks that both contain the same gameplay resources and no GameTest code.
 Set `JURASSICRAFT_TEST_JAR` to either JAR to run the opt-in distribution test in
 `tools/tests/test_built_jar.py`.
 
-The Forge GameTest server writes its world and logs to `run/gameTestServer` and
-exits after printing a pass/fail summary. The Fabric run uses a disposable world
+The Forge GameTest server deletes `run/gameTestServer/world` before each run,
+writes its world and logs to `run/gameTestServer`, and exits after printing a
+pass/fail summary. The Fabric run uses a disposable world
 under `fabric/build/gametest` and writes `fabric/build/gametest-results.xml`.
 Validate Forge game data with `./scripts/gradle.sh :jurassicraft:runData`. To
 launch a development client with optional integrations, add `-PwithJei` and/or

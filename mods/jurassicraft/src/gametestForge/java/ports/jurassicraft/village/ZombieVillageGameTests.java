@@ -7,6 +7,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -71,27 +72,40 @@ public final class ZombieVillageGameTests {
         require(h, blockEntity instanceof ChestBlockEntity && blockEntity.saveWithoutMetadata().getString("LootTable").equals("jurassicraft:structure/" + name), "missing abandoned village loot");
     }
 
+    /** The pieces spawn persistent zombie villagers that would otherwise hunt villagers in concurrent tests. */
+    private static void discardZombies(GameTestHelper h, BlockPos origin) {
+        h.getEntities(EntityType.ZOMBIE_VILLAGER, origin, 24).forEach(Entity::discard);
+    }
+
     @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
     public static void abandonedGeneticistHouseSpawnsZombieProfessional(GameTestHelper h) {
         BlockPos origin = new BlockPos(4, 1, 4);
-        place(h, "geneticist_house", origin);
-        require(h, h.getBlockState(origin.offset(4, 2, 4)).is(DnaMachineRegistry.EXTRACTOR.get()), "geneticist workstation missing");
-        loot(h, origin.offset(6, 1, 6), "geneticist_house");
-        require(h, h.getEntities(EntityType.ZOMBIE_VILLAGER, origin.offset(3, 1, 3), 4).stream().anyMatch(v ->
-                v.getVillagerData().getProfession() == VillageRegistry.GENETICIST.get() && v.getVillagerXp() == 1 && v.isPersistenceRequired()), "geneticist zombie did not spawn with profession and retained experience");
-        require(h, h.getEntities(EntityType.VILLAGER, origin.offset(3, 1, 3), 4).isEmpty(), "ordinary villager spawned in an abandoned house");
+        try {
+            place(h, "geneticist_house", origin);
+            require(h, h.getBlockState(origin.offset(4, 2, 4)).is(DnaMachineRegistry.EXTRACTOR.get()), "geneticist workstation missing");
+            loot(h, origin.offset(6, 1, 6), "geneticist_house");
+            require(h, h.getEntities(EntityType.ZOMBIE_VILLAGER, origin.offset(3, 1, 3), 4).stream().anyMatch(v ->
+                    v.getVillagerData().getProfession() == VillageRegistry.GENETICIST.get() && v.getVillagerXp() == 1 && v.isPersistenceRequired()), "geneticist zombie did not spawn with profession and retained experience");
+            require(h, h.getEntities(EntityType.VILLAGER, origin.offset(3, 1, 3), 4).isEmpty(), "ordinary villager spawned in an abandoned house");
+        } finally {
+            discardZombies(h, origin);
+        }
         h.succeed();
     }
 
     @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
     public static void abandonedDigsiteKeepsFossilDisplayAndZombieProfessional(GameTestHelper h) {
         BlockPos origin = new BlockPos(4, 1, 4);
-        place(h, "fossildigsite_3", origin);
-        require(h, h.getBlockState(origin.offset(1, 12, 1)).is(CleaningStationRegistry.BLOCK.get()), "paleontologist workstation missing");
-        loot(h, origin.offset(7, 2, 7), "fossil_digsite");
-        require(h, h.getLevel().getBlockEntity(h.absolutePos(origin.offset(5, 1, 3))) instanceof AncientItemHoldingBlockEntity, "abandoned digsite tool display missing");
-        require(h, h.getEntities(EntityType.ZOMBIE_VILLAGER, origin.offset(3, 12, 3), 4).stream().anyMatch(v ->
-                v.getVillagerData().getProfession() == VillageRegistry.PALEONTOLOGIST.get() && v.getVillagerXp() == 1 && v.isPersistenceRequired()), "paleontologist zombie did not spawn with profession and retained experience");
+        try {
+            place(h, "fossildigsite_3", origin);
+            require(h, h.getBlockState(origin.offset(1, 12, 1)).is(CleaningStationRegistry.BLOCK.get()), "paleontologist workstation missing");
+            loot(h, origin.offset(7, 2, 7), "fossil_digsite");
+            require(h, h.getLevel().getBlockEntity(h.absolutePos(origin.offset(5, 1, 3))) instanceof AncientItemHoldingBlockEntity, "abandoned digsite tool display missing");
+            require(h, h.getEntities(EntityType.ZOMBIE_VILLAGER, origin.offset(3, 12, 3), 4).stream().anyMatch(v ->
+                    v.getVillagerData().getProfession() == VillageRegistry.PALEONTOLOGIST.get() && v.getVillagerXp() == 1 && v.isPersistenceRequired()), "paleontologist zombie did not spawn with profession and retained experience");
+        } finally {
+            discardZombies(h, origin);
+        }
         h.succeed();
     }
 }
