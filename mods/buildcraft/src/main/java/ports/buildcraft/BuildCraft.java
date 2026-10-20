@@ -1,5 +1,6 @@
 package ports.buildcraft;
 
+import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -39,6 +40,11 @@ public final class BuildCraft {
     private static CreativeModeTab pipeTab() {
         if (pipeTab == null) pipeTab = Platform.get().creativeTab("pipes", () -> new ItemStack(BCTransport.ITEM_PIPES.get(0).item()));
         return pipeTab;
+    }
+
+    /** Client-to-server messages by channel; loaders hand each payload over on the server thread. */
+    public static Map<ResourceLocation, Platform.ServerReceiver> serverReceivers() {
+        return Map.of();
     }
 
     /** Loads every module so its registry entries are queued, in upstream module order. */

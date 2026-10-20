@@ -5,7 +5,9 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
@@ -29,6 +31,17 @@ public final class FabricMod implements ModInitializer {
                 .toArray(BlockEntityType<?>[]::new);
         FabricPorts.register(types);
         FabricShardStorage.register();
+        BuildCraft.serverReceivers().forEach((channel, receiver) -> ServerPlayNetworking.registerGlobalReceiver(channel,
+                (server, player, handler, buffer, sender) -> {
+                    FriendlyByteBuf payload = new FriendlyByteBuf(buffer.copy());
+                    server.execute(() -> {
+                        try {
+                            receiver.receive(player, payload);
+                        } finally {
+                            payload.release();
+                        }
+                    });
+                }));
         ServerTickEvents.END_WORLD_TICK.register(BCCoreEvents::onLevelTick);
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (entity instanceof ServerPlayer player) BCCoreEvents.onPlayerJoinLevel(player, level);

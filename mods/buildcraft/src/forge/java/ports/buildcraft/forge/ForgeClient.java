@@ -54,4 +54,9 @@ final class ForgeClient implements ClientPlatform.Backend {
     public int fluidColour(Fluid fluid) {
         return IClientFluidTypeExtensions.of(fluid).getTintColor();
     }
+
+    @Override
+    public void sendToServer(ResourceLocation channel, Consumer<FriendlyByteBuf> payload) {
+        ForgeNetwork.sendToServer(channel, payload);
+    }
 }
