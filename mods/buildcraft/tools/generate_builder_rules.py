@@ -11,7 +11,7 @@ Families are read from Minecraft's block state files, so pass the folder extract
 
     unzip -q <gradle cache>/forge_gradle/minecraft_repo/versions/1.19.2/client-extra.jar \\
         'assets/minecraft/blockstates/*' -d /tmp/mc1192
-    python3 mods/buildcraft/scripts/generate_builder_rules.py /tmp/mc1192/assets/minecraft/blockstates
+    python3 mods/buildcraft/tools/generate_builder_rules.py /tmp/mc1192/assets/minecraft/blockstates
 """
 
 import json
