@@ -543,12 +543,13 @@ public final class BCTests {
         player.moveTo(eyes.x, eyes.y - player.getEyeHeight(), eyes.z, 0, 0);
         ItemStack connector = new ItemStack(BCCore.MARKER_CONNECTOR.get());
         player.setItemInHand(InteractionHand.MAIN_HAND, connector);
-        connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-        require(helper, west.getCurrentConnection() == null, "looking over the line must not connect the marks");
+        InteractionResult missed = connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
+        require(helper, west.getCurrentConnection() == null && !missed.consumesAction(), "looking over the line must not connect the marks");
         player.moveTo(eyes.x, eyes.y - player.getEyeHeight() - 0.9, eyes.z + 0.5, 0, 0);
-        connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        InteractionResult connected = connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
         require(helper, west.getCurrentConnection() != null && west.getCurrentConnection().getMarkerPositions().size() == 2,
                 "looking along the line must connect the marks");
+        require(helper, connected.consumesAction(), "connecting marks must consume the click so it does not reach the other hand");
         helper.succeed();
     }
 

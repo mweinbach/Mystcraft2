@@ -21,20 +21,20 @@ public class MarkerConnectorItem extends Item {
         super(properties);
     }
 
+    /** Consumes the click when it connects markers, which clients predict from the markers they have loaded. */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if (!level.isClientSide) {
-            for (MarkerCache<?> cache : MarkerCache.CACHES) {
-                if (interactCache(cache.getSubCache(level), player)) {
-                    player.swing(hand, true);
-                    break;
-                }
+        ItemStack stack = player.getItemInHand(hand);
+        for (MarkerCache<?> cache : MarkerCache.CACHES) {
+            if (interactCache(cache.getSubCache(level), player, level.isClientSide)) {
+                if (!level.isClientSide) player.swing(hand, true);
+                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
         }
-        return InteractionResultHolder.pass(player.getItemInHand(hand));
+        return InteractionResultHolder.pass(stack);
     }
 
-    private static boolean interactCache(MarkerSubCache<?> cache, Player player) {
+    private static boolean interactCache(MarkerSubCache<?> cache, Player player, boolean predictOnly) {
         LineInteraction best = null;
         Vec3 eyes = player.getEyePosition();
         Vec3 look = player.getLookAngle();
@@ -45,6 +45,7 @@ public class MarkerConnectorItem extends Item {
             }
         }
         if (best == null) return false;
+        if (predictOnly) return true;
         return cache.tryConnect(best.marker1, best.marker2) || cache.tryConnect(best.marker2, best.marker1);
     }
 

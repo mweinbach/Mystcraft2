@@ -127,7 +127,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   connection from it. Clients therefore only know the marks they have loaded, so the possible
   connections drawn while holding a connector skip unloaded marks, and a connection is drawn from
   the first of its marks the client has loaded. Closing a path into a loop from its last mark
-  resyncs the path, which upstream left to the next change.
+  resyncs the path, which upstream left to the next change. A connector click that connects marks
+  is consumed, so it does not also use the item in the other hand; upstream let it fall through.
 - **Marker block state:** upstream's `active` property, which its model ignored, is not ported.
 - **Path mark permissions** only check that the player may build; upstream also asked the
   permission API, which nothing in the port provides.
