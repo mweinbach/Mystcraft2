@@ -22,8 +22,14 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.BuilderBlock;
+import ports.buildcraft.builders.BuilderBlockEntity;
 import ports.buildcraft.builders.QuarryBlock;
 import ports.buildcraft.builders.QuarryBlockEntity;
+import ports.buildcraft.builders.snapshot.EnumSnapshotType;
+import ports.buildcraft.core.BCCore;
+import ports.buildcraft.core.MarkerBlock;
+import ports.buildcraft.core.marker.MarkerCaches;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
 import ports.buildcraft.energy.EngineBlock;
@@ -81,6 +87,14 @@ public final class Showcase {
         return new Showcase(level, origin).refinery();
     }
 
+    /**
+     * Builds a builder bench: a hut recorded as a blueprint and as a template, one builder rebuilding each beside it,
+     * and a third builder paving a cobblestone road along path marks. Every builder runs on two combustion engines.
+     */
+    public static void buildBuilders(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).builders();
+    }
+
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
     @Nullable
     public static OilWellFeature.Well nearestWell(ServerLevel level, int cx, int cz, int radius, @Nullable OilWellFeature.WellType type) {
@@ -119,6 +133,72 @@ public final class Showcase {
                 row[row.length - 1].fluidPort(HeatExchangerBlock.toEnd(Direction.WEST)).fill(Fluids.LAVA, HeatExchangerBlockEntity.CAPACITY, false);
             }
         };
+    }
+
+    private void builders() {
+        prepare(-3, 20, -3, 23);
+        hut(12, 0);
+        ItemStack blueprint = BuilderTests.record(level, EnumSnapshotType.BLUEPRINT, at(12, 0, 0), new BlockPos(5, 5, 5), Direction.NORTH, "Hut");
+        ItemStack template = BuilderTests.record(level, EnumSnapshotType.TEMPLATE, at(12, 0, 0), new BlockPos(5, 5, 5), Direction.NORTH, "Hut");
+        set(19, 0, 20, Blocks.COBBLESTONE);
+        ItemStack road = BuilderTests.record(level, EnumSnapshotType.TEMPLATE, at(19, 0, 20), new BlockPos(1, 1, 1), Direction.WEST, "Road");
+        set(19, 0, 20, Blocks.AIR);
+
+        poweredBuilder(0, 0, Direction.NORTH, blueprint, new ItemStack(Items.STONE_BRICKS, 64), new ItemStack(Items.OAK_LOG, 64),
+                new ItemStack(Items.OAK_PLANKS, 64), new ItemStack(Items.GLASS_PANE, 64), new ItemStack(Items.SPRUCE_SLAB, 64), new ItemStack(Items.LANTERN, 4));
+        poweredBuilder(0, 8, Direction.NORTH, template, new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.COBBLESTONE, 64));
+
+        BlockState mark = BCCore.MARKER_PATH.get().defaultBlockState().setValue(MarkerBlock.FACING, Direction.UP);
+        List<BlockPos> marks = List.of(at(2, 0, 18), at(11, 0, 18), at(11, 0, 22));
+        for (BlockPos pos : marks) level.setBlock(pos, mark, Block.UPDATE_ALL);
+        for (int i = 1; i < marks.size(); i++) MarkerCaches.PATH.getSubCache(level).tryConnect(marks.get(i - 1), marks.get(i));
+        BuilderBlockEntity paver = builder(1, 0, 18, Direction.WEST);
+        paver.setItem(1, new ItemStack(Items.COBBLESTONE, 64));
+        // A path builder skips steps it cannot power at once, as upstream, so it starts charged.
+        paver.battery().set(paver.battery().capacity());
+        paver.setItem(BuilderBlockEntity.SLOT_SNAPSHOT, road);
+        redstone(1, 0, 16);
+        combustion(1, 0, 17, Direction.SOUTH);
+        redstone(1, 2, 18);
+        combustion(1, 1, 18, Direction.DOWN);
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    /** A five-block cube hut with log corners, windows on three sides, a doorway in the south wall and a lantern inside. */
+    private void hut(int x0, int z0) {
+        for (int x = 0; x < 5; x++) {
+            for (int z = 0; z < 5; z++) {
+                set(x0 + x, 0, z0 + z, Blocks.STONE_BRICKS);
+                set(x0 + x, 4, z0 + z, Blocks.SPRUCE_SLAB);
+                boolean edgeX = x == 0 || x == 4, edgeZ = z == 0 || z == 4;
+                if (!edgeX && !edgeZ) continue;
+                for (int y = 1; y <= 3; y++) set(x0 + x, y, z0 + z, edgeX && edgeZ ? Blocks.OAK_LOG : Blocks.OAK_PLANKS);
+            }
+        }
+        set(x0 + 2, 2, z0, Blocks.GLASS_PANE);
+        set(x0, 2, z0 + 2, Blocks.GLASS_PANE);
+        set(x0 + 4, 2, z0 + 2, Blocks.GLASS_PANE);
+        set(x0 + 2, 1, z0 + 4, Blocks.AIR);
+        set(x0 + 2, 2, z0 + 4, Blocks.AIR);
+        set(x0 + 2, 1, z0 + 2, Blocks.LANTERN);
+    }
+
+    /** A builder with {@code snapshot} and {@code resources}, with combustion engines on its west side and on top. */
+    private void poweredBuilder(int x, int z, Direction facing, ItemStack snapshot, ItemStack... resources) {
+        BuilderBlockEntity builder = builder(x, 0, z, facing);
+        for (int i = 0; i < resources.length; i++) builder.setItem(1 + i, resources[i]);
+        builder.setItem(BuilderBlockEntity.SLOT_SNAPSHOT, snapshot);
+        redstone(x - 2, 0, z);
+        combustion(x - 1, 0, z, Direction.EAST);
+        redstone(x, 2, z);
+        combustion(x, 1, z, Direction.DOWN);
+    }
+
+    private BuilderBlockEntity builder(int x, int y, int z, Direction facing) {
+        BlockState state = BCBuilders.BUILDER.get().defaultBlockState().setValue(BuilderBlock.FACING, facing);
+        set(x, y, z, state);
+        BCBuilders.BUILDER.get().setPlacedBy(level, at(x, y, z), state, null, ItemStack.EMPTY);
+        return (BuilderBlockEntity) level.getBlockEntity(at(x, y, z));
     }
 
     private void distiller(int x, int z, Fluid input) {

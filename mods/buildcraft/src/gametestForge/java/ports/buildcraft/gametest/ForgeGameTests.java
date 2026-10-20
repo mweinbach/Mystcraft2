@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests} and {@link FillerTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests} and {@link BuilderTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -134,6 +134,27 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void architectRecipes(GameTestHelper helper) { ArchitectTests.architectRecipes(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void builderBuildsRotatedTemplate(GameTestHelper helper) { BuilderTests.builderBuildsRotatedTemplate(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void builderBuildsBlueprint(GameTestHelper helper) { BuilderTests.builderBuildsBlueprint(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void builderPlacesFluidsFromTanks(GameTestHelper helper) { BuilderTests.builderPlacesFluidsFromTanks(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void builderSpawnsAndRemovesEntities(GameTestHelper helper) { BuilderTests.builderSpawnsAndRemovesEntities(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void builderFollowsPathMarks(GameTestHelper helper) { BuilderTests.builderFollowsPathMarks(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void builderSkipsPathStepsItCannotPowerAtOnce(GameTestHelper helper) { BuilderTests.builderSkipsPathStepsItCannotPowerAtOnce(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void builderMenuSavingAndDrops(GameTestHelper helper) { BuilderTests.builderMenuSavingAndDrops(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
