@@ -13,6 +13,8 @@
     "buildcraft:filler",
     "buildcraft:architect_table",
     "buildcraft:builder",
+    "buildcraft:electronic_library",
+    "buildcraft:replacer",
     "buildcraft:pipe_wood_item",
     "buildcraft:pipe_cobblestone_item",
     "buildcraft:pipe_stone_item",

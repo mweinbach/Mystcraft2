@@ -31,6 +31,9 @@
       "itemalchemy": 17552,
       "source": "recipe"
     },
+    "buildcraft:electronic_library": {
+      "excluded": "Creative-only: upstream has no recipe for the electronic library, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+    },
     "buildcraft:filler": {
       "excluded": "Creative-only: upstream has no recipe for the filler, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
     },
@@ -334,6 +337,15 @@
       "projecte": 405,
       "itemalchemy": 401,
       "source": "recipe"
+    },
+    "buildcraft:replacer": {
+      "excluded": "Creative-only: upstream has no recipe for the replacer, which only edits blueprints for the creative builder, so a value would only make a creative machine transmutable."
+    },
+    "buildcraft:schematic_single_clean": {
+      "excluded": "Creative-only: upstream commented out the single block schematic's recipe, so a value would only make a creative item transmutable."
+    },
+    "buildcraft:schematic_single_used": {
+      "excluded": "Creative-only and NBT item: a recorded single block schematic is a blank one holding a block's schematic, which upstream gave no recipe; transmutation never copies NBT."
     },
     "buildcraft:stirling_engine": {
       "projecte": 392,

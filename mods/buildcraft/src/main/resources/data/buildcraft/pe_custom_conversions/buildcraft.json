@@ -23,6 +23,12 @@
           }
         },
         {
+          "output": "buildcraft:schematic_single_used",
+          "ingredients": {
+            "buildcraft:schematic_single_clean": 1
+          }
+        },
+        {
           "output": "buildcraft:template_used",
           "ingredients": {
             "buildcraft:template_clean": 1
@@ -38,6 +44,12 @@
     "conversion": [
       {
         "output": "buildcraft:builder",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "buildcraft:electronic_library",
         "ingredients": [
           "FAKE|no_emc"
         ]
@@ -230,6 +242,24 @@
       },
       {
         "output": "buildcraft:oil_spring",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "buildcraft:replacer",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "buildcraft:schematic_single_clean",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "buildcraft:schematic_single_used",
         "ingredients": [
           "FAKE|no_emc"
         ]

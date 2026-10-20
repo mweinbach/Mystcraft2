@@ -628,6 +628,36 @@ class Generator:
         self.item_model("builder", rl("block/builder/main"))
         self.lang.update({f"block.{MOD}.builder": "Builder", f"block.{MOD}.builder.tip": "Not usable in survival"})
 
+    def library(self) -> None:
+        for block, parts in [("library", ["back", "bottom", "front", "left", "right", "top"]),
+                             ("replacer", ["bottom", "front", "side", "top"])]:
+            for part in parts:
+                self.copy(f"buildcraftbuilders/textures/blocks/{block}/{part}.png", f"block/{block}/{part}.png")
+        self.copy("buildcraftbuilders/textures/gui/electronic_library.png", "gui/electronic_library.png")
+        self.copy("buildcraftbuilders/textures/gui/replacer.png", "gui/replacer.png")
+        self.copy("buildcraftlib/textures/gui/buttons.png", "gui/buttons.png")
+        for upstream, name in [("library", "electronic_library"), ("replacer", "replacer")]:
+            model = json.loads((self.src / f"buildcraftbuilders/models/block/{upstream}.json").read_text(encoding="utf-8"))
+            model["parent"] = "minecraft:" + model["parent"]
+            model["textures"] = {face: texture.replace("buildcraftbuilders:blocks/", rl("block/"))
+                                 for face, texture in model["textures"].items()}
+            self.model(f"block/{name}", model)
+            self.blockstate(name, {"variants": {f"facing={facing}": dict({"model": rl(f"block/{name}")}, **({"y": y} if y else {}))
+                                                for facing, y in HORIZONTAL_Y.items()}})
+            self.item_model(name, rl(f"block/{name}"))
+        for state in ["clean", "used"]:
+            self.copy(f"buildcraftbuilders/textures/items/schematic_single/{state}.png", f"item/schematic_single/{state}.png")
+            self.generated_item(f"schematic_single_{state}", f"schematic_single/{state}")
+        # Upstream's lang named no replacer.
+        self.lang.update({
+            f"block.{MOD}.electronic_library": "Electronic Library",
+            f"block.{MOD}.electronic_library.tip": "Not usable in survival",
+            f"block.{MOD}.replacer": "Replacer",
+            f"item.{MOD}.schematic_single_clean": "Single Block Schematic",
+            f"item.{MOD}.schematic_single_used": "Single Block Schematic",
+            f"gui.{MOD}.del": "Del",
+        })
+
     def markers(self) -> None:
         for kind in ["volume", "path"]:
             self.copy(f"buildcraftcore/textures/blocks/marker_{kind}.png", f"block/marker_{kind}.png")
@@ -836,11 +866,11 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder", "electronic_library", "replacer"] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "builder", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "architect_table", "builder", "electronic_library", "replacer", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -863,6 +893,7 @@ class Generator:
         self.filler()
         self.architect()
         self.builder()
+        self.library()
         self.markers()
         self.fluids()
         self.oil_wells()

@@ -4,6 +4,7 @@ buildcraft:blueprint_used
 buildcraft:builder
 buildcraft:combustion_engine
 buildcraft:distiller
+buildcraft:electronic_library
 buildcraft:filler
 buildcraft:fragile_fluid_shard
 buildcraft:frame
@@ -76,6 +77,9 @@ buildcraft:pipe_wood_power
 buildcraft:pump
 buildcraft:quarry
 buildcraft:redstone_engine
+buildcraft:replacer
+buildcraft:schematic_single_clean
+buildcraft:schematic_single_used
 buildcraft:stirling_engine
 buildcraft:tank
 buildcraft:template_clean
