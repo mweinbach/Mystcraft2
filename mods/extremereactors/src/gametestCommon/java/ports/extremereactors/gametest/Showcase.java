@@ -6,7 +6,9 @@ package ports.extremereactors.gametest;
 
 import it.zerono.mods.extremereactors.gamecontent.Content;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.MultiblockReactor;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.part.ReactorFluidPortEntity;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.MultiblockTurbine;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.VentSetting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Development-only machines for screenshots, never shipped in a production JAR. {@link #build} lays out a running
@@ -99,6 +102,25 @@ public final class Showcase {
 
         player.getLevel().getBlockState(position).use(player.getLevel(), player, InteractionHand.MAIN_HAND, hit);
         return true;
+    }
+
+    /** Sets the control rods of every showcase reactor, as their control rod screens would. */
+    public static void rods(final ServerLevel level, final int insertion) {
+        reactors(level).forEach(reactor -> reactor.setControlRodsInsertionRatio(insertion));
+    }
+
+    /** SCRAMs every showcase reactor, as the SCRAM button of its controller screen does. */
+    public static void scram(final ServerLevel level) {
+        reactors(level).forEach(reactor -> {
+
+            reactor.setControlRodsInsertionRatio(100);
+            reactor.setMachineActive(false);
+        });
+    }
+
+    /** Turns every showcase reactor back on. */
+    public static void start(final ServerLevel level) {
+        reactors(level).forEach(reactor -> reactor.setMachineActive(true));
     }
 
     /** One line per machine: assembled, or the validation error that stops it. */
@@ -379,6 +401,10 @@ public final class Showcase {
 
         whenAssembled(level, at.offset(4, 2, 0), controller -> {
 
+            if (level.getBlockEntity(at.offset(6, 1, 0)) instanceof ReactorFluidPortEntity steamPort) {
+                steamPort.setIoDirection(IoDirection.Output);
+            }
+
             s_fueled.add(at.offset(1, 1, 0));
             activate(controller);
         });
@@ -436,7 +462,9 @@ public final class Showcase {
         whenAssembled(level, at.offset(3, 1, 0), controller -> {
 
             if (controller instanceof MultiblockTurbine turbine) {
+
                 turbine.setInductorEngaged(true);
+                turbine.setVentSetting(VentSetting.VentAll);
             }
 
             activate(controller);
@@ -501,6 +529,15 @@ public final class Showcase {
                     return true;
                 })
                 .orElse(false));
+    }
+
+    private static Stream<MultiblockReactor> reactors(final ServerLevel level) {
+        return SCREENS.entrySet().stream()
+                .filter(entry -> entry.getKey().endsWith("reactor_controller"))
+                .flatMap(entry -> controller(level, entry.getValue()).stream())
+                .filter(MultiblockReactor.class::isInstance)
+                .map(MultiblockReactor.class::cast)
+                .distinct();
     }
 
     private static Optional<AbstractMultiblockController<?>> controller(final ServerLevel level, final BlockPos part) {
