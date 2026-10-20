@@ -2,7 +2,6 @@
   "parent": "buildcraft:block/engine_base",
   "textures": {
     "back": "buildcraft:block/engine/wood/back",
-    "side": "buildcraft:block/engine/wood/side",
-    "trunk": "buildcraft:block/engine/trunk_red"
+    "side": "buildcraft:block/engine/wood/side"
   }
 }

@@ -2,7 +2,6 @@
   "parent": "buildcraft:block/engine_base",
   "textures": {
     "back": "buildcraft:block/engine/iron/back",
-    "side": "buildcraft:block/engine/iron/side",
-    "trunk": "buildcraft:block/engine/trunk_overheat"
+    "side": "buildcraft:block/engine/iron/side"
   }
 }

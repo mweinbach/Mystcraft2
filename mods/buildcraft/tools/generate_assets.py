@@ -261,7 +261,8 @@ class Generator:
         base = {"from": [0, 0, 0], "to": [16, 4, 16], "faces": {d: dict(f, **({"cullface": "down"} if d == "down" else {}))
                                                                  for d, f in plate.items()}}
         trunk_element = {"from": [4, 4, 4], "to": [12, 16, 12], "faces": trunk}
-        self.model("block/engine_base", {"textures": {"particle": "#back"}, "elements": [base, trunk_element]})
+        # EngineRenderer draws the trunk, whose texture and light follow the power stage, and the moving parts.
+        self.model("block/engine_base", {"textures": {"particle": "#back"}, "elements": [base]})
 
         # Upstream item model: progress 0.2 gives progress_size = 0.2 * 15.99.
         size = round(0.2 * (8 * 2 - 0.01), 4)
@@ -279,15 +280,9 @@ class Generator:
                      "east": {"x": 90, "y": 90}, "west": {"x": 90, "y": 270}}
         for block, material, title in ENGINES:
             textures = {"back": rl(f"block/engine/{material}/back"), "side": rl(f"block/engine/{material}/side")}
-            variants = {}
-            for stage in STAGES:
-                trunk_texture = "overheat" if stage == "black" else stage
-                self.model(f"block/engine/{material}_{stage}", {
-                    "parent": rl("block/engine_base"),
-                    "textures": dict(textures, trunk=rl(f"block/engine/trunk_{trunk_texture}")),
-                })
-                for facing, rotation in rotations.items():
-                    variants[f"facing={facing},stage={stage}"] = dict({"model": rl(f"block/engine/{material}_{stage}")}, **rotation)
+            self.model(f"block/engine/{material}", {"parent": rl("block/engine_base"), "textures": textures})
+            variants = {f"facing={facing}": dict({"model": rl(f"block/engine/{material}")}, **rotation)
+                        for facing, rotation in rotations.items()}
             self.blockstate(block, {"variants": variants})
             self.model(f"item/{block}", {"parent": rl("item/engine_base"), "textures": textures})
             self.lang[f"block.{MOD}.{block}"] = title

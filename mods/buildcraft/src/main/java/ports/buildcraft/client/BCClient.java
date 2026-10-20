@@ -50,8 +50,9 @@ public final class BCClient {
 
     /** Sprites drawn only by renderers, which no block model would otherwise put on the block atlas. */
     public static List<ResourceLocation> extraSprites() {
-        List<ResourceLocation> sprites = new ArrayList<>(List.of(PipeRenderer.POWER_FLOW, QuarryRenderer.DRILL, QuarryRenderer.FRAME, EngineRenderer.CHAMBER,
+        List<ResourceLocation> sprites = new ArrayList<>(List.of(PipeRenderer.POWER_FLOW, QuarryRenderer.DRILL, QuarryRenderer.FRAME,
                 MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE));
+        sprites.addAll(EngineRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());
