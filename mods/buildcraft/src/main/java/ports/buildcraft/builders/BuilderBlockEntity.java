@@ -123,6 +123,13 @@ public class BuilderBlockEntity extends SyncedBlockEntity implements PortHolder,
         queueSync();
     }
 
+    /** After a wrench turn a builder without a path builds behind its new back; upstream kept the old base position. */
+    void onTurned() {
+        updateBasePoses();
+        setChanged();
+        queueSync();
+    }
+
     /** Upstream {@code TileBC_Neptune.onRemove}: in-flight items go back to the resources, which drop with the snapshot. */
     void onRemoved() {
         SnapshotBuilder<?> builder = getBuilder();

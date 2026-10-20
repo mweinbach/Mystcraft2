@@ -390,6 +390,8 @@ public final class BuilderTests {
         turned.setItem(BuilderBlockEntity.SLOT_SNAPSHOT, template.copy());
         turned.setItem(7, new ItemStack(Items.BRICKS, 12));
         require(helper, turned.getRotation() == Rotation.CLOCKWISE_180, "a template facing west in a builder facing east turns half round");
+        require(helper, turned.getBasePoses().equals(List.of(absolute.west())) && turned.getBox().min().equals(absolute.west()),
+                "a turned builder builds behind its new back, got " + turned.getBasePoses());
 
         CompoundTag saved = turned.saveWithoutMetadata();
         BuilderBlockEntity loaded = new BuilderBlockEntity(absolute, helper.getBlockState(pos));

@@ -62,7 +62,10 @@ public class BuilderBlock extends BaseEntityBlock {
         if (!(level.getBlockEntity(pos) instanceof BuilderBlockEntity builder)) return InteractionResult.PASS;
         if (Wrenches.isWrench(player.getItemInHand(hand))) {
             if (builder.getBuilder() != null) return InteractionResult.FAIL;
-            if (!level.isClientSide) level.setBlockAndUpdate(pos, state.setValue(FACING, state.getValue(FACING).getClockWise()));
+            if (!level.isClientSide) {
+                level.setBlockAndUpdate(pos, state.setValue(FACING, state.getValue(FACING).getClockWise()));
+                builder.onTurned();
+            }
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
         if (!level.isClientSide) Platform.openMenu((ServerPlayer) player, builder, pos);
