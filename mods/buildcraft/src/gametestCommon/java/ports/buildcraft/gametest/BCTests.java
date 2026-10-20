@@ -1324,7 +1324,9 @@ public final class BCTests {
 
     private static final List<String> RECIPES = List.of("gear_wood", "gear_stone", "gear_iron", "gear_gold", "gear_diamond", "wrench",
             "redstone_engine", "stirling_engine", "combustion_engine", "tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "waterproof",
-            "marker_volume", "marker_path", "marker_connector");
+            "marker_volume", "marker_path", "marker_connector",
+            "laser", "assembly_table", "advanced_crafting_table", "integration_table", "redstone_chipset", "iron_chipset", "gold_chipset",
+            "quartz_chipset", "diamond_chipset");
 
     /** Upstream recipes are loaded, accept both conventional and Forge tags, and gears and wrenches carry both tags. */
     public static void recipesAndTags(GameTestHelper helper) {

@@ -35,6 +35,7 @@ import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeDefinition;
 
@@ -62,6 +63,7 @@ public final class BCClient {
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
         sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
         sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
+        sink.register(BCSilicon.LASER_TYPE.get(), context -> new LaserBlockRenderer());
     }
 
     public interface ItemColourSink {
@@ -97,6 +99,9 @@ public final class BCClient {
         MenuScreens.register(BCBuilders.BUILDER_MENU.get(), BuilderScreen::new);
         MenuScreens.register(BCBuilders.ELECTRONIC_LIBRARY_MENU.get(), ElectronicLibraryScreen::new);
         MenuScreens.register(BCBuilders.REPLACER_MENU.get(), ReplacerScreen::new);
+        MenuScreens.register(BCSilicon.ASSEMBLY_TABLE_MENU.get(), AssemblyTableScreen::new);
+        MenuScreens.register(BCSilicon.ADVANCED_CRAFTING_TABLE_MENU.get(), AdvancedCraftingTableScreen::new);
+        MenuScreens.register(BCSilicon.INTEGRATION_TABLE_MENU.get(), IntegrationTableScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
@@ -132,7 +137,8 @@ public final class BCClient {
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */
     public static List<Block> cutoutBlocks() {
         List<Block> blocks = new ArrayList<>(List.of(BCFactory.TANK.get(), BCFactory.TUBE.get(), BCFactory.DISTILLER.get(),
-                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get(), BCCore.MARKER_VOLUME.get(), BCCore.MARKER_PATH.get()));
+                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get(), BCCore.MARKER_VOLUME.get(), BCCore.MARKER_PATH.get(),
+                BCSilicon.LASER.get(), BCSilicon.ASSEMBLY_TABLE.get(), BCSilicon.ADVANCED_CRAFTING_TABLE.get(), BCSilicon.INTEGRATION_TABLE.get()));
         for (PipeDefinition pipe : BCTransport.PIPES) blocks.add(pipe.block());
         return blocks;
     }

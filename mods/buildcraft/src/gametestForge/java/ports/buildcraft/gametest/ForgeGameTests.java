@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests} and {@link BuilderTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests} and {@link SiliconTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -212,6 +212,23 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void kinesisPipesCarryEnginePower(GameTestHelper helper) { BCTests.kinesisPipesCarryEnginePower(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 60)
+    public static void laserPowersTablesInSight(GameTestHelper helper) { SiliconTests.laserPowersTablesInSight(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void assemblyTableMakesSavedChipsets(GameTestHelper helper) { SiliconTests.assemblyTableMakesSavedChipsets(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void assemblyTablePagesRecipesAndDropsStaleOutputs(GameTestHelper helper) {
+        SiliconTests.assemblyTablePagesRecipesAndDropsStaleOutputs(helper);
+    }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void integrationTableIntegratesAroundCentre(GameTestHelper helper) { SiliconTests.integrationTableIntegratesAroundCentre(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

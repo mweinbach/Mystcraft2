@@ -35,6 +35,60 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_redstone_chipset": {
+      "comment": "The assembly table makes a redstone chipset from a redstone dust and laser power (upstream's chipset assembly recipe). ProjectE and ItemAlchemy map no assembly recipes, so it is restated here; laser power is left unvalued, as engine fuel is.",
+      "conversions": [
+        {
+          "output": "buildcraft:redstone_chipset",
+          "ingredients": {
+            "minecraft:redstone": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_ingot_chipsets": {
+      "comment": "The assembly table makes iron and golden chipsets from a redstone dust, an ingot of their metal and laser power, which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:gold_chipset",
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:gold_ingot": 1
+          }
+        },
+        {
+          "output": "buildcraft:iron_chipset",
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:iron_ingot": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_quartz_chipset": {
+      "comment": "The assembly table makes a quartz chipset from a redstone dust, a nether quartz and laser power, which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:quartz_chipset",
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:quartz": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_diamond_chipset": {
+      "comment": "The assembly table makes a diamond chipset from a redstone dust, a diamond and laser power, which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:diamond_chipset",
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:diamond": 1
+          }
+        }
+      ]
     }
   },
   "values": {

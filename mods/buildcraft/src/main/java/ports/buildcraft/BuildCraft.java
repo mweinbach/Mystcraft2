@@ -13,6 +13,7 @@ import ports.buildcraft.core.BCCore;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.transport.BCTransport;
 
 /** Shared entrypoint. Loader adapters install {@link Platform} first, then call {@link #init()}. */
@@ -62,5 +63,6 @@ public final class BuildCraft {
         BCFactory.init();
         BCBuilders.init();
         BCTransport.init();
+        BCSilicon.init();
     }
 }

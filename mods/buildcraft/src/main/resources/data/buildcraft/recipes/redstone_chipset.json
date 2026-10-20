@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:redstone_chipset"
+  },
+  "MJ": 10000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    }
+  ]
+}

@@ -5,9 +5,13 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -48,6 +52,12 @@ import ports.buildcraft.factory.DistillerBlockEntity;
 import ports.buildcraft.factory.HeatExchangerBlock;
 import ports.buildcraft.factory.HeatExchangerBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.silicon.AdvancedCraftingTableBlockEntity;
+import ports.buildcraft.silicon.AssemblyTableBlockEntity;
+import ports.buildcraft.silicon.BCSilicon;
+import ports.buildcraft.silicon.EnumAssemblyRecipeState;
+import ports.buildcraft.silicon.IntegrationTableBlockEntity;
+import ports.buildcraft.silicon.LaserBlock;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.PipeDefinition;
@@ -108,6 +118,14 @@ public final class Showcase {
      */
     public static void buildLibrary(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).library();
+    }
+
+    /**
+     * Builds a silicon bench: three lasers on combustion engines aimed at an assembly table making every chipset into a
+     * chest, an advanced crafting table crafting pistons, and an integration table, for which no recipes ship.
+     */
+    public static void buildSilicon(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).silicon();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -200,6 +218,50 @@ public final class Showcase {
         replacer.setItem(ReplacerBlockEntity.SLOT_FROM, singleSchematic(6, 0, 0));
 
         chest(0, 0, 3, template, tower, towerTemplate, singleSchematic(12, 0, 1), singleSchematic(12, 5, 1), blueprint.copy());
+    }
+
+    private void silicon() {
+        prepare(-3, 10, -4, 8);
+        for (int x = 0; x <= 6; x += 3) {
+            set(x, 0, 0, BCSilicon.LASER.get().defaultBlockState().setValue(LaserBlock.FACING, Direction.SOUTH));
+            redstone(x, 0, -2);
+            combustion(x, 0, -1, Direction.SOUTH);
+        }
+
+        set(0, 0, 4, BCSilicon.ASSEMBLY_TABLE.get());
+        AssemblyTableBlockEntity assembly = (AssemblyTableBlockEntity) level.getBlockEntity(at(0, 0, 4));
+        ItemStack[] inputs = {new ItemStack(Items.REDSTONE, 64), new ItemStack(Items.IRON_INGOT, 32), new ItemStack(Items.GOLD_INGOT, 32),
+                new ItemStack(Items.QUARTZ, 32), new ItemStack(Items.DIAMOND, 16)};
+        for (int i = 0; i < inputs.length; i++) assembly.setItem(i, inputs[i]);
+        CompoundTag tag = assembly.saveWithoutMetadata();
+        ListTag saved = new ListTag();
+        for (Item chipset : List.of(BCSilicon.REDSTONE_CHIPSET.get(), BCSilicon.IRON_CHIPSET.get(), BCSilicon.GOLD_CHIPSET.get(),
+                BCSilicon.QUARTZ_CHIPSET.get(), BCSilicon.DIAMOND_CHIPSET.get())) {
+            CompoundTag entry = new CompoundTag();
+            entry.putString("recipe", Registry.ITEM.getKey(chipset).toString());
+            entry.put("output", new ItemStack(chipset).save(new CompoundTag()));
+            entry.putInt("state", EnumAssemblyRecipeState.SAVED.ordinal());
+            saved.add(entry);
+        }
+        tag.put("recipes_states", saved);
+        assembly.load(tag);
+        chest(0, 0, 5);
+
+        set(3, 0, 4, BCSilicon.ADVANCED_CRAFTING_TABLE.get());
+        AdvancedCraftingTableBlockEntity crafting = (AdvancedCraftingTableBlockEntity) level.getBlockEntity(at(3, 0, 4));
+        ItemStack[] piston = {new ItemStack(Items.OAK_PLANKS), new ItemStack(Items.OAK_PLANKS), new ItemStack(Items.OAK_PLANKS),
+                new ItemStack(Items.COBBLESTONE), new ItemStack(Items.IRON_INGOT), new ItemStack(Items.COBBLESTONE),
+                new ItemStack(Items.COBBLESTONE), new ItemStack(Items.REDSTONE), new ItemStack(Items.COBBLESTONE)};
+        for (int i = 0; i < piston.length; i++) crafting.setItem(AdvancedCraftingTableBlockEntity.BLUEPRINT_START + i, piston[i]);
+        ItemStack[] materials = {new ItemStack(Items.OAK_PLANKS, 64), new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.COBBLESTONE, 64),
+                new ItemStack(Items.IRON_INGOT, 32), new ItemStack(Items.REDSTONE, 32)};
+        for (int i = 0; i < materials.length; i++) crafting.setItem(AdvancedCraftingTableBlockEntity.MATERIALS_START + i, materials[i]);
+
+        set(6, 0, 4, BCSilicon.INTEGRATION_TABLE.get());
+        IntegrationTableBlockEntity integration = (IntegrationTableBlockEntity) level.getBlockEntity(at(6, 0, 4));
+        integration.setItem(IntegrationTableBlockEntity.TARGET_SLOT, new ItemStack(BCSilicon.GOLD_CHIPSET.get(), 4));
+        integration.setItem(IntegrationTableBlockEntity.TO_INTEGRATE_START, new ItemStack(Items.REDSTONE, 8));
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
     }
 
     private ItemStack singleSchematic(int x, int y, int z) {

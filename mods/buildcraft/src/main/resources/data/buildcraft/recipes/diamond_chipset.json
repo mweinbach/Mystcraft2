@@ -1,0 +1,29 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:diamond_chipset"
+  },
+  "MJ": 80000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:diamonds"
+        },
+        {
+          "tag": "forge:gems/diamond"
+        }
+      ]
+    }
+  ]
+}

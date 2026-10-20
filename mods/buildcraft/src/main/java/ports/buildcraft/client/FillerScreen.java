@@ -1,6 +1,5 @@
 package ports.buildcraft.client;
 
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,7 +30,6 @@ import ports.buildcraft.builders.filler.PatternStatement;
  */
 public final class FillerScreen extends BCScreen<FillerMenu> {
     private static final ResourceLocation MISC_SLOTS = BuildCraft.id("textures/gui/misc_slots.png");
-    private static final ResourceLocation LEDGER = BuildCraft.id("textures/gui/ledger_right.png");
     private static final ResourceLocation LOCK = BuildCraft.id("textures/gui/lock.png");
     private static final int PATTERN_X = 12, PATTERN_Y = 32, PATTERN_SIZE = 32;
     private static final int PARAM_X = 53, PARAM_Y = 39;
@@ -46,14 +43,9 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
             {2, 2}, {1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-2, 1}, {-2, 0}, {-2, -1}};
     private static final int LEDGER_COLOUR = 0xFF6CD41F;
     private static final int LEDGER_TITLE_COLOUR = 0xFFE1C92F;
-    private static final int LEDGER_GAP = 4;
-    private static final int LEDGER_CLOSED_WIDTH = 2 + 16 + LEDGER_GAP;
-    private static final int LEDGER_CLOSED_HEIGHT = LEDGER_GAP + 16 + LEDGER_GAP;
     private static final int SLOT = 18;
-    private static boolean ledgerOpen;
 
-    private double ledgerWidth = LEDGER_CLOSED_WIDTH, ledgerHeight = LEDGER_CLOSED_HEIGHT;
-    private double lastLedgerWidth = ledgerWidth, lastLedgerHeight = ledgerHeight;
+    private final Ledger ledger = new Ledger("filler.progress", LEDGER_COLOUR);
     @Nullable private Variant variant;
     private boolean dragging;
     @Nullable private Object dragged;
@@ -68,10 +60,12 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
 
     public FillerScreen(FillerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BuildCraft.id("textures/gui/filler.png"), 176, 241);
-        if (ledgerOpen) {
-            ledgerWidth = lastLedgerWidth = ledgerMaxWidth();
-            ledgerHeight = lastLedgerHeight = ledgerMaxHeight();
-        }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        ledger.place(leftPos + imageWidth, topPos + 5, ledgerMaxWidth(), ledgerMaxHeight());
     }
 
     @Nullable
@@ -94,14 +88,6 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
     }
 
-    private int ledgerX() {
-        return leftPos + imageWidth;
-    }
-
-    private int ledgerY() {
-        return topPos + 5;
-    }
-
     private int ledgerMaxWidth() {
         int textWidth = font.width(Component.translatable("gui.progress"));
         FillerBlockEntity filler = filler();
@@ -109,11 +95,11 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
             textWidth = Math.max(textWidth, 20 + font.width(Integer.toString(filler.getCountToBreak())));
             textWidth = Math.max(textWidth, 20 + font.width(Integer.toString(filler.getCountToPlace())));
         }
-        return Math.max(LEDGER_CLOSED_WIDTH, 2 + 16 + LEDGER_GAP + textWidth) + LEDGER_GAP * 2;
+        return Math.max(Ledger.CLOSED_WIDTH, 2 + 16 + Ledger.GAP + textWidth) + Ledger.GAP * 2;
     }
 
     private int ledgerMaxHeight() {
-        return LEDGER_GAP + 14 + 16 + 2 + 16 + LEDGER_GAP * 2;
+        return Ledger.GAP + 14 + 16 + 2 + 16 + Ledger.GAP * 2;
     }
 
     private int sourceWidth() {
@@ -158,7 +144,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     @Override
     protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
         if (in(mouseX, mouseY, leftPos - sourceWidth(), topPos + 5, sourceWidth(), sourceHeight())) return false;
-        if (in(mouseX, mouseY, ledgerX(), ledgerY(), ledgerWidth, ledgerHeight)) return false;
+        if (ledger.contains(mouseX, mouseY)) return false;
         return super.hasClickedOutside(mouseX, mouseY, left, top, button);
     }
 
@@ -167,18 +153,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     @Override
     protected void containerTick() {
         super.containerTick();
-        lastLedgerWidth = ledgerWidth;
-        lastLedgerHeight = ledgerHeight;
-        double maxWidth = ledgerMaxWidth(), maxHeight = ledgerMaxHeight();
-        double targetWidth = ledgerOpen ? maxWidth : LEDGER_CLOSED_WIDTH;
-        double targetHeight = ledgerOpen ? maxHeight : LEDGER_CLOSED_HEIGHT;
-        double step = Mth.clamp(Math.max(maxWidth - LEDGER_CLOSED_WIDTH, maxHeight - LEDGER_CLOSED_HEIGHT) / 5, 1, 15);
-        ledgerWidth = approach(ledgerWidth, targetWidth, step);
-        ledgerHeight = approach(ledgerHeight, targetHeight, step);
-    }
-
-    private static double approach(double current, double target, double step) {
-        return current < target ? Math.min(target, current + step) : Math.max(target, current - step);
+        ledger.tick(ledgerMaxWidth(), ledgerMaxHeight());
     }
 
     // Drawing
@@ -205,23 +180,6 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         if (slot instanceof Pattern pattern) return Component.translatable(pattern.translationKey());
         if (slot instanceof FillerParameter parameter) return Component.translatable(parameter.translationKey());
         return null;
-    }
-
-    /** Upstream {@code SpriteNineSliced}: corners stay their size, edges and centre stretch. */
-    private void nineSlice(PoseStack poseStack, int x, int y, int width, int height, int u, int v, int size, int border, int textureSize) {
-        int inner = size - border * 2;
-        int[] xs = {x, x + border, x + width - border, x + width};
-        int[] ys = {y, y + border, y + height - border, y + height};
-        int[] us = {u, u + border, u + border + inner};
-        int[] uw = {border, inner, border};
-        for (int col = 0; col < 3; col++) {
-            for (int row = 0; row < 3; row++) {
-                int w = xs[col + 1] - xs[col];
-                int h = ys[row + 1] - ys[row];
-                if (w <= 0 || h <= 0) continue;
-                blit(poseStack, xs[col], ys[row], w, h, us[col], v + us[row] - u, uw[col], uw[row], textureSize, textureSize);
-            }
-        }
     }
 
     @Override
@@ -262,32 +220,17 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     private double lastMouseX, lastMouseY;
 
     private void renderLedger(PoseStack poseStack, FillerBlockEntity filler, float partialTicks) {
-        int width = (int) Math.round(lastLedgerWidth + (ledgerWidth - lastLedgerWidth) * partialTicks);
-        int height = (int) Math.round(lastLedgerHeight + (ledgerHeight - lastLedgerHeight) * partialTicks);
-        int x = ledgerX(), y = ledgerY();
-        RenderSystem.setShaderTexture(0, LEDGER);
-        RenderSystem.setShaderColor((LEDGER_COLOUR >> 16 & 0xFF) / 255F, (LEDGER_COLOUR >> 8 & 0xFF) / 255F, (LEDGER_COLOUR & 0xFF) / 255F, 1);
-        nineSlice(poseStack, x, y, width, height, 0, 0, 16, 4, 16);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        int iconX = x + 2, iconY = y + LEDGER_GAP;
-        scissor(iconX, iconY, width - 4, height - 8);
-        itemRenderer.renderGuiItem(new ItemStack(Items.IRON_INGOT), iconX, iconY);
-        if (width > LEDGER_CLOSED_WIDTH || height > LEDGER_CLOSED_HEIGHT) {
-            int innerX = iconX + 16 + LEDGER_GAP;
+        ledger.render(poseStack, partialTicks, () -> {
+            int iconY = ledger.iconY();
+            itemRenderer.renderGuiItem(new ItemStack(Items.IRON_INGOT), ledger.iconX(), iconY);
+            if (!ledger.isExpanded()) return;
+            int innerX = ledger.innerX();
             font.drawShadow(poseStack, Component.translatable("gui.progress"), innerX, iconY + 3, LEDGER_TITLE_COLOUR);
             itemRenderer.renderGuiItem(new ItemStack(Items.IRON_PICKAXE), innerX, iconY + 14);
             font.draw(poseStack, Integer.toString(filler.getCountToBreak()), innerX + 20, iconY + 14 + 5, 0xFF333333);
             itemRenderer.renderGuiItem(new ItemStack(Blocks.BRICKS), innerX, iconY + 32);
             font.draw(poseStack, Integer.toString(filler.getCountToPlace()), innerX + 20, iconY + 32 + 5, 0xFF333333);
-        }
-        RenderSystem.disableScissor();
-    }
-
-    private void scissor(int x, int y, int width, int height) {
-        Window window = minecraft.getWindow();
-        double scale = window.getGuiScale();
-        RenderSystem.enableScissor((int) (x * scale), (int) (window.getHeight() - (y + height) * scale),
-                Math.max(0, (int) (width * scale)), Math.max(0, (int) (height * scale)));
+        });
     }
 
     @Override
@@ -322,7 +265,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
 
     private void renderVariant(PoseStack poseStack) {
         RenderSystem.setShaderTexture(0, MISC_SLOTS);
-        nineSlice(poseStack, variant.x() + offsetOf(variant), variant.y() + offsetOf(variant), variant.size(), variant.size(), 18, 18, 36, 8, 256);
+        Ledger.nineSlice(poseStack, variant.x() + offsetOf(variant), variant.y() + offsetOf(variant), variant.size(), variant.size(), 18, 18, 36, 8, 256);
         for (int i = 0; i < variant.options().length; i++) {
             if (variant.options()[i] != null) drawSlot(poseStack, variant.options()[i], variant.positions()[i][0], variant.positions()[i][1]);
         }
@@ -356,8 +299,8 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         if (filler.isLocked() && in(mouseX, mouseY, leftPos + LOCK_X, topPos + LOCK_Y, 16, 16)) tooltip = Component.translatable("gui.buildcraft.locked");
         Pattern source = sourceAt(mouseX, mouseY);
         if (source != null) tooltip = tooltipOf(source);
-        if (ledgerWidth > LEDGER_CLOSED_WIDTH || ledgerHeight > LEDGER_CLOSED_HEIGHT) {
-            int innerX = ledgerX() + 2 + 16 + LEDGER_GAP, iconY = ledgerY() + LEDGER_GAP;
+        if (ledger.isExpanded()) {
+            int innerX = ledger.innerX(), iconY = ledger.iconY();
             if (in(mouseX, mouseY, innerX, iconY + 14, 16, 16)) tooltip = Component.translatable("gui.leftToBreak");
             if (in(mouseX, mouseY, innerX, iconY + 32, 16, 16)) tooltip = Component.translatable("gui.leftToPlace");
         }
@@ -463,8 +406,8 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
                 press(FillerBlockEntity.BUTTON_INVERT + (filler.isInverted() ? 0 : 1));
                 return true;
             }
-            if (in(mouseX, mouseY, ledgerX(), ledgerY(), ledgerWidth, ledgerHeight)) {
-                ledgerOpen = !ledgerOpen;
+            if (ledger.contains(mouseX, mouseY)) {
+                ledger.toggle();
                 return true;
             }
         } else if (button == 1) {

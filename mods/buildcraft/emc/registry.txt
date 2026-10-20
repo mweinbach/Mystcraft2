@@ -1,8 +1,11 @@
+buildcraft:advanced_crafting_table
 buildcraft:architect_table
+buildcraft:assembly_table
 buildcraft:blueprint_clean
 buildcraft:blueprint_used
 buildcraft:builder
 buildcraft:combustion_engine
+buildcraft:diamond_chipset
 buildcraft:distiller
 buildcraft:electronic_library
 buildcraft:filler
@@ -28,7 +31,11 @@ buildcraft:gear_gold
 buildcraft:gear_iron
 buildcraft:gear_stone
 buildcraft:gear_wood
+buildcraft:gold_chipset
 buildcraft:heat_exchange
+buildcraft:integration_table
+buildcraft:iron_chipset
+buildcraft:laser
 buildcraft:marker_connector
 buildcraft:marker_path
 buildcraft:marker_volume
@@ -76,6 +83,8 @@ buildcraft:pipe_wood_item
 buildcraft:pipe_wood_power
 buildcraft:pump
 buildcraft:quarry
+buildcraft:quartz_chipset
+buildcraft:redstone_chipset
 buildcraft:redstone_engine
 buildcraft:replacer
 buildcraft:schematic_single_clean

@@ -3,9 +3,19 @@
   "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
   "ignored": [],
   "items": {
+    "buildcraft:advanced_crafting_table": {
+      "projecte": 544,
+      "itemalchemy": 544,
+      "source": "recipe"
+    },
     "buildcraft:architect_table": {
       "projecte": 86156,
       "itemalchemy": 36932,
+      "source": "recipe"
+    },
+    "buildcraft:assembly_table": {
+      "projecte": 50644,
+      "itemalchemy": 19888,
       "source": "recipe"
     },
     "buildcraft:blueprint_clean": {
@@ -25,6 +35,11 @@
       "projecte": 3205,
       "itemalchemy": 3157,
       "source": "recipe"
+    },
+    "buildcraft:diamond_chipset": {
+      "projecte": 8256,
+      "itemalchemy": 2112,
+      "source": "conversion assemble_diamond_chipset"
     },
     "buildcraft:distiller": {
       "projecte": 42164,
@@ -115,9 +130,29 @@
       "itemalchemy": 16,
       "source": "recipe"
     },
+    "buildcraft:gold_chipset": {
+      "projecte": 2112,
+      "itemalchemy": 2107,
+      "source": "conversion assemble_ingot_chipsets"
+    },
     "buildcraft:heat_exchange": {
       "projecte": 3115,
       "itemalchemy": 3067,
+      "source": "recipe"
+    },
+    "buildcraft:integration_table": {
+      "projecte": 44756,
+      "itemalchemy": 20135,
+      "source": "recipe"
+    },
+    "buildcraft:iron_chipset": {
+      "projecte": 320,
+      "itemalchemy": 316,
+      "source": "conversion assemble_ingot_chipsets"
+    },
+    "buildcraft:laser": {
+      "projecte": 16832,
+      "itemalchemy": 4544,
       "source": "recipe"
     },
     "buildcraft:marker_connector": {
@@ -332,6 +367,16 @@
       "projecte": 130260,
       "itemalchemy": 62484,
       "source": "recipe"
+    },
+    "buildcraft:quartz_chipset": {
+      "projecte": 320,
+      "itemalchemy": 320,
+      "source": "conversion assemble_quartz_chipset"
+    },
+    "buildcraft:redstone_chipset": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "conversion assemble_redstone_chipset"
     },
     "buildcraft:redstone_engine": {
       "projecte": 405,

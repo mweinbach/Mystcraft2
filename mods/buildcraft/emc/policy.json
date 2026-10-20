@@ -31,6 +31,30 @@
       "why": "The architect table records an area onto a blank template or blueprint and hands back the recorded one, so a recorded item is worth its blank. Transmutation never copies NBT, and a recorded item without its header acts as a blank one: the table records onto it again.",
       "output": "buildcraft:{kind}_used",
       "ingredients": {"buildcraft:{kind}_clean": 1}
+    },
+    {
+      "name": "assemble_redstone_chipset",
+      "why": "The assembly table makes a redstone chipset from a redstone dust and laser power (upstream's chipset assembly recipe). ProjectE and ItemAlchemy map no assembly recipes, so it is restated here; laser power is left unvalued, as engine fuel is.",
+      "output": "buildcraft:redstone_chipset",
+      "ingredients": {"minecraft:redstone": 1}
+    },
+    {
+      "name": "assemble_ingot_chipsets",
+      "why": "The assembly table makes iron and golden chipsets from a redstone dust, an ingot of their metal and laser power, which is left unvalued.",
+      "output": "buildcraft:{metal}_chipset",
+      "ingredients": {"minecraft:redstone": 1, "minecraft:{metal}_ingot": 1}
+    },
+    {
+      "name": "assemble_quartz_chipset",
+      "why": "The assembly table makes a quartz chipset from a redstone dust, a nether quartz and laser power, which is left unvalued.",
+      "output": "buildcraft:quartz_chipset",
+      "ingredients": {"minecraft:redstone": 1, "minecraft:quartz": 1}
+    },
+    {
+      "name": "assemble_diamond_chipset",
+      "why": "The assembly table makes a diamond chipset from a redstone dust, a diamond and laser power, which is left unvalued.",
+      "output": "buildcraft:diamond_chipset",
+      "ingredients": {"minecraft:redstone": 1, "minecraft:diamond": 1}
     }
   ],
   "exclude": {

@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:integration",
+  "result": {
+    "item": "minecraft:clock"
+  },
+  "MJ": 100,
+  "target": {
+    "ingredient": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "components": [
+    {
+      "ingredient": {
+        "item": "minecraft:redstone"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:gold_nugget"
+      }
+    }
+  ]
+}

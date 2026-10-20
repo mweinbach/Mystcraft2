@@ -1,0 +1,29 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gold_chipset"
+  },
+  "MJ": 40000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:gold_ingots"
+        },
+        {
+          "tag": "forge:ingots/gold"
+        }
+      ]
+    }
+  ]
+}

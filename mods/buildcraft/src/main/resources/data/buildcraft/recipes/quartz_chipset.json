@@ -1,0 +1,29 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:quartz_chipset"
+  },
+  "MJ": 60000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:quartz"
+        },
+        {
+          "tag": "forge:gems/quartz"
+        }
+      ]
+    }
+  ]
+}
