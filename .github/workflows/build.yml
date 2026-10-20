@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -62,6 +62,14 @@ jobs:
         run: ./gradlew --no-daemon :buildcraft:runGameTestServer -PwithProjectE
       - name: Test BuildCraft gameplay and EMC against Item Alchemy on a Fabric GameTest server
         run: ./gradlew --no-daemon -p mods/buildcraft/fabric runGametest -PwithItemAlchemy
+      - name: Build Extreme Reactors for Fabric
+        run: ./gradlew --no-daemon -p mods/extremereactors/fabric build
+      - name: Verify Extreme Reactors loader artifact parity
+        run: python3 mods/extremereactors/scripts/check_loader_parity.py
+      - name: Test Extreme Reactors gameplay and EMC against ProjectE on a Forge GameTest server
+        run: ./gradlew --no-daemon :extremereactors:runGameTestServer -PwithProjectE
+      - name: Test Extreme Reactors gameplay and EMC against Item Alchemy on a Fabric GameTest server
+        run: ./gradlew --no-daemon -p mods/extremereactors/fabric runGametest -PwithItemAlchemy
       - name: Test JurassiCraft resources
         run: python3 -m unittest discover -s mods/jurassicraft/tools/tests -v
       - name: Build JurassiCraft for Fabric
@@ -97,6 +105,9 @@ jobs:
             mods/buildcraft/run/gameTestServer/logs/latest.log
             mods/buildcraft/fabric/build/gametest-results.xml
             mods/buildcraft/fabric/build/gametest/logs/latest.log
+            mods/extremereactors/run/gameTestServer/logs/latest.log
+            mods/extremereactors/fabric/build/gametest-results.xml
+            mods/extremereactors/fabric/build/gametest/logs/latest.log
             mods/jurassicraft/run/gameTestServer/logs/latest.log
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log
@@ -110,4 +121,5 @@ jobs:
             mods/buildcraft/fabric/build/libs/*.jar
             mods/jurassicraft/fabric/build/libs/*.jar
             mods/advancedgenetics/fabric/build/libs/*.jar
+            mods/extremereactors/fabric/build/libs/*.jar
           if-no-files-found: error

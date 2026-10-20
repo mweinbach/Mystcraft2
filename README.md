@@ -12,8 +12,9 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [JurassiCraft](mods/jurassicraft/) | In progress | Forge + Fabric alpha with shared gameplay: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
 | [BuildCraft](mods/buildcraft/) | In progress | Fabric + Forge port of BuildCraft 8.0.x: engines, item/fluid/kinesis pipes, tank, pump, mining well, quarry, oil wells and the distiller/heat exchanger fuel chain, with Team Reborn Energy/Forge Energy at 1 MJ = 10 units. |
 | [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge + Fabric port of the 1.0.3 release with shared gameplay: all genes, six machines, Forge Energy or Team Reborn Energy, and server GameTests on both loaders. Survival and multiplayer play-testing remain. |
+| [Extreme Reactors](mods/extremereactors/) | In progress | Fabric + Forge alpha of Extreme Reactors 2 with shared gameplay: reactors, turbines, reprocessor and fluidizer with the upstream simulation, Team Reborn Energy/Forge Energy, and server GameTests on both loaders. Machine screens and the ComputerCraft, JEI and Patchouli integrations are not ported yet. |
 
-Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics support Forge and Fabric;
+Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme Reactors support Forge and Fabric;
 ICBM targets Fabric. Install the variant matching your game loader;
 a mod's Forge and Fabric JARs cannot be installed together.
 
@@ -56,6 +57,10 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric build
 ./scripts/gradle.sh :advancedgenetics:runGameTestServer
 ./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest
+./scripts/gradle.sh :extremereactors:build
+./scripts/gradle.sh -p mods/extremereactors/fabric build
+./scripts/gradle.sh :extremereactors:runGameTestServer
+./scripts/gradle.sh -p mods/extremereactors/fabric runGametest
 ```
 
 JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft, BuildCraft and Advanced Genetics Fabric JARs
