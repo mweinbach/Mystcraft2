@@ -249,7 +249,7 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
             int[] blocks = Arrays.stream(breakOrder)
                     .filter(i -> checkResults[i] == CHECK_RESULT_TO_BREAK && !queued.contains(i))
                     .toArray();
-            leftToBreak = blocks.length;
+            leftToBreak = blocks.length + queued.size();
             if (blocks.length != 0) isDone = false;
             Arrays.stream(blocks)
                     .mapToObj(this::indexToPos)
@@ -265,7 +265,7 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         int[] toPlace = Arrays.stream(placeOrder)
                 .filter(i -> checkResults[i] == CHECK_RESULT_TO_PLACE && !queuedPlaces.contains(i))
                 .toArray();
-        leftToPlace = toPlace.length;
+        leftToPlace = toPlace.length + queuedPlaces.size();
         if (!host.canExcavate() || breakTasks.isEmpty()) {
             if (toPlace.length != 0) isDone = false;
             Arrays.stream(toPlace)
