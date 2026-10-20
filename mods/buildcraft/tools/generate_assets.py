@@ -512,6 +512,64 @@ class Generator:
         self.item_model("frame", rl("block/frame_base"))
         self.lang.update({f"block.{MOD}.quarry": "Quarry", f"block.{MOD}.frame": "Frame"})
 
+    def filler(self) -> None:
+        for part in ["bottom", "top", "front", "side"]:
+            self.copy(f"buildcraftbuilders/textures/blocks/filler/{part}.png", f"block/filler/{part}.png")
+        upstream = self.src / "buildcraftbuilders/textures/filler"
+        for kind in ["patterns", "parameters"]:
+            for texture in sorted((upstream / kind).glob("*.png")):
+                self.copy(f"buildcraftbuilders/textures/filler/{kind}/{texture.name}", f"filler/{kind}/{texture.name}")
+        self.copy("buildcraftbuilders/textures/gui/filler.png", "gui/filler.png")
+        self.copy("buildcraftbuilders/textures/robot.png", "robot.png")
+        self.copy("buildcraftlib/textures/gui/misc_slots.png", "gui/misc_slots.png")
+        self.copy("buildcraftlib/textures/icons/ledger_right.png", "gui/ledger_right.png")
+        self.copy("buildcraftlib/textures/icons/lock.png", "gui/lock.png")
+        for power in ["low", "med", "high", "full"]:
+            self.copy(f"buildcraftcore/textures/lasers/power_{power}.png", f"lasers/power_{power}.png")
+
+        side = rl("block/filler/side")
+        self.model("block/filler", {"parent": "minecraft:block/cube", "textures": {
+            "particle": side, "down": rl("block/filler/bottom"), "up": rl("block/filler/top"), "north": rl("block/filler/front"),
+            "east": side, "south": side, "west": side}})
+        self.blockstate("filler", {"variants": {f"facing={facing}": dict({"model": rl("block/filler")}, **({"y": y} if y else {}))
+                                                for facing, y in HORIZONTAL_Y.items()}})
+        self.item_model("filler", rl("block/filler"))
+
+        patterns = {"none": "None", "clear": "Clear", "fill": "Fill", "box": "Box", "frame": "Frame", "pyramid": "Pyramid",
+                    "stairs": "Stairs", "sphere": "Sphere", "sphere_half": "Hemisphere", "sphere_quarter": "Quarter-sphere",
+                    "sphere_eighth": "Eighth-Sphere", "2d_arc": "Arc", "2d_circle": "Circle", "2d_hexagon": "Hexagon",
+                    "2d_octagon": "Octagon", "2d_pentagon": "Pentagon", "2d_semi_circle": "Semi-Circle", "2d_square": "Square",
+                    "2d_triangle": "Triangle"}
+        for tag, title in patterns.items():
+            self.lang[f"fillerpattern.{tag}"] = title
+        self.lang.update({"fillerpattern.parameter.hollow": "Hollow", "fillerpattern.parameter.filled": "Filled",
+                          "fillerpattern.parameter.filled_outer": "Surrounded"})
+        centres = ["North-West", "North", "North-East", "West", "Center", "East", "South-West", "South", "South-East"]
+        for index, title in enumerate(centres):
+            self.lang[f"direction.center.{index}"] = title
+        self.lang.update({"direction.up": "Top", "direction.down": "Bottom", "direction.north": "North", "direction.south": "South",
+                          "direction.west": "West", "direction.east": "East"})
+        for axis in "xyz":
+            self.lang[f"buildcraft.param.axis.{axis}"] = f"{axis.upper()} Axis"
+        for count, title in enumerate(["No rotation", "90 degree rotation", "180 degree rotation", "270 degree rotation"]):
+            self.lang[f"buildcraft.param.rotation.{count}"] = title
+        # Upstream's lang files have no names for the facing parameter.
+        for face in DIRECTIONS:
+            self.lang[f"buildcraft.param.facing.{face}"] = face.capitalize()
+        self.lang.update({
+            f"block.{MOD}.filler": "Filler",
+            f"block.{MOD}.filler.tip": "Not usable in survival.",
+            f"gui.{MOD}.locked": "Locked",
+            "gui.filling.resources": "Filling Resources",
+            "gui.progress": "Progress",
+            "gui.leftToBreak": "To break",
+            "gui.leftToPlace": "To place",
+            "tip.filler.excavate.on": "Excavate",
+            "tip.filler.excavate.off": "Do Not Excavate",
+            "tip.filler.invert.on": "Invert",
+            "tip.filler.invert.off": "Do Not Invert",
+        })
+
     def markers(self) -> None:
         for kind in ["volume", "path"]:
             self.copy(f"buildcraftcore/textures/blocks/marker_{kind}.png", f"block/marker_{kind}.png")
@@ -714,11 +772,11 @@ class Generator:
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
 
-        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame"] + ["pipe_" + d["name"] for d in PIPES]
+        machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler"] + ["pipe_" + d["name"] for d in PIPES]
         self.tag("blocks", "minecraft", "mineable/pickaxe", [rl(b) for b in machines])
 
     def loot_tables(self) -> None:
-        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
+        drops_self = [e for e, _, _ in ENGINES] + ["tank", "pump", "mining_well", "distiller", "heat_exchange", "quarry", "filler", "marker_volume", "marker_path"] + ["pipe_" + d["name"] for d in PIPES]
         for block in drops_self:
             write_json(DATA / MOD / "loot_tables" / "blocks" / f"{block}.json", {
                 "type": "minecraft:block",
@@ -736,6 +794,7 @@ class Generator:
         self.factory()
         self.refinery()
         self.builders()
+        self.filler()
         self.markers()
         self.fluids()
         self.oil_wells()
