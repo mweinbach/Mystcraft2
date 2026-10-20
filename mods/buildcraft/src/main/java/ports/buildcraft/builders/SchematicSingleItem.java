@@ -19,7 +19,9 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +118,6 @@ public class SchematicSingleItem extends Item {
                 || !player.mayUseItemAt(placePos, side, stack)) {
             return InteractionResult.FAIL;
         }
-        if (replaceable && !level.isEmptyBlock(placePos)) level.removeBlock(placePos, false);
         SchematicBlock schematic;
         try {
             schematic = getSchematic(stack);
@@ -125,7 +126,7 @@ public class SchematicSingleItem extends Item {
             LOGGER.warn("Invalid single schematic", e);
             return InteractionResult.FAIL;
         }
-        if (schematic == null || schematic.isBuilt(level, placePos) || !schematic.canBuild(level, placePos)) return InteractionResult.FAIL;
+        if (schematic == null || schematic.isBuilt(level, placePos)) return InteractionResult.FAIL;
         if (!schematic.computeRequiredFluids().isEmpty()) {
             player.displayClientMessage(Component.literal("Schematic requires fluids"), true);
             return InteractionResult.FAIL;
@@ -141,7 +142,12 @@ public class SchematicSingleItem extends Item {
             player.displayClientMessage(message, true);
             return InteractionResult.FAIL;
         }
-        if (!schematic.build(level, placePos)) return InteractionResult.FAIL;
+        BlockState replaced = level.getBlockState(placePos);
+        if (replaceable && !replaced.isAir()) level.removeBlock(placePos, false);
+        if (!schematic.canBuild(level, placePos) || !schematic.build(level, placePos)) {
+            level.setBlock(placePos, replaced, Block.UPDATE_ALL);
+            return InteractionResult.FAIL;
+        }
         required.forEach(needed -> extract(inventory, needed));
         SoundType sound = level.getBlockState(placePos).getSoundType();
         level.playSound(null, placePos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
