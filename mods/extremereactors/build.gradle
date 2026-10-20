@@ -87,6 +87,13 @@ sourceSets {
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
 }
+// EMI's mixins carry SRG refmaps; the development runs use official names.
+minecraft.runs.configureEach {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
 // The run's mod group name only groups class roots; the mod ID comes from mods.toml.
 minecraft.runs {
     gameTestServer {

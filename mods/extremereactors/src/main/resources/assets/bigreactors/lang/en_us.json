@@ -750,6 +750,10 @@
     "compat.bigreactors.jei.condensation.recipecategory.title": "Condensation",
     "compat.bigreactors.jei.coolantmappings.recipecategory.title": "Fluid <=> Coolant",
     "compat.bigreactors.jei.vapormappings.recipecategory.title": "Fluid <=> Vapor",
+    "tag.item.bigreactors.reactor.casing_user.basic": "Basic Reactor Casing Parts",
+    "tag.item.bigreactors.reactor.casing_user.reinforced": "Reinforced Reactor Casing Parts",
+    "tag.item.bigreactors.turbine.casing_user.basic": "Basic Turbine Casing Parts",
+    "tag.item.bigreactors.turbine.casing_user.reinforced": "Reinforced Turbine Casing Parts",
 
     "_comment": "1.19.2 port - multiblock validation messages (the port's own wording)",
     "zerocore:api.multiblock.validation.too_few_parts": "The machine is missing parts",

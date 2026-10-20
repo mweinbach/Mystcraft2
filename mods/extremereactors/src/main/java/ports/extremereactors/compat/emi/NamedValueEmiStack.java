@@ -5,6 +5,7 @@
 package ports.extremereactors.compat.emi;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.emi.emi.api.render.EmiTooltipComponents;
 import dev.emi.emi.api.stack.EmiStack;
 import it.zerono.mods.extremereactors.ExtremeReactors;
 import it.zerono.mods.extremereactors.api.coolant.Coolant;
@@ -12,6 +13,7 @@ import it.zerono.mods.extremereactors.api.coolant.Vapor;
 import it.zerono.mods.extremereactors.api.internal.AbstractNamedValue;
 import it.zerono.mods.extremereactors.api.reactor.Reactant;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.CachedSprites;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +22,7 @@ import ports.extremereactors.corelib.client.render.ModRenderHelper;
 import ports.extremereactors.corelib.data.gfx.Colour;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -84,6 +87,17 @@ final class NamedValueEmiStack extends EmiStack {
     @Override
     public List<Component> getTooltipText() {
         return List.of(this.getName());
+    }
+
+    @Override
+    public List<ClientTooltipComponent> getTooltip() {
+
+        final List<ClientTooltipComponent> tooltip = new ArrayList<>();
+
+        tooltip.add(EmiTooltipComponents.of(this.getName()));
+        EmiTooltipComponents.appendModName(tooltip, ExtremeReactors.MOD_ID);
+        tooltip.addAll(super.getTooltip());
+        return tooltip;
     }
 
     @Override
