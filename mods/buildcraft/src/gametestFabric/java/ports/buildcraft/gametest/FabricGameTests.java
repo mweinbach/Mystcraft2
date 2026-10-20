@@ -49,6 +49,24 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 1200)
     public void quarryBuildsFrameAndDigs(GameTestHelper helper) { BCTests.quarryBuildsFrameAndDigs(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void oilWellsAreRareAndDeterministic(GameTestHelper helper) { BCTests.oilWellsAreRareAndDeterministic(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void lightFuelChainFromOil(GameTestHelper helper) { BCTests.lightFuelChainFromOil(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void combustionEngineBurnsOilIntoResidue(GameTestHelper helper) { BCTests.combustionEngineBurnsOilIntoResidue(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void distillerSplitsOil(GameTestHelper helper) { BCTests.distillerSplitsOil(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void heatExchangerFormsRows(GameTestHelper helper) { BCTests.heatExchangerFormsRows(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void heatExchangerHeatsOilWithLava(GameTestHelper helper) { BCTests.heatExchangerHeatsOilWithLava(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void voidPipeDestroysItems(GameTestHelper helper) { BCTests.voidPipeDestroysItems(helper); }
 
