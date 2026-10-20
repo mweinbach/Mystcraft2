@@ -22,11 +22,11 @@ classes, which each port class names in its Javadoc (`Upstream {@code ...}`). Th
 | Port package | Upstream sources |
 | --- | --- |
 | `lib` | `buildcraft.lib.mj.MjBattery`, `lib.misc.BlockUtil`, `lib.inventory` transactors, `lib.fluid.Tank`, `lib.misc.data.Box`/`BoxIterator`, `api.mj.MjAPI` |
-| `energy` | `TileEngineBase_BC8`, `TileEngineRedstone_BC8`, `TileEngineStone_BC8`, `TileEngineIron_BC8`, `EnumPowerStage`, `BCEnergyFluids`, `BCEnergyRecipes` |
-| `factory` | `TileMiner`, `TileMiningWell`, `TilePump`, `TileTank`, `BlockTube`, `BlockTank`, `BlockPump` |
+| `energy` | `TileEngineBase_BC8`, `TileEngineRedstone_BC8`, `TileEngineStone_BC8`, `TileEngineIron_BC8`, `EnumPowerStage`, `BCEnergyFluids`, `BCEnergyRecipes`, `BCEnergyConfig`, `OilGenerator`, `OilGenStructure`, `BlockSpring`, `EnumSpring` |
+| `factory` | `TileMiner`, `TileMiningWell`, `TilePump`, `TileTank`, `TileDistiller_BC8`, `TileHeatExchange`, `BlockTube`, `BlockTank`, `BlockPump`, `BlockDistiller`, `BlockHeatExchange`, `ContainerDistiller` |
 | `builders` | `TileQuarry`, `BlockQuarry`, `BlockFrame`, `BCBuildersConfig` |
 | `transport` | `TilePipeHolder`, `BlockPipeHolder`, `PipeFlowItems`, `PipeFlowFluids`, `PipeFlowPower`, `TravellingItem`, `DelayedList`, `BCTransportPipes` and the `PipeBehaviour*` classes |
-| `client` | `RenderEngine_BC8`, `PipeFlowRenderer*`, `RenderTank`, `RenderTube`, `RenderQuarry`, `FluidRenderer`, `GuiDiamondPipe`, `GuiEngine*` |
+| `client` | `RenderEngine_BC8`, `PipeFlowRenderer*`, `RenderTank`, `RenderTube`, `RenderQuarry`, `RenderDistiller`, `RenderHeatExchange`, `FluidRenderer`, `GuiDiamondPipe`, `GuiDistiller`, `GuiEngine*` |
 
 `src/forge` and `src/fabric` contain only loader adapters written for this port (registration,
 capabilities, Transfer API and Team Reborn Energy bridges, client hooks).

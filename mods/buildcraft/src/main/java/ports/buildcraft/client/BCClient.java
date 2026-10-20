@@ -30,6 +30,8 @@ public final class BCClient {
         sink.register(BCFactory.TANK_TYPE.get(), context -> new TankRenderer());
         sink.register(BCFactory.PUMP_TYPE.get(), context -> new MinerRenderer<>(MinerRenderer.PUMP_TUBE));
         sink.register(BCFactory.MINING_WELL_TYPE.get(), context -> new MinerRenderer<>(MinerRenderer.MINING_WELL_TUBE));
+        sink.register(BCFactory.DISTILLER_TYPE.get(), context -> new DistillerRenderer());
+        sink.register(BCFactory.HEAT_EXCHANGER_TYPE.get(), context -> new HeatExchangerRenderer());
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
     }
@@ -38,12 +40,14 @@ public final class BCClient {
     public static void registerScreens() {
         MenuScreens.register(BCEnergy.STIRLING_ENGINE_MENU.get(), StirlingEngineScreen::new);
         MenuScreens.register(BCEnergy.COMBUSTION_ENGINE_MENU.get(), CombustionEngineScreen::new);
+        MenuScreens.register(BCFactory.DISTILLER_MENU.get(), DistillerScreen::new);
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
     }
 
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */
     public static List<Block> cutoutBlocks() {
-        List<Block> blocks = new ArrayList<>(List.of(BCFactory.TANK.get(), BCFactory.TUBE.get(), BCBuilders.FRAME.get()));
+        List<Block> blocks = new ArrayList<>(List.of(BCFactory.TANK.get(), BCFactory.TUBE.get(), BCFactory.DISTILLER.get(),
+                BCFactory.HEAT_EXCHANGER.get(), BCBuilders.FRAME.get()));
         for (PipeDefinition pipe : BCTransport.PIPES) blocks.add(pipe.block());
         return blocks;
     }
@@ -53,6 +57,7 @@ public final class BCClient {
         List<ResourceLocation> sprites = new ArrayList<>(List.of(PipeRenderer.POWER_FLOW, QuarryRenderer.DRILL, QuarryRenderer.FRAME,
                 MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE));
         sprites.addAll(EngineRenderer.sprites());
+        sprites.addAll(DistillerRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());

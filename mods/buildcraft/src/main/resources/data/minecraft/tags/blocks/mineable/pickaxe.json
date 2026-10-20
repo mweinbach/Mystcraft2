@@ -6,6 +6,8 @@
     "buildcraft:combustion_engine",
     "buildcraft:pump",
     "buildcraft:mining_well",
+    "buildcraft:distiller",
+    "buildcraft:heat_exchange",
     "buildcraft:quarry",
     "buildcraft:frame",
     "buildcraft:pipe_wood_item",

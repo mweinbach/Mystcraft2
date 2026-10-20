@@ -1,0 +1,117 @@
+{
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "buildcraft:block/heat_exchange/sprite_a",
+    "sprite_a": "buildcraft:block/heat_exchange/sprite_a",
+    "sprite_b": "buildcraft:block/heat_exchange/sprite_b",
+    "sprite_c": "buildcraft:block/heat_exchange/sprite_c",
+    "sprite_d": "buildcraft:block/heat_exchange/sprite_d",
+    "sprite_e": "buildcraft:block/heat_exchange/sprite_e"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        16
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a",
+          "rotation": 90
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a",
+          "rotation": 90
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        12,
+        16
+      ],
+      "to": [
+        4,
+        4,
+        0
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a",
+          "rotation": 90
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a",
+          "rotation": 90
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ],
+          "texture": "#sprite_a"
+        }
+      }
+    }
+  ]
+}

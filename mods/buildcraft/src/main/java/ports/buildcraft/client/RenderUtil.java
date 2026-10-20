@@ -96,6 +96,18 @@ public final class RenderUtil {
     }
 
     /**
+     * Rotates the pose about the block centre so that a model built facing west faces the horizontal
+     * {@code facing}, as the blockstate rotations west 0, north 90, east 180 and south 270 do.
+     */
+    public static void rotateFromWest(PoseStack poseStack, Direction facing) {
+        int yRot = Math.floorMod(facing.get2DDataValue() - 1, 4) * 90;
+        if (yRot == 0) return;
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(-yRot));
+        poseStack.translate(-0.5, -0.5, -0.5);
+    }
+
+    /**
      * An axis-aligned beam between the centres of its end faces, in block units. The sprite row
      * starting at {@code vMin} tiles once per block along the beam, as upstream laser rows do; the end
      * faces use {@code endUv}, or the middle of that row when null.

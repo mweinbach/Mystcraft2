@@ -7,15 +7,48 @@
   },
   "output": "src/main/resources",
   "notes": [
-    "Every survival BuildCraft item in this port is crafted, so its value comes from its recipe: gears, the wrench, engines, machines, the tank, waterproof and all pipes (including the shapeless recipes that turn fluid and kinesis pipes back into item pipes).",
+    "Every survival BuildCraft item in this port apart from fluid buckets is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, waterproof and all pipes (including the shapeless recipes that turn fluid and kinesis pipes back into item pipes).",
     "",
-    "The mining well, quarry and pump take blocks and fluids from the world for power alone, as a player with a pickaxe or bucket would; they consume no items, so there is no item process to check for EMC gain. Oil worldgen, the refinery and the distiller are not ported, which is why the oil-family buckets have no survival source."
+    "The mining well, quarry and pump take blocks and fluids from the world for power alone, as a player with a pickaxe or bucket would; they consume no items, so there is no item process to check for EMC gain.",
+    "",
+    "Oil generates in wells and regrows above large wells' springs, so it is a base fluid valued like lava. Every refinery route to light fuel turns a bucket of oil into half a bucket of light fuel: crude oil distils into heavy oil, and hot oil into mixed light fuels, each of which yields light fuel after heating or cooling. Light fuel is therefore worth the two buckets of oil it takes, ignoring the lava and water that heat and cool it, so no route can make it for less. The other refinery fluids are by-products or intermediate heats of that chain and stay unvalued: each distillation turns one fluid into more volume of two others, so valuing those as well would let a split create EMC."
+  ],
+  "values": {
+    "buildcraft:oil_bucket": {
+      "like": "minecraft:lava_bucket",
+      "why": "Oil is a worldgen fluid, pumped or bucketed from oil wells and regrowing above large wells' springs, as lava is a worldgen fluid."
+    }
+  },
+  "conversions": [
+    {
+      "name": "refine_light_fuel",
+      "why": "The refinery's routes all yield half a bucket of light fuel per bucket of oil, so a bucket of light fuel is worth the oil from two buckets, returning one bucket. The lava and water that heat and cool it, and the by-products, are left out so that no route makes light fuel for less than its value.",
+      "output": "buildcraft:fuel_light_bucket",
+      "ingredients": {"buildcraft:oil_bucket": 2, "minecraft:bucket": -1}
+    }
   ],
   "exclude": {
     "buildcraft:frame": "Creative-only: the quarry builds its frame from power, frame blocks drop nothing, and there is no frame recipe, so a value would only make creative frames transmutable.",
-    "oil_family_buckets": {
-      "items": ["buildcraft:oil_bucket", "buildcraft:oil_residue_bucket", "buildcraft:fuel_light_bucket"],
-      "why": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+    "buildcraft:oil_spring": "Creative-only: the spring under large oil wells is unbreakable like bedrock and drops nothing; the oil it regrows is what gets a value.",
+    "refinery_fluid_buckets": {
+      "items": ["buildcraft:*_heat_?_bucket", "buildcraft:oil_residue_bucket", "buildcraft:oil_heavy_bucket", "buildcraft:oil_dense_bucket",
+                "buildcraft:oil_distilled_bucket", "buildcraft:fuel_dense_bucket", "buildcraft:fuel_mixed_heavy_bucket",
+                "buildcraft:fuel_mixed_light_bucket", "buildcraft:fuel_gaseous_bucket"],
+      "why": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
     }
-  }
+  },
+  "processes": [
+    {
+      "name": "refine_light_fuel_through_heavy_oil",
+      "why": "The cheapest route: 8 oil distils into 3 heavy oil (and 16 gaseous fuel); lava heats the heavy oil, which distils into 4 hot light fuel (and 2 dense oil), and water cools it. The unvalued by-products are left out.",
+      "in": {"buildcraft:oil_bucket": 8, "minecraft:lava_bucket": 3, "minecraft:water_bucket": 4},
+      "out": {"buildcraft:fuel_light_bucket": 4, "minecraft:bucket": 11}
+    },
+    {
+      "name": "refine_light_fuel_through_mixed_light_fuels",
+      "why": "Upstream's documented route: lava heats 4 oil, which distils into 5 hot mixed light fuels (and 1 dense oil); water cools them and they distil into 2 light fuel (and 8 gaseous fuel). The unvalued by-products are left out.",
+      "in": {"buildcraft:oil_bucket": 4, "minecraft:lava_bucket": 4, "minecraft:water_bucket": 5},
+      "out": {"buildcraft:fuel_light_bucket": 2, "minecraft:bucket": 11}
+    }
+  ]
 }

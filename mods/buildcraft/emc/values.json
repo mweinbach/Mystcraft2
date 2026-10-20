@@ -8,11 +8,60 @@
       "itemalchemy": 3157,
       "source": "recipe"
     },
+    "buildcraft:distiller": {
+      "projecte": 42164,
+      "itemalchemy": 17552,
+      "source": "recipe"
+    },
     "buildcraft:frame": {
       "excluded": "Creative-only: the quarry builds its frame from power, frame blocks drop nothing, and there is no frame recipe, so a value would only make creative frames transmutable."
     },
+    "buildcraft:fuel_dense_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_dense_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_dense_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_gaseous_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_gaseous_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_gaseous_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
     "buildcraft:fuel_light_bucket": {
-      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+      "projecte": 896,
+      "itemalchemy": 896,
+      "source": "conversion refine_light_fuel"
+    },
+    "buildcraft:fuel_light_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_light_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_heavy_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_heavy_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_heavy_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_light_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_light_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:fuel_mixed_light_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
     },
     "buildcraft:gear_diamond": {
       "projecte": 42004,
@@ -39,16 +88,65 @@
       "itemalchemy": 16,
       "source": "recipe"
     },
+    "buildcraft:heat_exchange": {
+      "projecte": 3115,
+      "itemalchemy": 3067,
+      "source": "recipe"
+    },
     "buildcraft:mining_well": {
       "projecte": 3420,
       "itemalchemy": 3368,
       "source": "recipe"
     },
     "buildcraft:oil_bucket": {
-      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+      "projecte": 832,
+      "itemalchemy": 832,
+      "source": "explicit"
+    },
+    "buildcraft:oil_dense_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_dense_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_dense_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_distilled_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_distilled_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_distilled_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_heavy_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_heavy_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_heavy_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
     },
     "buildcraft:oil_residue_bucket": {
-      "excluded": "Creative-only in this port: oil worldgen, the refinery and the distiller are not ported, so oil, residue and light fuel have no survival source. Leaving them unvalued also keeps the residue-to-waterproof recipe from pricing waterproof; revisit when oil generation lands."
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_residue_heat_1_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_residue_heat_2_bucket": {
+      "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
+    },
+    "buildcraft:oil_spring": {
+      "excluded": "Creative-only: the spring under large oil wells is unbreakable like bedrock and drops nothing; the oil it regrows is what gets a value."
     },
     "buildcraft:pipe_clay_fluid": {
       "projecte": 24,
