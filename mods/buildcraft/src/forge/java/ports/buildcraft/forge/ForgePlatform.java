@@ -30,6 +30,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -142,6 +143,12 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public FluidPort findFluids(Level level, BlockPos pos, Direction side) {
         return ForgePorts.findFluids(level, pos, side);
+    }
+
+    @Override
+    public void invalidatePorts(BlockEntity tile) {
+        tile.invalidateCaps();
+        tile.reviveCaps();
     }
 
     @Override

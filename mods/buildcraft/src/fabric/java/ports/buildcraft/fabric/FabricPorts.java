@@ -84,6 +84,11 @@ final class FabricPorts {
         }
     }
 
+    /** Forgets the adapters made for {@code tile}, so the next lookup wraps its current ports. */
+    static void invalidate(BlockEntity tile) {
+        ADAPTERS.remove(tile);
+    }
+
     static void runQueued() {
         if (QUEUED.isEmpty()) return;
         List<Adapter> adapters = new ArrayList<>(QUEUED);

@@ -97,9 +97,13 @@ final class ForgePorts {
             }
         }
 
+        /** Runs when the block entity is removed or its ports change; capabilities revived afterwards are looked up again. */
         void invalidate() {
             for (LazyOptional<?>[] row : cache) {
-                for (LazyOptional<?> optional : row) if (optional != null) optional.invalidate();
+                for (int i = 0; i < row.length; i++) {
+                    if (row[i] != null) row[i].invalidate();
+                    row[i] = null;
+                }
             }
         }
     }
