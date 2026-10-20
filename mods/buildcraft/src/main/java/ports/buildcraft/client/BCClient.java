@@ -1,11 +1,16 @@
 package ports.buildcraft.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -16,6 +21,8 @@ import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.core.marker.volume.ClientVolumeBoxes;
+import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.factory.BCFactory;
@@ -75,6 +82,16 @@ public final class BCClient {
         MenuScreens.register(BCEnergy.COMBUSTION_ENGINE_MENU.get(), CombustionEngineScreen::new);
         MenuScreens.register(BCFactory.DISTILLER_MENU.get(), DistillerScreen::new);
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
+    }
+
+    /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
+    public static Map<ResourceLocation, Consumer<FriendlyByteBuf>> receivers() {
+        return Map.of(VolumeBoxes.CHANNEL, ClientVolumeBoxes::receive);
+    }
+
+    /** Called after translucent blocks with the level's pose stack, which carries the camera's rotation but not its position. */
+    public static void renderLevel(PoseStack poseStack, Camera camera) {
+        VolumeBoxRenderer.render(poseStack, camera);
     }
 
     /** Blocks whose models have transparent texels; Forge reads the same layer from the models' {@code render_type}. */

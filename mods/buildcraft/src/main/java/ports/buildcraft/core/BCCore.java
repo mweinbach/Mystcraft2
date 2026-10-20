@@ -13,7 +13,7 @@ import net.minecraft.world.level.material.Material;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.platform.Reg;
 
-/** Upstream BuildCraft Core: gears, the wrench, fragile fluid shards, the creative water spring and markers. */
+/** Upstream BuildCraft Core: gears, the wrench, fragile fluid shards, the creative water spring, markers and volume boxes. */
 public final class BCCore {
     public static final Supplier<Item> GEAR_WOOD = gear("wood");
     public static final Supplier<Item> GEAR_STONE = gear("stone");
@@ -34,6 +34,8 @@ public final class BCCore {
     public static final Supplier<Item> MARKER_PATH_ITEM = Reg.blockItem("marker_path", MARKER_PATH, BuildCraft.itemProperties());
     public static final Supplier<MarkerConnectorItem> MARKER_CONNECTOR = Reg.item("marker_connector",
             () -> new MarkerConnectorItem(BuildCraft.itemProperties()));
+    /** Upstream has no recipe for the volume box; it is a creative item, as are the machines that read it. */
+    public static final Supplier<VolumeBoxItem> VOLUME_BOX = Reg.item("volume_box", () -> new VolumeBoxItem(BuildCraft.itemProperties()));
     public static final Supplier<BlockEntityType<MarkerVolumeBlockEntity>> MARKER_VOLUME_TYPE = Reg.blockEntity("marker_volume",
             () -> BlockEntityType.Builder.of(MarkerVolumeBlockEntity::new, MARKER_VOLUME.get()).build(null));
     public static final Supplier<BlockEntityType<MarkerPathBlockEntity>> MARKER_PATH_TYPE = Reg.blockEntity("marker_path",

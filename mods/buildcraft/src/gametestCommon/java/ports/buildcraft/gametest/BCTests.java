@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -17,6 +20,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -34,6 +38,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Blocks;
@@ -58,6 +63,7 @@ import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
@@ -73,6 +79,9 @@ import ports.buildcraft.core.marker.MarkerCaches;
 import ports.buildcraft.core.marker.PathSubCache;
 import ports.buildcraft.core.marker.VolumeConnection;
 import ports.buildcraft.core.marker.VolumeSubCache;
+import ports.buildcraft.core.marker.volume.Lock;
+import ports.buildcraft.core.marker.volume.VolumeBox;
+import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
@@ -550,6 +559,143 @@ public final class BCTests {
         require(helper, west.getCurrentConnection() != null && west.getCurrentConnection().getMarkerPositions().size() == 2,
                 "looking along the line must connect the marks");
         require(helper, connected.consumesAction(), "connecting marks must consume the click so it does not reach the other hand");
+        helper.succeed();
+    }
+
+    /** Puts the mock player's eyes at the centre of {@code eyeBlock}, looking south along +Z. */
+    static void lookSouthFrom(GameTestHelper helper, Player player, BlockPos eyeBlock) {
+        Vec3 eyes = Vec3.atCenterOf(helper.absolutePos(eyeBlock));
+        player.moveTo(eyes.x, eyes.y - player.getEyeHeight(), eyes.z, 0, 0);
+    }
+
+    static VolumeBox placeVolumeBox(GameTestHelper helper, Player player, BlockPos floor) {
+        ItemStack stack = new ItemStack(BCCore.VOLUME_BOX.get());
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos clicked = helper.absolutePos(floor);
+        UseOnContext context = new UseOnContext(player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(clicked).add(0, 0.5, 0), Direction.UP, clicked, false));
+        InteractionResult result = stack.useOn(context);
+        VolumeBox volumeBox = VolumeBoxes.get(helper.getLevel()).getVolumeBoxAt(clicked.above());
+        require(helper, result.consumesAction() && volumeBox != null, "the volume box item must make a box against the clicked face, got " + result);
+        return volumeBox;
+    }
+
+    static boolean useConnector(GameTestHelper helper, Player player, boolean sneaking) {
+        ItemStack connector = new ItemStack(BCCore.MARKER_CONNECTOR.get());
+        player.setItemInHand(InteractionHand.MAIN_HAND, connector);
+        player.setShiftKeyDown(sneaking);
+        return connector.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult().consumesAction();
+    }
+
+    static void requireBox(GameTestHelper helper, VolumeBox volumeBox, BlockPos min, BlockPos max, String message) {
+        BlockPos absMin = helper.absolutePos(min), absMax = helper.absolutePos(max);
+        require(helper, volumeBox.box.min().equals(absMin) && volumeBox.box.max().equals(absMax),
+                message + ": expected " + absMin + " to " + absMax + ", got " + volumeBox.box.min() + " to " + volumeBox.box.max());
+    }
+
+    /** The volume box item makes a one-block box against the clicked face, once; boxes and their locks survive saving and syncing. */
+    public static void volumeBoxItemMakesBoxes(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer();
+        VolumeBox volumeBox = placeVolumeBox(helper, player, new BlockPos(4, 1, 4));
+        requireBox(helper, volumeBox, new BlockPos(4, 2, 4), new BlockPos(4, 2, 4), "the new box must be the block above the clicked floor");
+        ItemStack stack = player.getMainHandItem();
+        BlockPos clicked = helper.absolutePos(new BlockPos(4, 1, 4));
+        InteractionResult again = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(clicked), Direction.UP, clicked, false)));
+        require(helper, again == InteractionResult.FAIL, "a second box must not be made inside the first, got " + again);
+
+        VolumeBoxes volumeBoxes = VolumeBoxes.get(helper.getLevel());
+        BlockPos cause = helper.absolutePos(new BlockPos(1, 1, 1));
+        volumeBox.box.extendToEncompass(helper.absolutePos(new BlockPos(6, 4, 7)));
+        volumeBox.locks.add(new Lock(new Lock.CauseBlock(cause, Blocks.STONE), new Lock.Remove(), new Lock.Resize(),
+                new Lock.UsedByMachine(Lock.MachineUse.STRIPES_WRITE)));
+        VolumeBox loaded = VolumeBoxes.load(helper.getLevel(), volumeBoxes.save(new CompoundTag())).getVolumeBoxFromId(volumeBox.id);
+        require(helper, loaded != null, "saving must keep the box");
+        requireBox(helper, loaded, new BlockPos(4, 2, 4), new BlockPos(6, 4, 7), "saving must keep the box's extent");
+        require(helper, loaded.isLockedFor(Lock.Resize.class) && loaded.isLockedFor(Lock.Remove.class)
+                && loaded.locks.get(0).cause.equals(new Lock.CauseBlock(cause, Blocks.STONE)), "saving must keep the box's lock");
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        volumeBox.write(buffer);
+        VolumeBox synced = VolumeBox.read(buffer);
+        require(helper, synced.equals(volumeBox) && synced.box.min().equals(volumeBox.box.min()) && synced.box.max().equals(volumeBox.box.max())
+                && synced.getLockTargetsStream().anyMatch(new Lock.UsedByMachine(Lock.MachineUse.STRIPES_WRITE)::equals),
+                "syncing must send the box and the machine that holds it");
+        volumeBoxes.volumeBoxes.remove(volumeBox);
+        helper.succeed();
+    }
+
+    /**
+     * Using the connector on a box's corner grabs it: the opposite corner stays and the grabbed one follows
+     * the player's gaze until the next click confirms it. Sneaking cancels an edit, or removes the box.
+     */
+    public static void markerConnectorEditsVolumeBoxes(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer();
+        VolumeBoxes volumeBoxes = VolumeBoxes.get(helper.getLevel());
+        Function<UUID, Player> players = id -> id.equals(player.getGameProfile().getId()) ? player : null;
+        VolumeBox volumeBox = placeVolumeBox(helper, player, new BlockPos(4, 1, 4));
+        lookSouthFrom(helper, player, new BlockPos(4, 2, -1));
+        require(helper, !useConnector(helper, player, false) && !volumeBox.isEditing(), "a box beyond reach must not be grabbed");
+
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, player, false) && volumeBox.isEditingBy(player), "looking at a corner within reach must grab it");
+        require(helper, volumeBox.getHeld().equals(helper.absolutePos(new BlockPos(4, 2, 4))) && volumeBox.getDist() == 2,
+                "a one-block box must hold its own block, at 2 blocks: the hit at 1.5 plus half a block, got " + volumeBox.getHeld() + " at " + volumeBox.getDist());
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 5));
+        volumeBoxes.tick(players);
+        requireBox(helper, volumeBox, new BlockPos(4, 2, 4), new BlockPos(4, 2, 7), "the grabbed corner must follow the player's gaze");
+        require(helper, useConnector(helper, player, false) && !volumeBox.isEditing(), "the next click must confirm the edit");
+        volumeBoxes.tick(players);
+        requireBox(helper, volumeBox, new BlockPos(4, 2, 4), new BlockPos(4, 2, 7), "a confirmed box must keep its new extent");
+
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, player, false) && volumeBox.getHeld().equals(helper.absolutePos(new BlockPos(4, 2, 7))),
+                "grabbing the near corner must hold the far one, got " + volumeBox.getHeld());
+        lookSouthFrom(helper, player, new BlockPos(4, 4, 1));
+        volumeBoxes.tick(players);
+        requireBox(helper, volumeBox, new BlockPos(4, 2, 3), new BlockPos(4, 4, 7), "the box must stretch to the gaze on every axis");
+        volumeBoxes.tick(id -> null);
+        require(helper, !volumeBox.isEditing() && volumeBox.isPausedEditingBy(player), "an edit must pause while its player is away");
+        volumeBox.resumeEditing();
+        require(helper, useConnector(helper, player, true) && !volumeBox.isEditing(), "sneaking must cancel the edit");
+        requireBox(helper, volumeBox, new BlockPos(4, 2, 4), new BlockPos(4, 2, 7), "cancelling must restore the box");
+
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, player, false) && volumeBox.isEditingBy(player), "the box must be grabbable again");
+        volumeBoxes.tick(id -> null);
+        Player other = helper.makeMockPlayer();
+        lookSouthFrom(helper, other, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, other, false) && volumeBox.isEditingBy(other) && !volumeBox.isPausedEditingBy(player),
+                "another player taking over a paused edit must end the absent player's claim");
+        require(helper, useConnector(helper, other, false) && !volumeBox.isEditing(), "the new editor's click must confirm");
+
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, useConnector(helper, player, true) && !volumeBoxes.volumeBoxes.contains(volumeBox), "sneaking at a box must remove it");
+        helper.succeed();
+    }
+
+    /** A machine's lock keeps players from resizing or removing its box, until the machine's block is gone. */
+    public static void lockedVolumeBoxesResistTheConnector(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer();
+        VolumeBoxes volumeBoxes = VolumeBoxes.get(helper.getLevel());
+        VolumeBox volumeBox = placeVolumeBox(helper, player, new BlockPos(4, 1, 4));
+        BlockPos cause = new BlockPos(7, 2, 7);
+        helper.setBlock(cause, Blocks.GOLD_BLOCK);
+        volumeBox.locks.add(new Lock(new Lock.CauseBlock(helper.absolutePos(cause), Blocks.GOLD_BLOCK), new Lock.Remove(), new Lock.Resize()));
+        lookSouthFrom(helper, player, new BlockPos(4, 2, 2));
+        require(helper, !useConnector(helper, player, false) && !volumeBox.isEditing(), "a locked box must not be grabbed");
+        require(helper, !useConnector(helper, player, true) && volumeBoxes.volumeBoxes.contains(volumeBox), "a locked box must not be removed");
+        volumeBoxes.tick();
+        require(helper, !volumeBox.locks.isEmpty(), "the lock must hold while its block stays");
+        helper.setBlock(cause, Blocks.AIR);
+        volumeBoxes.tick();
+        require(helper, volumeBox.locks.isEmpty(), "the lock must lapse once its block is gone");
+
+        helper.setBlock(cause, Blocks.GOLD_BLOCK);
+        volumeBox.locks.add(new Lock(new Lock.CauseBlock(helper.absolutePos(cause), Blocks.GOLD_BLOCK), new Lock.Remove()));
+        require(helper, !useConnector(helper, player, true) && volumeBoxes.volumeBoxes.contains(volumeBox), "a removal lock alone must keep the box");
+        helper.setBlock(cause, Blocks.AIR);
+        volumeBoxes.tick();
+        require(helper, useConnector(helper, player, true) && !volumeBoxes.volumeBoxes.contains(volumeBox), "an unlocked box must be removable");
         helper.succeed();
     }
 

@@ -518,7 +518,7 @@ class Generator:
             self.copy(f"buildcraftcore/textures/items/marker_{kind}.png", f"item/marker_{kind}.png")
         self.copy("buildcraftcore/textures/items/marker_connector.png", "item/marker_connector.png")
         for laser in ["marker_volume_connected", "marker_volume_possible", "marker_volume_signal", "marker_path_connected",
-                      "marker_path_possible", "marker_default_possible"]:
+                      "marker_path_possible", "marker_default_possible", "stripes_read", "stripes_write"]:
             self.copy(f"buildcraftcore/textures/lasers/{laser}.png", f"lasers/{laser}.png")
 
         torch = json.loads((self.src / "buildcraftcore/models/block/torch_center_lit.json").read_text(encoding="utf-8"))
@@ -535,8 +535,13 @@ class Generator:
                                                 for facing, rotation in facings.items()}})
             self.generated_item(name)
         self.generated_item("marker_connector", parent="minecraft:item/handheld")
+        volume_box = json.loads((self.src / "buildcraftcore/models/item/volume_box.json").read_text(encoding="utf-8"))
+        volume_box["parent"] = "minecraft:block/block"
+        volume_box["textures"] = {"main": rl("lasers/marker_volume_connected"), "particle": rl("lasers/marker_volume_connected")}
+        self.model("item/volume_box", volume_box)
+        # Upstream's lang files have no name for the volume box.
         self.lang.update({f"block.{MOD}.marker_volume": "Land Mark", f"block.{MOD}.marker_path": "Path Mark",
-                          f"item.{MOD}.marker_connector": "Marker Connector"})
+                          f"item.{MOD}.marker_connector": "Marker Connector", f"item.{MOD}.volume_box": "Volume Box"})
 
     def fluids(self) -> None:
         for heat, suffix in enumerate(HEAT_NAMES):

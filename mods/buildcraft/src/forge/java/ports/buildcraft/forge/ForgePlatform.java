@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -179,5 +180,10 @@ final class ForgePlatform implements Platform.Backend {
         SoundEvent sound = fluid.getFluidType().getSound(fill ? SoundActions.BUCKET_FILL : SoundActions.BUCKET_EMPTY);
         if (sound != null) return sound;
         return fill ? SoundEvents.BUCKET_FILL : SoundEvents.BUCKET_EMPTY;
+    }
+
+    @Override
+    public void sendToPlayer(ServerPlayer player, ResourceLocation channel, Consumer<FriendlyByteBuf> payload) {
+        ForgeNetwork.send(player, channel, payload);
     }
 }

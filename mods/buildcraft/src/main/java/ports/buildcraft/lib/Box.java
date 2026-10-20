@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.phys.AABB;
 
 /** Upstream {@code buildcraft.lib.misc.data.Box}: an inclusive block-aligned box. */
 public final class Box {
@@ -58,6 +59,11 @@ public final class Box {
     /** The box's extent in blocks along each axis, counting both ends. */
     public BlockPos size() {
         return isInitialized() ? max.subtract(min).offset(1, 1, 1) : BlockPos.ZERO;
+    }
+
+    /** Upstream {@code getBoundingBox}: the box's blocks as one AABB. */
+    public AABB boundingBox() {
+        return new AABB(min, max.offset(1, 1, 1));
     }
 
     public boolean contains(BlockPos p) {

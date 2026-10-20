@@ -68,6 +68,15 @@ public final class FabricGameTests implements FabricGameTest {
     public void markerConnectorJoinsMarks(GameTestHelper helper) { BCTests.markerConnectorJoinsMarks(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void volumeBoxItemMakesBoxes(GameTestHelper helper) { BCTests.volumeBoxItemMakesBoxes(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void markerConnectorEditsVolumeBoxes(GameTestHelper helper) { BCTests.markerConnectorEditsVolumeBoxes(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void lockedVolumeBoxesResistTheConnector(GameTestHelper helper) { BCTests.lockedVolumeBoxesResistTheConnector(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void markersRotateAndNeedSupport(GameTestHelper helper) { BCTests.markersRotateAndNeedSupport(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
