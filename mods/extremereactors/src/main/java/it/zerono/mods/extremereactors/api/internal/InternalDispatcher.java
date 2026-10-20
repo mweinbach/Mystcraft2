@@ -20,8 +20,6 @@ package it.zerono.mods.extremereactors.api.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import ports.extremereactors.corelib.CodeHelper;
-import net.minecraftforge.fml.InterModComms;
 
 public final class InternalDispatcher {
 
@@ -30,11 +28,7 @@ public final class InternalDispatcher {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(method));
         Preconditions.checkNotNull(action);
 
-        if ("bigreactors".equals(CodeHelper.getModIdFromActiveModContainer())) {
-            action.run();
-        } else {
-            InterModComms.sendTo("bigreactors", method, () -> action);
-        }
+        action.run();
     }
 
     private InternalDispatcher() {

@@ -7,6 +7,7 @@ package ports.extremereactors.corelib.client.model.data.multiblock;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import ports.extremereactors.corelib.block.BlockFacings;
+import ports.extremereactors.corelib.client.model.data.GenericProperties;
 import ports.extremereactors.corelib.client.model.data.ModelData;
 import ports.extremereactors.corelib.client.model.data.NamedModelProperty;
 
@@ -19,9 +20,9 @@ import java.util.Objects;
 public class CuboidPartVariantsModelDataCache {
 
     /** The index of the part type (usually the ordinal of the part-type enum). */
-    public static final NamedModelProperty<Integer> BLOCK_ID = new NamedModelProperty<>("BLOCK_ID", Objects::nonNull);
+    public static final NamedModelProperty<Integer> BLOCK_ID = GenericProperties.ID;
     /** The index of the model variant to use for the part. */
-    public static final NamedModelProperty<Integer> VARIANT_INDEX = new NamedModelProperty<>("VARIANT_INDEX", Objects::nonNull);
+    public static final NamedModelProperty<Integer> VARIANT_INDEX = GenericProperties.VARIANT_INDEX;
     /** The faces of the part that look out of the machine. */
     public static final NamedModelProperty<BlockFacings> OUTWARD_FACINGS = new NamedModelProperty<>("OUTWARD_FACINGS", Objects::nonNull);
 

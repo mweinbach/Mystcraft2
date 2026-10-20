@@ -6,6 +6,7 @@ package ports.extremereactors.corelib;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +19,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -224,6 +226,10 @@ public final class CodeHelper {
     }
 
     /** The four directions perpendicular to {@code direction}, in {@link Direction} order. */
+    public static Stream<Direction> directionStream() {
+        return Arrays.stream(DIRECTIONS);
+    }
+
     public static List<Direction> perpendicularDirections(final Direction direction) {
 
         final List<Direction> result = new java.util.ArrayList<>(4);

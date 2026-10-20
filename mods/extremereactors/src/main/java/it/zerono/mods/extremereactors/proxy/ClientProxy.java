@@ -1,0 +1,232 @@
+/*
+ *
+ * ClientProxy.java
+ *
+ * This file is part of Extreme Reactors 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.extremereactors.proxy;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.zerono.mods.extremereactors.ExtremeReactors;
+import it.zerono.mods.extremereactors.api.reactor.ModeratorsRegistry;
+import it.zerono.mods.extremereactors.api.reactor.ReactantMappingsRegistry;
+import it.zerono.mods.extremereactors.api.turbine.CoilMaterialRegistry;
+import it.zerono.mods.extremereactors.config.Config;
+import it.zerono.mods.extremereactors.gamecontent.Content;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.common.client.screen.CachedSprites;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.model.FluidizerGlassModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.fluidizer.client.model.FluidizerModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.FuelRodsLayout;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.ClientFuelRodsLayout;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorFuelRodBlockColor;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorFuelRodModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorGlassModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.client.model.ReactorModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.variant.ReactorVariant;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorGlassModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorIOModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.model.ReprocessorModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reprocessor.client.render.ReprocessorCollectorRender;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineGlassModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.model.TurbineRotorModelBuilder;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.client.render.rotor.RotorBearingEntityRenderer;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.variant.TurbineVariant;
+import ports.extremereactors.corelib.CodeHelper;
+import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
+import ports.extremereactors.corelib.client.model.ModBakedModelSupplier;
+import ports.extremereactors.platform.ClientPlatform;
+import ports.extremereactors.platform.Platform;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.resources.model.BakedModel;
+import java.util.function.Consumer;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.block.Block;
+
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+public class ClientProxy
+        implements IProxy {
+
+    public ClientProxy() {
+
+        this._modelBuilders = initModels();
+
+        final ClientPlatform.Backend client = ClientPlatform.backend();
+
+        client.onRegisterAdditionalModels(this::onRegisterModels);
+        client.onModelBakingCompleted(this::onModelBake);
+        client.onItemTooltip(this::onItemTooltip);
+        client.addAtlasSprite(InventoryMenu.BLOCK_ATLAS, CachedSprites.GUI_CHARGINGPORT_SLOT_ID);
+        Platform.backend().onTagsUpdated(this::onVanillaTagsUpdated);
+
+        CodeHelper.addResourceReloadListener(this::invalidateApiTooltipCache);
+    }
+
+    public static Supplier<BakedModel> getModelSupplier(final ResourceLocation modelId) {
+        return s_bakedModelSupplier.getOrCreate(modelId);
+    }
+
+    /**
+     * Called on the physical client, once the registries are populated, to perform client-specific initialization
+     * tasks
+     */
+    public void onClientInit() {
+
+        CachedSprites.initialize();
+
+        registerRenderTypes();
+        registerTileRenderers();
+        registerBlockColors();
+    }
+
+    public void onRegisterModels(final Consumer<ResourceLocation> additionalModels) {
+        this._modelBuilders.forEach(b -> b.onRegisterModels(additionalModels));
+    }
+
+    public void onModelBake(final Map<ResourceLocation, BakedModel> models) {
+        this._modelBuilders.forEach(builder -> builder.onBakeModels(models));
+    }
+
+    public void onItemTooltip(final ItemStack stack, final TooltipFlag flags, final List<Component> tooltip) {
+
+        if (!Config.CLIENT.disableApiTooltips.get() && flags.isAdvanced()) {
+            tooltip.addAll(this.getApiTooltipCache().getOrDefault(stack.getItem(), Collections.emptySet()));
+        }
+    }
+
+    private static void registerBlockColors() {
+        ClientPlatform.backend().registerBlockColor(new ReactorFuelRodBlockColor(),
+                Content.Blocks.REACTOR_FUELROD_BASIC.get(),
+                Content.Blocks.REACTOR_FUELROD_REINFORCED.get());
+    }
+
+    //region IProxy
+
+    @Override
+    public FuelRodsLayout createFuelRodsLayout(Direction direction, int length) {
+        return new ClientFuelRodsLayout(direction, length);
+    }
+
+    //endregion
+    //region internals
+
+    private static List<ICustomModelBuilder> initModels() {
+
+        //noinspection UnstableApiUsage
+        return Streams.concat(
+                Arrays.stream(ReactorVariant.values())
+                        .flatMap(v -> Stream.of(
+                                new ReactorModelBuilder(v),
+                                new ReactorGlassModelBuilder(v),
+                                new ReactorFuelRodModelBuilder(v)
+                        )),
+                Arrays.stream(TurbineVariant.values())
+                        .flatMap(v -> Stream.of(
+                                new TurbineModelBuilder(v),
+                                new TurbineGlassModelBuilder(v),
+                                new TurbineRotorModelBuilder(v)
+                        )),
+                Stream.of(new ReprocessorModelBuilder(),
+                        new ReprocessorIOModelBuilder(),
+                        new ReprocessorGlassModelBuilder(),
+                        new FluidizerModelBuilder(),
+                        new FluidizerGlassModelBuilder())
+        ).collect(ImmutableList.toImmutableList());
+    }
+
+    private static void registerRenderTypes() {
+
+        registerRenderType(RenderType.translucent(),
+                Content.Blocks.REACTOR_GLASS_BASIC, Content.Blocks.REACTOR_GLASS_REINFORCED,
+                Content.Blocks.TURBINE_GLASS_BASIC, Content.Blocks.TURBINE_GLASS_REINFORCED,
+                Content.Blocks.REPROCESSOR_GLASS, Content.Blocks.FLUIDIZER_GLASS);
+
+        registerRenderType(RenderType.cutout(),
+                Content.Blocks.TURBINE_ROTORBLADE_BASIC, Content.Blocks.TURBINE_ROTORBLADE_REINFORCED,
+                Content.Blocks.TURBINE_ROTORSHAFT_BASIC, Content.Blocks.TURBINE_ROTORSHAFT_REINFORCED);
+    }
+
+    private static void registerTileRenderers() {
+        BlockEntityRenderers.register(Content.TileEntityTypes.TURBINE_ROTORBEARING.get(), RotorBearingEntityRenderer::new);
+        BlockEntityRenderers.register(Content.TileEntityTypes.REPROCESSOR_COLLECTOR.get(), ReprocessorCollectorRender::new);
+    }
+
+    //region registration helpers
+
+    @SafeVarargs
+    private static void registerRenderType(RenderType type, Supplier<? extends Block>... blocks) {
+
+        for (final Supplier<? extends Block> block : blocks) {
+            ClientPlatform.backend().setRenderLayer(block.get(), type);
+        }
+    }
+
+    //endregion
+    //region api tooltip cache
+
+    private void onVanillaTagsUpdated() {
+        this.invalidateApiTooltipCache();
+    }
+
+    private Map<Item, Set<Component>> getApiTooltipCache() {
+
+        if (null == this._apiTooltipCache) {
+            this._apiTooltipCache = buildApiTooltipCache();
+        }
+
+        return this._apiTooltipCache;
+    }
+
+    private void invalidateApiTooltipCache() {
+        this._apiTooltipCache = null;
+    }
+
+    private static Map<Item, Set<Component>> buildApiTooltipCache() {
+
+        final Map<Item, Set<Component>> wipCache = Maps.newHashMap();
+
+        // fill items from the API
+
+        ReactantMappingsRegistry.fillReactantsTooltips(wipCache, Sets::newHashSet);
+        ModeratorsRegistry.fillModeratorsTooltips(wipCache, Sets::newHashSet);
+        CoilMaterialRegistry.fillCoilsTooltips(wipCache, Sets::newHashSet);
+
+        return new Object2ObjectArrayMap<>(wipCache);
+    }
+
+    //endregion
+
+    private static final ModBakedModelSupplier s_bakedModelSupplier = new ModBakedModelSupplier();
+
+    private final List<ICustomModelBuilder> _modelBuilders;
+
+    private Map<Item, Set<Component>> _apiTooltipCache;
+
+    //endregion
+}

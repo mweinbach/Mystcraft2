@@ -32,9 +32,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import ports.extremereactors.corelib.fluid.FluidStack;
 
 import javax.annotation.Nullable;
@@ -311,8 +308,7 @@ public class ReactantHelper {
         return null != getCachedModeratorFrom(state);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onVanillaTagsUpdated(final TagsUpdatedEvent event) {
+    public static void onVanillaTagsUpdated() {
         s_moderatorsCache.invalidateAll();
     }
 

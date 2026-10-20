@@ -6,16 +6,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Material;
+import ports.extremereactors.corelib.fluid.ModLiquidBlock;
 import java.util.function.Consumer;
 
 import java.util.function.Supplier;
 
 public class ReactantFluidBlock
-        extends LiquidBlock {
+        extends ModLiquidBlock {
 
     public ReactantFluidBlock(final Reactants reactant, final Supplier<? extends FlowingFluid> fluid) {
 
@@ -27,7 +27,7 @@ public class ReactantFluidBlock
         this._effect = reactant;
     }
 
-    //region LiquidBlock
+    //region ModLiquidBlock
 
     @Override
     public void entityInside(final BlockState state, final Level world, final BlockPos position, final Entity entity) {

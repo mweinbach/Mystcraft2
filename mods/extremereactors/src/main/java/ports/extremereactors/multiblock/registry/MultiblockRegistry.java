@@ -50,11 +50,7 @@ import ports.extremereactors.multiblock.IMultiblockRegistry;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import ports.extremereactors.platform.Platform;
 
 import java.util.Map;
 
@@ -140,8 +136,8 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     public MultiblockRegistry() {
 
         this._registries = new Reference2ObjectArrayMap<>(2 * 8);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldUnload);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldTick);
+        Platform.backend().onLevelUnload(this::onWorldUnload);
+        Platform.backend().onLevelTickStart(this::tickStart);
     }
 
     /**
@@ -170,10 +166,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     /**
      * Called whenever a world is unloaded. Unload the relevant registry, if we have one.
      */
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void onWorldUnload(final LevelEvent.Unload event) {
-
-        final LevelAccessor world = event.getLevel();
+    public void onWorldUnload(final LevelAccessor world) {
 
         if (world instanceof Level) {
 
@@ -187,14 +180,6 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
         } else {
 
             Log.LOGGER.error(Log.MULTIBLOCK, "Trying to unload a world that's not a World!");
-        }
-    }
-
-    @SubscribeEvent
-    public void onWorldTick(final TickEvent.LevelTickEvent event) {
-
-        if (TickEvent.Phase.START == event.phase) {
-            this.tickStart(event.level);
         }
     }
 

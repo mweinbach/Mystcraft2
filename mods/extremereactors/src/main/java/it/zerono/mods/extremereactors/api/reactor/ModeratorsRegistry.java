@@ -38,8 +38,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import java.util.function.Supplier;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.Registry;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -50,7 +49,6 @@ import java.util.function.Consumer;
  * Keep track of all the Moderators that could be used inside a Reactor
  */
 @SuppressWarnings({"WeakerAccess"})
-@Mod.EventBusSubscriber(modid = ExtremeReactorsAPI.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class ModeratorsRegistry {
 
     /**
@@ -226,8 +224,8 @@ public final class ModeratorsRegistry {
                 .forEach(item -> tooltipsMap.computeIfAbsent(item, k -> setSupplier.get()).add(TOOLTIP_MODERATOR));
 
         s_moderatorFluidsData.keySet().stream()
-                .filter(ForgeRegistries.FLUIDS::containsKey)
-                .map(ForgeRegistries.FLUIDS::getValue)
+                .filter(Registry.FLUID::containsKey)
+                .map(Registry.FLUID::get)
                 .filter(Objects::nonNull)
                 .map(Fluid::getBucket)
                 .forEach(item -> tooltipsMap.computeIfAbsent(item, k -> setSupplier.get()).add(TOOLTIP_MODERATOR));

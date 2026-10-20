@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -94,11 +93,18 @@ public final class Platform {
         //endregion
         //region fluids
 
+        /**
+         * Announce one of our fluids. Called while the content classes initialize, before any registry is populated,
+         * so a loader can register its own per-fluid objects (Forge: a {@code FluidType}).
+         */
+        void declareFluid(FluidDefinition definition);
+
+        /**
+         * Create a fluid for a definition passed to {@link #declareFluid}. Called while the fluid registry is populated.
+         */
         FlowingFluid fluid(FluidDefinition definition, boolean source, Supplier<? extends FlowingFluid> sourceFluid,
                            Supplier<? extends FlowingFluid> flowingFluid, Supplier<? extends Item> bucket,
                            Supplier<? extends LiquidBlock> block);
-
-        LiquidBlock liquidBlock(Supplier<? extends FlowingFluid> fluid, BlockBehaviour.Properties properties);
 
         Component fluidName(Fluid fluid);
 

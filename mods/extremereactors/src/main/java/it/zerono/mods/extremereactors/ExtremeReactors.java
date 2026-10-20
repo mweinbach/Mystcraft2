@@ -21,6 +21,7 @@ package it.zerono.mods.extremereactors;
 import it.zerono.mods.extremereactors.api.internal.modpack.wrapper.ApiWrapper;
 import it.zerono.mods.extremereactors.config.Config;
 import it.zerono.mods.extremereactors.gamecontent.Content;
+import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.ReactantHelper;
 import it.zerono.mods.extremereactors.gamecontent.command.ExtremeReactorsCommand;
 import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.network.UpdateClientsFuelRodsLayout;
 import it.zerono.mods.extremereactors.proxy.IProxy;
@@ -121,6 +122,7 @@ public class ExtremeReactors {
         Content.initialize();
 
         Platform.backend().onRegisterCommands(ExtremeReactorsCommand::register);
+        Platform.backend().onTagsUpdated(ReactantHelper::onVanillaTagsUpdated);
     }
 
     private static ExtremeReactors s_instance;

@@ -1,7 +1,6 @@
 package it.zerono.mods.extremereactors.loader.forge.gamecontent.worldgen;
 
 import com.mojang.serialization.Codec;
-import it.zerono.mods.extremereactors.gamecontent.Content;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.tags.BiomeTags;
@@ -21,17 +20,17 @@ public record OreBiomeModifier(HolderSet<Biome> validBiomes, Holder<PlacedFeatur
         implements BiomeModifier {
 
     public static OreBiomeModifier yellorite(HolderSet<Biome> validBiomes, Holder<PlacedFeature> feature) {
-        return new OreBiomeModifier(validBiomes, feature, $ -> true, Content.Biomes.OREGEN_YELLORITE);
+        return new OreBiomeModifier(validBiomes, feature, $ -> true, ForgeBiomes.OREGEN_YELLORITE);
     }
 
     public static OreBiomeModifier anglesite(HolderSet<Biome> validBiomes, Holder<PlacedFeature> feature) {
         return new OreBiomeModifier(validBiomes, feature, biomeHolder -> biomeHolder.containsTag(BiomeTags.IS_END),
-                Content.Biomes.OREGEN_ANGLESITE);
+                ForgeBiomes.OREGEN_ANGLESITE);
     }
 
     public static OreBiomeModifier benitoite(HolderSet<Biome> validBiomes, Holder<PlacedFeature> feature) {
         return new OreBiomeModifier(validBiomes, feature, biomeHolder -> biomeHolder.containsTag(BiomeTags.IS_NETHER),
-                Content.Biomes.OREGEN_BENITOITE);
+                ForgeBiomes.OREGEN_BENITOITE);
     }
 
     //regiorn BiomeModifier
