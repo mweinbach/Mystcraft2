@@ -187,6 +187,11 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         return !breakTasks.isEmpty() || !placeTasks.isEmpty();
     }
 
+    /** Upstream's per-tick allowance for all tasks together: up to 256 MJ, scaled by how full the battery is. */
+    public static long maxPowerPerTick(long stored, long capacity) {
+        return Math.min((long) (MAX_POWER_PER_TICK * (double) (stored + MAX_POWER_PER_TICK / 10) / (capacity * 2)), MAX_POWER_PER_TICK);
+    }
+
     /** Upstream's client tick: keeps the last two task snapshots and eases the robot towards the blocks being broken. */
     public void clientTick() {
         prevClientBreakTasks.clear();
@@ -283,15 +288,14 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         }
 
         MjBattery battery = battery();
-        long max = Math.min(
-                (long) (MAX_POWER_PER_TICK * (double) (battery.stored() + MAX_POWER_PER_TICK / 10) / (battery.capacity() * 2)),
-                MAX_POWER_PER_TICK);
+        long max = maxPowerPerTick(battery.stored(), battery.capacity());
         if (!breakTasks.isEmpty()) {
+            long share = max / breakTasks.size();
             for (Iterator<BreakTask> iterator = breakTasks.iterator(); iterator.hasNext(); ) {
                 BreakTask breakTask = iterator.next();
                 if (breakTask.isImpossible()) continue;
                 long target = breakTask.getTarget();
-                breakTask.power += battery.extractPower(0, Math.min(target - breakTask.power, max / breakTasks.size()));
+                breakTask.power += battery.extractPower(0, Math.min(target - breakTask.power, share));
                 if (breakTask.power >= target) {
                     level().destroyBlockProgress(breakTask.pos.hashCode(), breakTask.pos, -1);
                     BlockUtil.breakBlockAndGetDrops((ServerLevel) level(), breakTask.pos);
@@ -303,10 +307,11 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
             }
         }
         if (!placeTasks.isEmpty()) {
+            long share = max / placeTasks.size();
             for (Iterator<PlaceTask> iterator = placeTasks.iterator(); iterator.hasNext(); ) {
                 PlaceTask placeTask = iterator.next();
                 long target = placeTask.getTarget();
-                placeTask.power += battery.extractPower(0, Math.min(target - placeTask.power, max / placeTasks.size()));
+                placeTask.power += battery.extractPower(0, Math.min(target - placeTask.power, share));
                 if (placeTask.power >= target) {
                     if (!doPlaceTask(placeTask)) cancelPlaceTask(placeTask);
                     if (check(placeTask.pos)) checkResultsChanged = true;
