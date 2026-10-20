@@ -62,6 +62,7 @@ import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.PipeDefinition;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
+import ports.buildcraft.transport.pluggable.PluggableDefinition;
 
 /**
  * Development-only demonstration layout for screenshots: every implemented machine running on real
@@ -126,6 +127,14 @@ public final class Showcase {
      */
     public static void buildSilicon(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).silicon();
+    }
+
+    /**
+     * Builds a pluggable bench: a redstone engine driving a wooden pipe through a power adapter, a pipe plug keeping
+     * cobblestone out of a branch line, an arch of structure pipes and a stone pipe capped with plugs on five faces.
+     */
+    public static void buildPlugs(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).plugs();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -262,6 +271,34 @@ public final class Showcase {
         integration.setItem(IntegrationTableBlockEntity.TARGET_SLOT, new ItemStack(BCSilicon.GOLD_CHIPSET.get(), 4));
         integration.setItem(IntegrationTableBlockEntity.TO_INTEGRATE_START, new ItemStack(Items.REDSTONE, 8));
         for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private void plugs() {
+        prepare(-3, 14, -3, 6);
+        chest(0, 0, 0, new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.COBBLESTONE, 64));
+        plug(pipe(1, 0, 0, BCTransport.WOOD_ITEM), Direction.UP, BCTransport.POWER_ADAPTOR);
+        engine(1, 1, 0, BCEnergy.REDSTONE_ENGINE.get(), Direction.DOWN);
+        redstone(1, 2, 0);
+        pipe(2, 0, 0, BCTransport.STONE_ITEM);
+        plug(pipe(3, 0, 0, BCTransport.STONE_ITEM), Direction.SOUTH, BCTransport.BLOCKER);
+        pipe(3, 0, 1, BCTransport.STONE_ITEM);
+        chest(3, 0, 2);
+        pipe(4, 0, 0, BCTransport.GOLD_ITEM);
+        pipe(5, 0, 0, BCTransport.STONE_ITEM);
+        chest(6, 0, 0);
+
+        int[][] arch = {{8, 0}, {8, 1}, {8, 2}, {9, 2}, {10, 2}, {10, 1}, {10, 0}};
+        for (int[] xy : arch) pipe(xy[0], xy[1], 0, BCTransport.STRUCTURE);
+
+        PipeBlockEntity capped = pipe(12, 0, 0, BCTransport.STONE_ITEM);
+        for (Direction face : List.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP)) {
+            plug(capped, face, BCTransport.BLOCKER);
+        }
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private static void plug(PipeBlockEntity pipe, Direction side, PluggableDefinition definition) {
+        pipe.replacePluggable(side, definition.create(pipe, side));
     }
 
     private ItemStack singleSchematic(int x, int y, int z) {
