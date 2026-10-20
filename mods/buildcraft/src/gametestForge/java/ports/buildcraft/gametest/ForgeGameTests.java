@@ -70,6 +70,15 @@ public final class ForgeGameTests {
     public static void markerConnectorJoinsMarks(GameTestHelper helper) { BCTests.markerConnectorJoinsMarks(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void volumeBoxItemMakesBoxes(GameTestHelper helper) { BCTests.volumeBoxItemMakesBoxes(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void markerConnectorEditsVolumeBoxes(GameTestHelper helper) { BCTests.markerConnectorEditsVolumeBoxes(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void lockedVolumeBoxesResistTheConnector(GameTestHelper helper) { BCTests.lockedVolumeBoxesResistTheConnector(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void markersRotateAndNeedSupport(GameTestHelper helper) { BCTests.markersRotateAndNeedSupport(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
