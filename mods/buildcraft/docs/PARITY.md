@@ -145,6 +145,11 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   listener. The octagon makes nothing and the square and octagon take only two parameters, as
   upstream. The progress ledger stays open between GUIs only until the game closes; upstream saved it
   in its config. The filler is drawn wherever it is loaded, without 1.12's render box around its area.
+- **Builder power and progress:** each tick, the break and place tasks split that tick's allowance
+  by how many were queued when the tick began. Upstream divided by the shrinking queue as tasks
+  finished, so the tasks after them could take more than the allowance. The blocks left to break
+  and place include those already queued; upstream left them out, so its progress ledger read zero
+  while up to 16 blocks were still in hand.
 - **Marker block state:** upstream's `active` property, which its model ignored, is not ported.
 - **Path mark permissions** only check that the player may build; upstream also asked the
   permission API, which nothing in the port provides.
@@ -177,7 +182,7 @@ redstone engine driving a wooden pipe that delivers items through stone and gold
 columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, land marks
 connecting into a box (saved, synced to clients, shrinking as marks break, showing signals when powered), path marks forming
 paths and loops that save, reverse and split, the marker connector joining marks, volume boxes made once per spot and surviving saving and syncing with their locks, the connector grabbing, stretching, confirming, cancelling and removing boxes and pausing edits of absent players, locks holding until their block is gone, marks turning with the wrench and
-breaking without support, a quarry taking a land mark box from a mark behind it or from the box's edge, filler patterns (upstream counts for the simple shapes, and every pattern at five sizes with each value of each parameter), the pattern statement keeping matching parameters and saving, the filler taking and locking a volume box until it breaks (dropping its resources) or taking a land mark area, its menu accepting only block items, its buttons, inversion and saving, building a box of stone after clearing its centre, and clearing a box only once excavation is on, void pipes, fluid pipes filling a tank,
+breaking without support, a quarry taking a land mark box from a mark behind it or from the box's edge, filler patterns (upstream counts for the simple shapes, and every pattern at five sizes with each value of each parameter), the pattern statement keeping matching parameters and saving, the filler taking and locking a volume box until it breaks (dropping its resources) or taking a land mark area, its menu accepting only block items, its buttons, inversion and saving, building a box of stone after clearing its centre, clearing a box only once excavation is on, and keeping to each tick's power allowance while counting queued blocks as left to do, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, oil well rates and determinism over 65,536 seeded chunks
 with the placed feature in the Overworld's lakes step, the oil biomes' thirtyfold well bonus, the
 oil desert and ocean replacing deserts and oceans where upstream's noise says (recomputed

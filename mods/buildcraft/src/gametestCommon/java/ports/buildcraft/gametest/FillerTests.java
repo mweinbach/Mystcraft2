@@ -28,6 +28,7 @@ import ports.buildcraft.builders.filler.Pattern;
 import ports.buildcraft.builders.filler.PatternParameterAxis;
 import ports.buildcraft.builders.filler.PatternParameterHollow;
 import ports.buildcraft.builders.filler.PatternStatement;
+import ports.buildcraft.builders.snapshot.SnapshotBuilder;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.marker.volume.Lock;
 import ports.buildcraft.core.marker.volume.VolumeBox;
@@ -272,6 +273,46 @@ public final class FillerTests {
                 .thenWaitUntil(() -> {
                     for (BlockPos pos : positions) require(helper, helper.getBlockState(pos).isAir(), "the filler must clear " + pos);
                     require(helper, filler.getCountToBreak() == 0 && filler.getCountToPlace() == 0, "a cleared box leaves nothing to do");
+                })
+                .thenExecute(() -> removeVolumeBoxes(helper))
+                .thenSucceed();
+    }
+
+    /**
+     * However many tasks finish in a tick, neither breaking nor placing spends more than that tick's allowance,
+     * and the progress counts include blocks already queued, so they reach zero only once the work is done.
+     */
+    public static void fillerKeepsToItsPowerAndCountsQueuedWork(GameTestHelper helper) {
+        FillerBlockEntity filler = fillerOnVolumeBox(helper);
+        Block[] palette = {Blocks.GLASS, Blocks.DIRT, Blocks.COBBLESTONE, Blocks.STONE_BRICKS, Blocks.SANDSTONE};
+        List<BlockPos> positions = boxPositions();
+        for (int i = 0; i < positions.size(); i++) helper.setBlock(positions.get(i), palette[i % palette.length]);
+        long capacity = filler.battery().capacity();
+        long allowance = SnapshotBuilder.maxPowerPerTick(capacity, capacity);
+        filler.battery().set(capacity);
+        setPattern(filler, FillerPatterns.CLEAR);
+        helper.onEachTick(() -> {
+            long spent = capacity - filler.battery().stored();
+            require(helper, spent <= allowance, "a tick may spend at most " + allowance + " micro-MJ, the builder spent " + spent);
+            SnapshotBuilder<?> builder = filler.getBuilder();
+            if (builder != null && builder.hasTasks()) {
+                require(helper, filler.getCountToBreak() + filler.getCountToPlace() > 0, "queued blocks must still count as left to do");
+            }
+            filler.battery().set(capacity);
+        });
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    for (BlockPos pos : positions) require(helper, helper.getBlockState(pos).isAir(), "the filler must clear " + pos);
+                })
+                .thenExecute(() -> {
+                    filler.setItem(0, new ItemStack(Items.STONE, 64));
+                    setPattern(filler, FillerPatterns.BOX);
+                })
+                .thenWaitUntil(() -> {
+                    for (BlockPos pos : positions) {
+                        if (!pos.equals(BOX_CENTRE)) require(helper, helper.getBlockState(pos).is(Blocks.STONE), "the box's shell needs stone at " + pos);
+                    }
+                    require(helper, filler.getCountToBreak() == 0 && filler.getCountToPlace() == 0, "a built box leaves nothing to do");
                 })
                 .thenExecute(() -> removeVolumeBoxes(helper))
                 .thenSucceed();
