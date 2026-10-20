@@ -16,14 +16,10 @@
             "height":{
                 "type":"uniform",
                 "min_inclusive":{
-                    "absolute":-64,
-                    "above_bottom":15,
-                    "below_top": 0
+                    "absolute":-64
                 },
                 "max_inclusive":{
-                    "absolute":-48,
-                    "above_bottom":0,
-                    "below_top": 0
+                    "absolute":-48
                 }
             }
         }
