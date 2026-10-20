@@ -1,5 +1,6 @@
 package ports.buildcraft.gametest;
 
+import java.util.ArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -87,6 +89,25 @@ public final class ForgeAdapterGameTests {
             BCTests.require(helper, BCTests.count(chest, Items.APPLE) == 0, "simulated insertion must not move items");
             BCTests.require(helper, items.insertItem(0, new ItemStack(Items.APPLE, 2), false).isEmpty(), "the pipe must take the apples");
             helper.succeedWhen(() -> BCTests.require(helper, BCTests.count(chest, Items.APPLE) == 2, "the apples must reach the chest"));
+        });
+    }
+
+    /** A plug invalidates capabilities callers kept for a pipe face; removing it offers the face again. */
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void keptCapabilitiesFollowPlugs(GameTestHelper helper) {
+        BCTests.chest(helper, new BlockPos(0, 1, 1));
+        PipeBlockEntity pipe = BCTests.pipe(helper, new BlockPos(1, 1, 1), BCTransport.STONE_ITEM);
+        BCTests.chest(helper, new BlockPos(2, 1, 1));
+        helper.runAfterDelay(2, () -> {
+            LazyOptional<IItemHandler> kept = pipe.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.WEST);
+            BCTests.require(helper, kept.isPresent(), "the pipe must offer an item handler on a connected face");
+            pipe.replacePluggable(Direction.WEST, BCTransport.BLOCKER.create(pipe, Direction.WEST));
+            BCTests.require(helper, !kept.isPresent(), "a plug must invalidate the kept item handler");
+            BCTests.require(helper, !pipe.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.WEST).isPresent(), "a plugged face offers no item handler");
+            pipe.removePluggable(Direction.WEST, new ArrayList<>());
+            IItemHandler reopened = pipe.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.WEST).orElseThrow(IllegalStateException::new);
+            BCTests.require(helper, reopened.insertItem(0, new ItemStack(Items.APPLE), true).isEmpty(), "the face must take items once the plug is gone");
+            helper.succeed();
         });
     }
 }

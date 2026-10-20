@@ -57,15 +57,15 @@ final class FabricPorts {
     static void register(BlockEntityType<?>... types) {
         EnergyStorage.SIDED.registerForBlockEntities((tile, side) -> {
             EnergyPort port = tile instanceof PortHolder holder ? holder.energyPort(side) : null;
-            return port == null ? null : (EnergyStorage) adapter(tile, 0, side, () -> new EnergyAdapter(tile, port));
+            return port == null ? null : (EnergyStorage) adapter(tile, 0, side, () -> new EnergyAdapter(tile, side, port));
         }, types);
         FluidStorage.SIDED.registerForBlockEntities((tile, side) -> {
             FluidPort port = tile instanceof PortHolder holder ? holder.fluidPort(side) : null;
-            return port == null ? null : (FluidAdapter) adapter(tile, 1, side, () -> new FluidAdapter(tile, port));
+            return port == null ? null : (FluidAdapter) adapter(tile, 1, side, () -> new FluidAdapter(tile, side, port));
         }, types);
         ItemStorage.SIDED.registerForBlockEntities((tile, side) -> {
             ItemPort port = tile instanceof PortHolder holder ? holder.itemPort(side) : null;
-            if (port != null) return (ItemAdapter) adapter(tile, 2, side, () -> new ItemAdapter(tile, port));
+            if (port != null) return (ItemAdapter) adapter(tile, 2, side, () -> new ItemAdapter(tile, side, port));
             return tile instanceof Container container ? InventoryStorage.of(container, side) : null;
         }, types);
         ServerTickEvents.END_SERVER_TICK.register(server -> runQueued());
@@ -84,7 +84,11 @@ final class FabricPorts {
         }
     }
 
-    /** Forgets the adapters made for {@code tile}, so the next lookup wraps its current ports. */
+    /**
+     * Forgets the adapters made for {@code tile}, so the next lookup wraps its current ports. Fabric's
+     * block API caches query the provider on every find; adapters callers kept refuse to move anything
+     * once their face stops exposing that kind of port.
+     */
     static void invalidate(BlockEntity tile) {
         ADAPTERS.remove(tile);
     }
@@ -100,12 +104,20 @@ final class FabricPorts {
 
     private abstract static class Adapter extends SnapshotParticipant<Object> {
         final BlockEntity tile;
+        @Nullable final Direction side;
         final boolean rollback;
 
-        Adapter(BlockEntity tile, boolean rollback) {
+        Adapter(BlockEntity tile, @Nullable Direction side, boolean rollback) {
             this.tile = tile;
+            this.side = side;
             this.rollback = rollback;
         }
+
+        final boolean live() {
+            return !tile.isRemoved() && tile instanceof PortHolder holder && exposed(holder);
+        }
+
+        abstract boolean exposed(PortHolder holder);
 
         @Override
         protected final void onFinalCommit() {
@@ -129,14 +141,16 @@ final class FabricPorts {
         private long pending;
         private long queued;
 
-        EnergyAdapter(BlockEntity tile, EnergyPort port) {
-            super(tile, port.snapshot() != null);
+        EnergyAdapter(BlockEntity tile, @Nullable Direction side, EnergyPort port) {
+            super(tile, side, port.snapshot() != null);
             this.port = port;
         }
 
+        @Override boolean exposed(PortHolder holder) { return holder.energyPort(side) != null; }
+
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
-            if (maxAmount <= 0) return 0;
+            if (maxAmount <= 0 || !live()) return 0;
             if (rollback) {
                 updateSnapshots(transaction);
                 return port.receive(maxAmount, false);
@@ -152,15 +166,15 @@ final class FabricPorts {
 
         @Override
         public long extract(long maxAmount, TransactionContext transaction) {
-            if (!rollback || maxAmount <= 0) return 0;
+            if (!rollback || maxAmount <= 0 || !live()) return 0;
             updateSnapshots(transaction);
             return port.extract(maxAmount, false);
         }
 
         @Override public long getAmount() { return port.stored(); }
         @Override public long getCapacity() { return port.capacity(); }
-        @Override public boolean supportsInsertion() { return port.canReceive(); }
-        @Override public boolean supportsExtraction() { return rollback && port.canExtract(); }
+        @Override public boolean supportsInsertion() { return port.canReceive() && live(); }
+        @Override public boolean supportsExtraction() { return rollback && port.canExtract() && live(); }
         @Override protected Object createSnapshot() { return rollback ? port.snapshot() : pending; }
 
         @Override
@@ -191,15 +205,17 @@ final class FabricPorts {
         private FluidAmount pending = FluidAmount.EMPTY;
         private FluidAmount queued = FluidAmount.EMPTY;
 
-        FluidAdapter(BlockEntity tile, FluidPort port) {
-            super(tile, port.snapshot() != null);
+        FluidAdapter(BlockEntity tile, @Nullable Direction side, FluidPort port) {
+            super(tile, side, port.snapshot() != null);
             this.port = port;
         }
+
+        @Override boolean exposed(PortHolder holder) { return holder.fluidPort(side) != null; }
 
         @Override
         public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
             long mb = maxAmount / DROPLETS_PER_MB;
-            if (resource.isBlank() || resource.hasNbt() || mb <= 0) return 0;
+            if (resource.isBlank() || resource.hasNbt() || mb <= 0 || !live()) return 0;
             Fluid fluid = resource.getFluid();
             if (rollback) {
                 updateSnapshots(transaction);
@@ -218,15 +234,17 @@ final class FabricPorts {
         @Override
         public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
             long mb = maxAmount / DROPLETS_PER_MB;
-            if (!rollback || resource.isBlank() || resource.hasNbt() || mb <= 0) return 0;
+            if (!rollback || resource.isBlank() || resource.hasNbt() || mb <= 0 || !live()) return 0;
             updateSnapshots(transaction);
             return port.drain(resource.getFluid(), mb, false).amount() * DROPLETS_PER_MB;
         }
 
-        @Override public boolean supportsExtraction() { return rollback; }
+        @Override public boolean supportsInsertion() { return live(); }
+        @Override public boolean supportsExtraction() { return rollback && live(); }
 
         @Override
         public Iterator<StorageView<FluidVariant>> iterator() {
+            if (!live()) return Collections.emptyIterator();
             List<FluidAmount> contents = port.contents();
             List<StorageView<FluidVariant>> views = new ArrayList<>(contents.size());
             for (int i = 0; i < contents.size(); i++) views.add(new FluidView(this, contents.get(i), port.capacity(i)));
@@ -284,14 +302,16 @@ final class FabricPorts {
         private final List<ItemStack> pending = new ArrayList<>();
         private final List<ItemStack> queued = new ArrayList<>();
 
-        ItemAdapter(BlockEntity tile, ItemPort port) {
-            super(tile, port.snapshot() != null);
+        ItemAdapter(BlockEntity tile, @Nullable Direction side, ItemPort port) {
+            super(tile, side, port.snapshot() != null);
             this.port = port;
         }
 
+        @Override boolean exposed(PortHolder holder) { return holder.itemPort(side) != null; }
+
         @Override
         public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-            if (resource.isBlank() || maxAmount <= 0) return 0;
+            if (resource.isBlank() || maxAmount <= 0 || !live()) return 0;
             int count = (int) Math.min(maxAmount, resource.getItem().getMaxStackSize());
             ItemStack stack = resource.toStack(count);
             if (rollback) {
@@ -308,13 +328,14 @@ final class FabricPorts {
 
         @Override
         public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-            if (!rollback || resource.isBlank() || maxAmount <= 0) return 0;
+            if (!rollback || resource.isBlank() || maxAmount <= 0 || !live()) return 0;
             updateSnapshots(transaction);
             int max = (int) Math.min(maxAmount, resource.getItem().getMaxStackSize());
             return port.extract(resource::matches, max, false).getCount();
         }
 
-        @Override public boolean supportsExtraction() { return rollback; }
+        @Override public boolean supportsInsertion() { return live(); }
+        @Override public boolean supportsExtraction() { return rollback && live(); }
         @Override public Iterator<StorageView<ItemVariant>> iterator() { return Collections.emptyIterator(); }
         @Override protected Object createSnapshot() { return rollback ? port.snapshot() : pending.size(); }
 
