@@ -12,7 +12,7 @@ import ports.buildcraft.transport.behaviour.PipeBehaviour;
  * own block so that its connections can be described by a vanilla multipart model.
  */
 public final class PipeDefinition {
-    public enum Flow { ITEM, FLUID, POWER }
+    public enum Flow { ITEM, FLUID, POWER, STRUCTURE }
 
     /** The pipe name without prefix, such as {@code wood_item}; registered as {@code pipe_<name>}. */
     public final String name;

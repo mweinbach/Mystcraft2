@@ -9,12 +9,19 @@ import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.SideCheck;
 
-/** The stateless upstream behaviours: speed tiers, sandstone, clay, void and wooden kinesis. */
+/** The stateless upstream behaviours: structure, speed tiers, sandstone, clay, void and wooden kinesis. */
 public final class SimpleBehaviours {
     /** Upstream {@code PipeBehaviourStone} constants, shared by sandstone. */
     public static final PipeBehaviour.SpeedTarget STONE_SPEED = new PipeBehaviour.SpeedTarget(0.01, 0.008);
 
     private SimpleBehaviours() {}
+
+    /** Upstream {@code PipeBehaviourStructure}, which adds nothing to the base behaviour. */
+    public static final class Structure extends PipeBehaviour {
+        public Structure(PipeBlockEntity pipe) {
+            super(pipe);
+        }
+    }
 
     /**
      * Upstream {@code PipeBehaviourSeparate} (cobblestone, stone, quartz): pipes of different

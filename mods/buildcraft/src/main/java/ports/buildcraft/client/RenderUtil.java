@@ -107,6 +107,17 @@ public final class RenderUtil {
         poseStack.translate(-0.5, -0.5, -0.5);
     }
 
+    /** Upstream {@code MutableQuad.rotate(WEST, to)}: turns a model built facing west to face any {@code facing}. */
+    public static void rotateFromWestAny(PoseStack poseStack, Direction facing) {
+        if (facing.getAxis().isHorizontal()) {
+            rotateFromWest(poseStack, facing);
+            return;
+        }
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(facing == Direction.UP ? -90 : 90));
+        poseStack.translate(-0.5, -0.5, -0.5);
+    }
+
     /**
      * An axis-aligned beam between the centres of its end faces, in block units. The sprite row
      * starting at {@code vMin} tiles once per block along the beam, as upstream laser rows do; the end
