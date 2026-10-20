@@ -15,7 +15,7 @@ add only loader adapters.
 | --- | --- |
 | Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). |
 | Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
-| Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that fill tanks and pipes from the top. |
+| Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that flow up in the world and fill tanks and pipes from the top. |
 | Combustion fuels | Upstream's nine fuels (gaseous, light, dense, mixed light and mixed heavy fuel; distilled, heavy and dense oil; oil), with power and burn times derived from their refinery amounts as upstream; the dirty fuels leave oil residue. Only the cool stage burns. Water, ice and packed ice cool the engine. |
 | Oil worldgen | Upstream `OilGenerator` with its default configuration: from the world seed each chunk rolls a large (0.04%) or medium (0.1%) oil well in the Overworld, but never in a flat world. A well is a surface oil lake with tendrils, an oil sphere at y 20–29, and a spout from the sphere that gushes 10–20 (large) or 6–12 (medium) blocks above the surface. Large wells also run an oil tube down to an oil spring at the bottom of the world, which every 6000 ticks and on random ticks has a one in eight chance to put an oil source above itself. |
 | Refinery | Distiller (upstream `TileDistiller_BC8`: 4000 mB tanks, up to 6 MJ/t, upstream's ten distillations, each at its own heat stage; gas leaves the top and liquid the bottom; GUI with upstream gauges and animation) and heat exchanger (upstream `TileHeatExchange`: rows of three to five form a start, middles and an end; the coolant must be hotter than the fluid it heats; 5, 10 or 20 mB/t for one to three middles after a 120-tick warm-up; lava heats and water cools; the wrench turns a row around). |
@@ -92,8 +92,11 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Oil well placement** drops 1.12's eight-block decoration offset, so a well is centred inside the
   chunk that rolled it. Wells generate in the Overworld's lakes step through a Forge biome modifier
   or Fabric's biome API, which matches upstream's default dimension and biome exclusions.
-- **Gaseous fluids in the world** flow down like other vanilla fluids. In tanks, pipes, the
-  distiller and the heat exchanger they behave as upstream gases.
+- **Gaseous fluids in the world** flow up, as upstream's negative-density fluid blocks did: a gas
+  rises in a column, spreads under ceilings and seeks the nearest way up, mirroring vanilla's
+  downward spread with the same slope-find distance and drop-off. They are still drawn by vanilla's
+  fluid renderer, so a thin gas layer under a ceiling sits at the bottom of its block instead of
+  hanging from the top as upstream drew it.
 - **Heat exchanger tanks** are saved on both the start and the end; upstream saved only the end's,
   so the start's fluid was lost on reload. When a row re-forms, a surviving start or end carries its
   tanks to the new row's start or end; a broken start or end, or one left in a row shorter than
@@ -127,7 +130,7 @@ the Forge and Fabric builds are not supported.
 ## Tests
 
 Shared GameTest bodies in `src/gametestCommon` run on both loaders (`ForgeGameTests`,
-`FabricGameTests`): the MJ/energy ratio, the viscosity scale, every engine powering a receiver, a
+`FabricGameTests`): the MJ/energy ratio, the viscosity scale, gases rising in the world, every engine powering a receiver, a
 redstone engine driving a wooden pipe that delivers items through stone and gold pipes, tank
 columns, the trunk stage following heat, redstone engines warming to red without overheating, pump draining (including a finite irregular pool and an infinite 2×2 pool), mining well and quarry digging, void pipes, fluid pipes filling a tank,
 kinesis pipes carrying engine power, oil well rates and determinism over 65,536 seeded chunks

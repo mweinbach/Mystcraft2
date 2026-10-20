@@ -44,6 +44,7 @@ import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.energy.BCEnergy;
+import ports.buildcraft.energy.BCFluid;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
 import ports.buildcraft.energy.EngineBlock;
 import ports.buildcraft.energy.EngineBlockEntity;
@@ -149,6 +150,44 @@ public final class BCTests {
     private static void requireViscosity(GameTestHelper helper, Fluid fluid, int expected) {
         int actual = Platform.get().viscosity(fluid);
         require(helper, actual == expected, Registry.FLUID.getKey(fluid) + " viscosity must be " + expected + ", got " + actual);
+    }
+
+    /**
+     * A gas source in a sealed stone box rises to the ceiling and spreads under it but never along the
+     * floor, while a liquid source on the roof flows down as usual.
+     */
+    public static void gaseousFluidsFlowUp(GameTestHelper helper) {
+        require(helper, BCEnergy.FUEL_GASEOUS.heat(0).isGaseous() && BCEnergy.FUEL_LIGHT.heat(1).isGaseous()
+                && !BCEnergy.FUEL_LIGHT.heat(0).isGaseous() && !BCEnergy.OIL.heat(2).isGaseous(), "gases are the stages at or above their boiling heat");
+        for (int x = 1; x <= 7; x++) {
+            for (int z = 1; z <= 7; z++) {
+                helper.setBlock(new BlockPos(x, 4, z), Blocks.STONE);
+                if (x == 1 || x == 7 || z == 1 || z == 7) {
+                    for (int y = 1; y <= 3; y++) helper.setBlock(new BlockPos(x, y, z), Blocks.STONE);
+                }
+            }
+        }
+        Fluid gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        helper.setBlock(new BlockPos(4, 1, 4), gas.defaultFluidState().createLegacyBlock());
+        helper.setBlock(new BlockPos(4, 6, 4), oil.defaultFluidState().createLegacyBlock());
+        helper.succeedWhen(() -> {
+            requireFluid(helper, new BlockPos(4, 2, 4), gas, true);
+            requireFluid(helper, new BlockPos(4, 3, 4), gas, true);
+            requireFluid(helper, new BlockPos(2, 3, 4), gas, true);
+            requireFluid(helper, new BlockPos(6, 3, 6), gas, true);
+            requireFluid(helper, new BlockPos(5, 1, 4), gas, false);
+            requireFluid(helper, new BlockPos(2, 2, 4), gas, false);
+            requireFluid(helper, new BlockPos(4, 5, 4), oil, true);
+            requireFluid(helper, new BlockPos(4, 7, 4), oil, false);
+            require(helper, helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(4, 2, 4))).getValue(BCFluid.FALLING),
+                    "a rising gas column must be marked as moving vertically");
+        });
+    }
+
+    private static void requireFluid(GameTestHelper helper, BlockPos pos, Fluid fluid, boolean present) {
+        boolean found = helper.getLevel().getFluidState(helper.absolutePos(pos)).getType().isSame(fluid);
+        require(helper, found == present, Registry.FLUID.getKey(fluid) + (present ? " must reach " : " must not reach ") + pos);
     }
 
     // ---- engines -------------------------------------------------------------------------------

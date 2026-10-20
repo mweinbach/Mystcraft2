@@ -18,6 +18,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void fluidViscosityScale(GameTestHelper helper) { BCTests.fluidViscosityScale(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void gaseousFluidsFlowUp(GameTestHelper helper) { BCTests.gaseousFluidsFlowUp(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1200)
     public static void redstoneEngineDrivesWoodenPipe(GameTestHelper helper) { BCTests.redstoneEngineDrivesWoodenPipe(helper); }
 
