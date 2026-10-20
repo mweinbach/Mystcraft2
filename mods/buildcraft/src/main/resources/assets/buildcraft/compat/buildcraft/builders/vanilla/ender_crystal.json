@@ -1,0 +1,18 @@
+[
+  {
+    "selectors": [
+      "minecraft:end_crystal"
+    ],
+    "capture": true,
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:end_crystal"
+          }
+        ]
+      }
+    ]
+  }
+]

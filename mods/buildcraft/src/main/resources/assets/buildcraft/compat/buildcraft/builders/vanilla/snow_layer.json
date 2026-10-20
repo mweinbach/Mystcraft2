@@ -1,0 +1,130 @@
+[
+  {
+    "selectors": [
+      "minecraft:snow[layers=1]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=2]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=3]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=4]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=5]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=6]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=7]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 7
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:snow[layers=8]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:snow",
+            "amount": 8
+          }
+        ]
+      }
+    ]
+  }
+]

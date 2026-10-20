@@ -1,0 +1,10 @@
+[
+  {
+    "selectors": [
+      "minecraft:fire",
+      "minecraft:soul_fire",
+      "minecraft:ender_chest"
+    ],
+    "ignore": true
+  }
+]

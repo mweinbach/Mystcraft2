@@ -1,0 +1,529 @@
+[
+  {
+    "selectors": [
+      "minecraft:flower_pot",
+      "minecraft:potted_acacia_sapling",
+      "minecraft:potted_allium",
+      "minecraft:potted_azalea_bush",
+      "minecraft:potted_azure_bluet",
+      "minecraft:potted_bamboo",
+      "minecraft:potted_birch_sapling",
+      "minecraft:potted_blue_orchid",
+      "minecraft:potted_brown_mushroom",
+      "minecraft:potted_cactus",
+      "minecraft:potted_cornflower",
+      "minecraft:potted_crimson_fungus",
+      "minecraft:potted_crimson_roots",
+      "minecraft:potted_dandelion",
+      "minecraft:potted_dark_oak_sapling",
+      "minecraft:potted_dead_bush",
+      "minecraft:potted_fern",
+      "minecraft:potted_flowering_azalea_bush",
+      "minecraft:potted_jungle_sapling",
+      "minecraft:potted_lily_of_the_valley",
+      "minecraft:potted_mangrove_propagule",
+      "minecraft:potted_oak_sapling",
+      "minecraft:potted_orange_tulip",
+      "minecraft:potted_oxeye_daisy",
+      "minecraft:potted_pink_tulip",
+      "minecraft:potted_poppy",
+      "minecraft:potted_red_mushroom",
+      "minecraft:potted_red_tulip",
+      "minecraft:potted_spruce_sapling",
+      "minecraft:potted_warped_fungus",
+      "minecraft:potted_warped_roots",
+      "minecraft:potted_white_tulip",
+      "minecraft:potted_wither_rose"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:flower_pot"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_acacia_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:acacia_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_allium"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:allium"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_azalea_bush"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:azalea"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_azure_bluet"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:azure_bluet"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_bamboo"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:bamboo"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_birch_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:birch_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_blue_orchid"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:blue_orchid"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_brown_mushroom"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:brown_mushroom"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_cactus"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cactus"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_cornflower"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:cornflower"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_crimson_fungus"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:crimson_fungus"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_crimson_roots"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:crimson_roots"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_dandelion"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:dandelion"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_dark_oak_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:dark_oak_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_dead_bush"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:dead_bush"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_fern"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:fern"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_flowering_azalea_bush"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:flowering_azalea"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_jungle_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:jungle_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_lily_of_the_valley"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:lily_of_the_valley"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_mangrove_propagule"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:mangrove_propagule"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_oak_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:oak_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_orange_tulip"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:orange_tulip"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_oxeye_daisy"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:oxeye_daisy"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_pink_tulip"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:pink_tulip"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_poppy"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:poppy"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_red_mushroom"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_mushroom"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_red_tulip"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:red_tulip"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_spruce_sapling"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:spruce_sapling"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_warped_fungus"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:warped_fungus"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_warped_roots"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:warped_roots"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_white_tulip"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:white_tulip"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:potted_wither_rose"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:wither_rose"
+          }
+        ]
+      }
+    ]
+  }
+]
