@@ -9,7 +9,8 @@ import ports.extremereactors.platform.FluidDefinition;
 public final class ReactorFluidType {
 
     public static FluidDefinition of(final String registrationName, final int tint, final int density, final int lightLevel, final Rarity rarity) {
-        return new FluidDefinition(registrationName, "fluid." + ExtremeReactors.MOD_ID + "." + registrationName,
+        return new FluidDefinition(registrationName, registrationName + "_fluid",
+                "fluid." + ExtremeReactors.MOD_ID + "." + registrationName,
                 0xff000000 | tint, density, 300, 1000, lightLevel, rarity, false, true,
                 CommonConstants.FLUID_TEXTURE_SOURCE_WATER, CommonConstants.FLUID_TEXTURE_FLOWING_WATER,
                 CommonConstants.FLUID_TEXTURE_OVERLAY_WATER);

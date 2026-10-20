@@ -662,7 +662,7 @@ public final class Content {
             FLUIDS.register();
         }
 
-        public static final FluidDefinition STEAM_DEFINITION = declare(new FluidDefinition("steam",
+        public static final FluidDefinition STEAM_DEFINITION = declare(new FluidDefinition("steam", "steam",
                 "fluid." + ExtremeReactors.MOD_ID + ".steam", 0xffffffff, 1, 100, 1000, 6, Rarity.COMMON,
                 false, false, CommonConstants.FLUID_TEXTURE_SOURCE_WATER, CommonConstants.FLUID_TEXTURE_FLOWING_WATER,
                 CommonConstants.FLUID_TEXTURE_OVERLAY_WATER));

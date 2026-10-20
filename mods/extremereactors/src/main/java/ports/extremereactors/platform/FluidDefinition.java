@@ -12,6 +12,7 @@ import net.minecraft.world.item.Rarity;
  * variant attributes and a fluid render handler.
  *
  * @param name           registration name of the source fluid
+ * @param typeName       registration name of the Forge {@code FluidType}
  * @param descriptionId  translation key of the fluid name
  * @param tint           ARGB tint applied to the textures
  * @param density        in kg/m^3; negative or very small values make the fluid rise
@@ -20,7 +21,7 @@ import net.minecraft.world.item.Rarity;
  * @param lighterThanAir true for gases such as steam
  * @param swimmable      true if entities can swim, drown and be pushed in it
  */
-public record FluidDefinition(String name, String descriptionId, int tint, int density, int temperature, int viscosity,
+public record FluidDefinition(String name, String typeName, String descriptionId, int tint, int density, int temperature, int viscosity,
                               int lightLevel, Rarity rarity, boolean lighterThanAir, boolean swimmable,
                               ResourceLocation stillTexture, ResourceLocation flowingTexture,
                               ResourceLocation overlayTexture) {
