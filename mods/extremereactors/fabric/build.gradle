@@ -22,6 +22,10 @@ repositories {
             includeGroup 'vazkii.patchouli'
         }
     }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
 }
 
 dependencies {
@@ -40,10 +44,16 @@ dependencies {
     modCompileOnly('mezz.jei:jei-1.19.2-common-api:11.6.0.1024') { transitive = false }
     // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
     modCompileOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
+    modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2:api') { transitive = false }
     if (providers.gradleProperty('withCompat').isPresent()) {
         modRuntimeOnly 'maven.modrinth:cc-restitched:3S6HU7nl'
-        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1024') { transitive = false }
         modRuntimeOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
+        // JEI and EMI both draw an item list; -PwithEmi runs EMI instead of JEI.
+        if (providers.gradleProperty('withEmi').isPresent()) {
+            modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
+        } else {
+            modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1024') { transitive = false }
+        }
     }
     // Item Alchemy 1.1.3, the Fabric EMC mod, checks the shipped default_emcs data against real values.
     if (providers.gradleProperty('withItemAlchemy').isPresent()) {

@@ -28,6 +28,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import ports.extremereactors.corelib.client.gui.Orientation;
 import ports.extremereactors.corelib.client.gui.sprite.AtlasSpriteSupplier;
 import ports.extremereactors.corelib.client.gui.sprite.ISprite;
 import ports.extremereactors.corelib.client.model.data.ModelData;
@@ -206,6 +207,34 @@ public final class ModRenderHelper {
             }
 
             dy += rows;
+        }
+    }
+
+    /**
+     * Fill part of a rectangle with tiled copies of a sprite, like the screens' gauge bars. The filled part grows from
+     * the side the orientation starts at.
+     *
+     * @param progress from 0 (nothing painted) to 1 (the whole rectangle)
+     */
+    public static void paintProgressBar(final PoseStack matrix, final ISprite sprite, final int x, final int y,
+                                        final int z, final int width, final int height, final Orientation orientation,
+                                        final double progress) {
+
+        if (orientation.isHorizontal()) {
+
+            final int filled = (int) Math.round(width * progress);
+            final boolean fromRight = Orientation.RightToLeft == orientation;
+
+            paintTiledSprite(matrix, sprite, Colour.WHITE, fromRight ? x + width - filled : x, y, z, filled, height,
+                    fromRight, false);
+
+        } else {
+
+            final int filled = (int) Math.round(height * progress);
+            final boolean fromBottom = Orientation.BottomToTop == orientation;
+
+            paintTiledSprite(matrix, sprite, Colour.WHITE, x, fromBottom ? y + height - filled : y, z, width, filled,
+                    false, fromBottom);
         }
     }
 

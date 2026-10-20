@@ -10,7 +10,6 @@ import ports.extremereactors.corelib.client.gui.Orientation;
 import ports.extremereactors.corelib.client.gui.Padding;
 import ports.extremereactors.corelib.client.gui.sprite.ISprite;
 import ports.extremereactors.corelib.client.render.ModRenderHelper;
-import ports.extremereactors.corelib.data.gfx.Colour;
 
 import java.util.function.Supplier;
 
@@ -59,28 +58,9 @@ public class ProgressBarDrawable
     @Override
     public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
 
-        final int x = xOffset + this._padding.left();
-        final int y = yOffset + this._padding.top();
-        final int width = this._width - this._padding.horizontal();
-        final int height = this._height - this._padding.vertical();
-        final ISprite sprite = this._sprite.get();
-
-        if (this._orientation.isHorizontal()) {
-
-            final int filled = (int) Math.round(width * this._progress);
-            final boolean fromRight = Orientation.RightToLeft == this._orientation;
-
-            ModRenderHelper.paintTiledSprite(matrix, sprite, Colour.WHITE, fromRight ? x + width - filled : x, y,
-                    this._zLevel, filled, height, fromRight, false);
-
-        } else {
-
-            final int filled = (int) Math.round(height * this._progress);
-            final boolean fromBottom = Orientation.BottomToTop == this._orientation;
-
-            ModRenderHelper.paintTiledSprite(matrix, sprite, Colour.WHITE, x, fromBottom ? y + height - filled : y,
-                    this._zLevel, width, filled, false, fromBottom);
-        }
+        ModRenderHelper.paintProgressBar(matrix, this._sprite.get(), xOffset + this._padding.left(),
+                yOffset + this._padding.top(), this._zLevel, this._width - this._padding.horizontal(),
+                this._height - this._padding.vertical(), this._orientation, this._progress);
     }
 
     //endregion

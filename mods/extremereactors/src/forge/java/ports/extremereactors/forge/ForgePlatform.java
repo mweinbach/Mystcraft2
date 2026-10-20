@@ -167,6 +167,11 @@ public final class ForgePlatform implements Platform.Backend {
     }
 
     @Override
+    public long fluidBucketVolume() {
+        return 1000;
+    }
+
+    @Override
     public void addClientReloadListener(final Runnable listener) {
         this._clientReloadListeners.add(listener);
     }

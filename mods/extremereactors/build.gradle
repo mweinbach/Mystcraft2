@@ -28,6 +28,10 @@ repositories {
         url = 'https://modmaven.dev/'
         content { includeGroup 'mekanism' }
     }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
 }
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
@@ -38,10 +42,16 @@ dependencies {
     // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
     compileOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
     compileOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13:api')) { transitive = false }
+    compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
     if (providers.gradleProperty('withCompat').isPresent()) {
         runtimeOnly fg.deobf('maven.modrinth:cc-tweaked:pCQZNkje')
-        runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
         runtimeOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
+        // JEI and EMI both draw an item list; -PwithEmi runs EMI instead of JEI.
+        if (providers.gradleProperty('withEmi').isPresent()) {
+            runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
+        } else {
+            runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
+        }
     }
     // Mekanism is Forge-only on 1.19.2. -PwithMekanism adds it to the GameTest server too.
     if (providers.gradleProperty('withCompat').isPresent() || providers.gradleProperty('withMekanism').isPresent()) {

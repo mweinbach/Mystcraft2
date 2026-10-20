@@ -26,6 +26,9 @@
     ],
     "jei_mod_plugin": [
       "it.zerono.mods.extremereactors.gamecontent.compat.jei.ExtremeReactorsJeiPlugin"
+    ],
+    "emi": [
+      "ports.extremereactors.compat.emi.ExtremeReactorsEmiPlugin"
     ]
   },
   "mixins": [

@@ -77,6 +77,9 @@ public final class Platform {
         /** The full name of {@link #energyUnit()}, e.g. {@code "Forge Energy"}. */
         String energyUnitName();
 
+        /** How many of the loader's own fluid units make a bucket: millibuckets on Forge, droplets on Fabric. */
+        long fluidBucketVolume();
+
         void addClientReloadListener(Runnable listener);
 
         /** The recipes the client received from the server, or null on a dedicated server or outside a world. */
