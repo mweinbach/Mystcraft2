@@ -51,6 +51,7 @@ public final class BCClient {
         sink.register(BCBuilders.QUARRY_TYPE.get(), context -> new QuarryRenderer());
         sink.register(BCBuilders.FILLER_TYPE.get(), context -> new FillerRenderer());
         sink.register(BCBuilders.ARCHITECT_TABLE_TYPE.get(), context -> new ArchitectTableRenderer());
+        sink.register(BCBuilders.BUILDER_TYPE.get(), context -> new BuilderRenderer());
         sink.register(BCTransport.PIPE_TYPE.get(), context -> new PipeRenderer());
         sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
         sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
@@ -86,6 +87,7 @@ public final class BCClient {
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
         MenuScreens.register(BCBuilders.FILLER_MENU.get(), FillerScreen::new);
         MenuScreens.register(BCBuilders.ARCHITECT_TABLE_MENU.get(), ArchitectTableScreen::new);
+        MenuScreens.register(BCBuilders.BUILDER_MENU.get(), BuilderScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
@@ -110,7 +112,7 @@ public final class BCClient {
     /** Sprites drawn only by renderers, which no block model would otherwise put on the block atlas. */
     public static List<ResourceLocation> extraSprites() {
         List<ResourceLocation> sprites = new ArrayList<>(List.of(PipeRenderer.POWER_FLOW, QuarryRenderer.DRILL, QuarryRenderer.FRAME,
-                MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE, FillerRenderer.ROBOT));
+                MinerRenderer.PUMP_TUBE, MinerRenderer.MINING_WELL_TUBE, SnapshotBuilderRenderer.ROBOT));
         sprites.addAll(EngineRenderer.sprites());
         sprites.addAll(DistillerRenderer.sprites());
         sprites.addAll(LaserRenderer.sprites());
