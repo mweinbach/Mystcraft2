@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.energy.RefineryRecipes;
 import ports.buildcraft.factory.HeatExchangerBlock.Part;
 import ports.buildcraft.lib.ClientTank;
@@ -145,13 +146,16 @@ public class HeatExchangerBlockEntity extends SyncedBlockEntity implements PortH
 
     /**
      * Assigns the start and end of the row. The tanks of an existing start or end move with that role to
-     * the row's new ends. Rows shorter than three are not formed and lose their fluid, where upstream
-     * dropped it as fragile fluid shards (not ported); as upstream, rows longer than five are left as they were.
+     * the row's new ends. Rows shorter than three are not formed and drop their fluid as fragile fluid
+     * shards (upstream {@code removeSection}); as upstream, rows longer than five are left as they were.
      */
     private void formRow() {
         Deque<HeatExchangerBlockEntity> row = findRow();
         if (row.size() > MAX_LENGTH) return;
         boolean formed = row.size() >= MIN_LENGTH;
+        if (!formed && level != null) {
+            for (HeatExchangerBlockEntity exchanger : row) exchanger.dropTanks();
+        }
         HeatExchangerBlockEntity oldStart = null, oldEnd = null;
         for (HeatExchangerBlockEntity exchanger : row) {
             exchanger.checkNeighbours = false;
@@ -167,6 +171,15 @@ public class HeatExchangerBlockEntity extends SyncedBlockEntity implements PortH
             exchanger.middleCount = part == Part.START ? row.size() - 2 : 0;
             exchanger.setPart(part);
         }
+    }
+
+    /** Drops both tanks as fragile fluid shards and empties them. */
+    void dropTanks() {
+        if (level == null || tankInput.isEmpty() && tankOutput.isEmpty()) return;
+        FragileFluidShardItem.dropTanks(level, worldPosition, tankInput, tankOutput);
+        tankInput.clear();
+        tankOutput.clear();
+        setChanged();
     }
 
     private long[] tankValues() {

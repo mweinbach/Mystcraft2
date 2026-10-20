@@ -20,6 +20,12 @@
     },
     "conversion": [
       {
+        "output": "buildcraft:fragile_fluid_shard",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
         "output": "buildcraft:frame",
         "ingredients": [
           "FAKE|no_emc"

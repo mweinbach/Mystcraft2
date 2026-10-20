@@ -1,5 +1,7 @@
 package ports.buildcraft.gametest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -8,11 +10,15 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -30,10 +36,12 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.phys.AABB;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.builders.QuarryBlockEntity;
 import ports.buildcraft.core.BCCore;
+import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
@@ -52,6 +60,7 @@ import ports.buildcraft.factory.MinerBlockEntity;
 import ports.buildcraft.factory.MiningWellBlockEntity;
 import ports.buildcraft.factory.PumpBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.Platform;
@@ -494,7 +503,10 @@ public final class BCTests {
         return row;
     }
 
-    /** A row of three or more forms; breaking it unforms it, and a wrench turns a formed row around with its fluid. */
+    /**
+     * A row of three or more forms and a wrench turns it around with its fluid. Breaking the start drops its fluid as
+     * shards; the two left behind unform and drop theirs, as upstream's {@code removeSection}.
+     */
     public static void heatExchangerFormsRows(GameTestHelper helper) {
         HeatExchangerBlockEntity[] row = heatExchangerRow(helper, 1, 3);
         HeatExchangerBlockEntity[] pair = heatExchangerRow(helper, 3, 2);
@@ -520,13 +532,15 @@ public final class BCTests {
                         && end.part() == HeatExchangerBlock.Part.END, "a wrenched row must turn around");
                 require(helper, start.inputTank().fluid() == oil && end.inputTank().fluid() == Fluids.LAVA, "the tanks must move with the start and end");
 
-                helper.setBlock(new BlockPos(1, 1, 2), Blocks.AIR);
+                helper.destroyBlock(new BlockPos(1, 1, 3));
+                requireShards(helper, new BlockPos(1, 1, 3), oil, 500, 500);
                 helper.runAfterDelay(2, () -> {
-                    for (int z : new int[] {1, 3}) {
+                    for (int z : new int[] {1, 2}) {
                         HeatExchangerBlockEntity lone = tile(helper, new BlockPos(1, 1, z), HeatExchangerBlockEntity.class);
                         require(helper, lone.part() == HeatExchangerBlock.Part.MIDDLE && lone.inputTank().isEmpty(),
-                                "a broken row must unform and lose its fluid, " + z + " is " + lone.part());
+                                "a broken row must unform and empty its tanks, " + z + " is " + lone.part());
                     }
+                    requireShards(helper, new BlockPos(1, 1, 1), Fluids.LAVA, 500, 500);
                     helper.succeed();
                 });
             });
@@ -559,6 +573,98 @@ public final class BCTests {
                 require(helper, same[0].inputTank().amount() == 1000 && same[2].outputTank().isEmpty(), "equal heats must not exchange");
             });
         });
+    }
+
+    // ---- fragile fluid shards ------------------------------------------------------------------
+
+    /** The fragile fluid shards lying within a block of {@code pos}. */
+    static List<ItemStack> shardsAt(GameTestHelper helper, BlockPos pos) {
+        AABB box = new AABB(helper.absolutePos(pos)).inflate(1);
+        return helper.getLevel().getEntitiesOfClass(ItemEntity.class, box, entity -> entity.getItem().is(BCCore.FRAGILE_FLUID_SHARD.get()))
+                .stream().map(ItemEntity::getItem).toList();
+    }
+
+    static void requireShards(GameTestHelper helper, BlockPos pos, Fluid fluid, int... amounts) {
+        List<Integer> found = shardsAt(helper, pos).stream().map(FragileFluidShardItem::getFluid)
+                .filter(held -> held.fluid() == fluid).map(held -> (int) held.amount()).sorted().toList();
+        List<Integer> expected = Arrays.stream(amounts).sorted().boxed().toList();
+        require(helper, found.equals(expected), "expected " + Registry.FLUID.getKey(fluid) + " shards of " + expected + " mB at " + pos + ", found " + found);
+    }
+
+    /** Upstream {@code addFluidDrops}: whole 500 mB shards and one for the rest, named after the fluid and its heat. */
+    public static void fragileShardsSplitFluid(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(1).source();
+        List<ItemStack> drops = new ArrayList<>();
+        FragileFluidShardItem.addFluidDrops(drops, new FluidAmount(oil, 1250));
+        require(helper, drops.size() == 3 && drops.stream().allMatch(stack -> stack.getMaxStackSize() == 1),
+                "1250 mB must make three unstackable shards, made " + drops.size());
+        require(helper, drops.stream().mapToLong(stack -> FragileFluidShardItem.getFluid(stack).amount()).sum() == 1250
+                && FragileFluidShardItem.getFluid(drops.get(2)).amount() == 250, "the shards must hold 500, 500 and 250 mB");
+
+        ItemStack shard = drops.get(2);
+        require(helper, FragileFluidShardItem.drain(shard, Fluids.WATER, 100, false).isEmpty(), "a shard only gives up its own fluid");
+        FluidAmount drained = FragileFluidShardItem.drain(shard, null, 100, false);
+        require(helper, drained.fluid() == oil && drained.amount() == 100 && FragileFluidShardItem.getFluid(shard).amount() == 150,
+                "draining 100 mB must leave 150 mB");
+        FragileFluidShardItem.drain(shard, oil, 1000, false);
+        require(helper, FragileFluidShardItem.getFluid(shard).isEmpty() && !shard.hasTag(), "a drained shard must hold nothing");
+
+        if (!(drops.get(0).getHoverName().getContents() instanceof TranslatableContents name)) throw new GameTestAssertException("shard names must translate");
+        require(helper, name.getKey().equals("buildcraft.fluid.heat_1") && name.getArgs()[0] instanceof Component inner
+                && inner.getContents() instanceof TranslatableContents item && item.getKey().equals("item.buildcraft.fragile_fluid_shard")
+                && item.getArgs()[0] instanceof Component bare && bare.getContents() instanceof TranslatableContents family
+                && family.getKey().equals("fluid_family.buildcraft.oil"), "a hot oil shard must read \"Fragile Oil Shard (Hot)\", got " + name);
+        helper.succeed();
+    }
+
+    /** A tank, distiller, combustion engine, pump and fluid pipe drop the fluid they hold as shards when broken. */
+    public static void brokenMachinesDropFluidShards(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(0).source(), fuel = BCEnergy.FUEL_LIGHT.heat(0).source(), gas = BCEnergy.FUEL_GASEOUS.heat(0).source();
+        BlockPos tankPos = new BlockPos(1, 1, 1), distillerPos = new BlockPos(4, 1, 1), enginePos = new BlockPos(7, 1, 1);
+        BlockPos pumpPos = new BlockPos(1, 1, 5), pipePos = new BlockPos(5, 1, 5);
+        helper.setBlock(tankPos, BCFactory.TANK.get());
+        tile(helper, tankPos, TankBlockEntity.class).tank().fill(Fluids.WATER, 1250, false);
+        helper.setBlock(distillerPos, BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, distillerPos, DistillerBlockEntity.class);
+        distiller.inputTank().fill(oil, 700, false);
+        distiller.gasTank().fill(gas, 300, false);
+        CombustionEngineBlockEntity engine = engine(helper, enginePos, BCEnergy.COMBUSTION_ENGINE.get(), Direction.UP, CombustionEngineBlockEntity.class);
+        engine.fuelTank().fill(fuel, 500, false);
+        engine.coolantTank().fill(Fluids.WATER, 100, false);
+        helper.setBlock(pumpPos, BCFactory.PUMP.get());
+        tile(helper, pumpPos, PumpBlockEntity.class).tank().fill(Fluids.LAVA, 1000, false);
+        helper.setBlock(pipePos.west(), BCFactory.TANK.get());
+        PipeBlockEntity pipe = pipe(helper, pipePos, BCTransport.STONE_FLUID);
+        helper.runAfterDelay(2, () -> {
+            require(helper, pipe.fluidPort(Direction.WEST).fill(Fluids.WATER, 10, false) == 10, "the pipe must take water from its tank side");
+            for (BlockPos pos : List.of(tankPos, distillerPos, enginePos, pumpPos, pipePos)) helper.destroyBlock(pos);
+            requireShards(helper, tankPos, Fluids.WATER, 500, 500, 250);
+            requireShards(helper, distillerPos, oil, 500, 200);
+            requireShards(helper, distillerPos, gas, 300);
+            requireShards(helper, enginePos, fuel, 500);
+            requireShards(helper, enginePos, Fluids.WATER, 100);
+            requireShards(helper, pumpPos, Fluids.LAVA, 500, 500);
+            requireShards(helper, pipePos, Fluids.WATER, 10);
+            helper.succeed();
+        });
+    }
+
+    /** A shard empties into a tank through each loader's held-container interaction. */
+    public static void shardEmptiesIntoTank(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, BCFactory.TANK.get());
+        TankBlockEntity tank = tile(helper, pos, TankBlockEntity.class);
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        Player player = helper.makeMockPlayer();
+        player.setItemInHand(InteractionHand.MAIN_HAND, FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        require(helper, Platform.get().interactWithFluidContainer(player, InteractionHand.MAIN_HAND, helper.getLevel(), helper.absolutePos(pos), Direction.UP),
+                "a shard must empty into the tank");
+        require(helper, tank.tank().fluid() == oil && tank.tank().amount() == 300, "the tank must receive the shard's 300 mB, has " + tank.tank().amount());
+        tank.tank().set(Fluids.WATER, 1000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, FragileFluidShardItem.of(new FluidAmount(oil, 300)));
+        Platform.get().interactWithFluidContainer(player, InteractionHand.MAIN_HAND, helper.getLevel(), helper.absolutePos(pos), Direction.UP);
+        require(helper, tank.tank().fluid() == Fluids.WATER && tank.tank().amount() == 1000, "a shard can never be filled from a tank");
+        helper.succeed();
     }
 
     // ---- transport -----------------------------------------------------------------------------

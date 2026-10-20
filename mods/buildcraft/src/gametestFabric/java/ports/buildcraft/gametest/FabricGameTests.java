@@ -70,6 +70,15 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void heatExchangerHeatsOilWithLava(GameTestHelper helper) { BCTests.heatExchangerHeatsOilWithLava(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void fragileShardsSplitFluid(GameTestHelper helper) { BCTests.fragileShardsSplitFluid(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void brokenMachinesDropFluidShards(GameTestHelper helper) { BCTests.brokenMachinesDropFluidShards(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void shardEmptiesIntoTank(GameTestHelper helper) { BCTests.shardEmptiesIntoTank(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void voidPipeDestroysItems(GameTestHelper helper) { BCTests.voidPipeDestroysItems(helper); }
 

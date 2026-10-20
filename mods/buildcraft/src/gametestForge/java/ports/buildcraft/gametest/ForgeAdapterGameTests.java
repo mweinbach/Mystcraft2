@@ -7,18 +7,23 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import net.minecraftforge.items.IItemHandler;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.MiningWellBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
@@ -51,6 +56,23 @@ public final class ForgeAdapterGameTests {
         FluidStack drained = fluids.drain(1000, IFluidHandler.FluidAction.EXECUTE);
         BCTests.require(helper, drained.getFluid() == Fluids.WATER && drained.getAmount() == 1000, "draining must return water");
         BCTests.require(helper, tank.tank().amount() == 2000, "the tank must keep 2000 mB, has " + tank.tank().amount());
+        helper.succeed();
+    }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void forgeShardFluidHandler(GameTestHelper helper) {
+        Fluid oil = BCEnergy.OIL.heat(0).source();
+        ItemStack shard = FragileFluidShardItem.of(new FluidAmount(oil, 300));
+        IFluidHandlerItem fluids = shard.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(IllegalStateException::new);
+        BCTests.require(helper, fluids.getFluidInTank(0).getAmount() == 300 && fluids.getTankCapacity(0) == 500, "the shard must report 300 / 500 mB");
+        BCTests.require(helper, fluids.fill(new FluidStack(oil, 100), IFluidHandler.FluidAction.EXECUTE) == 0, "a shard cannot be filled");
+        BCTests.require(helper, fluids.drain(new FluidStack(Fluids.WATER, 100), IFluidHandler.FluidAction.EXECUTE).isEmpty(), "a shard holds only its fluid");
+        BCTests.require(helper, fluids.drain(100, IFluidHandler.FluidAction.SIMULATE).getAmount() == 100
+                && FragileFluidShardItem.getFluid(fluids.getContainer()).amount() == 300, "a simulated drain must not empty the shard");
+        BCTests.require(helper, fluids.drain(100, IFluidHandler.FluidAction.EXECUTE).getAmount() == 100
+                && FragileFluidShardItem.getFluid(fluids.getContainer()).amount() == 200, "draining 100 mB must leave 200 mB");
+        FluidStack rest = fluids.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+        BCTests.require(helper, rest.getFluid() == oil && rest.getAmount() == 200 && fluids.getContainer().isEmpty(), "an emptied shard must be used up");
         helper.succeed();
     }
 

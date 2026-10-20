@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "buildcraft:item/fragile_fluid_shard_base",
+    "layer1": "buildcraft:item/fragile_fluid_shard_fluid"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "buildcraft:gaseous": 1
+      },
+      "model": "buildcraft:item/fragile_fluid_shard_gaseous"
+    }
+  ]
+}

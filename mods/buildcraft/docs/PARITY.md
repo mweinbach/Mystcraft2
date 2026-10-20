@@ -13,7 +13,7 @@ add only loader adapters.
 
 | Area | Content |
 | --- | --- |
-| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. |
+| Core | Wood, stone, iron, gold and diamond gears; wrench (rotates engines and the output face of wooden and iron pipes); other mods' `c:wrenches` and `forge:tools/wrench` items work too. Fragile fluid shards (upstream `ItemFragileFluidContainer`): breaking a tank, pump, distiller, heat exchanger, combustion engine or fluid pipe drops its fluid as unstackable shards of up to 500 mB, which can only be emptied (into a tank, or through the loader fluid API). |
 | Engines | Redstone (pulses 1 MJ while powered, warms slowly up to red but never overheats), Stirling (solid fuels, 1 MJ/t), Combustion (fuel, coolant and residue tanks, heat stages, overheating). Upstream heat, pulse and power-stage formulas. |
 | Fluids | Upstream's ten oil and fuel families (oil, residue, heavy, dense and distilled oil; dense, mixed heavy, light, mixed light and gaseous fuel), each at three heat stages, with upstream density, viscosity, spread, boiling heat and colours: 30 fluids with source and flowing forms and buckets. Hot stages are lighter and runnier, and stages at or above a fluid's boiling heat are gases that fill tanks and pipes from the top. |
 | Combustion fuels | Upstream's nine fuels (gaseous, light, dense, mixed light and mixed heavy fuel; distilled, heavy and dense oil; oil), with power and burn times derived from their refinery amounts as upstream; the dirty fuels leave oil residue. Only the cool stage burns. Water, ice and packed ice cool the engine. |
@@ -70,7 +70,9 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 ## Deliberate differences
 
 - **Fluid NBT** is not modelled: fluids carrying NBT are refused by pipes, tanks and engines.
-- **Fragile fluid shards** are not dropped when a fluid pipe holding fluid is broken; the fluid is lost.
+- **Fragile fluid shards** are drawn as upstream's base and fluid textures, with the fluid layer
+  tinted by the fluid sprite's average colour; upstream used Forge 1.12's bucket model, which
+  masked the fluid's own sprite. Shards of gases are drawn upside down, as upstream's `flipGas`.
 - **Kinesis sections** accept no more than their neighbours requested, so simulated and real
   transfers agree for transactional callers. Upstream sections accept any amount.
 - **Configuration** is fixed at upstream defaults (mining depth 512, pump distance 64, quarry area
@@ -95,7 +97,7 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Heat exchanger tanks** are saved on both the start and the end; upstream saved only the end's,
   so the start's fluid was lost on reload. When a row re-forms, a surviving start or end carries its
   tanks to the new row's start or end; a broken start or end, or one left in a row shorter than
-  three, loses its fluid, where upstream dropped fragile fluid shards. Middle sections accept and give no fluid. The flowing
+  three, drops its fluid as fragile fluid shards, as upstream. Middle sections accept and give no fluid. The flowing
   coolant and heatant use the fluid's animated sprite, where upstream used its first frame.
 - **Distiller GUI** shows the tanks but does not fill or empty a held container clicked on them;
   use the block or pipes.
@@ -132,7 +134,9 @@ kinesis pipes carrying engine power, oil well rates and determinism over 65,536 
 with the placed feature in the Overworld's lakes step, the refinery chain from oil to light fuel,
 the combustion engine burning oil into residue, the distiller splitting oil and refunding blocked
 progress, heat exchanger rows
-forming, rotating and breaking, a heat exchanger heating oil with lava, and recipes and tags. Loader-specific tests check the Forge
+forming, rotating and breaking (dropping shards), a heat exchanger heating oil with lava, fragile
+fluid shards splitting fluid, dropping from every broken fluid holder and emptying into a tank, and
+recipes and tags. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
-(`FabricAdapterGameTests`), including transaction rollback. `EmcGameTests` audits EMC coverage and,
+(`FabricAdapterGameTests`), including transaction rollback and draining shards. `EmcGameTests` audits EMC coverage and,
 with `-PwithProjectE` or `-PwithItemAlchemy`, the live values.

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import ports.buildcraft.core.FragileFluidShardItem;
 
 /** Upstream {@code BlockPump} and {@code BlockMiningWell}; the mining well also faces its placer. */
 public class MinerBlock extends BaseEntityBlock {
@@ -74,7 +75,10 @@ public class MinerBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
-        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof MinerBlockEntity miner) miner.onRemoved();
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof MinerBlockEntity miner) {
+            miner.onRemoved();
+            if (miner instanceof PumpBlockEntity pump) FragileFluidShardItem.dropTanks(level, pos, pump.tank());
+        }
         super.onRemove(state, level, pos, newState, moving);
     }
 

@@ -1,6 +1,5 @@
 package ports.buildcraft.client;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -9,19 +8,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
@@ -61,7 +52,6 @@ public final class DistillerScreen extends BCScreen<DistillerMenu> {
     private static final double ACTIVE_SPEED = 300;
     private static final double ACTIVE_PIXEL_WIDTH = 150;
 
-    private final Map<Fluid, Integer> averageColours = new HashMap<>();
     private long lastActiveTime = -1;
     private double activeStart = -ACTIVE_PIXEL_WIDTH;
     private double activeEnd;
@@ -85,7 +75,7 @@ public final class DistillerScreen extends BCScreen<DistillerMenu> {
         RenderSystem.setShaderTexture(0, texture);
         if (menu.isActive()) {
             blit(poseStack, leftPos + ACTIVE_BACKGROUND.x, topPos + ACTIVE_BACKGROUND.y, 176, 57, ACTIVE_BACKGROUND.width, ACTIVE_BACKGROUND.height);
-            animate(poseStack, colour(contents(DistillerMenu.TANK_IN)), colour(gas), colour(liquid));
+            animate(poseStack, FluidColours.average(contents(DistillerMenu.TANK_IN)), FluidColours.average(gas), FluidColours.average(liquid));
         } else {
             activeStart = -ACTIVE_PIXEL_WIDTH;
             activeEnd = 0;
@@ -221,40 +211,6 @@ public final class DistillerScreen extends BCScreen<DistillerMenu> {
         builder.vertex(pose, x1, y0, z).uv(u1 * scale, v0 * scale).endVertex();
         builder.vertex(pose, x0, y0, z).uv(u0 * scale, v0 * scale).endVertex();
         BufferUploader.drawWithShader(builder.end());
-    }
-
-    /**
-     * Upstream {@code FluidRenderer.getAverageFluidColour}: the mean of every texel of every frame of the
-     * still sprite, tinted. Read from the texture file, since vanilla keeps sprite pixels private.
-     */
-    private int colour(Fluid fluid) {
-        if (fluid == Fluids.EMPTY) return -1;
-        return averageColours.computeIfAbsent(fluid, key -> {
-            ResourceLocation name = ClientPlatform.get().fluidSprite(key).getName();
-            ResourceLocation file = new ResourceLocation(name.getNamespace(), "textures/" + name.getPath() + ".png");
-            long r = 0, g = 0, b = 0, count = 0;
-            Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
-            if (resource.isEmpty()) return -1;
-            try (InputStream stream = resource.get().open(); NativeImage image = NativeImage.read(stream)) {
-                for (int x = 0; x < image.getWidth(); x++) {
-                    for (int y = 0; y < image.getHeight(); y++) {
-                        int abgr = image.getPixelRGBA(x, y);
-                        r += abgr & 0xFF;
-                        g += abgr >> 8 & 0xFF;
-                        b += abgr >> 16 & 0xFF;
-                        count++;
-                    }
-                }
-            } catch (IOException e) {
-                return -1;
-            }
-            if (count == 0) return -1;
-            int tint = ClientPlatform.get().fluidColour(key);
-            int red = (int) Math.min(255, r / count * (tint >> 16 & 0xFF) / 255);
-            int green = (int) Math.min(255, g / count * (tint >> 8 & 0xFF) / 255);
-            int blue = (int) Math.min(255, b / count * (tint & 0xFF) / 255);
-            return 0xFF000000 | red << 16 | green << 8 | blue;
-        });
     }
 
     @Override

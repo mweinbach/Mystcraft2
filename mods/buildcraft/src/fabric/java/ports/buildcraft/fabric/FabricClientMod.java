@@ -2,6 +2,8 @@ package ports.buildcraft.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
@@ -27,6 +29,8 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
         ClientPlatform.install(this);
         BCClient.registerRenderers(BlockEntityRenderers::register);
         BCClient.registerScreens();
+        BCClient.registerItemColours(ColorProviderRegistry.ITEM::register);
+        BCClient.registerItemProperties(FabricModelPredicateProviderRegistry::register);
         for (Block block : BCClient.cutoutBlocks()) BlockRenderLayerMap.INSTANCE.putBlock(block, RenderType.cutout());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             FluidRenderHandlerRegistry.INSTANCE.register(fluid.source(), fluid.flowing(),

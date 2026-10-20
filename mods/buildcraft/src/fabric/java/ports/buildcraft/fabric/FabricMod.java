@@ -23,6 +23,7 @@ public final class FabricMod implements ModInitializer {
                 .map(entry -> entry.getValue())
                 .toArray(BlockEntityType<?>[]::new);
         FabricPorts.register(types);
+        FabricShardStorage.register();
         // Forge adds the same placed feature through data/buildcraft/forge/biome_modifier/oil_well.json.
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.LAKES,
                 ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));

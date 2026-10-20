@@ -24,7 +24,7 @@ worlds do not migrate between them or from 1.12.
   gushing spout), with an oil spring under large wells that slowly regrows oil.
 - Refinery: the distiller and the heat exchanger, with upstream's ten oil and fuel fluids, each at
   three heat stages, and the nine combustion-engine fuels.
-- Gears, wrench and waterproof.
+- Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
 **This is not full BuildCraft.** Oil biomes, gates and wires, facades, lasers and silicon,
@@ -50,7 +50,8 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame and oil spring and the refinery's by-products and intermediate heats. Oil is valued like lava,
+frame and oil spring, fragile fluid shards (whose fluid is in their NBT) and the refinery's
+by-products and intermediate heats. Oil is valued like lava,
 and light fuel at the two buckets of oil the refinery needs to make one. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).
 

@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.platform.Reg;
 
-/** Upstream BuildCraft Core items: gears and the wrench. */
+/** Upstream BuildCraft Core items: gears, the wrench and fragile fluid shards. */
 public final class BCCore {
     public static final Supplier<Item> GEAR_WOOD = gear("wood");
     public static final Supplier<Item> GEAR_STONE = gear("stone");
@@ -16,6 +16,8 @@ public final class BCCore {
     public static final Supplier<Item> GEAR_GOLD = gear("gold");
     public static final Supplier<Item> GEAR_DIAMOND = gear("diamond");
     public static final Supplier<WrenchItem> WRENCH = Reg.item("wrench", () -> new WrenchItem(BuildCraft.itemProperties().stacksTo(1)));
+    public static final Supplier<FragileFluidShardItem> FRAGILE_FLUID_SHARD = Reg.item("fragile_fluid_shard",
+            () -> new FragileFluidShardItem(new Item.Properties().stacksTo(1)));
 
     private BCCore() {}
 

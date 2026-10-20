@@ -206,6 +206,11 @@ class Generator:
         for material, _ in GEARS:
             self.copy(f"buildcraftcore/textures/items/gear_{material}.png", f"item/gear_{material}.png")
         self.copy("buildcraftcore/textures/items/wrench.png", "item/wrench.png")
+        for layer in ["base", "fluid"]:
+            self.copy(f"buildcraftcore/textures/items/fragile_fluid_shard_{layer}.png", f"item/fragile_fluid_shard_{layer}.png")
+            # Forge's bucket model turned the whole shard upside down for gases ("flipGas").
+            image = Image.open(ASSETS / "textures" / "item" / f"fragile_fluid_shard_{layer}.png")
+            image.rotate(180).save(ASSETS / "textures" / "item" / f"fragile_fluid_shard_{layer}_gaseous.png")
         self.copy("buildcrafttransport/textures/items/pipewaterproof.png", "item/waterproof.png")
         self.copy("buildcraftenergy/textures/gui/steam_engine_gui.png", "gui/stirling_engine.png")
         self.copy("buildcraftenergy/textures/gui/combustion_engine_gui.png", "gui/combustion_engine.png")
@@ -506,6 +511,10 @@ class Generator:
         self.lang.update({f"block.{MOD}.quarry": "Quarry", f"block.{MOD}.frame": "Frame"})
 
     def fluids(self) -> None:
+        for heat, suffix in enumerate(HEAT_NAMES):
+            self.lang[f"buildcraft.fluid.heat_{heat}"] = f"%s ({suffix})"
+        for family, _, _, title in FLUID_FAMILIES:
+            self.lang[f"fluid_family.{MOD}.{family}"] = title
         for name, heat, _, _, title in FLUIDS:
             self.model(f"block/{name}", {"textures": {"particle": rl(f"block/fluids/{name}_still")}})
             self.blockstate(name, {"variants": {"": {"model": rl(f"block/{name}")}}})
@@ -530,6 +539,17 @@ class Generator:
         self.generated_item("waterproof")
         self.lang[f"item.{MOD}.wrench"] = "Wrench"
         self.lang[f"item.{MOD}.waterproof"] = "Pipe Sealant"
+
+        # Upstream's forge:forgebucket model: the base and a fluid mask, which BCClient tints with the fluid.
+        shard = "fragile_fluid_shard"
+        self.model(f"item/{shard}_gaseous", {"parent": "minecraft:item/generated", "textures": {
+            "layer0": rl(f"item/{shard}_base_gaseous"), "layer1": rl(f"item/{shard}_fluid_gaseous")}})
+        self.model(f"item/{shard}", {
+            "parent": "minecraft:item/generated",
+            "textures": {"layer0": rl(f"item/{shard}_base"), "layer1": rl(f"item/{shard}_fluid")},
+            "overrides": [{"predicate": {rl("gaseous"): 1}, "model": rl(f"item/{shard}_gaseous")}],
+        })
+        self.lang[f"item.{MOD}.{shard}"] = "Fragile %s Shard"
 
     def write_lang(self) -> None:
         self.lang.update({

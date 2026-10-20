@@ -72,6 +72,15 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void heatExchangerHeatsOilWithLava(GameTestHelper helper) { BCTests.heatExchangerHeatsOilWithLava(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void fragileShardsSplitFluid(GameTestHelper helper) { BCTests.fragileShardsSplitFluid(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void brokenMachinesDropFluidShards(GameTestHelper helper) { BCTests.brokenMachinesDropFluidShards(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void shardEmptiesIntoTank(GameTestHelper helper) { BCTests.shardEmptiesIntoTank(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void voidPipeDestroysItems(GameTestHelper helper) { BCTests.voidPipeDestroysItems(helper); }
 

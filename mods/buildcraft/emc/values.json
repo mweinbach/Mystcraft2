@@ -13,6 +13,9 @@
       "itemalchemy": 17552,
       "source": "recipe"
     },
+    "buildcraft:fragile_fluid_shard": {
+      "excluded": "NBT item: a shard only holds the fluid a broken machine or pipe dropped, and a blank shard holds nothing and cannot be filled. Transmutation never copies NBT, so a value could only be paid out for an empty, useless shard."
+    },
     "buildcraft:frame": {
       "excluded": "Creative-only: the quarry builds its frame from power, frame blocks drop nothing, and there is no frame recipe, so a value would only make creative frames transmutable."
     },
