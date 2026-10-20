@@ -308,7 +308,7 @@ public final class ReactorEffects {
         final double y = box.getMax().getY() + 1.0;
         final BlockPos.MutableBlockPos above = new BlockPos.MutableBlockPos();
 
-        for (int puffs = Math.min(MAX_SCRAM_PUFFS_PER_TICK, count(density * area / 6.0, random)); puffs > 0; --puffs) {
+        for (int puffs = Math.min(MAX_SCRAM_PUFFS_PER_TICK, count(density * area / 12.0, random)); puffs > 0; --puffs) {
 
             final double x = min.getX() + random.nextDouble() * box.getLengthX();
             final double z = min.getZ() + random.nextDouble() * box.getLengthZ();

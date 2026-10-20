@@ -112,8 +112,8 @@ final class ReactorControllerRenderer
             final float y0 = Math.min(first.getY(), last.getY()), y1 = Math.max(first.getY(), last.getY()) + 1;
             final float z0 = Math.min(first.getZ(), last.getZ()), z1 = Math.max(first.getZ(), last.getZ()) + 1;
 
-            glowBox(out, matrix, x0, y0, z0, x1, y1, z1, 0.02f, 0.35f * intensity);
-            glowBox(out, matrix, x0, y0, z0, x1, y1, z1, 0.3f, 0.12f * intensity);
+            glowBox(out, matrix, x0, y0, z0, x1, y1, z1, 0.02f, 0.3f * intensity);
+            glowBox(out, matrix, x0, y0, z0, x1, y1, z1, 0.3f, 0.1f * intensity);
         }
     }
 

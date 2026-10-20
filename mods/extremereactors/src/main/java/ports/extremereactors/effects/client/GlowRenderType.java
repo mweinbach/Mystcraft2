@@ -23,11 +23,13 @@ final class GlowRenderType
                 () -> {
                     RENDERTYPE_LIGHTNING_SHADER.setupRenderState();
                     LIGHTNING_TRANSPARENCY.setupRenderState();
+                    LEQUAL_DEPTH_TEST.setupRenderState();
                     COLOR_WRITE.setupRenderState();
                     NO_CULL.setupRenderState();
                 },
                 () -> {
                     NO_CULL.clearRenderState();
+                    LEQUAL_DEPTH_TEST.clearRenderState();
                     COLOR_WRITE.clearRenderState();
                     LIGHTNING_TRANSPARENCY.clearRenderState();
                     RENDERTYPE_LIGHTNING_SHADER.clearRenderState();
