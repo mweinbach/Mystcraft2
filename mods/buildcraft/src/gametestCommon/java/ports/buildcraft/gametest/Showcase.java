@@ -24,9 +24,15 @@ import net.minecraft.world.phys.AABB;
 import ports.buildcraft.builders.BCBuilders;
 import ports.buildcraft.builders.BuilderBlock;
 import ports.buildcraft.builders.BuilderBlockEntity;
+import ports.buildcraft.builders.ElectronicLibraryBlockEntity;
+import ports.buildcraft.builders.FacingMachineBlock;
 import ports.buildcraft.builders.QuarryBlock;
 import ports.buildcraft.builders.QuarryBlockEntity;
+import ports.buildcraft.builders.ReplacerBlockEntity;
+import ports.buildcraft.builders.SchematicSingleItem;
 import ports.buildcraft.builders.snapshot.EnumSnapshotType;
+import ports.buildcraft.builders.snapshot.SchematicBlockContext;
+import ports.buildcraft.builders.snapshot.SchematicBlockManager;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.MarkerBlock;
 import ports.buildcraft.core.marker.MarkerCaches;
@@ -93,6 +99,15 @@ public final class Showcase {
      */
     public static void buildBuilders(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).builders();
+    }
+
+    /**
+     * Builds a library bench: a hut and a tower recorded as blueprints and templates, an electronic library copying
+     * the hut blueprint down with a blank template waiting in {@code upIn}, a replacer holding the hut blueprint and
+     * a stone brick schematic, and a chest of the other recordings, a deepslate brick schematic and a lantern schematic.
+     */
+    public static void buildLibrary(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).library();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -162,6 +177,34 @@ public final class Showcase {
         redstone(1, 2, 18);
         combustion(1, 1, 18, Direction.DOWN);
         for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private void library() {
+        prepare(-3, 14, -3, 8);
+        hut(6, 0);
+        ItemStack blueprint = BuilderTests.record(level, EnumSnapshotType.BLUEPRINT, at(6, 0, 0), new BlockPos(5, 5, 5), Direction.NORTH, "Hut");
+        ItemStack template = BuilderTests.record(level, EnumSnapshotType.TEMPLATE, at(6, 0, 0), new BlockPos(5, 5, 5), Direction.NORTH, "Hut outline");
+        for (int y = 0; y < 6; y++) set(12, y, 1, y == 5 ? Blocks.LANTERN : y % 2 == 0 ? Blocks.DEEPSLATE_BRICKS : Blocks.POLISHED_ANDESITE);
+        ItemStack tower = BuilderTests.record(level, EnumSnapshotType.BLUEPRINT, at(12, 0, 1), new BlockPos(1, 6, 1), Direction.NORTH, "Tower");
+        ItemStack towerTemplate = BuilderTests.record(level, EnumSnapshotType.TEMPLATE, at(12, 0, 1), new BlockPos(1, 6, 1), Direction.NORTH, "Tower outline");
+
+        set(0, 0, 0, BCBuilders.ELECTRONIC_LIBRARY.get().defaultBlockState().setValue(FacingMachineBlock.FACING, Direction.SOUTH));
+        ElectronicLibraryBlockEntity library = (ElectronicLibraryBlockEntity) level.getBlockEntity(at(0, 0, 0));
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_DOWN_IN, blueprint.copy());
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.TEMPLATE_CLEAN.get()));
+
+        BlockState replacerState = BCBuilders.REPLACER.get().defaultBlockState().setValue(FacingMachineBlock.FACING, Direction.SOUTH);
+        set(3, 0, 0, replacerState);
+        ReplacerBlockEntity replacer = (ReplacerBlockEntity) level.getBlockEntity(at(3, 0, 0));
+        replacer.setItem(ReplacerBlockEntity.SLOT_SNAPSHOT, blueprint.copy());
+        replacer.setItem(ReplacerBlockEntity.SLOT_FROM, singleSchematic(6, 0, 0));
+
+        chest(0, 0, 3, template, tower, towerTemplate, singleSchematic(12, 0, 1), singleSchematic(12, 5, 1), blueprint.copy());
+    }
+
+    private ItemStack singleSchematic(int x, int y, int z) {
+        BlockPos pos = at(x, y, z);
+        return SchematicSingleItem.getUsed(SchematicBlockManager.getSchematicBlock(new SchematicBlockContext(level, pos, pos)));
     }
 
     /** A five-block cube hut with log corners, windows on three sides, a doorway in the south wall and a lantern inside. */
