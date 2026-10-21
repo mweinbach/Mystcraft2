@@ -21,6 +21,9 @@
   "entrypoints": {
     "main": [
       "ports.mekanism.generators.fabric.GeneratorsFabricMod"
+    ],
+    "client": [
+      "ports.mekanism.generators.fabric.GeneratorsFabricClient"
     ]
   },
   "depends": {
