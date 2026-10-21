@@ -58,8 +58,8 @@ public final class FabricTransfer {
     }
 
     /**
-     * Exposes the handlers, and the Forge Energy storages as Team Reborn Energy, of the block entities the port's mods
-     * register.
+     * Exposes the handlers of the block entities the port's mods register: items and fluids through the Transfer API,
+     * energy through Team Reborn Energy, and chemicals and heat through {@link ports.mekanism.fabric.api.MekanismChemicalLookups}.
      */
     static void registerBlockEntityLookups(Set<String> namespaces) {
         ownNamespaces = Set.copyOf(namespaces);
@@ -75,6 +75,7 @@ public final class FabricTransfer {
         FabricEnergy.registerBlockEntityLookups(types);
         FabricEnergy.registerItemLookups(ownNamespaces);
         registerItemFluidLookups(ownNamespaces);
+        FabricChemicals.register(types, ownNamespaces);
     }
 
     /**
