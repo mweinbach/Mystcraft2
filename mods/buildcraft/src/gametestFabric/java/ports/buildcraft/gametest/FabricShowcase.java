@@ -18,10 +18,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.energy.OilWellFeature;
+import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.transport.PipeBlockEntity;
+import ports.buildcraft.transport.pluggable.PipePluggable;
 
 /**
  * Development-only commands for screenshots: {@code /bcshowcase build} lays out {@link Showcase} at the caller's feet,
@@ -29,6 +33,7 @@ import ports.buildcraft.energy.OilWellFeature;
  * {@code /bcshowcase library} the electronic library and replacer bench, {@code /bcshowcase silicon} the laser and table bench,
  * {@code /bcshowcase plugs} the pipe plug, power adapter and structure pipe bench, {@code /bcshowcase gates} the gate bench,
  * {@code /bcshowcase wires} the pipe wire bench, {@code /bcshowcase lenses} the lens and filter bench,
+ * {@code /bcshowcase pulsars} the pulsar and timer bench,
  * {@code /bcshowcase refinery} a running refinery,
  * {@code /bcshowcase oilwell} reports the nearest oil well, {@code /bcshowcase use <pos>} right-clicks a block
  * with an empty hand to open its screen and {@code /bcshowcase useitem} right-clicks with the held item where the caller looks.
@@ -87,6 +92,10 @@ public final class FabricShowcase implements ModInitializer {
                             Showcase.buildLenses(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                             return 1;
                         }))
+                        .then(Commands.literal("pulsars").executes(context -> {
+                            Showcase.buildPulsars(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
+                            return 1;
+                        }))
                         .then(Commands.literal("refinery").executes(context -> {
                             Runnable fill = Showcase.buildRefinery(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                             delayed.add(new Delayed(context.getSource().getServer().getTickCount() + FILL_DELAY_TICKS, fill));
@@ -98,8 +107,9 @@ public final class FabricShowcase implements ModInitializer {
                         .then(Commands.literal("use").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
-                            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-                            player.getLevel().getBlockState(pos).use(player.getLevel(), player, InteractionHand.MAIN_HAND, hit);
+                            ServerLevel level = player.getLevel();
+                            BlockHitResult hit = new BlockHitResult(activationPoint(level, pos), Direction.UP, pos, false);
+                            level.getBlockState(pos).use(level, player, InteractionHand.MAIN_HAND, hit);
                             return 1;
                         })))
                         .then(Commands.literal("useitem").executes(context -> {
@@ -117,6 +127,27 @@ public final class FabricShowcase implements ModInitializer {
                             }
                             return 1;
                         }))));
+    }
+
+    /**
+     * A point inside a gate when the block has one, else another pluggable, else the block centre.
+     * The pipe centre is the pipe itself, so it never activates a pluggable.
+     */
+    private static Vec3 activationPoint(ServerLevel level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+            Vec3 fallback = null;
+            for (Direction face : Direction.values()) {
+                PipePluggable plug = pipe.getPluggable(face);
+                if (plug == null) continue;
+                AABB box = plug.getBoundingBox();
+                Vec3 center = new Vec3(pos.getX() + (box.minX + box.maxX) * 0.5, pos.getY() + (box.minY + box.maxY) * 0.5,
+                        pos.getZ() + (box.minZ + box.maxZ) * 0.5);
+                if (plug instanceof PluggableGate) return center;
+                if (fallback == null) fallback = center;
+            }
+            if (fallback != null) return fallback;
+        }
+        return Vec3.atCenterOf(pos);
     }
 
     private static int reportWell(CommandSourceStack source, @Nullable OilWellFeature.WellType type) {

@@ -49,6 +49,10 @@ public final class PluggableRenderers {
         register(BCSilicon.GATE, GateRenderer::render);
         SPRITES.addAll(GateRenderer.sprites());
         register(BCSilicon.LENS, LensRenderer::render);
+        register(BCSilicon.TIMER, BuildCraft.id("block/pipe/timer"),
+                new Element(2, 5, 5, 4.01F, 11, 11, new float[] {3, 5, 5, 11}, new float[] {5, 5, 11, 11}));
+        register(BCSilicon.PULSAR, PulsarRenderer::render);
+        SPRITES.addAll(PulsarRenderer.sprites());
     }
 
     private PluggableRenderers() {}

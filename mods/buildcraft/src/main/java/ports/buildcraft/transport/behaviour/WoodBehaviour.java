@@ -85,4 +85,9 @@ public class WoodBehaviour extends DirectionalBehaviour {
     public EnergyPort energyPort(@Nullable Direction side) {
         return energy;
     }
+
+    @Override
+    public long receiveRedstonePower(long microJoules, boolean simulate) {
+        return extractFromSource(microJoules, simulate);
+    }
 }

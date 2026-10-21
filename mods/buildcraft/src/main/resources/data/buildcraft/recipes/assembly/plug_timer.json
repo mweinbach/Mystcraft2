@@ -1,0 +1,14 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:plug_timer"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": {
+        "item": "minecraft:clock"
+      }
+    }
+  ]
+}

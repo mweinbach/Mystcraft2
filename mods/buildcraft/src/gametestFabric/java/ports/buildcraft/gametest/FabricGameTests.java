@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests} and {@link LensTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests} and {@link PulsarTimerTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -274,6 +274,18 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) { LensTests.diamondPipeSplitKeepsFilterPriority(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void pulsarAndTimerPlaceSaveAndSync(GameTestHelper helper) { PulsarTimerTests.pulsarAndTimerPlaceSaveAndSync(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void pulsarPulsesEveryTwentyTicks(GameTestHelper helper) { PulsarTimerTests.pulsarPulsesEveryTwentyTicks(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void singlePulseRetriesUntilThePipeCanTakeIt(GameTestHelper helper) { PulsarTimerTests.singlePulseRetriesUntilThePipeCanTakeIt(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 1000)
+    public void timerTriggersAndPulsarActions(GameTestHelper helper) { PulsarTimerTests.timerTriggersAndPulsarActions(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

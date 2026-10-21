@@ -83,6 +83,14 @@ public abstract class PipeBehaviour {
         return null;
     }
 
+    /**
+     * Upstream {@code IMjRedstoneReceiver.receivePower}: microjoules a pulsar offers this pipe, returning what was
+     * not used. Pipes that do not take redstone power use none of it.
+     */
+    public long receiveRedstonePower(long microJoules, boolean simulate) {
+        return microJoules;
+    }
+
     /** Upstream {@code PipeEventStatement.AddActionInternal}, as fired to the behaviour. */
     public void addInternalActions(Collection<Action.Internal> actions) {}
 

@@ -1,0 +1,25 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:plug_pulsar"
+  },
+  "MJ": 1000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:redstone_engine"
+      }
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:iron_ingots"
+        },
+        {
+          "tag": "forge:ingots/iron"
+        }
+      ],
+      "amount": 2
+    }
+  ]
+}
