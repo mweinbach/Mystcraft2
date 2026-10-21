@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.pluggable.PipePluggable;
@@ -45,6 +46,8 @@ public final class PluggableRenderers {
         register(BCTransport.POWER_ADAPTOR, POWER_ADAPTER,
                 new Element(2, 4, 4, 4.01F, 12, 12, new float[] {2, 4, 4, 12}, new float[] {4, 4, 12, 12}),
                 new Element(0, 3, 3, 2, 13, 13, new float[] {0, 3, 2, 13}, new float[] {3, 3, 13, 13}));
+        register(BCSilicon.GATE, GateRenderer::render);
+        SPRITES.addAll(GateRenderer.sprites());
     }
 
     private PluggableRenderers() {}

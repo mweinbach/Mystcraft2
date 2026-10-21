@@ -36,6 +36,7 @@ import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.silicon.BCSilicon;
+import ports.buildcraft.silicon.gate.GateCopierItem;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeDefinition;
 
@@ -80,12 +81,17 @@ public final class BCClient {
                 BCCore.FRAGILE_FLUID_SHARD.get());
     }
 
-    /** Upstream's shard model sets {@code flipGas}: shards of gaseous fluids are drawn upside down. */
+    /**
+     * Upstream's shard model sets {@code flipGas}: shards of gaseous fluids are drawn upside down. The gate
+     * copier shows its full texture while it holds a gate's configuration.
+     */
     public static void registerItemProperties(ItemPropertySink sink) {
         sink.register(BCCore.FRAGILE_FLUID_SHARD.get(), BuildCraft.id("gaseous"), (stack, level, entity, seed) -> {
             FluidAmount fluid = FragileFluidShardItem.getFluid(stack);
             return !fluid.isEmpty() && Platform.get().isGaseous(fluid.fluid()) ? 1 : 0;
         });
+        sink.register(BCSilicon.GATE_COPIER.get(), BuildCraft.id("full"),
+                (stack, level, entity, seed) -> GateCopierItem.getCopiedGateData(stack) != null ? 1 : 0);
     }
 
     /** Called on the client thread once registries are populated. */
@@ -102,6 +108,7 @@ public final class BCClient {
         MenuScreens.register(BCSilicon.ASSEMBLY_TABLE_MENU.get(), AssemblyTableScreen::new);
         MenuScreens.register(BCSilicon.ADVANCED_CRAFTING_TABLE_MENU.get(), AdvancedCraftingTableScreen::new);
         MenuScreens.register(BCSilicon.INTEGRATION_TABLE_MENU.get(), IntegrationTableScreen::new);
+        MenuScreens.register(BCSilicon.GATE_MENU.get(), GateScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
