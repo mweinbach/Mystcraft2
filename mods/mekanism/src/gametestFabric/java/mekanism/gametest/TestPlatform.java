@@ -12,6 +12,8 @@ import mekanism.api.chemical.gas.IGasHandler;
 import mekanism.api.chemical.infuse.IInfusionHandler;
 import mekanism.api.chemical.pigment.IPigmentHandler;
 import mekanism.api.chemical.slurry.ISlurryHandler;
+import mekanism.api.chemical.slurry.Slurry;
+import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.heat.IHeatHandler;
 import mekanism.common.Mekanism;
 import mekanism.common.tile.TileEntityFluidTank;
@@ -232,6 +234,22 @@ public final class TestPlatform {
             total += handler.getChemicalInTank(tank).getAmount();
         }
         return total;
+    }
+
+    public static SlurryStack extractSlurry(BlockEntity blockEntity, Direction side, long amount, boolean execute) {
+        ISlurryHandler handler = find(MekanismChemicalLookups.SLURRY, blockEntity, side);
+        return handler == null ? SlurryStack.EMPTY : handler.extractChemical(amount, chemicalAction(execute));
+    }
+
+    public static long insertSlurry(BlockEntity blockEntity, Direction side, Slurry slurry, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        ISlurryHandler handler = find(MekanismChemicalLookups.SLURRY, blockEntity, side);
+        if (handler == null) {
+            return 0;
+        }
+        return amount - handler.insertChemical(new SlurryStack(slurry, amount), chemicalAction(execute)).getAmount();
     }
 
     public static int gasTanks(BlockEntity blockEntity, Direction side) {

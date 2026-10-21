@@ -32,7 +32,15 @@ Additions is an empty scaffold.
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
   universal cables. A basic smelting factory processes a stack in each of its three slots at once, auto-sort splits
   one input stack across those slots, and a tier installer keeps the items, energy and auto-sort setting. Its screen,
-  with the three slots, energy bar and sorting tab, opened in the development client. Energy, items and fluids reach
+  with the three slots, energy bar and sorting tab, opened in the development client. The chemical infuser combines
+  hydrogen and chlorine, the oxidizer makes sulfur dioxide, the dissolution chamber, washer and crystallizer turn
+  osmium ore into a crystal, the purification chamber and chemical injection chamber turn osmium ore and dirt into
+  clumps and mud, the rotary condensentrator condenses oxygen, the pressurized reaction chamber makes substrate and
+  ethene, the isotopic centrifuge separates fissile fuel, and the solar neutron activator makes polonium when it can
+  see the sun. Those gases and slurries move through the chemical lookups. The chemical infuser screen,
+  with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
+  The other chemical machine screens were not opened. The nutritional liquifier, pigment
+  extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. Energy, items and fluids reach
   other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
   fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
@@ -52,7 +60,8 @@ Additions is an empty scaffold.
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
+  machines, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
   player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction
   matrix, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
