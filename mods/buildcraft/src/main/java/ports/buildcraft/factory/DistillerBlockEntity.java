@@ -18,6 +18,7 @@ import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.energy.RefineryRecipes;
 import ports.buildcraft.lib.ClientTank;
 import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.lib.HasWork;
 import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.lib.SyncedBlockEntity;
@@ -30,7 +31,7 @@ import ports.buildcraft.platform.PortHolder;
  * Upstream {@code TileDistiller_BC8}: splits the fluid in its input tank into a gas, pushed out of the
  * top, and a liquid, pushed out of the bottom, using up to 6 MJ/t. Pipes fill it from the sides.
  */
-public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolder, MenuProvider {
+public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolder, MenuProvider, HasWork {
     public static final int CAPACITY = 4000;
     public static final long MAX_MJ_PER_TICK = 6 * Power.MJ;
     /** Upstream {@code BCCoreConfig.networkUpdateRate}. */
@@ -49,6 +50,7 @@ public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolde
 
     private long distillPower;
     private boolean active;
+    private boolean hasWork;
     private final long[] powerHistory = new long[POWER_AVERAGE_TICKS];
     private int powerHistoryPos;
     private long powerHistoryTotal;
@@ -88,10 +90,12 @@ public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolde
     public Tank liquidTank() { return tankLiquidOut; }
     public MjBattery battery() { return battery; }
     public boolean isActive() { return active; }
+    @Override public boolean hasWork() { return hasWork; }
 
     void serverTick() {
         RefineryRecipes.Distillation recipe = RefineryRecipes.distillation(tankIn.fluid());
         long attempted = 0;
+        hasWork = false;
         if (recipe == null) {
             refundProgress();
         } else {
@@ -100,6 +104,7 @@ public class DistillerBlockEntity extends SyncedBlockEntity implements PortHolde
             boolean canFillLiquid = tankLiquidOut.fill(liquid.fluid(), (int) liquid.amount(), true) == liquid.amount();
             boolean canFillGas = tankGasOut.fill(gas.fluid(), (int) gas.amount(), true) == gas.amount();
             if (canExtract && canFillLiquid && canFillGas) {
+                hasWork = true;
                 // Upstream draws more power the fuller its battery is, up to 6 MJ/t at half capacity.
                 long max = MAX_MJ_PER_TICK * (battery.stored() + MAX_MJ_PER_TICK) / (battery.capacity() / 2);
                 max = Math.min(max, MAX_MJ_PER_TICK);

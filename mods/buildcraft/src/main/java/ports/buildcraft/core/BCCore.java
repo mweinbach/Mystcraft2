@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.platform.Reg;
 
 /** Upstream BuildCraft Core: gears, the wrench, fragile fluid shards, the creative water spring, markers and volume boxes. */
@@ -43,7 +44,9 @@ public final class BCCore {
 
     private BCCore() {}
 
-    public static void init() {}
+    public static void init() {
+        BCCoreStatements.init();
+    }
 
     /** The conventional Fabric gear tag for {@code material}, using 1.19.2-era {@code c:<material>_gears} names. */
     public static TagKey<Item> commonGearTag(String material) {

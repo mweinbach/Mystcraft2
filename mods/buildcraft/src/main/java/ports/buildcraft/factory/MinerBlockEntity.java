@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.buildcraft.lib.HasWork;
 import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.lib.SyncedBlockEntity;
@@ -14,7 +15,7 @@ import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.PortHolder;
 
 /** Upstream {@code TileMiner}: a powered block that lowers a tube straight down. */
-public abstract class MinerBlockEntity extends SyncedBlockEntity implements PortHolder {
+public abstract class MinerBlockEntity extends SyncedBlockEntity implements PortHolder, HasWork {
     /** Upstream {@code BCCoreConfig.miningMaxDepth} default. */
     public static final int MAX_DEPTH = 512;
 
@@ -92,6 +93,12 @@ public abstract class MinerBlockEntity extends SyncedBlockEntity implements Port
 
     public boolean isComplete() {
         return level != null && level.isClientSide ? clientComplete : currentPos == null;
+    }
+
+    /** Upstream read its client-only {@code isComplete} field here, so servers always reported work. */
+    @Override
+    public boolean hasWork() {
+        return !isComplete();
     }
 
     public float getPercentFilledForRender() {
