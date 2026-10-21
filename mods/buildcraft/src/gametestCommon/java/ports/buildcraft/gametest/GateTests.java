@@ -3,6 +3,7 @@ package ports.buildcraft.gametest;
 import static ports.buildcraft.gametest.BCTests.chest;
 import static ports.buildcraft.gametest.BCTests.pipe;
 import static ports.buildcraft.gametest.BCTests.require;
+import static ports.buildcraft.gametest.BCTests.tile;
 import static ports.buildcraft.gametest.BCTests.useAt;
 import static ports.buildcraft.gametest.BCTests.useOn;
 
@@ -36,6 +37,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.core.statements.StatementParamGateSideOnly;
+import ports.buildcraft.energy.BCEnergy;
+import ports.buildcraft.factory.BCFactory;
+import ports.buildcraft.factory.DistillerBlockEntity;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.EnumGateLogic;
 import ports.buildcraft.silicon.gate.EnumGateMaterial;
@@ -59,6 +63,8 @@ import ports.buildcraft.transport.statements.BCTransportStatements;
 public final class GateTests {
     private static final GateVariant IRON_AND = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
     private static final GateVariant IRON_OR = new GateVariant(EnumGateLogic.OR, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
+    /** Eight pairs in two columns of four. */
+    private static final GateVariant GOLD_AND = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.GOLD, EnumGateModifier.NO_MODIFIER);
     /** Two pairs with one trigger and one action parameter each. */
     private static final GateVariant NETHER_QUARTZ = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.NETHER_BRICK, EnumGateModifier.QUARTZ);
     /** How far from a pipe's middle a click lands on a gate, which sits 2 to 4 pixels in from its face. */
@@ -361,8 +367,8 @@ public final class GateTests {
     }
 
     /**
-     * An iron pipe's gate can turn the pipe to face any connected side, and a chest beside a pipe offers its
-     * inventory triggers, which read the chest.
+     * An iron pipe's gate can turn the pipe to face any connected side, and a chest or tank beside a pipe offers its
+     * inventory or fluid triggers, which read its contents.
      */
     public static void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) {
         BlockPos pos = new BlockPos(3, 3, 3);
@@ -370,7 +376,10 @@ public final class GateTests {
         pipe(helper, pos.east(), BCTransport.STONE_ITEM);
         pipe(helper, pos.west(), BCTransport.STONE_ITEM);
         chest(helper, pos.south(), new ItemStack(Items.COBBLESTONE, 3));
-        GateLogic logic = gate(iron, Direction.UP, IRON_AND).logic();
+        helper.setBlock(pos.north(), BCFactory.DISTILLER.get());
+        DistillerBlockEntity distiller = tile(helper, pos.north(), DistillerBlockEntity.class);
+        require(helper, distiller.fluidPort(Direction.SOUTH).fill(BCEnergy.OIL.heat(0).source(), 1000, false) == 1000, "oil fills the distiller's input");
+        GateLogic logic = gate(iron, Direction.UP, GOLD_AND).logic();
 
         helper.runAfterDelay(2, () -> {
             ActionWrapper east = action(BCTransportStatements.ACTION_PIPE_DIRECTION[Direction.EAST.ordinal()]);
@@ -381,9 +390,13 @@ public final class GateTests {
             logic.statements[0].trigger.set(trigger(BCCoreStatements.TRIGGER_INVENTORY_CONTAINS, Direction.SOUTH));
             logic.statements[0].action.set(east);
             logic.statements[1].trigger.set(trigger(BCCoreStatements.TRIGGER_INVENTORY_EMPTY, Direction.SOUTH));
+            logic.statements[2].trigger.set(trigger(BCCoreStatements.TRIGGER_FLUID_CONTAINS, Direction.NORTH));
+            logic.statements[3].trigger.set(trigger(BCCoreStatements.TRIGGER_FLUID_EMPTY, Direction.NORTH));
         });
         helper.runAfterDelay(4, () -> {
             require(helper, logic.triggerOn[0] && !logic.triggerOn[1], "the chest holds items, so it is not empty");
+            require(helper, logic.triggerOn[2] && !logic.triggerOn[3],
+                    "the distiller's input holds oil, so it is not empty even though that tank cannot be drained");
             require(helper, ((DirectionalBehaviour) iron.behaviour()).currentDir() == Direction.EAST, "the gate turns the iron pipe east");
             logic.statements[0].action.set(action(BCTransportStatements.ACTION_PIPE_DIRECTION[Direction.WEST.ordinal()]));
         });

@@ -17,7 +17,11 @@ import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.statement.StatementParameterItemStack;
 import ports.buildcraft.statement.Trigger;
 
-/** Upstream {@code TriggerFluidContainer}: whether the neighbouring tank is empty, holds a fluid, has room for one, or is full. */
+/**
+ * Upstream {@code TriggerFluidContainer}: whether the neighbouring tank is empty, holds a fluid, has room for one, or is full.
+ * Upstream called a tank empty when nothing could be drained from it, so a fill-only face holding fluid read as both
+ * empty and holding fluid; emptiness here reads the same contents as {@link State#CONTAINS}.
+ */
 public class TriggerFluidContainer extends BCStatement implements Trigger.External {
     public enum State {
         EMPTY,
@@ -62,7 +66,12 @@ public class TriggerFluidContainer extends BCStatement implements Trigger.Extern
         List<FluidAmount> tanks = port.contents();
         if (tanks.isEmpty()) return false;
         return switch (state) {
-            case EMPTY -> port.drain(null, 1, true).amount() <= 0;
+            case EMPTY -> {
+                for (FluidAmount fluid : tanks) {
+                    if (!fluid.isEmpty()) yield false;
+                }
+                yield true;
+            }
             case CONTAINS -> {
                 for (FluidAmount fluid : tanks) {
                     if (!fluid.isEmpty() && (searched == null || fluid.fluid() == searched)) yield true;
