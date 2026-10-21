@@ -158,6 +158,7 @@ public final class BCClient {
         sprites.addAll(DistillerRenderer.sprites());
         sprites.addAll(LaserRenderer.sprites());
         sprites.addAll(PluggableRenderers.sprites());
+        sprites.addAll(PipeWireRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());
