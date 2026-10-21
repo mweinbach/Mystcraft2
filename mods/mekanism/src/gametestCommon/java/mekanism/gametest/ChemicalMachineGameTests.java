@@ -60,7 +60,7 @@ public class ChemicalMachineGameTests {
         Direction left = side(infuser, RelativeSide.LEFT);
         Direction right = side(infuser, RelativeSide.RIGHT);
         Direction front = side(infuser, RelativeSide.FRONT);
-        long refused = TestPlatform.insertGas(infuser, front, MekanismGases.HYDROGEN.get(), 10, true);
+        long refused = TestPlatform.insertBlockGas(infuser, front, MekanismGases.HYDROGEN.get(), 10, true);
         check(refused == 0, "The infuser's output side accepted hydrogen");
         fillGas(infuser, left, MekanismGases.HYDROGEN.get(), 40);
         fillGas(infuser, right, MekanismGases.CHLORINE.get(), 40);
@@ -219,7 +219,7 @@ public class ChemicalMachineGameTests {
     }
 
     private static void fillGas(BlockEntity machine, Direction side, Gas gas, long amount) {
-        long moved = TestPlatform.insertGas(machine, side, gas, amount, true);
+        long moved = TestPlatform.insertBlockGas(machine, side, gas, amount, true);
         check(moved == amount, "Moved " + moved + " of " + amount + " " + gas + " into " + side);
     }
 
