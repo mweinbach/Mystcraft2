@@ -91,6 +91,15 @@ public interface IForgeBlockState {
         self().getBlock().onCaughtFire(self(), level, pos, face, igniter);
     }
 
+    default float getFriction(LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return self().getBlock().getFriction(self(), level, pos, entity);
+    }
+
+    @Nullable
+    default float[] getBeaconColorMultiplier(LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        return self().getBlock().getBeaconColorMultiplier(self(), level, pos, beaconPos);
+    }
+
     default int getFireSpreadSpeed(BlockGetter level, BlockPos pos, Direction face) {
         return self().getBlock().getFireSpreadSpeed(self(), level, pos, face);
     }

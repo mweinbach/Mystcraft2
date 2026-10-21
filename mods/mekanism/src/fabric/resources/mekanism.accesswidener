@@ -74,6 +74,8 @@ accessible method net/minecraft/world/entity/decoration/ArmorStand setNoBasePlat
 accessible method net/minecraft/world/entity/Entity isInRain ()Z
 accessible field net/minecraft/world/entity/LivingEntity effectsDirty Z
 accessible field net/minecraft/world/entity/item/ItemEntity age I
+accessible field net/minecraft/world/entity/item/PrimedTnt owner Lnet/minecraft/world/entity/LivingEntity;
+extendable method net/minecraft/world/entity/item/PrimedTnt explode ()V
 
 accessible method net/minecraft/world/inventory/AbstractContainerMenu synchronizeCarriedToRemote ()V
 

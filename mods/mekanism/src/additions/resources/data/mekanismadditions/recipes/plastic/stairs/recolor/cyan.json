@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "type": "forge:difference",
+      "base": {
+        "tag": "forge:stairs/plastic"
+      },
+      "subtracted": {
+        "item": "mekanismadditions:cyan_plastic_stairs"
+      }
+    },
+    "D": {
+      "tag": "forge:dyes/cyan"
+    }
+  },
+  "pattern": [
+    " # ",
+    "#D#",
+    " # "
+  ],
+  "result": {
+    "count": 4,
+    "item": "mekanismadditions:cyan_plastic_stairs"
+  }
+}

@@ -3,7 +3,8 @@
   "namespaces": [
     "mekanism",
     "mekanismgenerators",
-    "mekanismtools"
+    "mekanismtools",
+    "mekanismadditions"
   ],
   "loaders": {
     "projecte": "forge",
@@ -14,20 +15,23 @@
       "src/main/resources",
       "src/forge/resources",
       "src/generators/resources",
-      "src/tools/resources"
+      "src/tools/resources",
+      "src/additions/resources"
     ],
     "itemalchemy": [
       "src/main/resources",
       "src/fabric/resources",
       "src/generators/resources",
-      "src/tools/resources"
+      "src/tools/resources",
+      "src/additions/resources"
     ]
   },
   "output": "src/main/resources",
   "outputs": {
     "mekanism": "src/main/resources",
     "mekanismgenerators": "src/generators/resources",
-    "mekanismtools": "src/tools/resources"
+    "mekanismtools": "src/tools/resources",
+    "mekanismadditions": "src/additions/resources"
   },
   "conditions": {
     "mekanism:mod_version_loaded": {
@@ -62,7 +66,9 @@
     "",
     "Generators items with a shaped crafting recipe take that recipe's cost. The wind generator is stored as mek_data and the hohlraum is a metallurgic infusion, so each has a conversion at its item cost, the same way the core module prices those recipe types. Bioethanol, deuterium, tritium and fusion-fuel buckets are filled by generator processes and have no item recipe, so they are excluded until those processes are priced.",
     "",
-    "Tools and armor take their crafting cost. A paxel recipe is a shaped craft of an axe, a pickaxe, a shovel and two sticks, and smithing turns a diamond paxel into a netherite paxel. The banner shield recipe adds a banner to an existing shield and creates no item. Smelting or blasting a tool returns one nugget, which is worth less than the tool."
+    "Tools and armor take their crafting cost. A paxel recipe is a shaped craft of an axe, a pickaxe, a shovel and two sticks, and smithing turns a diamond paxel into a netherite paxel. The banner shield recipe adds a banner to an existing shield and creates no item. Smelting or blasting a tool returns one nugget, which is worth less than the tool.",
+    "",
+    "Plastic blocks, transparent plastic and glow panels ignore the dye in their cost. Dark red and aqua have no dye recipe, and the painting machine recolors every plastic family, so a cheaper dye must not make a more expensive color. Slick plastic follows the enrichment chamber, one plastic block to one slick block, which is cheaper than the slimeball craft. Slabs come out below one EMC and ship as 0."
   ],
   "values": {
     "mekanism:ingot_osmium": {
@@ -2936,6 +2942,690 @@
         "#forge:dusts/gold": 32,
         "#mekanism:enriched/carbon": 1
       }
+    },
+    {
+      "name": "additions_plastic_black",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:black_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_black",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:black_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:black_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_black",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:black_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_black",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:black_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_blue",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:blue_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_blue",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:blue_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:blue_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_blue",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:blue_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_blue",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:blue_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_green",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:green_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_green",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:green_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:green_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_green",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:green_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_green",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:green_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_cyan",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:cyan_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_cyan",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:cyan_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:cyan_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_cyan",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:cyan_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_cyan",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:cyan_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_dark_red",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:dark_red_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_dark_red",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:dark_red_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:dark_red_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_dark_red",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:dark_red_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_dark_red",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:dark_red_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_purple",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:purple_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_purple",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:purple_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:purple_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_purple",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:purple_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_purple",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:purple_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_orange",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:orange_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_orange",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:orange_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:orange_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_orange",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:orange_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_orange",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:orange_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_light_gray",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:light_gray_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_light_gray",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:light_gray_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:light_gray_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_light_gray",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:light_gray_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_light_gray",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:light_gray_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_gray",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:gray_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_gray",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:gray_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:gray_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_gray",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:gray_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_gray",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:gray_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_light_blue",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:light_blue_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_light_blue",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:light_blue_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:light_blue_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_light_blue",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:light_blue_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_light_blue",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:light_blue_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_lime",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:lime_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_lime",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:lime_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:lime_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_lime",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:lime_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_lime",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:lime_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_aqua",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:aqua_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_aqua",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:aqua_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:aqua_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_aqua",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:aqua_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_aqua",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:aqua_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_red",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:red_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_red",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:red_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:red_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_red",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:red_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_red",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:red_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_magenta",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:magenta_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_magenta",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:magenta_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:magenta_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_magenta",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:magenta_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_magenta",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:magenta_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_yellow",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:yellow_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_yellow",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:yellow_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:yellow_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_yellow",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:yellow_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_yellow",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:yellow_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_white",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:white_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_white",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:white_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:white_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_white",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:white_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_white",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:white_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_brown",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:brown_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_brown",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:brown_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:brown_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_brown",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:brown_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_brown",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:brown_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
+    },
+    {
+      "name": "additions_plastic_pink",
+      "why": "Four HDPE sheets make four plastic blocks. The dye is left out so every color, including dark red and aqua which only the painting machine makes, has the same value.",
+      "output": "mekanismadditions:pink_plastic",
+      "count": 4,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 4
+      }
+    },
+    {
+      "name": "additions_slick_pink",
+      "why": "The enrichment chamber turns one plastic block into one slick plastic block. That is cheaper than the slimeball craft, so slick plastic takes the enriched cost.",
+      "output": "mekanismadditions:pink_slick_plastic",
+      "count": 1,
+      "ingredients": {
+        "mekanismadditions:pink_plastic": 1
+      }
+    },
+    {
+      "name": "additions_transparent_pink",
+      "why": "Eight HDPE sheets make eight transparent plastic blocks. The dye is left out so painting one color into another cannot create EMC.",
+      "output": "mekanismadditions:pink_plastic_transparent",
+      "count": 8,
+      "ingredients": {
+        "mekanism:hdpe_sheet": 8
+      }
+    },
+    {
+      "name": "additions_glow_panel_pink",
+      "why": "Two glow panels take two glass panes, four HDPE sheets and two glowstone dust. The dye is left out so painting a glow panel cannot create EMC.",
+      "output": "mekanismadditions:pink_glow_panel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glass_pane": 2,
+        "mekanism:hdpe_sheet": 4,
+        "minecraft:glowstone_dust": 2
+      }
     }
   ],
   "processes": [
@@ -3024,6 +3714,1862 @@
         "minecraft:dried_kelp": 20,
         "minecraft:bucket": 1
       }
+    },
+    {
+      "name": "additions_paint_glow_panel",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_glow_panel": 1
+        },
+        {
+          "mekanismadditions:blue_glow_panel": 1
+        },
+        {
+          "mekanismadditions:green_glow_panel": 1
+        },
+        {
+          "mekanismadditions:cyan_glow_panel": 1
+        },
+        {
+          "mekanismadditions:dark_red_glow_panel": 1
+        },
+        {
+          "mekanismadditions:purple_glow_panel": 1
+        },
+        {
+          "mekanismadditions:orange_glow_panel": 1
+        },
+        {
+          "mekanismadditions:light_gray_glow_panel": 1
+        },
+        {
+          "mekanismadditions:gray_glow_panel": 1
+        },
+        {
+          "mekanismadditions:light_blue_glow_panel": 1
+        },
+        {
+          "mekanismadditions:lime_glow_panel": 1
+        },
+        {
+          "mekanismadditions:aqua_glow_panel": 1
+        },
+        {
+          "mekanismadditions:red_glow_panel": 1
+        },
+        {
+          "mekanismadditions:magenta_glow_panel": 1
+        },
+        {
+          "mekanismadditions:yellow_glow_panel": 1
+        },
+        {
+          "mekanismadditions:white_glow_panel": 1
+        },
+        {
+          "mekanismadditions:brown_glow_panel": 1
+        },
+        {
+          "mekanismadditions:pink_glow_panel": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_glow_panel": 1
+        },
+        {
+          "mekanismadditions:blue_glow_panel": 1
+        },
+        {
+          "mekanismadditions:green_glow_panel": 1
+        },
+        {
+          "mekanismadditions:cyan_glow_panel": 1
+        },
+        {
+          "mekanismadditions:dark_red_glow_panel": 1
+        },
+        {
+          "mekanismadditions:purple_glow_panel": 1
+        },
+        {
+          "mekanismadditions:orange_glow_panel": 1
+        },
+        {
+          "mekanismadditions:light_gray_glow_panel": 1
+        },
+        {
+          "mekanismadditions:gray_glow_panel": 1
+        },
+        {
+          "mekanismadditions:light_blue_glow_panel": 1
+        },
+        {
+          "mekanismadditions:lime_glow_panel": 1
+        },
+        {
+          "mekanismadditions:aqua_glow_panel": 1
+        },
+        {
+          "mekanismadditions:red_glow_panel": 1
+        },
+        {
+          "mekanismadditions:magenta_glow_panel": 1
+        },
+        {
+          "mekanismadditions:yellow_glow_panel": 1
+        },
+        {
+          "mekanismadditions:white_glow_panel": 1
+        },
+        {
+          "mekanismadditions:brown_glow_panel": 1
+        },
+        {
+          "mekanismadditions:pink_glow_panel": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_plastic": 1
+        },
+        {
+          "mekanismadditions:green_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic": 1
+        },
+        {
+          "mekanismadditions:red_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic": 1
+        },
+        {
+          "mekanismadditions:white_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_plastic": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_plastic": 1
+        },
+        {
+          "mekanismadditions:green_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic": 1
+        },
+        {
+          "mekanismadditions:red_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic": 1
+        },
+        {
+          "mekanismadditions:white_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_plastic": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_fence",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:green_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:red_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:white_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_fence": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:green_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:red_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:white_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_fence": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_fence": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_fence_gate",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:green_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:red_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:white_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_fence_gate": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:green_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:red_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:white_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_fence_gate": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_fence_gate": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_glow",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_glow_slab",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow_slab": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow_slab": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_glow_stairs",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow_stairs": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_glow_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_glow_stairs": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_road",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_road": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_road": 1
+        },
+        {
+          "mekanismadditions:green_plastic_road": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_road": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_road": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_road": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_road": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_road": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_road": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_road": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_road": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_road": 1
+        },
+        {
+          "mekanismadditions:red_plastic_road": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_road": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_road": 1
+        },
+        {
+          "mekanismadditions:white_plastic_road": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_road": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_road": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_road": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_road": 1
+        },
+        {
+          "mekanismadditions:green_plastic_road": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_road": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_road": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_road": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_road": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_road": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_road": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_road": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_road": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_road": 1
+        },
+        {
+          "mekanismadditions:red_plastic_road": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_road": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_road": 1
+        },
+        {
+          "mekanismadditions:white_plastic_road": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_road": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_road": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_slab",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_slab": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_slab": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_stairs",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_stairs": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_stairs": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_transparent",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_transparent_slab",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent_slab": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent_slab": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent_slab": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_plastic_transparent_stairs",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent_stairs": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:blue_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:green_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:purple_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:orange_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:gray_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:lime_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:red_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:white_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:brown_plastic_transparent_stairs": 1
+        },
+        {
+          "mekanismadditions:pink_plastic_transparent_stairs": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_reinforced_plastic",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:green_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:red_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:white_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_reinforced_plastic": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:green_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:red_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:white_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_reinforced_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_reinforced_plastic": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_paint_slick_plastic",
+      "why": "The painting machine recolors this plastic block. Every color has the same value, so painting cannot create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:green_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:white_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_slick_plastic": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:green_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:white_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_slick_plastic": 1
+        }
+      ]
+    },
+    {
+      "name": "additions_enrich_slick",
+      "why": "Enriching one plastic block yields one slick plastic block. A higher slick value would let that machine create EMC.",
+      "in": [
+        {
+          "mekanismadditions:black_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_plastic": 1
+        },
+        {
+          "mekanismadditions:green_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_plastic": 1
+        },
+        {
+          "mekanismadditions:red_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_plastic": 1
+        },
+        {
+          "mekanismadditions:white_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_plastic": 1
+        }
+      ],
+      "out": [
+        {
+          "mekanismadditions:black_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:green_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:cyan_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:dark_red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:purple_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:orange_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:gray_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:light_blue_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:lime_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:aqua_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:red_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:magenta_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:yellow_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:white_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:brown_slick_plastic": 1
+        },
+        {
+          "mekanismadditions:pink_slick_plastic": 1
+        }
+      ]
     }
   ],
   "vanilla": {
