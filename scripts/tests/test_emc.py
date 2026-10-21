@@ -304,6 +304,60 @@ class PortTests(unittest.TestCase):
         self.assertEqual(merged["minecraft:written_book"], 250)
 
 
+class MultiNamespaceTests(unittest.TestCase):
+    def test_a_second_namespace_ships_its_own_files(self):
+        sandbox = tempfile.TemporaryDirectory()
+        self.addCleanup(sandbox.cleanup)
+        root = Path(sandbox.name) / "combo"
+        core = root / "core"
+        extra = root / "extra"
+        write(core / "data" / "combo" / "recipes" / "widget.json",
+              shaped(["i"], {"i": {"item": "minecraft:iron_ingot"}}, "combo:widget"))
+        write(extra / "data" / "comboextra" / "recipes" / "gadget.json",
+              shaped(["d"], {"d": {"item": "minecraft:dirt"}}, "comboextra:gadget"))
+        write(root / "emc" / "registry.txt", "combo:widget\ncomboextra:gadget\ncomboextra:bucket\n")
+        policy = {
+            "namespace": "combo",
+            "namespaces": ["combo", "comboextra"],
+            "loaders": {"projecte": "fabric", "itemalchemy": "fabric"},
+            "resources": {"projecte": ["core", "extra"], "itemalchemy": ["core", "extra"]},
+            "output": "core",
+            "outputs": {"combo": "core", "comboextra": "extra"},
+            "exclude": {"comboextra:bucket": "filled by a machine"},
+            "conditions": {"comboextra:config": {"holds": False, "why": "w"}},
+        }
+        write(root / "emc" / "policy.json", policy)
+        port, outputs = emc.build(root)
+        self.assertEqual(port.problems, [])
+        self.assertEqual(port.namespaces, ["combo", "comboextra"])
+        values = json.loads(outputs[root / "emc" / "values.json"])["items"]
+        self.assertEqual(values["combo:widget"]["source"], "recipe")
+        self.assertIn("projecte", values["comboextra:gadget"])
+        self.assertEqual(values["comboextra:bucket"], {"excluded": "filled by a machine"})
+        extra_emc = json.loads(outputs[extra / "data" / "comboextra" / "default_emcs" / "comboextra.json"])
+        self.assertEqual(set(extra_emc), {"comboextra:gadget", "comboextra:bucket"})
+        self.assertEqual(extra_emc["comboextra:bucket"], 0)
+        core_emc = json.loads(outputs[core / "data" / "combo" / "default_emcs" / "combo.json"])
+        self.assertEqual(set(core_emc), {"combo:widget"})
+        self.assertIn("This policy also covers `comboextra`", outputs[root / "emc" / "README.md"])
+
+    def test_namespace_lists_start_with_the_primary_id(self):
+        base = {"namespace": "t", "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+                "resources": {"projecte": ["r"], "itemalchemy": ["r"]}, "output": "r"}
+        emc.validate_policy({**base, "namespaces": ["t", "textra"], "outputs": {"t": "r", "textra": "x"},
+                             "conditions": {"textra:config": {"holds": True, "why": "w"}}})
+        for bad in ({"namespaces": ["other"]},
+                    {"namespaces": ["t", "t"]},
+                    {"namespaces": ["t", "Bad"]},
+                    {"outputs": {"nope": "r"}},
+                    {"namespaces": ["t", "textra"], "outputs": {"t": "other", "textra": "x"}},
+                    {"namespaces": ["t", "textra"], "outputs": {"t": "r", "textra": "../x"}},
+                    {"namespaces": ["t", "textra"], "outputs": {"t": "r", "textra": "x"},
+                     "conditions": {"nope:config": {"holds": True, "why": "w"}}}):
+            with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
+                emc.validate_policy({**base, **bad})
+
+
 class RepositoryTests(unittest.TestCase):
     def test_every_port_with_a_policy_is_complete_and_current(self):
         out, err = io.StringIO(), io.StringIO()

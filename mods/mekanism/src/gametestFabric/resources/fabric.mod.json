@@ -11,15 +11,20 @@
       "mekanism.gametest.ChunkLoadingGameTests",
       "mekanism.gametest.CoreMachineGameTests",
       "mekanism.gametest.FactoryGameTests",
+      "mekanism.gametest.GeneratorsModuleGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",
       "mekanism.gametest.OreGenerationGameTests",
       "mekanism.gametest.PlayerEventGameTests",
-      "mekanism.gametest.RenderBoundsGameTests"
+      "mekanism.gametest.RenderBoundsGameTests",
+      "mekanism.gametest.SimpleGeneratorGameTests"
     ]
   },
   "depends": {
     "mekanism": "*",
+    "mekanismgenerators": "*",
+    "mekanismtools": "*",
+    "mekanismadditions": "*",
     "fabric-gametest-api-v1": "*"
   }
 }
