@@ -81,9 +81,6 @@ public class ReprocessorRecipeCategory
 
         // input fluid ingredient
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 79 + 5, 1 + 5) // add the padding
-                .addIngredients(VanillaTypes.ITEM_STACK, recipe.getIngredient1().getMatchingElements());
-
         JeiFluids.addFluids(builder.addSlot(RecipeIngredientRole.INPUT, 34, 23)
                 .setFluidRenderer(JeiFluids.amount(MultiblockReprocessor.FLUID_CAPACITY), false, 16, 64),
                 recipe.getIngredient2().getMatchingElements());
