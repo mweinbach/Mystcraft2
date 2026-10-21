@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import mekanism.api.MekanismAPI;
 import mekanism.api.RelativeSide;
-import mekanism.client.gui.GuiMekanism;
 import mekanism.client.gui.GuiRadialSelector;
 import mekanism.client.render.MekanismRenderer.Model3D;
 import mekanism.client.render.RenderResizableCuboid.FaceDisplay;
@@ -55,7 +54,6 @@ import mekanism.common.util.ChemicalUtil;
 import mekanism.common.util.EnumUtils;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.WorldUtils;
-import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel.ArmPose;
@@ -92,7 +90,6 @@ import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.model.data.ModelData;
@@ -130,18 +127,6 @@ public class RenderTickHandler {
 
     public static void renderBolt(Object renderer, BoltEffect bolt) {
         boltRenderer.update(renderer, bolt, MekanismRenderer.getPartialTick());
-    }
-
-    //Note: This listener is only registered if JEI is loaded
-    public static void guiOpening(ScreenEvent.Opening event) {
-        if (event.getCurrentScreen() instanceof GuiMekanism<?> screen) {
-            //If JEI is loaded and our current screen is a mekanism gui,
-            // check if the new screen is a JEI recipe screen
-            if (event.getNewScreen() instanceof IRecipesGui) {
-                //If it is mark on our current screen that we are switching to JEI
-                screen.switchingToJEI = true;
-            }
-        }
     }
 
     public static void addTransparentRenderer(RenderType renderType, LazyRender render) {

@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
@@ -221,8 +222,8 @@ public class FluidStack {
         return isFluidEqual(other) && amount == other.amount;
     }
 
-    public boolean isFluidEqual(@NotNull net.minecraft.world.item.ItemStack other) {
-        return ports.mekanism.lib.fluids.FluidUtil.getFluidContained(other).map(this::isFluidEqual).orElse(false);
+    public boolean isFluidEqual(@NotNull ItemStack other) {
+        return FluidUtil.getFluidContained(other).map(this::isFluidEqual).orElse(false);
     }
 
     @Override
