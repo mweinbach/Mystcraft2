@@ -83,11 +83,11 @@ public class DiamondItemBehaviour extends PipeBehaviour {
         }
     }
 
+    /** Splits only between the faces of highest priority, so a lens filter's preference holds. */
     @Override
     public void split(List<EnumSet<Direction>> order, List<ItemEntry> items, RandomSource random) {
-        EnumSet<Direction> all = EnumSet.noneOf(Direction.class);
-        for (EnumSet<Direction> set : order) all.addAll(set);
-        Direction[] allSides = all.toArray(new Direction[0]);
+        if (order.isEmpty()) return;
+        Direction[] allSides = order.get(0).toArray(new Direction[0]);
         if (allSides.length <= 1) return;
         List<ItemEntry> toSplit = new ArrayList<>(items);
         items.clear();

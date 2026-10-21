@@ -249,4 +249,37 @@ public final class LensTests {
             require(helper, count(north, Items.COBBLESTONE) + count(east, Items.DIRT) + count(east, Items.SAND) == 0, "no item goes the other way");
         });
     }
+
+    /**
+     * A diamond pipe without filters set splits stacks, but only between the faces its lens filters put first: red and
+     * blue stacks go whole to their filters, and an unpainted stack splits evenly between the two unfiltered exits.
+     */
+    public static void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) {
+        chest(helper, new BlockPos(0, 2, 2));
+        PipeBlockEntity diamond = pipe(helper, new BlockPos(2, 2, 2), BCTransport.DIAMOND_ITEM);
+        pipe(helper, new BlockPos(1, 2, 2), BCTransport.STONE_ITEM);
+        pipe(helper, new BlockPos(2, 2, 1), BCTransport.STONE_ITEM);
+        pipe(helper, new BlockPos(2, 2, 3), BCTransport.STONE_ITEM);
+        pipe(helper, new BlockPos(3, 2, 2), BCTransport.STONE_ITEM);
+        pipe(helper, new BlockPos(2, 3, 2), BCTransport.STONE_ITEM);
+        ChestBlockEntity north = chest(helper, new BlockPos(2, 2, 0));
+        ChestBlockEntity south = chest(helper, new BlockPos(2, 2, 4));
+        ChestBlockEntity east = chest(helper, new BlockPos(4, 2, 2));
+        ChestBlockEntity up = chest(helper, new BlockPos(2, 4, 2));
+        lens(diamond, Direction.SOUTH, RED_FILTER);
+        lens(diamond, Direction.EAST, BLUE_FILTER);
+
+        helper.runAfterDelay(2, () -> {
+            items(diamond).injectItem(new ItemStack(Items.COBBLESTONE, 16), true, Direction.WEST, DyeColor.RED, SPEED);
+            items(diamond).injectItem(new ItemStack(Items.SAND, 16), true, Direction.WEST, DyeColor.BLUE, SPEED);
+            items(diamond).injectItem(new ItemStack(Items.DIRT, 16), true, Direction.WEST, null, SPEED);
+        });
+        helper.succeedWhen(() -> {
+            require(helper, count(south, Items.COBBLESTONE) == 16 && count(east, Items.SAND) == 16
+                    && count(north, Items.DIRT) == 8 && count(up, Items.DIRT) == 8,
+                    "painted stacks go whole to their filter and unpainted ones split between the unfiltered exits; south "
+                            + count(south, Items.COBBLESTONE) + " cobblestone, east " + count(east, Items.SAND) + " sand, north "
+                            + count(north, Items.DIRT) + " and up " + count(up, Items.DIRT) + " dirt");
+        });
+    }
 }

@@ -272,6 +272,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void neighbourFilterSteersAndClearLensWashes(GameTestHelper helper) { LensTests.neighbourFilterSteersAndClearLensWashes(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) { LensTests.diamondPipeSplitKeepsFilterPriority(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 

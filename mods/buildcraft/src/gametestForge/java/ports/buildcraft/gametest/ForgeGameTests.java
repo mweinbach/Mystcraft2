@@ -274,6 +274,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void neighbourFilterSteersAndClearLensWashes(GameTestHelper helper) { LensTests.neighbourFilterSteersAndClearLensWashes(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) { LensTests.diamondPipeSplitKeepsFilterPriority(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
