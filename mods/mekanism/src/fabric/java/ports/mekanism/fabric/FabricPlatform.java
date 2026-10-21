@@ -33,6 +33,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.api.distmarker.Dist;
@@ -228,6 +229,6 @@ public final class FabricPlatform implements Platform.Backend {
 
     @Override
     public <T> LazyOptional<T> foreignCapability(Object provider, Capability<T> capability, @Nullable Direction side) {
-        return LazyOptional.empty();
+        return provider instanceof BlockEntity blockEntity ? FabricTransfer.foreignCapability(blockEntity, capability, side) : LazyOptional.empty();
     }
 }

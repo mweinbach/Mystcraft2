@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -78,6 +79,7 @@ public final class FabricLifecycle {
         registerAutomaticSubscribers();
         postToMods(new NewRegistryEvent(builder -> Platform.backend().createRegistry(builder)));
         registerContent();
+        FabricTransfer.registerBlockEntityLookups(MODS.stream().map(OwnMod::modId).collect(Collectors.toSet()));
         postToMods(new EntityAttributeCreationEvent());
         if (Platform.dist() == Dist.CLIENT) {
             ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get());

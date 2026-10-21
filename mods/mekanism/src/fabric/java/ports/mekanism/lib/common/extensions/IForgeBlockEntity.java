@@ -18,12 +18,15 @@ import ports.mekanism.lib.common.capabilities.AttachedCapabilities;
 import ports.mekanism.lib.common.capabilities.Capability;
 import ports.mekanism.lib.common.capabilities.ICapabilitySerializable;
 import ports.mekanism.lib.common.util.LazyOptional;
+import ports.mekanism.platform.Platform;
 
 /**
  * Methods Forge adds to {@link BlockEntity}, including those of its capability provider base class, injected into it
  * on Fabric. Mixins call {@link #onLoad}, {@link #onChunkUnloaded}, {@link #invalidateCaps} and {@link #reviveCaps} at
  * the points Forge does, and the client networking mixin hands update packets and tags to {@link #onDataPacket} and
  * {@link #handleUpdateTag}. The model data reaches Fabric's renderer as the block entity's render attachment.
+ * Capabilities nothing attached fall back to the loader's API, so other mods' storages answer Forge's item, fluid and
+ * energy capabilities.
  */
 public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> {
 
@@ -37,7 +40,8 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
     @NotNull
     @Override
     default <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return ((AttachedCapabilities.Holder) this).mekanism$capabilities().getCapability(cap, side);
+        LazyOptional<T> attached = ((AttachedCapabilities.Holder) this).mekanism$capabilities().getCapability(cap, side);
+        return attached.isPresent() ? attached : Platform.foreignCapability(this, cap, side);
     }
 
     default void invalidateCaps() {
