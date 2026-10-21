@@ -838,6 +838,12 @@
         ]
       },
       {
+        "output": "buildcraft:map_location",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
         "output": "buildcraft:oil_dense_bucket",
         "ingredients": [
           "FAKE|no_emc"

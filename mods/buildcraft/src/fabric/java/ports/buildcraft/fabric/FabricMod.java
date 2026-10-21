@@ -12,10 +12,16 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.SchematicSingleItem;
+import ports.buildcraft.core.MapLocationItem;
 import ports.buildcraft.core.BCCoreEvents;
 import ports.buildcraft.platform.Platform;
 
@@ -44,7 +50,7 @@ public final class FabricMod implements ModInitializer {
                         }
                     });
                 }));
-        UseBlockCallback.EVENT.register(SchematicSingleItem::useFirst);
+        UseBlockCallback.EVENT.register(FabricMod::useFirst);
         ServerTickEvents.END_WORLD_TICK.register(BCCoreEvents::onLevelTick);
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (entity instanceof ServerPlayer player) BCCoreEvents.onPlayerJoinLevel(player, level);
@@ -52,5 +58,11 @@ public final class FabricMod implements ModInitializer {
         // Forge adds the same placed feature to #minecraft:is_overworld through data/buildcraft/forge/biome_modifier/oil_well.json.
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld().or(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD)),
                 GenerationStep.Decoration.LAKES, ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, BuildCraft.id("oil_well")));
+    }
+
+    /** A map location records the clicked block before the block's own use, as a single schematic does. */
+    private static InteractionResult useFirst(Player player, Level level, InteractionHand hand, BlockHitResult hit) {
+        InteractionResult result = SchematicSingleItem.useFirst(player, level, hand, hit);
+        return result == InteractionResult.PASS ? MapLocationItem.useFirst(player, level, hand, hit) : result;
     }
 }

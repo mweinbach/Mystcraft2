@@ -59,6 +59,8 @@ worlds do not migrate between them or from 1.12.
 - Facades: made in the assembly table from three structure pipes and a block, six full and six hollow.
   A facade copies that block onto a pipe face, including connected and translucent blocks; a hollow
   one leaves the pipe connected. One facade in a crafting grid flips hollow.
+- Zone planner: paints a robot zone onto a map of the world. A coloured paintbrush chooses the layer, and a
+  map location carries a spot, an area, a path or a zone in and out. The block shows that map on its face.
 - Machine control: a gate facing the filler can turn it on, off or into a loop and set its pattern.
   The filler's screen stays locked while a gate holds the pattern, and shows the mode's icon when the
   filler is off or looping. Other machines do not take gate control.
@@ -70,7 +72,7 @@ worlds do not migrate between them or from 1.12.
 - Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
-**This is not full BuildCraft.** Robots and several pipe types are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
+**This is not full BuildCraft.** Robots, docking stations and several pipe types are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
 
@@ -91,8 +93,8 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame, filler, builder, electronic library, replacer, single block schematics, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT) and the refinery's
-by-products and intermediate heats. Oil is valued like lava,
+frame, filler, builder, electronic library, replacer, single block schematics, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT), the map location (which upstream gives no recipe) and the refinery's
+by-products and intermediate heats. Paintbrushes and the zone planner take their value from their recipes. Oil is valued like lava,
 light fuel at the two buckets of oil the refinery needs to make one, a recorded template or
 blueprint like a blank one, chipsets, pipe wire, the pipe pulsar, the timer and the light sensor like their assembly ingredients, gates and the gate copier at the cheaper of their crafting and assembly ingredients, and a facade as the dirt recipe (one full block plus three structure pipes) divided by six, with laser power unvalued. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).

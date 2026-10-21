@@ -61,6 +61,9 @@ import ports.buildcraft.factory.DistillerBlockEntity;
 import ports.buildcraft.factory.HeatExchangerBlock;
 import ports.buildcraft.factory.HeatExchangerBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
+import ports.buildcraft.robotics.BCRobotics;
+import ports.buildcraft.robotics.ZonePlannerBlockEntity;
+import ports.buildcraft.robotics.zone.ZonePlan;
 import ports.buildcraft.silicon.AdvancedCraftingTableBlockEntity;
 import ports.buildcraft.silicon.AssemblyTableBlockEntity;
 import ports.buildcraft.silicon.BCSilicon;
@@ -204,6 +207,14 @@ public final class Showcase {
      */
     public static void buildSensors(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).sensors();
+    }
+
+    /**
+     * A zone planner facing south, its red layer painted as a cross around the block, and a chest with a red
+     * paintbrush, a clean paintbrush and a blank map location.
+     */
+    public static void buildZones(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).zones();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -523,6 +534,24 @@ public final class Showcase {
         logic.statements[1].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
         logic.statements[1].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_MACHINE_CONTROL_OFF, Direction.EAST));
         logic.onTick();
+    }
+
+    private void zones() {
+        prepare(-1, 6, -1, 5);
+        BlockState state = BCRobotics.ZONE_PLANNER.get().defaultBlockState().setValue(FacingMachineBlock.FACING, Direction.SOUTH);
+        set(2, 0, 2, state);
+        if (level.getBlockEntity(at(2, 0, 2)) instanceof ZonePlannerBlockEntity planner) {
+            ZonePlan red = new ZonePlan();
+            for (int i = -8; i <= 8; i++) {
+                red.set(i, 0, true);
+                red.set(0, i, true);
+            }
+            planner.layers[DyeColor.RED.getId()] = red;
+            planner.setChanged();
+            level.sendBlockUpdated(at(2, 0, 2), state, state, Block.UPDATE_CLIENTS);
+        }
+        chest(4, 0, 2, new ItemStack(BCCore.PAINTBRUSHES.get(DyeColor.RED).get()), new ItemStack(BCCore.PAINTBRUSH.get()),
+                new ItemStack(BCCore.MAP_LOCATION.get()));
     }
 
     private FillerBlockEntity filler(int x, int y, int z, Direction facing) {

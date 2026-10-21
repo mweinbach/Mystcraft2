@@ -23,7 +23,7 @@ modifiers contribute, at the same decoration step. Vein size, height, attempts p
 the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
 highlighting and in-game key and scroll input are wired (see below). An anchor upgrade keeps that machine's chunk
 loaded, and the same tickets come back when the level loads. The shared GameTests (core machines, loader interop,
-chemical lookups, ore generation, item and block hooks, and chunk loading) pass on both loaders.
+chemical lookups, ore generation, item and block hooks, chunk loading, and render bounds) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -38,7 +38,12 @@ chemical lookups, ore generation, item and block hooks, and chunk loading) pass 
   `mekanism:heat_handler`); the ids, context classes and the `ports.mekanism.fabric.api.MekanismChemicalLookups`
   fields are listed in [README.md](README.md). The handler is the port's capability for that side or stack, in
   Mekanism chemical units. Mekanism registers its own blocks and items. Other mods can register on the same lookups.
-  A Forge chemical or heat capability asked of a foreign block does not fall back to them.
+  A Forge chemical or heat capability asked of a foreign block falls back to the matching lookup, which is how a
+  pressurized tube pulls gas another mod registered. Mekanism's own block entities are skipped, so the fallback does
+  not call their lookup providers. Forge `conditions` on a data file are applied while JSON is prepared only when
+  every condition is a Forge type this port can read and none is `forge:tag_empty` (tags are not bound yet, and an
+  empty condition context would treat every tag as empty). Unknown types and tag conditions stay in the file for
+  that mod's own loader conditions.
 - `scripts/generate_fabric_tags.py` writes the Fabric tag bridges: the `forge:` tags Forge itself defines (from
   `scripts/forge-tags.json`, Forge 43.5.0's data), each Mekanism `forge:` tag with its `c:` equivalent as an optional
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
@@ -48,6 +53,11 @@ chemical lookups, ore generation, item and block hooks, and chunk loading) pass 
   `TileComponentChunkLoader`, and any machine with an anchor upgrade does too. Fabric saves those tickets with the
   level and, when the level loads, asks Mekanism to validate them before the chunks are loaded again. The ticket is
   vanilla's `/forceload` level, so the chunk, its entities and its block entities tick.
+- Block entity renderers are culled with `getRenderBoundingBox`. The default is Forge's collision shape, with the
+  chest, enchanting table, beacon and structure block cases. Multiblocks, the digital miner, the dimensional
+  stabilizer, the teleporter, transmitters, the pigment mixer, the seismic vibrator and the industrial alarm override
+  that box, so they keep drawing while any of it is in the frustum. `Entity.onRemovedFromWorld` runs when an entity
+  leaves the level's tracking lists. A following Robit uses it to hold its chunk for a second after it is unloaded.
 
 ## Fabric: item and block hooks vanilla calls
 
@@ -112,10 +122,9 @@ MekaSuit armor layer is attached when the renderers reload.
   load and unload, and recipes updated. MekaSuit and jetpack ticking, radiation damage on players and free runners'
   fall behavior need the player and living events. `onArmorTick` does run; the modules that need a player tick still
   do not.
-- `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit and the energy cube's
-  core renderer.
+- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
+  energy cube's core renderer.
 
 ## Fabric: deliberate limits of the Forge API mirror
 

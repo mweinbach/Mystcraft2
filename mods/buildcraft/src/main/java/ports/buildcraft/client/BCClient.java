@@ -29,6 +29,7 @@ import ports.buildcraft.builders.snapshot.Snapshot;
 import ports.buildcraft.builders.snapshot.SnapshotPackets;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.FragileFluidShardItem;
+import ports.buildcraft.core.MapLocationItem;
 import ports.buildcraft.core.marker.volume.ClientVolumeBoxes;
 import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.energy.BCEnergy;
@@ -36,6 +37,8 @@ import ports.buildcraft.energy.BCFluidDefinition;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.robotics.BCRobotics;
+import ports.buildcraft.robotics.ZonePackets;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.GateCopierItem;
 import ports.buildcraft.silicon.plug.LensVariant;
@@ -67,6 +70,7 @@ public final class BCClient {
         sink.register(BCCore.MARKER_VOLUME_TYPE.get(), context -> new MarkerRenderer.Volume());
         sink.register(BCCore.MARKER_PATH_TYPE.get(), context -> new MarkerRenderer.Path());
         sink.register(BCSilicon.LASER_TYPE.get(), context -> new LaserBlockRenderer());
+        sink.register(BCRobotics.ZONE_PLANNER_TYPE.get(), context -> new ZonePlannerRenderer());
     }
 
     public interface ItemColourSink {
@@ -99,6 +103,8 @@ public final class BCClient {
         });
         sink.register(BCSilicon.GATE_COPIER.get(), BuildCraft.id("full"),
                 (stack, level, entity, seed) -> GateCopierItem.getCopiedGateData(stack) != null ? 1 : 0);
+        sink.register(BCCore.MAP_LOCATION.get(), BuildCraft.id("type"),
+                (stack, level, entity, seed) -> MapLocationItem.Type.of(stack).ordinal());
     }
 
     /** Called on the client thread once registries are populated. */
@@ -116,6 +122,7 @@ public final class BCClient {
         MenuScreens.register(BCSilicon.ADVANCED_CRAFTING_TABLE_MENU.get(), AdvancedCraftingTableScreen::new);
         MenuScreens.register(BCSilicon.INTEGRATION_TABLE_MENU.get(), IntegrationTableScreen::new);
         MenuScreens.register(BCSilicon.GATE_MENU.get(), GateScreen::new);
+        MenuScreens.register(BCRobotics.ZONE_PLANNER_MENU.get(), ZonePlannerScreen::new);
     }
 
     /** Server-to-client messages by channel; loaders hand each payload over on the client thread. */
@@ -123,7 +130,8 @@ public final class BCClient {
         return Map.of(VolumeBoxes.CHANNEL, ClientVolumeBoxes::receive,
                 SnapshotPackets.RESPONSE_CHANNEL, ClientSnapshots::receive,
                 ElectronicLibraryBlockEntity.DOWN_CHANNEL, ElectronicLibraryBlockEntity::receiveDown,
-                ElectronicLibraryBlockEntity.UP_REQUEST_CHANNEL, BCClient::receiveUploadRequest);
+                ElectronicLibraryBlockEntity.UP_REQUEST_CHANNEL, BCClient::receiveUploadRequest,
+                ZonePackets.MAP_RESPONSE_CHANNEL, ZonePlannerMapDataClient.INSTANCE::receive);
     }
 
     /** The server asks for the snapshot selected in a library; only a client holding it answers. */
