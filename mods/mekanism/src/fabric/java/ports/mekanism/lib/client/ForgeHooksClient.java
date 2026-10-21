@@ -6,6 +6,7 @@ package ports.mekanism.lib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.lib.client.event.InputEvent;
 import ports.mekanism.lib.client.event.RenderHighlightEvent;
 import ports.mekanism.lib.client.event.sound.PlaySoundEvent;
 import ports.mekanism.lib.common.MinecraftForge;
@@ -36,6 +38,16 @@ public final class ForgeHooksClient {
             return MinecraftForge.EVENT_BUS.post(new RenderHighlightEvent.Entity(context, camera, entityTarget, partialTick, poseStack, bufferSource));
         }
         return false;
+    }
+
+    /**
+     * Posts the in-game mouse wheel event. Canceling it stops the hotbar from scrolling.
+     *
+     * @return {@code true} when the event was canceled
+     */
+    public static boolean onMouseScroll(MouseHandler mouse, double scrollDelta) {
+        return MinecraftForge.EVENT_BUS.post(new InputEvent.MouseScrollingEvent(scrollDelta, mouse.isLeftPressed(), mouse.isMiddlePressed(),
+              mouse.isRightPressed(), mouse.xpos(), mouse.ypos()));
     }
 
     /**

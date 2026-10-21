@@ -28,15 +28,19 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   other mods can charge Mekanism's energy items and fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
+  Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
+  modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
-  An anchor upgrade keeps that machine's chunk loaded, including after a restart. Forced chunks do not random-tick.
-  The Forge events behind gear ticking, HUD overlays and player effects are not;
-  [PARITY.md](PARITY.md) lists every gap.
+  Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
+  layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
+  loaded, including after a restart. Forced chunks do not random-tick.
+  [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, item and block hooks, chunk loading, render bounds, and the dynamic tank) pass on both loaders.
+  lookups, ore generation, the item and block hooks, chunk loading, render bounds, the player and living events, and
+  the dynamic tank) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

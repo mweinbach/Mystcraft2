@@ -20,13 +20,14 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back
-when the level loads. A dynamic tank shell of casing, structural glass and one valve forms at 3×3×3, rejects a missing
-block or a 2×2×2, and moves fluid through the valve's loader fluid API. Breaking the blocks and loading their saved
-cache brings the fluid and the container edit mode back. The master's render box is that structure. In the development
-client that formed tank draws the fluid it is holding through the structural glass. The shared GameTests (core
-machines, loader interop, chemical lookups, ore generation, item and block hooks, chunk loading, render bounds, and
-the dynamic tank) pass on both loaders.
+the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
+highlighting and in-game key and scroll input are wired (see below). An anchor upgrade keeps that machine's chunk
+loaded, and the same tickets come back when the level loads. A dynamic tank shell of casing, structural glass and one
+valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through the valve's loader fluid API.
+Breaking the blocks and loading their saved cache brings the fluid and the container edit mode back. The master's
+render box is that structure. In the development client that formed tank draws the fluid it is holding through the
+structural glass. The shared GameTests (core machines, loader interop, chemical lookups, ore generation, the item and
+block hooks, chunk loading, render bounds, the player and living events, and the dynamic tank) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -83,17 +84,76 @@ and block methods are.
 - `Block.rotate(state, Rotation)` is still the method structures call. The four-argument Forge overload exists on the
   block; nothing in vanilla 1.19.2 structure placement calls it.
 
+## Fabric: client events
+
+These fire at the same points Forge 43.5.0 does. Fabric API is used where it has the callback; the rest are mixins.
+
+- Client tick start and end, and the client level tick, from Fabric's client tick events.
+- Render tick start immediately before `GameRenderer.render`, and render tick end after the toast pass. The radiation
+  overlay and the fading item-mode line are drawn on the render tick end.
+- HUD overlays registered above the hotbar and above the armor level are drawn at those anchors. The crosshair overlay
+  pre event can cancel the crosshair. Vanilla still draws its own HUD parts; only the crosshair posts
+  `RenderGuiOverlayEvent`, because that is the vanilla overlay Mekanism cancels.
+- Fog color, then fog distance, after vanilla has computed each. A canceled distance event replaces the near plane, far
+  plane and shape, which is how the MekaSuit's vision enhancement pushes fog out.
+- Level stage after translucent blocks, from Fabric's world render event, and after particles (both the normal and the
+  fabulous path). Sky, solid, cutout, tripwire and weather stages are not posted.
+- Living entity render pre and post. A canceled pre skips the entity and does not post the matching post event.
+  First-person arms post `RenderArmEvent` and skip vanilla's arm when it is canceled, which is where the MekaSuit arm
+  is drawn.
+- `EntityRenderersEvent.AddLayers` after the entity render dispatcher rebuilds its renderers. That attaches the
+  MekaSuit armor layer and the elytra layer.
+- Block highlight before vanilla's outline, from Fabric's before-block-outline event. Canceling a block highlight
+  skips the outline. The configurator side overlay and custom selection boxes use this event. An entity under the
+  crosshair posts the entity highlight from the same callback; vanilla still draws no entity outline.
+- Mouse wheel in game with no screen open, after a whole notch has accumulated and before the hotbar moves. On macOS a
+  horizontal wheel with no vertical movement counts as vertical. Canceling the event consumes the notch. Shift-scroll
+  mode changes use this.
+- A key press is delivered to every mapping bound to that key, so an unmodified binding and a modified one both see it.
+  The mapping still has to be in an active conflict context with its modifier held before it counts as down.
+
+Checked on a Fabric development client in creative and then survival: the MekaSuit module list, jetpack mode,
+configurator mode and compass draw, and the survival energy bar draws above the health row. The radiation tint reads
+the client dose. That dose is synced from the player tick. The player tick was unwired when the client was checked,
+so the tint was not seen. The MekaSuit armor layer is attached when the renderers reload.
+
+## Fabric: player and living events
+
+These fire from the same vanilla methods Forge 43.5.0 patches. Listeners on the port's bus see them, so the server
+applies jetpack thrust, scuba air, free-runner fall absorption, radiation, step assist and the MekaSuit's break-speed
+modules. `onArmorTick` already ran; the modules that only needed a player tick now run with it.
+
+- Player tick, start and end. The server end tick is what drives the jetpack, scuba tank, radiation and step assist.
+  Step assist and the hydrostatic repulsor write Forge's step-height and swim-speed attributes. Living entities have
+  those attributes, players also have reach distance, collision steps up by the step-height attribute, and swimming
+  scales by swim speed. The client publishes the ascend key from `ClientTickEvent` start, which the client tick
+  wiring posts, so a normal-mode jetpack follows the jump key.
+- Living tick, attack, hurt, damage, fall, jump and death. A non-player posts living attack from `LivingEntity.hurt`.
+  A player posts it from `Player.hurt` and skips the living-entity copy, matching Forge. Death is posted from
+  `LivingEntity.die`, `Player.die` and `ServerPlayer.die`, so an uncancelled player death posts three times.
+  `ServerPlayer` posts after its death game event. Living damage is posted from the health change inside
+  `actuallyHurt`, and the adjusted amount is what combat tracking, food exhaustion, damage statistics and the
+  following absorption update use. Cancelling the event skips that bookkeeping. The attacker's absorbed-damage
+  statistic stays the absorption applied before the event. When armor and absorption already reduced the damage to
+  zero, vanilla never changes health, so that zero-damage event is not posted.
+- Break speed, including the position `getDestroyProgress` is measuring. Direct `getDestroySpeed` calls pass an empty
+  position. A cancelled break speed returns -1, which stops the break. This is the hook the Meka-Tool, atomic
+  disassembler and MekaSuit gyroscopic stabilization use.
+- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, and the crafting player is set around the
+  remainder lookup. Bin insert recipes consume the rest of the grid through this event.
+- Entity join, cancellable, from `PersistentEntitySectionManager.addEntity` before the entity is added. A cardboard
+  box uses it to swallow dropped items and experience. Players are included once, after a duplicate UUID is removed.
+  Forge posts a player's join slightly earlier, from `ServerLevel.addPlayer`, and then skips this second post.
+- Entity leave, from Fabric's server entity unload, after the entity stops being tracked. Forge also posts it on the
+  client; the client copy is unwired.
+
 ## Fabric: not written yet
 
 - Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
   is not called.
-- Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
-  item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
-  events, recipes updated, GUI overlay rendering, block highlight, living entity rendering, fog, mouse scrolling and
-  `EntityRenderersEvent.AddLayers`. Features that rely on them (MekaSuit and jetpack ticking, radiation effects on
-  players, free runners' fall behavior, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
-  `onArmorTick` does run; the modules that need a player tick still do not.
-- Key mappings bound to more than one key and custom ingredient types.
+- Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
+  unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
+- One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, the other multiblocks, QIO, the digital miner, Robit, gear and
   the energy cube's core renderer. A formed dynamic tank holding water was checked: the fluid body renders inside
   the structural glass.
@@ -116,6 +176,8 @@ and block methods are.
   Fabric that flag is saved so validation can tell it from an anchor upgrade, and it does not enable random ticks.
 - The ender dragon's part entities are not exposed through Forge's `PartEntity` API.
 - Key mapping modifiers are not saved.
-- HUD overlays are drawn in registration order rather than Forge's overlay order.
+- Modded HUD overlays anchored inside vanilla's health, armor, food and air group are drawn after that whole group.
+  Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
+  Their screen position still comes from the same left and right bar heights.
 - OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
 - Data generation runs on Forge only; both loaders ship the checked-in generated data.
