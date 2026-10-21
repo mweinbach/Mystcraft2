@@ -40,11 +40,9 @@ public final class ZonePlannerScreen extends BCScreen<ZonePlannerMenu> {
 
     public ZonePlannerScreen(ZonePlannerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BuildCraft.id("textures/gui/zone_planner.png"), 256, 228);
-        ZonePlannerBlockEntity planner = planner();
-        if (planner != null) {
-            cameraX = planner.getBlockPos().getX();
-            cameraZ = planner.getBlockPos().getZ();
-        }
+        // The client has not assigned minecraft yet. The menu already knows the planner, as upstream's container did.
+        cameraX = menu.pos().getX();
+        cameraZ = menu.pos().getZ();
     }
 
     @Nullable

@@ -72,6 +72,15 @@ public class ZonePlannerBlockEntity extends SyncedBlockEntity implements MenuPro
         long now = level.getGameTime();
         deltaProgressInput.tick(now);
         deltaProgressOutput.tick(now);
+        advance(now);
+        flushSync();
+    }
+
+    /**
+     * Import returns before export, as upstream did. The caller flushes, because both arms return while work is
+     * still running and that is when the progress animation has to reach an already-open client.
+     */
+    private void advance(long now) {
         if (importReady()) {
             if (progressInput == 0) {
                 deltaProgressInput.addDelta(now, 0, WORK, 1);
@@ -119,7 +128,6 @@ public class ZonePlannerBlockEntity extends SyncedBlockEntity implements MenuPro
             deltaProgressOutput.setValue(0);
             queueSync();
         }
-        flushSync();
     }
 
     /** A coloured brush and one map that already holds a zone, with the result slot empty. A clean brush is not ready. */

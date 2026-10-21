@@ -164,7 +164,11 @@ public final class ZonePlannerTests {
         MapLocationItem.setZone(map, world);
         planner.setItem(ZonePlannerBlockEntity.SLOT_INPUT_BRUSH, new ItemStack(BCCore.PAINTBRUSHES.get(DyeColor.RED).get()));
         planner.setItem(ZonePlannerBlockEntity.SLOT_INPUT_MAP, map);
-        for (int tick = 0; tick < 200; tick++) planner.serverTick();
+        planner.serverTick();
+        BCTests.require(helper, !planner.hasPendingClientUpdate()
+                && planner.getUpdateTag().getCompound("deltaInput").getList("changing", 10).size() == 2,
+                "the first import tick sends the progress animation");
+        for (int tick = 0; tick < 199; tick++) planner.serverTick();
         BCTests.require(helper, planner.getItem(ZonePlannerBlockEntity.SLOT_INPUT_MAP).is(BCCore.MAP_LOCATION.get())
                 && !planner.layers[DyeColor.RED.getId()].get(3, -2), "the import is still running after 200 ticks");
         planner.serverTick();
@@ -284,6 +288,24 @@ public final class ZonePlannerTests {
         ZonePlannerMapChunk.Column column = chunk.column(emerald.getX(), emerald.getZ());
         BCTests.require(helper, column != null && column.y() == expectedY && column.colour() == expectedColour && column.y() >= emerald.getY(),
                 "the slice's top coloured block matches the world, got " + column + " expected y " + expectedY);
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        chunk.write(buffer);
+        ZonePlannerMapChunk echoed = new ZonePlannerMapChunk(buffer);
+        ZonePlannerMapChunk.Column echoedColumn = echoed.column(emerald.getX(), emerald.getZ());
+        BCTests.require(helper, !buffer.isReadable() && echoedColumn != null
+                && echoedColumn.y() == column.y() && echoedColumn.colour() == column.colour(),
+                "the scanned column survives the map packet, got " + echoedColumn);
+        ZonePlannerMapChunk low = new ZonePlannerMapChunk();
+        low.setColumn(0, 0, 0, 111);
+        low.setColumn(1, 0, -40, 222);
+        buffer = new FriendlyByteBuf(Unpooled.buffer());
+        low.write(buffer);
+        ZonePlannerMapChunk lowRead = new ZonePlannerMapChunk(buffer);
+        ZonePlannerMapChunk.Column atZero = lowRead.column(0, 0);
+        ZonePlannerMapChunk.Column below = lowRead.column(1, 0);
+        BCTests.require(helper, !buffer.isReadable() && atZero != null && atZero.y() == 0 && atZero.colour() == 111
+                && below != null && below.y() == -40 && below.colour() == 222 && lowRead.column(2, 0) == null,
+                "a column at y 0 and one below it keep the following columns aligned");
         BlockPos cap = new BlockPos(emerald.getX(), ZonePlannerMapChunkKey.SEARCH_TOP, emerald.getZ());
         BCTests.require(helper, ZonePlannerMapChunkKey.levelOf(helper.getLevel(), cap) == 255 / ZonePlannerMapChunkKey.LEVEL_HEIGHT,
                 "the ground search stops at y 255");

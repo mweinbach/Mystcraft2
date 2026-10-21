@@ -34,27 +34,37 @@ public final class ZonePlannerMapChunk {
         }
     }
 
+    /** An empty chunk. {@link #setColumn} fills it before {@link #write}. */
+    public ZonePlannerMapChunk() {}
+
     public ZonePlannerMapChunk(FriendlyByteBuf buffer) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int y = buffer.readInt();
-                if (y > 0) columns[x][z] = new Column(y, buffer.readInt());
+                if (buffer.readBoolean()) columns[x][z] = new Column(buffer.readInt(), buffer.readInt());
             }
         }
     }
 
+    /**
+     * Upstream wrote a height and treated {@code y <= 0} as an empty column, which matched a world that stopped at
+     * y 0. A 1.19 column can sit at or below 0, so each column is a presence flag followed by its height and colour.
+     */
     public void write(FriendlyByteBuf buffer) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 Column column = columns[x][z];
-                if (column == null) {
-                    buffer.writeInt(-1);
-                } else {
+                buffer.writeBoolean(column != null);
+                if (column != null) {
                     buffer.writeInt(column.y);
                     buffer.writeInt(column.colour);
                 }
             }
         }
+    }
+
+    /** Records the coloured surface of one column. */
+    public void setColumn(int x, int z, int y, int colour) {
+        columns[x & 15][z & 15] = new Column(y, colour);
     }
 
     public int colour(int x, int z) {
