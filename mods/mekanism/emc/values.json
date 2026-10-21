@@ -1877,6 +1877,163 @@
       "projecte": 2048,
       "itemalchemy": 2048,
       "source": "conversion mek_processing_uranium_yellow_cake_uranium"
+    },
+    "mekanismgenerators:advanced_solar_generator": {
+      "projecte": 53756,
+      "itemalchemy": 53572,
+      "source": "recipe"
+    },
+    "mekanismgenerators:bio_generator": {
+      "projecte": 1568,
+      "itemalchemy": 1552,
+      "source": "recipe"
+    },
+    "mekanismgenerators:bioethanol_bucket": {
+      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+    },
+    "mekanismgenerators:control_rod_assembly": {
+      "projecte": 7604,
+      "itemalchemy": 4480,
+      "source": "recipe"
+    },
+    "mekanismgenerators:deuterium_bucket": {
+      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+    },
+    "mekanismgenerators:electromagnetic_coil": {
+      "projecte": 16164,
+      "itemalchemy": 16085,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fission_fuel_assembly": {
+      "projecte": 3826,
+      "itemalchemy": 3808,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fission_reactor_casing": {
+      "projecte": 610,
+      "itemalchemy": 601,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fission_reactor_logic_adapter": {
+      "projecte": 866,
+      "itemalchemy": 857,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fission_reactor_port": {
+      "projecte": 3996,
+      "itemalchemy": 2434,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fusion_fuel_bucket": {
+      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+    },
+    "mekanismgenerators:fusion_reactor_controller": {
+      "projecte": 41427,
+      "itemalchemy": 17909,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fusion_reactor_frame": {
+      "projecte": 3443,
+      "itemalchemy": 1512,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fusion_reactor_logic_adapter": {
+      "projecte": 3699,
+      "itemalchemy": 1768,
+      "source": "recipe"
+    },
+    "mekanismgenerators:fusion_reactor_port": {
+      "projecte": 12491,
+      "itemalchemy": 5163,
+      "source": "recipe"
+    },
+    "mekanismgenerators:gas_burning_generator": {
+      "projecte": 9320,
+      "itemalchemy": 9211,
+      "source": "recipe"
+    },
+    "mekanismgenerators:heat_generator": {
+      "projecte": 1432,
+      "itemalchemy": 1420,
+      "source": "recipe"
+    },
+    "mekanismgenerators:hohlraum": {
+      "projecte": 8196,
+      "itemalchemy": 8176,
+      "source": "conversion generators_hohlraum"
+    },
+    "mekanismgenerators:laser_focus_matrix": {
+      "projecte": 1312,
+      "itemalchemy": 1304,
+      "source": "recipe"
+    },
+    "mekanismgenerators:module_geothermal_generator_unit": {
+      "projecte": 11848,
+      "itemalchemy": 5676,
+      "source": "recipe"
+    },
+    "mekanismgenerators:module_solar_recharging_unit": {
+      "projecte": 64172,
+      "itemalchemy": 57828,
+      "source": "recipe"
+    },
+    "mekanismgenerators:reactor_glass": {
+      "projecte": 512,
+      "itemalchemy": 508,
+      "source": "recipe"
+    },
+    "mekanismgenerators:rotational_complex": {
+      "projecte": 3692,
+      "itemalchemy": 3628,
+      "source": "recipe"
+    },
+    "mekanismgenerators:saturating_condenser": {
+      "projecte": 2568,
+      "itemalchemy": 2532,
+      "source": "recipe"
+    },
+    "mekanismgenerators:solar_generator": {
+      "projecte": 13115,
+      "itemalchemy": 13074,
+      "source": "recipe"
+    },
+    "mekanismgenerators:solar_panel": {
+      "projecte": 1545,
+      "itemalchemy": 1543,
+      "source": "recipe"
+    },
+    "mekanismgenerators:tritium_bucket": {
+      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+    },
+    "mekanismgenerators:turbine_blade": {
+      "projecte": 1308,
+      "itemalchemy": 1268,
+      "source": "recipe"
+    },
+    "mekanismgenerators:turbine_casing": {
+      "projecte": 357,
+      "itemalchemy": 348,
+      "source": "recipe"
+    },
+    "mekanismgenerators:turbine_rotor": {
+      "projecte": 2358,
+      "itemalchemy": 2292,
+      "source": "recipe"
+    },
+    "mekanismgenerators:turbine_valve": {
+      "projecte": 1178,
+      "itemalchemy": 1156,
+      "source": "recipe"
+    },
+    "mekanismgenerators:turbine_vent": {
+      "projecte": 762,
+      "itemalchemy": 726,
+      "source": "recipe"
+    },
+    "mekanismgenerators:wind_generator": {
+      "projecte": 15672,
+      "itemalchemy": 15622,
+      "source": "conversion generators_wind_generator"
     }
   },
   "vanilla": {

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanismtools",
+  "version": "${version}",
+  "name": "Mekanism: Tools",
+  "description": "Tools module for Mekanism. This jar is an empty scaffold.",
+  "authors": [
+    "Aidancbrady",
+    "Thommy101",
+    "Thiakil",
+    "pupnewfster",
+    "dizzyd"
+  ],
+  "contact": {
+    "homepage": "https://aidancbrady.com/mekanism/",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/mekanism"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.mekanism.tools.fabric.ToolsFabricMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "1.19.2",
+    "java": ">=17",
+    "mekanism": "${version}"
+  }
+}
