@@ -15,10 +15,12 @@ import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import mekanism.common.tile.TileEntityFluidTank;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
 import ports.mekanism.lib.items.ItemHandlerHelper;
 import team.reborn.energy.api.EnergyStorage;
@@ -165,6 +167,12 @@ public final class TestPlatform {
                 return moved / DROPLETS_PER_MB;
             }
         });
+    }
+
+    public static void fillBlockFluid(BlockEntity blockEntity, Fluid fluid, int milliBuckets) {
+        if (blockEntity instanceof TileEntityFluidTank tank) {
+            tank.fluidTank.setStack(new FluidStack(fluid, milliBuckets));
+        }
     }
 
     private static long inSlot(ItemStack stack, Function<ContainerItemContext, Long> action) {

@@ -5,6 +5,7 @@
 package mekanism.gametest;
 
 import java.util.Optional;
+import mekanism.common.tile.TileEntityFluidTank;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -112,6 +113,12 @@ public final class TestPlatform {
 
     private static IFluidHandler.FluidAction action(boolean commit) {
         return commit ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE;
+    }
+
+    public static void fillBlockFluid(BlockEntity blockEntity, Fluid fluid, int milliBuckets) {
+        if (blockEntity instanceof TileEntityFluidTank tank) {
+            tank.fluidTank.setStack(new FluidStack(fluid, milliBuckets));
+        }
     }
 
     private static void keepStack(ItemStack stack, IFluidHandlerItem handler) {

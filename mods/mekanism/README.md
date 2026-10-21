@@ -26,10 +26,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
   universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
   other mods can charge Mekanism's energy items and fill its fluid items the same way.
-  Ore generation and the Forge events behind gear, HUD overlays and player
-  effects are not wired yet; [PARITY.md](PARITY.md) lists every gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines and loader interop) pass on
-  both loaders.
+  Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
+  Ore generation and the Forge events behind gear ticking, HUD overlays and player effects are not;
+  [PARITY.md](PARITY.md) lists every gap.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, and the
+  item and block hooks) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

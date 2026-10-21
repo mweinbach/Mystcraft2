@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.lib.common.ForgeHooks;
 import ports.mekanism.lib.common.util.BlockSnapshot;
 import ports.mekanism.lib.eventbus.api.Cancelable;
 import ports.mekanism.lib.eventbus.api.Event;
@@ -52,6 +53,8 @@ public class BlockEvent extends Event {
         public BreakEvent(Level level, BlockPos pos, BlockState state, Player player) {
             super(level, pos, state);
             this.player = player;
+            this.exp = ForgeHooks.getExpDrop(level, pos, state, player);
+            ForgeHooks.captureBreakExp(this.exp);
         }
 
         public Player getPlayer() {

@@ -152,3 +152,5 @@ accessible field net/minecraft/server/level/ServerPlayer containerCounter I
 accessible method net/minecraft/server/level/ServerPlayer initMenu (Lnet/minecraft/world/inventory/AbstractContainerMenu;)V
 accessible field net/minecraft/world/inventory/MenuType constructor Lnet/minecraft/world/inventory/MenuType$MenuSupplier;
 accessible method net/minecraft/client/gui/screens/MenuScreens getConstructor (Lnet/minecraft/world/inventory/MenuType;)Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;
+# EnchantmentHelper.EnchantmentVisitor is package-private. The enchantment mixin iterates it.
+accessible class net/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor

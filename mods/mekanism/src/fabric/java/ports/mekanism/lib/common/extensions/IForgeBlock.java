@@ -25,6 +25,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.ObserverBlock;
+import net.minecraft.world.level.block.RepeaterBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.WeatheringCopper;
@@ -153,7 +155,19 @@ public interface IForgeBlock {
         return null;
     }
 
+    /**
+     * Whether redstone dust connects to this face. The default matches the blocks vanilla dust connects to, so a wire
+     * still climbs a block and meets a repeater or an observer when a block does not override this.
+     */
     default boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
+        if (state.is(Blocks.REDSTONE_WIRE)) {
+            return true;
+        } else if (state.is(Blocks.REPEATER)) {
+            Direction facing = state.getValue(RepeaterBlock.FACING);
+            return facing == direction || facing.getOpposite() == direction;
+        } else if (state.is(Blocks.OBSERVER)) {
+            return direction == state.getValue(ObserverBlock.FACING);
+        }
         return state.isSignalSource() && direction != null;
     }
 

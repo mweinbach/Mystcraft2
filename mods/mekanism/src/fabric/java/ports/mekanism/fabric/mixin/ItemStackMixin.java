@@ -4,17 +4,28 @@
  */
 package ports.mekanism.fabric.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import java.util.function.Consumer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.mekanism.lib.common.capabilities.AttachedCapabilities;
+import ports.mekanism.lib.common.extensions.IForgeItem;
 import ports.mekanism.lib.common.extensions.IForgeItemStack;
 
 /**
- * Gives item stacks the capabilities of their item. Forge creates them with the stack; here they are created the
- * first time they are asked for, which is the same for Mekanism's item capabilities as they keep their state in the
- * stack's tag.
+ * Gives item stacks the capabilities of their item, and routes durability and tooltip hide flags through the item
+ * hooks Forge calls from {@code ItemStack}.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabilities.Holder {
@@ -30,5 +41,24 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
             mekanism$capabilities = AttachedCapabilities.of(self.getItem().initCapabilities(self, null));
         }
         return mekanism$capabilities;
+    }
+
+    @WrapOperation(method = "hurtAndBreak(ILnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V",
+          at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;hurt(ILnet/minecraft/util/RandomSource;Lnet/minecraft/server/level/ServerPlayer;)Z"))
+    private <T extends LivingEntity> boolean mekanism$damageItem(ItemStack stack, int amount, RandomSource random, @Nullable ServerPlayer player,
+          Operation<Boolean> original, @Local(ordinal = 0) T entity, @Local(ordinal = 0) Consumer<T> onBroken) {
+        // The generic signature of hurtAndBreak makes ModifyVariable see an extra int, so the damage hook wraps hurt.
+        int modified = ((IForgeItem) stack.getItem()).damageItem(stack, amount, entity, onBroken);
+        return original.call(stack, modified, random, player);
+    }
+
+    @Inject(method = "getHideFlags", at = @At("HEAD"), cancellable = true)
+    private void mekanism$hideFlags(CallbackInfoReturnable<Integer> cir) {
+        ItemStack self = (ItemStack) (Object) this;
+        CompoundTag tag = self.getTag();
+        if (tag != null && tag.contains("HideFlags", 99)) {
+            return;
+        }
+        cir.setReturnValue(((IForgeItem) self.getItem()).getDefaultTooltipHideFlags(self));
     }
 }

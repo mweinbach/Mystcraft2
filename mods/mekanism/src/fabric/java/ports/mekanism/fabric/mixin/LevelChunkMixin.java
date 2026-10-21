@@ -6,12 +6,15 @@ package ports.mekanism.fabric.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -45,5 +48,12 @@ public abstract class LevelChunkMixin {
     @WrapOperation(method = "method_31716", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;load(Lnet/minecraft/nbt/CompoundTag;)V"))
     private void mekanism$handleUpdateTag(BlockEntity blockEntity, CompoundTag tag, Operation<Void> load) {
         blockEntity.handleUpdateTag(tag);
+    }
+
+    @Redirect(method = "method_12217", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"))
+    private int mekanism$lightSource(BlockState state, BlockPos pos) {
+        LevelChunk self = (LevelChunk) (Object) this;
+        return state.getLightEmission(self.getLevel(), pos);
     }
 }

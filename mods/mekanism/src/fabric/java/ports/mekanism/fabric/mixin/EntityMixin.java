@@ -4,13 +4,17 @@
  */
 package ports.mekanism.fabric.mixin;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.mekanism.lib.common.MinecraftForge;
@@ -64,5 +68,12 @@ public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.
     @Inject(method = "unsetRemoved", at = @At("TAIL"))
     private void mekanism$reviveCapabilities(CallbackInfo ci) {
         reviveCaps();
+    }
+
+    @Redirect(method = "playStepSound", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"))
+    private SoundType mekanism$stepSound(BlockState state, BlockPos pos, BlockState under) {
+        Entity self = (Entity) (Object) this;
+        return state.getSoundType(self.level, pos, self);
     }
 }

@@ -115,4 +115,12 @@ public interface IForgeBlockState {
     default boolean canConnectRedstone(BlockGetter level, BlockPos pos, @Nullable Direction direction) {
         return self().getBlock().canConnectRedstone(self(), level, pos, direction);
     }
+
+    /**
+     * The name Forge's redstone-wire patch calls. Dust asks the neighbor through this and the block answers
+     * {@link #canConnectRedstone}.
+     */
+    default boolean canRedstoneConnectTo(BlockGetter level, BlockPos pos, @Nullable Direction direction) {
+        return canConnectRedstone(level, pos, direction);
+    }
 }
