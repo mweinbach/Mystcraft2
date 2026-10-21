@@ -295,6 +295,139 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_pipe_wire": {
+      "comment": "The assembly table makes eight pipe wire of one colour from a redstone dust, a dye of that colour and laser power (upstream BCTransportRecipes), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:wire_black",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:black_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_blue",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:blue_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_brown",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:brown_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_cyan",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:cyan_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_gray",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:gray_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_green",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:green_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_light_blue",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:light_blue_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_light_gray",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:light_gray_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_lime",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:lime_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_magenta",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:magenta_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_orange",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:orange_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_pink",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:pink_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_purple",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:purple_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_red",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:red_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_white",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:white_dye": 1
+          }
+        },
+        {
+          "output": "buildcraft:wire_yellow",
+          "count": 8,
+          "ingredients": {
+            "minecraft:redstone": 1,
+            "minecraft:yellow_dye": 1
+          }
+        }
+      ]
     }
   },
   "values": {

@@ -1,0 +1,30 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:wire_light_gray",
+    "count": 8
+  },
+  "MJ": 10000,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:redstone_dusts"
+        },
+        {
+          "tag": "forge:dusts/redstone"
+        }
+      ]
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:light_gray_dyes"
+        },
+        {
+          "tag": "forge:dyes/light_gray"
+        }
+      ]
+    }
+  ]
+}
