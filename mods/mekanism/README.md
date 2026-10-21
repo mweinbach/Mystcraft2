@@ -30,10 +30,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
-  layers, block highlighting and in-game key and scroll input are wired. Player ticks and the other living-entity
+  layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
+  loaded, including after a restart. Forced chunks do not random-tick. Player ticks and the other living-entity
   events are not; [PARITY.md](PARITY.md) lists every gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, and the item and block hooks) pass on both loaders.
+  lookups, ore generation, item and block hooks, and chunk loading) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
