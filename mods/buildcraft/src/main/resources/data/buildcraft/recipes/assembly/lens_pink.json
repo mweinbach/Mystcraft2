@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:lens_pink"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:pink_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/pink"
+        }
+      ]
+    }
+  ]
+}

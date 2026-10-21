@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:lens_black"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:black_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/black"
+        }
+      ]
+    }
+  ]
+}

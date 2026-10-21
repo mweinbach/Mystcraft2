@@ -13,11 +13,13 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.statement.ColourText;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.flow.FluidFlow;
 import ports.buildcraft.transport.flow.ItemFlow;
@@ -29,6 +31,9 @@ import ports.buildcraft.transport.flow.PowerFlow;
  */
 public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> {
     public static final ResourceLocation POWER_FLOW = BuildCraft.id("block/pipe/power_flow");
+    /** Upstream {@code COLOUR_ITEM_BOX}: the box around painted items, 0.2 blocks out from their centre. */
+    public static final ResourceLocation COLOUR_ITEM_BOX = BuildCraft.id("block/pipe/colour_item_box");
+    private static final RenderUtil.FaceUv FULL_UV = (face, x1, y1, z1, x2, y2, z2) -> new float[] {0, 0, 16, 16};
     private static final float ITEM_SCALE = 0.7F;
     /** Upstream's flow renderers were TESRs, which 1.12 drew within 64 blocks. */
     private static final double FLOW_RANGE = 64;
@@ -63,6 +68,14 @@ public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> 
             itemRenderer.renderStatic(item.item().stack(), ItemTransforms.TransformType.GROUND, light, OverlayTexture.NO_OVERLAY,
                     poseStack, buffers, seed++);
             poseStack.popPose();
+            DyeColor colour = item.item().colour();
+            if (colour != null) {
+                poseStack.pushPose();
+                poseStack.translate(pos.x, pos.y, pos.z);
+                RenderUtil.box(poseStack, buffers.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS)), RenderUtil.sprite(COLOUR_ITEM_BOX),
+                        FULL_UV, -3.2F, -3.2F, -3.2F, 3.2F, 3.2F, 3.2F, 0xFF000000 | ColourText.lightHex(colour), light);
+                poseStack.popPose();
+            }
         }
     }
 

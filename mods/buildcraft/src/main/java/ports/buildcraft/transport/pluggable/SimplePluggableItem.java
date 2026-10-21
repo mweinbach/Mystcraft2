@@ -10,7 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.transport.PipeBlockEntity;
 
@@ -47,8 +46,10 @@ public class SimplePluggableItem extends Item implements PluggableItem {
 
     /** Upstream {@code SoundUtil.playBlockPlace}. */
     public static void playPlaceSound(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        SoundType sound = state.getSoundType();
+        playPlaceSound(level, pos, level.getBlockState(pos).getSoundType());
+    }
+
+    public static void playPlaceSound(Level level, BlockPos pos, SoundType sound) {
         level.playSound(null, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
     }
 }

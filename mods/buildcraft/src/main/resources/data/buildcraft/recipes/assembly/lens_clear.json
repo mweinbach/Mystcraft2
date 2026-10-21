@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:lens_clear"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:glass_blocks"
+        },
+        {
+          "tag": "forge:glass/colorless"
+        }
+      ]
+    }
+  ]
+}
