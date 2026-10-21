@@ -42,6 +42,7 @@
     "client.BakedQuadMixin",
     "client.BlockModelDeserializerMixin",
     "client.BlockModelMixin",
+    "client.ClientPacketListenerMixin",
     "client.ElytraLayerMixin",
     "client.GameRendererMixin",
     "client.ItemOverridesMixin",

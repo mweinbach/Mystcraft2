@@ -70,11 +70,11 @@ public class ObjModel implements IUnbakedGeometry<ObjModel> {
     static String[] nextLine(BufferedReader reader) throws IOException {
         StringBuilder builder = new StringBuilder();
         for (String line; (line = reader.readLine()) != null; ) {
-            int comment = line.indexOf('#');
-            if (comment != -1) {
-                line = line.substring(0, comment);
-            }
             line = line.strip();
+            //Only whole lines are comments: material libraries reference model textures as "#name"
+            if (line.startsWith("#")) {
+                line = "";
+            }
             if (line.endsWith("\\")) {
                 builder.append(line, 0, line.length() - 1).append(' ');
                 continue;
