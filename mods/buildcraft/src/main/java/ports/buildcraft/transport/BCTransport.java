@@ -1,11 +1,14 @@
 package ports.buildcraft.transport;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -27,11 +30,12 @@ import ports.buildcraft.transport.pluggable.PluggableDefinition;
 import ports.buildcraft.transport.pluggable.PowerAdaptorPluggable;
 import ports.buildcraft.transport.pluggable.SimplePluggableItem;
 import ports.buildcraft.transport.statements.BCTransportStatements;
+import ports.buildcraft.transport.wire.WireItem;
 
 /**
  * Upstream {@code BCTransportPipes} and {@code BCTransportConfig}: the ported pipes with their
  * default transfer rates ({@code baseFluidRate = 10} mB/t, {@code basePowerRate = 4} MJ/t). Also
- * upstream {@code BCTransportPlugs} and the plug items of {@code BCTransportItems}.
+ * upstream {@code BCTransportPlugs} and the plug and wire items of {@code BCTransportItems}.
  */
 public final class BCTransport {
     private static final int BASE_FLOW_RATE = 10;
@@ -95,7 +99,20 @@ public final class BCTransport {
     public static final Supplier<Item> PLUG_POWER_ADAPTOR = Reg.item("plug_power_adaptor",
             () -> new SimplePluggableItem(BuildCraft.pipeProperties(), POWER_ADAPTOR, SimplePluggableItem.BEHAVIOUR_ACCEPTS_REDSTONE_POWER));
 
+    /** Upstream {@code ItemWire}, one item per colour. */
+    public static final Map<DyeColor, Supplier<Item>> WIRES = new EnumMap<>(DyeColor.class);
+
+    static {
+        for (DyeColor colour : DyeColor.values()) {
+            WIRES.put(colour, Reg.item("wire_" + colour.getName(), () -> new WireItem(BuildCraft.pipeProperties(), colour)));
+        }
+    }
+
     private BCTransport() {}
+
+    public static Item wireItem(DyeColor colour) {
+        return WIRES.get(colour).get();
+    }
 
     public static void init() {
         BCTransportStatements.init();

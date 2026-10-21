@@ -1,11 +1,13 @@
 package ports.buildcraft.silicon.gate;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.statement.Action;
 import ports.buildcraft.statement.ActionWrapper;
@@ -18,13 +20,14 @@ import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.statement.Trigger;
 import ports.buildcraft.statement.TriggerWrapper;
 import ports.buildcraft.transport.PipeBlockEntity;
+import ports.buildcraft.transport.wire.WireEmitter;
 
 /**
  * Upstream {@code GateLogic}: a gate's trigger and action pairs, how they are grouped, and resolving them
- * each tick. Upstream's statement and glow messages become the pluggable's client data; whether each
- * trigger and action is on reaches open GUIs through {@link GateMenu}. Pipe wire broadcasts are not ported.
+ * each tick, including which wire colours its actions emit. Upstream's statement and glow messages become
+ * the pluggable's client data; whether each trigger and action is on reaches open GUIs through {@link GateMenu}.
  */
-public class GateLogic implements Gate, RedstoneStatementContainer {
+public class GateLogic implements Gate, RedstoneStatementContainer, WireEmitter {
     public final PluggableGate pluggable;
     public final GateVariant variant;
     public final StatementPair[] statements;
@@ -33,6 +36,7 @@ public class GateLogic implements Gate, RedstoneStatementContainer {
     public final boolean[] triggerOn, actionOn;
     /** Whether any action is active; the gate glows on clients while it is. */
     public boolean isOn;
+    private final EnumSet<DyeColor> wireBroadcasts = EnumSet.noneOf(DyeColor.class);
 
     public GateLogic(PluggableGate pluggable, GateVariant variant) {
         this.pluggable = pluggable;
@@ -46,6 +50,16 @@ public class GateLogic implements Gate, RedstoneStatementContainer {
     }
 
     // Saving and loading
+
+    /** Upstream {@code GateLogic(PluggableGate, NBTTagCompound)}: the configuration and the colours being emitted. */
+    public void readFromNbt(CompoundTag tag) {
+        readConfigData(tag);
+        wireBroadcasts.clear();
+        int broadcasts = tag.getInt("wireBroadcasts");
+        for (DyeColor colour : DyeColor.values()) {
+            if ((broadcasts & (1 << colour.getId())) != 0) wireBroadcasts.add(colour);
+        }
+    }
 
     /** Upstream's legacy string statements came from 1.12 worlds, which the port does not load. */
     public void readConfigData(CompoundTag tag) {
@@ -69,6 +83,16 @@ public class GateLogic implements Gate, RedstoneStatementContainer {
             if (statements[s].trigger.get() != null) tag.put("trigger[" + s + "]", statements[s].trigger.writeToNbt());
             if (statements[s].action.get() != null) tag.put("action[" + s + "]", statements[s].action.writeToNbt());
         }
+        int broadcasts = 0;
+        for (DyeColor colour : wireBroadcasts) broadcasts |= 1 << colour.getId();
+        tag.putInt("wireBroadcasts", broadcasts);
+        return tag;
+    }
+
+    /** What the gate copier stores: the saved data without the colours being emitted. */
+    public CompoundTag writeConfigData() {
+        CompoundTag tag = writeToNbt();
+        tag.remove("wireBroadcasts");
         return tag;
     }
 
@@ -116,6 +140,18 @@ public class GateLogic implements Gate, RedstoneStatementContainer {
         return pluggable.holder.setRedstoneOutput(side, value);
     }
 
+    // WireEmitter
+
+    @Override
+    public boolean isEmitting(DyeColor colour) {
+        return wireBroadcasts.contains(colour);
+    }
+
+    @Override
+    public void emitWire(DyeColor colour) {
+        wireBroadcasts.add(colour);
+    }
+
     // Logic
 
     /** True if the GUI shows the pairs in two columns; the server needs it for which pairs may be grouped. */
@@ -130,6 +166,7 @@ public class GateLogic implements Gate, RedstoneStatementContainer {
         isOn = false;
         Arrays.fill(triggerOn, false);
         Arrays.fill(actionOn, false);
+        wireBroadcasts.clear();
 
         for (int triggerIndex = 0; triggerIndex < statements.length; triggerIndex++) {
             StatementPair pair = statements[triggerIndex];
