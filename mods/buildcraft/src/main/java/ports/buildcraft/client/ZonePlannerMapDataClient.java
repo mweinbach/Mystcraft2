@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
-import ports.buildcraft.platform.ClientPlatform;
 import ports.buildcraft.robotics.ZonePackets;
 import ports.buildcraft.robotics.zone.ZonePlannerMapChunk;
 import ports.buildcraft.robotics.zone.ZonePlannerMapChunkKey;
