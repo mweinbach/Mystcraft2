@@ -298,6 +298,45 @@ public final class TestPlatform {
         return lookup.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, context);
     }
 
+    public static long insertBlockFluid(BlockEntity blockEntity, Direction side, Fluid fluid, long milliBuckets, boolean commit) {
+        return moveBlockFluid(blockEntity, side, FluidVariant.of(fluid), milliBuckets, commit, true);
+    }
+
+    public static long extractBlockFluid(BlockEntity blockEntity, Direction side, Fluid fluid, long milliBuckets, boolean commit) {
+        return moveBlockFluid(blockEntity, side, FluidVariant.of(fluid), milliBuckets, commit, false);
+    }
+
+    public static long blockFluid(BlockEntity blockEntity, Direction side) {
+        Storage<FluidVariant> storage = FluidStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        long total = 0;
+        for (StorageView<FluidVariant> view : storage) {
+            total += view.getAmount();
+        }
+        return total / DROPLETS_PER_MB;
+    }
+
+    private static long moveBlockFluid(BlockEntity blockEntity, Direction side, FluidVariant variant, long milliBuckets, boolean commit, boolean insert) {
+        if (milliBuckets <= 0) {
+            return 0;
+        }
+        Storage<FluidVariant> storage = FluidStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        try (Transaction transaction = Transaction.openOuter()) {
+            long moved = insert
+                  ? storage.insert(variant, milliBuckets * DROPLETS_PER_MB, transaction)
+                  : storage.extract(variant, milliBuckets * DROPLETS_PER_MB, transaction);
+            if (commit) {
+                transaction.commit();
+            }
+            return moved / DROPLETS_PER_MB;
+        }
+    }
+
     public static void fillBlockFluid(BlockEntity blockEntity, Fluid fluid, int milliBuckets) {
         if (blockEntity instanceof TileEntityFluidTank tank) {
             tank.fluidTank.setStack(new FluidStack(fluid, milliBuckets));
