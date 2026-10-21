@@ -10,12 +10,14 @@
     "fabric-gametest": [
       "mekanism.gametest.ChunkLoadingGameTests",
       "mekanism.gametest.CoreMachineGameTests",
+      "mekanism.gametest.FluidGameTests",
       "mekanism.gametest.GeneratorsModuleGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",
       "mekanism.gametest.OreGenerationGameTests",
       "mekanism.gametest.PlayerEventGameTests",
       "mekanism.gametest.RenderBoundsGameTests",
+      "mekanism.gametest.SimpleGeneratorGameTests",
       "mekanism.gametest.ToolsModuleGameTests"
     ]
   },

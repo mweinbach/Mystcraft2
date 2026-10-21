@@ -15,12 +15,14 @@ import java.util.Locale;
 import mekanism.common.Mekanism;
 import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
+import mekanism.gametest.FluidGameTests;
 import mekanism.gametest.GeneratorsModuleGameTests;
 import mekanism.gametest.ItemBlockHookGameTests;
 import mekanism.gametest.LoaderInteropGameTests;
 import mekanism.gametest.OreGenerationGameTests;
 import mekanism.gametest.PlayerEventGameTests;
 import mekanism.gametest.RenderBoundsGameTests;
+import mekanism.gametest.SimpleGeneratorGameTests;
 import mekanism.gametest.ToolsModuleGameTests;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestGenerator;
@@ -35,9 +37,9 @@ import net.minecraftforge.gametest.GameTestHolder;
 @GameTestHolder(Mekanism.MODID)
 public class ForgeGameTests {
 
-    private static final List<Class<?>> SHARED_TESTS = List.of(CoreMachineGameTests.class, ChunkLoadingGameTests.class,
-          GeneratorsModuleGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
-          OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
+    private static final List<Class<?>> SHARED_TESTS = List.of(ChunkLoadingGameTests.class, CoreMachineGameTests.class,
+          FluidGameTests.class, GeneratorsModuleGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
+          OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class, SimpleGeneratorGameTests.class,
           ToolsModuleGameTests.class);
 
     @GameTestGenerator

@@ -11,9 +11,11 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
 `mekanismgenerators`, `mekanismtools` and `mekanismadditions` jars that depend on the core jar.
 
 - **Generators** is imported: registries, config, the packet handler, assets and the checked-in datagen output.
-  Both loaders load the jar and register its blocks, items, fluids and the heat generator's block entity
-  (`GeneratorsModuleGameTests`). Solar, wind, gas, bio, turbine, fission and fusion gameplay is not verified, and
-  the wind generator's item renderer and the rotor's render box are still the later generator slices.
+  Both loaders load the jar and register its blocks, items, fluids and block entities. Heat, solar, advanced solar,
+  gas-burning, bio and wind generators produce energy (`SimpleGeneratorGameTests`): solar output in daylight, the
+  gas-burning generator burning hydrogen, and energy leaving through Forge Energy and Team Reborn Energy. The wind
+  rotor's render box is the extended box the block entity reports, and on Fabric the wind generator item is drawn by
+  `BuiltinItemRendererRegistry`. Turbine, fission and fusion gameplay is not verified.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
@@ -42,11 +44,16 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
-highlighting and in-game key and scroll input are wired (see below). An anchor upgrade keeps that machine's chunk
-loaded, and the same tickets come back when the level loads. The shared GameTests (core machines, loader interop,
-chemical lookups, ore generation, item and block hooks, chunk loading, render bounds, the player and living events,
-a Generators registry smoke test, and Tools registration, crafting and tool actions) pass on both loaders.
+the shared placement modifiers. Mekanism fluids render from their fluid-type client extensions: each still and flowing
+fluid is registered with Fabric's fluid render handler (still texture, flowing texture, overlay and tint) and on the
+translucent block render layer, and those textures are stitched into the block atlas that bucket models and fluid
+gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's default state, and blocks that return
+true (structural glass) are marked transparent so the overlay sprite is drawn against them. Client ticks, the HUD,
+fog, living-entity and arm rendering, armor layers, block highlighting and in-game key and scroll input are wired
+(see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
+The shared GameTests (core machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid
+placement, chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple
+generators, and Tools registration, crafting and tool actions) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -168,13 +175,13 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 
 ## Fabric: not written yet
 
-- Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
-  is not called.
 - Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear, the
-  energy cube's core renderer, and anything in the Generators jar.
+  energy cube's core renderer, the simple generators' block-entity renderers, and the turbine, fission and fusion
+  renderers. The wind generator item is registered with Fabric's builtin item renderer; that registration has not
+  been watched in a client.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
@@ -198,4 +205,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
   Their screen position still comes from the same left and right bar heights.
 - OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
+- Fabric's fluid renderer ignores tint alpha. Mekanism's fluid tints are opaque, and steam's transparency is in its
+  texture. `shouldDisplayFluidOverlay` is read from the default block state when the client starts, not again per face;
+  structural glass always requests the overlay, so the fluids drawn against it match Forge.
 - Data generation runs on Forge only; both loaders ship the checked-in generated data.
