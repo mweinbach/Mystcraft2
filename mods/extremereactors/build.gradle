@@ -9,10 +9,54 @@ repositories {
         url = 'https://cursemaven.com'
         content { includeGroup 'curse.maven' }
     }
+    maven {
+        url = 'https://squiddev.cc/maven/'
+        content { includeGroup 'org.squiddev' }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'vazkii.patchouli'
+        }
+    }
+    maven {
+        url = 'https://modmaven.dev/'
+        content { includeGroup 'mekanism' }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
 }
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Optional integrations: only their APIs are needed to compile. -PwithCompat adds the mods to the dev runs.
+    compileOnly(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.3:api')) { transitive = false }
+    compileOnly(fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1024')) { transitive = false }
+    // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
+    compileOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
+    compileOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13:api')) { transitive = false }
+    compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
+    if (providers.gradleProperty('withCompat').isPresent()) {
+        runtimeOnly fg.deobf('maven.modrinth:cc-tweaked:pCQZNkje')
+        runtimeOnly(fg.deobf('vazkii.patchouli:Patchouli:1.19.2-77')) { transitive = false }
+        // JEI and EMI both draw an item list; -PwithEmi runs EMI instead of JEI.
+        if (providers.gradleProperty('withEmi').isPresent()) {
+            runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
+        } else {
+            runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
+        }
+    }
+    // Mekanism is Forge-only on 1.19.2. -PwithMekanism adds it to the GameTest server too.
+    if (providers.gradleProperty('withCompat').isPresent() || providers.gradleProperty('withMekanism').isPresent()) {
+        runtimeOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13')) { transitive = false }
+    }
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {
         runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
@@ -43,6 +87,13 @@ sourceSets {
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
 }
+// EMI's mixins carry SRG refmaps; the development runs use official names.
+minecraft.runs.configureEach {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
 // The run's mod group name only groups class roots; the mod ID comes from mods.toml.
 minecraft.runs {
     gameTestServer {

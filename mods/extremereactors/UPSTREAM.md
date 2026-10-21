@@ -8,7 +8,7 @@ file as `META-INF/ExtremeReactors-UPSTREAM.md` and the files in
 | --- | --- | --- | --- | --- |
 | Extreme Reactors 2 (code, assets, data) | [ZeroNoRyouki/ExtremeReactors2](https://github.com/ZeroNoRyouki/ExtremeReactors2), branch `1.19` | `127cb0311a7d7a6dd43fbde2fd88837bef2739d1` (2023-08-21) | MIT, as declared in its `mods.toml` | `src/main/java/it/zerono/mods/extremereactors`, `src/main/resources` |
 | ZeroCore 2 multiblock API | [ZeroNoRyouki/ZeroCore2](https://github.com/ZeroNoRyouki/ZeroCore2), branch `1.19`, `lib/multiblock` only | `dd1c1357beb837ab97ad81606b5a02a86c642a9d` (2023-08-12) | MIT, [ZeroCore2-multiblock-LICENSE.md](licenses/ZeroCore2-multiblock-LICENSE.md) | `src/main/java/ports/extremereactors/multiblock` |
-| `corelib`, loader adapters, tests, tooling | Written for this port | this repository | MIT, [LICENSE](LICENSE) | `src/main/java/ports/extremereactors/{corelib,platform}`, `src/forge`, `src/fabric`, `src/gametest*`, `src/test`, `scripts`, `emc` |
+| `corelib`, loader adapters, tests, tooling | Written for this port | this repository | MIT, [LICENSE](LICENSE) | `src/main/java/ports/extremereactors/{corelib,platform,compat}`, `src/forge`, `src/fabric`, `src/gametest*`, `src/test`, `scripts`, `emc` |
 | Machine and storage block textures | Drawn for this port by `scripts/generate_textures.py` | this repository | MIT, [LICENSE](LICENSE) | `src/main/resources/assets/bigreactors/textures/block` (not the ores), `textures/fluid/fluid.fuelcolumn.*` |
 
 ## Lineage
@@ -73,6 +73,13 @@ Without ZeroCore's language file, the multiblock API's validation keys
 English messages of its own wording for them to the end of `en_us.json`, followed
 by the two strings `corelib`'s energy and gauge bars show in their tooltips.
 
+The integrations follow the same rules. `corelib.compat` replaces ZeroCore's
+JEI helpers, its Patchouli template components and its ComputerCraft
+connector, written from Extreme Reactors' calls, its handbook data and the JEI,
+Patchouli and ComputerCraft APIs. The EMI plugin in
+`ports.extremereactors.compat.emi` has no upstream counterpart; it mirrors the
+JEI categories using EMI's API.
+
 ## Changes to Extreme Reactors 2
 
 Imported files keep their package, class names and upstream header. Beyond the
@@ -111,18 +118,33 @@ import mapping, these upstream files were changed:
   `InternalDispatcher.runInternal`.
 - `gamecontent/fluid/ReactorFluidType` and `ReactantFluidBlock`: fluid
   definitions and a `ModLiquidBlock` subclass instead of Forge fluid types.
-- `gamecontent/ItemGroups`: tabs are created by `ModItemGroup.create`; the
-  Patchouli handbook is not added to the general tab.
+- `gamecontent/ItemGroups`: tabs are created by `ModItemGroup.create`. The
+  general tab adds the handbook only when Patchouli is loaded.
 - `ReactantHelper.onVanillaTagsUpdated` is subscribed through the platform
   tags-updated event. Upstream declared the handler but never registered it, so
   its moderator cache only expired by time.
 - `CoilMaterialRegistry`, `ReactantMappingsRegistry`, `ModeratorsRegistry`: the
   unused `@Mod.EventBusSubscriber` annotation is dropped; fluids are looked up in
   the vanilla registry.
-- `FluidPortType.create(Mekanism)` returns an empty handler, so Mekanism fluid
-  ports are inert until the Mekanism integration is ported.
+- `FluidPortType.create(Mekanism)` creates `FluidPortHandlerMekanism` only when
+  Mekanism is loaded, and an empty handler otherwise.
+- `FluidPortHandlerMekanism`: the shared handler offers the output tank as
+  `corelib`'s `MekanismGas.HANDLER` and forwards fills to a neighbor's. The
+  `IGasHandler` methods and the rotary recipe fluid-to-gas mappings moved to the
+  Forge adapter, `ForgeMekanism`, which bridges that capability to Mekanism's.
+  Unlike upstream, the gas tank's capacity is converted to gas units like its
+  content, and the mappings are rebuilt when the server's recipes reload
+  instead of being kept for the whole game.
 - `ReactorComputerPortEntity`, `TurbineComputerPortEntity`: they implement
-  `corelib`'s `IComputerPort` instead of holding the ComputerCraft connector.
+  `corelib`'s `IComputerPort` instead of holding the ComputerCraft connector;
+  `ComputerCraftPeripheral` offers them to CC: Tweaked and CC: Restitched.
+- `compat/jei/*`: ported to JEI's common API. ZeroCore imports point at
+  `corelib` (`AbstractModRecipeCategory`, `ProgressBarDrawable`), fluid slots
+  use `JeiFluids` instead of `ForgeTypes.FLUID_STACK` and its capacities in the
+  loader's fluid unit, and the energy tooltips take the loader's energy unit.
+  `ExtremeReactorsJeiPlugin` initializes `JeiFluids`. `ReprocessorRecipeCategory`
+  drops a second copy of the solid input slot that upstream placed over the
+  first one.
 - Client models and renderers: no `@OnlyIn`; Forge `NonNullConsumer` became
   `java.util.function.Consumer`; model data is `corelib`'s. The fuel rod model
   takes its base quads through `ModRenderHelper.getQuads` and uses vanilla's
@@ -131,7 +153,8 @@ import mapping, these upstream files were changed:
   its fourth argument.
 - `proxy/ClientProxy`: installed by the client entrypoint through
   `ExtremeReactors.setProxy()`. Screens are registered through the platform
-  layer instead of `MenuScreens`, and the Patchouli setup is not called.
+  layer instead of `MenuScreens`. The Patchouli setup runs only when Patchouli
+  is loaded.
   `onClientInit` also calls `MachineEffects.initialize()`, which loads the
   port's client-side machine effects (see [Machine effects](PARITY.md#machine-effects)).
 - `gamecontent/multiblock/reactor/MultiblockReactor`: `updateServer` also sends
@@ -146,8 +169,11 @@ import mapping, these upstream files were changed:
 - Screens (`client/screen/*` in `common`, `reactor`, `turbine`, `reprocessor`
   and `fluidizer`): no `@OnlyIn`, and Forge `NonNullSupplier` became
   `java.util.function.Supplier`. Nothing else changed.
-- `compat/patchouli/PatchouliCompat`: only `HANDBOOK_ID` is kept, so the screens
-  compile; the rest of the class needs ZeroCore's Patchouli component.
+- `compat/patchouli/PatchouliCompat`: imported whole. ZeroCore imports point at
+  `corelib`'s `Patchouli`, `initialize` passes the mod id for the template
+  component names, preview model data comes from a cache instead of
+  `CuboidPartVariantsModelData.from`, and `getHandbook()` returns the book stack
+  for the creative tab.
 
 In the MIT multiblock package:
 
@@ -182,8 +208,8 @@ Resources:
 - Fabric-only `assets/forge/models/item/bucket_drip.json` and
   `assets/bigreactors/textures/item/bucket_fluid_overlay.png` stand in for
   Forge's dynamic bucket model. The overlay is the port's own texture.
-- The multiblock validation messages and the effect sound subtitles appended to
-  `en_us.json`.
+- The multiblock validation messages, the effect sound subtitles and names for
+  the four `casing_user` item tags, which EMI shows, appended to `en_us.json`.
 - The port's own effect assets: `sounds.json`, `sounds/effects/alarm.ogg` and
   `scram.ogg` (synthesized by `scripts/generate_sounds.py`), and the control rod
   drive textures under `textures/effects/` (drawn by `scripts/generate_textures.py`).
@@ -195,15 +221,16 @@ Resources:
   charging ports already had. Upstream's glass was 32×32 and is now 16×16. Models,
   blockstates, ores, items, fluids other than the fuel column, and GUI textures
   are upstream's.
+- The handbook templates name `corelib`'s components
+  (`bigreactors:crafting_page`, `smelting_page`, `spotlight_page`,
+  `multiblock_page`) instead of ZeroCore's `zerocore:zcspt_*`. The book, its
+  entries and its text are unchanged.
 
 ## Not imported
 
 | Upstream files | Why |
 | --- | --- |
 | `datagen/*` (19 files) | The generated resources are imported as they are; the port does not regenerate them. |
-| `compat/jei/*` (20 files) | JEI and EMI integration is planned for a later pull request. |
-| `compat/patchouli/*` (2 files), apart from `PatchouliCompat.HANDBOOK_ID` | Needs ZeroCore's Patchouli multiblock component, which is all rights reserved. |
-| `FluidPortHandlerMekanism` | Uses Mekanism's Forge-only gas API. |
 | `proxy/ProxySafeReferent` | Not needed without Forge's `DistExecutor`. |
 
 The energizer is not part of the 1.19 branch, so it is not in scope.

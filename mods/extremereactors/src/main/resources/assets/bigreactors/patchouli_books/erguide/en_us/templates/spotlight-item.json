@@ -1,7 +1,7 @@
 {
     "components": [
         {
-            "type": "zerocore:zcspt_spotlight",
+            "type": "bigreactors:spotlight_page",
             "item": "#spotlightItem",
             "text": "#spotlightText",
             "x": 0,

@@ -19,6 +19,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import team.reborn.energy.api.EnergyStorage;
 
+import java.util.Optional;
+
 /**
  * {@link LoaderApis} through the Fabric Transfer API and Team Reborn Energy.
  */
@@ -68,6 +70,23 @@ final class FabricLoaderApis implements LoaderApis {
             transaction.commit();
             return extracted;
         }
+    }
+
+    @Override
+    public String energyUnit() {
+        return "E";
+    }
+
+    /** Mekanism has no 1.19.2 Fabric release. */
+    @Override
+    public Optional<GasTank> mekanismGas(final ServerLevel level, final BlockPos position, final Direction side) {
+        return Optional.empty();
+    }
+
+    @Override
+    public long extractMekanismGas(final ServerLevel level, final BlockPos position, final Direction side,
+                                   final long maxAmount) {
+        return 0;
     }
 
     private static <T> T found(final T lookupResult, final String what, final BlockPos position) {

@@ -13,6 +13,7 @@ import ports.extremereactors.platform.Platform;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -33,6 +34,11 @@ public final class ModRecipeType<R extends ModRecipe>
     /** The first loaded recipe of this type that matches the filter, in the recipe manager's order. */
     public Optional<R> findFirst(final Predicate<R> filter) {
         return this.getRecipes().stream().filter(filter).findFirst();
+    }
+
+    /** The loaded recipes of this type that match the filter, converted by the mapper. */
+    public <T> List<T> getRecipes(final Predicate<R> filter, final Function<R, T> mapper) {
+        return this.getRecipes().stream().filter(filter).map(mapper).toList();
     }
 
     /**

@@ -27,15 +27,30 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 /**
- * Bridges the corelib item, fluid and energy handlers with Forge capabilities, in both directions. The corelib
- * interfaces mirror Forge's, so the adapters only delegate; fluid amounts are millibuckets on both sides.
+ * Bridges the corelib item, fluid and energy handlers, and the optional mods' handlers {@link #register registered}
+ * here, with Forge capabilities, in both directions. The corelib interfaces mirror Forge's, so the adapters only
+ * delegate; fluid amounts are millibuckets on both sides.
  * <p>
  * Every adapter is invalidated together with the handler it wraps.
  */
 public final class ForgeTransfer {
+
+    /**
+     * Another mod's Forge capability and the corelib capability that stands for it, with the adapters between their
+     * handlers.
+     */
+    public record ForeignCapability<C, F>(net.minecraftforge.common.capabilities.Capability<F> forge,
+                                          Capability<C> corelib, Function<C, F> asForge, Function<F, C> asCorelib) {
+    }
+
+    /** Bridge an optional mod's capability. Call it before any world loads. */
+    public static void register(final ForeignCapability<?, ?> capability) {
+        FOREIGN_CAPABILITIES.add(capability);
+    }
 
     /**
      * The Forge view of what one of our block entities exposes for a Forge capability.
@@ -130,6 +145,12 @@ public final class ForgeTransfer {
             return (LazyOptional<T>) adopt(blockEntity.getCapability(ForgeCapabilities.ENERGY, side), ForgeTransfer::asCorelib);
         }
 
+        for (final ForeignCapability<?, ?> foreign : FOREIGN_CAPABILITIES) {
+            if (foreign.corelib() == capability) {
+                return (LazyOptional<T>) adoptForeign(blockEntity, foreign, side);
+            }
+        }
+
         return LazyOptional.empty();
     }
 
@@ -171,6 +192,12 @@ public final class ForgeTransfer {
             return CapabilityHelper.ENERGY;
         }
 
+        for (final ForeignCapability<?, ?> foreign : FOREIGN_CAPABILITIES) {
+            if (foreign.forge() == capability) {
+                return foreign.corelib();
+            }
+        }
+
         return null;
     }
 
@@ -184,7 +211,28 @@ public final class ForgeTransfer {
             return asForge((IFluidHandler) handler);
         }
 
-        return asForge((IEnergyStorage) handler);
+        if (ForgeCapabilities.ENERGY == capability) {
+            return asForge((IEnergyStorage) handler);
+        }
+
+        for (final ForeignCapability<?, ?> foreign : FOREIGN_CAPABILITIES) {
+            if (foreign.forge() == capability) {
+                return asForeign(foreign, handler);
+            }
+        }
+
+        throw new IllegalArgumentException("No adapter for " + capability.getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <C, F> F asForeign(final ForeignCapability<C, F> foreign, final Object handler) {
+        return foreign.asForge().apply((C) handler);
+    }
+
+    private static <C, F> LazyOptional<C> adoptForeign(final BlockEntity blockEntity,
+                                                       final ForeignCapability<C, F> foreign,
+                                                       @Nullable final Direction side) {
+        return adopt(blockEntity.getCapability(foreign.forge(), side), foreign.asCorelib());
     }
 
     /**
@@ -229,6 +277,8 @@ public final class ForgeTransfer {
 
     private static final Map<net.minecraftforge.common.util.LazyOptional<?>, LazyOptional<?>> ADOPTED =
             Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final List<ForeignCapability<?, ?>> FOREIGN_CAPABILITIES = new CopyOnWriteArrayList<>();
 
     //endregion
     //region items

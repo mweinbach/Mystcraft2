@@ -88,6 +88,16 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
         ExtremeReactorsGameTests.reactorCoolantThroughLoaderApis(helper, FabricLoaderApis.INSTANCE);
     }
 
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.BOILING_TIMEOUT)
+    public void reactorMekanismPortFollowsMekanism(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.reactorMekanismPortFollowsMekanism(helper, FabricLoaderApis.INSTANCE);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
+    public void computerPortControlsTheReactor(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.computerPortControlsTheReactor(helper);
+    }
+
     @GameTest(template = EMPTY)
     public void recipeConditionsAndTags(final GameTestHelper helper) {
         ExtremeReactorsGameTests.recipeConditionsAndTags(helper);

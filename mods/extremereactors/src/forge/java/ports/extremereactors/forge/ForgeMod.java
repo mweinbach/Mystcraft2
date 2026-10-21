@@ -18,6 +18,9 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import ports.extremereactors.forge.client.ForgeClientSetup;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
+import ports.extremereactors.forge.compat.ForgeComputerCraft;
+import ports.extremereactors.forge.compat.ForgeMekanism;
 import ports.extremereactors.platform.Platform;
 
 /**
@@ -54,6 +57,14 @@ public final class ForgeMod {
 
             Content.onCommonInit();
             ExtremeReactors.getInstance().onCommonInit();
+
+            if (Platform.isModLoaded("computercraft")) {
+                ForgeComputerCraft.initialize();
+            }
+
+            if (Platform.isModLoaded(MekanismGas.MOD_ID)) {
+                ForgeMekanism.initialize();
+            }
         });
     }
 

@@ -42,6 +42,9 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.material.Fluids;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
+import ports.extremereactors.corelib.compat.computer.IComputerPort;
+import ports.extremereactors.corelib.compat.computer.MultiblockComputerPeripheral;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
 import ports.extremereactors.corelib.data.IoDirection;
 import ports.extremereactors.corelib.energy.EnergySystem;
 import ports.extremereactors.corelib.fluid.FluidStack;
@@ -69,6 +72,7 @@ public final class ExtremeReactorsGameTests {
     public static final int BOILING_TIMEOUT = 2400;
 
     private static final int SIMULATION_TICKS = 200;
+    private static final ResourceLocation MEKANISM_STEAM = new ResourceLocation(MekanismGas.MOD_ID, "steam");
 
     private ExtremeReactorsGameTests() {
     }
@@ -408,6 +412,11 @@ public final class ExtremeReactorsGameTests {
                     check(500 == extracted, "extracted " + extracted + " of 500 FE from the power tap");
                     check(Math.abs(before - after - extracted) < 1e-6, "the reactor buffer went from "
                             + before + " to " + after + " FE after extracting " + extracted);
+
+                    final String unit = reactor.getOutputEnergySystem().getUnit();
+
+                    check(apis.energyUnit().equals(unit), "the screens label energy as " + unit + " instead of "
+                            + apis.energyUnit() + ", the unit of the API the energy was extracted through");
                 })
                 .thenSucceed();
     }
@@ -435,6 +444,164 @@ public final class ExtremeReactorsGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * With Mekanism, the Mekanism port offers the reactor's vapor tank as a gas handler, converting through Mekanism's
+     * rotary recipes: steam becomes {@code mekanism:steam}. Without Mekanism the port exposes nothing.
+     */
+    public static void reactorMekanismPortFollowsMekanism(final GameTestHelper helper, final LoaderApis apis) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos mekanismPort = origin.offset(2, 1, 1);
+        final boolean mekanism = Platform.isModLoaded(MekanismGas.MOD_ID);
+
+        reinforcedActiveReactor(origin)
+                .set(2, 1, 1, Content.Blocks.REACTOR_FLUIDPORT_MEKANISM_PASSIVE_REINFORCED)
+                .place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+
+                    reactor.getFluidHandler(IoDirection.Input)
+                            .orElseThrow(() -> new GameTestAssertException("the active reactor has no coolant input"))
+                            .fill(new FluidStack(Fluids.WATER, 4000), IFluidHandler.FluidAction.EXECUTE);
+                    insertFuel(helper, origin.offset(1, 1, 0), Direction.NORTH, 64);
+                    reactor.setMachineActive(true);
+                })
+                .thenWaitUntil(() -> check(assembledReactor(helper, controller).getVaporAmount() > 0, "no steam yet"))
+                .thenExecute(() -> {
+
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+                    final Optional<LoaderApis.GasTank> gas = apis.mekanismGas(helper.getLevel(),
+                            helper.absolutePos(mekanismPort), Direction.EAST);
+                    final boolean exposed = CapabilityHelper.getCapability(helper.getLevel(),
+                            helper.absolutePos(mekanismPort), MekanismGas.HANDLER, Direction.EAST).isPresent();
+
+                    check(mekanism == exposed, "the Mekanism port " + (exposed ? "exposes" : "does not expose")
+                            + " its gas tank with Mekanism " + (mekanism ? "loaded" : "absent"));
+                    check(mekanism == gas.isPresent(), "Mekanism " + (mekanism ? "does not see" : "sees")
+                            + " a gas handler on the Mekanism port");
+
+                    gas.ifPresent(tank -> {
+
+                        final int vaporCapacity = reactor.getFluidHandler(IoDirection.Output)
+                                .orElseThrow(() -> new GameTestAssertException("the active reactor has no vapor output"))
+                                .getTankCapacity(0);
+                        final int steam = reactor.getVaporAmount();
+
+                        check(vaporCapacity == tank.capacity(), "the gas tank holds " + tank.capacity()
+                                + " instead of the vapor tank's " + vaporCapacity);
+                        check(MEKANISM_STEAM.equals(tank.gas()) && steam == tank.stored(), "the reactor's "
+                                + steam + " mB of steam is offered as " + tank.stored() + " of " + tank.gas());
+
+                        final long extracted = apis.extractMekanismGas(helper.getLevel(),
+                                helper.absolutePos(mekanismPort), Direction.EAST, steam);
+                        final int left = reactor.getVaporAmount();
+
+                        check(steam == extracted && 0 == left, "extracting " + steam + " steam took " + extracted
+                                + " and left " + left + " mB in the reactor");
+                    });
+                })
+                .thenSucceed();
+    }
+
+
+    //endregion
+    //region computer ports
+
+    /**
+     * Drives a reactor through its computer port the way a ComputerCraft script does: numbers arrive as doubles,
+     * tables as maps keyed by doubles, and bad arguments raise errors.
+     */
+    public static void computerPortControlsTheReactor(final GameTestHelper helper) {
+
+        final BlockPos origin = new BlockPos(1, 1, 1);
+        final BlockPos controller = origin.offset(0, 1, 1);
+        final BlockPos computerPort = origin.offset(2, 1, 1);
+
+        reinforcedComputerReactor(origin).place(helper);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> assembledReactor(helper, controller))
+                .thenExecute(() -> {
+
+                    final MultiblockComputerPeripheral<?, ?> peripheral = computerPeripheral(helper, computerPort);
+                    final MultiblockReactor reactor = assembledReactor(helper, controller);
+
+                    check("extremereactor-reactorComputerPort".equals(peripheral.getPeripheralStaticName()),
+                            "unexpected peripheral type " + peripheral.getPeripheralStaticName());
+                    check(Boolean.TRUE.equals(peripheral.invoke("getConnected", new Object[0])), "getConnected() is not true");
+                    check(Integer.valueOf(1).equals(peripheral.invoke("getNumberOfControlRods", new Object[0])),
+                            "getNumberOfControlRods() is not 1");
+                    check(Map.of("x", helper.absolutePos(origin).getX(), "y", helper.absolutePos(origin).getY(),
+                                    "z", helper.absolutePos(origin).getZ())
+                                    .equals(peripheral.invoke("getMinimumCoordinate", new Object[0])),
+                            "getMinimumCoordinate() is not the reactor's corner");
+
+                    insertFuel(helper, origin.offset(1, 1, 0), Direction.NORTH, 16);
+                    peripheral.invoke("setAllControlRodLevels", new Object[]{40.0});
+                    check(40 == reactor.getControlRodByIndex(0).map(rod -> (int) rod.getInsertionRatio()).orElse(-1),
+                            "setAllControlRodLevels(40) did not move the control rod");
+
+                    peripheral.invoke("setControlRodsLevels", new Object[]{Map.of(0.0, 25.0)});
+                    check(Map.of(0, 25).equals(peripheral.invoke("getControlRodsLevels", new Object[0])),
+                            "setControlRodsLevels({[0]=25}) did not move the control rod");
+
+                    peripheral.invoke("setControlRodName", new Object[]{0.0, "core"});
+                    check("core".equals(peripheral.invoke("getControlRodName", new Object[]{0.0})),
+                            "the control rod was not renamed");
+
+                    expectComputerError(() -> peripheral.invoke("setControlRodLevel", new Object[]{0.0, 101.0}),
+                            "setControlRodLevel(0, 101)");
+                    expectComputerError(() -> peripheral.invoke("setActive", new Object[]{"yes"}), "setActive(\"yes\")");
+                    expectComputerError(() -> peripheral.invoke("noSuchMethod", new Object[0]), "noSuchMethod()");
+
+                    peripheral.invoke("setActive", new Object[]{true});
+                    check(Boolean.TRUE.equals(peripheral.invoke("getActive", new Object[0])), "setActive(true) did not start the reactor");
+                })
+                .thenWaitUntil(() -> {
+
+                    final Object stats = computerPeripheral(helper, computerPort).invoke("getFuelStats", new Object[0]);
+
+                    check(stats instanceof Map<?, ?> map && map.get("fuelAmount") instanceof Number amount
+                                    && amount.doubleValue() > 0,
+                            "getFuelStats() reports no fuel: " + stats);
+                })
+                .thenExecute(() -> helper.setBlock(controller, Content.Blocks.REACTOR_CASING_REINFORCED.get()))
+                .thenWaitUntil(() -> {
+
+                    final MultiblockComputerPeripheral<?, ?> peripheral = computerPeripheral(helper, computerPort);
+
+                    check(Boolean.FALSE.equals(peripheral.invoke("getConnected", new Object[0])),
+                            "getConnected() is still true without a controller");
+                    expectComputerError(() -> peripheral.invoke("getActive", new Object[0]), "getActive() on a broken reactor");
+                })
+                .thenSucceed();
+    }
+
+    private static MultiblockComputerPeripheral<?, ?> computerPeripheral(final GameTestHelper helper, final BlockPos position) {
+
+        if (blockEntity(helper, position) instanceof IComputerPort port) {
+            return port.getComputerPeripheral();
+        }
+
+        throw new GameTestAssertException("no computer port at " + position);
+    }
+
+    private static void expectComputerError(final Runnable call, final String what) {
+
+        try {
+            call.run();
+        } catch (final IllegalArgumentException | IllegalStateException expected) {
+            return;
+        }
+
+        throw new GameTestAssertException(what + " did not raise an error");
+    }
+
     //endregion
     //region data
 
@@ -442,14 +609,21 @@ public final class ExtremeReactorsGameTests {
 
         final RecipeManager recipes = helper.getLevel().getRecipeManager();
 
-        check(recipes.byKey(id("reactor/reinforced/controlrod_alt")).isPresent(),
-                "the steel-free reinforced control rod recipe should load when no steel exists");
-        check(recipes.byKey(id("reactor/reinforced/controlrod")).isEmpty(),
-                "the steel reinforced control rod recipe should not load without steel");
+        final boolean steel = Registry.ITEM.getTag(itemTag("forge", "ingots/steel"))
+                .map(items -> items.size() > 0)
+                .orElse(false);
+
+        check(recipes.byKey(id("reactor/reinforced/controlrod_alt")).isPresent() != steel,
+                "the steel-free reinforced control rod recipe should load only when no steel exists");
+        check(recipes.byKey(id("reactor/reinforced/controlrod")).isPresent() == steel,
+                "the steel reinforced control rod recipe should load only with steel");
         check(recipes.byKey(id("smelting/graphite_from_coal")).isPresent(),
                 "the config-gated graphite smelting recipe should load by default");
-        check(recipes.byKey(id("misc/book/erguide")).isEmpty(),
-                "the Patchouli book recipe should not load without Patchouli");
+        check(recipes.byKey(id("misc/book/erguide")).isPresent() == Platform.isModLoaded("patchouli"),
+                "the Patchouli book recipe should load only with Patchouli");
+        check(recipes.byKey(id("reactor/reinforced/passivefluidport_mekanism")).isPresent()
+                        == Platform.isModLoaded(MekanismGas.MOD_ID),
+                "the Mekanism port recipe should load only with Mekanism");
 
         final ItemStack yellorium = new ItemStack(Content.Items.YELLORIUM_INGOT.get());
 
@@ -556,6 +730,17 @@ public final class ExtremeReactorsGameTests {
                 .set(0, 1, 1, Content.Blocks.REACTOR_CONTROLLER_REINFORCED)
                 .set(1, 1, 0, Content.Blocks.REACTOR_SOLID_ACCESSPORT_REINFORCED)
                 .set(1, 1, 2, Content.Blocks.REACTOR_FLUIDPORT_FORGE_PASSIVE_REINFORCED);
+    }
+
+    /** A 3x3x3 passive reinforced reactor with a computer port. */
+    private static Structure reinforcedComputerReactor(final BlockPos origin) {
+        return new Structure(origin, 3, 3, 3, Content.Blocks.REACTOR_CASING_REINFORCED.get())
+                .set(1, 2, 1, Content.Blocks.REACTOR_CONTROLROD_REINFORCED)
+                .set(1, 1, 1, Content.Blocks.REACTOR_FUELROD_REINFORCED)
+                .set(0, 1, 1, Content.Blocks.REACTOR_CONTROLLER_REINFORCED)
+                .set(1, 1, 0, Content.Blocks.REACTOR_SOLID_ACCESSPORT_REINFORCED)
+                .set(1, 1, 2, Content.Blocks.REACTOR_POWERTAP_FE_PASSIVE_REINFORCED)
+                .set(2, 1, 1, Content.Blocks.REACTOR_COMPUTERPORT_REINFORCED);
     }
 
     /** A 5x5x5 basic reactor with a three rods column and the given block in every other interior position. */

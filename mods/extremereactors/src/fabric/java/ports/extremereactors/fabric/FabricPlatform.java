@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
@@ -201,6 +202,22 @@ public final class FabricPlatform implements Platform.Backend {
     @Override
     public boolean isModLoaded(final String modId) {
         return FabricLoader.getInstance().isModLoaded(modId);
+    }
+
+    /** Team Reborn Energy's unit, as Tech Reborn shows it. */
+    @Override
+    public String energyUnit() {
+        return "E";
+    }
+
+    @Override
+    public String energyUnitName() {
+        return "Energy";
+    }
+
+    @Override
+    public long fluidBucketVolume() {
+        return FluidConstants.BUCKET;
     }
 
     @Override

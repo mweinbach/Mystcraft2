@@ -11,10 +11,11 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | `src/main/java/it/zerono/mods/extremereactors` | Extreme Reactors 2: API, reactor, turbine, reprocessor and fluidizer, content, config, client models and renderers. |
 | `src/main/java/ports/extremereactors/multiblock` | ZeroCore 2's MIT multiblock API. |
 | `src/main/java/ports/extremereactors/corelib` | The clean-room replacement for the rest of ZeroCore 2. |
+| `src/main/java/ports/extremereactors/compat` | The port's EMI plugin, shared by both loaders. |
 | `src/main/java/ports/extremereactors/platform` | `Platform` and `ClientPlatform` services, plus four classes with the same name and API on both loaders: `PlatformBlockEntity`, `PlatformBakedModel`, `PlatformLiquidBlock`, `PlatformBucketItem`. |
 | `src/main/resources` | All assets, recipes, loot tables, tags, worldgen features and EMC data. |
-| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeTransfer`, `ForgeNetwork`, `ForgeConfigCondition`, the ore biome modifier, the client entrypoint and `mods.toml`. |
-| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, mixins, the client entrypoint, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
+| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeTransfer`, `ForgeNetwork`, `ForgeConfigCondition`, `ForgeComputerCraft`, `ForgeMekanism`, the ore biome modifier, the client entrypoint and `mods.toml`. |
+| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, `FabricComputerCraft`, mixins, the client entrypoint, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric`, `src/test` | GameTests and JUnit tests; never packaged. |
 | `fabric/` | The isolated Loom build. The root Gradle build produces the Forge JAR. |
 
@@ -23,6 +24,7 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | Service | Forge | Fabric |
 | --- | --- | --- |
 | Energy | Forge Energy through `ForgeCapabilities.ENERGY` | Team Reborn Energy 2.3.0 (`EnergyStorage.SIDED`, bundled), 1 E per FE |
+| Energy unit shown | `FE` (Forge Energy) | `E` (Energy), Tech Reborn's label for Reborn Energy |
 | Items | `ForgeCapabilities.ITEM_HANDLER` | Transfer API `ItemStorage.SIDED`, with transactions |
 | Fluids | `ForgeCapabilities.FLUID_HANDLER`, in mB | Transfer API `FluidStorage.SIDED`; 81 droplets per mB, amounts that are not whole mB are refused |
 | Charging ports | Forge Energy item capability | Reborn Energy `EnergyStorage.ITEM` |
@@ -71,17 +73,32 @@ all-rights-reserved GUI framework, which `corelib` replaces with its own layout
 engines, controls, data bindings, sprites and tooltips, written from how the
 screens use them. Screens use the same textures, sizes and positions, so they
 match upstream's look, but `corelib` draws them with its own code and is not
-pixel-identical to ZeroCore. The handbook help button upstream shows on each
-screen is hidden, because the Patchouli integration is not ported yet.
+pixel-identical to ZeroCore. With Patchouli installed, each screen's help
+button opens its handbook entry, as upstream; without it the button is hidden.
 
-**Integrations not yet ported.**
+**Integrations.** All are optional: the JARs only reference them when the mod
+is loaded.
 
-| Upstream | State |
-| --- | --- |
-| ComputerCraft peripherals on the reactor and turbine computer ports | The blocks and `IComputerPort` exist; no peripheral is registered on either loader yet. |
-| JEI (Forge), EMI (Fabric) recipe categories | Planned for a later pull request. |
-| Patchouli handbook | Its book data and templates are kept, but the handbook recipe and item are off: the templates need ZeroCore's Patchouli multiblock component. |
-| Mekanism gas ports | The `reinforced_reactorfluidport_mekanism_passive` block exists, but its handler is empty, so it moves nothing. |
+| Upstream | Forge | Fabric | Notes |
+| --- | --- | --- | --- |
+| ComputerCraft peripherals on the reactor and turbine computer ports | CC: Tweaked 1.101.3 | CC: Restitched 1.101.2 | Upstream's peripheral names and methods. `corelib`'s `ComputerCraftPeripheral` replaces ZeroCore's connector: methods that change the machine run on the server thread, reads answer from the computer thread. |
+| JEI recipe categories | JEI 11.6 | JEI 11.6 | Upstream's eleven categories and catalysts, ported to JEI's common API, so one plugin serves both loaders. Fluid slots go through `JeiFluids` instead of `ForgeTypes`. |
+| EMI | EMI 1.1.24 | EMI 1.1.24 | Upstream has no EMI plugin; it relied on EMI reading JEI. The port adds a native plugin with the JEI plugin's categories, layouts, workstations and reactant, coolant and vapor stacks, so it works without JEI. With both installed, EMI uses the native plugin. |
+| Patchouli handbook (the Extreme Book) | Patchouli 1.19.2-77 | Patchouli 1.19.2-77 | Upstream's book, entries and templates unchanged, apart from the template component ids. `corelib` provides the crafting, smelting, spotlight and multiblock template components ZeroCore did; multiblock previews draw assembled parts. The book is in the general creative tab. |
+| Mekanism gas port (`reinforced_reactorfluidport_mekanism_passive`) | Mekanism 10.3.9 | None | Mekanism is Forge-only on 1.19.2. The port offers the reactor's vapor tank as Mekanism gas through Mekanism's rotary recipes (steam becomes `mekanism:steam`); like upstream, the port is passive, so Mekanism pulls the gas. On Fabric, and on Forge without Mekanism, the block exists but moves nothing, as upstream without Mekanism. |
+
+**Energy unit label.** Extreme Reactors 2 has no energy-unit setting: its
+screens and computer API always say `FE`, the only unit ZeroCore's
+`EnergySystem` enables on 1.19. The port keeps one internal unit, still saved
+as `ForgeEnergy`, and takes its label from the loader. Forge shows `FE`;
+Fabric shows `E`, the unit of the Team Reborn Energy API its power taps and
+charging ports speak, 1:1 with FE. This covers the reactor, turbine,
+reprocessor and fluidizer screens, the JEI and EMI energy tooltips, and the computer
+port's `getEnergyStoredAsText` and `energySystem` stat. There is no config
+switch for it. Not relabeled: the block names `Power Tap (FE)` and
+`Charging Port (FE)` (upstream's lang keys and registry names say `fe`), and
+the handbook text, which comes from upstream unchanged.
+`reactorItemsAndEnergyThroughLoaderApis` checks the label on each loader.
 
 **Fabric fluid physics.** Fabric has no equivalent of Forge's `FluidType`
 motion hooks. Extreme Reactors' fluids flow, render and transfer the same, but
@@ -246,6 +263,8 @@ Gaps and risks:
 | `oreFeaturesPlaceAtUpstreamHeights` | The ore placed features decode to upstream's heights. |
 | `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
 | `everyItemHasAnEmcDecision` | EMC coverage; with `-PwithProjectE` or `-PwithItemAlchemy`, the live values. |
+| `computerPortControlsTheReactor` | The reactor computer port's methods, called the way ComputerCraft calls them: doubles, tables keyed by doubles, and errors for bad arguments. |
+| `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism` on Forge, Mekanism sees a gas handler holding the reactor's steam as `mekanism:steam` and can drain it. |
 
 A Fabric development client was also run: both machines assemble, the reactor
 fuel rods render their fill level, the turbine rotor spins, and the buckets
@@ -261,3 +280,6 @@ and drop, the glow follows the rods, steam comes from the output port, the
 turbine and the SCRAM, the lamps flash and the alarm and klaxon play with their
 subtitles. Their alarms were real: the plant reactor runs near 4000 °C with an
 almost empty coolant tank.
+With `-PwithCompat -PwithEmi` on Forge, every EMI category was opened with its
+tooltips, and the handbook was opened on its landing page, a crafting page and
+the turbine rotor's multiblock preview.
