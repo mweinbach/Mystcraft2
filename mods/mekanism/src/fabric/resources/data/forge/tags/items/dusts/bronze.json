@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_bronze",
+    {
+      "id": "#c:bronze_dusts",
+      "required": false
+    }
+  ]
+}

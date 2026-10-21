@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:sawdust",
+    {
+      "id": "#c:wood_dusts",
+      "required": false
+    }
+  ]
+}

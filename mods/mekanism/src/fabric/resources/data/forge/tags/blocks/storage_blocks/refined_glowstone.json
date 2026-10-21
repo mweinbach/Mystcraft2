@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_refined_glowstone",
+    {
+      "id": "#c:refined_glowstone_blocks",
+      "required": false
+    }
+  ]
+}

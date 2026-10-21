@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:steam",
+    "mekanism:flowing_steam",
+    {
+      "id": "#c:steam",
+      "required": false
+    }
+  ]
+}

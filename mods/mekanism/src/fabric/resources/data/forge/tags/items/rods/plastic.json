@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:hdpe_stick",
+    {
+      "id": "#c:plastic_rods",
+      "required": false
+    }
+  ]
+}

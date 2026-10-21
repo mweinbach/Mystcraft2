@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_uranium",
+    {
+      "id": "#c:uranium_dusts",
+      "required": false
+    }
+  ]
+}

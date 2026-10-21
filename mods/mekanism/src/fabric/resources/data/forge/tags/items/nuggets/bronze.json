@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:nugget_bronze",
+    {
+      "id": "#c:bronze_nuggets",
+      "required": false
+    }
+  ]
+}

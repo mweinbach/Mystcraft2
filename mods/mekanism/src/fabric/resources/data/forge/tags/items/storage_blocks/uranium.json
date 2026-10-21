@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_uranium",
+    {
+      "id": "#c:uranium_blocks",
+      "required": false
+    }
+  ]
+}

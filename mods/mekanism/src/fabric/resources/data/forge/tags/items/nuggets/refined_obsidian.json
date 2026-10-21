@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:nugget_refined_obsidian",
+    {
+      "id": "#c:refined_obsidian_nuggets",
+      "required": false
+    }
+  ]
+}

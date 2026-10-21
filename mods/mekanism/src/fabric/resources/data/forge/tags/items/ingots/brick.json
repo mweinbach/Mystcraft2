@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:brick",
+    {
+      "id": "#c:brick_ingots",
+      "required": false
+    }
+  ]
+}

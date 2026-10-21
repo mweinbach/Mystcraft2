@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_sulfur",
+    "minecraft:yellow_dye",
+    {
+      "id": "#c:yellow_dyes",
+      "required": false
+    }
+  ]
+}

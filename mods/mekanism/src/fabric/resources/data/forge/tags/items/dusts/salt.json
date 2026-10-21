@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:salt",
+    {
+      "id": "#c:salt_dusts",
+      "required": false
+    }
+  ]
+}

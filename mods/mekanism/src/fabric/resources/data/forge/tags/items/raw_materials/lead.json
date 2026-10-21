@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:raw_lead",
+    {
+      "id": "#c:raw_lead_ores",
+      "required": false
+    }
+  ]
+}

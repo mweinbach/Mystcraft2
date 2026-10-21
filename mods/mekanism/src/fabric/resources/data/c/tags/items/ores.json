@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:tin_ores",
+      "required": false
+    },
+    {
+      "id": "#c:osmium_ores",
+      "required": false
+    },
+    {
+      "id": "#c:uranium_ores",
+      "required": false
+    },
+    {
+      "id": "#c:fluorite_ores",
+      "required": false
+    },
+    {
+      "id": "#c:lead_ores",
+      "required": false
+    }
+  ]
+}

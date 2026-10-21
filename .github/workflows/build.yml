@@ -86,6 +86,14 @@ jobs:
         run: ./gradlew --no-daemon :jurassicraft:runGameTestServer -PwithProjectE
       - name: Test JurassiCraft gameplay on a Fabric GameTest server
         run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi -PwithItemAlchemy
+      - name: Check Mekanism's Fabric tag bridges are up to date
+        run: python3 mods/mekanism/scripts/generate_fabric_tags.py --check
+      - name: Build Mekanism for Fabric
+        run: ./gradlew --no-daemon -p mods/mekanism/fabric build
+      - name: Run Mekanism's Forge GameTests
+        run: ./gradlew --no-daemon :mekanism:runGameTestServer
+      - name: Run Mekanism's Fabric GameTests
+        run: ./gradlew --no-daemon -p mods/mekanism/fabric runGametest
       # The headless GameTest server reports assertion messages only in these files.
       - name: Upload GameTest reports
         if: failure()
@@ -111,6 +119,9 @@ jobs:
             mods/jurassicraft/run/gameTestServer/logs/latest.log
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log
+            mods/mekanism/run/gameTestServer/logs/latest.log
+            mods/mekanism/fabric/build/gametest-results.xml
+            mods/mekanism/fabric/build/gametest/logs/latest.log
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
@@ -122,4 +133,5 @@ jobs:
             mods/jurassicraft/fabric/build/libs/*.jar
             mods/advancedgenetics/fabric/build/libs/*.jar
             mods/extremereactors/fabric/build/libs/*.jar
+            mods/mekanism/fabric/build/libs/*.jar
           if-no-files-found: error

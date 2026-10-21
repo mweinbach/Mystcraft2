@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:nether_brick",
+    {
+      "id": "#c:nether_brick_ingots",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:heavy_water",
+    "mekanism:flowing_heavy_water",
+    {
+      "id": "#c:heavy_water",
+      "required": false
+    }
+  ]
+}

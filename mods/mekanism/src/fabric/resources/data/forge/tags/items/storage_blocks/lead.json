@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_lead",
+    {
+      "id": "#c:lead_blocks",
+      "required": false
+    }
+  ]
+}

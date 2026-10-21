@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:chests/electric",
+    "#forge:chests/personal",
+    "#forge:chests/ender",
+    "#forge:chests/trapped",
+    "#forge:chests/wooden"
+  ]
+}

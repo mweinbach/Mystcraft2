@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_fluorite",
+    {
+      "id": "#c:fluorite_blocks",
+      "required": false
+    }
+  ]
+}

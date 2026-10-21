@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:ingot_tin",
+    {
+      "id": "#c:tin_ingots",
+      "required": false
+    }
+  ]
+}

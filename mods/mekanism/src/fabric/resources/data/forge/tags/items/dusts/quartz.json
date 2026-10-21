@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_quartz",
+    {
+      "id": "#c:quartz_dusts",
+      "required": false
+    }
+  ]
+}

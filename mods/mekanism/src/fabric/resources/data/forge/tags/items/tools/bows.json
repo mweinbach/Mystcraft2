@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:electric_bow",
+    "minecraft:bow",
+    {
+      "id": "#c:bows",
+      "required": false
+    }
+  ]
+}

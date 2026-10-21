@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_charcoal",
+    {
+      "id": "#c:charcoal_dusts",
+      "required": false
+    }
+  ]
+}

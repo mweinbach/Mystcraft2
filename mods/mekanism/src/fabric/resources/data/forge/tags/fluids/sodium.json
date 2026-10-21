@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:sodium",
+    "mekanism:flowing_sodium",
+    {
+      "id": "#c:sodium",
+      "required": false
+    }
+  ]
+}

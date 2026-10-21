@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:osmium_ore",
+    "mekanism:deepslate_osmium_ore",
+    {
+      "id": "#c:osmium_ores",
+      "required": false
+    }
+  ]
+}

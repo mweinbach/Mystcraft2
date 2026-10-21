@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_refined_obsidian",
+    {
+      "id": "#c:refined_obsidian_dusts",
+      "required": false
+    }
+  ]
+}
