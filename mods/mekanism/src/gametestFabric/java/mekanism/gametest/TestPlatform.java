@@ -295,6 +295,18 @@ public final class TestPlatform {
         return handler == null ? 0 : handler.getHeatCapacitorCount();
     }
 
+    public static double blockTemperature(BlockEntity blockEntity, Direction side) {
+        IHeatHandler handler = find(MekanismChemicalLookups.HEAT, blockEntity, side);
+        return handler == null ? Double.NaN : handler.getTotalTemperature();
+    }
+
+    public static void handleBlockHeat(BlockEntity blockEntity, Direction side, double amount) {
+        IHeatHandler handler = find(MekanismChemicalLookups.HEAT, blockEntity, side);
+        if (handler != null) {
+            handler.handleHeat(amount);
+        }
+    }
+
     public static int itemGasTanks(ItemStack stack) {
         IGasHandler handler = MekanismChemicalLookups.GAS_ITEM.find(stack, null);
         return handler == null ? 0 : handler.getTanks();
