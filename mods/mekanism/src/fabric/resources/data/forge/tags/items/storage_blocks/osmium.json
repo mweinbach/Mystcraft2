@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_osmium",
+    {
+      "id": "#c:osmium_blocks",
+      "required": false
+    }
+  ]
+}

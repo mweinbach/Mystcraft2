@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:nugget_lead",
+    {
+      "id": "#c:lead_nuggets",
+      "required": false
+    }
+  ]
+}

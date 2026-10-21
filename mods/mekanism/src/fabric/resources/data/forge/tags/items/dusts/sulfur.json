@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_sulfur",
+    {
+      "id": "#c:sulfur_dusts",
+      "required": false
+    }
+  ]
+}

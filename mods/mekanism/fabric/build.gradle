@@ -91,7 +91,8 @@ def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
 sourceSets {
     main {
         java.setSrcDirs([rewriteMain, '../src/fabric/java'])
-        resources.setSrcDirs(['../src/main/resources', '../src/fabric/resources'])
+        // Listed first so its forge: tag bridges replace the shared tags at the same paths (see processResources).
+        resources.setSrcDirs(['../src/fabric/resources', '../src/main/resources'])
     }
     test.java.setSrcDirs([rewriteTest])
     test.resources.setSrcDirs([])
@@ -117,6 +118,8 @@ tasks.named('test', Test) {
 
 tasks.named('processResources', ProcessResources) {
     inputs.properties metadata
+    // scripts/generate_fabric_tags.py writes Fabric tags that repeat the shared values they replace.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     // Literal replacement rather than expand(): injected interface keys contain '$' (nested intermediary classes).
     def version = project.version.toString()
     filesMatching('fabric.mod.json') {
@@ -131,6 +134,7 @@ tasks.withType(Jar).configureEach {
     from('../licenses') { into 'META-INF/licenses/mekanism' }
 }
 tasks.named('jar', Jar) { from('../LICENSE') }
+tasks.named('sourcesJar', Jar) { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true

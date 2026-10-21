@@ -20,6 +20,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
@@ -59,6 +60,53 @@ public class CoreMachineGameTests {
                 throw new GameTestAssertException("Expected 4 osmium dust, found " + output);
             }
         });
+    }
+
+    /**
+     * Crushing iron ingots matches them through {@code forge:ingots/iron}, a tag only Forge itself defines.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void crusherCrushesIngotsThroughForgeTags(GameTestHelper helper) {
+        TileEntityMekanism crusher = poweredMachine(helper, MekanismBlocks.CRUSHER);
+        List<IInventorySlot> slots = crusher.getInventorySlots(null);
+        slots.get(0).setStack(new ItemStack(Items.IRON_INGOT, 2));
+        Item dust = item("dust_iron");
+        helper.succeedWhen(() -> {
+            ItemStack output = slots.get(1).getStack();
+            if (!output.is(dust) || output.getCount() < 2) {
+                throw new GameTestAssertException("Expected 2 iron dust, found " + output);
+            }
+        });
+    }
+
+    /**
+     * Redstone converts to the redstone infuse type through {@code forge:dusts/redstone}, and the infusing recipe asks for
+     * it through the {@code mekanism:redstone} infuse type tag.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void metallurgicInfuserInfusesThroughChemicalTags(GameTestHelper helper) {
+        TileEntityMekanism infuser = poweredMachine(helper, MekanismBlocks.METALLURGIC_INFUSER);
+        List<IInventorySlot> slots = infuser.getInventorySlots(null);
+        check(slots.get(0).isItemValid(new ItemStack(Items.REDSTONE)), "The infusion slot rejects redstone");
+        slots.get(0).setStack(new ItemStack(Items.REDSTONE, 2));
+        check(slots.get(1).isItemValid(new ItemStack(Items.IRON_INGOT)), "The input slot rejects iron ingots");
+        slots.get(1).setStack(new ItemStack(Items.IRON_INGOT, 2));
+        Item alloy = item("alloy_infused");
+        helper.succeedWhen(() -> {
+            ItemStack output = slots.get(2).getStack();
+            if (!output.is(alloy) || output.getCount() < 2) {
+                throw new GameTestAssertException("Expected 2 infused alloys, found " + output);
+            }
+        });
+    }
+
+    static TileEntityMekanism poweredMachine(GameTestHelper helper, BlockRegistryObject<?, ?> block) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, block.getBlock());
+        TileEntityMekanism machine = (TileEntityMekanism) helper.getBlockEntity(pos);
+        FloatingLong leftover = ((IStrictEnergyHandler) machine).insertEnergy(FloatingLong.createConst(100_000), Action.EXECUTE);
+        check(leftover.smallerThan(FloatingLong.createConst(100_000)), block.getInternalRegistryName() + " accepted no energy");
+        return machine;
     }
 
     static Item item(String path) {

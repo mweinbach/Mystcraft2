@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_raw_tin",
+    {
+      "id": "#c:raw_tin_blocks",
+      "required": false
+    }
+  ]
+}

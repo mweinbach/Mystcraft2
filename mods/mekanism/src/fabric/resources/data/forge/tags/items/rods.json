@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:rods/plastic",
+    "#forge:rods/blaze",
+    "#forge:rods/wooden"
+  ]
+}

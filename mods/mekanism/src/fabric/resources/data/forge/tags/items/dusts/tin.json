@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_tin",
+    {
+      "id": "#c:tin_dusts",
+      "required": false
+    }
+  ]
+}

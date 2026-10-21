@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:ingot_steel",
+    {
+      "id": "#c:steel_ingots",
+      "required": false
+    }
+  ]
+}

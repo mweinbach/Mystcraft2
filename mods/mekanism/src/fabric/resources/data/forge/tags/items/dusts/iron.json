@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_iron",
+    {
+      "id": "#c:iron_dusts",
+      "required": false
+    }
+  ]
+}

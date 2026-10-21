@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:raw_osmium",
+    {
+      "id": "#c:raw_osmium_ores",
+      "required": false
+    }
+  ]
+}

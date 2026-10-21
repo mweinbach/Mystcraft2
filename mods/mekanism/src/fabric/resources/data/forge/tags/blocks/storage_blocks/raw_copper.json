@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:raw_copper_block",
+    {
+      "id": "#c:raw_copper_blocks",
+      "required": false
+    }
+  ]
+}

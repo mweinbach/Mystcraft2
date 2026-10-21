@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:ingots/osmium",
+    "#forge:ingots/tin",
+    "#forge:ingots/lead",
+    "#forge:ingots/uranium",
+    "#forge:ingots/bronze",
+    "#forge:ingots/refined_glowstone",
+    "#forge:ingots/refined_obsidian",
+    "#forge:ingots/steel",
+    "#forge:ingots/brick",
+    "#forge:ingots/copper",
+    "#forge:ingots/gold",
+    "#forge:ingots/iron",
+    "#forge:ingots/netherite",
+    "#forge:ingots/nether_brick"
+  ]
+}

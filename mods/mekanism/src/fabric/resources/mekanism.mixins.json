@@ -33,7 +33,8 @@
     "MobEffectInstanceMixin",
     "ShapedRecipeMixin",
     "SimpleJsonResourceReloadListenerMixin",
-    "SlotMixin"
+    "SlotMixin",
+    "TagManagerMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",

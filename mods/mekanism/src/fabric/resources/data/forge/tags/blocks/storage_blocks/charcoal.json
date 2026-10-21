@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:block_charcoal",
+    {
+      "id": "#c:charcoal_blocks",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_copper",
+    {
+      "id": "#c:copper_dusts",
+      "required": false
+    }
+  ]
+}

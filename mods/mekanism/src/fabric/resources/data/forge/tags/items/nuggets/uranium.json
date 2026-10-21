@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:nugget_uranium",
+    {
+      "id": "#c:uranium_nuggets",
+      "required": false
+    }
+  ]
+}

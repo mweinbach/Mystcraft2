@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:pellet_antimatter",
+    {
+      "id": "#c:antimatter_pellets",
+      "required": false
+    }
+  ]
+}

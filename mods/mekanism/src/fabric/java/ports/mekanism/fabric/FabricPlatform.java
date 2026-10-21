@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -24,6 +26,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -62,6 +65,7 @@ public final class FabricPlatform implements Platform.Backend {
     }
 
     static final FabricPlatform INSTANCE = new FabricPlatform();
+    private static final Set<ResourceKey<? extends Registry<?>>> FORGE_TAG_DIRECTORIES = ConcurrentHashMap.newKeySet();
 
     private final Map<ResourceLocation, Platform.PacketReceiver> channels = new ConcurrentHashMap<>();
     @Nullable
@@ -201,8 +205,25 @@ public final class FabricPlatform implements Platform.Backend {
         FabricRegistryBuilder<V, MappedRegistry<V>> fabricBuilder = builder.getDefault() == null
               ? FabricRegistryBuilder.createSimple((Class) Object.class, name)
               : (FabricRegistryBuilder) FabricRegistryBuilder.createDefaulted((Class) Object.class, name, builder.getDefault());
+        if (builder.getSync()) {
+            fabricBuilder.attribute(RegistryAttribute.SYNCED);
+        }
+        if (builder.getSaveToDisc()) {
+            fabricBuilder.attribute(RegistryAttribute.PERSISTED);
+        }
         Registry<V> registry = fabricBuilder.buildAndRegister();
+        if (builder.getHasTags()) {
+            FORGE_TAG_DIRECTORIES.add(registry.key());
+        }
         return new VanillaForgeRegistry<>(registry);
+    }
+
+    /**
+     * Forge reads the tags of a modded registry from {@code tags/<namespace>/<path>}, vanilla from {@code tags/<path>}.
+     * Registries Mekanism creates keep Forge's layout so the shared data's tags load.
+     */
+    public static boolean usesForgeTagDirectory(ResourceKey<? extends Registry<?>> registry) {
+        return FORGE_TAG_DIRECTORIES.contains(registry);
     }
 
     @Override

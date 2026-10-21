@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:lithium",
+    "mekanism:flowing_lithium",
+    {
+      "id": "#c:lithium",
+      "required": false
+    }
+  ]
+}

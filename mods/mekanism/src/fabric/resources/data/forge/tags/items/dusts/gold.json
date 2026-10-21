@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:dust_gold",
+    {
+      "id": "#c:gold_dusts",
+      "required": false
+    }
+  ]
+}
