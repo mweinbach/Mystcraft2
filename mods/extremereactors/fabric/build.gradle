@@ -5,6 +5,9 @@ plugins {
 def metadata = new Properties()
 file('../port.properties').withInputStream { metadata.load(it) }
 version = metadata.mod_version
+def mekanismMetadata = new Properties()
+file('../../mekanism/port.properties').withInputStream { mekanismMetadata.load(it) }
+def mekanismVersion = mekanismMetadata.getProperty('mod_version')
 group = metadata.mod_group
 base.archivesName = 'extremereactors-fabric-1.19.2'
 
@@ -49,6 +52,11 @@ dependencies {
     // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
     modCompileOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
     modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2:api') { transitive = false }
+    // The Mekanism Fabric port, for the gas-port adapter. compileOnly keeps it out of this JAR.
+    modCompileOnly "ports.mekanism:mekanism-fabric:${mekanismVersion}"
+    if (providers.gradleProperty('withMekanism').isPresent()) {
+        modRuntimeOnly "ports.mekanism:mekanism-fabric:${mekanismVersion}"
+    }
     if (providers.gradleProperty('withCompat').isPresent()) {
         // Loom strips nested JARs from mod dependencies, so the libraries CC: Restitched and Patchouli bundle are
         // listed here; the Modrinth artifact has no POM and Patchouli's would pull in an older Fabric API.

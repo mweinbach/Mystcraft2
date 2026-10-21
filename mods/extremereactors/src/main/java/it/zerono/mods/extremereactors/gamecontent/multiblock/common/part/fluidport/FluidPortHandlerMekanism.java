@@ -40,8 +40,8 @@ import java.util.function.Function;
 
 /**
  * Offers the machine's output tank to Mekanism as a gas handler. The gas side of upstream's handler (the
- * {@code IGasHandler} methods and the rotary recipe mappings) is Mekanism API code and lives in the Forge adapter,
- * {@code ports.extremereactors.forge.compat.ForgeMekanism}.
+ * {@code IGasHandler} methods and the rotary recipe mappings) is {@link ports.extremereactors.corelib.compat.mekanism.MekanismRotary},
+ * which both loader adapters bridge to Mekanism.
  */
 public class FluidPortHandlerMekanism<Controller extends AbstractCuboidMultiblockController<Controller>,
             T extends AbstractMultiblockEntity<Controller> & IFluidPort>

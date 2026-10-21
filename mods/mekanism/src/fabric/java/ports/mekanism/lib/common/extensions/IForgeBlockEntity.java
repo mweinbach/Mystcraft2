@@ -25,8 +25,8 @@ import ports.mekanism.platform.Platform;
  * on Fabric. Mixins call {@link #onLoad}, {@link #onChunkUnloaded}, {@link #invalidateCaps} and {@link #reviveCaps} at
  * the points Forge does, and the client networking mixin hands update packets and tags to {@link #onDataPacket} and
  * {@link #handleUpdateTag}. The model data reaches Fabric's renderer as the block entity's render attachment.
- * Capabilities nothing attached fall back to the loader's API, so other mods' storages answer Forge's item, fluid and
- * energy capabilities.
+ * Capabilities nothing attached fall back to the loader's API, so other mods' storages answer Forge's item, fluid,
+ * energy, chemical and heat capabilities.
  */
 public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> {
 

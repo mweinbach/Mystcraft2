@@ -89,9 +89,10 @@ constants are `GAS`, `INFUSION`, `PIGMENT`, `SLURRY`, `HEAT` and the item forms 
 | `ISlurryHandler` | `mekanism:slurry_handler` | `Direction` | `Void` (pass null) |
 | `IHeatHandler` | `mekanism:heat_handler` | `Direction` | `Void` (pass null) |
 
-Mekanism registers its own block entities and items. Other mods register theirs on the same lookup; that is how a
-port can offer gas to a Mekanism tube. Asking a Mekanism capability of a foreign block does not consult these
-lookups. To drain a neighbor:
+Mekanism registers its own block entities and items. Other mods register theirs on the same lookup. A pressurized
+tube reads a neighbor through the gas capability, and on Fabric that capability falls back to this lookup, so a
+port registered here is what the tube pulls. The same fallback covers infusion, pigment, slurry and heat.
+Mekanism's own blocks are not asked that way. To drain a neighbor:
 
 ```java
 IGasHandler handler = MekanismChemicalLookups.GAS.find(level, pos, state, blockEntity, side);

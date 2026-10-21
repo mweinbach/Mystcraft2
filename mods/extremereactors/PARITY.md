@@ -15,7 +15,7 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | `src/main/java/ports/extremereactors/platform` | `Platform` and `ClientPlatform` services, plus four classes with the same name and API on both loaders: `PlatformBlockEntity`, `PlatformBakedModel`, `PlatformLiquidBlock`, `PlatformBucketItem`. |
 | `src/main/resources` | All assets, recipes, loot tables, tags, worldgen features and EMC data. |
 | `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeTransfer`, `ForgeNetwork`, `ForgeConfigCondition`, `ForgeComputerCraft`, `ForgeMekanism`, the ore biome modifier, the client entrypoint and `mods.toml`. |
-| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, `FabricComputerCraft`, mixins, the client entrypoint, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
+| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, `FabricComputerCraft`, `FabricMekanism`, mixins, the client entrypoint, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric`, `src/test` | GameTests and JUnit tests; never packaged. |
 | `fabric/` | The isolated Loom build. The root Gradle build produces the Forge JAR. |
 
@@ -88,7 +88,7 @@ is loaded.
 | JEI recipe categories | JEI 11.6 | JEI 11.6 | Upstream's eleven categories and catalysts, ported to JEI's common API, so one plugin serves both loaders. Fluid slots go through `JeiFluids` instead of `ForgeTypes`. |
 | EMI | EMI 1.1.24 | EMI 1.1.24 | Upstream has no EMI plugin; it relied on EMI reading JEI. The port adds a native plugin with the JEI plugin's categories, layouts, workstations and reactant, coolant and vapor stacks, so it works without JEI. With both installed, EMI uses the native plugin. |
 | Patchouli handbook (the Extreme Book) | Patchouli 1.19.2-77 | Patchouli 1.19.2-77 | Upstream's book, entries and templates unchanged, apart from the template component ids. `corelib` provides the crafting, smelting, spotlight and multiblock template components ZeroCore did; multiblock previews draw assembled parts. The book is in the general creative tab. |
-| Mekanism gas port (`reinforced_reactorfluidport_mekanism_passive`) | Mekanism 10.3.9 | None | Mekanism is Forge-only on 1.19.2. The port offers the reactor's vapor tank as Mekanism gas through Mekanism's rotary recipes (steam becomes `mekanism:steam`); like upstream, the port is passive, so Mekanism pulls the gas. On Fabric, and on Forge without Mekanism, the block exists but moves nothing, as upstream without Mekanism. |
+| Mekanism gas port (`reinforced_reactorfluidport_mekanism_passive`) | Mekanism 10.3.9 | This repository's Mekanism Fabric port | The port offers the reactor's vapor tank as Mekanism gas through Mekanism's rotary recipes (steam becomes `mekanism:steam`). The mapping is `MekanismRotary`, shared by both loaders. Like upstream, the port is passive, so Mekanism pulls the gas: Forge through the gas capability, Fabric through the `mekanism:gas_handler` block lookup. Without Mekanism the block exists but moves nothing, as upstream without Mekanism. |
 
 **Energy unit label.** Extreme Reactors 2 has no energy-unit setting: its
 screens and computer API always say `FE`, the only unit ZeroCore's
@@ -267,7 +267,7 @@ Gaps and risks:
 | `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
 | `everyItemHasAnEmcDecision` | EMC coverage; with `-PwithProjectE` or `-PwithItemAlchemy`, the live values. |
 | `computerPortControlsTheReactor` | The reactor computer port's methods, called the way ComputerCraft calls them: doubles, tables keyed by doubles, and errors for bad arguments. |
-| `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism` on Forge, Mekanism sees a gas handler holding the reactor's steam as `mekanism:steam` and can drain it. |
+| `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism`, Mekanism sees a gas handler holding the reactor's steam as `mekanism:steam` and can drain it. Forge uses Mekanism 10.3.9; Fabric uses this repository's Mekanism port. |
 
 A Fabric development client was also run: both machines assemble, the reactor
 fuel rods render their fill level, the turbine rotor spins, and the buckets

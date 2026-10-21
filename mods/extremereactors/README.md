@@ -38,7 +38,7 @@ against upstream.
 | Computer ports | CC: Restitched 1.101.2 | CC: Tweaked 1.101.3 |
 | Recipe viewers | JEI 11.6 or EMI 1.1.24 | JEI 11.6 or EMI 1.1.24 |
 | Handbook (the Extreme Book) | Patchouli 1.19.2-77 | Patchouli 1.19.2-77 |
-| Mekanism gas port | Not available | Mekanism 10.3.9 |
+| Mekanism gas port | This repository's Mekanism port, `mekanism:gas_handler` | Mekanism 10.3.9 |
 
 The integrations are optional. With Patchouli, the handbook is in the general
 creative tab and each machine screen's help button opens its entry. EMI uses
@@ -127,10 +127,15 @@ the textures or resynthesize the effect sounds.
 
 Add `-PwithCompat` to a client run to load ComputerCraft, Patchouli and JEI, and
 on Forge Mekanism; add `-PwithEmi` as well to load EMI instead of JEI.
-`-PwithMekanism` adds Mekanism to the Forge GameTest server, so
-`reactorMekanismPortFollowsMekanism` checks the gas port against it. Run it
-apart from `-PwithProjectE`: Mekanism's steel enables the steel recipes, so
-ProjectE derives other values than the EMC audit expects.
+`-PwithMekanism` adds Mekanism to a GameTest server or development client. On
+Forge that is Mekanism 10.3.9. On Fabric it is this repository's Mekanism port,
+which the Fabric build compiles against and does not ship inside its JAR.
+`reactorMekanismPortFollowsMekanism` then checks the gas port. The Fabric
+showcase client also gains `/ershowcase gas`, which builds a running reactor
+whose Mekanism port feeds steam into a pressurized tube and a chemical tank.
+Run `-PwithMekanism` apart from `-PwithProjectE` and `-PwithItemAlchemy`:
+Mekanism's steel enables the steel recipes, so those EMC audits derive other
+values.
 
 ## License
 

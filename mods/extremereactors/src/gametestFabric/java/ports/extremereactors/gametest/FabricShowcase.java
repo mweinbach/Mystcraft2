@@ -7,6 +7,8 @@ package ports.extremereactors.gametest;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
+import ports.extremereactors.platform.Platform;
 
 /**
  * Registers the development-only {@link ShowcaseCommand} on Fabric.
@@ -16,8 +18,14 @@ public final class FabricShowcase implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) ->
-                ShowcaseCommand.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
+
+            ShowcaseCommand.register(dispatcher);
+
+            if (Platform.isModLoaded(MekanismGas.MOD_ID)) {
+                FabricShowcaseGas.register(dispatcher);
+            }
+        });
         ServerTickEvents.END_SERVER_TICK.register(Showcase::tick);
     }
 }
