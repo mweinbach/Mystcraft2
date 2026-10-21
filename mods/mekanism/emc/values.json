@@ -1878,6 +1878,11 @@
       "itemalchemy": 2048,
       "source": "conversion mek_processing_uranium_yellow_cake_uranium"
     },
+    "mekanismadditions:aqua_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_aqua"
+    },
     "mekanismadditions:aqua_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -1960,6 +1965,26 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_aqua"
+    },
+    "mekanismadditions:baby_creeper_spawn_egg": {
+      "excluded": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    },
+    "mekanismadditions:baby_enderman_spawn_egg": {
+      "excluded": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    },
+    "mekanismadditions:baby_skeleton_spawn_egg": {
+      "excluded": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    },
+    "mekanismadditions:baby_stray_spawn_egg": {
+      "excluded": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    },
+    "mekanismadditions:baby_wither_skeleton_spawn_egg": {
+      "excluded": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    },
+    "mekanismadditions:black_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_black"
     },
     "mekanismadditions:black_glow_panel": {
       "projecte": 386,
@@ -2044,6 +2069,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_black"
     },
+    "mekanismadditions:blue_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_blue"
+    },
     "mekanismadditions:blue_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2126,6 +2156,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_blue"
+    },
+    "mekanismadditions:brown_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_brown"
     },
     "mekanismadditions:brown_glow_panel": {
       "projecte": 386,
@@ -2210,6 +2245,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_brown"
     },
+    "mekanismadditions:cyan_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_cyan"
+    },
     "mekanismadditions:cyan_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2292,6 +2332,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_cyan"
+    },
+    "mekanismadditions:dark_red_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_dark_red"
     },
     "mekanismadditions:dark_red_glow_panel": {
       "projecte": 386,
@@ -2376,6 +2421,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_dark_red"
     },
+    "mekanismadditions:gray_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_gray"
+    },
     "mekanismadditions:gray_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2458,6 +2508,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_gray"
+    },
+    "mekanismadditions:green_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_green"
     },
     "mekanismadditions:green_glow_panel": {
       "projecte": 386,
@@ -2542,6 +2597,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_green"
     },
+    "mekanismadditions:light_blue_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_light_blue"
+    },
     "mekanismadditions:light_blue_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2624,6 +2684,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_light_blue"
+    },
+    "mekanismadditions:light_gray_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_light_gray"
     },
     "mekanismadditions:light_gray_glow_panel": {
       "projecte": 386,
@@ -2708,6 +2773,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_light_gray"
     },
+    "mekanismadditions:lime_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_lime"
+    },
     "mekanismadditions:lime_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2790,6 +2860,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_lime"
+    },
+    "mekanismadditions:magenta_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_magenta"
     },
     "mekanismadditions:magenta_glow_panel": {
       "projecte": 386,
@@ -2879,6 +2954,11 @@
       "itemalchemy": 3276,
       "source": "recipe"
     },
+    "mekanismadditions:orange_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_orange"
+    },
     "mekanismadditions:orange_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -2961,6 +3041,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_orange"
+    },
+    "mekanismadditions:pink_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_pink"
     },
     "mekanismadditions:pink_glow_panel": {
       "projecte": 386,
@@ -3045,6 +3130,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_pink"
     },
+    "mekanismadditions:purple_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_purple"
+    },
     "mekanismadditions:purple_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -3127,6 +3217,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_purple"
+    },
+    "mekanismadditions:red_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_red"
     },
     "mekanismadditions:red_glow_panel": {
       "projecte": 386,
@@ -3211,6 +3306,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_red"
     },
+    "mekanismadditions:white_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_white"
+    },
     "mekanismadditions:white_glow_panel": {
       "projecte": 386,
       "itemalchemy": 387,
@@ -3293,6 +3393,11 @@
       "projecte": 1,
       "itemalchemy": 1,
       "source": "conversion additions_slick_white"
+    },
+    "mekanismadditions:yellow_balloon": {
+      "projecte": 38,
+      "itemalchemy": 38,
+      "source": "conversion additions_balloon_yellow"
     },
     "mekanismadditions:yellow_glow_panel": {
       "projecte": 386,

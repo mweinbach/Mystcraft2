@@ -377,6 +377,7 @@ mekanism:uranium_hexafluoride_bucket
 mekanism:uranium_ore
 mekanism:uranium_oxide_bucket
 mekanism:yellow_cake_uranium
+mekanismadditions:aqua_balloon
 mekanismadditions:aqua_glow_panel
 mekanismadditions:aqua_plastic
 mekanismadditions:aqua_plastic_fence
@@ -392,6 +393,12 @@ mekanismadditions:aqua_plastic_transparent_slab
 mekanismadditions:aqua_plastic_transparent_stairs
 mekanismadditions:aqua_reinforced_plastic
 mekanismadditions:aqua_slick_plastic
+mekanismadditions:baby_creeper_spawn_egg
+mekanismadditions:baby_enderman_spawn_egg
+mekanismadditions:baby_skeleton_spawn_egg
+mekanismadditions:baby_stray_spawn_egg
+mekanismadditions:baby_wither_skeleton_spawn_egg
+mekanismadditions:black_balloon
 mekanismadditions:black_glow_panel
 mekanismadditions:black_plastic
 mekanismadditions:black_plastic_fence
@@ -407,6 +414,7 @@ mekanismadditions:black_plastic_transparent_slab
 mekanismadditions:black_plastic_transparent_stairs
 mekanismadditions:black_reinforced_plastic
 mekanismadditions:black_slick_plastic
+mekanismadditions:blue_balloon
 mekanismadditions:blue_glow_panel
 mekanismadditions:blue_plastic
 mekanismadditions:blue_plastic_fence
@@ -422,6 +430,7 @@ mekanismadditions:blue_plastic_transparent_slab
 mekanismadditions:blue_plastic_transparent_stairs
 mekanismadditions:blue_reinforced_plastic
 mekanismadditions:blue_slick_plastic
+mekanismadditions:brown_balloon
 mekanismadditions:brown_glow_panel
 mekanismadditions:brown_plastic
 mekanismadditions:brown_plastic_fence
@@ -437,6 +446,7 @@ mekanismadditions:brown_plastic_transparent_slab
 mekanismadditions:brown_plastic_transparent_stairs
 mekanismadditions:brown_reinforced_plastic
 mekanismadditions:brown_slick_plastic
+mekanismadditions:cyan_balloon
 mekanismadditions:cyan_glow_panel
 mekanismadditions:cyan_plastic
 mekanismadditions:cyan_plastic_fence
@@ -452,6 +462,7 @@ mekanismadditions:cyan_plastic_transparent_slab
 mekanismadditions:cyan_plastic_transparent_stairs
 mekanismadditions:cyan_reinforced_plastic
 mekanismadditions:cyan_slick_plastic
+mekanismadditions:dark_red_balloon
 mekanismadditions:dark_red_glow_panel
 mekanismadditions:dark_red_plastic
 mekanismadditions:dark_red_plastic_fence
@@ -467,6 +478,7 @@ mekanismadditions:dark_red_plastic_transparent_slab
 mekanismadditions:dark_red_plastic_transparent_stairs
 mekanismadditions:dark_red_reinforced_plastic
 mekanismadditions:dark_red_slick_plastic
+mekanismadditions:gray_balloon
 mekanismadditions:gray_glow_panel
 mekanismadditions:gray_plastic
 mekanismadditions:gray_plastic_fence
@@ -482,6 +494,7 @@ mekanismadditions:gray_plastic_transparent_slab
 mekanismadditions:gray_plastic_transparent_stairs
 mekanismadditions:gray_reinforced_plastic
 mekanismadditions:gray_slick_plastic
+mekanismadditions:green_balloon
 mekanismadditions:green_glow_panel
 mekanismadditions:green_plastic
 mekanismadditions:green_plastic_fence
@@ -497,6 +510,7 @@ mekanismadditions:green_plastic_transparent_slab
 mekanismadditions:green_plastic_transparent_stairs
 mekanismadditions:green_reinforced_plastic
 mekanismadditions:green_slick_plastic
+mekanismadditions:light_blue_balloon
 mekanismadditions:light_blue_glow_panel
 mekanismadditions:light_blue_plastic
 mekanismadditions:light_blue_plastic_fence
@@ -512,6 +526,7 @@ mekanismadditions:light_blue_plastic_transparent_slab
 mekanismadditions:light_blue_plastic_transparent_stairs
 mekanismadditions:light_blue_reinforced_plastic
 mekanismadditions:light_blue_slick_plastic
+mekanismadditions:light_gray_balloon
 mekanismadditions:light_gray_glow_panel
 mekanismadditions:light_gray_plastic
 mekanismadditions:light_gray_plastic_fence
@@ -527,6 +542,7 @@ mekanismadditions:light_gray_plastic_transparent_slab
 mekanismadditions:light_gray_plastic_transparent_stairs
 mekanismadditions:light_gray_reinforced_plastic
 mekanismadditions:light_gray_slick_plastic
+mekanismadditions:lime_balloon
 mekanismadditions:lime_glow_panel
 mekanismadditions:lime_plastic
 mekanismadditions:lime_plastic_fence
@@ -542,6 +558,7 @@ mekanismadditions:lime_plastic_transparent_slab
 mekanismadditions:lime_plastic_transparent_stairs
 mekanismadditions:lime_reinforced_plastic
 mekanismadditions:lime_slick_plastic
+mekanismadditions:magenta_balloon
 mekanismadditions:magenta_glow_panel
 mekanismadditions:magenta_plastic
 mekanismadditions:magenta_plastic_fence
@@ -558,6 +575,7 @@ mekanismadditions:magenta_plastic_transparent_stairs
 mekanismadditions:magenta_reinforced_plastic
 mekanismadditions:magenta_slick_plastic
 mekanismadditions:obsidian_tnt
+mekanismadditions:orange_balloon
 mekanismadditions:orange_glow_panel
 mekanismadditions:orange_plastic
 mekanismadditions:orange_plastic_fence
@@ -573,6 +591,7 @@ mekanismadditions:orange_plastic_transparent_slab
 mekanismadditions:orange_plastic_transparent_stairs
 mekanismadditions:orange_reinforced_plastic
 mekanismadditions:orange_slick_plastic
+mekanismadditions:pink_balloon
 mekanismadditions:pink_glow_panel
 mekanismadditions:pink_plastic
 mekanismadditions:pink_plastic_fence
@@ -588,6 +607,7 @@ mekanismadditions:pink_plastic_transparent_slab
 mekanismadditions:pink_plastic_transparent_stairs
 mekanismadditions:pink_reinforced_plastic
 mekanismadditions:pink_slick_plastic
+mekanismadditions:purple_balloon
 mekanismadditions:purple_glow_panel
 mekanismadditions:purple_plastic
 mekanismadditions:purple_plastic_fence
@@ -603,6 +623,7 @@ mekanismadditions:purple_plastic_transparent_slab
 mekanismadditions:purple_plastic_transparent_stairs
 mekanismadditions:purple_reinforced_plastic
 mekanismadditions:purple_slick_plastic
+mekanismadditions:red_balloon
 mekanismadditions:red_glow_panel
 mekanismadditions:red_plastic
 mekanismadditions:red_plastic_fence
@@ -618,6 +639,7 @@ mekanismadditions:red_plastic_transparent_slab
 mekanismadditions:red_plastic_transparent_stairs
 mekanismadditions:red_reinforced_plastic
 mekanismadditions:red_slick_plastic
+mekanismadditions:white_balloon
 mekanismadditions:white_glow_panel
 mekanismadditions:white_plastic
 mekanismadditions:white_plastic_fence
@@ -633,6 +655,7 @@ mekanismadditions:white_plastic_transparent_slab
 mekanismadditions:white_plastic_transparent_stairs
 mekanismadditions:white_reinforced_plastic
 mekanismadditions:white_slick_plastic
+mekanismadditions:yellow_balloon
 mekanismadditions:yellow_glow_panel
 mekanismadditions:yellow_plastic
 mekanismadditions:yellow_plastic_fence

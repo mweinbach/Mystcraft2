@@ -65,6 +65,7 @@
     "ServerPlayerMixin",
     "ShapedRecipeMixin",
     "ShovelItemMixin",
+    "SpawnEggItemMixin",
     "SimpleJsonResourceReloadListenerMixin",
     "SlotMixin",
     "TagManagerMixin",
