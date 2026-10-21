@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 import mekanism.additions.common.MekanismAdditions;
@@ -19,6 +20,7 @@ import mekanism.additions.common.entity.EntityObsidianTNT;
 import mekanism.additions.common.registries.AdditionsBlocks;
 import mekanism.additions.common.registries.AdditionsEntityTypes;
 import mekanism.api.text.EnumColor;
+import mekanism.common.config.value.CachedIntValue;
 import mekanism.common.registries.MekanismItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,6 +31,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
@@ -45,8 +48,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -242,6 +247,43 @@ public class AdditionsModuleGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = TEMPLATE)
+    public static void additionsFireSpreadPrimesObsidianTnt(GameTestHelper helper) {
+        BlockPos obsidian = new BlockPos(1, 1, 1);
+        helper.setBlock(obsidian, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
+        burnFromFire(helper, helper.absolutePos(obsidian));
+        onlyObsidian(helper, helper.absolutePos(obsidian)).discard();
+
+        BlockPos vanilla = new BlockPos(4, 1, 1);
+        helper.setBlock(vanilla, Blocks.TNT);
+        BlockPos vanillaAbsolute = helper.absolutePos(vanilla);
+        burnFromFire(helper, vanillaAbsolute);
+        List<PrimedTnt> primed = helper.getLevel().getEntitiesOfClass(PrimedTnt.class, new AABB(vanillaAbsolute).inflate(1));
+        check(primed.size() == 1 && !(primed.get(0) instanceof EntityObsidianTNT), "Fire primed vanilla TNT as " + primed);
+        primed.get(0).discard();
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void additionsObsidianTntShortFuseDoesNotCrash(GameTestHelper helper) {
+        CachedIntValue delay = MekanismAdditionsConfig.additions.obsidianTNTDelay;
+        int previous = delay.get();
+        delay.set(0);
+        try {
+            BlockPos pos = new BlockPos(1, 1, 1);
+            helper.setBlock(pos, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
+            BlockPos absolute = helper.absolutePos(pos);
+            Explosion explosion = new Explosion(helper.getLevel(), null, absolute.getX(), absolute.getY(), absolute.getZ(), 1);
+            AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), absolute, explosion);
+            EntityObsidianTNT entity = onlyObsidian(helper, absolute);
+            check(entity.getFuse() == 0, "Zero delay fuse is " + entity.getFuse());
+            entity.discard();
+        } finally {
+            delay.set(previous);
+        }
+        helper.succeed();
+    }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void additionsTransparentPlasticTintsBeacon(GameTestHelper helper) {
         float[] plastic = tint(helper, new BlockPos(1, 1, 1), AdditionsBlocks.TRANSPARENT_PLASTIC_BLOCKS.get(EnumColor.RED).getBlock().defaultBlockState());
@@ -295,6 +337,33 @@ public class AdditionsModuleGameTests {
         }
         int surface = helper.getLevel().getHeight(Heightmap.Types.WORLD_SURFACE, top.getX(), top.getZ());
         check(surface == top.getY() + 1, "Beacon surface stayed at " + surface + " for tint Y " + top.getY());
+    }
+
+    /**
+     * Fire consumes a neighbour only when a random roll beats its burn odds. A bound of one makes that roll zero, so a
+     * flammable block always burns and a block with no odds never does. Forge renamed the method and passes the face.
+     */
+    private static void burnFromFire(GameTestHelper helper, BlockPos absolute) {
+        FireBlock fire = (FireBlock) Blocks.FIRE;
+        Level level = helper.getLevel();
+        try {
+            Method forge = FireBlock.class.getDeclaredMethod("tryCatchFire", Level.class, BlockPos.class, int.class, RandomSource.class, int.class,
+                  Direction.class);
+            forge.setAccessible(true);
+            forge.invoke(fire, level, absolute, 1, level.getRandom(), 0, Direction.UP);
+            return;
+        } catch (NoSuchMethodException ignored) {
+            // Fabric still has vanilla checkBurnOut. The burn-odds call there reads getFlammability.
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not spread fire: " + e);
+        }
+        try {
+            Method vanilla = FireBlock.class.getDeclaredMethod("checkBurnOut", Level.class, BlockPos.class, int.class, RandomSource.class, int.class);
+            vanilla.setAccessible(true);
+            vanilla.invoke(fire, level, absolute, 1, level.getRandom(), 0);
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not spread fire: " + e);
+        }
     }
 
     private static EntityObsidianTNT onlyObsidian(GameTestHelper helper, BlockPos absolute) {

@@ -91,7 +91,10 @@ public class BlockObsidianTNT extends TntBlock implements IStateFluidLoggable {
         if (!world.isClientSide) {
             PrimedTnt tnt = EntityObsidianTNT.create(world, pos.getX() + 0.5F, pos.getY(), pos.getZ() + 0.5F, explosion.getSourceMob());
             if (tnt != null) {
-                tnt.setFuse((short) (world.random.nextInt(tnt.getFuse() / 4) + tnt.getFuse() / 8));
+                int fuse = tnt.getFuse();
+                // A configured delay of 0–3 makes fuse / 4 zero, and nextInt rejects that bound.
+                int bound = Math.max(fuse / 4, 1);
+                tnt.setFuse((short) (world.random.nextInt(bound) + fuse / 8));
                 world.addFreshEntity(tnt);
             }
         }
