@@ -328,9 +328,41 @@ def explicit_value(spec, system, baseline, key):
     raise PolicyError(f"{key}: give emc, like, or per-system values")
 
 
+NAMESPACE_ID = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
+
+
+def _relative_root(value):
+    return isinstance(value, str) and bool(value) and not value.startswith(("/", "\\")) and ".." not in Path(value).parts
+
+
+def policy_namespaces(policy):
+    """The mod ids one policy prices. The first is ``namespace``; extra modules ship their own data files."""
+    primary = policy.get("namespace")
+    if not isinstance(primary, str) or not NAMESPACE_ID.fullmatch(primary):
+        raise PolicyError("namespace must be the port's mod id")
+    listed = policy.get("namespaces", [primary])
+    if (not isinstance(listed, list) or not listed
+            or any(not isinstance(name, str) or not NAMESPACE_ID.fullmatch(name) for name in listed)
+            or listed[0] != primary or len(set(listed)) != len(listed)):
+        raise PolicyError("namespaces must list unique mod ids and start with namespace")
+    outputs = policy.get("outputs")
+    if outputs is not None:
+        if not isinstance(outputs, dict) or set(outputs) != set(listed):
+            raise PolicyError("outputs must map every namespace to its resource root")
+        for name, relative in outputs.items():
+            if not _relative_root(relative):
+                raise PolicyError(f"outputs.{name} must be a relative resource root")
+        single = policy.get("output")
+        if single is not None and single != outputs[primary]:
+            raise PolicyError("output must match outputs for the primary namespace")
+    elif "output" in policy and not _relative_root(policy["output"]):
+        raise PolicyError("output must be a relative resource root")
+    return listed
+
+
 def validate_policy(policy):
-    allowed = {"namespace", "loaders", "resources", "output", "ignored", "values", "vanilla", "exclude",
-               "conversions", "processes", "remainders", "conditions", "notes"}
+    allowed = {"namespace", "namespaces", "loaders", "resources", "output", "outputs", "ignored", "values",
+               "vanilla", "exclude", "conversions", "processes", "remainders", "conditions", "notes"}
     unknown = set(policy) - allowed
     if unknown:
         raise PolicyError(f"unknown policy keys: {', '.join(sorted(unknown))}")
@@ -366,9 +398,10 @@ def validate_policy(policy):
     for key, why in policy.get("ignored", {}).items():
         if not isinstance(why, str) or not why:
             raise PolicyError(f"ignored.{key} needs a reason")
+    namespaces = policy_namespaces(policy)
     for kind, entry in policy.get("conditions", {}).items():
         if (not isinstance(entry, dict) or set(entry) != {"holds", "why"} or not isinstance(entry["holds"], bool)
-                or not entry["why"] or not kind.startswith(policy["namespace"] + ":")):
+                or not entry["why"] or not any(kind.startswith(namespace + ":") for namespace in namespaces)):
             raise PolicyError(f"conditions.{kind}: the port's own condition type, with a boolean holds and a why")
     names = set()
     for conversion in policy.get("conversions", []):
@@ -399,6 +432,7 @@ class Port:
         self.dir = Path(directory)
         self.policy = read_json(self.dir / "emc" / "policy.json")
         validate_policy(self.policy)
+        self.namespaces = policy_namespaces(self.policy)
         self.namespace = self.policy["namespace"]
         lines = (self.dir / "emc" / "registry.txt").read_text(encoding="utf-8").split()
         ignored = self.policy.get("ignored", {})
@@ -412,13 +446,16 @@ class Port:
         tags = Tags.for_loader(loader)
         tags.add_resources(roots)
         remainders = {**REMAINDERS, **self.policy.get("remainders", {})}
-        mods = {"minecraft", self.namespace, loader} | ({"fabric-api"} if loader == "fabric" else set())
+        mods = {"minecraft", loader, *self.namespaces} | ({"fabric-api"} if loader == "fabric" else set())
         custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
         recipes, skipped = load_recipes(roots, loader, tags, mods, custom)
         return tags, remainders, recipes, skipped
 
     def compute(self):
         problems = self.problems
+        for item in self.items:
+            if self._namespace_of(item) is None:
+                problems.append(f"{item} is outside the policy namespaces ({', '.join(self.namespaces)})")
         universe = set(self.items)
         owners = assign_patterns({
             "exclude": {key: patterns_of(key, entry) for key, entry in self.policy.get("exclude", {}).items()},
@@ -502,7 +539,7 @@ class Port:
         if system == "projecte":
             for tag in read_json(BASELINES / "vanilla-recipe-tags.json"):
                 members = tags.members(tag)
-                ours = [i for i in members if i in values and i.startswith(self.namespace + ":")]
+                ours = [i for i in members if i in values and self._namespace_of(i)]
                 vanilla = [baseline[i] for i in members if i in baseline]
                 if ours and vanilla:
                     low = min(ours, key=lambda i: values[i])
@@ -645,28 +682,37 @@ class Port:
         names = sorted({name for name, output, _count, _ingredients in self.policy_conversions if output == item})
         return f"conversion {', '.join(names)}" if names else "recipe"
 
-    def projecte_document(self):
+    def _namespace_of(self, item):
+        for namespace in self.namespaces:
+            if item.startswith(namespace + ":"):
+                return namespace
+        return None
+
+    def projecte_document(self, namespace):
         before = {}
         for item in self.items:
-            if self.explicit_by.get(item):
+            if self._namespace_of(item) == namespace and self.explicit_by.get(item):
                 before[item] = int(self.results["projecte"][item])
-        before.update(self.vanilla["projecte"])
-        conversion = [{"output": item, "ingredients": [NO_EMC]} for item in self.items if item in self.excluded_by]
+        if namespace == self.namespace:
+            before.update(self.vanilla["projecte"])
+        conversion = [{"output": item, "ingredients": [NO_EMC]} for item in self.items
+                      if item in self.excluded_by and self._namespace_of(item) == namespace]
         groups = {}
         for spec in self.policy.get("conversions", []):
             entries = []
             for name, output, count, ingredients in self.policy_conversions:
-                if name == spec["name"]:
+                if name == spec["name"] and self._namespace_of(output) == namespace:
                     entry = {"output": output}
                     if count != 1:
                         entry["count"] = count
                     entry["ingredients"] = ingredients
                     entries.append(entry)
-            groups[f"{self.namespace}_{spec['name']}"] = {"comment": spec["why"], "conversions": entries}
+            if entries:
+                groups[f"{namespace}_{spec['name']}"] = {"comment": spec["why"], "conversions": entries}
         vanilla = (" (plus vanilla items ProjectE's defaults leave unvalued, which its recipes need)"
-                   if self.vanilla["projecte"] else "")
+                   if namespace == self.namespace and self.vanilla["projecte"] else "")
         document = {"comment": f"Generated by scripts/emc.py from mods/<port>/emc/policy.json. Explicit values for "
-                               f"uncraftable {self.namespace} items{vanilla} and conversions for machine steps ProjectE "
+                               f"uncraftable {namespace} items{vanilla} and conversions for machine steps ProjectE "
                                f"cannot see; the {NO_EMC} conversion never resolves, so excluded items get no EMC. "
                                f"Everything else is derived from recipes by ProjectE."}
         if groups:
@@ -674,11 +720,13 @@ class Port:
         document["values"] = {"before": before, "conversion": conversion}
         return document
 
-    def itemalchemy_document(self):
+    def itemalchemy_document(self, namespace):
         document = {}
         for item in self.items:
-            document[item] = 0 if item in self.excluded_by else self.final("itemalchemy", item) or 0
-        document.update(self.vanilla["itemalchemy"])
+            if self._namespace_of(item) == namespace:
+                document[item] = 0 if item in self.excluded_by else self.final("itemalchemy", item) or 0
+        if namespace == self.namespace:
+            document.update(self.vanilla["itemalchemy"])
         return document
 
     def readme(self, values):
@@ -687,13 +735,18 @@ class Port:
         for entry in items.values():
             key = "excluded" if "excluded" in entry else entry["source"].split(" ")[0]
             counts[key] = counts.get(key, 0) + 1
-        lines = [f"# EMC values for `{self.namespace}`", "",
-                 "Generated by `python3 scripts/emc.py generate` from `policy.json` and `registry.txt`; do not edit. "
-                 "See [docs/emc.md](../../../docs/emc.md) for the method and the ProjectE/Item Alchemy loader notes.", "",
-                 f"{len(items)} registered items: " + ", ".join(f"{n} {k}" for k, n in sorted(counts.items())) + ". "
-                 "`recipe` values are derived from crafting, smelting, stonecutting and smithing recipes, `tag` values "
-                 "come from the EMC mod's own tag defaults, and `explicit` values are listed below. "
-                 "Full per-item values are in `values.json`.", ""]
+        lines = [f"# EMC values for `{self.namespace}`", ""]
+        if len(self.namespaces) > 1:
+            others = ", ".join(f"`{namespace}`" for namespace in self.namespaces if namespace != self.namespace)
+            lines += [f"This policy also covers {others}. Each namespace's shipped files go to that namespace's output root.", ""]
+        lines += ["Generated by `python3 scripts/emc.py generate` from `policy.json` and `registry.txt`; do not edit. "
+                  "See [docs/emc.md](../../../docs/emc.md) for the method and the ProjectE/Item Alchemy loader notes.",
+                  "",
+                  f"{len(items)} registered items: " + ", ".join(f"{n} {k}" for k, n in sorted(counts.items())) + ". "
+                  "`recipe` values are derived from crafting, smelting, stonecutting and smithing recipes, `tag` values "
+                  "come from the EMC mod's own tag defaults, and `explicit` values are listed below. "
+                  "Full per-item values are in `values.json`.",
+                  ""]
         notes = self.policy.get("notes")
         if notes:
             lines += [notes if isinstance(notes, str) else "\n".join(notes), ""]
@@ -765,16 +818,23 @@ class Port:
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
 
+    def output_root(self, namespace):
+        mapped = self.policy.get("outputs")
+        relative = mapped[namespace] if mapped else self.policy["output"]
+        return self.dir / relative
+
     def outputs(self):
         self.compute()
         values = self.values_document()
-        output = self.dir / self.policy["output"] / "data" / self.namespace
-        return {
+        written = {
             self.dir / "emc" / "values.json": dumps(values),
             self.dir / "emc" / "README.md": self.readme(values),
-            output / "pe_custom_conversions" / f"{self.namespace}.json": dumps(self.projecte_document()),
-            output / "default_emcs" / f"{self.namespace}.json": dumps(self.itemalchemy_document()),
         }
+        for namespace in self.namespaces:
+            data = self.output_root(namespace) / "data" / namespace
+            written[data / "pe_custom_conversions" / f"{namespace}.json"] = dumps(self.projecte_document(namespace))
+            written[data / "default_emcs" / f"{namespace}.json"] = dumps(self.itemalchemy_document(namespace))
+        return written
 
 
 def entry_label(key, entry, matched):
