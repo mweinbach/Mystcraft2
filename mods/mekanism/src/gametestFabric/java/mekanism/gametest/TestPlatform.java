@@ -13,6 +13,8 @@ import mekanism.api.chemical.infuse.IInfusionHandler;
 import mekanism.api.chemical.pigment.IPigmentHandler;
 import mekanism.api.chemical.slurry.ISlurryHandler;
 import mekanism.api.heat.IHeatHandler;
+import mekanism.common.Mekanism;
+import mekanism.common.tile.TileEntityFluidTank;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -24,14 +26,19 @@ import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import mekanism.common.tile.TileEntityFluidTank;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
 import ports.mekanism.fabric.api.MekanismChemicalLookups;
-import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
+import ports.mekanism.lib.common.extensions.IForgeBlockEntity;
+import ports.mekanism.lib.common.world.ForgeChunkManager;
+import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.items.ItemHandlerHelper;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -45,6 +52,10 @@ public final class TestPlatform {
     public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / 1000;
 
     private TestPlatform() {
+    }
+
+    public static AABB renderBounds(BlockEntity blockEntity) {
+        return ((IForgeBlockEntity) blockEntity).getRenderBoundingBox();
     }
 
     public static long insertEnergy(BlockEntity blockEntity, Direction side, long amount) {
@@ -276,6 +287,33 @@ public final class TestPlatform {
         if (blockEntity instanceof TileEntityFluidTank tank) {
             tank.fluidTank.setStack(new FluidStack(fluid, milliBuckets));
         }
+    }
+
+    /**
+     * The teleporter's anchor upgrade has a saved non-ticking ticket, and the chunk source is holding that ticket.
+     */
+    public static boolean anchorChunkLoaded(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        return ForgeChunkManager.hasBlockTicket(level, Mekanism.MODID, owner, chunk.x, chunk.z, false)
+              && ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), ForgeChunkManager.BLOCK_TICKET);
+    }
+
+    /**
+     * Drops the vanilla tickets, then loads the saved ones again. Null when the anchor ticket is back and was gone in
+     * between.
+     */
+    public static String anchorChunkRestored(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        if (!anchorChunkLoaded(level, owner, chunk)) {
+            return "Anchor ticket was not loaded before the restart: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        ForgeChunkManager.suspendRuntimeTickets(level);
+        if (ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), ForgeChunkManager.BLOCK_TICKET)) {
+            return "Runtime chunk ticket was still present after it was dropped: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        ForgeChunkManager.reinstatePersistentChunks(level);
+        if (!anchorChunkLoaded(level, owner, chunk)) {
+            return "Anchor ticket was not restored from the level save: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        return null;
     }
 
     private static long inSlot(ItemStack stack, Function<ContainerItemContext, Long> action) {

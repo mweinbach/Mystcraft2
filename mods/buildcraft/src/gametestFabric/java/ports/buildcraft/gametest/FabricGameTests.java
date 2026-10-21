@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests} and {@link FacadeTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests} and {@link ZonePlannerTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -319,6 +319,24 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void facadeQuadsStayInTheShell(GameTestHelper helper) { FacadeTests.facadeQuadsStayInTheShell(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void zonePlanStoresColumns(GameTestHelper helper) { ZonePlannerTests.zonePlanStoresColumns(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void mapLocationRecordsAndCleans(GameTestHelper helper) { ZonePlannerTests.mapLocationRecordsAndCleans(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void zonePlannerImportsAndExports(GameTestHelper helper) { ZonePlannerTests.zonePlannerImportsAndExports(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void zonePlannerMenuRejectsAndDrops(GameTestHelper helper) { ZonePlannerTests.zonePlannerMenuRejectsAndDrops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void zonePlannerMapColoursTheTopBlock(GameTestHelper helper) { ZonePlannerTests.zonePlannerMapColoursTheTopBlock(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void paintbrushAndZonePlannerRecipes(GameTestHelper helper) { ZonePlannerTests.paintbrushAndZonePlannerRecipes(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

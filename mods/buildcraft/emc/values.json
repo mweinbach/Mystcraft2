@@ -455,6 +455,9 @@
       "itemalchemy": 2,
       "source": "conversion assemble_lenses"
     },
+    "buildcraft:map_location": {
+      "excluded": "No recipe: upstream's map location is filled by using it on a block, and the zone planner only reads and writes that NBT. Transmutation never copies NBT, so a value would pay out a blank map."
+    },
     "buildcraft:marker_connector": {
       "projecte": 872,
       "itemalchemy": 860,
@@ -524,6 +527,91 @@
     },
     "buildcraft:oil_spring": {
       "excluded": "Creative-only: the spring under large oil wells is unbreakable like bedrock and drops nothing; the oil it regrows is what gets a value."
+    },
+    "buildcraft:paintbrush": {
+      "projecte": 92,
+      "itemalchemy": 92,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_black": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_blue": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_brown": {
+      "projecte": 156,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_cyan": {
+      "projecte": 104,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_gray": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_green": {
+      "projecte": 100,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_light_blue": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_light_gray": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_lime": {
+      "projecte": 104,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_magenta": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_orange": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_pink": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_purple": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_red": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_white": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
+    },
+    "buildcraft:paintbrush_yellow": {
+      "projecte": 108,
+      "itemalchemy": 108,
+      "source": "recipe"
     },
     "buildcraft:pipe_clay_fluid": {
       "projecte": 24,
@@ -853,6 +941,11 @@
     "buildcraft:wrench": {
       "projecte": 788,
       "itemalchemy": 776,
+      "source": "recipe"
+    },
+    "buildcraft:zone_planner": {
+      "projecte": 2508,
+      "itemalchemy": 968,
       "source": "recipe"
     }
   }

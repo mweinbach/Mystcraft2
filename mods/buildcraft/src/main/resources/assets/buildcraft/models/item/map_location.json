@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "buildcraft:item/map/clean"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "buildcraft:type": 1
+      },
+      "model": "buildcraft:item/map_location_spot"
+    },
+    {
+      "predicate": {
+        "buildcraft:type": 2
+      },
+      "model": "buildcraft:item/map_location_area"
+    },
+    {
+      "predicate": {
+        "buildcraft:type": 3
+      },
+      "model": "buildcraft:item/map_location_path"
+    },
+    {
+      "predicate": {
+        "buildcraft:type": 4
+      },
+      "model": "buildcraft:item/map_location_zone"
+    },
+    {
+      "predicate": {
+        "buildcraft:type": 5
+      },
+      "model": "buildcraft:item/map_location_path_repeating"
+    }
+  ]
+}

@@ -24,9 +24,10 @@ the shared placement modifiers. Mekanism fluids render from their fluid-type cli
 fluid is registered with Fabric's fluid render handler (still texture, flowing texture, overlay and tint) and on the
 translucent block render layer, and those textures are stitched into the block atlas that bucket models and fluid
 gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's default state, and blocks that return
-true (structural glass) are marked transparent so the overlay sprite is drawn against them. The shared GameTests
-(core machines, loader interop, chemical lookups, ore generation, item and block hooks, and fluid placement) pass
-on both loaders.
+true (structural glass) are marked transparent so the overlay sprite is drawn against them. An anchor upgrade keeps
+that machine's chunk loaded, and the same tickets come back when the level loads. The shared GameTests (core machines,
+loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading, and render
+bounds) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -41,12 +42,26 @@ on both loaders.
   `mekanism:heat_handler`); the ids, context classes and the `ports.mekanism.fabric.api.MekanismChemicalLookups`
   fields are listed in [README.md](README.md). The handler is the port's capability for that side or stack, in
   Mekanism chemical units. Mekanism registers its own blocks and items. Other mods can register on the same lookups.
-  A Forge chemical or heat capability asked of a foreign block does not fall back to them.
+  A Forge chemical or heat capability asked of a foreign block falls back to the matching lookup, which is how a
+  pressurized tube pulls gas another mod registered. Mekanism's own block entities are skipped, so the fallback does
+  not call their lookup providers. Forge `conditions` on a data file are applied while JSON is prepared only when
+  every condition is a Forge type this port can read and none is `forge:tag_empty` (tags are not bound yet, and an
+  empty condition context would treat every tag as empty). Unknown types and tag conditions stay in the file for
+  that mod's own loader conditions.
 - `scripts/generate_fabric_tags.py` writes the Fabric tag bridges: the `forge:` tags Forge itself defines (from
   `scripts/forge-tags.json`, Forge 43.5.0's data), each Mekanism `forge:` tag with its `c:` equivalent as an optional
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
 - Tags of Mekanism's own registries (gases, infuse types, pigments, slurries) load from Forge's
   `tags/<namespace>/<path>` directories; those registries are synced and saved as Forge's are.
+- Chunk tickets. The digital miner, dimensional stabilizer, teleporter and quantum entangloporter use
+  `TileComponentChunkLoader`, and any machine with an anchor upgrade does too. Fabric saves those tickets with the
+  level and, when the level loads, asks Mekanism to validate them before the chunks are loaded again. The ticket is
+  vanilla's `/forceload` level, so the chunk, its entities and its block entities tick.
+- Block entity renderers are culled with `getRenderBoundingBox`. The default is Forge's collision shape, with the
+  chest, enchanting table, beacon and structure block cases. Multiblocks, the digital miner, the dimensional
+  stabilizer, the teleporter, transmitters, the pigment mixer, the seismic vibrator and the industrial alarm override
+  that box, so they keep drawing while any of it is in the frustum. `Entity.onRemovedFromWorld` runs when an entity
+  leaves the level's tracking lists. A following Robit uses it to hold its chunk for a second after it is unloaded.
 
 ## Fabric: item and block hooks vanilla calls
 
@@ -71,14 +86,12 @@ and block methods are.
 
 ## Fabric: not written yet
 
-- Chunk loading tickets.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
   item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
   events, recipes updated, GUI overlay rendering, block highlight, living entity rendering, fog, mouse scrolling and
   `EntityRenderersEvent.AddLayers`. Features that rely on them (MekaSuit and jetpack ticking, radiation effects on
   players, free runners' fall behavior, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
   `onArmorTick` does run; the modules that need a player tick still do not.
-- `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
 - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
@@ -96,7 +109,9 @@ and block methods are.
 - `Entity.changeDimension(ServerLevel, ITeleporter)` moves the entity with Fabric's dimension API. The reposition
   function handed to `ITeleporter.placeEntity` ignores its portal flag, and `playTeleportSound` is not consulted.
 - Tooltips drawn through `Screen.renderComponentTooltip` ignore the font and item stack arguments.
-- Forced chunks do not random-tick.
+- Forced chunks do not random-tick. The ticket level matches vanilla `/forceload`: entities and block entities tick, and
+  random ticks still happen only near a player. The dimensional stabilizer asks Forge for fully ticking chunks; on
+  Fabric that flag is saved so validation can tell it from an anchor upgrade, and it does not enable random ticks.
 - The ender dragon's part entities are not exposed through Forge's `PartEntity` API.
 - Key mapping modifiers are not saved.
 - HUD overlays are drawn in registration order rather than Forge's overlay order.
