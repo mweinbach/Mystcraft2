@@ -20,8 +20,8 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. The shared GameTests (core machines, loader interop, ore generation, and the item and
-block hooks) pass on both loaders.
+the shared placement modifiers. The shared GameTests (core machines, loader interop, ore generation, item and block
+hooks, and render bounds) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -37,6 +37,11 @@ block hooks) pass on both loaders.
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
 - Tags of Mekanism's own registries (gases, infuse types, pigments, slurries) load from Forge's
   `tags/<namespace>/<path>` directories; those registries are synced and saved as Forge's are.
+- Block entity renderers are culled with `getRenderBoundingBox`. The default is Forge's collision shape, with the
+  chest, enchanting table, beacon and structure block cases. Multiblocks, the digital miner, the dimensional
+  stabilizer, the teleporter, transmitters, the pigment mixer, the seismic vibrator and the industrial alarm override
+  that box, so they keep drawing while any of it is in the frustum. `Entity.onRemovedFromWorld` runs when an entity
+  leaves the level's tracking lists. A following Robit uses it to hold its chunk for a second after it is unloaded.
 
 ## Fabric: item and block hooks vanilla calls
 
@@ -70,7 +75,6 @@ and block methods are.
   `EntityRenderersEvent.AddLayers`. Features that rely on them (MekaSuit and jetpack ticking, radiation effects on
   players, free runners' fall behavior, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
   `onArmorTick` does run; the modules that need a player tick still do not.
-- `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
 - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.

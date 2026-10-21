@@ -20,6 +20,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
+import ports.mekanism.lib.common.extensions.IForgeBlockEntity;
 import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
 import ports.mekanism.lib.items.ItemHandlerHelper;
@@ -34,6 +36,10 @@ public final class TestPlatform {
     public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / 1000;
 
     private TestPlatform() {
+    }
+
+    public static AABB renderBounds(BlockEntity blockEntity) {
+        return ((IForgeBlockEntity) blockEntity).getRenderBoundingBox();
     }
 
     public static long insertEnergy(BlockEntity blockEntity, Direction side, long amount) {
