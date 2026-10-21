@@ -16,7 +16,8 @@
       "mekanism.gametest.OreGenerationGameTests",
       "mekanism.gametest.PlayerEventGameTests",
       "mekanism.gametest.RenderBoundsGameTests",
-      "mekanism.gametest.DynamicTankGameTests"
+      "mekanism.gametest.DynamicTankGameTests",
+      "mekanism.gametest.SimpleGeneratorGameTests"
     ]
   },
   "depends": {

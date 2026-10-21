@@ -11,9 +11,11 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
 `mekanismgenerators`, `mekanismtools` and `mekanismadditions` jars that depend on the core jar.
 
 - **Generators** is imported: registries, config, the packet handler, assets and the checked-in datagen output.
-  Both loaders load the jar and register its blocks, items, fluids and the heat generator's block entity
-  (`GeneratorsModuleGameTests`). Solar, wind, gas, bio, turbine, fission and fusion gameplay is not verified, and
-  the wind generator's item renderer and the rotor's render box are still the later generator slices.
+  Both loaders load the jar and register its blocks, items, fluids and block entities. Heat, solar, advanced solar,
+  gas-burning, bio and wind generators produce energy (`SimpleGeneratorGameTests`): solar output in daylight, the
+  gas-burning generator burning hydrogen, and energy leaving through Forge Energy and Team Reborn Energy. The wind
+  rotor's render box is the extended box the block entity reports, and on Fabric the wind generator item is drawn by
+  `BuiltinItemRendererRegistry`. Turbine, fission and fusion gameplay is not verified.
 - **Tools and Additions** load as empty modules. Their items, blocks and entities are not imported.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
@@ -40,8 +42,8 @@ valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid th
 Breaking the blocks and loading their saved cache brings the fluid and the container edit mode back. The master's
 render box is that structure. In the development client that formed tank draws the fluid it is holding through the
 structural glass. The shared GameTests (core machines, loader interop, chemical lookups, ore generation, the item and
-block hooks, chunk loading, render bounds, the player and living events, a Generators registry smoke test, and the
-dynamic tank) pass on both loaders.
+block hooks, chunk loading, render bounds, the player and living events, a Generators registry smoke test, the
+simple generators, and the dynamic tank) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -169,8 +171,10 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, the other multiblocks, QIO, the digital miner, Robit, gear,
-  the energy cube's core renderer, and anything in the Generators jar. A formed dynamic tank holding water was
-  checked: the fluid body renders inside the structural glass.
+  the energy cube's core renderer, the simple generators' block-entity renderers, and the turbine, fission and fusion
+  renderers. The wind generator item is registered with Fabric's builtin item renderer; that registration has not
+  been watched in a client. A formed dynamic tank holding water was checked: the fluid body renders inside the
+  structural glass.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
