@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests} and {@link SiliconTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests} and {@link GateTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -234,6 +234,24 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { BCTests.structurePipesConnectOnlyToEachOther(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gatePlacesAndKeepsItsConfiguration(GameTestHelper helper) { GateTests.gatePlacesAndKeepsItsConfiguration(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 60)
+    public static void gateTurnsRedstoneInputIntoSignal(GameTestHelper helper) { GateTests.gateTurnsRedstoneInputIntoSignal(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateGroupsPairsByLogic(GameTestHelper helper) { GateTests.gateGroupsPairsByLogic(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateCopierCopiesPastesAndClears(GameTestHelper helper) { GateTests.gateCopierCopiesPastesAndClears(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateMenuOnlyAcceptsWhatTheGateCanUse(GameTestHelper helper) { GateTests.gateMenuOnlyAcceptsWhatTheGateCanUse(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) { GateTests.gateTurnsIronPipeAndReadsInventories(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

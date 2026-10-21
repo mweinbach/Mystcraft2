@@ -113,11 +113,25 @@ public class GateMenu extends BCMenu {
         addDataSlot(actionOn);
     }
 
-    public static void open(ServerPlayer player, PluggableGate gate) {
+    private static Opening opening(PluggableGate gate) {
         GateLogic logic = gate.logic();
-        Opening opening = new Opening(gate.holder.getBlockPos(), gate.side, logic.variant, logic.getAllValidTriggers(), logic.getAllValidActions());
+        return new Opening(gate.holder.getBlockPos(), gate.side, logic.variant, logic.getAllValidTriggers(), logic.getAllValidActions());
+    }
+
+    public static void open(ServerPlayer player, PluggableGate gate) {
+        Opening opening = opening(gate);
         Platform.get().openMenu(player, new SimpleMenuProvider((id, inventory, p) -> new GateMenu(id, inventory, opening, gate),
-                logic.variant.localizedName()), opening::write);
+                gate.logic().variant.localizedName()), opening::write);
+    }
+
+    /** The server's menu for {@code gate}, as {@link #open} makes it. */
+    public static GateMenu create(int id, Inventory inventory, PluggableGate gate) {
+        return new GateMenu(id, inventory, opening(gate), gate);
+    }
+
+    /** What {@link #open} sends the client, from which {@link #GateMenu(int, Inventory, FriendlyByteBuf)} builds its menu. */
+    public static void writeOpening(FriendlyByteBuf buffer, PluggableGate gate) {
+        opening(gate).write(buffer);
     }
 
     private static void writeStatement(FriendlyByteBuf buffer, StatementWrapper wrapper) {
