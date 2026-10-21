@@ -59,7 +59,6 @@ the shared placement modifiers. The shared GameTests (core machines, loader inte
   - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
-- A loader-parity check script, and EMC values for ProjectE and Item Alchemy.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
