@@ -18,6 +18,7 @@ import mekanism.api.recipes.RotaryRecipe;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.Capability;
@@ -66,7 +67,17 @@ public final class ForgeMekanism {
 
         @Override
         public long getTankCapacity(final int idx) {
-            return 0 == idx ? this.tank.getTankCapacity(0) : 0;
+
+            if (0 != idx) {
+                return 0;
+            }
+
+            final int capacity = this.tank.getTankCapacity(0);
+            final FluidStack stored = this.tank.getFluidInTank(0);
+            final IMapping<Fluid, Gas> mapping = stored.isEmpty() ? null : getFluidMapping(stored.getFluid());
+
+            // an empty tank has no gas to measure in yet, so its capacity is given in fluid units
+            return null == mapping ? capacity : toGasAmount(mapping, capacity);
         }
 
         @Override
@@ -176,69 +187,84 @@ public final class ForgeMekanism {
         return null != mapping ? new GasStack(mapping.getProduct(), mapping.getProductAmount(amount)) : GasStack.EMPTY;
     }
 
+    private static long toGasAmount(final IMapping<Fluid, Gas> mapping, final int fluidAmount) {
+        return (long) (fluidAmount / mapping.getSourceAmount()) * mapping.getProductAmount();
+    }
+
     @Nullable
     private static IMapping<Fluid, Gas> getFluidMapping(final Fluid fluid) {
-
-        if (null == s_fluidToGas) {
-            buildMappings();
-        }
-
-        return s_fluidToGas.get(fluid);
+        return mappings().fluidToGas().get(fluid);
     }
 
     @Nullable
     private static IMapping<Gas, Fluid> getGasMapping(final Gas gas) {
-
-        if (null == s_gasToFluid) {
-            buildMappings();
-        }
-
-        return s_gasToFluid.get(gas);
+        return mappings().gasToFluid().get(gas);
     }
 
-    private static void buildMappings() {
-
-        s_fluidToGas = new Object2ObjectOpenHashMap<>(8);
-        s_gasToFluid = new Object2ObjectOpenHashMap<>(8);
+    /**
+     * The mappings of the running server's rotary recipes. A reload or another world brings a new recipe manager,
+     * which rebuilds them.
+     */
+    private static Mappings mappings() {
 
         final MinecraftServer server = Platform.currentServer();
+        final RecipeManager recipes = null == server ? null : server.getRecipeManager();
+        Mappings mappings = s_mappings;
 
-        if (null == server) {
-            return;
+        if (null == mappings || mappings.recipes() != recipes) {
+            s_mappings = mappings = Mappings.build(recipes);
         }
 
-        final ResourceLocation typeId = new ResourceLocation(MekanismGas.MOD_ID, "rotary");
-        @SuppressWarnings("unchecked")
-        final RecipeType<RotaryRecipe> type = (RecipeType<RotaryRecipe>) Registry.RECIPE_TYPE.get(typeId);
+        return mappings;
+    }
 
-        if (null == type) {
-            return;
+    private record Mappings(@Nullable RecipeManager recipes, Map<Fluid, IMapping<Fluid, Gas>> fluidToGas,
+                            Map<Gas, IMapping<Gas, Fluid>> gasToFluid) {
+
+        static Mappings build(@Nullable final RecipeManager recipes) {
+
+            final Mappings mappings = new Mappings(recipes, new Object2ObjectOpenHashMap<>(8),
+                    new Object2ObjectOpenHashMap<>(8));
+
+            if (null != recipes) {
+                mappings.addRotaryRecipes(recipes);
+            }
+
+            return mappings;
         }
 
-        server.getRecipeManager()
-                .getAllRecipesFor(type).stream()
-                .filter(RotaryRecipe::hasFluidToGas)
-                .forEach(rotaryRecipe -> {
+        private void addRotaryRecipes(final RecipeManager recipes) {
 
-                    final GasStack gasStack = rotaryRecipe.getGasOutputDefinition().get(0);
+            final ResourceLocation typeId = new ResourceLocation(MekanismGas.MOD_ID, "rotary");
+            @SuppressWarnings("unchecked")
+            final RecipeType<RotaryRecipe> type = (RecipeType<RotaryRecipe>) Registry.RECIPE_TYPE.get(typeId);
 
-                    rotaryRecipe.getFluidInput().getRepresentations().stream()
-                            .filter(fluidStack -> FluidMappingsRegistry.hasVaporFrom(fluidStack.getFluid()))
-                            .forEach(fluidStack -> {
+            if (null == type) {
+                return;
+            }
 
-                                final IMapping<Fluid, Gas> mapping = IMapping.of(fluidStack.getFluid(), fluidStack.getAmount(),
-                                        gasStack.getRaw(), (int) gasStack.getAmount());
+            recipes.getAllRecipesFor(type).stream()
+                    .filter(RotaryRecipe::hasFluidToGas)
+                    .forEach(rotaryRecipe -> {
 
-                                s_fluidToGas.put(fluidStack.getFluid(), mapping);
-                                s_gasToFluid.put(mapping.getProduct(), mapping.getReverse());
-                            });
-                });
+                        final GasStack gasStack = rotaryRecipe.getGasOutputDefinition().get(0);
+
+                        rotaryRecipe.getFluidInput().getRepresentations().stream()
+                                .filter(fluidStack -> FluidMappingsRegistry.hasVaporFrom(fluidStack.getFluid()))
+                                .forEach(fluidStack -> {
+
+                                    final IMapping<Fluid, Gas> mapping = IMapping.of(fluidStack.getFluid(),
+                                            fluidStack.getAmount(), gasStack.getRaw(), (int) gasStack.getAmount());
+
+                                    this.fluidToGas.put(fluidStack.getFluid(), mapping);
+                                    this.gasToFluid.put(mapping.getProduct(), mapping.getReverse());
+                                });
+                    });
+        }
     }
 
     @Nullable
-    private static Map<Fluid, IMapping<Fluid, Gas>> s_fluidToGas;
-    @Nullable
-    private static Map<Gas, IMapping<Gas, Fluid>> s_gasToFluid;
+    private static volatile Mappings s_mappings;
 
     //endregion
 
