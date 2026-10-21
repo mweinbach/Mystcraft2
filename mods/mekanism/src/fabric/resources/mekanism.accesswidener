@@ -100,3 +100,7 @@ accessible class net/minecraft/client/renderer/block/model/ItemOverrides$BakedOv
 
 # Read by the Fabric FluidBucketWrapper; Forge exposes it as BucketItem.getFluid().
 accessible field net/minecraft/world/item/BucketItem content Lnet/minecraft/world/level/material/Fluid;
+
+# Forge model loading on Fabric (BlockGeometryBakingContext, port BlockModel mixin).
+accessible field net/minecraft/client/renderer/block/model/BlockModel parent Lnet/minecraft/client/renderer/block/model/BlockModel;
+accessible method net/minecraft/client/renderer/block/model/BlockModel getItemOverrides (Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;)Lnet/minecraft/client/renderer/block/model/ItemOverrides;
