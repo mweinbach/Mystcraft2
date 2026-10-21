@@ -136,7 +136,7 @@ def result_of(recipe):
 
 def recipe_ingredients(recipe):
     kind = recipe.get("type")
-    if kind == "minecraft:crafting_shaped":
+    if kind in ("minecraft:crafting_shaped", "mekanismtools:paxel"):
         counts = {}
         for row in recipe["pattern"]:
             for symbol in row:

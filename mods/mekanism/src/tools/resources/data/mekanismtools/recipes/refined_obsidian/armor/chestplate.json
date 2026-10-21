@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/refined_obsidian"
+    }
+  },
+  "pattern": [
+    "I I",
+    "III",
+    "III"
+  ],
+  "result": {
+    "item": "mekanismtools:refined_obsidian_chestplate"
+  }
+}

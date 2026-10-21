@@ -174,7 +174,7 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
 
 MODULES = (
     ('generators', 'mekanismgenerators', True),
-    ('tools', 'mekanismtools', False),
+    ('tools', 'mekanismtools', True),
     ('additions', 'mekanismadditions', False),
 )
 

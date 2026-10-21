@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.mekanism.lib.common.ForgeHooks;
 import ports.mekanism.lib.common.ForgeMod;
+import ports.mekanism.lib.common.ToolActions;
 import ports.mekanism.lib.common.extensions.IForgeItemStack;
 import ports.mekanism.lib.event.ForgeEventFactory;
 
@@ -166,6 +167,19 @@ public abstract class PlayerMixin {
     private void mekanism$breakSpeed(BlockState state, CallbackInfoReturnable<Float> cir) {
         Player self = (Player) (Object) this;
         cir.setReturnValue(ForgeEventFactory.getBreakSpeed(self, state, cir.getReturnValueF(), ForgeHooks.pollBreakPos()));
+    }
+
+    /**
+     * Forge's 1.19.2 player patch damages any stack that can {@code SHIELD_BLOCK}. Vanilla only damages
+     * {@link Items#SHIELD}, so a Mekanism shield would block without losing durability.
+     */
+    @Redirect(method = "hurtCurrentlyUsedShield", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
+    private boolean mekanism$shieldBlock(ItemStack stack, Item item) {
+        if (item == Items.SHIELD) {
+            return ((IForgeItemStack) (Object) stack).canPerformAction(ToolActions.SHIELD_BLOCK);
+        }
+        return stack.is(item);
     }
 
     @Redirect(method = "tryToStartFallFlying", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))

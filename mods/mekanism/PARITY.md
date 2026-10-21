@@ -16,7 +16,16 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   gas-burning generator burning hydrogen, and energy leaving through Forge Energy and Team Reborn Energy. The wind
   rotor's render box is the extended box the block entity reports, and on Fabric the wind generator item is drawn by
   `BuiltinItemRendererRegistry`. Turbine, fission and fusion gameplay is not verified.
-- **Tools and Additions** load as empty modules. Their items, blocks and entities are not imported.
+- **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
+  refined obsidian and steel, plus vanilla paxels. Both loaders register them
+  (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
+  strip and flatten. Paxels do not till, matching upstream. Fabric harvest uses the numeric tier level. The
+  `needs_*_tool` tags are empty, and the tier-sorting registry only records the order. Hoe till on Fabric is vanilla's tillable map, gated by
+  `canPerformAction`. `c:` tool and armor tags ship in the tools jar alongside the `forge:` tags. Shield items use
+  the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
+  `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
+  posted. The Wildfire's Gender capability is not attached.
+- **Additions** loads as an empty module. Its items, blocks and entities are not imported.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
 
@@ -37,14 +46,19 @@ The infusion bar, gas bar, sawmill's second output row and the wider ultimate fa
 Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
-highlighting and in-game key and scroll input are wired (see below). An anchor upgrade keeps that machine's chunk
-loaded, and the same tickets come back when the level loads. Factories for all nine recipe types and four tiers
-place their tiles. A basic smelting factory smelts one item in each of its three slots in the same operation,
-auto-sort spreads one input stack across those slots, and an advanced tier installer replaces the block while
-keeping the items, stored energy and auto-sort flag. The shared GameTests (core machines, factories, loader interop,
-chemical lookups, ore generation, the item and block hooks, chunk loading, render bounds, the player and living
-events, a Generators registry smoke test, and the simple generators) pass on both loaders.
+the shared placement modifiers. Mekanism fluids render from their fluid-type client extensions: each still and flowing
+fluid is registered with Fabric's fluid render handler (still texture, flowing texture, overlay and tint) and on the
+translucent block render layer, and those textures are stitched into the block atlas that bucket models and fluid
+gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's default state, and blocks that return
+true (structural glass) are marked transparent so the overlay sprite is drawn against them. Client ticks, the HUD,
+fog, living-entity and arm rendering, armor layers, block highlighting and in-game key and scroll input are wired
+(see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
+Factories for all nine recipe types and four tiers place their tiles. A basic smelting factory smelts one item in
+each of its three slots in the same operation, auto-sort spreads one input stack across those slots, and an advanced
+tier installer replaces the block while keeping the items, stored energy and auto-sort flag. The shared GameTests
+(core machines, factories, loader interop, chemical lookups, ore generation, the item and block hooks, fluid
+placement, chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple
+generators, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -166,8 +180,6 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 
 ## Fabric: not written yet
 
-- Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
-  is not called.
 - Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
@@ -198,4 +210,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
   Their screen position still comes from the same left and right bar heights.
 - OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
+- Fabric's fluid renderer ignores tint alpha. Mekanism's fluid tints are opaque, and steam's transparency is in its
+  texture. `shouldDisplayFluidOverlay` is read from the default block state when the client starts, not again per face;
+  structural glass always requests the overlay, so the fluids drawn against it match Forge.
 - Data generation runs on Forge only; both loaders ship the checked-in generated data.

@@ -10,7 +10,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
-| Mekanism | Forge, Fabric | 412 | 12 | 20 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
+| Mekanism | Forge, Fabric | 484 | 12 | 20 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
 Each port's `emc/README.md` is generated. It lists every explicit value and exclusion with its reason, the
@@ -154,7 +154,7 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 
 CI runs every audit in the table against its real EMC mod. That catches stale values, changed dependency
 coordinates and data-format regressions. Mekanism ships those two data files for the core module and again
-for Generators; `scripts/emc.py check` covers them. Its GameTests do not run `EmcAudit` or install an EMC mod yet.
+for Generators and Tools; `scripts/emc.py check` covers them. Its GameTests do not run `EmcAudit` or install an EMC mod yet.
 
 ## Adding EMC to a port
 
@@ -167,7 +167,7 @@ Use this for Extreme Reactors or any new port.
    `mods/<id>/emc/registry.txt`.
 2. **Policy.** Write `mods/<id>/emc/policy.json`; JurassiCraft's is the most complete example. It needs:
    - `namespace`, the port's mod id. `namespaces` lists extra mod ids the same policy prices (Mekanism's
-     Generators module); it must start with `namespace`. `outputs` then maps every namespace to the resource
+     Generators and Tools modules); it must start with `namespace`. `outputs` then maps every namespace to the resource
      root that ships that namespace's data files. Omit both when the port is one mod.
    - `loaders`: `forge` or `fabric` for each EMC system. Use `fabric` for both on a Fabric-only port.
    - `resources`: the roots holding recipes and tags. Include loader-specific roots, such as `src/forge/resources`.
