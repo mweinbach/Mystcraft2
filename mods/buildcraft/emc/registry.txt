@@ -96,6 +96,7 @@ buildcraft:lens_purple
 buildcraft:lens_red
 buildcraft:lens_white
 buildcraft:lens_yellow
+buildcraft:map_location
 buildcraft:marker_connector
 buildcraft:marker_path
 buildcraft:marker_volume
@@ -116,6 +117,23 @@ buildcraft:oil_residue_bucket
 buildcraft:oil_residue_heat_1_bucket
 buildcraft:oil_residue_heat_2_bucket
 buildcraft:oil_spring
+buildcraft:paintbrush
+buildcraft:paintbrush_black
+buildcraft:paintbrush_blue
+buildcraft:paintbrush_brown
+buildcraft:paintbrush_cyan
+buildcraft:paintbrush_gray
+buildcraft:paintbrush_green
+buildcraft:paintbrush_light_blue
+buildcraft:paintbrush_light_gray
+buildcraft:paintbrush_lime
+buildcraft:paintbrush_magenta
+buildcraft:paintbrush_orange
+buildcraft:paintbrush_pink
+buildcraft:paintbrush_purple
+buildcraft:paintbrush_red
+buildcraft:paintbrush_white
+buildcraft:paintbrush_yellow
 buildcraft:pipe_clay_fluid
 buildcraft:pipe_clay_item
 buildcraft:pipe_cobblestone_fluid
@@ -180,3 +198,4 @@ buildcraft:wire_red
 buildcraft:wire_white
 buildcraft:wire_yellow
 buildcraft:wrench
+buildcraft:zone_planner

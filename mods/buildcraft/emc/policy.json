@@ -7,7 +7,7 @@
   },
   "output": "src/main/resources",
   "notes": [
-    "Every survival BuildCraft item in this port apart from fluid buckets is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, land and path marks, the marker connector, waterproof, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
+    "Every survival BuildCraft item in this port apart from fluid buckets and the map location is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, land and path marks, the marker connector, waterproof, paintbrushes, the zone planner, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
     "",
     "Gates, the gate copier, pipe wire, lenses and filters, the pipe pulsar, the timer and facades come from the assembly table, which ProjectE and Item Alchemy do not map, so each assembly recipe is restated as a conversion with laser power left unvalued. Basic gates and the iron and nether brick gates and iron lapis and quartz gates also have crafting recipes, and the one-item recipes that swap a gate between AND and OR give both logics the same value; where assembly is cheaper, the conversion sets the value so that assembling a gate and transmuting it gains nothing. A facade is one item for every block: its value is the cheapest full block, dirt, plus three structure pipes, divided by the six facades the recipe makes. That counts the copied block and stays below one, so six facades of a diamond block cannot pay out the diamond block. The crafting swap that flips hollow is the same item, and transmutation strips the block NBT.",
     "",
@@ -168,6 +168,7 @@
     "buildcraft:oil_spring": "Creative-only: the spring under large oil wells is unbreakable like bedrock and drops nothing; the oil it regrows is what gets a value.",
     "buildcraft:water_spring": "Creative-only: upstream never generates water springs, and the block is unbreakable like bedrock and drops nothing; a value would only make an infinite water source transmutable.",
     "buildcraft:volume_box": "Creative-only: upstream has no recipe for the volume box, and its boxes are free-standing marks rather than material, so a value would only make a creative item transmutable.",
+    "buildcraft:map_location": "No recipe: upstream's map location is filled by using it on a block, and the zone planner only reads and writes that NBT. Transmutation never copies NBT, so a value would pay out a blank map.",
     "buildcraft:fragile_fluid_shard": "NBT item: a shard only holds the fluid a broken machine or pipe dropped, and a blank shard holds nothing and cannot be filled. Transmutation never copies NBT, so a value could only be paid out for an empty, useless shard.",
     "refinery_fluid_buckets": {
       "items": ["buildcraft:*_heat_?_bucket", "buildcraft:oil_residue_bucket", "buildcraft:oil_heavy_bucket", "buildcraft:oil_dense_bucket",
