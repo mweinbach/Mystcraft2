@@ -13,7 +13,7 @@
     {
       "condition": "fabric:tags_populated",
       "values": [
-        "forge:ingots/steel"
+        "c:steel_ingots"
       ]
     }
   ],
@@ -22,9 +22,14 @@
     "ICI"
   ],
   "key": {
-    "I": {
-      "tag": "forge:ingots/steel"
-    },
+    "I": [
+      {
+        "tag": "forge:ingots/steel"
+      },
+      {
+        "tag": "c:steel_ingots"
+      }
+    ],
     "C": {
       "tag": "forge:ingots/cyanite"
     }
