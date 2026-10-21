@@ -21,8 +21,12 @@ OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
 the shared placement modifiers. An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back
-when the level loads. The shared GameTests (core machines, loader interop, chemical lookups, ore generation, item
-and block hooks, chunk loading, and render bounds) pass on both loaders.
+when the level loads. A dynamic tank shell of casing, structural glass and one valve forms at 3×3×3, rejects a missing
+block or a 2×2×2, and moves fluid through the valve's loader fluid API. Breaking the blocks and loading their saved
+cache brings the fluid and the container edit mode back. The master's render box is that structure. In the development
+client that formed tank draws the fluid it is holding through the structural glass. The shared GameTests (core
+machines, loader interop, chemical lookups, ore generation, item and block hooks, chunk loading, render bounds, and
+the dynamic tank) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -90,8 +94,9 @@ and block methods are.
   players, free runners' fall behavior, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
   `onArmorTick` does run; the modules that need a player tick still do not.
 - Key mappings bound to more than one key and custom ingredient types.
-- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
-  energy cube's core renderer.
+- Not yet checked in the client: chemical machines, the other multiblocks, QIO, the digital miner, Robit, gear and
+  the energy cube's core renderer. A formed dynamic tank holding water was checked: the fluid body renders inside
+  the structural glass.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
