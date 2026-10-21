@@ -92,12 +92,14 @@ public class ThermoelectricBoilerGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void invalidBoilerShapesDoNotForm(GameTestHelper helper) {
-        Boiler holed = place(helper, ORIGIN);
+        // One block of air between shells. Face-adjacent boiler casings merge into one structure, and that assembly
+        // fails the cuboid check before the missing-disperser and misplaced-element rules run.
+        Boiler holed = place(helper, new BlockPos(0, 1, 0));
         helper.setBlock(holed.shell().origin(), Blocks.AIR);
-        BlockPos missingDisperser = new BlockPos(4, 1, 1);
+        BlockPos missingDisperser = new BlockPos(4, 1, 0);
         helper.setBlock(missingDisperser.offset(1, 1, 1), MekanismBlocks.SUPERHEATING_ELEMENT.getBlock());
         Shell noDisperser = shell(helper, missingDisperser);
-        BlockPos elementAbove = new BlockPos(1, 1, 4);
+        BlockPos elementAbove = new BlockPos(0, 1, 4);
         helper.setBlock(elementAbove.offset(1, 1, 1), MekanismBlocks.PRESSURE_DISPERSER.getBlock());
         helper.setBlock(elementAbove.offset(1, 2, 1), MekanismBlocks.SUPERHEATING_ELEMENT.getBlock());
         Shell above = shell(helper, elementAbove);
@@ -105,17 +107,17 @@ public class ThermoelectricBoilerGameTests {
               MekanismBlocks.BOILER_CASING.getBlock(), MekanismBlocks.BOILER_VALVE.getBlock());
         helper.runAtTickTime(40, () -> {
             TileEntityBoilerValve valve = valve(helper, holed);
-            check(!valve.getMultiblock().isFormed(), "A boiler with a missing corner formed");
+            checkSeparate(valve, holed.shell().blocks().size() - 1, "A boiler with a missing corner");
             check(TestPlatform.insertBlockFluid(valve, holed.shell().valveSide(), Fluids.WATER, 1_000, true) == 0,
                   "An unformed valve accepted water");
             check(TestPlatform.insertBlockGas(valve, holed.shell().valveSide(), MekanismGases.SUPERHEATED_SODIUM.get(), 1_000, true) == 0,
                   "An unformed valve accepted heated coolant");
             check(TestPlatform.heatCapacitors(valve, holed.shell().valveSide()) == 0, "An unformed valve exposes a heat handler");
-            check(!valve(helper, noDisperser).getMultiblock().isFormed(), "A boiler with no disperser plane formed");
-            check(!valve(helper, above).getMultiblock().isFormed(), "A boiler with its superheating element above the disperser formed");
+            checkSeparate(valve(helper, noDisperser), noDisperser.blocks().size(), "A boiler with no disperser plane");
+            checkSeparate(valve(helper, above), above.blocks().size(), "A boiler with its superheating element above the disperser");
             BlockEntity casing = helper.getBlockEntity(small.origin());
             check(casing instanceof TileEntityBoilerCasing, "The undersized shell has no boiler block");
-            check(!((TileEntityBoilerCasing) casing).getMultiblock().isFormed(), "A 2x2x2 boiler formed");
+            checkSeparate((TileEntityBoilerCasing) casing, small.blocks().size(), "A 2x2x2 boiler");
             helper.succeed();
         });
     }
@@ -325,6 +327,12 @@ public class ThermoelectricBoilerGameTests {
 
     private static SavedBlock save(GameTestHelper helper, BlockPos pos) {
         return new SavedBlock(pos, helper.getBlockState(pos), helper.getBlockEntity(pos).saveWithFullMetadata());
+    }
+
+    /** The shell stayed unformed, and its casings were not absorbed by a neighbour. */
+    private static void checkSeparate(TileEntityBoilerCasing tile, int blocks, String name) {
+        check(!tile.getMultiblock().isFormed(), name + " formed");
+        check(tile.getStructure().size() == blocks, name + " shares a structure of " + tile.getStructure().size() + " blocks");
     }
 
     private static TileEntityBoilerValve valve(GameTestHelper helper, Boiler boiler) {
