@@ -54,6 +54,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import ports.extremereactors.corelib.fluid.handler.IFluidHandler;
 import ports.extremereactors.corelib.LogicalSide;
+import ports.extremereactors.effects.StatusSyncTracker;
 
 import java.util.List;
 import java.util.Optional;
@@ -539,6 +540,11 @@ public class MultiblockTurbine
 
         profiler.popPush("Updates");
         this.checkAndSendClientUpdates();
+
+        if (this._statusSyncTracker.shouldSync(this.getFluidConsumedLastTick(),
+                this.getFluidContainer().getLiquidStoredPercentage(), this.getVentSetting().ordinal())) {
+            this.markReferenceCoordForUpdate();
+        }
 
         //////////////////////////////////////////////////////////////////////////////
         // ROTOR RPM TRACKER
@@ -1177,6 +1183,7 @@ public class MultiblockTurbine
     private final IMultiblockTurbineVariant _variant;
     private final FluidContainer _fluidContainer;
     private final RpmUpdateTracker _rpmUpdateTracker;
+    private final StatusSyncTracker _statusSyncTracker = StatusSyncTracker.forTurbine();
     private final Set<ITickableMultiblockPart> _attachedTickables;
     private final List<TurbineRotorBearingEntity> _attachedRotorBearings;
     private final Set<TurbineRotorComponentEntity> _attachedRotorComponents;

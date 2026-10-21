@@ -58,6 +58,16 @@ public final class StatusSyncTracker {
                 Reading.thresholdsOnly(EffectThresholds.WASTE_FULL_SHARE));
     }
 
+    /**
+     * Steam consumed last tick (mB), exhaust tank share and the vent setting's ordinal.
+     */
+    public static StatusSyncTracker forTurbine() {
+        return new StatusSyncTracker(
+                new Reading(10.0, 0.25, 0.5),
+                new Reading(0.05, 0, EffectThresholds.TURBINE_OVERFLOW_SHARE),
+                new Reading(0.5, 0));
+    }
+
     public StatusSyncTracker(final Reading... readings) {
 
         this._readings = readings.clone();

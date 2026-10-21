@@ -208,6 +208,28 @@ class EffectsLogicTest {
         assertTrue(reactor(duringInterval, 2010, 0.5), "a crossing during the interval is sent after it");
     }
 
+    @Test
+    void turbineStatusSyncFollowsFlowVentingAndSetting() {
+
+        final StatusSyncTracker turbine = StatusSyncTracker.forTurbine();
+
+        assertTrue(turbine.shouldSync(0, 0, 0), "the first check sends the state");
+        skipInterval(turbine, () -> turbine.shouldSync(0, 0, 0));
+        assertTrue(turbine.shouldSync(2, 0, 0), "starting to take steam is sent, however little");
+        skipInterval(turbine, () -> turbine.shouldSync(2, 0, 0));
+        assertTrue(turbine.shouldSync(2000, 0, 0), "a flow increase is sent");
+        skipInterval(turbine, () -> turbine.shouldSync(2000, 0, 0));
+        assertFalse(turbine.shouldSync(2100, 0, 0), "a 5% flow change is not");
+        assertTrue(turbine.shouldSync(0, 0, 0), "stopping is sent");
+        skipInterval(turbine, () -> turbine.shouldSync(0, 0, 0));
+        assertTrue(turbine.shouldSync(0, 0.97, 0));
+        skipInterval(turbine, () -> turbine.shouldSync(0, 0.97, 0));
+        assertTrue(turbine.shouldSync(0, EffectThresholds.TURBINE_OVERFLOW_SHARE, 0),
+                "a small step to a full exhaust tank is sent");
+        skipInterval(turbine, () -> turbine.shouldSync(0, 0.99, 0));
+        assertTrue(turbine.shouldSync(0, 0.99, 1), "a vent setting change is sent");
+    }
+
     private static boolean reactor(final StatusSyncTracker tracker, final double temperature, final double coolant) {
         return tracker.shouldSync(temperature, coolant, 0, 1000, 0);
     }
