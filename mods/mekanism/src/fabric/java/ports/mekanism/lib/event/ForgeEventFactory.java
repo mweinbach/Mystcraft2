@@ -1,0 +1,50 @@
+/*
+ * Mekanism 1.19.2 port - Fabric implementation of the Forge API shapes Mekanism uses.
+ * Copyright (c) 2026 Mekanism 1.19.2 port contributors. MIT License, see licenses/PORT-LICENSE.txt.
+ */
+package ports.mekanism.lib.event;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.util.BlockSnapshot;
+import ports.mekanism.lib.event.level.BlockEvent;
+
+/**
+ * The Forge event hooks Mekanism calls directly. Fabric has no standard events for explosions starting, items
+ * breaking or bows firing, so those only reach listeners on the port's own bus.
+ */
+public final class ForgeEventFactory {
+
+    private ForgeEventFactory() {
+    }
+
+    /**
+     * @return {@code true} if the explosion was canceled
+     */
+    public static boolean onExplosionStart(Level level, Explosion explosion) {
+        return false;
+    }
+
+    public static void onPlayerDestroyItem(Player player, ItemStack stack, @Nullable InteractionHand hand) {
+    }
+
+    /**
+     * @return {@code true} if the placement was canceled
+     */
+    public static boolean onBlockPlace(@Nullable Entity entity, BlockSnapshot blockSnapshot, Direction direction) {
+        BlockEvent.EntityPlaceEvent event = new BlockEvent.EntityPlaceEvent(blockSnapshot,
+              blockSnapshot.getLevel().getBlockState(blockSnapshot.getPos().relative(direction.getOpposite())), entity);
+        return MinecraftForge.EVENT_BUS.post(event);
+    }
+
+    public static int onArrowLoose(ItemStack stack, Level level, Player player, int charge, boolean hasAmmo) {
+        return charge;
+    }
+}
