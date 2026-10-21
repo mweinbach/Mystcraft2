@@ -4,13 +4,29 @@
  */
 package mekanism.gametest;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import mekanism.common.Mekanism;
 import mekanism.common.tile.TileEntityFluidTank;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.DistanceManager;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.Ticket;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -23,6 +39,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public final class TestPlatform {
 
     public static final long DROPLETS_PER_MB = 81;
+    private static final String ANCHOR_TICKET = "forge:block";
 
     private TestPlatform() {
     }
@@ -109,6 +126,94 @@ public final class TestPlatform {
             }
             return total;
         }).orElse(0L);
+    }
+
+    /**
+     * The teleporter's anchor upgrade has a saved non-ticking block ticket, and the chunk source is holding that ticket.
+     */
+    public static boolean anchorChunkLoaded(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        return savedAnchorTicket(level, owner, chunk)
+              && ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), ANCHOR_TICKET);
+    }
+
+    /**
+     * Drops the vanilla tickets, then asks Forge to load the saved ones again. Null when the anchor ticket is back and
+     * was gone in between.
+     */
+    public static String anchorChunkRestored(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        if (!anchorChunkLoaded(level, owner, chunk)) {
+            return "Anchor ticket was not loaded before the restart: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        dropRuntimeTickets(level, chunk);
+        if (ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), ANCHOR_TICKET)) {
+            return "Runtime chunk ticket was still present after it was dropped: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        ForcedChunksSavedData data = level.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+        if (data == null) {
+            return "Saved chunk tickets were missing after the runtime ticket was dropped";
+        }
+        ForgeChunkManager.reinstatePersistentChunks(level, data);
+        if (!anchorChunkLoaded(level, owner, chunk)) {
+            return "Anchor ticket was not restored from the level save: " + ChunkLoadingGameTests.chunkTicketDebug(level, chunk);
+        }
+        return null;
+    }
+
+    private static boolean savedAnchorTicket(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        ForcedChunksSavedData data = level.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+        if (data == null) {
+            return false;
+        }
+        long id = chunk.toLong();
+        for (Map.Entry<ForgeChunkManager.TicketOwner<BlockPos>, LongSet> entry : data.getBlockForcedChunks().getChunks().entrySet()) {
+            if (entry.getValue().contains(id) && ownedBy(entry.getKey(), owner)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean ownedBy(ForgeChunkManager.TicketOwner<?> ticket, BlockPos owner) {
+        try {
+            Field modId = ForgeChunkManager.TicketOwner.class.getDeclaredField("modId");
+            Field owned = ForgeChunkManager.TicketOwner.class.getDeclaredField("owner");
+            modId.setAccessible(true);
+            owned.setAccessible(true);
+            return Mekanism.MODID.equals(modId.get(ticket)) && owner.equals(owned.get(ticket));
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void dropRuntimeTickets(ServerLevel level, ChunkPos chunk) {
+        try {
+            Field managerField = ServerChunkCache.class.getDeclaredField("distanceManager");
+            managerField.setAccessible(true);
+            Object manager = managerField.get(level.getChunkSource());
+            Field ticketsField = DistanceManager.class.getDeclaredField("tickets");
+            ticketsField.setAccessible(true);
+            Object map = ticketsField.get(manager);
+            Object set = map.getClass().getMethod("get", long.class).invoke(map, chunk.toLong());
+            List<Ticket<?>> matches = new ArrayList<>();
+            if (set instanceof Iterable<?> tickets) {
+                for (Object ticket : tickets) {
+                    if (ticket instanceof Ticket<?> typed && ChunkLoadingGameTests.namesTicket(String.valueOf(typed.getType()), ANCHOR_TICKET)) {
+                        matches.add(typed);
+                    }
+                }
+            }
+            Field keyField = Ticket.class.getDeclaredField("key");
+            keyField.setAccessible(true);
+            for (Ticket<?> ticket : matches) {
+                int distance = 33 - ticket.getTicketLevel();
+                Object key = keyField.get(ticket);
+                boolean forceTicks = ticket.getClass().getMethod("isForceTicks").invoke(ticket) == Boolean.TRUE;
+                level.getChunkSource().removeRegionTicket((TicketType) ticket.getType(), chunk, distance, key, forceTicks);
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static IFluidHandler.FluidAction action(boolean commit) {

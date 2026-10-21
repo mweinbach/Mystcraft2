@@ -28,10 +28,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   other mods can charge Mekanism's energy items and fill its fluid items the same way.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
+  An anchor upgrade keeps that machine's chunk loaded, including after a restart. Forced chunks do not random-tick.
   The Forge events behind gear ticking, HUD overlays and player effects are not;
   [PARITY.md](PARITY.md) lists every gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, ore
-  generation, and the item and block hooks) pass on both loaders.
+  generation, item and block hooks, and chunk loading) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
