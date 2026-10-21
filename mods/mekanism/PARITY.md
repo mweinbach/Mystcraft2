@@ -61,15 +61,20 @@ fog, living-entity and arm rendering, armor layers, block highlighting and in-ga
 (see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
 Factories for all nine recipe types and four tiers place their tiles. A basic smelting factory smelts one item in
 each of its three slots in the same operation, auto-sort spreads one input stack across those slots, and an advanced
-tier installer replaces the block while keeping the items, stored energy and auto-sort flag. A dynamic tank shell of
+tier installer replaces the block while keeping the items, stored energy and auto-sort flag. The chemical infuser,
+oxidizer, dissolution chamber, washer, crystallizer, purification chamber, chemical injection chamber, rotary
+condensentrator, pressurized reaction chamber, isotopic centrifuge and solar neutron activator each run one recipe.
+Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen
+opened in the development client; the other chemical machine screens were not opened. The nutritional liquifier, pigment
+extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. A dynamic tank shell of
 casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
 edit mode back. The master's render box is that structure. In the development client that formed tank draws the fluid
 it is holding through the structural glass. A formed industrial turbine in that client draws its rotor and blades
-through the structural glass. The shared GameTests (core machines, factories, loader interop, chemical lookups, ore
-generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player and living events, a
-Generators registry smoke test, the simple generators, the dynamic tank, the industrial turbine, and Tools
-registration, crafting, tool actions and shield blocking) pass on both loaders.
+through the structural glass. The shared GameTests (core machines, factories, chemical machines, loader interop,
+chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player
+and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the industrial turbine,
+and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -194,7 +199,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 - Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machines, the other multiblocks, QIO, the digital miner, Robit, gear,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser, the other multiblocks, QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers, and the fission and fusion
   renderers. Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
