@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import mekanism.common.Mekanism;
+import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
 import mekanism.gametest.ItemBlockHookGameTests;
 import mekanism.gametest.LoaderInteropGameTests;
@@ -31,8 +32,9 @@ import net.minecraftforge.gametest.GameTestHolder;
 @GameTestHolder(Mekanism.MODID)
 public class ForgeGameTests {
 
-    private static final List<Class<?>> SHARED_TESTS = List.of(CoreMachineGameTests.class, LoaderInteropGameTests.class,
-          ItemBlockHookGameTests.class, OreGenerationGameTests.class, PlayerEventGameTests.class);
+    private static final List<Class<?>> SHARED_TESTS = List.of(CoreMachineGameTests.class, ChunkLoadingGameTests.class,
+          ItemBlockHookGameTests.class, LoaderInteropGameTests.class, OreGenerationGameTests.class,
+          PlayerEventGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

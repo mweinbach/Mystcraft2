@@ -31,9 +31,10 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. HUD overlays, fog and the client jump-key sync are still unwired.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
+  An anchor upgrade keeps that machine's chunk loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, the item and block hooks, and the player and living events) pass on both loaders.
+  lookups, ore generation, the item and block hooks, chunk loading, and the player and living events) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
