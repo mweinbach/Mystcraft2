@@ -115,7 +115,9 @@ command nor the GameTest mod is in the release JARs. After editing
 Add `-PwithCompat` to a client run to load ComputerCraft, Patchouli and JEI, and
 on Forge Mekanism; add `-PwithEmi` as well to load EMI instead of JEI.
 `-PwithMekanism` adds Mekanism to the Forge GameTest server, so
-`reactorMekanismPortFollowsMekanism` checks the gas port against it.
+`reactorMekanismPortFollowsMekanism` checks the gas port against it. Run it
+apart from `-PwithProjectE`: Mekanism's steel enables the steel recipes, so
+ProjectE derives other values than the EMC audit expects.
 
 ## License
 
