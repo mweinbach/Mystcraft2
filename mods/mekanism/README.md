@@ -21,7 +21,8 @@ depends on the core jar. Generators' code, assets and generated data are importe
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
 and outputs steam. The thermal evaporation plant forms, takes water or brine and heat through its valve, and
-outputs brine and lithium. Fission and fusion are not verified yet. Tools' paxels, tools, armor
+outputs brine and lithium. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and
+crosses the meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
 glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the walkie-talkie are not.
@@ -64,6 +65,9 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
   The valve moves water, brine and lithium through the Transfer API, and heat through the heat lookup.
   In the Fabric development client a formed plant shows its lit controller and draws the input fluid through the
   structural glass. An advanced solar panel was not placed.
+  A formed fission reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the
+  casing frame and a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and
+  coolant body were not drawn, and the reactor screen was not opened.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -72,9 +76,9 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine,
-  Tools registration, crafting, tool actions and shield blocking, and Additions registration, crafting and block
-  behaviour) pass on both loaders.
+  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
+  fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,
+  crafting and block behaviour) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

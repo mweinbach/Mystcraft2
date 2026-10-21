@@ -19,6 +19,7 @@ import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
 import mekanism.gametest.DynamicTankGameTests;
 import mekanism.gametest.FactoryGameTests;
+import mekanism.gametest.FissionReactorGameTests;
 import mekanism.gametest.FluidGameTests;
 import mekanism.gametest.GeneratorsModuleGameTests;
 import mekanism.gametest.InductionMatrixGameTests;
@@ -47,7 +48,7 @@ public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(AdditionsModuleGameTests.class, ChemicalMachineGameTests.class,
           ChunkLoadingGameTests.class, CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class,
-          FluidGameTests.class, GeneratorsModuleGameTests.class, InductionMatrixGameTests.class,
+          FissionReactorGameTests.class, FluidGameTests.class, GeneratorsModuleGameTests.class, InductionMatrixGameTests.class,
           IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
           SimpleGeneratorGameTests.class, ThermalEvaporationGameTests.class, ThermoelectricBoilerGameTests.class,
