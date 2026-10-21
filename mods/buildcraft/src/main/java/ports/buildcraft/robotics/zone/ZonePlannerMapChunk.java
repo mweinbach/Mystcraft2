@@ -19,7 +19,8 @@ public final class ZonePlannerMapChunk {
         int top = key.level * ZonePlannerMapChunkKey.LEVEL_HEIGHT;
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = top; y > 0; y--) {
+                // Upstream stopped at y 0, the bottom of a 1.12 world. 1.19 continues to the bottom of this world.
+                for (int y = top; y > level.getMinBuildHeight(); y--) {
                     BlockPos pos = new BlockPos(originX + x, y, originZ + z);
                     // Upstream passed the column's local coordinates to getMapColor. 1.19 needs the world position,
                     // which also makes grass and foliage colours follow the column instead of the world's origin.

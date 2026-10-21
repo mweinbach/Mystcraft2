@@ -18,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
@@ -69,8 +70,8 @@ public final class ZonePlannerTests {
         BCTests.require(helper, distance == 4096.0 * 4096.0, "chunk 1 is 4096 blocks away under upstream's shift, got " + distance);
 
         ZonePlan painted = new ZonePlan();
-        painted.paintRectangle(0, 0, 1, 1, true);
-        BCTests.require(helper, !painted.get(0, 0), "a rectangle that has not crossed a column paints nothing");
+        painted.paintRectangle(0, 0, 0, 0, true);
+        BCTests.require(helper, !painted.get(0, 0), "a press that has not moved to another column paints nothing");
         painted.paintRectangle(0, 0, 2, 2, true);
         BCTests.require(helper, painted.get(0, 0) && painted.get(1, 1) && !painted.get(2, 2), "the painted rectangle is half-open");
 
@@ -225,8 +226,8 @@ public final class ZonePlannerTests {
         HopperBlockEntity hopper = BCTests.tile(helper, pos.above(), HopperBlockEntity.class);
         hopper.setItem(0, new ItemStack(Items.DIRT));
         BlockState hopperState = helper.getBlockState(pos.above());
-        @SuppressWarnings("unchecked")
-        BlockEntityTicker<HopperBlockEntity> ticker = (BlockEntityTicker<HopperBlockEntity>) Blocks.HOPPER.getTicker(helper.getLevel(), hopperState, BlockEntityType.HOPPER);
+        BlockEntityTicker<HopperBlockEntity> ticker = ((EntityBlock) Blocks.HOPPER).getTicker(helper.getLevel(), hopperState, BlockEntityType.HOPPER);
+        BCTests.require(helper, ticker != null, "the hopper has a ticker");
         BlockPos hopperPos = helper.absolutePos(pos.above());
         for (int tick = 0; tick < 30; tick++) ticker.tick(helper.getLevel(), hopperPos, hopperState, hopper);
         BCTests.require(helper, hopper.getItem(0).is(Items.DIRT) && planner.getItem(0).isEmpty(), "a hopper cannot insert into the planner");

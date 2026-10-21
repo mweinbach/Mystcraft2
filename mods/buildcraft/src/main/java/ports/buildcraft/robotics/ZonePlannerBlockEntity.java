@@ -3,6 +3,7 @@ package ports.buildcraft.robotics;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -158,7 +159,16 @@ public class ZonePlannerBlockEntity extends SyncedBlockEntity implements MenuPro
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.put("Items", items.createTag());
+        ListTag list = new ListTag();
+        for (int slot = 0; slot < items.getContainerSize(); slot++) {
+            ItemStack stack = items.getItem(slot);
+            if (stack.isEmpty()) continue;
+            CompoundTag saved = new CompoundTag();
+            saved.putByte("Slot", (byte) slot);
+            stack.save(saved);
+            list.add(saved);
+        }
+        tag.put("Items", list);
         for (int i = 0; i < layers.length; i++) {
             CompoundTag layer = new CompoundTag();
             layers[i].write(layer);
@@ -173,7 +183,12 @@ public class ZonePlannerBlockEntity extends SyncedBlockEntity implements MenuPro
     @Override
     protected void loadServer(CompoundTag tag) {
         for (int slot = 0; slot < items.getContainerSize(); slot++) items.setItem(slot, ItemStack.EMPTY);
-        items.fromTag(tag.getList("Items", Tag.TAG_COMPOUND));
+        ListTag list = tag.getList("Items", Tag.TAG_COMPOUND);
+        for (Tag element : list) {
+            CompoundTag saved = (CompoundTag) element;
+            int slot = saved.getByte("Slot") & 255;
+            if (slot < items.getContainerSize()) items.setItem(slot, ItemStack.of(saved));
+        }
         for (int i = 0; i < layers.length; i++) {
             layers[i] = new ZonePlan();
             layers[i].read(tag.getCompound("layer_" + i));
