@@ -113,6 +113,23 @@ public final class FluidTypes {
         };
     }
 
+    /**
+     * A source fluid of a type that does not define its own, for looking up how Fabric renders it.
+     */
+    public static Fluid fluidOf(FluidType type) {
+        if (type == WATER) {
+            return Fluids.WATER;
+        } else if (type == LAVA) {
+            return Fluids.LAVA;
+        }
+        for (Map.Entry<Fluid, FluidType> entry : DERIVED.entrySet()) {
+            if (entry.getValue() == type) {
+                return entry.getKey();
+            }
+        }
+        return Fluids.EMPTY;
+    }
+
     @Nullable
     static ResourceLocation registryName(FluidType type) {
         ResourceLocation name = REGISTRY.getKey(type);
