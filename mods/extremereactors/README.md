@@ -96,8 +96,10 @@ an area next to the player and builds a passive reactor, an active reactor, a
 turbine, a reprocessor and a fluidizer, loads them with fuel and inputs, then
 keeps the reprocessor and fluidizer powered, the reprocessor watered and the
 active reactor's steam vented. `/ershowcase plant` builds a running 9×9×9
-reinforced reactor and a 7×12×7 reinforced turbine with every port type on
-their fronts, for reviewing textures. `/ershowcase open <part>` opens a part's
+reinforced reactor and a 7×12×7 reinforced turbine with every reinforced port
+variant, for reviewing textures; the turbine's power taps and active fluid port
+are on its east face. Each build replaces the previous one, including the
+machines `/ershowcase` keeps supplied. `/ershowcase open <part>` opens a part's
 screen, for example `reactor_controller` or `turbine_fluidport`. Neither the
 command nor the GameTest mod is in the release JARs. After editing
 `scripts/generate_textures.py`, run it to redraw the textures.
