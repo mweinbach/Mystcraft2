@@ -27,6 +27,7 @@ import mekanism.gametest.OreGenerationGameTests;
 import mekanism.gametest.PlayerEventGameTests;
 import mekanism.gametest.RenderBoundsGameTests;
 import mekanism.gametest.SimpleGeneratorGameTests;
+import mekanism.gametest.ThermalEvaporationGameTests;
 import mekanism.gametest.ThermoelectricBoilerGameTests;
 import mekanism.gametest.ToolsModuleGameTests;
 import net.minecraft.gametest.framework.GameTest;
@@ -47,7 +48,8 @@ public class ForgeGameTests {
           GeneratorsModuleGameTests.class, IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class,
           LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
-          SimpleGeneratorGameTests.class, ThermoelectricBoilerGameTests.class, ToolsModuleGameTests.class);
+          SimpleGeneratorGameTests.class, ThermalEvaporationGameTests.class, ThermoelectricBoilerGameTests.class,
+          ToolsModuleGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

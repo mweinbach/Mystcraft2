@@ -82,11 +82,22 @@ heated and cooled sodium, the temperature and the valve mode come back after the
 loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
 and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
-visible from outside the shell. The shared GameTests (core machines, factories, chemical machines, loader interop,
-chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player
-and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the thermoelectric
-boiler, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both
-loaders.
+visible from outside the shell. A thermal evaporation plant (`ThermalEvaporationGameTests`) forms at 4×3×4. The
+frame and floor are thermal evaporation blocks, the walls are structural glass, and the roof centre is the 2×2
+opening. One valve and one controller complete it. A missing corner and a 3×3×3 are placed with a block of air
+between them so they do not merge; neither forms, the unformed valve accepts no water, and replacing the corner
+forms the first plant while the small one stays unformed. Water enters through the valve's loader fluid API. The
+casing accepts none, and the valve does not give the input fluid back. Heat through the valve's heat handler —
+Forge's heat capability, and on Fabric the `mekanism:heat_handler` lookup — raises the temperature. Water becomes
+brine, and brine becomes lithium, at ten millibuckets of input per one of output, scaled by the temperature
+multiplier. Saved water, brine and heat come back after the blocks are removed and their NBT is loaded. The
+controller is the master and its render box is the structure. An advanced solar panel on a top corner is the
+upstream passive heat source; these tests heat the valve directly and do not place one. In the Fabric development
+client a formed plant shows its lit controller, and the input fluid renders through the structural glass. The shared GameTests
+(core machines, factories, chemical machines, loader interop, chemical lookups, ore generation, the item and block
+hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry smoke
+test, the simple generators, the dynamic tank, the thermoelectric boiler, the thermal evaporation plant, the
+industrial turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -218,7 +229,9 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed industrial
   turbine was checked: the rotor and its blades render inside the structural glass. A formed thermoelectric boiler
   was checked: the casing and the input, steam and coolant valves render, and the boiler screen opens. The water
-  and steam bodies are drawn inside the opaque casing, so they are not visible from outside.
+  and steam bodies are drawn inside the opaque casing, so they are not visible from outside. A formed thermal
+  evaporation plant was checked: the controller face is lit, and the input fluid renders through the structural
+  glass. An advanced solar panel on a top corner was not placed.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
