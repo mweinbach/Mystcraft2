@@ -52,9 +52,13 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
-  the development client draws that stored fluid through the glass. A formed industrial turbine in that client draws
-  its rotor and blades through the glass. A formed thermoelectric boiler in that client shows its casing and
-  valves, and its screen opens. The water and steam bodies are drawn inside the opaque casing.
+  the development client draws that stored fluid through the glass.
+  An induction matrix of casing, one port, a basic cell and a basic provider forms, and the port moves energy through
+  Team Reborn Energy. An energy tablet in the port's charge slot takes energy out of the matrix. Saving the blocks and
+  loading them brings that stored energy back. The development client draws the formed casing and port.
+  A formed industrial turbine in that client draws its rotor and blades through the glass.
+  A formed thermoelectric boiler in that client shows its casing and valves, and its screen opens. The water and steam
+  bodies are drawn inside the opaque casing.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -63,8 +67,8 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the thermoelectric boiler, the industrial turbine, Tools registration, crafting, tool actions and shield
-  blocking, and Additions registration, crafting and block behaviour) pass on both loaders.
+  tank, the induction matrix, the thermoelectric boiler, the industrial turbine, Tools registration, crafting, tool
+  actions and shield blocking, and Additions registration, crafting and block behaviour) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
