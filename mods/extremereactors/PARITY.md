@@ -34,6 +34,7 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | Recipe condition | `bigreactors:config_condition` as a Forge condition | The same id as a Fabric resource condition |
 | Ores | One biome modifier per ore feature | `BiomeModifications.addFeature` for the same four features and biome tags |
 | Tags | Forge's own `forge:` tags plus the shared `c:` tags | The shared `c:` tags plus bridges that define the `forge:` tags Forge would |
+| Steel recipes | Load when `forge:ingots/steel` has items; a `c:steel_ingots` bridge to it | Load when `c:steel_ingots` has items, as Fabric steel mods tag it; the steel ingredients accept either tag |
 | Block entity hooks | Forge `onChunkUnloaded` and `getModelData` | Fabric's server and client block entity unload events; render attachments for model data |
 
 Passive power taps expose an extractable energy storage and never push; active
@@ -49,7 +50,9 @@ and active fluid ports.
 - the same platform class set on both loaders;
 - identical GameTest names and timeouts, with every shared test forwarded by both loaders;
 - the Forge biome modifiers match the Fabric `addOre` calls, including each ore's config switch;
-- every `forge:` tag that recipes, moderators, coils or reactant mappings reference resolves on Fabric.
+- every `forge:` tag that recipes, moderators, coils or reactant mappings reference resolves on Fabric;
+- no Fabric load condition names a `forge:` tag, and every steel-gated recipe tests `c:steel_ingots` on Fabric and
+  accepts it in its steel ingredients.
 
 ## Gameplay status
 
@@ -259,7 +262,7 @@ Gaps and risks:
 | `activeReactorBoilsWater`, `turbineSpinsOnSteam` | Coolant, vapor and the turbine. |
 | `dataPacketsUpdateAnAssembledTurbine` | Block entity packets update an already assembled client machine. |
 | `reactorItemsAndEnergyThroughLoaderApis`, `reactorCoolantThroughLoaderApis` | Forge capabilities on Forge; the Transfer API and Reborn Energy on Fabric. |
-| `recipeConditionsAndTags` | Config conditions, the steel gate, `c:` and `forge:` tags, reactant, coil and moderator lookups. |
+| `recipeConditionsAndTags` | Config conditions, all 16 steel and steel-free recipe pairs, `c:` and `forge:` tags, reactant, coil and moderator lookups. The Fabric server puts netherite ingots in `c:steel_ingots` through the test-only `steel` data pack, so it covers the steel recipes; Forge covers the steel-free ones, and the steel ones with `-PwithMekanism`. |
 | `oreFeaturesPlaceAtUpstreamHeights` | The ore placed features decode to upstream's heights. |
 | `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
 | `everyItemHasAnEmcDecision` | EMC coverage; with `-PwithProjectE` or `-PwithItemAlchemy`, the live values. |

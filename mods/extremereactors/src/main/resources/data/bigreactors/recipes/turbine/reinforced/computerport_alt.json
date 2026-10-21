@@ -12,7 +12,7 @@
       "value": {
         "condition": "fabric:tags_populated",
         "values": [
-          "forge:ingots/steel"
+          "c:steel_ingots"
         ]
       }
     }
