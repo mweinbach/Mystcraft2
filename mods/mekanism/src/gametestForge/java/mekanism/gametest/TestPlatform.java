@@ -247,6 +247,26 @@ public final class TestPlatform {
               .orElse(GasStack.EMPTY);
     }
 
+    public static long insertBlockGas(BlockEntity blockEntity, Direction side, Gas gas, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        return blockEntity.getCapability(Capabilities.GAS_HANDLER, side).map(handler -> {
+            GasStack remainder = handler.insertChemical(new GasStack(gas, amount), chemicalAction(execute));
+            return amount - remainder.getAmount();
+        }).orElse(0L);
+    }
+
+    public static long blockGas(BlockEntity blockEntity, Direction side) {
+        return blockEntity.getCapability(Capabilities.GAS_HANDLER, side).map(handler -> {
+            long total = 0;
+            for (int tank = 0; tank < handler.getTanks(); tank++) {
+                total += handler.getChemicalInTank(tank).getAmount();
+            }
+            return total;
+        }).orElse(0L);
+    }
+
     public static int gasTanks(BlockEntity blockEntity, Direction side) {
         return blockEntity.getCapability(Capabilities.GAS_HANDLER, side).map(IGasHandler::getTanks).orElse(0);
     }
