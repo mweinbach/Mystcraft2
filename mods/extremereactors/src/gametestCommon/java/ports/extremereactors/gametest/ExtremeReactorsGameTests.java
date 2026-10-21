@@ -18,6 +18,7 @@ import it.zerono.mods.extremereactors.gamecontent.multiblock.reactor.ReactantHel
 import it.zerono.mods.extremereactors.gamecontent.multiblock.turbine.MultiblockTurbine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -32,6 +33,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -55,6 +57,8 @@ import ports.extremereactors.multiblock.AbstractMultiblockPart;
 import ports.extremereactors.platform.Platform;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -73,6 +77,10 @@ public final class ExtremeReactorsGameTests {
 
     private static final int SIMULATION_TICKS = 200;
     private static final ResourceLocation MEKANISM_STEAM = new ResourceLocation(MekanismGas.MOD_ID, "steam");
+    /** Set by game test runs that install a steel provider, so a broken provider cannot skip the steel recipes. */
+    private static final String EXPECT_STEEL_PROPERTY = "bigreactors.gametest.steel";
+    /** The recipes that need steel ingots, each with the recipe that replaces it when no mod provides steel. */
+    private static final Map<String, String> STEEL_RECIPES = steelRecipes();
 
     private ExtremeReactorsGameTests() {
     }
@@ -609,14 +617,26 @@ public final class ExtremeReactorsGameTests {
 
         final RecipeManager recipes = helper.getLevel().getRecipeManager();
 
-        final boolean steel = Registry.ITEM.getTag(itemTag("forge", "ingots/steel"))
-                .map(items -> items.size() > 0)
-                .orElse(false);
+        final List<Item> steelIngots = tagItems(itemTag("c", "steel_ingots"));
+        final boolean steel = !steelIngots.isEmpty();
 
-        check(recipes.byKey(id("reactor/reinforced/controlrod_alt")).isPresent() != steel,
-                "the steel-free reinforced control rod recipe should load only when no steel exists");
-        check(recipes.byKey(id("reactor/reinforced/controlrod")).isPresent() == steel,
-                "the steel reinforced control rod recipe should load only with steel");
+        check(steel == !tagItems(itemTag("forge", "ingots/steel")).isEmpty(),
+                "c:steel_ingots and forge:ingots/steel disagree on whether steel exists");
+        check(steel || !Boolean.getBoolean(EXPECT_STEEL_PROPERTY),
+                "this game test server provides steel, but c:steel_ingots is empty");
+
+        STEEL_RECIPES.forEach((steelRecipe, steelFreeRecipe) -> {
+
+            final Optional<? extends Recipe<?>> withSteel = recipes.byKey(id(steelRecipe));
+
+            check(withSteel.isPresent() == steel, steelRecipe + " should load only with steel");
+            check(recipes.byKey(id(steelFreeRecipe)).isPresent() != steel,
+                    steelFreeRecipe + " should load only when no steel exists");
+            withSteel.ifPresent(recipe -> steelIngots.forEach(ingot -> check(recipe.getIngredients().stream()
+                            .anyMatch(ingredient -> ingredient.test(new ItemStack(ingot))),
+                    steelRecipe + " does not accept " + Registry.ITEM.getKey(ingot) + " from c:steel_ingots")));
+        });
+
         check(recipes.byKey(id("smelting/graphite_from_coal")).isPresent(),
                 "the config-gated graphite smelting recipe should load by default");
         check(recipes.byKey(id("misc/book/erguide")).isPresent() == Platform.isModLoaded("patchouli"),
@@ -974,6 +994,31 @@ public final class ExtremeReactorsGameTests {
 
     private static TagKey<Item> itemTag(final String namespace, final String path) {
         return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(namespace, path));
+    }
+
+    private static List<Item> tagItems(final TagKey<Item> tag) {
+        return Registry.ITEM.getTag(tag).map(items -> items.stream().map(Holder::value).toList()).orElse(List.of());
+    }
+
+    private static Map<String, String> steelRecipes() {
+
+        final Map<String, String> recipes = new LinkedHashMap<>();
+
+        for (final String part : List.of("casing", "casing_upgrade", "computerport", "controlrod", "fluidaccessport",
+                "redstoneport", "solidaccessport")) {
+            recipes.put("reactor/reinforced/" + part, "reactor/reinforced/" + part + "_alt");
+        }
+
+        for (final String fuel : List.of("uranium", "yellorium")) {
+            recipes.put("reactor/reinforced/fuelrod_ingots_" + fuel, "reactor/reinforced/fuelrod_alt_ingots_" + fuel);
+        }
+
+        for (final String part : List.of("bearing", "blade", "casing", "casing_upgrade", "computerport",
+                "redstoneport", "shaft")) {
+            recipes.put("turbine/reinforced/" + part, "turbine/reinforced/" + part + "_alt");
+        }
+
+        return recipes;
     }
 
     private static void check(final boolean condition, final String message) {

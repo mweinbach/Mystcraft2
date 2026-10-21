@@ -2,8 +2,8 @@
 """Check that the Forge and Fabric variants of Extreme Reactors ship the same mod.
 
 Run after both builds. Checks the two jars (descriptors, metadata, loader isolation, identical shared resources and
-the Fabric refmap) and the sources (same-name platform classes, forwarded game tests, ore generation and the forge:
-tags the shared code and recipes rely on).
+the Fabric refmap) and the sources (same-name platform classes, forwarded game tests, ore generation, the forge:
+tags the shared code and recipes rely on, and c:steel_ingots in the Fabric steel gates).
 """
 from pathlib import Path
 import hashlib
@@ -21,10 +21,11 @@ version = metadata['mod_version']
 forge = MOD / 'build/libs' / f'extremereactors-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'extremereactors-fabric-1.19.2-{version}.jar'
 
-# Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod), the Fabric
-# bridges that give forge: tags their vanilla members and c: equivalents, and the Fabric stand-in for Forge's dynamic
-# bucket model that the shared bucket item models use as their parent.
-FORGE_ONLY = ('data/bigreactors/forge/biome_modifier/',)
+# Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod), the bridges
+# between the two loaders' steel tags (one per loader, as both would form a cycle), the Fabric bridges that give forge:
+# tags their vanilla members and c: equivalents, and the Fabric stand-in for Forge's dynamic bucket model that the
+# shared bucket item models use as their parent.
+FORGE_ONLY = ('data/bigreactors/forge/biome_modifier/', 'data/c/tags/items/steel_ingots.json')
 FABRIC_ONLY = ('data/forge/tags/', 'assets/forge/models/item/bucket_drip.json',
                'assets/bigreactors/textures/item/bucket_fluid_overlay.png')
 # Referenced by upstream with a typo (storage_block, not storage_blocks): they never match on Forge either.
@@ -180,16 +181,43 @@ def check_forge_tags_on_fabric():
     return len(references)
 
 
+def tag_names(node):
+    return set(re.findall(r'"((?:forge|c):[a-z0-9_/]+)"', json.dumps(node)))
+
+
+def check_steel_recipes():
+    """Fabric steel mods tag c:steel_ingots, so the Fabric load conditions and the ingredients must name it."""
+    gated = 0
+    for path in (SRC / 'main/resources/data').glob('*/recipes/**/*.json'):
+        recipe = json.loads(path.read_text())
+        name = path.relative_to(SRC / 'main/resources/data')
+        fabric_tags = tag_names(recipe.get('fabric:load_conditions', []))
+        require(not any(tag.startswith('forge:') for tag in fabric_tags),
+                f'{name}: Fabric load conditions name a forge: tag')
+        if 'forge:ingots/steel' not in tag_names(recipe.get('conditions', [])):
+            continue
+        gated += 1
+        require(fabric_tags == {'c:steel_ingots'}, f'{name}: the Fabric steel gate does not test c:steel_ingots')
+        steel = [value for value in recipe.get('key', {}).values() if 'forge:ingots/steel' in tag_names(value)]
+        require(steel or 'alt' in path.stem, f'{name}: gated on steel but no ingredient uses it')
+        for value in steel:
+            require(isinstance(value, list) and {'tag': 'c:steel_ingots'} in value,
+                    f'{name}: a steel ingredient does not accept c:steel_ingots')
+    return gated
+
+
 resources = check_artifacts()
 platform = check_platform_classes()
 tests = check_game_tests()
 ores = check_ore_generation()
 tags = check_forge_tags_on_fabric()
+steel = check_steel_recipes()
 
 if failures:
     raise SystemExit('FAIL:\n  ' + '\n  '.join(failures))
 
 print(f'PASS: {resources} identical shared resources, {platform} platform classes on both loaders, '
-      f'{tests} game tests forwarded by both, {ores} ore features on both, {tags} forge: tags resolvable on Fabric.')
+      f'{tests} game tests forwarded by both, {ores} ore features on both, {tags} forge: tags resolvable on Fabric, '
+      f'{steel} steel-gated recipes testing c:steel_ingots on Fabric.')
 for path in (forge, fabric):
     print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')

@@ -118,8 +118,9 @@ including the machines `/ershowcase` keeps supplied. `/ershowcase rods <insertio
 `/ershowcase scram` and `/ershowcase start` set the rods of, SCRAM and restart
 the showcase reactors, and `/ershowcase turbines on|off` turns the showcase
 turbines on and off, for reviewing the machine effects.
-`/ershowcase open <part>` opens a part's screen, for example
-`reactor_controller` or `turbine_fluidport`. Neither the command nor the
+`/ershowcase open <part>` opens a part's screen in the current build, for
+example `reactor_controller` or `turbine_fluidport`; both builds use the same
+part names. Neither the command nor the
 GameTest mod is in the release JARs. After editing
 `scripts/generate_textures.py` or `scripts/generate_sounds.py`, run it to redraw
 the textures or resynthesize the effect sounds.
