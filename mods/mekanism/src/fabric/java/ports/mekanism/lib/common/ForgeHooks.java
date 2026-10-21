@@ -22,6 +22,11 @@ import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.lib.event.entity.living.LivingAttackEvent;
+import ports.mekanism.lib.event.entity.living.LivingDamageEvent;
+import ports.mekanism.lib.event.entity.living.LivingDeathEvent;
+import ports.mekanism.lib.event.entity.living.LivingEvent;
+import ports.mekanism.lib.event.entity.living.LivingFallEvent;
 import ports.mekanism.lib.event.entity.living.LivingHurtEvent;
 import ports.mekanism.lib.event.entity.living.ShieldBlockEvent;
 import ports.mekanism.lib.event.level.BlockEvent;
@@ -31,6 +36,8 @@ public final class ForgeHooks {
     private static final ThreadLocal<Player> CRAFTING_PLAYER = new ThreadLocal<>();
     /** Experience from the break event vanilla is in the middle of, dropped after the block is removed. */
     private static final ThreadLocal<Integer> BREAK_EXP = new ThreadLocal<>();
+    /** Position {@code getDestroyProgress} is measuring, read by the break-speed event and then cleared. */
+    private static final ThreadLocal<BlockPos> BREAK_POS = new ThreadLocal<>();
 
     private ForgeHooks() {
     }
@@ -92,6 +99,70 @@ public final class ForgeHooks {
     public static float onLivingHurt(LivingEntity entity, DamageSource source, float amount) {
         LivingHurtEvent event = new LivingHurtEvent(entity, source, amount);
         return MinecraftForge.EVENT_BUS.post(event) ? 0 : event.getAmount();
+    }
+
+    /**
+     * @return {@code true} when the entity should skip the rest of its tick
+     */
+    public static boolean onLivingTick(LivingEntity entity) {
+        return MinecraftForge.EVENT_BUS.post(new LivingEvent.LivingTickEvent(entity));
+    }
+
+    /**
+     * Players post the attack from {@link #onPlayerAttack}; this returns immediately for them so a player that reached
+     * {@code LivingEntity.hurt} does not post twice.
+     *
+     * @return {@code true} when the hurt should proceed
+     */
+    public static boolean onLivingAttack(LivingEntity entity, DamageSource source, float amount) {
+        return entity instanceof Player || !MinecraftForge.EVENT_BUS.post(new LivingAttackEvent(entity, source, amount));
+    }
+
+    /**
+     * @return {@code true} when the hurt should proceed
+     */
+    public static boolean onPlayerAttack(LivingEntity entity, DamageSource source, float amount) {
+        return !MinecraftForge.EVENT_BUS.post(new LivingAttackEvent(entity, source, amount));
+    }
+
+    public static float onLivingDamage(LivingEntity entity, DamageSource source, float amount) {
+        LivingDamageEvent event = new LivingDamageEvent(entity, source, amount);
+        return MinecraftForge.EVENT_BUS.post(event) ? 0 : event.getAmount();
+    }
+
+    /**
+     * @return {@code true} when death was canceled
+     */
+    public static boolean onLivingDeath(LivingEntity entity, DamageSource source) {
+        return MinecraftForge.EVENT_BUS.post(new LivingDeathEvent(entity, source));
+    }
+
+    /**
+     * @return the adjusted distance and multiplier, or {@code null} when the fall was canceled
+     */
+    @Nullable
+    public static float[] onLivingFall(LivingEntity entity, float distance, float damageMultiplier) {
+        LivingFallEvent event = new LivingFallEvent(entity, distance, damageMultiplier);
+        return MinecraftForge.EVENT_BUS.post(event) ? null : new float[]{event.getDistance(), event.getDamageMultiplier()};
+    }
+
+    public static void onLivingJump(LivingEntity entity) {
+        MinecraftForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(entity));
+    }
+
+    public static void setBreakPos(@Nullable BlockPos pos) {
+        BREAK_POS.set(pos);
+    }
+
+    public static void clearBreakPos() {
+        BREAK_POS.remove();
+    }
+
+    @Nullable
+    public static BlockPos pollBreakPos() {
+        BlockPos pos = BREAK_POS.get();
+        BREAK_POS.remove();
+        return pos;
     }
 
     /**

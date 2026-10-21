@@ -27,11 +27,12 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
   other mods can charge Mekanism's energy items and fill its fluid items the same way.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
+  Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
+  modules run on a server. HUD overlays, fog and the client jump-key sync are still unwired.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
-  The Forge events behind gear ticking, HUD overlays and player effects are not;
-  [PARITY.md](PARITY.md) lists every gap.
+  [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, ore
-  generation, and the item and block hooks) pass on both loaders.
+  generation, the item and block hooks, and the player and living events) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

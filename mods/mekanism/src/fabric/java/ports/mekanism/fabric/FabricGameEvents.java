@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -38,6 +39,7 @@ import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.event.RegisterCommandsEvent;
 import ports.mekanism.lib.event.TagsUpdatedEvent;
 import ports.mekanism.lib.event.TickEvent;
+import ports.mekanism.lib.event.entity.EntityLeaveLevelEvent;
 import ports.mekanism.lib.event.entity.player.PlayerEvent;
 import ports.mekanism.lib.event.entity.player.PlayerInteractEvent;
 import ports.mekanism.lib.event.level.BlockEvent;
@@ -87,6 +89,7 @@ public final class FabricGameEvents {
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
               post(new PlayerEvent.PlayerChangedDimensionEvent(player, origin.dimension(), destination.dimension())));
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> post(new PlayerEvent.StartTracking(player, entity)));
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> post(new EntityLeaveLevelEvent(entity, world)));
 
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> {
             BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);

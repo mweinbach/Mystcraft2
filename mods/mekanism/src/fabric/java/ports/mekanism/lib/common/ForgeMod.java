@@ -4,6 +4,7 @@
  */
 package ports.mekanism.lib.common;
 
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -55,6 +56,17 @@ public final class ForgeMod {
     }
 
     private static void register(RegistryObject<Attribute> object, Attribute attribute) {
-        Registry.register(Registry.ATTRIBUTE, object.getId(), attribute);
+        // Living attributes are built while this registry is already frozen. Open it for these Forge attributes only.
+        if (Registry.ATTRIBUTE instanceof MappedRegistry<Attribute> mapped) {
+            boolean frozen = mapped.frozen;
+            mapped.frozen = false;
+            try {
+                Registry.register(Registry.ATTRIBUTE, object.getId(), attribute);
+            } finally {
+                mapped.frozen = frozen;
+            }
+        } else {
+            Registry.register(Registry.ATTRIBUTE, object.getId(), attribute);
+        }
     }
 }

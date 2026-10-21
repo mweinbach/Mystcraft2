@@ -11,7 +11,8 @@
       "mekanism.gametest.CoreMachineGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",
-      "mekanism.gametest.OreGenerationGameTests"
+      "mekanism.gametest.OreGenerationGameTests",
+      "mekanism.gametest.PlayerEventGameTests"
     ]
   },
   "depends": {
