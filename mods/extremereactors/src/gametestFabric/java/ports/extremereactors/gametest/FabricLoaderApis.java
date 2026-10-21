@@ -17,6 +17,8 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
+import ports.extremereactors.platform.Platform;
 import team.reborn.energy.api.EnergyStorage;
 
 import java.util.Optional;
@@ -77,16 +79,16 @@ final class FabricLoaderApis implements LoaderApis {
         return "E";
     }
 
-    /** Mekanism has no 1.19.2 Fabric release. */
     @Override
     public Optional<GasTank> mekanismGas(final ServerLevel level, final BlockPos position, final Direction side) {
-        return Optional.empty();
+        return Platform.isModLoaded(MekanismGas.MOD_ID) ? FabricMekanismGas.find(level, position, side) : Optional.empty();
     }
 
     @Override
     public long extractMekanismGas(final ServerLevel level, final BlockPos position, final Direction side,
                                    final long maxAmount) {
-        return 0;
+        return Platform.isModLoaded(MekanismGas.MOD_ID)
+                ? FabricMekanismGas.extract(level, position, side, maxAmount) : 0;
     }
 
     private static <T> T found(final T lookupResult, final String what, final BlockPos position) {

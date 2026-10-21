@@ -4,7 +4,9 @@
  */
 package ports.mekanism.fabric.mixin;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +25,10 @@ import ports.mekanism.lib.common.crafting.conditions.ICondition;
 
 /**
  * Skips data files whose Forge {@code conditions} fail, as Forge does for recipes and advancements.
+ * <p>
+ * {@code prepare} runs before tags are bound, and {@link ICondition.IContext#EMPTY} reports every tag as empty.
+ * A {@code forge:tag_empty} condition, including one nested under {@code forge:not}, is left in place so the file's
+ * Fabric load conditions can decide. A condition type this port does not register is another mod's, and is left too.
  */
 @Mixin(SimpleJsonResourceReloadListener.class)
 public abstract class SimpleJsonResourceReloadListenerMixin {
@@ -37,12 +43,54 @@ public abstract class SimpleJsonResourceReloadListenerMixin {
             if (!entry.getValue().isJsonObject() || !entry.getValue().getAsJsonObject().has("conditions")) {
                 return false;
             }
+            JsonElement conditions = entry.getValue().getAsJsonObject().get("conditions");
+            if (!conditions.isJsonArray() || mekanism$leaveForLater(conditions.getAsJsonArray())) {
+                return false;
+            }
             try {
-                return !CraftingHelper.processConditions(entry.getValue().getAsJsonObject(), "conditions", ICondition.IContext.EMPTY);
+                return !CraftingHelper.processConditions(conditions.getAsJsonArray(), ICondition.IContext.EMPTY);
             } catch (JsonParseException e) {
-                mekanism$LOGGER.debug("Skipping {}: unreadable Forge conditions", entry.getKey(), e);
-                return true;
+                mekanism$LOGGER.debug("Leaving {}: Forge conditions Mekanism cannot evaluate", entry.getKey(), e);
+                return false;
             }
         });
+    }
+
+    /** True when this pass cannot decide the condition, so the file must stay. */
+    @Unique
+    private static boolean mekanism$leaveForLater(JsonArray conditions) {
+        for (JsonElement element : conditions) {
+            if (mekanism$leaveForLater(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Unique
+    private static boolean mekanism$leaveForLater(JsonElement element) {
+        if (!element.isJsonObject()) {
+            return true;
+        }
+        JsonObject object = element.getAsJsonObject();
+        if (!object.has("type") || !object.get("type").isJsonPrimitive()) {
+            return true;
+        }
+        String type = object.get("type").getAsString();
+        if ("forge:tag_empty".equals(type)) {
+            return true;
+        }
+        try {
+            if (!CraftingHelper.isConditionKnown(new ResourceLocation(type))) {
+                return true;
+            }
+        } catch (IllegalArgumentException invalid) {
+            return true;
+        }
+        if (object.has("value") && mekanism$leaveForLater(object.get("value"))) {
+            return true;
+        }
+        return object.has("values") && object.get("values").isJsonArray()
+                && mekanism$leaveForLater(object.get("values").getAsJsonArray());
     }
 }

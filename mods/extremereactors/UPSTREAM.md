@@ -130,11 +130,13 @@ import mapping, these upstream files were changed:
   Mekanism is loaded, and an empty handler otherwise.
 - `FluidPortHandlerMekanism`: the shared handler offers the output tank as
   `corelib`'s `MekanismGas.HANDLER` and forwards fills to a neighbor's. The
-  `IGasHandler` methods and the rotary recipe fluid-to-gas mappings moved to the
-  Forge adapter, `ForgeMekanism`, which bridges that capability to Mekanism's.
-  Unlike upstream, the gas tank's capacity is converted to gas units like its
-  content, and the mappings are rebuilt when the server's recipes reload
-  instead of being kept for the whole game.
+  `IGasHandler` methods and the rotary recipe fluid-to-gas mappings live in
+  `MekanismRotary`, shared by both loaders. `ForgeMekanism` bridges that
+  capability to Mekanism's Forge capability; `FabricMekanism` registers it on
+  Mekanism's `mekanism:gas_handler` block lookup. Unlike upstream, the gas
+  tank's capacity is converted to gas units like its content, and the mappings
+  are rebuilt when the server's recipes reload instead of being kept for the
+  whole game.
 - `ReactorComputerPortEntity`, `TurbineComputerPortEntity`: they implement
   `corelib`'s `IComputerPort` instead of holding the ComputerCraft connector;
   `ComputerCraftPeripheral` offers them to CC: Tweaked and CC: Restitched.
