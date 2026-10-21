@@ -37,8 +37,8 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.event.ForgeEventFactory;
+import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
+import ports.mekanism.lib.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemElectricBow extends BowItem implements IModeItem, IItemHUDProvider {

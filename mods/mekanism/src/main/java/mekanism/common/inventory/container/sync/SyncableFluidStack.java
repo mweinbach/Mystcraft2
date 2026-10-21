@@ -6,7 +6,7 @@ import mekanism.api.fluid.IExtendedFluidTank;
 import mekanism.common.network.to_client.container.property.FluidStackPropertyData;
 import mekanism.common.network.to_client.container.property.IntPropertyData;
 import mekanism.common.network.to_client.container.property.PropertyData;
-import net.minecraftforge.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 /**

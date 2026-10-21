@@ -2,7 +2,7 @@ package mekanism.common.network;
 
 import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import ports.mekanism.lib.network.NetworkEvent;
 
 public interface IMekanismPacket {
 

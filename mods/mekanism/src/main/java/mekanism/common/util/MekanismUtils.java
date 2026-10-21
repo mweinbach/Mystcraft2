@@ -91,18 +91,18 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.UsernameCache;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import ports.mekanism.lib.api.distmarker.Dist;
+import ports.mekanism.lib.common.ForgeHooks;
+import ports.mekanism.lib.common.ForgeMod;
+import ports.mekanism.lib.common.Tags;
+import ports.mekanism.lib.common.UsernameCache;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidType;
+import ports.mekanism.lib.fluids.IFluidBlock;
+import ports.mekanism.lib.fml.DistExecutor;
+import ports.mekanism.lib.fml.util.thread.EffectiveSide;
+import ports.mekanism.lib.items.IItemHandler;
+import ports.mekanism.lib.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -684,7 +684,7 @@ public final class MekanismUtils {
 
     /**
      * Calculates the redstone level based on the percentage of amount stored. Like
-     * {@link net.minecraftforge.items.ItemHandlerHelper#calcRedstoneFromInventory(IItemHandler)} except without limiting slots to the max stack size of the item to allow
+     * {@link ports.mekanism.lib.items.ItemHandlerHelper#calcRedstoneFromInventory(IItemHandler)} except without limiting slots to the max stack size of the item to allow
      * for better support for bins
      *
      * @return A redstone level based on the percentage of the amount stored.

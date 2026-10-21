@@ -1,7 +1,7 @@
 package mekanism.api.chemical.gas;
 
 import java.util.Optional;
-import net.minecraftforge.registries.tags.IReverseTag;
+import ports.mekanism.lib.registries.tags.IReverseTag;
 import org.jetbrains.annotations.NotNull;
 
 public final class EmptyGas extends Gas {

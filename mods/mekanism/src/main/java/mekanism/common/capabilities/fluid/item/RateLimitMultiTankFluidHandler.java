@@ -14,8 +14,8 @@ import mekanism.api.functions.ConstantPredicates;
 import mekanism.common.capabilities.GenericTankSpec;
 import mekanism.common.capabilities.fluid.item.RateLimitFluidHandler.RateLimitFluidTank;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.TriPredicate;
-import net.minecraftforge.fluids.FluidStack;
+import ports.mekanism.lib.common.util.TriPredicate;
+import ports.mekanism.lib.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 @NothingNullByDefault

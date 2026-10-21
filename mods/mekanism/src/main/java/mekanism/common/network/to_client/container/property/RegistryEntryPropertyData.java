@@ -2,8 +2,8 @@ package mekanism.common.network.to_client.container.property;
 
 import mekanism.common.inventory.container.MekanismContainer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
+import ports.mekanism.lib.registries.IForgeRegistry;
+import ports.mekanism.lib.registries.RegistryManager;
 
 public class RegistryEntryPropertyData<V> extends PropertyData {
 

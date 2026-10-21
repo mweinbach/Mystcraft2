@@ -1,8 +1,8 @@
 package mekanism.common.config;
 
 import mekanism.common.config.value.CachedValue;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.fml.config.ModConfig;
 
 public interface IMekanismConfig {
 

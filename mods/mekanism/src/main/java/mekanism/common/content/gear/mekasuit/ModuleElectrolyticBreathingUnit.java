@@ -25,8 +25,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fluids.FluidType;
+import ports.mekanism.lib.common.ForgeMod;
+import ports.mekanism.lib.fluids.FluidType;
 
 @ParametersAreNotNullByDefault
 public class ModuleElectrolyticBreathingUnit implements ICustomModule<ModuleElectrolyticBreathingUnit> {

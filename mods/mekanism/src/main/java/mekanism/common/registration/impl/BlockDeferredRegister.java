@@ -13,7 +13,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.ForgeRegistries;
 
 public class BlockDeferredRegister extends DoubleDeferredRegister<Block, Item> {
 

@@ -13,9 +13,9 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
-import net.minecraftforge.client.model.obj.ObjModel;
+import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
+import ports.mekanism.lib.client.model.geometry.IUnbakedGeometry;
+import ports.mekanism.lib.client.model.obj.ObjModel;
 import org.jetbrains.annotations.Nullable;
 
 public class TransmitterModel implements IUnbakedGeometry<TransmitterModel> {

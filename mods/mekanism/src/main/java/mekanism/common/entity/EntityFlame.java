@@ -45,12 +45,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.network.NetworkHooks;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.util.BlockSnapshot;
+import ports.mekanism.lib.entity.IEntityAdditionalSpawnData;
+import ports.mekanism.lib.event.ForgeEventFactory;
+import ports.mekanism.lib.event.level.BlockEvent;
+import ports.mekanism.lib.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

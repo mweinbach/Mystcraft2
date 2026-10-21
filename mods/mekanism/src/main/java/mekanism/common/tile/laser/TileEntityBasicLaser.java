@@ -55,12 +55,12 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.living.ShieldBlockEvent;
-import net.minecraftforge.event.level.BlockEvent;
+import ports.mekanism.lib.common.ForgeHooks;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.ToolActions;
+import ports.mekanism.lib.event.ForgeEventFactory;
+import ports.mekanism.lib.event.entity.living.ShieldBlockEvent;
+import ports.mekanism.lib.event.level.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 //TODO - V11: Make the laser "shrink" the further distance it goes, If above a certain energy level and in water makes it make a bubble stream

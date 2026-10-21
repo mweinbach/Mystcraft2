@@ -17,8 +17,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.registries.ForgeRegistries;
+import ports.mekanism.lib.common.ForgeSpawnEggItem;
+import ports.mekanism.lib.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemDeferredRegister extends WrappedDeferredRegister<Item> {

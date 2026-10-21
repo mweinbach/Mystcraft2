@@ -6,10 +6,10 @@ import mekanism.api.IContentsListener;
 import mekanism.api.NBTConstants;
 import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import ports.mekanism.lib.common.util.INBTSerializable;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.IFluidTank;
+import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
 
 @NothingNullByDefault
 public interface IExtendedFluidTank extends IFluidTank, INBTSerializable<CompoundTag>, IContentsListener {
@@ -41,7 +41,7 @@ public interface IExtendedFluidTank extends IFluidTank, INBTSerializable<Compoun
      * Inserts a {@link FluidStack} into this {@link IExtendedFluidTank} and return the remainder. The {@link FluidStack} <em>should not</em> be modified in this
      * function!
      * </p>
-     * Note: This behaviour is subtly <strong>different</strong> from {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(FluidStack, FluidAction)}
+     * Note: This behaviour is subtly <strong>different</strong> from {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(FluidStack, FluidAction)}
      *
      * @param stack          {@link FluidStack} to insert. This must not be modified by the tank.
      * @param action         The action to perform, either {@link Action#EXECUTE} or {@link Action#SIMULATE}

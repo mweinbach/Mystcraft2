@@ -30,8 +30,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.IForgeRegistry;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.registries.IForgeRegistry;
 
 @ParametersAreNotNullByDefault
 public class NBTUtils {

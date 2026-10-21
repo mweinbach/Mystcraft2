@@ -2,7 +2,7 @@ package mekanism.common.registration;
 
 import java.util.function.Supplier;
 import mekanism.api.annotations.NothingNullByDefault;
-import net.minecraftforge.registries.RegistryObject;
+import ports.mekanism.lib.registries.RegistryObject;
 
 @NothingNullByDefault
 public class WrappedRegistryObject<T> implements Supplier<T>, INamedEntry {

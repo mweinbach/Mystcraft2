@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanism",
+  "version": "${version}",
+  "name": "Mekanism",
+  "description": "${mod_description}",
+  "authors": ["Aidancbrady", "Thommy101", "Thiakil", "pupnewfster", "dizzyd"],
+  "contributors": ["unpairedbracket", "CyanideX", "Ridanisaurus", "1.19.2 port contributors"],
+  "contact": {
+    "homepage": "https://aidancbrady.com/mekanism/",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/mekanism"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["ports.mekanism.fabric.FabricMod"],
+    "client": ["ports.mekanism.fabric.client.FabricClientMod"]
+  },
+  "accessWidener": "mekanism.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "minecraft": "1.19.2",
+    "java": ">=17",
+    "team_reborn_energy": "*"
+  }
+}

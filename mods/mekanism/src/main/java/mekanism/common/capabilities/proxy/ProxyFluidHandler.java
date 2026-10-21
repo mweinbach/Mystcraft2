@@ -6,7 +6,7 @@ import mekanism.api.fluid.IExtendedFluidHandler;
 import mekanism.api.fluid.ISidedFluidHandler;
 import mekanism.common.capabilities.holder.IHolder;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

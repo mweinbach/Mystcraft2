@@ -14,8 +14,8 @@ import mekanism.common.Mekanism;
 import mekanism.common.capabilities.resolver.ICapabilityResolver;
 import mekanism.common.tile.component.TileComponentConfig;
 import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.common.util.LazyOptional;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

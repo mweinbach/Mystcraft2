@@ -12,8 +12,8 @@ import mekanism.common.lib.transmitter.TransmitterNetworkRegistry;
 import mekanism.common.network.BasePacketHandler;
 import mekanism.common.network.IMekanismPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.NetworkEvent;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class PacketTransmitterUpdate implements IMekanismPacket {

@@ -11,7 +11,7 @@ import mekanism.client.render.data.RenderData;
 import mekanism.client.render.data.ValveRenderData;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public final class ModelRenderer {

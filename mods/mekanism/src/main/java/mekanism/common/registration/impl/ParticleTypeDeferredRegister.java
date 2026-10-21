@@ -5,7 +5,7 @@ import mekanism.common.registration.WrappedDeferredRegister;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraftforge.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.ForgeRegistries;
 
 public class ParticleTypeDeferredRegister extends WrappedDeferredRegister<ParticleType<?>> {
 

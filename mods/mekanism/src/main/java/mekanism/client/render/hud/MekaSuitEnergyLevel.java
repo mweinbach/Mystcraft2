@@ -14,8 +14,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import ports.mekanism.lib.client.gui.overlay.ForgeGui;
+import ports.mekanism.lib.client.gui.overlay.IGuiOverlay;
 
 public class MekaSuitEnergyLevel implements IGuiOverlay {
 

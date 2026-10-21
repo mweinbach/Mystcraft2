@@ -2,8 +2,8 @@ package mekanism.common.config;
 
 import mekanism.api.math.FloatingLong;
 import mekanism.common.config.value.CachedFloatingLongValue;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig.Type;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.fml.config.ModConfig.Type;
 
 public class UsageConfig extends BaseMekanismConfig {
 

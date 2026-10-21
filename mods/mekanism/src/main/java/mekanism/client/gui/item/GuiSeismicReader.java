@@ -29,8 +29,8 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.IFluidBlock;
+import ports.mekanism.lib.client.extensions.common.IClientFluidTypeExtensions;
+import ports.mekanism.lib.fluids.IFluidBlock;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiSeismicReader extends GuiMekanism<SeismicReaderContainer> {

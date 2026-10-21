@@ -12,12 +12,12 @@ import mekanism.common.tile.interfaces.IFluidContainerManager.ContainerEditMode;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.StackUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.items.ItemHandlerHelper;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidUtil;
+import ports.mekanism.lib.fluids.capability.IFluidHandler;
+import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
+import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import ports.mekanism.lib.items.ItemHandlerHelper;
 
 public interface IFluidHandlerSlot extends IInventorySlot {
 

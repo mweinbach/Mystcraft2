@@ -39,11 +39,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.model.DynamicFluidContainerModel;
+import ports.mekanism.lib.client.event.EntityRenderersEvent;
+import ports.mekanism.lib.client.event.RegisterClientReloadListenersEvent;
+import ports.mekanism.lib.client.event.RegisterColorHandlersEvent;
+import ports.mekanism.lib.client.event.RegisterKeyMappingsEvent;
+import ports.mekanism.lib.client.model.DynamicFluidContainerModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

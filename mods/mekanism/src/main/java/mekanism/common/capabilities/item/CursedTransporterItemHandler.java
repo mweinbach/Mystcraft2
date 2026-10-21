@@ -16,7 +16,7 @@ import mekanism.common.lib.inventory.TransitRequest.TransitResponse;
 import mekanism.common.util.StackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import ports.mekanism.lib.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class CursedTransporterItemHandler implements IItemHandler {

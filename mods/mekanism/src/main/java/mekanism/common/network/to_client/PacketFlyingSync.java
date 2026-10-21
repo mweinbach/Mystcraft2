@@ -4,7 +4,7 @@ import mekanism.common.network.IMekanismPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import ports.mekanism.lib.network.NetworkEvent;
 
 public class PacketFlyingSync implements IMekanismPacket {
 

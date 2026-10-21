@@ -21,10 +21,10 @@ import mekanism.api.text.ITooltipHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
+import ports.mekanism.lib.common.util.Lazy;
+import ports.mekanism.lib.fml.ModList;
+import ports.mekanism.lib.registries.IForgeRegistry;
+import ports.mekanism.lib.registries.RegistryManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -108,7 +108,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link Gas} registry.
      *
-     * @apiNote When registering {@link Gas gases} using {@link net.minecraftforge.registries.DeferredRegister<Gas>}, use this method to get access to the
+     * @apiNote When registering {@link Gas gases} using {@link ports.mekanism.lib.registries.DeferredRegister<Gas>}, use this method to get access to the
      * {@link ResourceKey}.
      */
     @NotNull
@@ -121,7 +121,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link Gas} registry.
      *
-     * @apiNote When registering {@link InfuseType infuse types} using {@link net.minecraftforge.registries.DeferredRegister<InfuseType>}, use this method to get access
+     * @apiNote When registering {@link InfuseType infuse types} using {@link ports.mekanism.lib.registries.DeferredRegister<InfuseType>}, use this method to get access
      * to the {@link ResourceKey}.
      */
     @NotNull
@@ -134,7 +134,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link Pigment} registry.
      *
-     * @apiNote When registering {@link Pigment pigments} using {@link net.minecraftforge.registries.DeferredRegister<Pigment>}, use this method to get access to the
+     * @apiNote When registering {@link Pigment pigments} using {@link ports.mekanism.lib.registries.DeferredRegister<Pigment>}, use this method to get access to the
      * {@link ResourceKey}.
      */
     @NotNull
@@ -147,7 +147,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link Slurry} registry.
      *
-     * @apiNote When registering {@link Slurry sluries} using {@link net.minecraftforge.registries.DeferredRegister<Slurry>}, use this method to get access to the
+     * @apiNote When registering {@link Slurry sluries} using {@link ports.mekanism.lib.registries.DeferredRegister<Slurry>}, use this method to get access to the
      * {@link ResourceKey}.
      */
     @NotNull
@@ -160,7 +160,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link ModuleData} registry.
      *
-     * @apiNote When registering {@link ModuleData modules} using {@link net.minecraftforge.registries.DeferredRegister<ModuleData>}, use this method to get access to the
+     * @apiNote When registering {@link ModuleData modules} using {@link ports.mekanism.lib.registries.DeferredRegister<ModuleData>}, use this method to get access to the
      * {@link ResourceKey}.
      */
     @NotNull
@@ -173,7 +173,7 @@ public class MekanismAPI {
      *
      * @return Name of the {@link RobitSkin} registry.
      *
-     * @apiNote When registering {@link RobitSkin robit skins} using {@link net.minecraftforge.registries.DeferredRegister<RobitSkin>}, use this method to get access to
+     * @apiNote When registering {@link RobitSkin robit skins} using {@link ports.mekanism.lib.registries.DeferredRegister<RobitSkin>}, use this method to get access to
      * the {@link ResourceKey}.
      */
     @NotNull
@@ -184,9 +184,9 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link Gas}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<Gas>} instead of {@link net.minecraftforge.registries.RegisterEvent} with the
-     * registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
-     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link net.minecraftforge.registries.NewRegistryEvent} events
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<Gas>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with the
+     * registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
+     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link ports.mekanism.lib.registries.NewRegistryEvent} events
      * have been fired. This method is marked as {@link NotNull} just because except for when this is being called super early it is never {@code null}.
      * @see #gasRegistryName()
      */
@@ -201,10 +201,10 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link InfuseType}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<InfuseType>} instead of {@link net.minecraftforge.registries.RegisterEvent} with
-     * the registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<InfuseType>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with
+     * the registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
      * method to the other create method, as this method <strong>CAN</strong> return {@code null} if called before the
-     * {@link net.minecraftforge.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
+     * {@link ports.mekanism.lib.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
      * called super early it is never {@code null}.
      * @see #infuseTypeRegistryName()
      */
@@ -219,9 +219,9 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link Pigment}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<Pigment>} instead of {@link net.minecraftforge.registries.RegisterEvent} with the
-     * registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
-     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link net.minecraftforge.registries.NewRegistryEvent} events
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<Pigment>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with the
+     * registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
+     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link ports.mekanism.lib.registries.NewRegistryEvent} events
      * have been fired. This method is marked as {@link NotNull} just because except for when this is being called super early it is never {@code null}.
      * @see #pigmentRegistryName()
      */
@@ -236,9 +236,9 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link Slurry}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<Slurry>} instead of {@link net.minecraftforge.registries.RegisterEvent} with the
-     * registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
-     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link net.minecraftforge.registries.NewRegistryEvent} events
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<Slurry>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with the
+     * registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this method to
+     * the other create method, as this method <strong>CAN</strong> return {@code null} if called before the {@link ports.mekanism.lib.registries.NewRegistryEvent} events
      * have been fired. This method is marked as {@link NotNull} just because except for when this is being called super early it is never {@code null}.
      * @see #slurryRegistryName()
      */
@@ -253,10 +253,10 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link ModuleData}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<ModuleData>} instead of {@link net.minecraftforge.registries.RegisterEvent} with
-     * the registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<ModuleData>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with
+     * the registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
      * method to the other create method, as this method <strong>CAN</strong> return {@code null} if called before the
-     * {@link net.minecraftforge.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
+     * {@link ports.mekanism.lib.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
      * called super early it is never {@code null}.
      * @see #moduleRegistryName()
      */
@@ -271,10 +271,10 @@ public class MekanismAPI {
     /**
      * Gets the Forge Registry for {@link RobitSkin}.
      *
-     * @apiNote If registering via {@link net.minecraftforge.registries.DeferredRegister<RobitSkin>} instead of {@link net.minecraftforge.registries.RegisterEvent} with
-     * the registry name, make sure to use {@link net.minecraftforge.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
+     * @apiNote If registering via {@link ports.mekanism.lib.registries.DeferredRegister<RobitSkin>} instead of {@link ports.mekanism.lib.registries.RegisterEvent} with
+     * the registry name, make sure to use {@link ports.mekanism.lib.registries.DeferredRegister#create(ResourceKey, String)} rather than passing the result of this
      * method to the other create method, as this method <strong>CAN</strong> return {@code null} if called before the
-     * {@link net.minecraftforge.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
+     * {@link ports.mekanism.lib.registries.NewRegistryEvent} events have been fired. This method is marked as {@link NotNull} just because except for when this is being
      * called super early it is never {@code null}.
      * @see #robitSkinRegistryName()
      */

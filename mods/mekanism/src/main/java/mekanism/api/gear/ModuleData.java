@@ -13,8 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.registries.IForgeRegistry;
+import ports.mekanism.lib.common.util.NonNullSupplier;
+import ports.mekanism.lib.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

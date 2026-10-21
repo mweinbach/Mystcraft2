@@ -29,10 +29,10 @@ import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.RenderTypeGroup;
-import net.minecraftforge.client.model.SimpleModelState;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import ports.mekanism.lib.client.RenderTypeGroup;
+import ports.mekanism.lib.client.model.SimpleModelState;
+import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
+import ports.mekanism.lib.client.model.geometry.IUnbakedGeometry;
 import org.jetbrains.annotations.Nullable;
 
 public class EnergyCubeGeometry implements IUnbakedGeometry<EnergyCubeGeometry> {

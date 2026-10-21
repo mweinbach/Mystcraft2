@@ -10,7 +10,7 @@ import mekanism.common.util.MekanismUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.util.FakePlayer;
+import ports.mekanism.lib.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import mekanism.common.Mekanism;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
-import net.minecraftforge.fml.ModList;
+import ports.mekanism.lib.common.crafting.conditions.ICondition;
+import ports.mekanism.lib.common.crafting.conditions.IConditionSerializer;
+import ports.mekanism.lib.fml.ModList;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 public class ModVersionLoadedCondition implements ICondition {

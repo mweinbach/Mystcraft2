@@ -31,9 +31,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
-import net.minecraftforge.registries.tags.ITagManager;
+import ports.mekanism.lib.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.tags.ITag;
+import ports.mekanism.lib.registries.tags.ITagManager;
 import org.jetbrains.annotations.NotNull;
 
 //TODO: Try to come up with a better name for this class given it also handles things like materials, and modids

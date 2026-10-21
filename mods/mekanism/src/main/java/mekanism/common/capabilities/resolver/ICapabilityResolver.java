@@ -3,8 +3,8 @@ package mekanism.common.capabilities.resolver;
 import java.util.List;
 import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.common.util.LazyOptional;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

@@ -42,10 +42,10 @@ import mekanism.common.lib.math.voxel.VoxelCuboid;
 import mekanism.common.network.to_client.container.property.PropertyType;
 import mekanism.common.util.LambdaMetaFactoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.IFluidTank;
+import ports.mekanism.lib.forgespi.language.IModFileInfo;
+import ports.mekanism.lib.forgespi.language.ModFileScanData.AnnotationData;
 import org.objectweb.asm.Type;
 
 public class SyncMapper extends BaseAnnotationScanner {

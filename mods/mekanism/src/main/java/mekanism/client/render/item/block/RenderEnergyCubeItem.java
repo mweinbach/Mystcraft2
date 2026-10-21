@@ -25,7 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.model.data.ModelData;
+import ports.mekanism.lib.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 public class RenderEnergyCubeItem extends MekanismISTER {

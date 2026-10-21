@@ -12,8 +12,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
+import ports.mekanism.lib.network.NetworkEvent;
+import ports.mekanism.lib.network.NetworkHooks;
 
 public class PacketOpenGui implements IMekanismPacket {
 

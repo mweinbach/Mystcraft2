@@ -4,7 +4,7 @@ import mekanism.api.Action;
 import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.api.math.FloatingLong;
 import mekanism.common.util.UnitDisplayUtils.EnergyUnit;
-import net.minecraftforge.energy.IEnergyStorage;
+import ports.mekanism.lib.energy.IEnergyStorage;
 
 public class ForgeEnergyIntegration implements IEnergyStorage {
 

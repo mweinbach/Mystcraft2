@@ -24,9 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidUtil;
+import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemGaugeDropper extends CapabilityItem {

@@ -9,8 +9,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import mekanism.common.config.IMekanismConfig;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
 import org.jetbrains.annotations.NotNull;
 
 public class CachedResourceLocationListValue extends CachedResolvableConfigValue<List<ResourceLocation>, List<? extends String>> {

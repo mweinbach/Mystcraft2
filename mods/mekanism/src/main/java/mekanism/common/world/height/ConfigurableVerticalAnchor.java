@@ -7,8 +7,8 @@ import mekanism.common.config.value.CachedEnumValue;
 import mekanism.common.config.value.CachedIntValue;
 import mekanism.common.resource.ore.OreAnchor;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
 import org.jetbrains.annotations.Nullable;
 
 public record ConfigurableVerticalAnchor(Supplier<AnchorType> anchorType, IntSupplier value) {

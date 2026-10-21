@@ -3,7 +3,7 @@ package mekanism.common.config.listener;
 import java.util.function.Supplier;
 import mekanism.common.config.value.CachedValue;
 import mekanism.common.config.value.CachedValue.IConfigValueInvalidationListener;
-import net.minecraftforge.common.util.NonNullSupplier;
+import ports.mekanism.lib.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

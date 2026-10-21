@@ -8,7 +8,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStack.TooltipPart;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemScubaMask extends ItemSpecialArmor {

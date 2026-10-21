@@ -6,9 +6,9 @@ import mekanism.common.capabilities.IOffsetCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
+import ports.mekanism.lib.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -23,7 +23,7 @@ import mekanism.common.tile.base.TileEntityMekanism;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeHooks;
+import ports.mekanism.lib.common.ForgeHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class TileEntityFuelwoodHeater extends TileEntityMekanism {

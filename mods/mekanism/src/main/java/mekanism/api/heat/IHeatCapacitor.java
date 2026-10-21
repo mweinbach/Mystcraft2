@@ -4,7 +4,7 @@ import mekanism.api.IContentsListener;
 import mekanism.api.NBTConstants;
 import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
+import ports.mekanism.lib.common.util.INBTSerializable;
 
 @NothingNullByDefault
 public interface IHeatCapacitor extends INBTSerializable<CompoundTag>, IContentsListener {

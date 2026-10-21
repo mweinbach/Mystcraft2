@@ -22,10 +22,10 @@ import mekanism.common.util.FluidUtils;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.util.LazyOptional;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

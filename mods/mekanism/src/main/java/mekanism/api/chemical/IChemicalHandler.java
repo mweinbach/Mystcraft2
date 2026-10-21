@@ -74,8 +74,8 @@ public interface IChemicalHandler<CHEMICAL extends Chemical<CHEMICAL>, STACK ext
      * Inserts a {@link STACK} into a given tank and return the remainder. The {@link STACK} <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly different from
-     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(net.minecraftforge.fluids.FluidStack,
-     * net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(ports.mekanism.lib.fluids.FluidStack,
+     * ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param tank   Tank to insert to.
      * @param stack  {@link STACK} to insert. This must not be modified by the tank.
@@ -107,8 +107,8 @@ public interface IChemicalHandler<CHEMICAL extends Chemical<CHEMICAL>, STACK ext
      * <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly different from
-     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(net.minecraftforge.fluids.FluidStack,
-     * net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(ports.mekanism.lib.fluids.FluidStack,
+     * ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param stack  {@link STACK} to insert. This must not be modified by the handler.
      * @param action The action to perform, either {@link Action#EXECUTE} or {@link Action#SIMULATE}

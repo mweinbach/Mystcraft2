@@ -28,10 +28,10 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
-import net.minecraftforge.registries.tags.ITagManager;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.tags.ITag;
+import ports.mekanism.lib.registries.tags.ITagManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

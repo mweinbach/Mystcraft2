@@ -7,7 +7,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.minecraftforge.registries.RegistryObject;
+import ports.mekanism.lib.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 public class SetupFeatureRegistryObject<FEATURE_CONFIG extends FeatureConfiguration, FEATURE extends Feature<FEATURE_CONFIG>> extends

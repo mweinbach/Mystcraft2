@@ -24,9 +24,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
+import ports.mekanism.lib.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class TileEntitySecurityDesk extends TileEntityMekanism implements IBoundingBlock {

@@ -17,8 +17,8 @@ import mekanism.common.resource.ore.OreType.OreVeinType;
 import mekanism.common.util.EnumUtils;
 import mekanism.common.world.height.ConfigurableHeightRange;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig.Type;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.fml.config.ModConfig.Type;
 
 public class WorldConfig extends BaseMekanismConfig {
 

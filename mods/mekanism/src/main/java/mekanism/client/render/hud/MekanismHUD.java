@@ -16,9 +16,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import net.minecraftforge.items.IItemHandler;
+import ports.mekanism.lib.client.gui.overlay.ForgeGui;
+import ports.mekanism.lib.client.gui.overlay.IGuiOverlay;
+import ports.mekanism.lib.items.IItemHandler;
 
 public class MekanismHUD implements IGuiOverlay {
 

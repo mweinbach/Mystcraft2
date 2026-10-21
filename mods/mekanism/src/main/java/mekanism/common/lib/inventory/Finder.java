@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.items.ItemHandlerHelper;
+import ports.mekanism.lib.items.ItemHandlerHelper;
 
 public interface Finder {
 

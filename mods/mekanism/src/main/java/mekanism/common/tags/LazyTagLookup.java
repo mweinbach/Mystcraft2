@@ -3,9 +3,9 @@ package mekanism.common.tags;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalTags;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.tags.ITag;
+import ports.mekanism.lib.common.util.Lazy;
+import ports.mekanism.lib.registries.IForgeRegistry;
+import ports.mekanism.lib.registries.tags.ITag;
 
 public record LazyTagLookup<TYPE>(TagKey<TYPE> key, Lazy<ITag<TYPE>> lazyTag) {
 

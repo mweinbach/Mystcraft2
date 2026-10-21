@@ -1,7 +1,7 @@
 package mekanism.common.config;
 
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModLoadingContext;
+import ports.mekanism.lib.fml.ModContainer;
+import ports.mekanism.lib.fml.ModLoadingContext;
 
 public class MekanismConfig {
 

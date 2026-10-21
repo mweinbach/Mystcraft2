@@ -13,8 +13,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import ports.mekanism.lib.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.IForgeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 public class RegistryUtils {

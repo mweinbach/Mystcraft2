@@ -7,9 +7,9 @@ import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import ports.mekanism.lib.common.util.INBTSerializable;
+import ports.mekanism.lib.items.IItemHandler;
+import ports.mekanism.lib.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault
@@ -51,8 +51,8 @@ public interface IInventorySlot extends INBTSerializable<CompoundTag>, IContents
      * Inserts an {@link ItemStack} into this {@link IInventorySlot} and return the remainder. The {@link ItemStack} <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly different from
-     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(net.minecraftforge.fluids.FluidStack,
-     * net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(ports.mekanism.lib.fluids.FluidStack,
+     * ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param stack          {@link ItemStack} to insert. This must not be modified by the slot.
      * @param action         The action to perform, either {@link Action#EXECUTE} or {@link Action#SIMULATE}

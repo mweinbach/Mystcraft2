@@ -9,8 +9,8 @@ import mekanism.common.Mekanism;
 import mekanism.common.registration.impl.DataSerializerDeferredRegister;
 import mekanism.common.registration.impl.DataSerializerRegistryObject;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.extensions.IForgeFriendlyByteBuf;
-import net.minecraftforge.registries.IForgeRegistry;
+import ports.mekanism.lib.common.extensions.IForgeFriendlyByteBuf;
+import ports.mekanism.lib.registries.IForgeRegistry;
 
 public class MekanismDataSerializers {
 

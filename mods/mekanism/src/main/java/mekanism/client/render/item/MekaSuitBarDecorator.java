@@ -17,11 +17,11 @@ import mekanism.common.util.FluidUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.IItemDecorator;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import ports.mekanism.lib.client.IItemDecorator;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.fluids.FluidStack;
+import ports.mekanism.lib.fluids.FluidUtil;
+import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
 
 public class MekaSuitBarDecorator implements IItemDecorator {
 

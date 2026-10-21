@@ -4,8 +4,8 @@ import mekanism.common.config.value.CachedBooleanValue;
 import mekanism.common.config.value.CachedEnumValue;
 import mekanism.common.util.UnitDisplayUtils.EnergyUnit;
 import mekanism.common.util.UnitDisplayUtils.TemperatureUnit;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig.Type;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.fml.config.ModConfig.Type;
 
 public class CommonConfig extends BaseMekanismConfig {
 

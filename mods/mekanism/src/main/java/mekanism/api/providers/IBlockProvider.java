@@ -3,7 +3,7 @@ package mekanism.api.providers;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import ports.mekanism.lib.registries.ForgeRegistries;
 
 @MethodsReturnNonnullByDefault
 public interface IBlockProvider extends IItemProvider {

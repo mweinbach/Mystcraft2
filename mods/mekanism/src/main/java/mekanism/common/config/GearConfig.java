@@ -14,8 +14,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ArmorMaterials;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig.Type;
+import ports.mekanism.lib.common.ForgeConfigSpec;
+import ports.mekanism.lib.fml.config.ModConfig.Type;
 
 public class GearConfig extends BaseMekanismConfig {
 

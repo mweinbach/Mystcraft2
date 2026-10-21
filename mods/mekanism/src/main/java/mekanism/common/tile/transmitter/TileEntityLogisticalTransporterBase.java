@@ -17,10 +17,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import ports.mekanism.lib.common.capabilities.Capability;
+import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
+import ports.mekanism.lib.common.util.LazyOptional;
+import ports.mekanism.lib.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

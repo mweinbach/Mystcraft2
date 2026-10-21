@@ -39,8 +39,8 @@ import mekanism.common.util.EmitUtils;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

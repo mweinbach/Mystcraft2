@@ -46,7 +46,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.Lazy;
+import ports.mekanism.lib.common.util.Lazy;
 import org.jetbrains.annotations.Nullable;
 
 public class QIOFrequency extends Frequency implements IColorableFrequency, IQIOFrequency {

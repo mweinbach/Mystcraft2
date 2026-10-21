@@ -16,7 +16,7 @@ import mekanism.common.network.IMekanismPacket;
 import mekanism.common.registries.MekanismRobitSkins;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import ports.mekanism.lib.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

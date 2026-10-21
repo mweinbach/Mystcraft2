@@ -2,7 +2,7 @@ package mekanism.common.config.value;
 
 import mekanism.api.functions.ShortSupplier;
 import mekanism.common.config.IMekanismConfig;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
 
 public class CachedShortValue extends CachedValue<Short> implements ShortSupplier {
 

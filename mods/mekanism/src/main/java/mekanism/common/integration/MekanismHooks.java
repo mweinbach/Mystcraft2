@@ -5,10 +5,10 @@ import mekanism.common.integration.computer.computercraft.CCCapabilityHelper;
 import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.integration.lookingat.theoneprobe.TOPProvider;
 import mekanism.common.integration.projecte.NSSHelper;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import ports.mekanism.lib.eventbus.api.IEventBus;
+import ports.mekanism.lib.fml.InterModComms;
+import ports.mekanism.lib.fml.ModList;
+import ports.mekanism.lib.fml.event.lifecycle.InterModEnqueueEvent;
 
 /**
  * Hooks for Mekanism. Use to grab items or blocks out of different mods.
