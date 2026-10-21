@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -263,11 +264,12 @@ public class ObjModel implements IUnbakedGeometry<ObjModel> {
             baker.endVertex();
             transformedPositions[i] = position;
         }
-        Direction cull = settings.automaticCulling() ? cullFace(transformedPositions, baker.getQuad().getDirection()) : null;
+        BakedQuad quad = baker.getQuad();
+        Direction cull = settings.automaticCulling() ? cullFace(transformedPositions, quad.getDirection()) : null;
         if (cull == null) {
-            builder.addUnculledFace(baker.getQuad());
+            builder.addUnculledFace(quad);
         } else {
-            builder.addCulledFace(cull, baker.getQuad());
+            builder.addCulledFace(cull, quad);
         }
     }
 

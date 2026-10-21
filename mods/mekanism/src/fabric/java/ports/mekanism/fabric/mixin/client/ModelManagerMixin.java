@@ -4,7 +4,9 @@
  */
 package ports.mekanism.fabric.mixin.client;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelManager;
@@ -20,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.mekanism.fabric.FabricLifecycle;
 import ports.mekanism.lib.client.event.ModelEvent;
 import ports.mekanism.lib.client.extensions.IForgeModelManager;
+import ports.mekanism.lib.client.model.ExtendedBlockModelJson;
 
 /**
  * Keeps the model bakery of the last resource reload, which Forge's model manager exposes, and fires Forge's
@@ -48,6 +51,9 @@ public abstract class ModelManagerMixin implements IForgeModelManager {
     @Inject(method = "apply(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
           at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/BlockModelShaper;rebuildCache()V"))
     private void mekanism$bakingCompleted(ModelBakery modelBakery, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
+        Set<String> namespaces = new HashSet<>();
+        FabricLifecycle.forEachMod(container -> namespaces.add(container.getNamespace()));
+        ExtendedBlockModelJson.applyBlockRenderTypes(bakedRegistry, namespaces);
         FabricLifecycle.postToMods(new ModelEvent.BakingCompleted((ModelManager) (Object) this, bakedRegistry, modelBakery));
     }
 }

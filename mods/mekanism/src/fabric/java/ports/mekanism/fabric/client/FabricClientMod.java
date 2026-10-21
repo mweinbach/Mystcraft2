@@ -26,6 +26,11 @@ import ports.mekanism.lib.client.event.RegisterKeyMappingsEvent;
 import ports.mekanism.lib.client.event.RegisterParticleProvidersEvent;
 import ports.mekanism.lib.client.event.RenderLevelStageEvent;
 import ports.mekanism.lib.client.event.TextureStitchEvent;
+import ports.mekanism.lib.client.model.CompositeModel;
+import ports.mekanism.lib.client.model.DynamicFluidContainerModel;
+import ports.mekanism.lib.client.model.ElementsModel;
+import ports.mekanism.lib.client.model.SeparateTransformsModel;
+import ports.mekanism.lib.client.model.obj.ObjLoader;
 import ports.mekanism.lib.event.TickEvent;
 import ports.mekanism.lib.fml.LogicalSide;
 
@@ -46,6 +51,7 @@ public final class FabricClientMod implements ClientModInitializer {
         FabricLifecycle.postToMods(new RegisterColorHandlersEvent.Block());
         FabricLifecycle.postToMods(new RegisterColorHandlersEvent.Item());
         FabricLifecycle.postToMods(new RegisterItemDecorationsEvent());
+        registerForgeGeometryLoaders();
         FabricLifecycle.forEachMod(container -> {
             String namespace = container.getNamespace();
             container.getEventBus().post(new ModelEvent.RegisterGeometryLoaders(namespace));
@@ -70,6 +76,19 @@ public final class FabricClientMod implements ClientModInitializer {
     public static void beforeInitialResourceReload() {
         FabricLifecycle.forEachMod(container -> container.getEventBus().post(new RegisterClientReloadListenersEvent(container.getNamespace())));
         FabricLifecycle.startClient();
+    }
+
+    /**
+     * The loaders Forge itself registers. The OBJ loader's caches are cleared on each resource reload.
+     */
+    private static void registerForgeGeometryLoaders() {
+        ModelEvent.RegisterGeometryLoaders forge = new ModelEvent.RegisterGeometryLoaders("forge");
+        forge.register("elements", ElementsModel.Loader.INSTANCE);
+        forge.register("obj", ObjLoader.INSTANCE);
+        forge.register("fluid_container", DynamicFluidContainerModel.Loader.INSTANCE);
+        forge.register("composite", CompositeModel.Loader.INSTANCE);
+        forge.register("separate_transforms", SeparateTransformsModel.Loader.INSTANCE);
+        new RegisterClientReloadListenersEvent("forge").registerReloadListener(ObjLoader.INSTANCE);
     }
 
     private static void registerGameEvents() {
