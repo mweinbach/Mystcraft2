@@ -22,7 +22,7 @@ OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
 the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
 highlighting and in-game key and scroll input are wired (see below). The shared GameTests (core machines, loader
-interop, ore generation, and the item and block hooks) pass on both loaders.
+interop, chemical lookups, ore generation, and the item and block hooks) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -32,7 +32,12 @@ interop, ore generation, and the item and block hooks) pass on both loaders.
   Mekanism's slots. The reverse is exposed too: Mekanism's energy items (the energy tablet, energy cubes and anything
   else upstream gives an item energy capability) are `EnergyStorage.ITEM` storages through `ContainerItemContext`, and
   its fluid items (fluid tanks and the other item fluid handlers) are `FluidStorage.ITEM` storages, at 81 droplets per
-  mB. Chemicals stay on Mekanism's own API.
+  mB. Gas, infusion, pigment, slurry and heat are published on Fabric API lookups under `mekanism:*` ids
+  (`mekanism:gas_handler`, `mekanism:infusion_handler`, `mekanism:pigment_handler`, `mekanism:slurry_handler`,
+  `mekanism:heat_handler`); the ids, context classes and the `ports.mekanism.fabric.api.MekanismChemicalLookups`
+  fields are listed in [README.md](README.md). The handler is the port's capability for that side or stack, in
+  Mekanism chemical units. Mekanism registers its own blocks and items. Other mods can register on the same lookups.
+  A Forge chemical or heat capability asked of a foreign block does not fall back to them.
 - `scripts/generate_fabric_tags.py` writes the Fabric tag bridges: the `forge:` tags Forge itself defines (from
   `scripts/forge-tags.json`, Forge 43.5.0's data), each Mekanism `forge:` tag with its `c:` equivalent as an optional
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.

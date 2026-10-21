@@ -5,10 +5,10 @@ release, `v1.19.2-10.3.9.13`) to **Fabric and Forge** from one shared codebase. 
 build is the primary target. Upstream attribution and every edit to upstream files are listed in
 [UPSTREAM.md](UPSTREAM.md); gaps are tracked in [PARITY.md](PARITY.md).
 
-| Loader | Requirements | Energy | Items and fluids | Chemicals |
+| Loader | Requirements | Energy | Items and fluids | Chemicals and heat |
 | --- | --- | --- | --- | --- |
-| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2 | Team Reborn Energy (bundled) | Transfer API | Mekanism API |
-| Forge | Forge 43.5.0 | Forge Energy | Forge capabilities | Mekanism API |
+| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2 | Team Reborn Energy (bundled) | Transfer API | `BlockApiLookup` / `ItemApiLookup` |
+| Forge | Forge 43.5.0 | Forge Energy | Forge capabilities | Forge capabilities |
 
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
 them.
@@ -25,14 +25,15 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
   universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
-  other mods can charge Mekanism's energy items and fill its fluid items the same way.
+  other mods can charge Mekanism's energy items and fill its fluid items the same way. Gas, infusion, pigment,
+  slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. Player ticks and the other living-entity
   events are not; [PARITY.md](PARITY.md) lists every gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, ore
-  generation, and the item and block hooks) pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
+  lookups, ore generation, and the item and block hooks) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -60,6 +61,48 @@ python3 mods/mekanism/scripts/generate_fabric_tags.py --check
 python3 mods/mekanism/scripts/check_loader_parity.py
 python3 scripts/emc.py check
 ```
+
+## Chemical lookups (Fabric)
+
+Other Fabric mods reach Mekanism chemicals and heat through Fabric API lookups. The handler is the same capability
+Forge exposes (`mekanism.common.capabilities.Capabilities`): `IGasHandler`, `IInfusionHandler`, `IPigmentHandler`,
+`ISlurryHandler` and `IHeatHandler`, in `mekanism.api`. Amounts are Mekanism's chemical units, not Transfer API
+droplets. Mekanism blocks still move chemicals between themselves through those capabilities; these lookups only
+publish them. A missing handler is null. Query it again when you need it, and do not keep the instance after the
+block is removed or the stack is replaced.
+
+The block lookup and the item lookup for one handler share an id and are different objects. Blocks take a
+`Direction`, the side being accessed, matching Forge's `getCapability(cap, side)`. Null is the internal side: a
+chemical tank still reports its contents, and its side config decides what that side may insert or extract. The
+tank's front is the output; the other sides accept chemicals and do not give them back. Items take a `Void` context,
+which callers pass as `null`. The handler reads and writes that stack. `Action.SIMULATE` leaves it unchanged.
+
+`BlockApiLookup.get` and `ItemApiLookup.get` return these instances when given the id, the handler class and the
+context class, so a mod can import `ports.mekanism.fabric.api.MekanismChemicalLookups` or rebuild the lookup. The
+constants are `GAS`, `INFUSION`, `PIGMENT`, `SLURRY`, `HEAT` and the item forms `GAS_ITEM`, `INFUSION_ITEM`,
+`PIGMENT_ITEM`, `SLURRY_ITEM`, `HEAT_ITEM`.
+
+| Handler | Id | Block context | Item context |
+| --- | --- | --- | --- |
+| `IGasHandler` | `mekanism:gas_handler` | `Direction` | `Void` (pass null) |
+| `IInfusionHandler` | `mekanism:infusion_handler` | `Direction` | `Void` (pass null) |
+| `IPigmentHandler` | `mekanism:pigment_handler` | `Direction` | `Void` (pass null) |
+| `ISlurryHandler` | `mekanism:slurry_handler` | `Direction` | `Void` (pass null) |
+| `IHeatHandler` | `mekanism:heat_handler` | `Direction` | `Void` (pass null) |
+
+Mekanism registers its own block entities and items. Other mods register theirs on the same lookup; that is how a
+port can offer gas to a Mekanism tube. Asking a Mekanism capability of a foreign block does not consult these
+lookups. To drain a neighbor:
+
+```java
+IGasHandler handler = MekanismChemicalLookups.GAS.find(level, pos, state, blockEntity, side);
+if (handler != null) {
+    GasStack drained = handler.extractChemical(amount, Action.EXECUTE);
+}
+```
+
+The same lookup without a compile dependency on the class is
+`BlockApiLookup.get(new ResourceLocation("mekanism", "gas_handler"), IGasHandler.class, Direction.class)`.
 
 ## License
 
