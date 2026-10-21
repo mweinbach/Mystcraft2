@@ -5,6 +5,7 @@
 package ports.extremereactors.gametest;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -14,7 +15,9 @@ import net.minecraft.network.chat.Component;
 
 /**
  * The development-only {@code /ershowcase} command: {@code build} lays out the {@link Showcase} machines at the
- * caller's feet, {@code plant} builds a large reactor and turbine there, {@code status} reports whether they assembled and {@code open <part>} opens a part's screen.
+ * caller's feet, {@code plant} builds a large reactor and turbine there, {@code rods <insertion>}, {@code scram}
+ * and {@code start} drive the showcase reactors, {@code turbines on|off} the showcase turbines, {@code status}
+ * reports whether they assembled and {@code open <part>} opens a part's screen.
  */
 public final class ShowcaseCommand {
 
@@ -31,6 +34,35 @@ public final class ShowcaseCommand {
                     Showcase.buildPlant(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                     return 1;
                 }))
+                .then(Commands.literal("rods")
+                        .then(Commands.argument("insertion", IntegerArgumentType.integer(0, 100))
+                                .executes(context -> {
+
+                                    Showcase.rods(context.getSource().getLevel(),
+                                            IntegerArgumentType.getInteger(context, "insertion"));
+                                    return 1;
+                                })))
+                .then(Commands.literal("scram").executes(context -> {
+
+                    Showcase.scram(context.getSource().getLevel());
+                    return 1;
+                }))
+                .then(Commands.literal("start").executes(context -> {
+
+                    Showcase.start(context.getSource().getLevel());
+                    return 1;
+                }))
+                .then(Commands.literal("turbines")
+                        .then(Commands.literal("on").executes(context -> {
+
+                            Showcase.turbines(context.getSource().getLevel(), true);
+                            return 1;
+                        }))
+                        .then(Commands.literal("off").executes(context -> {
+
+                            Showcase.turbines(context.getSource().getLevel(), false);
+                            return 1;
+                        })))
                 .then(Commands.literal("status").executes(context -> {
 
                     Showcase.status(context.getSource().getLevel())

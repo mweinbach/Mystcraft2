@@ -70,6 +70,7 @@ import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
 import ports.extremereactors.corelib.client.model.ModBakedModelSupplier;
 import ports.extremereactors.corelib.item.inventory.container.ModTileContainer;
+import ports.extremereactors.effects.client.MachineEffects;
 import ports.extremereactors.platform.ClientPlatform;
 import ports.extremereactors.platform.Platform;
 import net.minecraft.client.gui.screens.Screen;
@@ -128,6 +129,7 @@ public class ClientProxy
         registerRenderTypes();
         registerTileRenderers();
         registerBlockColors();
+        MachineEffects.initialize();
     }
 
     public void onRegisterModels(final Consumer<ResourceLocation> additionalModels) {

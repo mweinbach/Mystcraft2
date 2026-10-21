@@ -157,12 +157,84 @@ assembled. `corelib` now drops that cache when a multiblock re-renders and when
 a client update changes a part's model data, so assembled machines and running
 controllers draw the right faces on both loaders.
 
+## Machine effects
+
+The port adds client-side effects that Extreme Reactors 2 does not have. They
+are cosmetic: they read state the server already sends to clients and change
+nothing in how machines run, so servers and clients with them turned off
+behave the same. Each one can be turned off in
+`config/extremereactors/effects.toml`, read when the client starts.
+
+- **Control rod drives** (`rodDrives`). Each control rod has a drive on the
+  outside of the reactor, whose shaft stands out as far as the rod is
+  withdrawn. It moves a full stroke a second toward the rod's insertion.
+  Drives are not drawn when a solid block covers the rod.
+- **Cherenkov glow** (`cherenkovGlow`, `glowStrength`). A running reactor's
+  fuel columns glow blue behind its glass, brighter with more fuel and dimmed
+  column by column by its control rod. Reactors without glass draw nothing.
+- **Steam** (`steam`, `particleDensity`). A running actively-cooled reactor
+  above 100 °C puffs steam from output fluid ports that face open air, and a
+  turbine vents a plume from its top while it exhausts ("vent all", or "vent
+  overflow" with a full exhaust tank). Extreme Reactors' unused
+  `disableReactorParticles` and `disableTurbineParticles` client options also
+  turn these off.
+- **Alarms** (`alarmLamps`, `alarmSounds`, `alarmVolume`). The controller's
+  two grey indicator lamps flash red while the fuel is at or above 2000 °C or a
+  running actively-cooled reactor's coolant tank is under 10%, with a looping
+  alarm; and amber when a running reactor has no fuel or waste fills 90% of the
+  fuel pool. Extreme Reactors has no meltdown, so these only warn. The
+  thresholds are fixed (`effects.EffectThresholds`), not client options: the
+  server resends a reactor's state whenever it crosses one, so it has to know
+  them.
+- **SCRAM** (`scram`). When a reactor shuts down and all its rods go fully in
+  within a second, as its controller's SCRAM button does, the drives drop and
+  bounce, the lamps flash red and white for ten seconds, steam vents from the
+  top and a klaxon sounds. Clients recognize it from the two updates, so
+  scripted shutdowns that do the same look the same.
+
+Cost: the effects tick only for machines within `range` blocks (64 by
+default) of the camera and forget the others. A reactor's client state is also
+dropped as soon as it stops ticking (disassembled, unloaded or left behind with
+its world) and when its level unloads, so the cache never keeps a controller,
+its parts or an old level alive. Each reactor's part lists are
+rebuilt only when its part count changes, or every five seconds. The glow is
+drawn once per reactor by its first controller, two boxes per fuel column. Each
+control rod is a block entity renderer of three boxes. Particles are capped per
+port and per tick, and vanilla's particle setting still applies.
+
+Network: the server now resends a machine's state to nearby clients, at most
+every two seconds, when it changes noticeably or crosses a threshold an effect
+switches at; a steady machine sends nothing. Values are compared with what was
+last sent, so a crossing during the two seconds is sent at their end.
+
+- A reactor: its fuel temperature by 5% (at least 20 °C) or a tank by 5%, or
+  crossing 100 °C (steam), 2000 °C (overheat), 10% coolant, 90% waste, or
+  running out of fuel.
+- A turbine: the steam it took last tick by 25% (at least 10 mB) or starting or
+  stopping, its exhaust tank by 5% or filling up, or its vent setting. Upstream
+  only sent these to players with its screen open, so the plume of a turbine
+  started or stopped nearby would otherwise never change.
+
+Each update re-renders the chunk section of the machine's reference corner on
+clients. Rod insertion and on/off already reached clients without a screen
+open.
+
+Gaps and risks:
+
+- The glow uses a custom additive render type built on vanilla's lightning
+  shader. Shader packs (Iris, Oculus) may draw it differently or not at all;
+  turn `cherenkovGlow` off if it looks wrong.
+- The reprocessor and the fluidizer have no effects.
+- The sounds are the port's own synthesized clips, not recordings; their
+  subtitles are only in `en_us.json`.
+
 ## Tests
 
 | Test | Covers |
 | --- | --- |
 | `FuelContainerTest` (JUnit, both builds) | Fuel and waste accounting. |
 | `LayoutEngineTest`, `GuiDataTest` (JUnit, both builds) | `corelib`'s fixed, vertical, horizontal, tabular and anchored layouts; text input constraints, tooltip templates and data bindings. |
+| `EffectsLogicTest` (JUnit, both builds) | Rod drive motion and SCRAM drop, SCRAM recognition, alarm conditions, the reactor and turbine status sync (rate limit, threshold crossings, turbine flow, venting and vent setting), and the client cache dropping machines that stop ticking. |
 | `basicReactorAssembles`, `basicTurbineAssembles` | Assembly of minimal machines. |
 | `reactorWithoutControllerDoesNotAssemble`, `reactorFuelRodNeedsCasingBase`, `turbineLooseBladeDoesNotAssemble` | Validation errors. |
 | `turbineCoilsBeforeBladesAssembleLikeUpstream` | The upstream coil-validation quirk. |
@@ -182,4 +254,10 @@ was opened on a running machine on Fabric, and the reactor and turbine
 controllers on Forge, showing live values, tooltips and working buttons.
 `/ershowcase build` and `/ershowcase plant` were photographed on both loaders
 with the redrawn textures: assembled casings join up, glass connects, and
-running controllers show their active face.
+running controllers show their active face. With the machine effects, the
+plant reactor was recorded on both loaders running, with its rods moved, then
+SCRAMmed and restarted, with the game audio written to a file: the drives move
+and drop, the glow follows the rods, steam comes from the output port, the
+turbine and the SCRAM, the lamps flash and the alarm and klaxon play with their
+subtitles. Their alarms were real: the plant reactor runs near 4000 °C with an
+almost empty coolant tank.

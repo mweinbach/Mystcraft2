@@ -447,6 +447,50 @@ def control_rod(steel, seed, accent, hazard):
     return image
 
 
+# The control rod drive the effects draw on a reactor's control rods: a housing on the hatch, a shaft that
+# rises as the rod is withdrawn and a crosshead on the shaft. Regions are at 1 texel per 1/16 block and must
+# match ControlRodDriveRenderer.
+DRIVE_REGIONS = {"housing_top": (0, 0, 8, 8), "housing_side": (8, 0, 8, 4), "shaft_side": (16, 0, 4, 12),
+                 "cap_top": (0, 8, 6, 6), "cap_side": (8, 8, 6, 2)}
+
+
+def control_rod_drive(steel, accent, hazard):
+    image = canvas(32, 32)
+
+    x0, y0, w, h = DRIVE_REGIONS["housing_top"]
+    rect(image, x0, y0, x0 + w - 1, y0 + h - 1, steel[3])
+    rect(image, x0, y0, x0 + w - 1, y0, steel[5])
+    rect(image, x0, y0, x0, y0 + h - 1, steel[5])
+    rect(image, x0 + 2, y0 + 2, x0 + 5, y0 + 5, steel[0])
+    rect(image, x0 + 3, y0 + 3, x0 + 4, y0 + 4, steel[1])
+    for x, y in ((1, 1), (6, 1), (1, 6), (6, 6)):
+        put(image, x0 + x, y0 + y, steel[6])
+
+    x0, y0, w, h = DRIVE_REGIONS["housing_side"]
+    rect(image, x0, y0, x0 + w - 1, y0 + h - 1, steel[2])
+    rect(image, x0, y0, x0 + w - 1, y0, steel[5])
+    rect(image, x0, y0 + h - 1, x0 + w - 1, y0 + h - 1, steel[0])
+    for x in range(w):
+        put(image, x0 + x, y0 + 2, accent[1] if x % 4 < 2 or not hazard else HAZARD_DARK)
+
+    x0, y0, w, h = DRIVE_REGIONS["shaft_side"]
+    for x, level in enumerate((4, 6, 5, 2)):
+        rect(image, x0 + x, y0, x0 + x, y0 + h - 1, steel[level])
+    for y in range(2, h, 3):
+        rect(image, x0, y0 + y, x0 + w - 1, y0 + y, steel[1])
+
+    x0, y0, w, h = DRIVE_REGIONS["cap_top"]
+    rect(image, x0, y0, x0 + w - 1, y0 + h - 1, accent[1])
+    rect(image, x0 + 1, y0 + 1, x0 + w - 2, y0 + h - 2, accent[2])
+    rect(image, x0 + 2, y0 + 2, x0 + 3, y0 + 3, steel[0])
+
+    x0, y0, w, h = DRIVE_REGIONS["cap_side"]
+    for x in range(w):
+        striped = hazard and (x // 2) % 2
+        rect(image, x0 + x, y0, x0 + x, y0 + h - 1, HAZARD_DARK if striped else accent[1])
+    return image
+
+
 # endregion
 # region controllers
 
@@ -798,6 +842,12 @@ def generate(root):
 
     save(root / "fluid" / "fluid.fuelcolumn.flowing.png", fuel_column_frames(32, 16, 11), 3)
     save(root / "fluid" / "fluid.fuelcolumn.still.png", fuel_column_top_frames(16), 3)
+    written += 2
+
+    (root / "effects").mkdir(exist_ok=True)
+    save(root / "effects" / "control_rod_drive_basic.png", control_rod_drive(STEEL_BASIC, ACCENTS["reactor"], False))
+    save(root / "effects" / "control_rod_drive_reinforced.png",
+         control_rod_drive(STEEL_REINFORCED, ACCENTS["reactor"], True))
     return written + 2
 
 

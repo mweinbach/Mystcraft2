@@ -43,6 +43,7 @@ import ports.extremereactors.corelib.block.multiblock.IMultiblockPartTypeProvide
 import ports.extremereactors.corelib.data.IoDirection;
 import ports.extremereactors.corelib.data.WideAmount;
 import ports.extremereactors.corelib.data.geometry.CuboidBoundingBox;
+import ports.extremereactors.effects.StatusSyncTracker;
 import ports.extremereactors.corelib.data.stack.AllowedHandlerAction;
 import ports.extremereactors.corelib.data.stack.OperationMode;
 import ports.extremereactors.corelib.energy.WideEnergyBuffer;
@@ -998,6 +999,14 @@ public class MultiblockReactor
         profiler.popPush("Updates");
         this.checkAndSendClientUpdates();
 
+        if (this._statusSyncTracker.shouldSync(this.getFuelHeat().getAsDouble(),
+                this.getOperationalMode().isActive() ? this.getFluidContainer().getLiquidStoredPercentage() : 0,
+                this.getOperationalMode().isActive() ? this.getFluidContainer().getGasStoredPercentage() : 0,
+                this.getFuelAmount(),
+                this.getCapacity() > 0 ? (double) this.getWasteAmount() / this.getCapacity() : 0)) {
+            this.markReferenceCoordForUpdate();
+        }
+
         //////////////////////////////////////////////////////////////////////////////
         // UPDATE REFERENCE COORDINATES
         //////////////////////////////////////////////////////////////////////////////
@@ -1602,6 +1611,7 @@ public class MultiblockReactor
     private float _reactorHeatLossCoefficient;
     private boolean _sendUpdateFuelRodsLayout;
     private final Runnable _sendUpdateFuelRodsLayoutDelayedRunnable;
+    private final StatusSyncTracker _statusSyncTracker = StatusSyncTracker.forReactor();
 
     private List<ITickableMultiblockPart> _attachedTickables;
     private final List<ReactorControlRodEntity> _attachedControlRods;

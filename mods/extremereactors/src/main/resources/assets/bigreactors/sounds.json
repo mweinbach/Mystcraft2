@@ -1,0 +1,20 @@
+{
+  "effects.alarm": {
+    "subtitle": "subtitles.bigreactors.effects.alarm",
+    "sounds": [
+      {
+        "name": "bigreactors:effects/alarm",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "effects.scram": {
+    "subtitle": "subtitles.bigreactors.effects.scram",
+    "sounds": [
+      {
+        "name": "bigreactors:effects/scram",
+        "attenuation_distance": 48
+      }
+    ]
+  }
+}
