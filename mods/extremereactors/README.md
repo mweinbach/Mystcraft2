@@ -23,8 +23,7 @@ Every upstream machine screen is ported with Extreme Reactors' own textures and
 layouts: the reactor, turbine, reprocessor and fluidizer controllers, and the
 access, fluid, charging, redstone, control rod and injector ports. Right-click a
 controller or port to open its screen. [PARITY.md](PARITY.md) lists every gap
-against upstream, including the ComputerCraft, JEI and Patchouli integrations
-that are not ported yet.
+against upstream.
 
 ## Interoperability
 
@@ -33,6 +32,15 @@ that are not ported yet.
 | Energy | Team Reborn Energy (`teamreborn:energy`, bundled), 1 E per FE | Forge Energy |
 | Items and fluids | Fabric Transfer API | Forge capabilities |
 | Tags | `c:` tags such as `c:yellorium_ingots` and `c:uranium_ingots`, plus the `forge:` tags upstream uses | `forge:` tags plus the same `c:` tags |
+| Energy shown | `E` | `FE` |
+| Computer ports | CC: Restitched 1.101.2 | CC: Tweaked 1.101.3 |
+| Recipe viewers | JEI 11.6 or EMI 1.1.24 | JEI 11.6 or EMI 1.1.24 |
+| Handbook (the Extreme Book) | Patchouli 1.19.2-77 | Patchouli 1.19.2-77 |
+| Mekanism gas port | Not available | Mekanism 10.3.9 |
+
+The integrations are optional. With Patchouli, the handbook is in the general
+creative tab and each machine screen's help button opens its entry. EMI uses
+the port's own plugin, so it does not need JEI.
 
 Every item has an EMC value or a documented exclusion for ProjectE 1.1.0
 (Forge) and Item Alchemy 1.1.3 (Fabric), shipped as data in both JARs. See
@@ -103,6 +111,11 @@ machines `/ershowcase` keeps supplied. `/ershowcase open <part>` opens a part's
 screen, for example `reactor_controller` or `turbine_fluidport`. Neither the
 command nor the GameTest mod is in the release JARs. After editing
 `scripts/generate_textures.py`, run it to redraw the textures.
+
+Add `-PwithCompat` to a client run to load ComputerCraft, Patchouli and JEI, and
+on Forge Mekanism; add `-PwithEmi` as well to load EMI instead of JEI.
+`-PwithMekanism` adds Mekanism to the Forge GameTest server, so
+`reactorMekanismPortFollowsMekanism` checks the gas port against it.
 
 ## License
 
