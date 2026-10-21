@@ -6,6 +6,7 @@ package ports.mekanism.fabric.mixin;
 
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,6 +50,15 @@ public abstract class LivingEntityMixin {
 
     @Unique
     private DamageSource mekanism$livingHurtSource;
+
+    @Unique
+    private float mekanism$livingDamageAmount;
+
+    @Unique
+    private float mekanism$livingDamageOriginal;
+
+    @Unique
+    private boolean mekanism$livingDamagePosted;
 
     @Unique
     private boolean mekanism$fallReentry;
@@ -95,6 +105,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
     private void mekanism$livingHurt(DamageSource source, float amount, CallbackInfo ci) {
         this.mekanism$livingHurtSource = source;
+        this.mekanism$livingDamagePosted = false;
         if (this.mekanism$livingHurtReentry) {
             return;
         }
@@ -121,9 +132,46 @@ public abstract class LivingEntityMixin {
     @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;setHealth(F)V"))
     private void mekanism$livingDamage(LivingEntity entity, float health) {
         float current = entity.getHealth();
-        float adjusted = ForgeHooks.onLivingDamage(entity, this.mekanism$livingHurtSource, current - health);
+        float original = current - health;
+        float adjusted = ForgeHooks.onLivingDamage(entity, this.mekanism$livingHurtSource, original);
+        this.mekanism$livingDamageOriginal = original;
+        this.mekanism$livingDamageAmount = adjusted;
+        this.mekanism$livingDamagePosted = true;
         if (adjusted != 0.0F) {
             entity.setHealth(current - adjusted);
+        }
+    }
+
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/damagesource/CombatTracker;recordDamage(Lnet/minecraft/world/damagesource/DamageSource;FF)V"))
+    private void mekanism$livingCombat(CombatTracker tracker, DamageSource source, float health, float damage) {
+        if (!this.mekanism$livingDamagePosted) {
+            tracker.recordDamage(source, health, damage);
+            return;
+        }
+        if (this.mekanism$livingDamageAmount != 0.0F) {
+            tracker.recordDamage(source, health, this.mekanism$livingDamageAmount);
+        }
+    }
+
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/entity/LivingEntity;setAbsorptionAmount(F)V", ordinal = 1))
+    private void mekanism$livingAbsorptionAfterDamage(LivingEntity entity, float absorption) {
+        if (!this.mekanism$livingDamagePosted) {
+            entity.setAbsorptionAmount(absorption);
+            return;
+        }
+        if (this.mekanism$livingDamageAmount == 0.0F) {
+            return;
+        }
+        entity.setAbsorptionAmount(absorption + this.mekanism$livingDamageOriginal - this.mekanism$livingDamageAmount);
+    }
+
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/entity/LivingEntity;gameEvent(Lnet/minecraft/world/level/gameevent/GameEvent;)V"))
+    private void mekanism$livingDamageGameEvent(LivingEntity entity, GameEvent event) {
+        if (!this.mekanism$livingDamagePosted || this.mekanism$livingDamageAmount != 0.0F) {
+            entity.gameEvent(event);
         }
     }
 

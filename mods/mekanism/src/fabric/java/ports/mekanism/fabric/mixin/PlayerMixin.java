@@ -4,6 +4,9 @@
  */
 package ports.mekanism.fabric.mixin;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
@@ -36,6 +39,18 @@ public abstract class PlayerMixin {
     @Unique
     private DamageSource mekanism$playerHurtSource;
 
+    @Unique
+    private float mekanism$playerDamageAmount;
+
+    @Unique
+    private boolean mekanism$playerDamagePosted;
+
+    @Unique
+    private boolean mekanism$playerExhaustionPending;
+
+    @Unique
+    private float mekanism$playerExhaustion;
+
     @Inject(method = "createAttributes", at = @At("RETURN"))
     private static void mekanism$reach(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         ForgeMod.registerAttributes();
@@ -62,6 +77,8 @@ public abstract class PlayerMixin {
     @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
     private void mekanism$playerHurt(DamageSource source, float amount, CallbackInfo ci) {
         this.mekanism$playerHurtSource = source;
+        this.mekanism$playerDamagePosted = false;
+        this.mekanism$playerExhaustionPending = false;
         if (this.mekanism$playerHurtReentry) {
             return;
         }
@@ -85,13 +102,57 @@ public abstract class PlayerMixin {
         }
     }
 
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
+    private void mekanism$deferExhaustion(Player player, float exhaustion) {
+        this.mekanism$playerExhaustionPending = true;
+        this.mekanism$playerExhaustion = exhaustion;
+    }
+
     @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;setHealth(F)V"))
     private void mekanism$playerDamage(Player player, float health) {
         float current = player.getHealth();
-        float adjusted = ForgeHooks.onLivingDamage(player, this.mekanism$playerHurtSource, current - health);
+        float original = current - health;
+        float adjusted = ForgeHooks.onLivingDamage(player, this.mekanism$playerHurtSource, original);
+        this.mekanism$playerDamageAmount = adjusted;
+        this.mekanism$playerDamagePosted = true;
+        // Vanilla already counted absorption taken. Forge counts that plus whatever the event removed.
+        float reduced = original - adjusted;
+        if (reduced > 0.0F && reduced < Float.MAX_VALUE) {
+            player.awardStat(Stats.DAMAGE_ABSORBED, Math.round(reduced * 10.0F));
+        }
         if (adjusted != 0.0F) {
+            if (this.mekanism$playerExhaustionPending) {
+                player.causeFoodExhaustion(this.mekanism$playerExhaustion);
+            }
             player.setHealth(current - adjusted);
         }
+        this.mekanism$playerExhaustionPending = false;
+    }
+
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/damagesource/CombatTracker;recordDamage(Lnet/minecraft/world/damagesource/DamageSource;FF)V"))
+    private void mekanism$playerCombat(CombatTracker tracker, DamageSource source, float health, float damage) {
+        if (!this.mekanism$playerDamagePosted) {
+            tracker.recordDamage(source, health, damage);
+            return;
+        }
+        if (this.mekanism$playerDamageAmount != 0.0F) {
+            tracker.recordDamage(source, health, this.mekanism$playerDamageAmount);
+        }
+    }
+
+    @Redirect(method = "actuallyHurt", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/entity/player/Player;awardStat(Lnet/minecraft/resources/ResourceLocation;I)V"))
+    private void mekanism$playerDamageStats(Player player, ResourceLocation stat, int amount) {
+        if (Stats.DAMAGE_TAKEN.equals(stat) && this.mekanism$playerDamagePosted) {
+            float adjusted = this.mekanism$playerDamageAmount;
+            if (adjusted != 0.0F && adjusted < Float.MAX_VALUE) {
+                player.awardStat(stat, Math.round(adjusted * 10.0F));
+            }
+            return;
+        }
+        player.awardStat(stat, amount);
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)

@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +33,8 @@ import mekanism.common.util.ChemicalUtil;
 import mekanism.common.util.StorageUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stats;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
@@ -40,6 +43,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.damagesource.CombatEntry;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -57,6 +62,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -251,6 +257,64 @@ public class PlayerEventGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public static void cancelledDamageSkipsBookkeeping(GameTestHelper helper) {
+        Pig pig = helper.spawn(EntityType.PIG, 2, 2, 2);
+        pig.setNoGravity(true);
+        float pigHealth = pig.getHealth();
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingDamageEvent.class, event -> {
+            if (event.getEntity() == pig) {
+                event.setCanceled(true);
+            }
+        });
+        check(pig.hurt(DamageSource.CACTUS, 8), "The pig ignored the hit");
+        near(pig.getHealth(), pigHealth, "Cancelled living damage changed health");
+        near(recordedDamage(pig), 0, "Cancelled living damage was recorded");
+
+        ServerPlayer player = survival(helper, new BlockPos(4, 2, 2));
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingDamageEvent.class, event -> {
+            if (event.getEntity() == player) {
+                event.setCanceled(true);
+            }
+        });
+        check(player.hurt(DamageSource.CACTUS, 8), "The player ignored the hit " + state(player));
+        near(player.getHealth(), 20, "Cancelled player damage changed health " + state(player));
+        near(player.getFoodData().getExhaustionLevel(), 0, "Cancelled player damage exhausted food");
+        near(recordedDamage(player), 0, "Cancelled player damage was recorded");
+        check(stat(player, Stats.DAMAGE_TAKEN) == 0, "Cancelled damage taken was " + stat(player, Stats.DAMAGE_TAKEN));
+        check(stat(player, Stats.DAMAGE_ABSORBED) == 80, "Cancelled damage absorbed was " + stat(player, Stats.DAMAGE_ABSORBED));
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void adjustedDamageIsWhatGetsRecorded(GameTestHelper helper) {
+        Pig pig = helper.spawn(EntityType.PIG, 2, 2, 2);
+        pig.setNoGravity(true);
+        float pigHealth = pig.getHealth();
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingDamageEvent.class, event -> {
+            if (event.getEntity() == pig) {
+                event.setAmount(4);
+            }
+        });
+        check(pig.hurt(DamageSource.CACTUS, 8), "The pig ignored the hit");
+        near(pig.getHealth(), pigHealth - 4, "Halved living damage did not match health");
+        near(recordedDamage(pig), 4, "Combat recorded a different amount than the pig lost");
+
+        ServerPlayer player = survival(helper, new BlockPos(4, 2, 2));
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingDamageEvent.class, event -> {
+            if (event.getEntity() == player) {
+                event.setAmount(4);
+            }
+        });
+        check(player.hurt(DamageSource.CACTUS, 8), "The player ignored the hit " + state(player));
+        near(player.getHealth(), 16, "Halved player damage did not match health " + state(player));
+        near(player.getFoodData().getExhaustionLevel(), 0.1F, "Player food exhaustion did not follow the hit");
+        near(recordedDamage(player), 4, "Player combat recorded a different amount than health lost");
+        check(stat(player, Stats.DAMAGE_TAKEN) == 40, "Damage taken stat was " + stat(player, Stats.DAMAGE_TAKEN));
+        check(stat(player, Stats.DAMAGE_ABSORBED) == 40, "Damage absorbed stat was " + stat(player, Stats.DAMAGE_ABSORBED));
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void cardboardBoxCancelsItemSpawn(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos pos = helper.absolutePos(new BlockPos(2, 2, 2));
@@ -373,6 +437,26 @@ public class PlayerEventGameTests {
         } catch (ReflectiveOperationException e) {
             return -1;
         }
+    }
+
+    private static float recordedDamage(LivingEntity entity) {
+        try {
+            Field field = CombatTracker.class.getDeclaredField("entries");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<CombatEntry> entries = (List<CombatEntry>) field.get(entity.getCombatTracker());
+            float total = 0;
+            for (CombatEntry entry : entries) {
+                total += entry.getDamage();
+            }
+            return total;
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not read combat entries: " + e.getMessage());
+        }
+    }
+
+    private static int stat(ServerPlayer player, ResourceLocation stat) {
+        return player.getStats().getValue(Stats.CUSTOM.get(stat));
     }
 
     private static void near(float actual, float expected, String message) {

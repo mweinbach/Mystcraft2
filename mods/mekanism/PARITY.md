@@ -75,8 +75,10 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   A player posts it from `Player.hurt` and skips the living-entity copy, matching Forge. Death is posted from
   `LivingEntity.die`, `Player.die` and `ServerPlayer.die`, so an uncancelled player death posts three times.
   `ServerPlayer` posts after its death game event. Living damage is posted from the health change inside
-  `actuallyHurt`. When armor and absorption already reduced the damage to zero, vanilla never changes health, so that
-  zero-damage event is not posted.
+  `actuallyHurt`, and the adjusted amount is what combat tracking, food exhaustion, damage statistics and the
+  following absorption update use. Cancelling the event skips that bookkeeping. The attacker's absorbed-damage
+  statistic stays the absorption applied before the event. When armor and absorption already reduced the damage to
+  zero, vanilla never changes health, so that zero-damage event is not posted.
 - Break speed, including the position `getDestroyProgress` is measuring. Direct `getDestroySpeed` calls pass an empty
   position. A cancelled break speed returns -1, which stops the break. This is the hook the Meka-Tool, atomic
   disassembler and MekaSuit gyroscopic stabilization use.
