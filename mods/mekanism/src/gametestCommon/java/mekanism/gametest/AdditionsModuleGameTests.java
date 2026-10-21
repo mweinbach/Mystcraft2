@@ -197,6 +197,18 @@ public class AdditionsModuleGameTests {
 
     @GameTest(template = TEMPLATE)
     public static void additionsObsidianTntPrimesItsOwnEntity(GameTestHelper helper) {
+        // The fuse length is one shared config, and a failed run can leave it at 0.
+        CachedIntValue configuredDelay = MekanismAdditionsConfig.additions.obsidianTNTDelay;
+        int original = configuredDelay.get();
+        configuredDelay.set(100);
+        try {
+            primeObsidianTnt(helper, configuredDelay);
+        } finally {
+            configuredDelay.set(original);
+        }
+    }
+
+    private static void primeObsidianTnt(GameTestHelper helper, CachedIntValue configuredDelay) {
         ServerPlayer player = survival(helper, new BlockPos(1, 3, 1));
         BlockPos primed = new BlockPos(1, 1, 1);
         helper.setBlock(primed, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
@@ -207,7 +219,7 @@ public class AdditionsModuleGameTests {
         check(used.consumesAction(), "Flint and steel did not prime obsidian TNT: " + used);
         check(helper.getBlockState(primed).isAir(), "Primed obsidian TNT left " + helper.getBlockState(primed));
         EntityObsidianTNT entity = onlyObsidian(helper, absolute);
-        int delay = MekanismAdditionsConfig.additions.obsidianTNTDelay.get();
+        int delay = configuredDelay.get();
         check(entity.getFuse() == delay, "Obsidian TNT fuse is " + entity.getFuse());
         check(entity.owner == player, "Obsidian TNT igniter is " + entity.owner);
         entity.discard();
@@ -230,6 +242,18 @@ public class AdditionsModuleGameTests {
         EntityObsidianTNT blastedEntity = onlyObsidian(helper, blastedAbsolute);
         check(blastedEntity.getFuse() < delay, "Exploded obsidian TNT kept a full fuse of " + blastedEntity.getFuse());
         blastedEntity.discard();
+
+        // A delay of 0–3 used to call nextInt(0). The caller restores the shared delay.
+        configuredDelay.set(0);
+        BlockPos shortFuse = new BlockPos(6, 1, 4);
+        helper.setBlock(shortFuse, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
+        BlockPos shortAbsolute = helper.absolutePos(shortFuse);
+        AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), shortAbsolute,
+              new Explosion(helper.getLevel(), null, shortAbsolute.getX(), shortAbsolute.getY(), shortAbsolute.getZ(), 1));
+        EntityObsidianTNT shortEntity = onlyObsidian(helper, shortAbsolute);
+        check(shortEntity.getFuse() == 0, "Zero delay fuse is " + shortEntity.getFuse());
+        shortEntity.discard();
+        configuredDelay.set(delay);
 
         BlockPos vanilla = new BlockPos(4, 1, 4);
         helper.setBlock(vanilla, Blocks.TNT);
@@ -261,26 +285,6 @@ public class AdditionsModuleGameTests {
         List<PrimedTnt> primed = helper.getLevel().getEntitiesOfClass(PrimedTnt.class, new AABB(vanillaAbsolute).inflate(1));
         check(primed.size() == 1 && !(primed.get(0) instanceof EntityObsidianTNT), "Fire primed vanilla TNT as " + primed);
         primed.get(0).discard();
-        helper.succeed();
-    }
-
-    @GameTest(template = TEMPLATE)
-    public static void additionsObsidianTntShortFuseDoesNotCrash(GameTestHelper helper) {
-        CachedIntValue delay = MekanismAdditionsConfig.additions.obsidianTNTDelay;
-        int previous = delay.get();
-        delay.set(0);
-        try {
-            BlockPos pos = new BlockPos(1, 1, 1);
-            helper.setBlock(pos, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
-            BlockPos absolute = helper.absolutePos(pos);
-            Explosion explosion = new Explosion(helper.getLevel(), null, absolute.getX(), absolute.getY(), absolute.getZ(), 1);
-            AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), absolute, explosion);
-            EntityObsidianTNT entity = onlyObsidian(helper, absolute);
-            check(entity.getFuse() == 0, "Zero delay fuse is " + entity.getFuse());
-            entity.discard();
-        } finally {
-            delay.set(previous);
-        }
         helper.succeed();
     }
 
