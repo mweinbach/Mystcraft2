@@ -15,7 +15,13 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   gas-burning, bio and wind generators produce energy (`SimpleGeneratorGameTests`): solar output in daylight, the
   gas-burning generator burning hydrogen, and energy leaving through Forge Energy and Team Reborn Energy. The wind
   rotor's render box is the extended box the block entity reports, and on Fabric the wind generator item is drawn by
-  `BuiltinItemRendererRegistry`. Turbine, fission and fusion gameplay is not verified.
+  `BuiltinItemRendererRegistry`. The industrial turbine (`IndustrialTurbineGameTests`) forms at 5×6×5 with a rotor,
+  blades, dispersers, a coil, a condenser, a valve and a vent. Steam enters through the gas handler — Forge's
+  capability, and on Fabric the `mekanism:gas_handler` lookup Extreme Reactors' port uses to feed a neighbour — and
+  energy leaves through Forge Energy or Team Reborn Energy. A condenser puts water in the vent. Saved steam, energy,
+  the dumping mode and the rotor's blades come back after the blocks are removed and their NBT is loaded. The rotor's
+  render box grows with its blades, and the master's box is the structure. In the Fabric development client a formed
+  turbine draws that rotor and its blades through structural glass. Fission and fusion gameplay is not verified.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
@@ -66,10 +72,11 @@ input or output mode allows. A casing block does not accept energy. An energy ta
 charged from the matrix, and cobblestone is refused. Breaking the blocks and loading their saved data brings the
 cell's energy back, and the reloaded port can output it. The master's render box is that structure. Upstream 10.3.9
 has no separate induction-matrix renderer, so the formed structure is the casing and port models. The development
-client draws that formed casing and port. The shared GameTests (core machines, factories, loader interop, chemical
-lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player and
-living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction matrix, and
-Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+client draws that formed casing and port. A formed industrial turbine in that client draws its rotor and blades
+through the structural glass. The shared GameTests (core machines, factories, loader interop, chemical lookups, ore
+generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player and living events, a
+Generators registry smoke test, the simple generators, the dynamic tank, the induction matrix, the industrial turbine,
+and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -195,11 +202,12 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, the other multiblocks (evaporation, boiler and SPS), QIO, the digital miner, Robit, gear,
-  the energy cube's core renderer, the simple generators' block-entity renderers, and the turbine, fission and fusion
+  the energy cube's core renderer, the simple generators' block-entity renderers, and the fission and fusion
   renderers. Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
   dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed induction
-  matrix was checked: the casing and port models draw. Upstream 10.3.9 ships no separate matrix renderer.
+  matrix was checked: the casing and port models draw. Upstream 10.3.9 ships no separate matrix renderer. A formed
+  industrial turbine was checked: the rotor and its blades render inside the structural glass.
 
 ## Fabric: deliberate limits of the Forge API mirror
 

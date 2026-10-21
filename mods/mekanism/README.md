@@ -18,9 +18,10 @@ them.
 The core module is in this port. Generators, Tools and Additions are extra mod ids
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
-gas-burning, bio and wind generators produce energy on both loaders. Turbine, fission and fusion are not verified
-yet. Tools' paxels, tools, armor and shields are imported, and both loaders register them, craft them and run their
-strip, flatten and till actions. Additions is an empty scaffold.
+gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
+through the gas handler and outputs energy. Fission and fusion are not verified yet. Tools' paxels, tools, armor
+and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
+Additions is an empty scaffold.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -45,6 +46,7 @@ strip, flatten and till actions. Additions is an empty scaffold.
   An induction matrix of casing, one port, a basic cell and a basic provider forms, and the port moves energy through
   Team Reborn Energy. An energy tablet in the port's charge slot takes energy out of the matrix. Saving the blocks and
   loading them brings that stored energy back. The development client draws the formed casing and port.
+  A formed industrial turbine in that client draws its rotor and blades through the glass.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -53,7 +55,7 @@ strip, flatten and till actions. Additions is an empty scaffold.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
   player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction
-  matrix, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+  matrix, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
