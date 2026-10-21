@@ -25,10 +25,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
   universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API.
-  Ore generation, other mods' access to Mekanism's energy and fluid items, and the Forge events behind gear, HUD overlays and player
+  Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
+  Other mods' access to Mekanism's energy and fluid items, and the Forge events behind gear, HUD overlays and player
   effects are not wired yet; [PARITY.md](PARITY.md) lists every gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines and loader interop) pass on
-  both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop and ore
+  generation) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

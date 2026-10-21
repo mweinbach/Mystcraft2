@@ -19,5 +19,6 @@ public final class FabricMod implements ModInitializer {
         FabricGameEvents.register();
         FabricLifecycle.addMod(Mekanism.MODID, Mekanism::new);
         FabricLifecycle.startCommon();
+        FabricWorldgen.register();
     }
 }
