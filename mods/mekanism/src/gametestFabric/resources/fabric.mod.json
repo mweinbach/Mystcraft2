@@ -9,6 +9,7 @@
   "entrypoints": {
     "fabric-gametest": [
       "mekanism.gametest.CoreMachineGameTests",
+      "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",
       "mekanism.gametest.OreGenerationGameTests"
     ]

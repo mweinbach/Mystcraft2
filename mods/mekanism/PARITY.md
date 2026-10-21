@@ -20,7 +20,8 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. The shared GameTests (core machines, loader interop and ore generation) pass on both loaders.
+the shared placement modifiers. The shared GameTests (core machines, loader interop, ore generation, and the item and
+block hooks) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -37,26 +38,40 @@ the shared placement modifiers. The shared GameTests (core machines, loader inte
 - Tags of Mekanism's own registries (gases, infuse types, pigments, slurries) load from Forge's
   `tags/<namespace>/<path>` directories; those registries are synced and saved as Forge's are.
 
+## Fabric: item and block hooks vanilla calls
+
+Re-equip animation and block-break reset were already answered through Fabric's item API. These vanilla call sites now
+reach the same hooks Forge's 43.5.0 patches call. Right-click and left-click **events** stay unwired; only the item
+and block methods are.
+
+- Items: `onItemUseFirst` and `doesSneakBypassUse` (server use and the client prediction), `onBlockStartBreak`,
+  `onDestroyedByPlayer` and break experience from `getExpDrop`, `getBurnTime` (then Fabric's fuel registry), elytra
+  flight (`canElytraFly` / `elytraFlightTick`, including vanilla elytra), `onArmorTick`, `damageItem`, `isEnderMask`,
+  `makesPiglinsNeutral`, `canWalkOnPowderedSnow`, `getEquipmentSlot`, `getDefaultTooltipHideFlags`,
+  `isNotReplaceableByPickAction`, `onDestroyed` for item entities, and enchantment levels through
+  `EnchantmentHelper` (including the enchanting table's `canApplyAtEnchantingTable` and an anvil book the item
+  rejects).
+- Blocks: `getExplosionResistance` (block and fluid), `getLightEmission` (block lookups, chunk light lists, proto
+  chunks, saved chunks and `Level.setBlock`), `canConnectRedstone` (dust, including the Forge default for wire,
+  repeaters, observers and signal sources), `onNeighborChange` / `getWeakChanges` for comparator updates,
+  `onBlockExploded` and `canDropFromExplosion`, `getCloneItemStack` when the client pick-blocks, `isPortalFrame`,
+  and `getSoundType` for steps, fall landing, block placement and the client break sound.
+- `Block.rotate(state, Rotation)` is still the method structures call. The four-argument Forge overload exists on the
+  block; nothing in vanilla 1.19.2 structure placement calls it.
+
 ## Fabric: not written yet
 
 - Chunk loading tickets.
-- Fluid render handlers for Mekanism's fluids.
+- Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
+  is not called.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
   item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
   events, recipes updated, GUI overlay rendering, block highlight, living entity rendering, fog, mouse scrolling and
   `EntityRenderersEvent.AddLayers`. Features that rely on them (MekaSuit and jetpack ticking, radiation effects on
-  players, free runners, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
-- Mixins that call the Forge item and block hooks the shared code overrides. The hooks exist as interface defaults,
-  but vanilla code does not call them yet:
-  - Item: `onItemUseFirst`, `onBlockStartBreak`, `getBurnTime` (Fabric's fuel registry), elytra flight, `onArmorTick`,
-    `damageItem`, `isEnderMask`, `makesPiglinsNeutral`, `canWalkOnPowderedSnow`, `getEquipmentSlot`,
-    `getDefaultTooltipHideFlags`, `isNotReplaceableByPickAction`, `doesSneakBypassUse`, and enchantment levels read
-    through `EnchantmentHelper`.
-  - Block: `onDestroyedByPlayer`, `getExplosionResistance`, `getLightEmission`, `canConnectRedstone`,
-    `onNeighborChange`, `getExpDrop`, `onBlockExploded`, `getCloneItemStack`, `isPortalFrame`, `rotate`,
-    `getSoundType`, `shouldDisplayFluidOverlay`.
-  - `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
-  - Key mappings bound to more than one key and custom ingredient types.
+  players, free runners' fall behavior, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
+  `onArmorTick` does run; the modules that need a player tick still do not.
+- `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
+- Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
 

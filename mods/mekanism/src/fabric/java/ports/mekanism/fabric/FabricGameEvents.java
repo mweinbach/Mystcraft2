@@ -33,6 +33,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.BlockHitResult;
+import ports.mekanism.lib.common.ForgeHooks;
 import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.event.RegisterCommandsEvent;
 import ports.mekanism.lib.event.TagsUpdatedEvent;
@@ -87,8 +88,13 @@ public final class FabricGameEvents {
               post(new PlayerEvent.PlayerChangedDimensionEvent(player, origin.dimension(), destination.dimension())));
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> post(new PlayerEvent.StartTracking(player, entity)));
 
-        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) ->
-              !MinecraftForge.postLoaderBreakEvent(new BlockEvent.BreakEvent(level, pos, state, player)));
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> {
+            BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
+            boolean canceled = MinecraftForge.postLoaderBreakEvent(event);
+            // Listeners may call setExpToDrop while the event is posted. The break mixin reads the value afterwards.
+            ForgeHooks.captureBreakExp(event.getExpToDrop());
+            return !canceled;
+        });
         UseBlockCallback.EVENT.register(FabricGameEvents::rightClickBlock);
     }
 

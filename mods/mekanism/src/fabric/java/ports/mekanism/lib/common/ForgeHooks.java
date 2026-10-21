@@ -14,6 +14,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.GameMasterBlock;
@@ -27,6 +29,8 @@ import ports.mekanism.lib.event.level.BlockEvent;
 public final class ForgeHooks {
 
     private static final ThreadLocal<Player> CRAFTING_PLAYER = new ThreadLocal<>();
+    /** Experience from the break event vanilla is in the middle of, dropped after the block is removed. */
+    private static final ThreadLocal<Integer> BREAK_EXP = new ThreadLocal<>();
 
     private ForgeHooks() {
     }
@@ -41,14 +45,42 @@ public final class ForgeHooks {
     }
 
     /**
-     * The burn time of a fuel in ticks, from Fabric's fuel registry, which includes the vanilla fuels.
+     * The burn time of a fuel in ticks. An item that overrides {@code getBurnTime} wins when it returns zero or more;
+     * {@code -1} means Fabric's fuel registry, which includes the vanilla fuels.
      */
     public static int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
         if (stack.isEmpty()) {
             return 0;
         }
-        Integer burnTime = FuelRegistry.INSTANCE.get(stack.getItem());
-        return burnTime == null ? 0 : burnTime;
+        int burnTime = stack.getItem().getBurnTime(stack, recipeType);
+        if (burnTime >= 0) {
+            return burnTime;
+        }
+        Integer registered = FuelRegistry.INSTANCE.get(stack.getItem());
+        return registered == null ? 0 : registered;
+    }
+
+    /**
+     * Experience a break would drop, from the block's {@code getExpDrop}, or zero when the tool cannot harvest it.
+     */
+    public static int getExpDrop(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!player.hasCorrectToolForDrops(state)) {
+            return 0;
+        }
+        ItemStack tool = player.getMainHandItem();
+        int fortune = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, tool);
+        int silk = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool);
+        return state.getExpDrop(level, level.random, pos, fortune, silk);
+    }
+
+    public static void captureBreakExp(int exp) {
+        BREAK_EXP.set(exp);
+    }
+
+    public static int consumeBreakExp() {
+        Integer exp = BREAK_EXP.get();
+        BREAK_EXP.remove();
+        return exp == null ? 0 : exp;
     }
 
     public static ShieldBlockEvent onShieldBlock(LivingEntity blocker, DamageSource source, float blocked) {
