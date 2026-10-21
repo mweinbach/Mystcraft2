@@ -73,7 +73,8 @@ public class AssemblyTableBlockEntity extends LaserTableBlockEntity {
 
     /** The output the current recipe makes for a listed instruction, if a reload has not removed or changed it. */
     private Optional<ItemStack> currentOutput(AssemblyRecipe recipe, Instruction instruction) {
-        return recipe.getOutputPreviews().stream().filter(output -> ItemStack.matches(output, instruction.output)).findFirst();
+        ItemStack produced = recipe.produced(instruction.output);
+        return produced.isEmpty() ? Optional.empty() : Optional.of(produced);
     }
 
     public Map<Instruction, EnumAssemblyRecipeState> recipesStates() {

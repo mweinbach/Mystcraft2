@@ -61,6 +61,7 @@ import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.platform.ItemFluids;
 import ports.buildcraft.platform.ItemPort;
+import ports.buildcraft.silicon.plug.FacadeItem;
 import ports.buildcraft.platform.Platform;
 
 /**
@@ -279,5 +280,10 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public Optional<Path> modResource(String modId, String path) {
         return FabricLoader.getInstance().getModContainer(modId).flatMap(mod -> mod.findPath(path)).filter(Files::isRegularFile);
+    }
+
+    @Override
+    public Item createFacadeItem(Item.Properties properties) {
+        return new FacadeItem(properties);
     }
 }

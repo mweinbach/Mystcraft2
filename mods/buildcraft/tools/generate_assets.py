@@ -1086,6 +1086,19 @@ class Generator:
         self.lang["gate.action.machine.off"] = "Off"
         self.lang["gate.action.machine.loop"] = "Loop"
 
+    def facades(self) -> None:
+        """Upstream facade item, assembly recipe, hollow swap and the block blacklist tag."""
+        self.model("item/plug_facade", {
+            "parent": "builtin/entity", "gui_light": "front", "display": self.PLUG_ITEM_DISPLAY})
+        self.lang[f"item.{MOD}.plug_facade"] = "Facade"
+        self.lang[f"item.{MOD}.plug_facade.hollow"] = "Hollow"
+        self.lang[f"item.{MOD}.plug_facade.phased"] = "Phased Facade"
+        self.lang[f"item.{MOD}.plug_facade.phased.default"] = "Default: %s"
+        self.lang[f"item.{MOD}.plug_facade.phased.state"] = "%s: %s"
+        self.recipe("assembly/facade", {"type": rl("facade_assembly")})
+        self.recipe("facade_swap", {"type": rl("facade_swap")})
+        self.tag("blocks", MOD, "facade_blacklist", [])
+
     def pulsar_timer_recipes(self) -> None:
         """Upstream BCSiliconRecipes: a pulsar from a redstone engine and two iron ingots at 1000 MJ, a timer from a clock at 500 MJ."""
         self.recipe("assembly/plug_pulsar", {
@@ -1322,6 +1335,7 @@ class Generator:
         self.lenses()
         self.pulsars()
         self.light_sensor()
+        self.facades()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()

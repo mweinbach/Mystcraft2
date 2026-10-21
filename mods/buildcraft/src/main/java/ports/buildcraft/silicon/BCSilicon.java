@@ -21,9 +21,13 @@ import ports.buildcraft.silicon.gate.GateItem;
 import ports.buildcraft.silicon.gate.GateMenu;
 import ports.buildcraft.silicon.gate.GateVariant;
 import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.silicon.plug.FacadeAssemblyRecipe;
+import ports.buildcraft.silicon.plug.FacadeItem;
+import ports.buildcraft.silicon.plug.FacadeSwapRecipe;
 import ports.buildcraft.silicon.plug.LensItem;
 import ports.buildcraft.silicon.plug.LensPluggable;
 import ports.buildcraft.silicon.plug.LensVariant;
+import ports.buildcraft.silicon.plug.PluggableFacade;
 import ports.buildcraft.silicon.plug.PluggableLightSensor;
 import ports.buildcraft.silicon.plug.PluggablePulsar;
 import ports.buildcraft.silicon.plug.PluggableTimer;
@@ -33,7 +37,7 @@ import ports.buildcraft.transport.pluggable.SimplePluggableItem;
 
 /**
  * Upstream BuildCraft Silicon: the laser, the assembly, advanced crafting and integration tables it powers, the
- * five chipsets the assembly table makes, gates with the gate copier, lenses and filters, and the pipe pulsar, timer and light sensor.
+ * five chipsets the assembly table makes, gates with the gate copier, lenses and filters, the pipe pulsar, timer and light sensor, and facades.
  * Upstream's single
  * {@code redstone_chipset} item with five damage values is flattened into one item per chipset, its single NBT-keyed
  * gate item into one item per gate variant, and its 34-damage lens item into one item per lens or filter.
@@ -88,6 +92,8 @@ public final class BCSilicon {
     public static final PluggableDefinition LIGHT_SENSOR = PluggableDefinition.register(BuildCraft.id("daylight_sensor"), PluggableLightSensor::new);
     public static final Supplier<Item> LIGHT_SENSOR_ITEM = Reg.item("plug_light_sensor",
             () -> new SimplePluggableItem(BuildCraft.itemProperties(), LIGHT_SENSOR, null));
+    public static final PluggableDefinition FACADE = PluggableDefinition.register(BuildCraft.id("facade"), PluggableFacade::new);
+    public static final Supplier<Item> FACADE_ITEM = Reg.item("plug_facade", () -> Platform.get().createFacadeItem(BuildCraft.itemProperties()));
 
     static {
         for (GateVariant variant : GateVariant.VALUES) {
@@ -104,6 +110,10 @@ public final class BCSilicon {
             Platform.register(Registry.RECIPE_SERIALIZER_REGISTRY, "assembly", AssemblyRecipe.Serializer::new);
     public static final Supplier<RecipeSerializer<IntegrationRecipe>> INTEGRATION_SERIALIZER =
             Platform.register(Registry.RECIPE_SERIALIZER_REGISTRY, "integration", IntegrationRecipe.Serializer::new);
+    public static final Supplier<RecipeSerializer<FacadeAssemblyRecipe>> FACADE_ASSEMBLY_SERIALIZER =
+            Platform.register(Registry.RECIPE_SERIALIZER_REGISTRY, "facade_assembly", FacadeAssemblyRecipe.Serializer::new);
+    public static final Supplier<RecipeSerializer<FacadeSwapRecipe>> FACADE_SWAP_SERIALIZER =
+            Platform.register(Registry.RECIPE_SERIALIZER_REGISTRY, "facade_swap", FacadeSwapRecipe.Serializer::new);
 
     private BCSilicon() {}
 

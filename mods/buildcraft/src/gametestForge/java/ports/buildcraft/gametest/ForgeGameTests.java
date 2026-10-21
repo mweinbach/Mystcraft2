@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests} and {@link SensorControlTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests} and {@link FacadeTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -309,6 +309,15 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void integrationTableIntegratesAroundCentre(GameTestHelper helper) { SiliconTests.integrationTableIntegratesAroundCentre(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void facadeRules(GameTestHelper helper) { FacadeTests.facadeRules(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void assemblyAndSwap(GameTestHelper helper) { FacadeTests.assemblyAndSwap(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void fullFacadeBlocksAndHollowStaysOpen(GameTestHelper helper) { FacadeTests.fullFacadeBlocksAndHollowStaysOpen(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

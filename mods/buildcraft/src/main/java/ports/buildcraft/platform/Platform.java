@@ -79,6 +79,12 @@ public final class Platform {
 
         /** The file at {@code path} inside the jar of the mod {@code modId}, if it has one. */
         Optional<Path> modResource(String modId, String path);
+
+        /**
+         * The facade item. Forge returns a subclass that attaches the copied-block item renderer; Fabric returns
+         * the shared item and registers that renderer from its client entrypoint.
+         */
+        Item createFacadeItem(Item.Properties properties);
     }
 
     /** A client-to-server message, handled on the server thread. */

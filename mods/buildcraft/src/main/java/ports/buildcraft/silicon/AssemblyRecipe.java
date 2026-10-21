@@ -23,7 +23,7 @@ import ports.buildcraft.lib.Power;
  * amount of laser power. Upstream registered these in code and from {@code assembly_recipes_pre_mj} JSON files;
  * here they are datapack recipes of type {@code buildcraft:assembly} with that JSON's fields.
  */
-public final class AssemblyRecipe implements Recipe<Container> {
+public class AssemblyRecipe implements Recipe<Container> {
     private final ResourceLocation id;
     private final long requiredMicroJoules;
     private final List<IngredientStack> requiredStacks;
@@ -46,6 +46,17 @@ public final class AssemblyRecipe implements Recipe<Container> {
 
     public List<ItemStack> getOutputPreviews() {
         return List.of(output);
+    }
+
+    /**
+     * The stack this recipe still makes for a listed output, or empty when a reload stopped producing it.
+     * The listed stack is returned unchanged so the caller can copy it.
+     */
+    public ItemStack produced(ItemStack requested) {
+        for (ItemStack preview : getOutputPreviews()) {
+            if (ItemStack.matches(preview, requested)) return preview;
+        }
+        return ItemStack.EMPTY;
     }
 
     public List<IngredientStack> getInputsFor(ItemStack output) {

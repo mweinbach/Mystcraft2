@@ -144,6 +144,7 @@
   "buildcraft:pipe_wood_item": 2,
   "buildcraft:pipe_wood_power": 66,
   "buildcraft:plug_blocker": 0,
+  "buildcraft:plug_facade": 0,
   "buildcraft:plug_light_sensor": 795,
   "buildcraft:plug_power_adaptor": 532,
   "buildcraft:plug_pulsar": 905,

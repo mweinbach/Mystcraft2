@@ -219,4 +219,9 @@ final class ForgePlatform implements Platform.Backend {
         Path resource = file.getFile().findResource(path);
         return Files.isRegularFile(resource) ? Optional.of(resource) : Optional.empty();
     }
+
+    @Override
+    public Item createFacadeItem(Item.Properties properties) {
+        return new ForgeFacadeItem(properties);
+    }
 }

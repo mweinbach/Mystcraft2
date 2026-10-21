@@ -107,6 +107,21 @@ public class PipeBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
+    /**
+     * A facade copies whether its block can hold a torch. 1.19 caches that from the shape unless the block is
+     * dynamic, so only the copied block's sturdy faces are offered here.
+     */
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return Shapes.empty();
+        VoxelShape shape = Shapes.empty();
+        for (Direction face : Direction.values()) {
+            PipePluggable plug = pipe.getPluggable(face);
+            if (plug != null && plug.isSideSolid()) shape = Shapes.or(shape, Shapes.create(plug.getBoundingBox()));
+        }
+        return shape;
+    }
+
     @Override
     public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
