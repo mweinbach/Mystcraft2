@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "mekanismadditions:magenta_plastic"
+    },
+    "R": {
+      "tag": "forge:rods/plastic"
+    }
+  },
+  "pattern": [
+    "R#R",
+    "R#R"
+  ],
+  "result": {
+    "item": "mekanismadditions:magenta_plastic_fence_gate"
+  }
+}

@@ -22,9 +22,15 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.block.ObserverBlock;
 import net.minecraft.world.level.block.RepeaterBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -101,6 +107,32 @@ public interface IForgeBlock {
     }
 
     default void onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
+        // Forge's TntBlock.onCaughtFire is what flint, redstone, fire and projectiles call. Obsidian TNT overrides it.
+        if (self() instanceof TntBlock && !level.isClientSide) {
+            PrimedTnt tnt = new PrimedTnt(level, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, igniter);
+            level.addFreshEntity(tnt);
+            level.playSound(null, tnt.getX(), tnt.getY(), tnt.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.gameEvent(igniter, GameEvent.PRIME_FUSE, pos);
+        }
+    }
+
+    /**
+     * Forge's block friction, which entity movement reads. The value is the one set on the block properties.
+     */
+    default float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return self().getFriction();
+    }
+
+    /**
+     * Forge's beacon tint. Stained glass keeps its dye color. Transparent plastic returns its own color, and null
+     * means the block does not tint a beacon beam.
+     */
+    @Nullable
+    default float[] getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        if (self() instanceof BeaconBeamBlock beam) {
+            return beam.getColor().getTextureDiffuseColors();
+        }
+        return null;
     }
 
     default int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {

@@ -3,7 +3,7 @@
   "id": "mekanismadditions",
   "version": "${version}",
   "name": "Mekanism: Additions",
-  "description": "Additions module for Mekanism. This jar is an empty scaffold.",
+  "description": "Additions module for Mekanism, containing plastic blocks, glow panels and obsidian TNT.",
   "authors": [
     "Aidancbrady",
     "Thommy101",
