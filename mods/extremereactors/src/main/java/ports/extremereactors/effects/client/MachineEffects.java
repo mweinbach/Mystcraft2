@@ -4,7 +4,6 @@
  */
 package ports.extremereactors.effects.client;
 
-import com.google.common.collect.MapMaker;
 import it.zerono.mods.extremereactors.ExtremeReactors;
 import it.zerono.mods.extremereactors.config.Config;
 import it.zerono.mods.extremereactors.gamecontent.Content;
@@ -18,9 +17,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import ports.extremereactors.corelib.base.multiblock.AbstractMultiblockController;
 import ports.extremereactors.effects.EffectsConfig;
+import ports.extremereactors.effects.MachineStateCache;
+import ports.extremereactors.platform.Platform;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 /**
  * Entry point of the client-side machine effects. They only read what the server already sends to clients and
@@ -46,6 +46,16 @@ public final class MachineEffects {
         }
 
         AbstractMultiblockController.setClientTickListener(MachineEffects::tick);
+        Platform.backend().onLevelTickStart(level -> {
+            if (level.isClientSide()) {
+                s_reactors.sweep(level.getGameTime(), ReactorEffects::discard);
+            }
+        });
+        Platform.backend().onLevelUnload(level -> {
+            if (level.isClientSide()) {
+                s_reactors.removeIf(reactor -> reactor.getWorld() == level, ReactorEffects::discard);
+            }
+        });
 
         if (config.isOn(config.rodDrives)) {
             BlockEntityRenderers.register(Content.TileEntityTypes.REACTOR_CONTROLROD.get(), ControlRodDriveRenderer::new);
@@ -74,7 +84,7 @@ public final class MachineEffects {
         if (controller instanceof MultiblockReactor reactor) {
 
             if (isInRange(controller, config)) {
-                s_reactors.computeIfAbsent(reactor, ReactorEffects::new).tick(level, config, level.getRandom());
+                s_reactors.tick(reactor, level.getGameTime(), ReactorEffects::new).tick(level, config, level.getRandom());
             } else {
 
                 final ReactorEffects effects = s_reactors.remove(reactor);
@@ -102,8 +112,7 @@ public final class MachineEffects {
         return dx * dx + dy * dy + dz * dz <= range * range;
     }
 
-    /** Weak and keyed by identity, so reactors that go away are forgotten. */
-    private static final Map<MultiblockReactor, ReactorEffects> s_reactors = new MapMaker().weakKeys().makeMap();
+    private static final MachineStateCache<MultiblockReactor, ReactorEffects> s_reactors = new MachineStateCache<>();
 
     private MachineEffects() {
     }

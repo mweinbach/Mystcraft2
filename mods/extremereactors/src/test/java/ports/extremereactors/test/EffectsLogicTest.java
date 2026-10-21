@@ -6,22 +6,26 @@ package ports.extremereactors.test;
 
 import org.junit.jupiter.api.Test;
 import ports.extremereactors.effects.EffectThresholds;
+import ports.extremereactors.effects.MachineStateCache;
 import ports.extremereactors.effects.ReactorAlarm;
 import ports.extremereactors.effects.RodDrive;
 import ports.extremereactors.effects.ScramDetector;
 import ports.extremereactors.effects.StatusSyncTracker;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The client-side effects logic: rod drive motion, SCRAM recognition, alarms, and the server's rate-limited
- * status sync.
+ * The client-side effects logic: rod drive motion, SCRAM recognition, alarms, the per-machine client cache, and
+ * the server's rate-limited status sync.
  */
 class EffectsLogicTest {
 
@@ -228,6 +232,39 @@ class EffectsLogicTest {
                 "a small step to a full exhaust tank is sent");
         skipInterval(turbine, () -> turbine.shouldSync(0, 0.99, 0));
         assertTrue(turbine.shouldSync(0, 0.99, 1), "a vent setting change is sent");
+    }
+
+    @Test
+    void machineStateCacheDropsMachinesThatStopTicking() {
+
+        final MachineStateCache<Object, String> cache = new MachineStateCache<>();
+        final List<String> removed = new ArrayList<>();
+        final Object running = new Object();
+        final Object stopped = new Object();
+
+        assertEquals("running", cache.tick(running, 100, machine -> "running"));
+        assertEquals("stopped", cache.tick(stopped, 100, machine -> "stopped"));
+        assertEquals("running", cache.tick(running, 100, machine -> "replaced"), "the state is created once");
+
+        for (long time = 101; time <= 100 + MachineStateCache.MAX_IDLE_TICKS + 1; ++time) {
+
+            cache.tick(running, time, machine -> "replaced");
+            cache.sweep(time, removed::add);
+        }
+
+        assertEquals(List.of("stopped"), removed, "a machine that stopped ticking is dropped");
+        assertNull(cache.get(stopped));
+        assertEquals("running", cache.get(running));
+
+        cache.sweep(5, removed::add);
+        assertEquals(0, cache.size(), "another world, with an earlier game time, drops everything");
+
+        cache.tick(running, 10, machine -> "again");
+        cache.tick(stopped, 10, machine -> "other");
+        cache.removeIf(machine -> machine == stopped, removed::add);
+        assertEquals(List.of("stopped", "running", "other"), removed);
+        assertEquals("again", cache.remove(running));
+        assertEquals(0, cache.size());
     }
 
     private static boolean reactor(final StatusSyncTracker tracker, final double temperature, final double coolant) {
