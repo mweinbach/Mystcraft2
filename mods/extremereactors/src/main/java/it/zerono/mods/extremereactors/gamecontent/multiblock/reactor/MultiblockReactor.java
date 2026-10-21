@@ -1001,7 +1001,9 @@ public class MultiblockReactor
 
         if (this._statusSyncTracker.shouldSync(this.getFuelHeat().getAsDouble(),
                 this.getOperationalMode().isActive() ? this.getFluidContainer().getLiquidStoredPercentage() : 0,
-                this.getOperationalMode().isActive() ? this.getFluidContainer().getGasStoredPercentage() : 0)) {
+                this.getOperationalMode().isActive() ? this.getFluidContainer().getGasStoredPercentage() : 0,
+                this.getFuelAmount(),
+                this.getCapacity() > 0 ? (double) this.getWasteAmount() / this.getCapacity() : 0)) {
             this.markReferenceCoordForUpdate();
         }
 
@@ -1609,7 +1611,7 @@ public class MultiblockReactor
     private float _reactorHeatLossCoefficient;
     private boolean _sendUpdateFuelRodsLayout;
     private final Runnable _sendUpdateFuelRodsLayoutDelayedRunnable;
-    private final StatusSyncTracker _statusSyncTracker = new StatusSyncTracker();
+    private final StatusSyncTracker _statusSyncTracker = StatusSyncTracker.forReactor();
 
     private List<ITickableMultiblockPart> _attachedTickables;
     private final List<ReactorControlRodEntity> _attachedControlRods;

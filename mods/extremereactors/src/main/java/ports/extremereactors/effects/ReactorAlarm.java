@@ -19,9 +19,6 @@ public enum ReactorAlarm {
     NO_FUEL(false),
     WASTE_FULL(false);
 
-    /** Waste at or above this share of the fuel pool capacity raises {@link #WASTE_FULL}. */
-    public static final double WASTE_FULL_SHARE = 0.9;
-
     ReactorAlarm(final boolean critical) {
         this._critical = critical;
     }
@@ -36,20 +33,18 @@ public enum ReactorAlarm {
     }
 
     /**
-     * @param overheatAt      the fuel temperature, in °C, from which {@link #OVERHEAT} is raised
-     * @param lowCoolantBelow the coolant tank share under which a running actively-cooled reactor raises
-     *                        {@link #COOLANT_LOW}
+     * @return the alarms raised by the given readings, at the {@link EffectThresholds}
      */
-    public static Set<ReactorAlarm> evaluate(final Readings readings, final double overheatAt,
-                                             final double lowCoolantBelow) {
+    public static Set<ReactorAlarm> evaluate(final Readings readings) {
 
         final Set<ReactorAlarm> alarms = EnumSet.noneOf(ReactorAlarm.class);
 
-        if (readings.fuelTemperature() >= overheatAt) {
+        if (readings.fuelTemperature() >= EffectThresholds.OVERHEAT_TEMPERATURE) {
             alarms.add(OVERHEAT);
         }
 
-        if (readings.active() && readings.activelyCooled() && readings.coolantFraction() < lowCoolantBelow) {
+        if (readings.active() && readings.activelyCooled() &&
+                readings.coolantFraction() < EffectThresholds.LOW_COOLANT_SHARE) {
             alarms.add(COOLANT_LOW);
         }
 
@@ -57,7 +52,7 @@ public enum ReactorAlarm {
             alarms.add(NO_FUEL);
         }
 
-        if (readings.capacity() > 0 && readings.waste() >= WASTE_FULL_SHARE * readings.capacity()) {
+        if (readings.capacity() > 0 && readings.waste() >= EffectThresholds.WASTE_FULL_SHARE * readings.capacity()) {
             alarms.add(WASTE_FULL);
         }
 

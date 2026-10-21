@@ -20,6 +20,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import ports.extremereactors.corelib.data.IoDirection;
 import ports.extremereactors.corelib.data.geometry.CuboidBoundingBox;
+import ports.extremereactors.effects.EffectThresholds;
 import ports.extremereactors.effects.EffectsConfig;
 import ports.extremereactors.effects.ReactorAlarm;
 import ports.extremereactors.effects.RodDrive;
@@ -153,9 +154,8 @@ public final class ReactorEffects {
         final double fuelTemperature = reactor.getFuelHeat().getAsDouble();
 
         this._alarms = ReactorAlarm.evaluate(new ReactorAlarm.Readings(active, activelyCooled, fuelTemperature,
-                        activelyCooled ? reactor.getFluidContainer().getLiquidStoredPercentage() : 1.0,
-                        reactor.getFuelAmount(), reactor.getWasteAmount(), capacity),
-                config.overheatAlarmTemperature.get(), config.lowCoolantAlarm.get());
+                activelyCooled ? reactor.getFluidContainer().getLiquidStoredPercentage() : 1.0,
+                reactor.getFuelAmount(), reactor.getWasteAmount(), capacity));
 
         if (config.isOn(config.alarmSounds)) {
             this.updateAlarmSound(config);
@@ -165,7 +165,7 @@ public final class ReactorEffects {
 
             final double density = config.particleDensity.get();
 
-            if (active && activelyCooled && fuelTemperature >= STEAM_TEMPERATURE) {
+            if (active && activelyCooled && fuelTemperature >= EffectThresholds.STEAM_TEMPERATURE) {
                 this.ventPorts(level, random, density * Mth.clamp(fuelTemperature / 1000.0, 0.2, 1.0) * 0.5);
             }
 
@@ -192,7 +192,6 @@ public final class ReactorEffects {
     //region internals
 
     private static final int REFRESH_INTERVAL = 100;
-    private static final double STEAM_TEMPERATURE = 100.0;
     private static final int MAX_SCRAM_PUFFS_PER_TICK = 24;
 
     private record Port(BlockPos position, Direction outward) {

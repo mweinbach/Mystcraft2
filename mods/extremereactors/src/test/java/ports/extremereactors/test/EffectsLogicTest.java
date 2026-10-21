@@ -5,6 +5,7 @@
 package ports.extremereactors.test;
 
 import org.junit.jupiter.api.Test;
+import ports.extremereactors.effects.EffectThresholds;
 import ports.extremereactors.effects.ReactorAlarm;
 import ports.extremereactors.effects.RodDrive;
 import ports.extremereactors.effects.ScramDetector;
@@ -12,6 +13,7 @@ import ports.extremereactors.effects.StatusSyncTracker;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -141,39 +143,85 @@ class EffectsLogicTest {
     @Test
     void statusSyncFiresOnNoticeableChangesAtMostEveryInterval() {
 
-        final StatusSyncTracker tracker = new StatusSyncTracker();
+        final StatusSyncTracker tracker = StatusSyncTracker.forReactor();
 
-        assertTrue(tracker.shouldSync(20, 1, 0), "the first check sends the state");
+        assertTrue(reactor(tracker, 20, 1), "the first check sends the state");
 
         int sent = 0;
 
         for (int tick = 0; tick < 200; ++tick) {
-            sent += tracker.shouldSync(20 + tick * 0.01, 1, 0) ? 1 : 0;
+            sent += reactor(tracker, 20 + tick * 0.01, 1) ? 1 : 0;
         }
 
         assertEquals(0, sent, "a steady reactor sends nothing");
 
         for (int tick = 0; tick < StatusSyncTracker.MIN_INTERVAL * 10; ++tick) {
-            sent += tracker.shouldSync(20 + tick * 10, 1, 0) ? 1 : 0;
+            sent += reactor(tracker, 20 + tick * 10, 1) ? 1 : 0;
         }
 
         assertTrue(sent > 0 && sent <= 10, "a heating reactor sends at most once per interval: " + sent);
 
-        final StatusSyncTracker coolant = new StatusSyncTracker();
+        final StatusSyncTracker coolant = StatusSyncTracker.forReactor();
 
-        coolant.shouldSync(500, 1, 0);
+        reactor(coolant, 500, 1);
+        skipInterval(coolant, () -> reactor(coolant, 500, 1));
+        assertTrue(reactor(coolant, 500, 0.9), "a coolant drop is sent");
+    }
 
+    @Test
+    void statusSyncAlwaysSendsThresholdCrossings() {
+
+        final StatusSyncTracker overheat = StatusSyncTracker.forReactor();
+
+        reactor(overheat, 1950, 0.5);
+        skipInterval(overheat, () -> reactor(overheat, 1990, 0.5));
+        assertFalse(reactor(overheat, 1990, 0.5), "a small step under the overheat threshold is not sent");
+        assertTrue(reactor(overheat, EffectThresholds.OVERHEAT_TEMPERATURE + 1, 0.5),
+                "a small step over the overheat threshold is sent");
+        skipInterval(overheat, () -> reactor(overheat, 2001, 0.5));
+        assertTrue(reactor(overheat, 1999, 0.5), "and so is falling back under it");
+
+        final StatusSyncTracker coolant = StatusSyncTracker.forReactor();
+
+        reactor(coolant, 500, 0.12);
+        skipInterval(coolant, () -> reactor(coolant, 500, 0.12));
+        assertTrue(reactor(coolant, 500, 0.09), "dropping under the low-coolant share is sent");
+
+        final StatusSyncTracker steam = StatusSyncTracker.forReactor();
+
+        reactor(steam, 95, 0.5);
+        skipInterval(steam, () -> reactor(steam, 95, 0.5));
+        assertTrue(reactor(steam, EffectThresholds.STEAM_TEMPERATURE, 0.5), "reaching steam temperature is sent");
+
+        final StatusSyncTracker fuel = StatusSyncTracker.forReactor();
+
+        assertTrue(fuel.shouldSync(500, 0.5, 0, 1, 0.5));
+        skipInterval(fuel, () -> fuel.shouldSync(500, 0.5, 0, 1, 0.5));
+        assertTrue(fuel.shouldSync(500, 0.5, 0, 0, 0.5), "running out of fuel is sent");
+        skipInterval(fuel, () -> fuel.shouldSync(500, 0.5, 0, 0, 0.5));
+        assertTrue(fuel.shouldSync(500, 0.5, 0, 0, 0.91), "filling up with waste is sent");
+
+        final StatusSyncTracker duringInterval = StatusSyncTracker.forReactor();
+
+        reactor(duringInterval, 1990, 0.5);
+        skipInterval(duringInterval, () -> reactor(duringInterval, 2010, 0.5));
+        assertTrue(reactor(duringInterval, 2010, 0.5), "a crossing during the interval is sent after it");
+    }
+
+    private static boolean reactor(final StatusSyncTracker tracker, final double temperature, final double coolant) {
+        return tracker.shouldSync(temperature, coolant, 0, 1000, 0);
+    }
+
+    private static void skipInterval(final StatusSyncTracker tracker, final BooleanSupplier check) {
         for (int tick = 0; tick < StatusSyncTracker.MIN_INTERVAL; ++tick) {
-            assertFalse(coolant.shouldSync(500, 1, 0));
+            assertFalse(check.getAsBoolean(), "nothing is sent within the interval");
         }
-
-        assertTrue(coolant.shouldSync(500, 0.9, 0), "a coolant drop is sent");
     }
 
     private static Set<ReactorAlarm> alarms(final boolean active, final boolean activelyCooled,
                                             final double temperature, final double coolant,
                                             final int fuel, final int waste, final int capacity) {
         return ReactorAlarm.evaluate(new ReactorAlarm.Readings(active, activelyCooled, temperature, coolant, fuel,
-                waste, capacity), 2000, 0.1);
+                waste, capacity));
     }
 }

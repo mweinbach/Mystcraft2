@@ -12,15 +12,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import ports.extremereactors.corelib.data.geometry.CuboidBoundingBox;
+import ports.extremereactors.effects.EffectThresholds;
 
 /**
  * A plume of steam over a turbine that vents its exhaust: always with "vent all", and once its exhaust tank is
  * full with "vent overflow".
  */
 final class TurbineEffects {
-
-    /** Exhaust tank share from which a "vent overflow" turbine is drawn venting. */
-    static final double OVERFLOW_SHARE = 0.99;
 
     static void tick(final MultiblockTurbine turbine, final Level level, final RandomSource random,
                      final double density) {
@@ -52,7 +50,7 @@ final class TurbineEffects {
     static boolean isVenting(final VentSetting setting, final double exhaustShare) {
         return switch (setting) {
             case VentAll -> true;
-            case VentOverflow -> exhaustShare >= OVERFLOW_SHARE;
+            case VentOverflow -> exhaustShare >= EffectThresholds.TURBINE_OVERFLOW_SHARE;
             case DoNotVent -> false;
         };
     }
