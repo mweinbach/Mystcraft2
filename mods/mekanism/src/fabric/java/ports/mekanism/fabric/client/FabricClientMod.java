@@ -14,8 +14,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.HitResult;
 import ports.mekanism.fabric.FabricGameEvents;
 import ports.mekanism.fabric.FabricLifecycle;
+import ports.mekanism.lib.client.ForgeHooksClient;
 import ports.mekanism.lib.client.event.EntityRenderersEvent;
 import ports.mekanism.lib.client.event.ModelEvent;
 import ports.mekanism.lib.client.event.RegisterClientReloadListenersEvent;
@@ -97,12 +99,25 @@ public final class FabricClientMod implements ClientModInitializer {
         ClientTickEvents.START_WORLD_TICK.register(level -> FabricGameEvents.post(new TickEvent.LevelTickEvent(LogicalSide.CLIENT, TickEvent.Phase.START, level, () -> true)));
         ClientTickEvents.END_WORLD_TICK.register(level -> FabricGameEvents.post(new TickEvent.LevelTickEvent(LogicalSide.CLIENT, TickEvent.Phase.END, level, () -> true)));
         WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> renderStage(RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS, context));
-        WorldRenderEvents.LAST.register(context -> renderStage(RenderLevelStageEvent.Stage.AFTER_PARTICLES, context));
+        WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(FabricClientMod::beforeBlockOutline);
     }
 
     /**
-     * Fabric has no stage between particles and weather; Forge's {@code AFTER_PARTICLES} fires at the end of the level
-     * render instead.
+     * Forge posts the highlight event before the block outline and skips vanilla when it is canceled. Fabric asks the
+     * listener to return {@code false} to skip the outline. Entity targets have no vanilla outline; the block event is
+     * the one the configurator and wrench use.
+     */
+    private static boolean beforeBlockOutline(WorldRenderContext context, HitResult hit) {
+        if (context.matrixStack() == null || context.consumers() == null || hit == null) {
+            return true;
+        }
+        boolean canceled = ForgeHooksClient.onDrawHighlight(context.worldRenderer(), context.camera(), hit, context.tickDelta(),
+              context.matrixStack(), context.consumers());
+        return !canceled;
+    }
+
+    /**
+     * {@code AFTER_PARTICLES} is posted from {@code LevelRenderer} immediately after particles, where Forge posts it.
      */
     private static void renderStage(RenderLevelStageEvent.Stage stage, WorldRenderContext context) {
         FabricGameEvents.post(new RenderLevelStageEvent(stage, context.worldRenderer(), context.matrixStack(), context.projectionMatrix(),
