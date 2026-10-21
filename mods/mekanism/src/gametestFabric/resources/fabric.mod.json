@@ -16,6 +16,7 @@
       "mekanism.gametest.FactoryGameTests",
       "mekanism.gametest.FissionReactorGameTests",
       "mekanism.gametest.FluidGameTests",
+      "mekanism.gametest.FusionReactorGameTests",
       "mekanism.gametest.GeneratorsModuleGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",

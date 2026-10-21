@@ -38,8 +38,30 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
   waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
   structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
-  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. Fusion
-  gameplay is not verified.
+  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. The fusion
+  reactor (`FusionReactorGameTests`) forms at 5×5×5. The frame follows upstream's face grid: the corners and the
+  twelve holes on each face stay air, frame slots are reactor frame, and the controller is the top centre. A laser
+  focus matrix, one port and a logic adapter fill other slots. A missing frame block, a controller off the top
+  centre, stone in the hollow centre, structural glass in a casing slot and a 2×2×2 stay unformed and are not merged
+  with a neighbour. Structural glass set against the shell does not join it. Deuterium, tritium and D-T fuel enter
+  through the port's gas handler — Forge's capability, and on Fabric the `mekanism:gas_handler` lookup. Hydrogen,
+  steam and lava are refused, a casing block accepts none of them, and a simulated fill stores nothing. A hohlraum
+  takes D-T fuel through the item gas handler and refuses deuterium. One that is not full does not ignite.   A laser
+  under the focus matrix, fed through its back, raises the plasma by one tick of laser energy, and the matrix's
+  laser receptor — the call that laser makes — brings the plasma to the burn temperature. That ray is the laser's
+  own clip. Forge 43.5.0's clip constructor uses an empty collision context when the entity is null; vanilla calls
+  `CollisionContext.of(null)` and crashes, so the Fabric build matches Forge there. That consumes the
+  hohlraum, leaves part of its D-T fuel in the fuel tank and starts the burn. Water and steam capacity stay 0 until
+  the injection rate changes. Upstream sizes those tanks only inside `setInjectionRate`, and only when the new rate
+  differs from the current one, so a fresh reactor left at the default rate of 2 cannot take water until that rate
+  is set again. After the rate is set, water enters through the fluid handler. One heating pass at a known casing
+  temperature turns it into steam at the upstream water-heating ratio, steam efficiency and enthalpy, and stores
+  casing heat as energy at the thermocouple efficiency. Energy leaves the port through Forge Energy or Team Reborn
+  Energy; a casing block gives none up, and steam leaves through the gas handler. The logic adapter outputs redstone
+  when the fuel tank is empty and deuterium or tritium is short, when the plasma has reached the ready temperature,
+  and not while it is disabled. Saved deuterium, tritium, D-T fuel, the injection rate, the logic mode, the
+  cooled-logic flag and the port's output mode come back after the blocks are removed and their NBT is loaded.
+  Plasma is still hot after that reload, and stored energy does not fall. The master's render box is the structure.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
@@ -114,11 +136,13 @@ and valves in input, steam-output and coolant-output modes, and the boiler scree
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
 visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
 Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
-fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
+fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. In that client
+`/mek build fusion` built a 5×5×5 reactor. The frame and its holes are visible, and the controller is the top centre.
+The reactor was not fueled, so the plasma was not drawn, and the controller screen was not opened. The shared
 GameTests (core machines, factories, chemical machines, loader interop, chemical lookups, ore generation, item and
 block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
 smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
-turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
 registration, crafting and block behaviour) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
@@ -245,7 +269,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser, the other multiblocks (evaporation and SPS), QIO, the digital miner, Robit, gear,
-  the energy cube's core renderer, the simple generators' block-entity renderers, and the fusion renderer. The
+  the energy cube's core renderer, the simple generators' block-entity renderers. The
   fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
@@ -255,7 +279,10 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   boiler was checked: the casing and the input, steam and coolant valves render, and the boiler screen opens. The water
   and steam bodies are drawn inside the opaque casing, so they are not visible from outside. A formed fission
   reactor was checked: `/mek build fission` made an 18×18×18 shell, and reactor glass shows the casing frame and a
-  checkerboard of fuel assemblies and control rods.
+  checkerboard of fuel assemblies and control rods. A formed fusion reactor was checked: `/mek build fusion` made a
+  5×5×5 shell. The frame and its holes are visible, and the controller is the top centre. The plasma renderer draws
+  only while the reactor is burning; this reactor was not fueled, so the plasma was not drawn, and the controller
+  screen was not opened.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
