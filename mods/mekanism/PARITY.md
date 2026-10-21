@@ -10,33 +10,52 @@ Fabric variant does not yet match Forge and where the port differs from upstream
 The JEI plugin, CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod, The One Probe, Jade,
 WTHIT, ProjectE, Flux Networks and Recipe Stages integrations, and the Defense module. See [UPSTREAM.md](UPSTREAM.md).
 
+## Fabric: what runs
+
+The Fabric JAR loads on a dedicated server and in a development client. Its entry points construct Mekanism and fire
+Forge's mod-bus events in Forge's order; configs, the network channel and menus work, and entity spawn packets are
+wired but not yet exercised. In the
+client the enrichment chamber, crusher, energized smelter and metallurgic infuser process their recipes, powered by
+creative energy cubes directly and through universal cables, and energy cubes and transmitters render with their
+OBJ and custom models. The shared GameTests (core machines and loader interop) pass on both loaders.
+
+- Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
+  and Transfer API storages, in both directions: every block entity the port registers is exposed through
+  `EnergyStorage.SIDED`, `ItemStorage.SIDED` and `FluidStorage.SIDED`, and Forge capabilities asked of other block
+  entities fall back to those lookups. Item stacks without Mekanism's own fluid or energy capability answer through
+  `FluidStorage.ITEM` and `EnergyStorage.ITEM`, so vanilla buckets and other mods' tanks and batteries work in
+  Mekanism's slots. Chemicals stay on Mekanism's own API.
+- `scripts/generate_fabric_tags.py` writes the Fabric tag bridges: the `forge:` tags Forge itself defines (from
+  `scripts/forge-tags.json`, Forge 43.5.0's data), each Mekanism `forge:` tag with its `c:` equivalent as an optional
+  entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
+- Tags of Mekanism's own registries (gases, infuse types, pigments, slurries) load from Forge's
+  `tags/<namespace>/<path>` directories; those registries are synced and saved as Forge's are.
+
 ## Fabric: not written yet
 
-These block the Fabric JAR from loading or from behaving like Forge:
-
-- The entry points `ports.mekanism.fabric.FabricMod` and `FabricClientMod`, the `Platform` backend, and the
-  lifecycle driver that fires the mod-bus events and registers content in Forge's order (fluid types, fluids,
-  blocks, items, then everything else).
-- Config file loading, the network channel, menu opening and entity spawn packets.
-- Team Reborn Energy, Transfer API (items and fluids) and `BlockApiLookup` bridges for the capability system, and
-  `c:` tag equivalents of the `forge:` tags Mekanism's data uses.
-- Biome modifiers for ore and salt generation, chunk loading tickets and permission nodes.
-- Fluid rendering registration, the Forge bucket model, built-in item renderers and the Fabric renderer path for
-  Mekanism's baked models.
+- Team Reborn Energy and Transfer API bridges for item stacks (`EnergyStorage.ITEM`, `FluidStorage.ITEM`): Mekanism
+  cannot charge other mods' batteries or fill their fluid containers, and other mods do not see Mekanism's items.
+- Biome modifiers for ore and salt generation: Mekanism ores do not generate on Fabric. Chunk loading tickets.
+- Fluid render handlers for Mekanism's fluids.
+- Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
+  item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
+  events, recipes updated, GUI overlay rendering, block highlight, living entity rendering, fog, mouse scrolling and
+  `EntityRenderersEvent.AddLayers`. Features that rely on them (MekaSuit and jetpack ticking, radiation effects on
+  players, free runners, scroll-to-change modes, HUD overlays, armor layers) do not work yet.
 - Mixins that call the Forge item and block hooks the shared code overrides. The hooks exist as interface defaults,
   but vanilla code does not call them yet:
   - Item: `onItemUseFirst`, `onBlockStartBreak`, `getBurnTime` (Fabric's fuel registry), elytra flight, `onArmorTick`,
     `damageItem`, `isEnderMask`, `makesPiglinsNeutral`, `canWalkOnPowderedSnow`, `getEquipmentSlot`,
-    `getMaxStackSize(ItemStack)`, `getDefaultTooltipHideFlags`, `isNotReplaceableByPickAction`, `doesSneakBypassUse`,
-    and enchantment levels read through `EnchantmentHelper`.
+    `getDefaultTooltipHideFlags`, `isNotReplaceableByPickAction`, `doesSneakBypassUse`, and enchantment levels read
+    through `EnchantmentHelper`.
   - Block: `onDestroyedByPlayer`, `getExplosionResistance`, `getLightEmission`, `canConnectRedstone`,
     `onNeighborChange`, `getExpDrop`, `onBlockExploded`, `getCloneItemStack`, `isPortalFrame`, `rotate`,
     `getSoundType`, `shouldDisplayFluidOverlay`.
-  - Block entity update packets (`onDataPacket`, `handleUpdateTag`), `getRenderBoundingBox` and
-    `Entity.onRemovedFromWorld`.
-  - Key mappings bound to more than one key, block model geometry loaders and custom ingredient types.
-- Mekanism GameTests on both loaders and a loader-parity check script.
-- EMC values for ProjectE and Item Alchemy.
+  - `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
+  - Key mappings bound to more than one key and custom ingredient types.
+- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
+  energy cube's core renderer.
+- A loader-parity check script, and EMC values for ProjectE and Item Alchemy.
 
 ## Fabric: deliberate limits of the Forge API mirror
 

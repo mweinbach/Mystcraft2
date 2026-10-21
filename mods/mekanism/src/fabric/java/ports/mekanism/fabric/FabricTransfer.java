@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.ToLongFunction;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -20,6 +21,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -35,6 +37,7 @@ import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
 import ports.mekanism.lib.common.util.LazyOptional;
 import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.fluids.capability.IFluidHandler;
+import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
 import ports.mekanism.lib.items.IItemHandler;
 
 /**
@@ -48,6 +51,7 @@ public final class FabricTransfer {
 
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / 1000;
 
+    private static Set<String> ownNamespaces = Set.of();
     private static Set<BlockEntityType<?>> exported = Set.of();
 
     private FabricTransfer() {
@@ -58,6 +62,7 @@ public final class FabricTransfer {
      * register.
      */
     static void registerBlockEntityLookups(Set<String> namespaces) {
+        ownNamespaces = Set.copyOf(namespaces);
         BlockEntityType<?>[] types = Registry.BLOCK_ENTITY_TYPE.entrySet().stream()
               .filter(entry -> namespaces.contains(entry.getKey().location().getNamespace()))
               .map(Map.Entry::getValue)
@@ -87,6 +92,26 @@ public final class FabricTransfer {
             return storage == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> new StorageFluidHandler(storage));
         } else if (capability == ForgeCapabilities.ENERGY) {
             return (LazyOptional<T>) FabricEnergy.foreignEnergy(blockEntity, side);
+        }
+        return LazyOptional.empty();
+    }
+
+    /**
+     * The fluid or energy storage another mod's item, or a vanilla bucket, offers through the Fabric APIs. Changes to the
+     * stack happen in place, as with Forge's item capabilities; {@link IFluidHandlerItem#getContainer} holds the
+     * replacement when the item itself changes, such as a bucket being emptied.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> LazyOptional<T> foreignCapability(ItemStack stack, Capability<T> capability) {
+        if (ownNamespaces.contains(Registry.ITEM.getKey(stack.getItem()).getNamespace())) {
+            return LazyOptional.empty();
+        }
+        if (capability == ForgeCapabilities.FLUID_HANDLER_ITEM || capability == ForgeCapabilities.FLUID_HANDLER) {
+            StackSlot slot = new StackSlot(stack);
+            ContainerItemContext context = ContainerItemContext.ofSingleSlot(slot);
+            return context.find(FluidStorage.ITEM) == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> new StorageFluidHandlerItem(slot, context));
+        } else if (capability == ForgeCapabilities.ENERGY) {
+            return (LazyOptional<T>) FabricEnergy.foreignEnergy(ContainerItemContext.ofSingleSlot(new StackSlot(stack)));
         }
         return LazyOptional.empty();
     }
@@ -485,6 +510,94 @@ public final class FabricTransfer {
                 }
             }
             return null;
+        }
+    }
+
+    /**
+     * An item's fluid storage as Forge's item fluid handler. The storage is looked up again for every operation, since
+     * emptying or filling a container can turn it into an item with a different storage.
+     */
+    private record StorageFluidHandlerItem(StackSlot slot, ContainerItemContext context) implements IFluidHandlerItem {
+
+        private StorageFluidHandler handler() {
+            Storage<FluidVariant> storage = context.find(FluidStorage.ITEM);
+            return new StorageFluidHandler(storage == null ? Storage.empty() : storage);
+        }
+
+        @Override
+        public ItemStack getContainer() {
+            return slot.getStack();
+        }
+
+        @Override
+        public int getTanks() {
+            return handler().getTanks();
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return handler().getFluidInTank(tank);
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return handler().getTankCapacity(tank);
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return true;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return handler().fill(resource, action);
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return handler().drain(resource, action);
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            return handler().drain(maxDrain, action);
+        }
+    }
+
+    /**
+     * A stack outside any inventory, as the single slot of a {@link ContainerItemContext}. Fabric replaces the stack with
+     * a copy while a transaction is open; a committed change to the same item is copied back into the original stack,
+     * which is where Forge's item capabilities leave it.
+     */
+    static final class StackSlot extends SingleStackStorage {
+
+        private final ItemStack original;
+        private ItemStack stack;
+
+        StackSlot(ItemStack stack) {
+            this.original = stack;
+            this.stack = stack;
+        }
+
+        @Override
+        protected ItemStack getStack() {
+            return stack;
+        }
+
+        @Override
+        protected void setStack(ItemStack stack) {
+            this.stack = stack;
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            super.onFinalCommit();
+            if (stack != original && stack.is(original.getItem())) {
+                original.setTag(stack.getTag());
+                original.setCount(stack.getCount());
+                stack = original;
+            }
         }
     }
 }

@@ -23,10 +23,12 @@ import ports.mekanism.lib.common.capabilities.AttachedCapabilities;
 import ports.mekanism.lib.common.capabilities.Capability;
 import ports.mekanism.lib.common.capabilities.ICapabilitySerializable;
 import ports.mekanism.lib.common.util.LazyOptional;
+import ports.mekanism.platform.Platform;
 
 /**
  * Methods Forge adds to {@link ItemStack}, injected into it on Fabric. A stack's capabilities come from
- * {@link IForgeItem#initCapabilities}, created the first time they are asked for.
+ * {@link IForgeItem#initCapabilities}, created the first time they are asked for. Fluid and energy capabilities other
+ * items do not provide that way come from the Transfer API and Team Reborn Energy, as a bucket's does on Forge.
  */
 public interface IForgeItemStack extends ICapabilitySerializable<CompoundTag> {
 
@@ -37,7 +39,11 @@ public interface IForgeItemStack extends ICapabilitySerializable<CompoundTag> {
     @NotNull
     @Override
     default <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return self().isEmpty() ? LazyOptional.empty() : ((AttachedCapabilities.Holder) this).mekanism$capabilities().getCapability(cap, side);
+        if (self().isEmpty()) {
+            return LazyOptional.empty();
+        }
+        LazyOptional<T> attached = ((AttachedCapabilities.Holder) this).mekanism$capabilities().getCapability(cap, side);
+        return attached.isPresent() ? attached : Platform.foreignCapability(self(), cap, side);
     }
 
     @Override

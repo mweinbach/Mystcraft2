@@ -13,20 +13,22 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
 them.
 
-## Status: core module, not playable on Fabric yet
+## Status: core module; core machines run on Fabric, many features still missing
 
 This branch holds the Mekanism core module only. Generators, Tools and Additions are later pieces.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
-  listed in [UPSTREAM.md](UPSTREAM.md). A dedicated GameTest server loads the mod, its registries, configs and world
-  generation, then shuts down cleanly. No Mekanism GameTests exist yet, and the client has not been launched.
+  listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
+  has not been launched.
 - **Fabric.** The same sources compile on Fabric. Their Forge API references are rewritten at build time to the
   port's Forge API mirror in `src/fabric/java/ports/mekanism/lib`, and the methods Forge adds to vanilla classes are
-  supplied by injected interfaces and mixins. **The Fabric JAR does not load yet.** The entry points it declares
-  (`ports.mekanism.fabric.FabricMod` and `FabricClientMod`), the registration and lifecycle driver, networking,
-  Team Reborn Energy and Transfer API bridges, and many gameplay hooks the mixins must call are still to be written.
-  See [PARITY.md](PARITY.md).
-- Upstream's 60 JUnit tests pass on both loaders.
+  supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
+  enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
+  universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API.
+  Ore generation, other mods' access to Mekanism's energy and fluid items, and the Forge events behind gear, HUD overlays and player
+  effects are not wired yet; [PARITY.md](PARITY.md) lists every gap.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines and loader interop) pass on
+  both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -39,6 +41,8 @@ Do not install either JAR in a world you care about.
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |
 | `src/test` | Upstream JUnit tests, run on both loaders |
+| `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Shared GameTests and each loader's `TestPlatform`; development only |
+| `scripts` | The Fabric tag bridge generator and its Forge tag baseline |
 
 ## Build and test
 
@@ -46,6 +50,8 @@ Do not install either JAR in a world you care about.
 ./scripts/gradle.sh :mekanism:build
 ./scripts/gradle.sh -p mods/mekanism/fabric build
 ./scripts/gradle.sh :mekanism:runGameTestServer
+./scripts/gradle.sh -p mods/mekanism/fabric runGametest
+python3 mods/mekanism/scripts/generate_fabric_tags.py --check
 ```
 
 ## License

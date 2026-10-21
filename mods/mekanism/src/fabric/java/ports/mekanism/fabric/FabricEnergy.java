@@ -4,6 +4,7 @@
  */
 package ports.mekanism.fabric;
 
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.core.Direction;
@@ -29,6 +30,11 @@ final class FabricEnergy {
 
     static LazyOptional<IEnergyStorage> foreignEnergy(BlockEntity blockEntity, Direction side) {
         EnergyStorage storage = EnergyStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, side);
+        return storage == null ? LazyOptional.empty() : LazyOptional.of(() -> new StorageEnergyHandler(storage));
+    }
+
+    static LazyOptional<IEnergyStorage> foreignEnergy(ContainerItemContext context) {
+        EnergyStorage storage = context.find(EnergyStorage.ITEM);
         return storage == null ? LazyOptional.empty() : LazyOptional.of(() -> new StorageEnergyHandler(storage));
     }
 

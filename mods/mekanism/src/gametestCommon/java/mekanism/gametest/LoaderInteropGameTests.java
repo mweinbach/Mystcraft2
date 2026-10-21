@@ -11,6 +11,7 @@ import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.tile.base.TileEntityMekanism;
+import mekanism.common.tile.machine.TileEntityElectrolyticSeparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -55,6 +56,22 @@ public class LoaderInteropGameTests {
         check(input.getStack().is(Items.IRON_INGOT) && input.getCount() == accepted,
               "The crusher's input holds " + input.getStack() + " after the loader's API moved " + accepted + " iron ingots");
         helper.succeed();
+    }
+
+    /**
+     * A water bucket empties into the separator through the item's fluid handler, Forge's bucket wrapper on Forge and
+     * the Transfer API's bucket storage on Fabric, and the powered separator splits the water.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void separatorDrainsBucketsAndSplitsWater(GameTestHelper helper) {
+        TileEntityMekanism separator = CoreMachineGameTests.poweredMachine(helper, MekanismBlocks.ELECTROLYTIC_SEPARATOR);
+        IInventorySlot fluidSlot = separator.getInventorySlots(null).get(0);
+        check(fluidSlot.isItemValid(new ItemStack(Items.WATER_BUCKET)), "The separator's fluid slot rejects water buckets");
+        fluidSlot.setStack(new ItemStack(Items.WATER_BUCKET));
+        helper.succeedWhen(() -> {
+            check(fluidSlot.getStack().is(Items.BUCKET), "The water bucket was not emptied: " + fluidSlot.getStack());
+            check(!((TileEntityElectrolyticSeparator) separator).leftTank.isEmpty(), "The separator made no hydrogen");
+        });
     }
 
     /**
