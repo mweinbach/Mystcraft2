@@ -18,6 +18,7 @@ import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
 import mekanism.gametest.DynamicTankGameTests;
 import mekanism.gametest.FactoryGameTests;
+import mekanism.gametest.FissionReactorGameTests;
 import mekanism.gametest.FluidGameTests;
 import mekanism.gametest.GeneratorsModuleGameTests;
 import mekanism.gametest.IndustrialTurbineGameTests;
@@ -43,7 +44,8 @@ import net.minecraftforge.gametest.GameTestHolder;
 public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(ChemicalMachineGameTests.class, ChunkLoadingGameTests.class,
-          CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class, FluidGameTests.class,
+          CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class, FissionReactorGameTests.class,
+          FluidGameTests.class,
           GeneratorsModuleGameTests.class, IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class,
           LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,

@@ -13,6 +13,7 @@
       "mekanism.gametest.CoreMachineGameTests",
       "mekanism.gametest.DynamicTankGameTests",
       "mekanism.gametest.FactoryGameTests",
+      "mekanism.gametest.FissionReactorGameTests",
       "mekanism.gametest.FluidGameTests",
       "mekanism.gametest.GeneratorsModuleGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",

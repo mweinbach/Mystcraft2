@@ -20,7 +20,8 @@ The core module is in this port. Generators, Tools and Additions are extra mod i
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
-and outputs steam. Fission and fusion are not verified yet. Tools' paxels, tools, armor
+and outputs steam. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
+meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions is an empty scaffold.
 
@@ -53,7 +54,10 @@ Additions is an empty scaffold.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass. A formed industrial turbine in that client draws
   its rotor and blades through the glass. A formed thermoelectric boiler in that client shows its casing and
-  valves, and its screen opens. The water and steam bodies are drawn inside the opaque casing.
+  valves, and its screen opens. The water and steam bodies are drawn inside the opaque casing. A formed fission
+  reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the casing frame and
+  a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and coolant body were not
+  drawn, and the reactor screen was not opened.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -63,7 +67,7 @@ Additions is an empty scaffold.
   machines, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
   player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the
-  thermoelectric boiler, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking)
+  thermoelectric boiler, the industrial turbine, the fission reactor, and Tools registration, crafting, tool actions and shield blocking)
   pass on both loaders.
 
 Do not install either JAR in a world you care about.
