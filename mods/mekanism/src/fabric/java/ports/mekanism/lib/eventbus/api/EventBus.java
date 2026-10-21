@@ -9,9 +9,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -28,14 +31,21 @@ public final class EventBus implements IEventBus {
     private final String name;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
     private final Map<Class<?>, List<Listener>> byType = new ConcurrentHashMap<>();
+    private final Set<Object> registered = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
     private long order;
 
     public EventBus(String name) {
         this.name = name;
     }
 
+    /**
+     * Registering a target that is already registered does nothing, as on Forge.
+     */
     @Override
     public void register(Object target) {
+        if (!registered.add(target)) {
+            return;
+        }
         boolean isClass = target instanceof Class<?>;
         Class<?> type = isClass ? (Class<?>) target : target.getClass();
         for (Method method : type.getMethods()) {

@@ -49,5 +49,9 @@ tasks.withType(Jar).configureEach {
         into 'META-INF'
         rename { 'Mekanism-UPSTREAM.md' }
     }
-    from('licenses') { into 'META-INF/licenses/mekanism' }
+    from('licenses') {
+        into 'META-INF/licenses/mekanism'
+        // Covers the Forge bucket assets bundled only in the Fabric jar.
+        exclude 'Forge-LICENSE.txt'
+    }
 }
