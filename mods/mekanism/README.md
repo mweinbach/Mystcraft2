@@ -44,8 +44,8 @@ strip, flatten and till actions. Additions is an empty scaffold.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
   lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player and
-  living events, a Generators registry smoke test, the simple generators, and Tools registration, crafting and tool
-  actions) pass on both loaders.
+  living events, a Generators registry smoke test, the simple generators, and Tools registration, crafting, tool
+  actions and shield blocking) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

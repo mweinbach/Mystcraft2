@@ -30,13 +30,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,7 +50,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ToolActions;
 
 /**
- * Mekanism Tools registers its items and recipe serializers, crafts them, and paxels strip and flatten without tilling.
+ * Mekanism Tools registers its items and recipe serializers, crafts them, paxels strip and flatten without tilling,
+ * and a raised shield loses durability when it blocks a hit.
  */
 public class ToolsModuleGameTests {
 
@@ -216,6 +222,27 @@ public class ToolsModuleGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = TEMPLATE)
+    public static void toolsBronzeShieldLosesDurabilityWhenBlocking(GameTestHelper helper) {
+        ServerPlayer player = survival(helper, new BlockPos(1, 2, 1));
+        clearSpawnProtection(player);
+        ItemStack shield = new ItemStack(ToolsItems.BRONZE_SHIELD.get());
+        player.setItemInHand(InteractionHand.MAIN_HAND, shield);
+        player.startUsingItem(InteractionHand.MAIN_HAND);
+        raiseShield(player, shield);
+        check(player.isBlocking(), "Bronze shield is not blocking");
+        // Mob damage scales with difficulty. Forge's test world is easy (4 becomes 3) and Fabric's is normal.
+        helper.getLevel().getServer().setDifficulty(Difficulty.NORMAL, true);
+        Pig attacker = new Pig(EntityType.PIG, helper.getLevel());
+        BlockPos front = helper.absolutePos(new BlockPos(1, 2, 3));
+        attacker.moveTo(front.getX() + 0.5, front.getY(), front.getZ() + 0.5, 0, 0);
+        float health = player.getHealth();
+        player.hurt(DamageSource.mobAttack(attacker), 4);
+        check(player.getHealth() == health, "Blocking changed health from " + health + " to " + player.getHealth());
+        check(shield.getDamageValue() == 5, "Bronze shield damage is " + shield.getDamageValue());
+        helper.succeed();
+    }
+
     private static ItemStack craft(GameTestHelper helper, ServerPlayer player, BlockPos table, ItemStack... grid) {
         helper.setBlock(table, Blocks.CRAFTING_TABLE);
         CraftingMenu menu = new CraftingMenu(0, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), helper.absolutePos(table)));
@@ -241,6 +268,26 @@ public class ToolsModuleGameTests {
         BlockPos absolute = helper.absolutePos(relative);
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);
         return new UseOnContext(player, InteractionHand.MAIN_HAND, hit);
+    }
+
+    private static void raiseShield(ServerPlayer player, ItemStack shield) {
+        try {
+            Field field = LivingEntity.class.getDeclaredField("useItemRemaining");
+            field.setAccessible(true);
+            field.setInt(player, shield.getUseDuration() - 6);
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not raise the shield: " + e.getMessage());
+        }
+    }
+
+    private static void clearSpawnProtection(ServerPlayer player) {
+        try {
+            Field field = ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");
+            field.setAccessible(true);
+            field.setInt(player, 0);
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not clear spawn protection: " + e.getMessage());
+        }
     }
 
     private static ServerPlayer survival(GameTestHelper helper, BlockPos relative) {
