@@ -75,6 +75,7 @@ def rewriteForFabric = { String line ->
 }
 def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
 def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
+def rewrittenGametest = layout.buildDirectory.dir('generated/sources/fabricShared/gametest')
 def rewriteRules = forgeOnlyVanillaMembers.collect { "${it[0]} -> ${it[1]}" }
 def rewriteMain = tasks.register('rewriteSharedSources', Sync) {
     inputs.property 'rewriteRules', rewriteRules
@@ -100,6 +101,12 @@ def rewriteModule = { String name ->
 def rewriteGenerators = rewriteModule('generators')
 def rewriteTools = rewriteModule('tools')
 def rewriteAdditions = rewriteModule('additions')
+def rewriteGametest = tasks.register('rewriteSharedGametestSources', Sync) {
+    inputs.property 'rewriteRules', rewriteRules
+    from '../src/gametestCommon/java'
+    into rewrittenGametest
+    filter rewriteForFabric
+}
 sourceSets {
     main {
         java.setSrcDirs([rewriteMain, '../src/fabric/java'])
@@ -128,7 +135,7 @@ sourceSets {
     }
     // In-world tests are a separate development-only mod; they never enter the production JAR.
     gametest {
-        java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
+        java.setSrcDirs([rewriteGametest, '../src/gametestFabric/java'])
         resources.setSrcDirs(['../src/gametestFabric/resources'])
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath

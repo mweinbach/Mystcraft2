@@ -7,9 +7,12 @@ package ports.mekanism.fabric.mixin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import ports.mekanism.lib.common.ForgeMod;
 import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.common.capabilities.AttachedCapabilities;
 import ports.mekanism.lib.common.extensions.IForgeEntity;
@@ -28,6 +32,22 @@ import ports.mekanism.lib.event.AttachCapabilitiesEvent;
  */
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.Holder {
+
+    /**
+     * Forge steps up by {@code maxUpStep} plus the step-height attribute. Free runners and the MekaSuit write that
+     * attribute; vanilla only reads the field.
+     */
+    @Redirect(method = "collide", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/Entity;maxUpStep:F", opcode = Opcodes.GETFIELD))
+    private float mekanism$stepHeight(Entity entity) {
+        float step = entity.maxUpStep;
+        if (entity instanceof LivingEntity living) {
+            AttributeInstance attribute = living.getAttribute(ForgeMod.STEP_HEIGHT_ADDITION.get());
+            if (attribute != null) {
+                step += (float) attribute.getValue();
+            }
+        }
+        return step;
+    }
 
     @Unique
     @Nullable
