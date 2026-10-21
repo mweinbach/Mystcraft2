@@ -71,10 +71,22 @@ casing, structural glass and one valve forms at 3×3×3, rejects a missing block
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
 edit mode back. The master's render box is that structure. In the development client that formed tank draws the fluid
 it is holding through the structural glass. A formed industrial turbine in that client draws its rotor and blades
-through the structural glass. The shared GameTests (core machines, factories, chemical machines, loader interop,
+through the structural glass. A thermoelectric boiler (`ThermoelectricBoilerGameTests`) forms at 3×5×3 with one
+superheating element under a disperser plane and one valve. It rejects a missing block, a 2×2×2, a shell with no
+disperser, and a superheating element above the disperser. Water enters through the valve's loader fluid API.
+Superheated sodium enters through the gas handler, and the steam produced each tick is the boil rate that temperature,
+heat capacity and the superheating element allow. Heat inserted through the casing's heat handler — Forge's heat
+capability, and on Fabric the `mekanism:heat_handler` lookup — boils water with no coolant in the tanks. Steam leaves
+through the gas handler when the valve is set to output steam; an input valve gives none up. Saved water, steam,
+heated and cooled sodium, the temperature and the valve mode come back after the blocks are removed and their NBT is
+loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
+and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
+bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
+visible from outside the shell. The shared GameTests (core machines, factories, chemical machines, loader interop,
 chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player
-and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the industrial turbine,
-and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the thermoelectric
+boiler, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both
+loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -204,7 +216,9 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   renderers. Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
   dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed industrial
-  turbine was checked: the rotor and its blades render inside the structural glass.
+  turbine was checked: the rotor and its blades render inside the structural glass. A formed thermoelectric boiler
+  was checked: the casing and the input, steam and coolant valves render, and the boiler screen opens. The water
+  and steam bodies are drawn inside the opaque casing, so they are not visible from outside.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
