@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_nether_brick_or_lapis"
+  },
+  "MJ": 80000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:gate_nether_brick_or_no_modifier"
+      }
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:lapis"
+        },
+        {
+          "tag": "forge:gems/lapis"
+        }
+      ]
+    }
+  ]
+}

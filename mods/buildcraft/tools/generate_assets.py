@@ -164,6 +164,22 @@ LASER_TABLES = [
     ("integration_table", "integration", ["bottom", "center", "middle", "side", "top"], "Integration Table"),
 ]
 
+# Mirrors ports.buildcraft.silicon.gate: material -> (texture, modifiable), modifier -> texture.
+GATE_MATERIALS = {"clay_brick": ("minecraft:block/bricks", False), "iron": ("minecraft:block/iron_block", True),
+                  "nether_brick": ("minecraft:block/nether_bricks", True), "gold": ("minecraft:block/gold_block", True)}
+GATE_MODIFIERS = {"no_modifier": None, "lapis": "minecraft:block/lapis_block", "quartz": "minecraft:block/quartz_block_top",
+                  "diamond": "minecraft:block/diamond_block"}
+
+
+def gate_name(logic: str, material: str, modifier: str) -> str:
+    """GateVariant.variantName, which names the gate's item."""
+    return f"gate_{material}_{logic}_{modifier}" if GATE_MATERIALS[material][1] else f"gate_{material}"
+
+
+GATE_VARIANTS = [("and", "clay_brick", "no_modifier")] + [
+    (logic, material, modifier) for material, (_, modifiable) in GATE_MATERIALS.items() if modifiable
+    for logic in ["and", "or"] for modifier in GATE_MODIFIERS]
+
 
 def write_json(path: Path, value) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -858,6 +874,87 @@ class Generator:
             "buildcraft.mj.flow.seconds.short": "%s MJ/s",
         })
 
+    def gate_item(self, logic: str, material: str, modifier: str) -> None:
+        """Upstream ModelGateItem: the static plug elements of the variant and the dynamic part switched off, made bigger."""
+        static = json.loads((self.src / "buildcraftsilicon/models/plugs/gate.json").read_text(encoding="utf-8"))["elements"]
+        dynamic = json.loads((self.src / "buildcraftsilicon/models/plugs/gate_dynamic.json").read_text(encoding="utf-8"))["elements"]
+        visible = {"material != 'clay_brick'": material != "clay_brick", "modifier != 'no_modifier'": modifier != "no_modifier"}
+        elements = []
+        for element in static + dynamic:
+            if not visible.get(element.get("visible"), True):
+                continue
+            texture = element["faces"]["west"]["texture"].split("'")[1].rstrip("_")
+            faces = {face: {"uv": value["uv"], "texture": texture} for face, value in element["faces"].items()}
+            elements.append({"from": element["from"], "to": element["to"], "faces": faces})
+        textures = {"material": GATE_MATERIALS[material][0], "logic": rl(f"block/gate/{logic}"),
+                    "gate": rl("block/gate/off"), "particle": rl(f"block/gate/{logic}")}
+        if GATE_MODIFIERS[modifier]:
+            textures["modifier"] = GATE_MODIFIERS[modifier]
+        display = {key: dict(value, scale=[round(s * 1.8, 4) for s in value["scale"]]) for key, value in self.PLUG_ITEM_DISPLAY.items()}
+        self.model(f"item/{gate_name(logic, material, modifier)}", {"gui_light": "front", "textures": textures, "elements": elements,
+                                                                     "display": display})
+
+    def gates(self) -> None:
+        for name in ["and", "or", "on", "off"]:
+            self.copy(f"buildcraftsilicon/textures/gates/gate_{name}.png", f"block/gate/{name}.png")
+        self.copy("buildcraftsilicon/textures/gui/gate_interface.png", "gui/gate.png")
+        for variant in GATE_VARIANTS:
+            self.gate_item(*variant)
+        for state in ["empty", "full"]:
+            self.copy(f"buildcraftsilicon/textures/items/gatecopier/{state}.png", f"item/gate_copier/{state}.png")
+        self.generated_item("gate_copier_full", "gate_copier/full", parent="minecraft:item/handheld")
+        self.model("item/gate_copier", {"parent": "minecraft:item/handheld", "textures": {"layer0": rl("item/gate_copier/empty")},
+                                        "overrides": [{"predicate": {rl("full"): 1}, "model": rl("item/gate_copier_full")}]})
+
+        core = "buildcraftcore/textures/triggers"
+        triggers = ["trigger_true", "redstone_gate_side_only", "action_redstoneoutput", "trigger_machine_active", "trigger_machine_inactive",
+                    "trigger_redstoneinput_active", "trigger_redstoneinput_inactive"]
+        for kind in ["inventory", "liquidcontainer"]:
+            triggers += [f"trigger_{kind}_{state}" for state in ["empty", "contains", "space", "full", "below25", "below50", "below75"]]
+        triggers += [f"trigger_engineheat_{stage}" for stage in STAGES if stage != "black"]
+        triggers += [f"trigger_dir_{direction}" for direction in DIRECTIONS]
+        for sprite in triggers:
+            self.copy(f"{core}/{sprite}.png", f"triggers/{sprite}.png")
+        for contents in ["containsitems", "containsfluids", "requestsenergy"]:
+            self.copy(f"buildcrafttransport/textures/triggers/trigger_pipecontents_{contents}.png", f"triggers/trigger_pipecontents_{contents}.png")
+
+        # Upstream en_US.lang, whose %d placeholders become %s.
+        self.lang.update({
+            "gate.logic.and": "AND", "gate.logic.or": "OR",
+            "gate.material.iron": "Iron", "gate.material.nether_brick": "Nether Brick", "gate.material.gold": "Gold",
+            "gate.name": "%s %s Gate", "gate.name.basic": "Basic Gate",
+            "gate.slots": "%s Slots", "gate.params": "%s Slot Parameters",
+            "gate.params.trigger": "%s Trigger Parameters", "gate.params.action": "%s Action Parameters",
+            "gate.side": "§7on the %s§7 side",
+            "gate.parameter.redstone.gateSideOnly": "Gate Side Only",
+            "gate.trigger.true": "Always On",
+            "gate.trigger.engine.blue": "Engine Blue", "gate.trigger.engine.green": "Engine Green",
+            "gate.trigger.engine.yellow": "Engine Yellow", "gate.trigger.engine.red": "Engine Red",
+            "gate.trigger.engine.overheat": "Engine Overheat",
+            "gate.trigger.fluid.empty": "Tank Empty", "gate.trigger.fluid.contains": "Fluid in Tank",
+            "gate.trigger.fluid.space": "Space for Fluid", "gate.trigger.fluid.full": "Tank Full",
+            "gate.trigger.fluidlevel.below": "Contains < %s%%",
+            "gate.trigger.inventory.empty": "Inventory Empty", "gate.trigger.inventory.contains": "Items in Inventory",
+            "gate.trigger.inventory.space": "Space in Inventory", "gate.trigger.inventory.full": "Inventory Full",
+            "gate.trigger.inventorylevel.below": "Contains < %s%%",
+            "gate.trigger.machine.done": "Work Done", "gate.trigger.machine.scheduled": "Has Work",
+            "gate.trigger.redstone.input.active": "Redstone Signal On", "gate.trigger.redstone.input.inactive": "Redstone Signal Off",
+            "gate.trigger.pipe.containsItems": "Items Traversing", "gate.trigger.pipe.containsFluids": "Fluid Traversing",
+            "gate.trigger.pipe.requestsEnergy": "Power Requested",
+            "gate.action.redstone.signal": "Redstone Signal",
+            "gate.action.pipe.direction": "Face the %s side",
+            "chat.gateCopier.gateCopied": "Copied gate information to copier.",
+            "chat.gateCopier.gatePasted": "Pasted copied data to gate.",
+            "chat.gateCopier.noInformation": "No gate information stored!",
+            "buildcraft.item.nonclean.usage": "Shift-right click to clean",
+            "gui.inventory": "Inventory",
+            f"item.{MOD}.gate_copier": "Gate Copier",
+        })
+        material_names = {"iron": "Iron", "nether_brick": "Nether Brick", "gold": "Gold"}
+        for logic, material, modifier in GATE_VARIANTS:
+            title = f"{material_names[material]} {logic.upper()} Gate" if material in material_names else "Basic Gate"
+            self.lang[f"item.{MOD}.{gate_name(logic, material, modifier)}"] = title
+
     def write_lang(self) -> None:
         self.lang.update({
             f"itemGroup.{MOD}.main": "BuildCraft",
@@ -960,6 +1057,45 @@ class Generator:
             components = [{"ingredient": REDSTONE}] + ([{"ingredient": extra}] if extra else [])
             self.recipe(name, {"type": rl("assembly"), "result": {"item": rl(name)}, "MJ": mj, "components": components})
 
+    def assembly(self, name: str, result: str, mj: int, ingredients: list[dict]) -> None:
+        self.recipe(name, {"type": rl("assembly"), "result": {"item": rl(result)}, "MJ": mj,
+                           "components": [{"ingredient": ingredient} for ingredient in ingredients]})
+
+    def gate_recipes(self) -> None:
+        """Upstream BCSiliconRecipes: crafted basic, iron and nether brick gates, iron gate modifiers, AND/OR swaps and assembly."""
+        base = {"r": REDSTONE, "b": {"item": rl("plug_blocker")}}
+        for material, m in [("clay_brick", {"item": "minecraft:brick"}), ("iron", IRON), ("nether_brick", {"item": "minecraft:nether_brick"})]:
+            gate = gate_name("and", material, "no_modifier")
+            self.shaped(gate, gate, [" m ", "mrm", " b "], dict(base, m=m))
+        lapis = tags("lapis", "gems/lapis")
+        quartz = tags("quartz", "gems/quartz")
+        iron_gate = {"item": rl(gate_name("and", "iron", "no_modifier"))}
+        for modifier, m in [("lapis", lapis), ("quartz", quartz)]:
+            gate = gate_name("and", "iron", modifier)
+            self.shaped(gate, gate, [" m ", "mgm", " m "], {"m": m, "g": iron_gate})
+        for logic, material, modifier in GATE_VARIANTS:
+            if material == "clay_brick":
+                continue
+            other = "or" if logic == "and" else "and"
+            gate = gate_name(logic, material, modifier)
+            self.shaped(f"{gate}_from_{other}", gate, ["i"], {"i": {"item": rl(gate_name(other, material, modifier))}})
+
+        chipsets = {"iron": {"item": rl("iron_chipset")}, "gold": {"item": rl("gold_chipset")},
+                    "quartz": {"item": rl("quartz_chipset")}, "diamond": {"item": rl("diamond_chipset")}}
+        bases = {"iron": (20_000, [chipsets["iron"]]),
+                 "nether_brick": (40_000, [chipsets["iron"], {"item": "minecraft:nether_bricks"}]),
+                 "gold": (80_000, [chipsets["gold"]])}
+        modifiers = {"iron": (40_000, 60_000, 80_000), "nether_brick": (80_000, 100_000, 120_000), "gold": (100_000, 140_000, 180_000)}
+        for material, (mj, ingredients) in bases.items():
+            for logic in ["and", "or"]:
+                gate = gate_name(logic, material, "no_modifier")
+                self.assembly(f"assembly/{gate}", gate, mj, ingredients)
+                for modifier, extra, modifier_mj in zip(["lapis", "quartz", "diamond"], [lapis, chipsets["quartz"], chipsets["diamond"]],
+                                                       modifiers[material]):
+                    upgraded = gate_name(logic, material, modifier)
+                    self.assembly(f"assembly/{upgraded}", upgraded, modifier_mj, [{"item": rl(gate)}, extra])
+        self.assembly("gate_copier", "gate_copier", 500, [{"item": rl("wrench")}, chipsets["iron"]])
+
     def tag(self, registry: str, namespace: str, path: str, values: list[str | dict]) -> None:
         write_json(DATA / namespace / "tags" / registry / f"{path}.json", {"replace": False, "values": values})
 
@@ -1009,6 +1145,7 @@ class Generator:
         self.library()
         self.markers()
         self.silicon()
+        self.gates()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
@@ -1016,6 +1153,7 @@ class Generator:
         self.write_lang()
         self.recipes()
         self.silicon_recipes()
+        self.gate_recipes()
         self.data_tags()
         self.loot_tables()
 

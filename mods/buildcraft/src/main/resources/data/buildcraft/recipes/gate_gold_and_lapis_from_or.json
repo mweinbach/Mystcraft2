@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "i"
+  ],
+  "key": {
+    "i": {
+      "item": "buildcraft:gate_gold_or_lapis"
+    }
+  },
+  "result": {
+    "item": "buildcraft:gate_gold_and_lapis"
+  }
+}
