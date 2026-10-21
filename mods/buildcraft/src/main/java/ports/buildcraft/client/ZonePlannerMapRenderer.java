@@ -3,20 +3,16 @@ package ports.buildcraft.client;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ChunkPos;
@@ -29,8 +25,9 @@ import ports.buildcraft.robotics.zone.ZonePlannerMapChunkKey;
 
 /**
  * Upstream {@code GuiZonePlanner}'s map and {@code ZonePlannerMapRenderer}. Display lists and GLU are gone in
- * 1.19, so each slice is a vertex buffer and the camera is a perspective matrix. The highlight is a line box:
- * the core profile has no polygon mode.
+ * 1.19, so each slice is drawn immediately and the camera is a perspective matrix. The highlight is a line box:
+ * the core profile has no polygon mode. A private vertex-array object crashes this host's driver inside
+ * {@code glDrawElements}, so the map uses the buffer uploader the rest of the GUI already draws with.
  */
 public final class ZonePlannerMapRenderer {
     /** Upstream {@code EnumDyeColor.getColorValue}, indexed by dye id. */
@@ -38,7 +35,6 @@ public final class ZonePlannerMapRenderer {
             16383998, 16351261, 13061821, 3847130, 16701501, 8439583, 15961002, 4673362,
             10329495, 1481884, 8991416, 3949738, 8606770, 6192150, 11546150, 1908001
     };
-    private static final Map<ZonePlannerMapChunkKey, Mesh> MESHES = new LinkedHashMap<>();
     @Nullable private static Matrix4f lastProjection;
     @Nullable private static Matrix4f lastModel;
     private static int viewX, viewY, viewW, viewH;
@@ -46,8 +42,6 @@ public final class ZonePlannerMapRenderer {
     private static long viewedAt;
 
     private ZonePlannerMapRenderer() {}
-
-    private record Mesh(VertexBuffer buffer, long used) {}
 
     /** The slice the player's feet are in, as upstream's {@code TileZonePlanner.getLevel}. */
     public static int mapLevel(Level level) {
@@ -78,7 +72,6 @@ public final class ZonePlannerMapRenderer {
         mapLevel = mapLevel(level);
         int dimension = ZonePlannerMapChunkKey.dimensionId(level);
         long now = System.nanoTime();
-        expire(now);
 
         Matrix4f projection = Matrix4f.createScaleMatrix((float) scale, (float) scale, 1);
         projection.multiply(Matrix4f.perspective(70, 213F / 100F, 1, 10000));
@@ -131,15 +124,19 @@ public final class ZonePlannerMapRenderer {
         RenderSystem.applyModelViewMatrix();
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
-        ShaderInstance shader = GameRenderer.getPositionColorShader();
-        RenderSystem.setShader(() -> shader);
+        float previousFogStart = RenderSystem.getShaderFogStart();
+        float previousFogEnd = RenderSystem.getShaderFogEnd();
+        RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+        RenderSystem.setShaderFogEnd(Float.MAX_VALUE);
+        PoseStack camera = RenderSystem.getModelViewStack();
+        camera.mulPose(Vector3f.XP.rotationDegrees(90));
+        camera.translate(-cameraX, -cameraY, -cameraZ);
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferUploader.reset();
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                VertexBuffer mesh = mesh(level, new ZonePlannerMapChunkKey(new ChunkPos(chunkX, chunkZ), dimension, mapLevel), now);
-                if (mesh == null) continue;
-                mesh.bind();
-                mesh.drawWithShader(model, projection, shader);
-                VertexBuffer.unbind();
+                drawChunk(level, new ZonePlannerMapChunkKey(new ChunkPos(chunkX, chunkZ), dimension, mapLevel));
             }
         }
 
@@ -152,7 +149,7 @@ public final class ZonePlannerMapRenderer {
             int colour = chunk == null ? 0 : chunk.colour(found.getX(), found.getZ());
             RenderSystem.disableDepthTest();
             RenderSystem.lineWidth(2);
-            drawBox(model, projection, shader, found.getX(), found.getY(), found.getZ(), 1, 0.5F, shade(colour, 0.7F), 0x77);
+            drawBox(found.getX(), found.getY(), found.getZ(), 1, 0.5F, shade(colour, 0.7F), 0x77);
             RenderSystem.enableDepthTest();
         }
 
@@ -163,7 +160,7 @@ public final class ZonePlannerMapRenderer {
             if (brush != null && brush.getId() != layer) continue;
             ZonePlan plan = painted != null && painted[layer] != null ? painted[layer] : planner.layers[layer];
             if (plan.chunks().isEmpty()) continue;
-            BufferBuilder builder = new BufferBuilder(plan.chunks().size() * 256 * 20);
+            BufferBuilder builder = new BufferBuilder(plan.chunks().size() * 256 * 20 * 16);
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             boolean any = false;
             for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
@@ -187,15 +184,12 @@ public final class ZonePlannerMapRenderer {
             if (!any) {
                 builder.discard();
             } else {
-                VertexBuffer overlay = new VertexBuffer();
-                overlay.upload(builder.end());
-                overlay.bind();
-                overlay.drawWithShader(model, projection, shader);
-                VertexBuffer.unbind();
-                overlay.close();
+                BufferUploader.drawWithShader(builder.end());
             }
         }
         RenderSystem.disableBlend();
+        RenderSystem.setShaderFogStart(previousFogStart);
+        RenderSystem.setShaderFogEnd(previousFogEnd);
 
         modelView.popPose();
         RenderSystem.applyModelViewMatrix();
@@ -263,16 +257,11 @@ public final class ZonePlannerMapRenderer {
         return ZonePlannerMapDataClient.INSTANCE.getChunk(level, new ZonePlannerMapChunkKey(pos, dimension, mapLevel));
     }
 
-    @Nullable
-    private static VertexBuffer mesh(Level level, ZonePlannerMapChunkKey key, long now) {
-        Mesh mesh = MESHES.get(key);
-        if (mesh != null) {
-            MESHES.put(key, new Mesh(mesh.buffer, now));
-            return mesh.buffer;
-        }
+    private static void drawChunk(Level level, ZonePlannerMapChunkKey key) {
         ZonePlannerMapChunk chunk = ZonePlannerMapDataClient.INSTANCE.getChunk(level, key);
-        if (chunk == null) return null;
-        BufferBuilder builder = new BufferBuilder(16 * 16 * 20);
+        if (chunk == null) return;
+        // One column is five quads of position-colour vertices. Size the buffer for a full slice so it does not grow.
+        BufferBuilder builder = new BufferBuilder(16 * 16 * 20 * 16);
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         boolean any = false;
         for (int x = 0; x < 16; x++) {
@@ -285,27 +274,13 @@ public final class ZonePlannerMapRenderer {
         }
         if (!any) {
             builder.discard();
-            MESHES.put(key, new Mesh(null, now));
-            return null;
+            return;
         }
-        VertexBuffer buffer = new VertexBuffer();
-        buffer.upload(builder.end());
-        MESHES.put(key, new Mesh(buffer, now));
-        return buffer;
+        BufferUploader.drawWithShader(builder.end());
     }
 
-    private static void expire(long now) {
-        Iterator<Map.Entry<ZonePlannerMapChunkKey, Mesh>> iterator = MESHES.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Mesh mesh = iterator.next().getValue();
-            if (now - mesh.used < 20_000_000_000L) continue;
-            if (mesh.buffer != null) mesh.buffer.close();
-            iterator.remove();
-        }
-    }
-
-    private static void drawBox(Matrix4f model, Matrix4f projection, ShaderInstance shader, double x, double y, double z, double height, double radius, int rgb, int alpha) {
-        BufferBuilder builder = new BufferBuilder(24);
+    private static void drawBox(double x, double y, double z, double height, double radius, int rgb, int alpha) {
+        BufferBuilder builder = new BufferBuilder(24 * 16);
         builder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
         double rY = height * 0.5;
         double cy = y - rY;
@@ -322,12 +297,7 @@ public final class ZonePlannerMapRenderer {
         line(builder, x1, y0, z0, x1, y1, z0, rgb, alpha);
         line(builder, x1, y0, z1, x1, y1, z1, rgb, alpha);
         line(builder, x0, y0, z1, x0, y1, z1, rgb, alpha);
-        VertexBuffer buffer = new VertexBuffer();
-        buffer.upload(builder.end());
-        buffer.bind();
-        buffer.drawWithShader(model, projection, shader);
-        VertexBuffer.unbind();
-        buffer.close();
+        BufferUploader.drawWithShader(builder.end());
     }
 
     private static void line(BufferBuilder builder, double x0, double y0, double z0, double x1, double y1, double z1, int rgb, int alpha) {
