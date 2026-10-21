@@ -31,23 +31,29 @@ walkie-talkie are not.
   port's Forge API mirror in `src/fabric/java/ports/mekanism/lib`, and the methods Forge adds to vanilla classes are
   supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
-  universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
-  other mods can charge Mekanism's energy items and fill its fluid items the same way. Gas, infusion, pigment,
+  universal cables. A basic smelting factory processes a stack in each of its three slots at once, auto-sort splits
+  one input stack across those slots, and a tier installer keeps the items, energy and auto-sort setting. Its screen,
+  with the three slots, energy bar and sorting tab, opened in the development client. Energy, items and fluids reach
+  other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
+  fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
+  A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
+  the development client draws that stored fluid through the glass.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player and
-  living events, a Generators registry smoke test, the simple generators, Tools registration, crafting, tool
-  actions and shield blocking, and Additions registration, crafting and block behaviour) pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
+  chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player
+  and living events, a Generators registry smoke test, the simple generators, the dynamic tank, Tools registration,
+  crafting, tool actions and shield blocking, and Additions registration, crafting and block behaviour) pass on both
+  loaders.
 
 Do not install either JAR in a world you care about.
 

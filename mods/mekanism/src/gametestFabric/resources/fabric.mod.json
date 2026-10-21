@@ -11,6 +11,8 @@
       "mekanism.gametest.AdditionsModuleGameTests",
       "mekanism.gametest.ChunkLoadingGameTests",
       "mekanism.gametest.CoreMachineGameTests",
+      "mekanism.gametest.DynamicTankGameTests",
+      "mekanism.gametest.FactoryGameTests",
       "mekanism.gametest.FluidGameTests",
       "mekanism.gametest.GeneratorsModuleGameTests",
       "mekanism.gametest.ItemBlockHookGameTests",
