@@ -20,8 +20,9 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. The shared GameTests (core machines, loader interop, chemical lookups, ore
-generation, and the item and block hooks) pass on both loaders.
+the shared placement modifiers. An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back
+when the level loads. The shared GameTests (core machines, loader interop, chemical lookups, ore generation, item
+and block hooks, and chunk loading) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -42,6 +43,10 @@ generation, and the item and block hooks) pass on both loaders.
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
 - Tags of Mekanism's own registries (gases, infuse types, pigments, slurries) load from Forge's
   `tags/<namespace>/<path>` directories; those registries are synced and saved as Forge's are.
+- Chunk tickets. The digital miner, dimensional stabilizer, teleporter and quantum entangloporter use
+  `TileComponentChunkLoader`, and any machine with an anchor upgrade does too. Fabric saves those tickets with the
+  level and, when the level loads, asks Mekanism to validate them before the chunks are loaded again. The ticket is
+  vanilla's `/forceload` level, so the chunk, its entities and its block entities tick.
 
 ## Fabric: item and block hooks vanilla calls
 
@@ -66,7 +71,6 @@ and block methods are.
 
 ## Fabric: not written yet
 
-- Chunk loading tickets.
 - Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
   is not called.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
@@ -93,7 +97,9 @@ and block methods are.
 - `Entity.changeDimension(ServerLevel, ITeleporter)` moves the entity with Fabric's dimension API. The reposition
   function handed to `ITeleporter.placeEntity` ignores its portal flag, and `playTeleportSound` is not consulted.
 - Tooltips drawn through `Screen.renderComponentTooltip` ignore the font and item stack arguments.
-- Forced chunks do not random-tick.
+- Forced chunks do not random-tick. The ticket level matches vanilla `/forceload`: entities and block entities tick, and
+  random ticks still happen only near a player. The dimensional stabilizer asks Forge for fully ticking chunks; on
+  Fabric that flag is saved so validation can tell it from an anchor upgrade, and it does not enable random ticks.
 - The ender dragon's part entities are not exposed through Forge's `PartEntity` API.
 - Key mapping modifiers are not saved.
 - HUD overlays are drawn in registration order rather than Forge's overlay order.
