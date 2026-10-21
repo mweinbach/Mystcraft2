@@ -88,8 +88,11 @@ tier installer replaces the block while keeping the items, stored energy and aut
 oxidizer, dissolution chamber, washer, crystallizer, purification chamber, chemical injection chamber, rotary
 condensentrator, pressurized reaction chamber, isotopic centrifuge and solar neutron activator each run one recipe.
 Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen
-opened in the development client; the other chemical machine screens were not opened. The nutritional liquifier, pigment
-extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. A dynamic tank shell of
+opened in the development client. The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
+the pigment extractor pulls red pigment from red wool, the pigment mixer combines red and yellow into orange, the
+painting machine paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and
+antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen opened in
+the development client; the other chemical machine screens were not opened. A dynamic tank shell of
 casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
 edit mode back. The master's render box is that structure. In the development client that formed tank draws the fluid
@@ -115,7 +118,7 @@ bodies use the same multiblock renderer as the dynamic tank. Boiler casing is op
 visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
 Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
 fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
-GameTests (core machines, factories, chemical machines, loader interop, chemical lookups, ore generation, item and
+GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
 block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
 smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
 turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
@@ -244,7 +247,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 - Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser, the other multiblocks (evaporation and SPS), QIO, the digital miner, Robit, gear,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, the other multiblocks (evaporation and SPS), QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers, and the fusion renderer. The
   fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
