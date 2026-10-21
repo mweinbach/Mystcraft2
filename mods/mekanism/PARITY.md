@@ -21,7 +21,25 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   energy leaves through Forge Energy or Team Reborn Energy. A condenser puts water in the vent. Saved steam, energy,
   the dumping mode and the rotor's blades come back after the blocks are removed and their NBT is loaded. The rotor's
   render box grows with its blades, and the master's box is the structure. In the Fabric development client a formed
-  turbine draws that rotor and its blades through structural glass. Fission and fusion gameplay is not verified.
+  turbine draws that rotor and its blades through structural glass. The fission reactor
+  (`FissionReactorGameTests`) forms at 3×4×3: casing on the edges, reactor glass on the faces, one fuel assembly and
+  its control rod, an input port, a waste port, a coolant port and a logic adapter. A gapped fuel column, a missing
+  corner, a missing control rod and a 2×2×2 stay unformed and are not merged with a neighbour. Fissile fuel and cooled
+  sodium enter through the input port's gas handler; water enters through its fluid handler. Hydrogen, lava, a casing
+  block and the output ports accept none of that, and a simulated fill stores nothing. Sodium is refused while the
+  reactor holds water. One heating pass at a known temperature burns one mB of fuel into nuclear waste and produces
+  superheated sodium or steam at the upstream heat, conductivity and enthalpy. Waste leaves the waste port and heated
+  coolant leaves the coolant port; the input port gives nothing up. The logic adapter outputs redstone when the fuel
+  tank is empty, the temperature is at least 1,200 K, the waste tank is full, or damage is at 100, and redstone in
+  activation mode starts the reactor. Damage falls below 1,200 K. At the cap with meltdowns disabled the reactor
+  force-disables and stays off. Turning meltdowns back on queues a meltdown; the test clears that queued explosion at
+  radius 0 and calls `meltdownHappened`, which dumps the nuclear waste, leaves the non-radioactive fissile fuel,
+  clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. It does not assert
+  that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
+  waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
+  structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
+  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. Fusion
+  gameplay is not verified.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
@@ -94,11 +112,14 @@ heated and cooled sodium, the temperature and the valve mode come back after the
 loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
 and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
-visible from outside the shell. The shared GameTests (core machines, factories, chemical machines, loader interop,
-chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player
-and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction matrix,
-the thermoelectric boiler, the industrial turbine, Tools registration, crafting, tool actions and shield blocking, and
-Additions registration, crafting and block behaviour) pass on both loaders.
+visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
+Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
+fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
+GameTests (core machines, factories, chemical machines, loader interop, chemical lookups, ore generation, item and
+block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
+smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
+turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+registration, crafting and block behaviour) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -224,14 +245,17 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser, the other multiblocks (evaporation and SPS), QIO, the digital miner, Robit, gear,
-  the energy cube's core renderer, the simple generators' block-entity renderers, and the fission and fusion
-  renderers. Factory screens other than the basic smelting factory were not opened. The wind generator item is
+  the energy cube's core renderer, the simple generators' block-entity renderers, and the fusion renderer. The
+  fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
+  Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
   dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed induction
   matrix was checked: the casing and port models draw. Upstream 10.3.9 ships no separate matrix renderer. A formed
   industrial turbine was checked: the rotor and its blades render inside the structural glass. A formed thermoelectric
   boiler was checked: the casing and the input, steam and coolant valves render, and the boiler screen opens. The water
-  and steam bodies are drawn inside the opaque casing, so they are not visible from outside.
+  and steam bodies are drawn inside the opaque casing, so they are not visible from outside. A formed fission
+  reactor was checked: `/mek build fission` made an 18×18×18 shell, and reactor glass shows the casing frame and a
+  checkerboard of fuel assemblies and control rods.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
