@@ -26,6 +26,10 @@ repositories {
         url = 'https://maven.terraformersmc.com/releases/'
         content { includeGroup 'dev.emi' }
     }
+    maven {
+        url = 'https://squiddev.cc/maven/'
+        content { includeGroup 'org.squiddev' }
+    }
 }
 
 dependencies {
@@ -46,8 +50,15 @@ dependencies {
     modCompileOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
     modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2:api') { transitive = false }
     if (providers.gradleProperty('withCompat').isPresent()) {
+        // Loom strips nested JARs from mod dependencies, so the libraries CC: Restitched and Patchouli bundle are
+        // listed here; the Modrinth artifact has no POM and Patchouli's would pull in an older Fabric API.
         modRuntimeOnly 'maven.modrinth:cc-restitched:3S6HU7nl'
+        runtimeOnly 'com.electronwill.night-config:core:3.6.3'
+        runtimeOnly 'com.electronwill.night-config:toml:3.6.3'
+        runtimeOnly('org.squiddev:Cobalt:0.5.5') { transitive = false }
+        runtimeOnly 'io.netty:netty-codec-http:4.1.77.Final'
         modRuntimeOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
+        runtimeOnly 'me.zeroeightsix:fiber:0.23.0-2'
         // JEI and EMI both draw an item list; -PwithEmi runs EMI instead of JEI.
         if (providers.gradleProperty('withEmi').isPresent()) {
             modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
