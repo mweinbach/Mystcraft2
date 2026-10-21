@@ -117,7 +117,11 @@ tasks.named('test', Test) {
 
 tasks.named('processResources', ProcessResources) {
     inputs.properties metadata
-    filesMatching('fabric.mod.json') { expand version: project.version, mod_description: metadata.mod_description }
+    // Literal replacement rather than expand(): injected interface keys contain '$' (nested intermediary classes).
+    def version = project.version.toString()
+    filesMatching('fabric.mod.json') {
+        filter { String line -> line.replace('${version}', version).replace('${mod_description}', metadata.mod_description) }
+    }
 }
 tasks.withType(Jar).configureEach {
     from('../UPSTREAM.md') {
