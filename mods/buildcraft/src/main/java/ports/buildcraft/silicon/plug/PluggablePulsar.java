@@ -98,6 +98,7 @@ public class PluggablePulsar extends PipePluggable {
         if (level != null) {
             level.playSound(null, holder.getBlockPos(), SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.2F, manuallyEnabled ? 0.6F : 0.5F);
         }
+        holder.setChanged();
         queueSync();
     }
 

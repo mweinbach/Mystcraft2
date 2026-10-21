@@ -284,7 +284,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   `setModelVariablesForItem`. A pulsar loaded onto a pipe that does not take redstone power does nothing instead of
   throwing; placement still only allows pipes that do. Ids are `plug_pulsar` and `plug_timer` under `buildcraft:`
   rather than `buildcraftsilicon:pulsar` and `timer`. The port does not load 1.12 worlds, so upstream's transport
-  alias is not registered. Pick-block gives the pipe, as for other pluggables.
+  alias is not registered. Pick-block gives the pipe, as for other pluggables. A saved timer trigger stays off
+  unless that pipe still has a timer: upstream's `isTriggerActive` only tests the world time, and a gate keeps
+  firing after the timer is removed. Clicking a pulsar marks the pipe's chunk unsaved; upstream folded that into
+  `scheduleNetworkUpdate`, while `queueSync` only sends the client packet.
 - **Pluggables:** upstream baked each pluggable's model into the pipe's block model (`IPluggableStaticBaker`);
   here the pipe's block entity renderer draws upstream's plug and power adapter cuboids and textures, and the
   items use the same cuboids as their models. Breaking a pluggable goes through mixins on both sides' player game

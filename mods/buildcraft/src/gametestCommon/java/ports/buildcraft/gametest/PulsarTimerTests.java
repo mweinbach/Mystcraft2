@@ -8,6 +8,7 @@ import static ports.buildcraft.gametest.BCTests.tile;
 import static ports.buildcraft.gametest.BCTests.useAt;
 import static ports.buildcraft.gametest.BCTests.useOn;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.Fluids;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.core.statements.BCCoreStatements;
@@ -92,8 +94,11 @@ public final class PulsarTimerTests {
                 && stone.getPluggable(Direction.SOUTH).getPickStack().is(BCSilicon.TIMER_ITEM.get()),
                 "a timer blocks its face and picks as its own item");
 
+        LevelChunk chunk = helper.getLevel().getChunkAt(helper.absolutePos(woodPos));
+        chunk.setUnsaved(false);
         require(helper, useAt(helper, player, woodPos, Direction.EAST, ON_PLUG, ItemStack.EMPTY) == InteractionResult.SUCCESS && pulsar.manuallyEnabled(),
                 "clicking a pulsar switches it on");
+        require(helper, chunk.isUnsaved(), "switching a pulsar marks its chunk to be saved");
         pulsar.enablePulsar();
         pulsar.addSinglePulse();
         pulsar.onTick();
@@ -264,6 +269,12 @@ public final class PulsarTimerTests {
                     && !BCSiliconStatements.TRIGGER_TIMER_MEDIUM.isTriggerActive(gate.logic(), NO_PARAMETERS)
                     && BCSiliconStatements.TRIGGER_TIMER_LONG.isTriggerActive(gate.logic(), NO_PARAMETERS),
                     "300 ticks into the cycle the 5 and 15 second timers are on");
+            pipe.removePluggable(Direction.SOUTH, new ArrayList<>());
+            pipe.removePluggable(Direction.NORTH, new ArrayList<>());
+            require(helper, !BCSiliconStatements.TRIGGER_TIMER_SHORT.isTriggerActive(gate.logic(), NO_PARAMETERS)
+                    && !BCSiliconStatements.TRIGGER_TIMER_MEDIUM.isTriggerActive(gate.logic(), NO_PARAMETERS)
+                    && !BCSiliconStatements.TRIGGER_TIMER_LONG.isTriggerActive(gate.logic(), NO_PARAMETERS),
+                    "removing the timers stops the triggers even when the time divides them");
             helper.succeed();
         });
 

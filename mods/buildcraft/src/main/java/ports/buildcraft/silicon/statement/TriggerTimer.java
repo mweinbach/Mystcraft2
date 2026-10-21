@@ -1,10 +1,13 @@
 package ports.buildcraft.silicon.statement;
 
 import java.util.Locale;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import ports.buildcraft.silicon.plug.PluggableTimer;
 import ports.buildcraft.statement.BCStatement;
+import ports.buildcraft.statement.Gate;
 import ports.buildcraft.statement.StatementContainer;
 import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.statement.Trigger;
@@ -48,8 +51,17 @@ public class TriggerTimer extends BCStatement implements Trigger.Internal {
 
     @Override
     public boolean isTriggerActive(StatementContainer source, StatementParameter[] parameters) {
+        if (!(source instanceof Gate gate) || !hasTimer(gate)) return false;
         Level level = source.getTile().getLevel();
         return level != null && level.getGameTime() % (20L * duration.duration) == 0;
+    }
+
+    /** The trigger is saved on the gate, so it has to see that a timer is still attached. */
+    private static boolean hasTimer(Gate gate) {
+        for (Direction face : Direction.values()) {
+            if (gate.getPipe().getPluggable(face) instanceof PluggableTimer) return true;
+        }
+        return false;
     }
 
     @Override
