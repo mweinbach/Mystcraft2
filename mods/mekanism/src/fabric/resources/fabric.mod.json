@@ -48,6 +48,9 @@
       "net/minecraft/class_1792": [
         "ports/mekanism/lib/common/extensions/IForgeItem"
       ],
+      "net/minecraft/class_1832": [
+        "ports/mekanism/lib/common/extensions/IForgeTier"
+      ],
       "net/minecraft/class_1799": [
         "ports/mekanism/lib/common/extensions/IForgeItemStack"
       ],

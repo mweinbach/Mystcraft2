@@ -30,9 +30,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -44,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
 import ports.mekanism.lib.common.ToolAction;
+import ports.mekanism.lib.common.ToolActions;
 import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
 
 /**
@@ -110,8 +118,51 @@ public interface IForgeItem {
         return null;
     }
 
+    /**
+     * Forge's per-item tool actions. Paxels and other Mekanism tools override this; vanilla tool classes get the
+     * action set Forge gives that class, so a hoe can till and an axe can strip unless a subclass says otherwise.
+     */
     default boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
+        Item item = self();
+        if (item instanceof AxeItem) {
+            return ToolActions.DEFAULT_AXE_ACTIONS.contains(toolAction);
+        } else if (item instanceof HoeItem) {
+            return ToolActions.DEFAULT_HOE_ACTIONS.contains(toolAction);
+        } else if (item instanceof ShovelItem) {
+            return ToolActions.DEFAULT_SHOVEL_ACTIONS.contains(toolAction);
+        } else if (item instanceof PickaxeItem) {
+            return ToolActions.DEFAULT_PICKAXE_ACTIONS.contains(toolAction);
+        } else if (item instanceof SwordItem) {
+            return ToolActions.DEFAULT_SWORD_ACTIONS.contains(toolAction);
+        } else if (item instanceof ShieldItem) {
+            return ToolActions.DEFAULT_SHIELD_ACTIONS.contains(toolAction);
+        } else if (item instanceof ShearsItem) {
+            return ToolActions.DEFAULT_SHEARS_ACTIONS.contains(toolAction);
+        }
         return false;
+    }
+
+    /**
+     * Forge's stack-aware durability. Paxels and Mekanism armor override it; the stack mixin calls it from
+     * {@link ItemStack#getMaxDamage()}.
+     */
+    default int getMaxDamage(ItemStack stack) {
+        return self().getMaxDamage();
+    }
+
+    /**
+     * Forge's damageable check. It ignores the unbreakable flag, which the paxel recipe relies on when it averages
+     * the durability of its inputs.
+     */
+    default boolean isDamageable(ItemStack stack) {
+        return getMaxDamage(stack) > 0;
+    }
+
+    /**
+     * Forge adds this to digger items. Mekanism axes, hoes, pickaxes, shovels and paxels override it.
+     */
+    default float getAttackDamage() {
+        return 0;
     }
 
     default int getMaxStackSize(ItemStack stack) {

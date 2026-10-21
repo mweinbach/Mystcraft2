@@ -32,6 +32,15 @@ class MapperTests(unittest.TestCase):
         ingredients = emc.recipe_ingredients(recipe)
         self.assertEqual(sorted(i["item"] for i in ingredients), ["minecraft:dirt"] + ["minecraft:stick"] * 3)
 
+    def test_paxel_recipes_count_as_shaped(self):
+        recipe = shaped(["APS", " R ", " R "],
+                        {"A": {"item": "mod:axe"}, "P": {"item": "mod:pickaxe"}, "S": {"item": "mod:shovel"},
+                         "R": {"item": "minecraft:stick"}}, "mod:paxel")
+        recipe["type"] = "mekanismtools:paxel"
+        ingredients = emc.recipe_ingredients(recipe)
+        self.assertEqual(sorted(i["item"] for i in ingredients),
+                         ["minecraft:stick", "minecraft:stick", "mod:axe", "mod:pickaxe", "mod:shovel"])
+
     def test_unknown_recipe_types_are_not_mapped(self):
         self.assertIsNone(emc.recipe_ingredients({"type": "mod:machine", "input": {"item": "a:b"}}))
 

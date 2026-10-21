@@ -11,7 +11,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluid;
 
 /**
- * The Forge common tags Mekanism reads, under the Fabric conventional {@code c:} names.
+ * The Forge common tags Mekanism reads. Ore tags use Fabric's {@code c:} names. Lapis uses {@code forge:gems/lapis},
+ * which the Fabric tag bridge fills with lapis lazuli.
  */
 public final class Tags {
 
@@ -23,6 +24,8 @@ public final class Tags {
         public static final TagKey<Item> ORES_IRON = tag("iron_ores");
         public static final TagKey<Item> ORES_GOLD = tag("gold_ores");
         public static final TagKey<Item> ORES_COPPER = tag("copper_ores");
+        /** Forge's {@code forge:gems/lapis}. The Fabric bridge lists lapis lazuli; {@code c:lapis} is not generated. */
+        public static final TagKey<Item> GEMS_LAPIS = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge", "gems/lapis"));
 
         private Items() {
         }

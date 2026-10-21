@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/osmium"
+    },
+    "R": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "II",
+    "IR",
+    " R"
+  ],
+  "result": {
+    "item": "mekanismtools:osmium_axe"
+  }
+}

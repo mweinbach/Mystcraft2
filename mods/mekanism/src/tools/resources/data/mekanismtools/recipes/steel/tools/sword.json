@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/steel"
+    },
+    "R": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "I",
+    "I",
+    "R"
+  ],
+  "result": {
+    "item": "mekanismtools:steel_sword"
+  }
+}

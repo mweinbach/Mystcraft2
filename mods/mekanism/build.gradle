@@ -30,8 +30,8 @@ sourceSets {
     gametest {
         java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
         resources.srcDirs = []
-        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath + sourceSets.generators.output
-        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath + sourceSets.generators.output
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath + sourceSets.generators.output + sourceSets.tools.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath + sourceSets.generators.output + sourceSets.tools.output
     }
 }
 minecraft.runs {
@@ -52,7 +52,7 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     doFirst { delete file('run/gameTestServer/world') }
 }
 
-// Separate jars, one per upstream module, each depending on the core mod. Tools and Additions are empty scaffolds.
+// Separate jars, one per upstream module, each depending on the core mod. Additions is still an empty scaffold.
 ['generators', 'tools', 'additions'].each { String name ->
     def module = sourceSets.getByName(name)
     def modId = "mekanism${name}"

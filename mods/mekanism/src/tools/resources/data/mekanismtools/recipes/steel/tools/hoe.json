@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/steel"
+    },
+    "R": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "II",
+    " R",
+    " R"
+  ],
+  "result": {
+    "item": "mekanismtools:steel_hoe"
+  }
+}
