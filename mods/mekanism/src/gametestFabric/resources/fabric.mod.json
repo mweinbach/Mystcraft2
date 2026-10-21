@@ -18,6 +18,7 @@
       "mekanism.gametest.PlayerEventGameTests",
       "mekanism.gametest.RenderBoundsGameTests",
       "mekanism.gametest.DynamicTankGameTests",
+      "mekanism.gametest.InductionMatrixGameTests",
       "mekanism.gametest.SimpleGeneratorGameTests",
       "mekanism.gametest.ToolsModuleGameTests"
     ]

@@ -39,6 +39,9 @@ strip, flatten and till actions. Additions is an empty scaffold.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass.
+  An induction matrix of casing, one port, a basic cell and a basic provider forms, and the port moves energy through
+  Team Reborn Energy. An energy tablet in the port's charge slot takes energy out of the matrix. Saving the blocks and
+  loading them brings that stored energy back. The development client draws the formed casing and port.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -46,8 +49,8 @@ strip, flatten and till actions. Additions is an empty scaffold.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
   lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player and
-  living events, a Generators registry smoke test, the simple generators, the dynamic tank, and Tools registration,
-  crafting, tool actions and shield blocking) pass on both loaders.
+  living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction matrix, and
+  Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
