@@ -26,6 +26,7 @@ import ports.buildcraft.transport.pluggable.BlockerPluggable;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
 import ports.buildcraft.transport.pluggable.PowerAdaptorPluggable;
 import ports.buildcraft.transport.pluggable.SimplePluggableItem;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /**
  * Upstream {@code BCTransportPipes} and {@code BCTransportConfig}: the ported pipes with their
@@ -96,7 +97,9 @@ public final class BCTransport {
 
     private BCTransport() {}
 
-    public static void init() {}
+    public static void init() {
+        BCTransportStatements.init();
+    }
 
     private static BlockBehaviour.Properties pipeProperties() {
         return BlockBehaviour.Properties.of(Material.METAL).strength(0.25F, 3.0F).sound(SoundType.STONE).noOcclusion();

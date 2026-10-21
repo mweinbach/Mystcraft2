@@ -1402,10 +1402,15 @@ public final class BCTests {
     }
 
     /** Right-clicks the middle of a pipe block's {@code face} holding {@code held}, as {@code use} would. */
-    private static InteractionResult useOn(GameTestHelper helper, Player player, BlockPos pos, Direction face, ItemStack held) {
+    static InteractionResult useOn(GameTestHelper helper, Player player, BlockPos pos, Direction face, ItemStack held) {
+        return useAt(helper, player, pos, face, 0.5, held);
+    }
+
+    /** Right-clicks a pipe block {@code offset} blocks from its middle towards {@code face}, as {@code use} would. */
+    static InteractionResult useAt(GameTestHelper helper, Player player, BlockPos pos, Direction face, double offset, ItemStack held) {
         player.setItemInHand(InteractionHand.MAIN_HAND, held);
         BlockPos absolute = helper.absolutePos(pos);
-        Vec3 location = Vec3.atCenterOf(absolute).add(face.getStepX() * 0.5, face.getStepY() * 0.5, face.getStepZ() * 0.5);
+        Vec3 location = Vec3.atCenterOf(absolute).add(face.getStepX() * offset, face.getStepY() * offset, face.getStepZ() * offset);
         BlockHitResult hit = new BlockHitResult(location, face, absolute, false);
         return helper.getBlockState(pos).use(helper.getLevel(), player, InteractionHand.MAIN_HAND, hit);
     }

@@ -161,7 +161,8 @@ public final class PowerFlow extends PipeFlow {
         s.nextPowerQuery = Math.min(s.nextPowerQuery + amount, maxPower);
     }
 
-    private long powerRequested(@Nullable Direction side) {
+    /** The power asked for through every face but {@code side}, or through all of them. */
+    public long getPowerRequested(@Nullable Direction side) {
         long requested = 0;
         for (Section s : sections) {
             if (side == null || s.side != side) requested += s.powerQuery;
@@ -286,7 +287,7 @@ public final class PowerFlow extends PipeFlow {
         public long receive(long amount, boolean simulate) {
             if (!isReceiver || amount <= 0 || !pipe.hasLevel()) return 0;
             PowerFlow.this.step();
-            long accepted = Math.min(amount, Power.toUnits(powerRequested(side)));
+            long accepted = Math.min(amount, Power.toUnits(getPowerRequested(side)));
             if (!simulate && accepted > 0) {
                 receivePowerInternal(Power.fromUnits(accepted));
                 pipe.setChanged();

@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_copier"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:wrench"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "buildcraft:iron_chipset"
+      }
+    }
+  ]
+}

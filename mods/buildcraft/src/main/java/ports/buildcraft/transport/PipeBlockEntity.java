@@ -1,5 +1,6 @@
 package ports.buildcraft.transport;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -49,6 +50,8 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     @Nullable
     private volatile CombinedShape combinedShape;
     private boolean updateMarked = true;
+    private int[] redstoneOutput = new int[6];
+    private int[] oldRedstoneOutput = {-1, -1, -1, -1, -1, -1};
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(BCTransport.PIPE_TYPE.get(), pos, state);
@@ -149,6 +152,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     /** Upstream {@code TilePipeHolder.replacePluggable}. */
     @Nullable
     public PipePluggable replacePluggable(Direction side, @Nullable PipePluggable with) {
+        redstoneOutput = new int[6];
         PipePluggable old = pluggables[side.ordinal()];
         pluggables[side.ordinal()] = with;
         updatePluggableShape();
@@ -203,21 +207,59 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock)) return;
         BlockState updated = state;
+        boolean redstone = false;
         for (Direction face : Direction.values()) {
             PipeSide side = connections[face.ordinal()] == null ? PipeSide.NONE
                     : behaviour.isSpecialSide(face) ? PipeSide.SPECIAL : PipeSide.CONNECTED;
             updated = updated.setValue(PipeBlock.SIDES.get(face), side);
+            PipePluggable plug = pluggables[face.ordinal()];
+            redstone |= plug != null && plug.canConnectToRedstone(null);
         }
+        updated = updated.setValue(PipeBlock.REDSTONE, redstone);
         if (updated != state) level.setBlock(worldPosition, updated, Block.UPDATE_CLIENTS);
+    }
+
+    // Redstone.
+
+    /** Upstream {@code TilePipeHolder.getRedstoneInput}: the signal into one face, or the strongest into the pipe. */
+    public int getRedstoneInput(@Nullable Direction side) {
+        if (level == null) return 0;
+        return side == null ? level.getBestNeighborSignal(worldPosition) : level.getSignal(worldPosition.relative(side), side);
+    }
+
+    /** Sets what the pipe emits from {@code side}, or from every face when null, until the next tick clears it. */
+    public boolean setRedstoneOutput(@Nullable Direction side, int value) {
+        if (side == null) Arrays.fill(redstoneOutput, value);
+        else redstoneOutput[side.ordinal()] = value;
+        return true;
+    }
+
+    public int getRedstoneOutput(Direction side) {
+        return redstoneOutput[side.ordinal()];
+    }
+
+    /** Upstream {@code TilePipeHolder.update}: neighbours hear of a changed output, and so do those of each changed face. */
+    private void updateRedstoneNeighbours() {
+        if (Arrays.equals(redstoneOutput, oldRedstoneOutput) || level == null) return;
+        Block block = getBlockState().getBlock();
+        level.updateNeighborsAt(worldPosition, block);
+        for (Direction face : Direction.values()) {
+            if (oldRedstoneOutput[face.ordinal()] != redstoneOutput[face.ordinal()]) level.updateNeighborsAt(worldPosition.relative(face), block);
+        }
+        oldRedstoneOutput = redstoneOutput;
+        setChanged();
     }
 
     // Ticking.
 
+    /** Outputs are set afresh each tick by the gates that emit them. */
     void serverTick() {
+        redstoneOutput = new int[6];
         if (updateMarked) updateConnections();
         behaviour.onTick();
         flow.serverTick();
         tickPluggables();
+        updateRedstoneNeighbours();
         flushSync();
     }
 
@@ -284,6 +326,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         flow.save(flowTag);
         tag.put("flow", flowTag);
         tag.put("plugs", writePluggables(false));
+        tag.putIntArray("redstone", redstoneOutput);
     }
 
     @Override
@@ -291,6 +334,8 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         behaviour.load(tag.getCompound("behaviour"));
         flow.load(tag.getCompound("flow"));
         readPluggables(tag.getCompound("plugs"), false);
+        int[] redstone = tag.getIntArray("redstone");
+        if (redstone.length == 6) redstoneOutput = redstone;
         updateMarked = true;
     }
 

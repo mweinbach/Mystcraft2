@@ -89,6 +89,212 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_iron_gates": {
+      "comment": "The assembly table makes iron AND and OR gates from an iron chipset and laser power (upstream BCSiliconRecipes), far cheaper than crafting one from iron ingots, so the crafting recipe cannot price them above what assembly pays.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_iron_and_no_modifier",
+          "ingredients": {
+            "buildcraft:iron_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_or_no_modifier",
+          "ingredients": {
+            "buildcraft:iron_chipset": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_nether_brick_gates": {
+      "comment": "The assembly table makes nether brick AND and OR gates from an iron chipset, a nether brick block and laser power.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_nether_brick_and_no_modifier",
+          "ingredients": {
+            "buildcraft:iron_chipset": 1,
+            "minecraft:nether_bricks": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_or_no_modifier",
+          "ingredients": {
+            "buildcraft:iron_chipset": 1,
+            "minecraft:nether_bricks": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_gold_gates": {
+      "comment": "The assembly table makes gold AND and OR gates, which have no crafting recipe, from a golden chipset and laser power.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_gold_and_no_modifier",
+          "ingredients": {
+            "buildcraft:gold_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_gold_or_no_modifier",
+          "ingredients": {
+            "buildcraft:gold_chipset": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_lapis_gates": {
+      "comment": "The assembly table adds a lapis modifier to an unmodified gate of the same material and logic with one lapis lazuli and laser power; crafting an iron lapis gate takes four.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_gold_and_lapis",
+          "ingredients": {
+            "buildcraft:gate_gold_and_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_and_lapis",
+          "ingredients": {
+            "buildcraft:gate_iron_and_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_and_lapis",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_and_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_gold_or_lapis",
+          "ingredients": {
+            "buildcraft:gate_gold_or_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_or_lapis",
+          "ingredients": {
+            "buildcraft:gate_iron_or_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_or_lapis",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_or_no_modifier": 1,
+            "minecraft:lapis_lazuli": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_quartz_gates": {
+      "comment": "The assembly table adds a quartz modifier to an unmodified gate of the same material and logic with a quartz chipset and laser power; crafting an iron quartz gate takes four nether quartz.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_gold_and_quartz",
+          "ingredients": {
+            "buildcraft:gate_gold_and_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_and_quartz",
+          "ingredients": {
+            "buildcraft:gate_iron_and_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_and_quartz",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_and_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_gold_or_quartz",
+          "ingredients": {
+            "buildcraft:gate_gold_or_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_or_quartz",
+          "ingredients": {
+            "buildcraft:gate_iron_or_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_or_quartz",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_or_no_modifier": 1,
+            "buildcraft:quartz_chipset": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_diamond_gates": {
+      "comment": "The assembly table adds a diamond modifier, which has no crafting recipe, to an unmodified gate of the same material and logic with a diamond chipset and laser power.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_gold_and_diamond",
+          "ingredients": {
+            "buildcraft:gate_gold_and_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_and_diamond",
+          "ingredients": {
+            "buildcraft:gate_iron_and_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_and_diamond",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_and_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_gold_or_diamond",
+          "ingredients": {
+            "buildcraft:gate_gold_or_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_iron_or_diamond",
+          "ingredients": {
+            "buildcraft:gate_iron_or_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        },
+        {
+          "output": "buildcraft:gate_nether_brick_or_diamond",
+          "ingredients": {
+            "buildcraft:gate_nether_brick_or_no_modifier": 1,
+            "buildcraft:diamond_chipset": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_gate_copier": {
+      "comment": "The assembly table makes the gate copier from a wrench, an iron chipset and laser power. Transmutation never copies NBT, so a copier is valued as an empty one.",
+      "conversions": [
+        {
+          "output": "buildcraft:gate_copier",
+          "ingredients": {
+            "buildcraft:wrench": 1,
+            "buildcraft:iron_chipset": 1
+          }
+        }
+      ]
     }
   },
   "values": {

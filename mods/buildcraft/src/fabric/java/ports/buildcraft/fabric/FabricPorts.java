@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
@@ -446,7 +447,33 @@ final class FabricPorts {
                 }
                 return ItemStack.EMPTY;
             }
+
+            @Override
+            public List<SlotView> slots() {
+                List<SlotView> slots = new ArrayList<>();
+                for (StorageView<ItemVariant> view : items) {
+                    ItemStack stack = view.isResourceBlank() ? ItemStack.EMPTY : view.getResource().toStack((int) Math.min(Integer.MAX_VALUE, view.getAmount()));
+                    int limit = (int) Math.min(Integer.MAX_VALUE, view.getCapacity());
+                    Storage<ItemVariant> target = view instanceof SingleSlotStorage<ItemVariant> slot ? slot : items;
+                    slots.add(new StorageSlot(target, stack, limit));
+                }
+                return slots;
+            }
         };
+    }
+
+    /** Views that are not single slots fall back to a simulated insert into the whole storage. */
+    private record StorageSlot(Storage<ItemVariant> target, ItemStack stack, int limit) implements ItemPort.SlotView {
+        @Override
+        public ItemStack simulateInsert(ItemStack insert) {
+            if (insert.isEmpty()) return insert;
+            try (Transaction transaction = open()) {
+                long inserted = target.insert(ItemVariant.of(insert), insert.getCount(), transaction);
+                ItemStack left = insert.copy();
+                left.shrink((int) inserted);
+                return left;
+            }
+        }
     }
 
     @Nullable

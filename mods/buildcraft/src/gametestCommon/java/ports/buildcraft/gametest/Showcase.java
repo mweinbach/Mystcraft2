@@ -1,6 +1,7 @@
 package ports.buildcraft.gametest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.RepeaterBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,6 +42,7 @@ import ports.buildcraft.builders.snapshot.SchematicBlockManager;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.MarkerBlock;
 import ports.buildcraft.core.marker.MarkerCaches;
+import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
 import ports.buildcraft.energy.EngineBlock;
@@ -58,11 +61,21 @@ import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.EnumAssemblyRecipeState;
 import ports.buildcraft.silicon.IntegrationTableBlockEntity;
 import ports.buildcraft.silicon.LaserBlock;
+import ports.buildcraft.silicon.gate.EnumGateLogic;
+import ports.buildcraft.silicon.gate.EnumGateMaterial;
+import ports.buildcraft.silicon.gate.EnumGateModifier;
+import ports.buildcraft.silicon.gate.GateLogic;
+import ports.buildcraft.silicon.gate.GateVariant;
+import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.statement.ActionWrapper;
+import ports.buildcraft.statement.StatementParameterItemStack;
+import ports.buildcraft.statement.TriggerWrapper;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.PipeDefinition;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /**
  * Development-only demonstration layout for screenshots: every implemented machine running on real
@@ -135,6 +148,15 @@ public final class Showcase {
      */
     public static void buildPlugs(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).plugs();
+    }
+
+    /**
+     * Builds a gate bench: a row of stone pipes with gates of every material and modifier on their south faces, every
+     * other one on; two levers driving gated pipes that light a lamp through a repeater, one lever on and one off;
+     * and an iron pipe whose gold gate sends cobblestone into a chest until it has no room for more and then east.
+     */
+    public static void buildGates(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).gates();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -295,6 +317,72 @@ public final class Showcase {
             plug(capped, face, BCTransport.BLOCKER);
         }
         for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private void gates() {
+        prepare(-3, 20, -3, 9);
+        List<GateVariant> row = List.of(GateVariant.BASIC,
+                new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER),
+                new GateVariant(EnumGateLogic.OR, EnumGateMaterial.IRON, EnumGateModifier.LAPIS),
+                new GateVariant(EnumGateLogic.AND, EnumGateMaterial.NETHER_BRICK, EnumGateModifier.QUARTZ),
+                new GateVariant(EnumGateLogic.OR, EnumGateMaterial.NETHER_BRICK, EnumGateModifier.DIAMOND),
+                new GateVariant(EnumGateLogic.AND, EnumGateMaterial.GOLD, EnumGateModifier.NO_MODIFIER),
+                new GateVariant(EnumGateLogic.OR, EnumGateMaterial.GOLD, EnumGateModifier.LAPIS),
+                new GateVariant(EnumGateLogic.AND, EnumGateMaterial.GOLD, EnumGateModifier.QUARTZ),
+                new GateVariant(EnumGateLogic.OR, EnumGateMaterial.GOLD, EnumGateModifier.DIAMOND));
+        for (int i = 0; i < row.size(); i++) {
+            GateLogic logic = gate(pipe(2 * i, 0, 0, BCTransport.STONE_ITEM), Direction.SOUTH, row.get(i));
+            if (i % 2 == 1) continue;
+            logic.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
+            logic.statements[0].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_REDSTONE, null));
+        }
+
+        redstoneGate(4, true);
+        redstoneGate(6, false);
+
+        chest(6, 0, 5, new ItemStack(Items.COBBLESTONE, 64));
+        pipe(7, 0, 5, BCTransport.WOOD_ITEM);
+        engine(7, 1, 5, BCEnergy.REDSTONE_ENGINE.get(), Direction.DOWN);
+        redstone(7, 2, 5);
+        PipeBlockEntity iron = pipe(8, 0, 5, BCTransport.IRON_ITEM);
+        pipe(9, 0, 5, BCTransport.STONE_ITEM);
+        chest(10, 0, 5);
+        ItemStack[] nearlyFull = new ItemStack[27];
+        Arrays.fill(nearlyFull, new ItemStack(Items.DIRT, 64));
+        nearlyFull[26] = new ItemStack(Items.COBBLESTONE, 56);
+        chest(8, 0, 4, nearlyFull);
+        GateLogic sorter = gate(iron, Direction.SOUTH, new GateVariant(EnumGateLogic.AND, EnumGateMaterial.GOLD, EnumGateModifier.LAPIS));
+        StatementParameterItemStack cobblestone = new StatementParameterItemStack(new ItemStack(Items.COBBLESTONE));
+        sorter.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_INVENTORY_SPACE, Direction.NORTH));
+        sorter.statements[0].trigger.set(0, cobblestone);
+        sorter.statements[0].action.set(ActionWrapper.wrap(BCTransportStatements.ACTION_PIPE_DIRECTION[Direction.NORTH.ordinal()], null));
+        sorter.statements[1].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_INVENTORY_FULL, Direction.NORTH));
+        sorter.statements[1].trigger.set(0, cobblestone);
+        sorter.statements[1].action.set(ActionWrapper.wrap(BCTransportStatements.ACTION_PIPE_DIRECTION[Direction.EAST.ordinal()], null));
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    /**
+     * A lever beside a stone pipe whose gate turns its input into a signal, which lights a lamp through a repeater.
+     * Glass sits under the pipe because a pipe's output, like upstream's, powers a conductive block strongly enough
+     * to feed back into its own redstone trigger.
+     */
+    private void redstoneGate(int z, boolean on) {
+        GateLogic logic = gate(pipe(1, 0, z, BCTransport.STONE_ITEM), Direction.SOUTH,
+                new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER));
+        logic.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_REDSTONE_ACTIVE, null));
+        logic.statements[0].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_REDSTONE, null));
+        set(1, -1, z, Blocks.GLASS);
+        set(2, 0, z, Blocks.REPEATER.defaultBlockState().setValue(RepeaterBlock.FACING, Direction.WEST));
+        set(3, 0, z, Blocks.REDSTONE_LAMP);
+        set(0, 0, z, Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.FLOOR)
+                .setValue(LeverBlock.FACING, Direction.EAST).setValue(LeverBlock.POWERED, on));
+    }
+
+    private static GateLogic gate(PipeBlockEntity pipe, Direction side, GateVariant variant) {
+        PluggableGate gate = new PluggableGate(BCSilicon.GATE, pipe, side, variant);
+        pipe.replacePluggable(side, gate);
+        return gate.logic();
     }
 
     private static void plug(PipeBlockEntity pipe, Direction side, PluggableDefinition definition) {

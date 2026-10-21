@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_gold_or_quartz"
+  },
+  "MJ": 140000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:gate_gold_or_no_modifier"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "buildcraft:quartz_chipset"
+      }
+    }
+  ]
+}

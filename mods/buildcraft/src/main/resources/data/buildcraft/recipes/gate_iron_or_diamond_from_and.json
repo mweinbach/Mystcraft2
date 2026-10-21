@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "i"
+  ],
+  "key": {
+    "i": {
+      "item": "buildcraft:gate_iron_and_diamond"
+    }
+  },
+  "result": {
+    "item": "buildcraft:gate_iron_or_diamond"
+  }
+}

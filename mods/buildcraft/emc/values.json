@@ -105,6 +105,136 @@
     "buildcraft:fuel_mixed_light_heat_2_bucket": {
       "excluded": "Refinery by-products and intermediate heats: each distillation turns one fluid into more volume of two others, so only oil and light fuel, the chain's input and goal, are valued. Leaving residue unvalued also keeps the residue-to-waterproof recipe from pricing waterproof."
     },
+    "buildcraft:gate_clay_brick": {
+      "projecte": 112,
+      "itemalchemy": 112,
+      "source": "recipe"
+    },
+    "buildcraft:gate_copier": {
+      "projecte": 1108,
+      "itemalchemy": 1092,
+      "source": "conversion assemble_gate_copier"
+    },
+    "buildcraft:gate_gold_and_diamond": {
+      "projecte": 10368,
+      "itemalchemy": 4219,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_gold_and_lapis": {
+      "projecte": 2976,
+      "itemalchemy": 2971,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_gold_and_no_modifier": {
+      "projecte": 2112,
+      "itemalchemy": 2107,
+      "source": "conversion assemble_gold_gates"
+    },
+    "buildcraft:gate_gold_and_quartz": {
+      "projecte": 2432,
+      "itemalchemy": 2427,
+      "source": "conversion assemble_quartz_gates"
+    },
+    "buildcraft:gate_gold_or_diamond": {
+      "projecte": 10368,
+      "itemalchemy": 4219,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_gold_or_lapis": {
+      "projecte": 2976,
+      "itemalchemy": 2971,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_gold_or_no_modifier": {
+      "projecte": 2112,
+      "itemalchemy": 2107,
+      "source": "conversion assemble_gold_gates"
+    },
+    "buildcraft:gate_gold_or_quartz": {
+      "projecte": 2432,
+      "itemalchemy": 2427,
+      "source": "conversion assemble_quartz_gates"
+    },
+    "buildcraft:gate_iron_and_diamond": {
+      "projecte": 8576,
+      "itemalchemy": 2428,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_iron_and_lapis": {
+      "projecte": 1184,
+      "itemalchemy": 1180,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_iron_and_no_modifier": {
+      "projecte": 320,
+      "itemalchemy": 316,
+      "source": "conversion assemble_iron_gates"
+    },
+    "buildcraft:gate_iron_and_quartz": {
+      "projecte": 640,
+      "itemalchemy": 636,
+      "source": "conversion assemble_quartz_gates"
+    },
+    "buildcraft:gate_iron_or_diamond": {
+      "projecte": 8576,
+      "itemalchemy": 2428,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_iron_or_lapis": {
+      "projecte": 1184,
+      "itemalchemy": 1180,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_iron_or_no_modifier": {
+      "projecte": 320,
+      "itemalchemy": 316,
+      "source": "conversion assemble_iron_gates"
+    },
+    "buildcraft:gate_iron_or_quartz": {
+      "projecte": 640,
+      "itemalchemy": 636,
+      "source": "conversion assemble_quartz_gates"
+    },
+    "buildcraft:gate_nether_brick_and_diamond": {
+      "projecte": 8323,
+      "itemalchemy": 2188,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_nether_brick_and_lapis": {
+      "projecte": 931,
+      "itemalchemy": 940,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_nether_brick_and_no_modifier": {
+      "projecte": 67,
+      "itemalchemy": 76,
+      "source": "conversion assemble_nether_brick_gates"
+    },
+    "buildcraft:gate_nether_brick_and_quartz": {
+      "projecte": 387,
+      "itemalchemy": 396,
+      "source": "conversion assemble_quartz_gates"
+    },
+    "buildcraft:gate_nether_brick_or_diamond": {
+      "projecte": 8323,
+      "itemalchemy": 2188,
+      "source": "conversion assemble_diamond_gates"
+    },
+    "buildcraft:gate_nether_brick_or_lapis": {
+      "projecte": 931,
+      "itemalchemy": 940,
+      "source": "conversion assemble_lapis_gates"
+    },
+    "buildcraft:gate_nether_brick_or_no_modifier": {
+      "projecte": 67,
+      "itemalchemy": 76,
+      "source": "conversion assemble_nether_brick_gates"
+    },
+    "buildcraft:gate_nether_brick_or_quartz": {
+      "projecte": 387,
+      "itemalchemy": 396,
+      "source": "conversion assemble_quartz_gates"
+    },
     "buildcraft:gear_diamond": {
       "projecte": 42004,
       "itemalchemy": 17392,

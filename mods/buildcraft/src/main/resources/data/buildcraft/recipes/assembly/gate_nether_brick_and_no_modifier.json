@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_nether_brick_and_no_modifier"
+  },
+  "MJ": 40000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:iron_chipset"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:nether_bricks"
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_iron_and_diamond"
+  },
+  "MJ": 80000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:gate_iron_and_no_modifier"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "buildcraft:diamond_chipset"
+      }
+    }
+  ]
+}

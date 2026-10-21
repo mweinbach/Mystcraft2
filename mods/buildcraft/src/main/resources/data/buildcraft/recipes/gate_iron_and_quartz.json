@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " m ",
+    "mgm",
+    " m "
+  ],
+  "key": {
+    "m": [
+      {
+        "tag": "c:quartz"
+      },
+      {
+        "tag": "forge:gems/quartz"
+      }
+    ],
+    "g": {
+      "item": "buildcraft:gate_iron_and_no_modifier"
+    }
+  },
+  "result": {
+    "item": "buildcraft:gate_iron_and_quartz"
+  }
+}

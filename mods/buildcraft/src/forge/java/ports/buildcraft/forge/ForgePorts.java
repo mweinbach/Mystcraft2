@@ -214,7 +214,20 @@ final class ForgePorts {
             public ItemStack extract(Predicate<ItemStack> filter, int max, boolean simulate) {
                 return extractMatching(items, filter, max, simulate);
             }
+
+            @Override
+            public List<SlotView> slots() {
+                SlotView[] slots = new SlotView[items.getSlots()];
+                for (int i = 0; i < slots.length; i++) slots[i] = new HandlerSlot(items, i);
+                return List.of(slots);
+            }
         };
+    }
+
+    private record HandlerSlot(IItemHandler items, int slot) implements ItemPort.SlotView {
+        @Override public ItemStack stack() { return items.getStackInSlot(slot); }
+        @Override public int limit() { return items.getSlotLimit(slot); }
+        @Override public ItemStack simulateInsert(ItemStack stack) { return items.insertItem(slot, stack, true); }
     }
 
     /** Upstream {@code ItemTransactorHelper} extraction: the first matching stack type, gathered across slots. */

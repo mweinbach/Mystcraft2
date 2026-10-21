@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " m ",
+    "mgm",
+    " m "
+  ],
+  "key": {
+    "m": [
+      {
+        "tag": "c:lapis"
+      },
+      {
+        "tag": "forge:gems/lapis"
+      }
+    ],
+    "g": {
+      "item": "buildcraft:gate_iron_and_no_modifier"
+    }
+  },
+  "result": {
+    "item": "buildcraft:gate_iron_and_lapis"
+  }
+}

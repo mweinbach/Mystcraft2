@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_nether_brick_and_diamond"
+  },
+  "MJ": 120000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:gate_nether_brick_and_no_modifier"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "buildcraft:diamond_chipset"
+      }
+    }
+  ]
+}

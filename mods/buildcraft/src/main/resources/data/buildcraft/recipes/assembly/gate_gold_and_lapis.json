@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:gate_gold_and_lapis"
+  },
+  "MJ": 100000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:gate_gold_and_no_modifier"
+      }
+    },
+    {
+      "ingredient": [
+        {
+          "tag": "c:lapis"
+        },
+        {
+          "tag": "forge:gems/lapis"
+        }
+      ]
+    }
+  ]
+}

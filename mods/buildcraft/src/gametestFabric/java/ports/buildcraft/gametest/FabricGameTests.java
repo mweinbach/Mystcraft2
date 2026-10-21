@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests} and {@link SiliconTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests} and {@link GateTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -232,6 +232,24 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void structurePipesConnectOnlyToEachOther(GameTestHelper helper) { BCTests.structurePipesConnectOnlyToEachOther(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gatePlacesAndKeepsItsConfiguration(GameTestHelper helper) { GateTests.gatePlacesAndKeepsItsConfiguration(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 60)
+    public void gateTurnsRedstoneInputIntoSignal(GameTestHelper helper) { GateTests.gateTurnsRedstoneInputIntoSignal(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gateGroupsPairsByLogic(GameTestHelper helper) { GateTests.gateGroupsPairsByLogic(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gateCopierCopiesPastesAndClears(GameTestHelper helper) { GateTests.gateCopierCopiesPastesAndClears(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gateMenuOnlyAcceptsWhatTheGateCanUse(GameTestHelper helper) { GateTests.gateMenuOnlyAcceptsWhatTheGateCanUse(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) { GateTests.gateTurnsIronPipeAndReadsInventories(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

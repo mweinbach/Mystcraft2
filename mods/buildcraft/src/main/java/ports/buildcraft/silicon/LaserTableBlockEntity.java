@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import ports.buildcraft.lib.AverageLong;
+import ports.buildcraft.lib.HasWork;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.lib.SlotRange;
 
@@ -25,7 +26,7 @@ import ports.buildcraft.lib.SlotRange;
  * Upstream {@code TileLaserTableBase}: collects laser power up to the current job's target, averaging what it
  * received over the last 120 ticks for its power ledger.
  */
-public abstract class LaserTableBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider, LaserTarget {
+public abstract class LaserTableBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider, LaserTarget, HasWork {
     private static final long MJ_FLOW_ROUND = Power.MJ / 10;
 
     protected final NonNullList<ItemStack> items;
@@ -40,6 +41,11 @@ public abstract class LaserTableBlockEntity extends BlockEntity implements World
     }
 
     public abstract long getTarget();
+
+    @Override
+    public boolean hasWork() {
+        return getTarget() > 0;
+    }
 
     public long power() {
         return power;

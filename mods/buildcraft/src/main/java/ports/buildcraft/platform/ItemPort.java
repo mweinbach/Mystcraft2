@@ -1,5 +1,6 @@
 package ports.buildcraft.platform;
 
+import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.world.item.ItemStack;
@@ -21,4 +22,21 @@ public interface ItemPort {
     default void restore(Object snapshot) {}
 
     default void onCommitted() {}
+
+    /**
+     * The slots of a real inventory, for gate triggers that inspect contents. Pipes and providing
+     * machines, which hold nothing, return an empty list.
+     */
+    default List<SlotView> slots() {
+        return List.of();
+    }
+
+    interface SlotView {
+        ItemStack stack();
+
+        int limit();
+
+        /** @return the part of {@code stack} that would not fit into this slot. */
+        ItemStack simulateInsert(ItemStack stack);
+    }
 }

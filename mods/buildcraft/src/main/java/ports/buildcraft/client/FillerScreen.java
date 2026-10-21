@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -29,34 +28,19 @@ import ports.buildcraft.builders.filler.PatternStatement;
  * Pressing on the pattern or a parameter opens upstream's ring of choices; releasing over one picks it.
  */
 public final class FillerScreen extends BCScreen<FillerMenu> {
-    private static final ResourceLocation MISC_SLOTS = BuildCraft.id("textures/gui/misc_slots.png");
     private static final ResourceLocation LOCK = BuildCraft.id("textures/gui/lock.png");
     private static final int PATTERN_X = 12, PATTERN_Y = 32, PATTERN_SIZE = 32;
     private static final int PARAM_X = 53, PARAM_Y = 39;
     private static final int EXCAVATE_X = 130, INVERT_X = 152, BUTTON_Y = 40;
     private static final int LOCK_X = 12, LOCK_Y = 16;
-    /** Upstream {@code GuiElementStatementVariant.OFFSET_HOVER}: the centre, then rings of 8 and 16 around it. */
-    private static final int[][] OFFSET_HOVER = {
-            {0, 0},
-            {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0},
-            {-2, -2}, {-1, -2}, {0, -2}, {1, -2}, {2, -2}, {2, -1}, {2, 0}, {2, 1},
-            {2, 2}, {1, 2}, {0, 2}, {-1, 2}, {-2, 2}, {-2, 1}, {-2, 0}, {-2, -1}};
     private static final int LEDGER_COLOUR = 0xFF6CD41F;
     private static final int LEDGER_TITLE_COLOUR = 0xFFE1C92F;
-    private static final int SLOT = 18;
+    private static final int SLOT = SlotRing.SLOT;
 
     private final Ledger ledger = new Ledger("filler.progress", LEDGER_COLOUR);
-    @Nullable private Variant variant;
+    @Nullable private SlotRing variant;
     private boolean dragging;
     @Nullable private Object dragged;
-
-    /** Upstream's pop-up of choices, positioned from the top-left of the slot it opened over. */
-    private record Variant(int x, int y, int size, Object[] options, int[][] positions, Predicate<Object> canSet, Selector select) {}
-
-    @FunctionalInterface
-    private interface Selector {
-        void select(Object option);
-    }
 
     public FillerScreen(FillerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BuildCraft.id("textures/gui/filler.png"), 176, 241);
@@ -159,7 +143,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     // Drawing
 
     private void drawSlot(PoseStack poseStack, @Nullable Object slot, int x, int y) {
-        RenderSystem.setShaderTexture(0, MISC_SLOTS);
+        RenderSystem.setShaderTexture(0, SlotRing.MISC_SLOTS);
         blit(poseStack, x, y, 0, 0, SLOT, SLOT);
         ResourceLocation sprite = spriteOf(slot);
         if (sprite != null) {
@@ -193,7 +177,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         for (int i = 0; i < PatternStatement.MAX_PARAMS; i++) {
             int x = leftPos + PARAM_X + SLOT * i, y = topPos + PARAM_Y;
             if (i >= pattern.maxParameters()) {
-                RenderSystem.setShaderTexture(0, MISC_SLOTS);
+                RenderSystem.setShaderTexture(0, SlotRing.MISC_SLOTS);
                 blit(poseStack, x, y, 0, 0, SLOT, SLOT);
                 blit(poseStack, x, y, SLOT, 0, SLOT, SLOT);
             } else {
@@ -247,7 +231,7 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         super.render(poseStack, mouseX, mouseY, partialTicks);
         poseStack.pushPose();
         poseStack.translate(0, 0, 400);
-        if (variant != null) renderVariant(poseStack);
+        if (variant != null) variant.render(poseStack, this::drawSlot);
         if (dragging) renderDragged(poseStack, mouseX, mouseY);
         poseStack.popPose();
         if (variant != null) renderVariantTooltip(poseStack, mouseX, mouseY);
@@ -255,24 +239,8 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     }
 
     private void renderVariantTooltip(PoseStack poseStack, int mouseX, int mouseY) {
-        for (int i = 0; i < variant.options().length; i++) {
-            Component tooltip = tooltipOf(variant.options()[i]);
-            if (tooltip != null && in(mouseX, mouseY, variant.positions()[i][0], variant.positions()[i][1], SLOT, SLOT)) {
-                renderTooltip(poseStack, tooltip, mouseX, mouseY);
-            }
-        }
-    }
-
-    private void renderVariant(PoseStack poseStack) {
-        RenderSystem.setShaderTexture(0, MISC_SLOTS);
-        Ledger.nineSlice(poseStack, variant.x() + offsetOf(variant), variant.y() + offsetOf(variant), variant.size(), variant.size(), 18, 18, 36, 8, 256);
-        for (int i = 0; i < variant.options().length; i++) {
-            if (variant.options()[i] != null) drawSlot(poseStack, variant.options()[i], variant.positions()[i][0], variant.positions()[i][1]);
-        }
-    }
-
-    private static int offsetOf(Variant variant) {
-        return -SLOT * (variant.options().length > 9 ? 2 : 1) - 4;
+        Component tooltip = tooltipOf(variant.optionAt(mouseX, mouseY));
+        if (tooltip != null) renderTooltip(poseStack, tooltip, mouseX, mouseY);
     }
 
     private void renderDragged(PoseStack poseStack, int mouseX, int mouseY) {
@@ -354,15 +322,6 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
         return param >= 0 && canSetParam(param, dragged);
     }
 
-    private Variant createVariant(int x, int y, List<Object> possible, Predicate<Object> canSet, Selector select) {
-        int count = Math.min(OFFSET_HOVER.length, possible.size());
-        Object[] options = possible.subList(0, count).toArray();
-        int[][] positions = new int[count][];
-        for (int i = 0; i < count; i++) positions[i] = new int[] {x + OFFSET_HOVER[i][0] * SLOT, y + OFFSET_HOVER[i][1] * SLOT};
-        int size = 8 + SLOT * (count > 9 ? 3 : 1) + SLOT * 2;
-        return new Variant(x, y, size, options, positions, canSet, select);
-    }
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         FillerBlockEntity filler = filler();
@@ -384,14 +343,14 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
                 List<Object> possible = new ArrayList<>();
                 possible.add(null);
                 possible.addAll(FillerPatterns.PATTERNS);
-                variant = createVariant(leftPos + PATTERN_X, topPos + PATTERN_Y, possible, this::canSetPattern, this::setPattern);
+                variant = new SlotRing(leftPos + PATTERN_X, topPos + PATTERN_Y, possible, this::canSetPattern, this::setPattern);
                 return true;
             }
             int param = paramAt(mouseX, mouseY);
             if (param >= 0) {
                 FillerParameter current = filler.patternStatement.get(param);
                 if (interactive && current != null) {
-                    variant = createVariant(leftPos + PARAM_X + SLOT * param, topPos + PARAM_Y, new ArrayList<>(current.possibleForGui()),
+                    variant = new SlotRing(leftPos + PARAM_X + SLOT * param, topPos + PARAM_Y, new ArrayList<>(current.possibleForGui()),
                             value -> canSetParam(param, value), value -> setParam(param, value));
                 }
                 return true;
@@ -429,14 +388,9 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (variant != null) {
-            Variant closing = variant;
+            SlotRing closing = variant;
             variant = null;
-            for (int i = 0; i < closing.options().length; i++) {
-                Object option = closing.options()[i];
-                if (option != null && in(mouseX, mouseY, closing.positions()[i][0], closing.positions()[i][1], SLOT, SLOT) && closing.canSet().test(option)) {
-                    closing.select().select(option);
-                }
-            }
+            closing.release(mouseX, mouseY);
             return true;
         }
         if (dragging) {

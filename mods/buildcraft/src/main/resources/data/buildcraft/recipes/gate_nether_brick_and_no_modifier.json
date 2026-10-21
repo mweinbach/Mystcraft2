@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " m ",
+    "mrm",
+    " b "
+  ],
+  "key": {
+    "r": [
+      {
+        "tag": "c:redstone_dusts"
+      },
+      {
+        "tag": "forge:dusts/redstone"
+      }
+    ],
+    "b": {
+      "item": "buildcraft:plug_blocker"
+    },
+    "m": {
+      "item": "minecraft:nether_brick"
+    }
+  },
+  "result": {
+    "item": "buildcraft:gate_nether_brick_and_no_modifier"
+  }
+}
