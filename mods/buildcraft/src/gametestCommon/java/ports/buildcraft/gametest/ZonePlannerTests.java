@@ -256,21 +256,37 @@ public final class ZonePlannerTests {
         helper.succeed();
     }
 
-    /** The map slice reports the highest coloured block in a column, and the player's ground search stops at y 255. */
+    /**
+     * The map slice reports the highest coloured block in the column, which is the emerald when the column above it
+     * is air and whatever the world generated when it is not. The ground search stops at y 255.
+     */
     public static void zonePlannerMapColoursTheTopBlock(GameTestHelper helper) {
         BlockPos relative = new BlockPos(4, 2, 4);
         helper.setBlock(relative, Blocks.EMERALD_BLOCK);
         BlockPos emerald = helper.absolutePos(relative);
+        int emeraldColour = helper.getBlockState(relative).getMapColor(helper.getLevel(), emerald).col;
+        BCTests.require(helper, emeraldColour != 0, "emerald has a map colour");
         int slice = Math.floorDiv(emerald.getY(), ZonePlannerMapChunkKey.LEVEL_HEIGHT) + 1;
+        int top = slice * ZonePlannerMapChunkKey.LEVEL_HEIGHT;
+        int expectedY = Integer.MIN_VALUE;
+        int expectedColour = 0;
+        for (int y = top; y > helper.getLevel().getMinBuildHeight(); y--) {
+            BlockPos pos = new BlockPos(emerald.getX(), y, emerald.getZ());
+            int colour = helper.getLevel().getBlockState(pos).getMapColor(helper.getLevel(), pos).col;
+            if (colour != 0) {
+                expectedY = y;
+                expectedColour = colour;
+                break;
+            }
+        }
         ZonePlannerMapChunk chunk = new ZonePlannerMapChunk(helper.getLevel(),
                 new ZonePlannerMapChunkKey(new ChunkPos(emerald), ZonePlannerMapChunkKey.dimensionId(helper.getLevel()), slice));
         ZonePlannerMapChunk.Column column = chunk.column(emerald.getX(), emerald.getZ());
-        int expected = helper.getBlockState(relative).getMapColor(helper.getLevel(), emerald).col;
-        BCTests.require(helper, column != null && column.y() == emerald.getY() && column.colour() == expected,
-                "the slice's top coloured block is the emerald, got " + column);
-        BlockPos air = emerald.above(3);
-        BCTests.require(helper, ZonePlannerMapChunkKey.levelOf(helper.getLevel(), air) == 255 / ZonePlannerMapChunkKey.LEVEL_HEIGHT,
-                "an open column is searched up to y 255");
+        BCTests.require(helper, column != null && column.y() == expectedY && column.colour() == expectedColour && column.y() >= emerald.getY(),
+                "the slice's top coloured block matches the world, got " + column + " expected y " + expectedY);
+        BlockPos cap = new BlockPos(emerald.getX(), ZonePlannerMapChunkKey.SEARCH_TOP, emerald.getZ());
+        BCTests.require(helper, ZonePlannerMapChunkKey.levelOf(helper.getLevel(), cap) == 255 / ZonePlannerMapChunkKey.LEVEL_HEIGHT,
+                "the ground search stops at y 255");
         helper.succeed();
     }
 
