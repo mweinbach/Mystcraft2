@@ -28,7 +28,7 @@ import ports.buildcraft.energy.OilWellFeature;
  * {@code /bcshowcase engines} builds the engine close-up bench there, {@code /bcshowcase builders} the builder bench,
  * {@code /bcshowcase library} the electronic library and replacer bench, {@code /bcshowcase silicon} the laser and table bench,
  * {@code /bcshowcase plugs} the pipe plug, power adapter and structure pipe bench, {@code /bcshowcase gates} the gate bench,
- * {@code /bcshowcase refinery} a running refinery,
+ * {@code /bcshowcase wires} the pipe wire bench, {@code /bcshowcase refinery} a running refinery,
  * {@code /bcshowcase oilwell} reports the nearest oil well, {@code /bcshowcase use <pos>} right-clicks a block
  * with an empty hand to open its screen and {@code /bcshowcase useitem} right-clicks with the held item where the caller looks.
  */
@@ -76,6 +76,10 @@ public final class FabricShowcase implements ModInitializer {
                         }))
                         .then(Commands.literal("gates").executes(context -> {
                             Showcase.buildGates(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
+                            return 1;
+                        }))
+                        .then(Commands.literal("wires").executes(context -> {
+                            Showcase.buildWires(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                             return 1;
                         }))
                         .then(Commands.literal("refinery").executes(context -> {
