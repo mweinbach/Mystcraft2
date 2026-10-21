@@ -9,7 +9,8 @@
   "entrypoints": {
     "fabric-gametest": [
       "mekanism.gametest.CoreMachineGameTests",
-      "mekanism.gametest.LoaderInteropGameTests"
+      "mekanism.gametest.LoaderInteropGameTests",
+      "mekanism.gametest.OreGenerationGameTests"
     ]
   },
   "depends": {
