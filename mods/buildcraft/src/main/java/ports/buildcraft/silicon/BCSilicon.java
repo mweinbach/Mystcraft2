@@ -24,6 +24,7 @@ import ports.buildcraft.silicon.gate.PluggableGate;
 import ports.buildcraft.silicon.plug.LensItem;
 import ports.buildcraft.silicon.plug.LensPluggable;
 import ports.buildcraft.silicon.plug.LensVariant;
+import ports.buildcraft.silicon.plug.PluggableLightSensor;
 import ports.buildcraft.silicon.plug.PluggablePulsar;
 import ports.buildcraft.silicon.plug.PluggableTimer;
 import ports.buildcraft.silicon.statement.BCSiliconStatements;
@@ -32,7 +33,7 @@ import ports.buildcraft.transport.pluggable.SimplePluggableItem;
 
 /**
  * Upstream BuildCraft Silicon: the laser, the assembly, advanced crafting and integration tables it powers, the
- * five chipsets the assembly table makes, gates with the gate copier, lenses and filters, and the pipe pulsar and timer.
+ * five chipsets the assembly table makes, gates with the gate copier, lenses and filters, and the pipe pulsar, timer and light sensor.
  * Upstream's single
  * {@code redstone_chipset} item with five damage values is flattened into one item per chipset, its single NBT-keyed
  * gate item into one item per gate variant, and its 34-damage lens item into one item per lens or filter.
@@ -84,6 +85,9 @@ public final class BCSilicon {
             () -> new SimplePluggableItem(BuildCraft.itemProperties(), PULSAR, SimplePluggableItem.BEHAVIOUR_ACCEPTS_REDSTONE_POWER));
     public static final Supplier<Item> TIMER_ITEM = Reg.item("plug_timer",
             () -> new SimplePluggableItem(BuildCraft.itemProperties(), TIMER, null));
+    public static final PluggableDefinition LIGHT_SENSOR = PluggableDefinition.register(BuildCraft.id("daylight_sensor"), PluggableLightSensor::new);
+    public static final Supplier<Item> LIGHT_SENSOR_ITEM = Reg.item("plug_light_sensor",
+            () -> new SimplePluggableItem(BuildCraft.itemProperties(), LIGHT_SENSOR, null));
 
     static {
         for (GateVariant variant : GateVariant.VALUES) {

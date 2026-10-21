@@ -73,6 +73,39 @@ public final class FabricTransfer {
         FluidStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side)
               .<Storage<FluidVariant>>map(HandlerFluidStorage::new).orElse(null), types);
         FabricEnergy.registerBlockEntityLookups(types);
+        FabricEnergy.registerItemLookups(ownNamespaces);
+        registerItemFluidLookups(ownNamespaces);
+    }
+
+    /**
+     * Exposes the port's own fluid items. Other mods' items, including vanilla buckets, keep the providers registered
+     * ahead of this fallback. Looking those up here would call back into {@link #foreignCapability(ItemStack, Capability)}.
+     */
+    private static void registerItemFluidLookups(Set<String> namespaces) {
+        Set<String> mods = Set.copyOf(namespaces);
+        FluidStorage.ITEM.registerFallback((stack, context) -> owned(mods, stack) && fluidHandler(stack) != null
+              ? new ItemFluidStorage(context) : null);
+    }
+
+    private static boolean owned(Set<String> namespaces, ItemStack stack) {
+        return !stack.isEmpty() && namespaces.contains(Registry.ITEM.getKey(stack.getItem()).getNamespace());
+    }
+
+    @Nullable
+    private static IFluidHandler fluidHandler(ItemStack stack) {
+        IFluidHandler item = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        return item != null ? item : stack.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+    }
+
+    /**
+     * Puts a stack a Forge item handler has already updated into the context for this transaction.
+     */
+    static boolean commitItem(ContainerItemContext context, ItemStack updated, TransactionContext transaction) {
+        if (updated.isEmpty()) {
+            return context.getItemVariant().isBlank()
+                  || context.extract(context.getItemVariant(), context.getAmount(), transaction) == context.getAmount();
+        }
+        return context.exchange(ItemVariant.of(updated), updated.getCount(), transaction) == updated.getCount();
     }
 
     /**
@@ -97,9 +130,10 @@ public final class FabricTransfer {
     }
 
     /**
-     * The fluid or energy storage another mod's item, or a vanilla bucket, offers through the Fabric APIs. Changes to the
-     * stack happen in place, as with Forge's item capabilities; {@link IFluidHandlerItem#getContainer} holds the
-     * replacement when the item itself changes, such as a bucket being emptied.
+     * The fluid or energy storage another mod's item, or a vanilla bucket, offers through the Fabric APIs. The port's own
+     * items are exposed through {@code EnergyStorage.ITEM} and {@code FluidStorage.ITEM} instead, so they are never
+     * looked up here. Changes to the stack happen in place, as with Forge's item capabilities;
+     * {@link IFluidHandlerItem#getContainer} holds the replacement when the item itself changes, such as a bucket being emptied.
      */
     @SuppressWarnings("unchecked")
     static <T> LazyOptional<T> foreignCapability(ItemStack stack, Capability<T> capability) {
@@ -562,6 +596,129 @@ public final class FabricTransfer {
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             return handler().drain(maxDrain, action);
+        }
+    }
+
+    /**
+     * One of the port's fluid items as a Transfer API storage. Only whole millibuckets move, at
+     * {@link #DROPLETS_PER_MB} droplets each. Forge applies the change immediately, so it is applied to a copy of the
+     * stack and exchanged into the context; aborting the transaction drops the copy. {@link IFluidHandlerItem#getContainer}
+     * is what gets exchanged when the item itself changes.
+     */
+    private static final class ItemFluidStorage implements Storage<FluidVariant> {
+
+        private final ContainerItemContext context;
+
+        private ItemFluidStorage(ContainerItemContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+            int millibuckets = clampToInt(maxAmount / DROPLETS_PER_MB);
+            if (millibuckets <= 0) {
+                return 0;
+            }
+            Held held = held();
+            if (held == null) {
+                return 0;
+            }
+            int filled = held.handler.fill(toStack(resource, millibuckets), IFluidHandler.FluidAction.EXECUTE);
+            return filled > 0 && commitItem(context, held.result(), transaction) ? filled * DROPLETS_PER_MB : 0;
+        }
+
+        @Override
+        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+            int millibuckets = clampToInt(maxAmount / DROPLETS_PER_MB);
+            if (millibuckets <= 0) {
+                return 0;
+            }
+            Held held = held();
+            if (held == null) {
+                return 0;
+            }
+            FluidStack drained = held.handler.drain(toStack(resource, millibuckets), IFluidHandler.FluidAction.EXECUTE);
+            if (drained.isEmpty() || !resource.isOf(drained.getFluid()) || !commitItem(context, held.result(), transaction)) {
+                return 0;
+            }
+            return drained.getAmount() * DROPLETS_PER_MB;
+        }
+
+        @Override
+        public Iterator<StorageView<FluidVariant>> iterator() {
+            Held held = held();
+            if (held == null) {
+                return List.<StorageView<FluidVariant>>of().iterator();
+            }
+            List<StorageView<FluidVariant>> views = new ArrayList<>(held.handler.getTanks());
+            for (int tank = 0; tank < held.handler.getTanks(); tank++) {
+                views.add(new ItemTankView(tank));
+            }
+            return views.iterator();
+        }
+
+        @Nullable
+        private Held held() {
+            if (context.getItemVariant().isBlank()) {
+                return null;
+            }
+            int count = clampToInt(context.getAmount());
+            if (count <= 0) {
+                return null;
+            }
+            ItemStack stack = context.getItemVariant().toStack(count);
+            IFluidHandler handler = fluidHandler(stack);
+            return handler == null ? null : new Held(stack, handler);
+        }
+
+        private final class ItemTankView implements StorageView<FluidVariant> {
+
+            private final int tank;
+
+            private ItemTankView(int tank) {
+                this.tank = tank;
+            }
+
+            @Override
+            public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+                return resource.equals(getResource()) ? ItemFluidStorage.this.extract(resource, maxAmount, transaction) : 0;
+            }
+
+            @Override
+            public boolean isResourceBlank() {
+                return fluid().isEmpty();
+            }
+
+            @Override
+            public FluidVariant getResource() {
+                FluidStack fluid = fluid();
+                return fluid.isEmpty() ? FluidVariant.blank() : toVariant(fluid);
+            }
+
+            @Override
+            public long getAmount() {
+                return fluid().getAmount() * DROPLETS_PER_MB;
+            }
+
+            @Override
+            public long getCapacity() {
+                Held held = held();
+                return held == null || tank >= held.handler.getTanks() ? 0 : held.handler.getTankCapacity(tank) * DROPLETS_PER_MB;
+            }
+
+            private FluidStack fluid() {
+                Held held = held();
+                return held == null || tank >= held.handler.getTanks() ? FluidStack.EMPTY : held.handler.getFluidInTank(tank);
+            }
+        }
+
+        private record Held(ItemStack stack, IFluidHandler handler) {
+
+            ItemStack result() {
+                return handler instanceof IFluidHandlerItem item ? item.getContainer() : stack;
+            }
         }
     }
 

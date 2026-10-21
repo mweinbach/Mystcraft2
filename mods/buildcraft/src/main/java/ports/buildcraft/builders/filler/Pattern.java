@@ -2,22 +2,57 @@ package ports.buildcraft.builders.filler;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.builders.FillerBlockEntity;
+import ports.buildcraft.statement.Action;
+import ports.buildcraft.statement.BCStatement;
+import ports.buildcraft.statement.Statement;
+import ports.buildcraft.statement.StatementContainer;
+import ports.buildcraft.statement.StatementParameter;
 
 /**
- * Upstream {@code Pattern} with {@code IFillerPatternShape} and the {@code BCStatement} parts patterns use:
- * a filler shape saved as {@code buildcraft:<tag>}, its parameters' defaults, and how it fills a box.
+ * Upstream {@code Pattern}: a filler shape, a gate action that sets it on a neighbouring filler, and how it fills a
+ * box. Saved as {@code buildcraft:<tag>}.
  */
-public abstract class Pattern {
+public abstract class Pattern extends BCStatement implements Action.External {
     public final String tag;
 
     protected Pattern(String tag) {
+        super(BuildCraft.MOD_ID + ":" + tag);
         this.tag = tag;
     }
 
     public String uniqueTag() {
-        return BuildCraft.MOD_ID + ":" + tag;
+        return getUniqueTag();
+    }
+
+    @Override
+    public Component getDescription() {
+        return Component.translatable(translationKey());
+    }
+
+    @Override
+    public ResourceLocation getSprite() {
+        return sprite();
+    }
+
+    /**
+     * Upstream sets the pattern on a statement container that is itself a filler, and otherwise on the neighbouring
+     * block. The filler planner addon is not ported, so the neighbour is the filler a gate acts on.
+     */
+    @Override
+    public void actionActivate(BlockEntity target, Direction side, StatementContainer source, StatementParameter[] parameters) {
+        BlockEntity acted = source.getTile() instanceof FillerBlockEntity ? source.getTile() : target;
+        if (acted instanceof FillerBlockEntity filler) filler.setPattern(this, parameters);
+    }
+
+    @Override
+    public Statement[] getPossible() {
+        return FillerPatterns.PATTERNS.toArray(Statement[]::new);
     }
 
     public String translationKey() {
