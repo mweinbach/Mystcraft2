@@ -3,6 +3,7 @@ package ports.buildcraft.robotics.zone;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 /**
@@ -13,14 +14,18 @@ public final class ZonePlannerMapChunk {
     private final Column[][] columns = new Column[16][16];
 
     public ZonePlannerMapChunk(Level level, ZonePlannerMapChunkKey key) {
-        LevelChunk chunk = level.getChunk(key.chunkPos.x, key.chunkPos.z);
+        // A slice above the world used to start the scan at level * 32. That walks billions of blocks for a hostile key.
+        long top = (long) key.level * ZonePlannerMapChunkKey.LEVEL_HEIGHT;
+        int minY = level.getMinBuildHeight();
+        if (!(level instanceof ServerLevel server) || top > level.getMaxBuildHeight() - 1 || top <= minY) return;
+        LevelChunk chunk = server.getChunkSource().getChunkNow(key.chunkPos.x, key.chunkPos.z);
+        if (chunk == null) return;
         int originX = key.chunkPos.getMinBlockX();
         int originZ = key.chunkPos.getMinBlockZ();
-        int top = key.level * ZonePlannerMapChunkKey.LEVEL_HEIGHT;
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 // Upstream stopped at y 0, the bottom of a 1.12 world. 1.19 continues to the bottom of this world.
-                for (int y = top; y > level.getMinBuildHeight(); y--) {
+                for (int y = (int) top; y > minY; y--) {
                     BlockPos pos = new BlockPos(originX + x, y, originZ + z);
                     // Upstream passed the column's local coordinates to getMapColor. 1.19 needs the world position,
                     // which also makes grass and foliage colours follow the column instead of the world's origin.

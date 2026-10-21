@@ -244,6 +244,27 @@ public final class ZonePlannerTests {
         planner = BCTests.tile(helper, pos, ZonePlannerBlockEntity.class);
         menu = new ZonePlannerMenu(1, player.getInventory(), planner);
         player.containerMenu = menu;
+        int dimension = ZonePlannerMapChunkKey.dimensionId(helper.getLevel());
+        int slice = ZonePlannerMapChunkKey.levelOf(helper.getLevel(), absolute);
+        ZonePlannerMapChunkKey here = new ZonePlannerMapChunkKey(new ChunkPos(absolute), dimension, slice);
+        for (int attempt = 0; attempt < ZonePackets.MAP_REQUESTS_PER_TICK; attempt++) {
+            BCTests.require(helper, ZonePackets.mayServeMap(player, here), "an open planner serves its own loaded slice");
+        }
+        BCTests.require(helper, !ZonePackets.mayServeMap(player, here), "a player can only ask for a few slices in one tick");
+        BCTests.require(helper, !ZonePackets.mayServeMap(player, new ZonePlannerMapChunkKey(new ChunkPos(absolute), 999, slice)),
+                "a foreign dimension key is ignored");
+        ZonePlannerMapChunkKey above = new ZonePlannerMapChunkKey(new ChunkPos(absolute), dimension, 67_108_863);
+        BCTests.require(helper, !ZonePackets.mayServeMap(player, above), "a slice above the world is ignored");
+        ZonePackets.receiveMapRequest(player, mapRequest(above));
+        int farX = (absolute.getX() >> 4) + ZonePackets.MAP_CHUNK_RADIUS + 1;
+        BCTests.require(helper, !ZonePackets.mayServeMap(player, new ZonePlannerMapChunkKey(new ChunkPos(farX, absolute.getZ() >> 4), dimension, slice)),
+                "a chunk beyond the planner is ignored");
+        player.containerMenu = new AbstractContainerMenu(null, 3) {
+            @Override public boolean stillValid(Player user) { return true; }
+            @Override public ItemStack quickMoveStack(Player user, int index) { return ItemStack.EMPTY; }
+        };
+        BCTests.require(helper, !ZonePackets.mayServeMap(player, here), "a map request without the planner GUI is ignored");
+        player.containerMenu = menu;
         ZonePlan sent = new ZonePlan();
         sent.set(4, 5, true);
         ZonePackets.receivePlan(player, planPacket(absolute, DyeColor.LIME.getId(), sent));
@@ -309,6 +330,9 @@ public final class ZonePlannerTests {
         BlockPos cap = new BlockPos(emerald.getX(), ZonePlannerMapChunkKey.SEARCH_TOP, emerald.getZ());
         BCTests.require(helper, ZonePlannerMapChunkKey.levelOf(helper.getLevel(), cap) == 255 / ZonePlannerMapChunkKey.LEVEL_HEIGHT,
                 "the ground search stops at y 255");
+        ZonePlannerMapChunk wild = new ZonePlannerMapChunk(helper.getLevel(),
+                new ZonePlannerMapChunkKey(new ChunkPos(emerald), ZonePlannerMapChunkKey.dimensionId(helper.getLevel()), 67_108_863));
+        BCTests.require(helper, wild.column(emerald.getX(), emerald.getZ()) == null, "a slice above the world is not scanned");
         helper.succeed();
     }
 
@@ -333,6 +357,12 @@ public final class ZonePlannerTests {
     private static BlockHitResult hit(GameTestHelper helper, BlockPos pos, Direction face) {
         BlockPos absolute = helper.absolutePos(pos);
         return new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);
+    }
+
+    private static FriendlyByteBuf mapRequest(ZonePlannerMapChunkKey key) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        key.write(buffer);
+        return buffer;
     }
 
     private static FriendlyByteBuf planPacket(BlockPos pos, int layer, ZonePlan plan) {

@@ -15,6 +15,16 @@ public final class ZonePlannerMapChunkKey {
     /** Upstream stopped its ground search at the 1.12 height limit. */
     public static final int SEARCH_TOP = 255;
 
+    /** The lowest slice that still meets this world's build height. */
+    public static int minSlice(Level level) {
+        return Math.floorDiv(level.getMinBuildHeight(), LEVEL_HEIGHT);
+    }
+
+    /** The highest slice that still meets this world's build height. */
+    public static int maxSlice(Level level) {
+        return Math.floorDiv(Math.max(level.getMinBuildHeight(), level.getMaxBuildHeight() - 1), LEVEL_HEIGHT);
+    }
+
     public final ChunkPos chunkPos;
     public final int dimensionId;
     public final int level;
