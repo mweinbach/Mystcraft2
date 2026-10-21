@@ -45,10 +45,18 @@ public class PayloadGameTests implements FabricGameTest {
     c.complete();
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 80)
+  // defaultBatch places every test in one world. Mutation's radius is 80 and other
+  // blasts overlap this subject, and an unpinned pig can walk off the structure.
+  // A separate batch and a stationary target keep those races out of the assertion.
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      tickLimit = 80,
+      batchId = "icbmDebilitation")
   public void debilitationLeavesLivingTargetsButAppliesDistinctEffects(TestContext c) {
     var pig = EntityType.PIG.create(c.getWorld());
     BlockPos pos = c.getAbsolutePos(new BlockPos(2, 2, 2));
+    pig.setAiDisabled(true);
+    pig.setNoGravity(true);
     pig.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
     c.getWorld().spawnEntity(pig);
     Payloads.detonate(c.getWorld(), pig.getPos(), PayloadType.DEBILITATION, null);
@@ -118,7 +126,12 @@ public class PayloadGameTests implements FabricGameTest {
     dev.icbm.port.payload.SimulationAssertions.placedRedmatterReachesDistantTerrain(c);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 80)
+  // Same shared-world race as debilitation: a passing health check was lost to
+  // collateral from a neighbor running in defaultBatch. This batch runs alone.
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      tickLimit = 80,
+      batchId = "icbmAntimatter")
   public void antimatterNeutralizationSuppressesCollateralPulse(TestContext c) {
     dev.icbm.port.payload.SimulationAssertions.antimatterNeutralizesWithoutEntityPulse(c);
   }
