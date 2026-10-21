@@ -24,8 +24,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   port's Forge API mirror in `src/fabric/java/ports/mekanism/lib`, and the methods Forge adds to vanilla classes are
   supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
-  universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
-  other mods can charge Mekanism's energy items and fill its fluid items the same way. Gas, infusion, pigment,
+  universal cables. A basic smelting factory processes a stack in each of its three slots at once, auto-sort splits
+  one input stack across those slots, and a tier installer keeps the items, energy and auto-sort setting. Its screen,
+  with the three slots, energy bar and sorting tab, opened in the development client. Energy, items and fluids reach
+  other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
+  fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
@@ -33,8 +36,8 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   An anchor upgrade keeps that machine's chunk loaded, including after a restart. Forced chunks do not random-tick.
   The Forge events behind gear ticking, HUD overlays and player effects are not;
   [PARITY.md](PARITY.md) lists every gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, item and block hooks, chunk loading, and render bounds) pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
+  chemical lookups, ore generation, item and block hooks, chunk loading, and render bounds) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

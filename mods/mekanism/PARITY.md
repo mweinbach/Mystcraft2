@@ -17,11 +17,16 @@ Forge's mod-bus events in Forge's order; configs, the network channel and menus 
 wired but not yet exercised. In the
 client the enrichment chamber, crusher, energized smelter and metallurgic infuser process their recipes, powered by
 creative energy cubes directly and through universal cables, and energy cubes and transmitters render with their
-OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
+OBJ and custom models. The basic smelting factory's screen opened with its three slots, energy bar and sorting tab.
+The infusion bar, gas bar, sawmill's second output row and the wider ultimate factory screen were not opened.
+Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
 the shared placement modifiers. An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back
-when the level loads. The shared GameTests (core machines, loader interop, chemical lookups, ore generation, item
+when the level loads. Factories for all nine recipe types and four tiers place their tiles. A basic smelting
+factory smelts one item in each of its three slots in the same operation, auto-sort spreads one input stack across
+those slots, and an advanced tier installer replaces the block while keeping the items, stored energy and auto-sort
+flag. The shared GameTests (core machines, factories, loader interop, chemical lookups, ore generation, item
 and block hooks, chunk loading, and render bounds) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
@@ -91,7 +96,7 @@ and block methods are.
   `onArmorTick` does run; the modules that need a player tick still do not.
 - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
-  energy cube's core renderer.
+  energy cube's core renderer. Factory screens other than the basic smelting factory were not opened.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
