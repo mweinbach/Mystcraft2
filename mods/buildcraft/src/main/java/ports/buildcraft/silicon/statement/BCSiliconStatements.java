@@ -2,6 +2,7 @@ package ports.buildcraft.silicon.statement;
 
 import java.util.Collection;
 import net.minecraft.core.Direction;
+import ports.buildcraft.silicon.plug.PluggableLightSensor;
 import ports.buildcraft.silicon.plug.PluggablePulsar;
 import ports.buildcraft.silicon.plug.PluggableTimer;
 import ports.buildcraft.statement.Action;
@@ -13,9 +14,9 @@ import ports.buildcraft.statement.Trigger;
 import ports.buildcraft.statement.TriggerProvider;
 
 /**
- * Upstream {@code BCSiliconStatements} for the pulsar and timer. Light-sensor triggers stay out until that pluggable
- * is ported. Providers stand in for upstream's pipe statement events, which the port does not bus: a timer offers its
- * triggers to every gate on its pipe, and a pulsar offers its actions only on its own face.
+ * Upstream {@code BCSiliconStatements} for the pulsar, timer and light sensor. Providers stand in for upstream's
+ * pipe statement events, which the port does not bus: a timer offers its triggers to every gate on its pipe, a
+ * pulsar offers its actions only on its own face, and a light sensor offers its triggers only on its own face.
  */
 public final class BCSiliconStatements {
     public static final TriggerTimer TRIGGER_TIMER_SHORT = new TriggerTimer(TriggerTimer.Duration.SHORT);
@@ -26,6 +27,10 @@ public final class BCSiliconStatements {
     public static final ActionPowerPulsar ACTION_PULSAR_CONSTANT = new ActionPowerPulsar(true);
     public static final ActionPowerPulsar ACTION_PULSAR_SINGLE = new ActionPowerPulsar(false);
     public static final ActionPowerPulsar[] ACTION_PULSAR = {ACTION_PULSAR_CONSTANT, ACTION_PULSAR_SINGLE};
+
+    public static final TriggerLightSensor TRIGGER_LIGHT_LOW = new TriggerLightSensor(false);
+    public static final TriggerLightSensor TRIGGER_LIGHT_HIGH = new TriggerLightSensor(true);
+    public static final TriggerLightSensor[] TRIGGER_LIGHT = {TRIGGER_LIGHT_LOW, TRIGGER_LIGHT_HIGH};
 
     private BCSiliconStatements() {}
 
@@ -47,6 +52,15 @@ public final class BCSiliconStatements {
                     triggers.add(TRIGGER_TIMER_LONG);
                     return;
                 }
+            }
+        }
+
+        @Override
+        public void addInternalSidedTriggers(Collection<Trigger.InternalSided> triggers, StatementContainer container, Direction side) {
+            if (!(container instanceof Gate gate)) return;
+            if (gate.getPipe().getPluggable(side) instanceof PluggableLightSensor) {
+                triggers.add(TRIGGER_LIGHT_LOW);
+                triggers.add(TRIGGER_LIGHT_HIGH);
             }
         }
 

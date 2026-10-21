@@ -676,6 +676,11 @@
       "itemalchemy": 0,
       "source": "recipe"
     },
+    "buildcraft:plug_light_sensor": {
+      "projecte": 783,
+      "itemalchemy": 795,
+      "source": "conversion assemble_light_sensor"
+    },
     "buildcraft:plug_power_adaptor": {
       "projecte": 534,
       "itemalchemy": 532,

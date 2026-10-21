@@ -29,6 +29,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.FillerBlock;
+import ports.buildcraft.builders.FillerBlockEntity;
+import ports.buildcraft.builders.filler.FillerPatterns;
 import ports.buildcraft.builders.BuilderBlock;
 import ports.buildcraft.builders.BuilderBlockEntity;
 import ports.buildcraft.builders.ElectronicLibraryBlockEntity;
@@ -43,6 +46,8 @@ import ports.buildcraft.builders.snapshot.SchematicBlockManager;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.MarkerBlock;
 import ports.buildcraft.core.marker.MarkerCaches;
+import ports.buildcraft.core.marker.volume.VolumeBox;
+import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.CombustionEngineBlockEntity;
@@ -73,6 +78,7 @@ import ports.buildcraft.silicon.plug.LensVariant;
 import ports.buildcraft.silicon.plug.PluggablePulsar;
 import ports.buildcraft.silicon.statement.BCSiliconStatements;
 import ports.buildcraft.statement.ActionWrapper;
+import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.statement.StatementParameterItemStack;
 import ports.buildcraft.statement.TriggerWrapper;
 import ports.buildcraft.transport.BCTransport;
@@ -190,6 +196,14 @@ public final class Showcase {
      */
     public static void buildPulsars(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).pulsars();
+    }
+
+    /**
+     * A light sensor in open air driving a lamp, another facing one stone block, a filler building a pyramid,
+     * and a filler a gate has set to a box and turned off so its screen shows the lock and the mode icon.
+     */
+    public static void buildSensors(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).sensors();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -473,6 +487,49 @@ public final class Showcase {
         timed.replacePluggable(Direction.EAST, BCSilicon.PULSAR.create(timed, Direction.EAST));
         gate(timed, Direction.UP, new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER));
         chest(1, 0, 3, new ItemStack(BCSilicon.PULSAR_ITEM.get()), new ItemStack(BCSilicon.TIMER_ITEM.get()));
+    }
+
+    private void sensors() {
+        prepare(-1, 14, -1, 9);
+        PipeBlockEntity open = pipe(1, 0, 1, BCTransport.STONE_ITEM);
+        open.replacePluggable(Direction.UP, BCSilicon.LIGHT_SENSOR.create(open, Direction.UP));
+        GateLogic bright = gate(open, Direction.NORTH, new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER));
+        bright.statements[0].trigger.set(TriggerWrapper.wrap(BCSiliconStatements.TRIGGER_LIGHT_HIGH, Direction.UP));
+        bright.statements[0].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_REDSTONE, null));
+        set(2, 0, 1, Blocks.REDSTONE_LAMP);
+
+        PipeBlockEntity shaded = pipe(5, 0, 1, BCTransport.STONE_ITEM);
+        set(6, 0, 1, Blocks.STONE);
+        shaded.replacePluggable(Direction.EAST, BCSilicon.LIGHT_SENSOR.create(shaded, Direction.EAST));
+        chest(8, 0, 1, new ItemStack(BCSilicon.LIGHT_SENSOR_ITEM.get()));
+
+        VolumeBox pyramid = VolumeBoxes.get(level).addVolumeBox(at(2, 0, 4));
+        pyramid.box.extendToEncompass(at(6, 3, 8));
+        FillerBlockEntity building = filler(1, 0, 4, Direction.WEST);
+        building.setPattern(FillerPatterns.PYRAMID, new StatementParameter[0]);
+        building.setItem(0, new ItemStack(Items.STONE, 64));
+        building.setItem(1, new ItemStack(Items.STONE, 64));
+        building.battery().set(building.battery().capacity());
+
+        VolumeBox held = VolumeBoxes.get(level).addVolumeBox(at(11, 0, 4));
+        held.box.extendToEncompass(at(13, 2, 6));
+        FillerBlockEntity paused = filler(10, 0, 4, Direction.WEST);
+        paused.setItem(0, new ItemStack(Items.BRICKS, 64));
+        PipeBlockEntity control = pipe(9, 0, 4, BCTransport.STONE_ITEM);
+        GateVariant iron = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
+        GateLogic logic = gate(control, Direction.EAST, iron);
+        logic.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
+        logic.statements[0].action.set(ActionWrapper.wrap(FillerPatterns.BOX, Direction.EAST));
+        logic.statements[1].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
+        logic.statements[1].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_MACHINE_CONTROL_OFF, Direction.EAST));
+        logic.onTick();
+    }
+
+    private FillerBlockEntity filler(int x, int y, int z, Direction facing) {
+        BlockState state = BCBuilders.FILLER.get().defaultBlockState().setValue(FillerBlock.FACING, facing);
+        set(x, y, z, state);
+        BCBuilders.FILLER.get().setPlacedBy(level, at(x, y, z), state, null, ItemStack.EMPTY);
+        return (FillerBlockEntity) level.getBlockEntity(at(x, y, z));
     }
 
     private static PluggablePulsar pulsar(PipeBlockEntity pipe, Direction side) {

@@ -692,6 +692,17 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_light_sensor": {
+      "comment": "The assembly table makes a light sensor from a daylight detector and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:plug_light_sensor",
+          "ingredients": {
+            "minecraft:daylight_detector": 1
+          }
+        }
+      ]
     }
   },
   "values": {
