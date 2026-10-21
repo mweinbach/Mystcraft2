@@ -32,6 +32,7 @@ yet. Tools and Additions are empty scaffolds.
   other mods can charge Mekanism's energy items and fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
+  Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
@@ -41,8 +42,8 @@ yet. Tools and Additions are empty scaffolds.
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, item and block hooks, chunk loading, render bounds, the player and living events, a
-  Generators registry smoke test, and the simple generators) pass on both loaders.
+  lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player and
+  living events, a Generators registry smoke test, and the simple generators) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
