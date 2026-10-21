@@ -123,6 +123,17 @@ public final class Showcase {
         reactors(level).forEach(reactor -> reactor.setMachineActive(true));
     }
 
+    /** Turns every showcase turbine on or off, as the button of its controller screen does. */
+    public static void turbines(final ServerLevel level, final boolean active) {
+        SCREENS.entrySet().stream()
+                .filter(entry -> entry.getKey().endsWith("turbine_controller"))
+                .flatMap(entry -> controller(level, entry.getValue()).stream())
+                .filter(MultiblockTurbine.class::isInstance)
+                .map(MultiblockTurbine.class::cast)
+                .distinct()
+                .forEach(turbine -> turbine.setMachineActive(active));
+    }
+
     /** One line per machine: assembled, or the validation error that stops it. */
     public static List<Component> status(final ServerLevel level) {
 

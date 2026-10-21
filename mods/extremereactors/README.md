@@ -108,7 +108,8 @@ are on its east face. Its turbine vents all its exhaust and one reactor fluid
 port outputs steam into the open. Each build replaces the previous one,
 including the machines `/ershowcase` keeps supplied. `/ershowcase rods <insertion>`,
 `/ershowcase scram` and `/ershowcase start` set the rods of, SCRAM and restart
-the showcase reactors, for reviewing the machine effects.
+the showcase reactors, and `/ershowcase turbines on|off` turns the showcase
+turbines on and off, for reviewing the machine effects.
 `/ershowcase open <part>` opens a part's screen, for example
 `reactor_controller` or `turbine_fluidport`. Neither the command nor the
 GameTest mod is in the release JARs. After editing
