@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "mekanism:hdpe_sheet"
+    },
+    "D": {
+      "tag": "forge:dyes/white"
+    }
+  },
+  "pattern": [
+    " # ",
+    "#D#",
+    " # "
+  ],
+  "result": {
+    "count": 4,
+    "item": "mekanismadditions:white_plastic"
+  }
+}

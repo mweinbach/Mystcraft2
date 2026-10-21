@@ -1878,6 +1878,1505 @@
       "itemalchemy": 2048,
       "source": "conversion mek_processing_uranium_yellow_cake_uranium"
     },
+    "mekanismadditions:aqua_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_aqua"
+    },
+    "mekanismadditions:aqua_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_aqua"
+    },
+    "mekanismadditions:aqua_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:aqua_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_aqua"
+    },
+    "mekanismadditions:aqua_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:aqua_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_aqua"
+    },
+    "mekanismadditions:black_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_black"
+    },
+    "mekanismadditions:black_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_black"
+    },
+    "mekanismadditions:black_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:black_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_black"
+    },
+    "mekanismadditions:black_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:black_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_black"
+    },
+    "mekanismadditions:blue_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_blue"
+    },
+    "mekanismadditions:blue_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_blue"
+    },
+    "mekanismadditions:blue_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:blue_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_blue"
+    },
+    "mekanismadditions:blue_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:blue_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_blue"
+    },
+    "mekanismadditions:brown_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_brown"
+    },
+    "mekanismadditions:brown_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_brown"
+    },
+    "mekanismadditions:brown_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:brown_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_brown"
+    },
+    "mekanismadditions:brown_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:brown_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_brown"
+    },
+    "mekanismadditions:cyan_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_cyan"
+    },
+    "mekanismadditions:cyan_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_cyan"
+    },
+    "mekanismadditions:cyan_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:cyan_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_cyan"
+    },
+    "mekanismadditions:cyan_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:cyan_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_cyan"
+    },
+    "mekanismadditions:dark_red_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_dark_red"
+    },
+    "mekanismadditions:dark_red_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_dark_red"
+    },
+    "mekanismadditions:dark_red_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:dark_red_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_dark_red"
+    },
+    "mekanismadditions:dark_red_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:dark_red_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_dark_red"
+    },
+    "mekanismadditions:gray_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_gray"
+    },
+    "mekanismadditions:gray_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_gray"
+    },
+    "mekanismadditions:gray_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:gray_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_gray"
+    },
+    "mekanismadditions:gray_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:gray_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_gray"
+    },
+    "mekanismadditions:green_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_green"
+    },
+    "mekanismadditions:green_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_green"
+    },
+    "mekanismadditions:green_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:green_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_green"
+    },
+    "mekanismadditions:green_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:green_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_green"
+    },
+    "mekanismadditions:light_blue_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_light_blue"
+    },
+    "mekanismadditions:light_blue_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_light_blue"
+    },
+    "mekanismadditions:light_blue_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:light_blue_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_light_blue"
+    },
+    "mekanismadditions:light_blue_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_blue_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_light_blue"
+    },
+    "mekanismadditions:light_gray_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_light_gray"
+    },
+    "mekanismadditions:light_gray_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_light_gray"
+    },
+    "mekanismadditions:light_gray_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:light_gray_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_light_gray"
+    },
+    "mekanismadditions:light_gray_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:light_gray_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_light_gray"
+    },
+    "mekanismadditions:lime_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_lime"
+    },
+    "mekanismadditions:lime_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_lime"
+    },
+    "mekanismadditions:lime_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:lime_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_lime"
+    },
+    "mekanismadditions:lime_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:lime_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_lime"
+    },
+    "mekanismadditions:magenta_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_magenta"
+    },
+    "mekanismadditions:magenta_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_magenta"
+    },
+    "mekanismadditions:magenta_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:magenta_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_magenta"
+    },
+    "mekanismadditions:magenta_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:magenta_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_magenta"
+    },
+    "mekanismadditions:obsidian_tnt": {
+      "projecte": 3276,
+      "itemalchemy": 3276,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_orange"
+    },
+    "mekanismadditions:orange_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_orange"
+    },
+    "mekanismadditions:orange_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:orange_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_orange"
+    },
+    "mekanismadditions:orange_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:orange_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_orange"
+    },
+    "mekanismadditions:pink_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_pink"
+    },
+    "mekanismadditions:pink_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_pink"
+    },
+    "mekanismadditions:pink_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:pink_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_pink"
+    },
+    "mekanismadditions:pink_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:pink_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_pink"
+    },
+    "mekanismadditions:purple_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_purple"
+    },
+    "mekanismadditions:purple_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_purple"
+    },
+    "mekanismadditions:purple_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:purple_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_purple"
+    },
+    "mekanismadditions:purple_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:purple_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_purple"
+    },
+    "mekanismadditions:red_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_red"
+    },
+    "mekanismadditions:red_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_red"
+    },
+    "mekanismadditions:red_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:red_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_red"
+    },
+    "mekanismadditions:red_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:red_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_red"
+    },
+    "mekanismadditions:white_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_white"
+    },
+    "mekanismadditions:white_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_white"
+    },
+    "mekanismadditions:white_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:white_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_white"
+    },
+    "mekanismadditions:white_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:white_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_white"
+    },
+    "mekanismadditions:yellow_glow_panel": {
+      "projecte": 386,
+      "itemalchemy": 387,
+      "source": "conversion additions_glow_panel_yellow"
+    },
+    "mekanismadditions:yellow_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_plastic_yellow"
+    },
+    "mekanismadditions:yellow_plastic_fence": {
+      "projecte": 2,
+      "itemalchemy": 32,
+      "source": "tag #minecraft:fences"
+    },
+    "mekanismadditions:yellow_plastic_fence_gate": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_glow": {
+      "projecte": 129,
+      "itemalchemy": 129,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_glow_slab": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_glow_stairs": {
+      "projecte": 193,
+      "itemalchemy": 193,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_road": {
+      "projecte": 3,
+      "itemalchemy": 3,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_transparent": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_transparent_yellow"
+    },
+    "mekanismadditions:yellow_plastic_transparent_slab": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/2",
+        "itemalchemy": "1/2"
+      },
+      "itemalchemy": 0,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_plastic_transparent_stairs": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_reinforced_plastic": {
+      "projecte": 97,
+      "itemalchemy": 97,
+      "source": "recipe"
+    },
+    "mekanismadditions:yellow_slick_plastic": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion additions_slick_yellow"
+    },
     "mekanismgenerators:advanced_solar_generator": {
       "projecte": 53756,
       "itemalchemy": 53572,

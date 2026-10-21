@@ -8,6 +8,7 @@ Each JAR carries this file as `META-INF/Mekanism-UPSTREAM.md` and the files in [
 | Mekanism (API, core code, assets, generated data) | [mekanism/Mekanism](https://github.com/mekanism/Mekanism), branch `1.19.x`, tag `v1.19.2-10.3.9.13` | `71e96905ef7ea47f0b65c78c1a9ac5e2bdabd04d` (2023-07-15) | MIT, Copyright (c) 2017-2023 Aidan C. Brady, [LICENSE](LICENSE) | `src/main/java/mekanism`, `src/main/resources`, `src/test/java` |
 | Mekanism Generators | same tag | same revision | same MIT license | `src/generators/java`, `src/generators/resources` |
 | Mekanism Tools | same tag | same revision | same MIT license | `src/tools/java`, `src/tools/resources` |
+| Mekanism Additions | same tag | same revision | same MIT license | `src/additions/java`, `src/additions/resources` |
 | Forge API mirror, loader adapters, tests, tooling | Written for this port | this repository | MIT, [licenses/PORT-LICENSE.txt](licenses/PORT-LICENSE.txt) | `src/forge`, `src/fabric`, `fabric/`, `build.gradle` |
 | Forge bucket models and fluid masks (Fabric jar only, unmodified) | Minecraft Forge universal jar | `1.19.2-43.5.0` | LGPL 2.1, [licenses/Forge-LICENSE.txt](licenses/Forge-LICENSE.txt) | `src/fabric/resources/assets/forge` |
 | Forge's own `forge:` tag values (Fabric jar only), merged into the Fabric tag bridges | Minecraft Forge universal jar | `1.19.2-43.5.0` | LGPL 2.1, [licenses/Forge-LICENSE.txt](licenses/Forge-LICENSE.txt) | `scripts/forge-tags.json`, `src/fabric/resources/data/forge/tags` |
@@ -25,8 +26,10 @@ Copied unchanged, then edited as listed below:
   `scripts/import_upstream.py`. Files that import the JEI API were not copied.
 - `src/tools/java`, `src/tools/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismtools` (merged into `src/tools/resources`), via the same importer.
-  `mekanism/tools/client/jei/ToolsJEI.java` was not copied. Additions is not imported; its directory is an empty
-  scaffold.
+  `mekanism/tools/client/jei/ToolsJEI.java` was not copied.
+- `src/additions/java`, `src/additions/resources` and the checked-in datagen output
+  `src/datagen/generated/mekanismadditions` (merged into `src/additions/resources`), via the same importer.
+  Baby mobs, balloons, the walkie-talkie, voice chat and the biome and structure modifiers were removed after import.
 - `mekanism.client.jei.MekanismJEIRecipeType`, `mekanism.client.jei.interfaces` and `mekanism.client.jei.recipe`.
   They do not use the JEI API; GUIs use them for recipe-viewer click areas and ghost slots.
 
@@ -69,3 +72,7 @@ Every edit beyond the scripted import rewrite:
 | `mekanism/tools/common/material/BaseMekanismMaterial.java`, tool item constructors, `MekanismTools.registerTiers` | The material no longer implements `Tier` itself. `MaterialItemTier` delegates the same stats. Tool constructors and tier registration use `asTier()` | `Tier` and `ArmorMaterial` both declare `getEnchantmentValue` and `getRepairIngredient`. Fabric's remapper cannot map one method onto both |
 | `mekanism/tools/common/item/ItemMekanismArmor.java` | Removed `initCapabilities` | It only attached the Wildfire Gender capability |
 | `mekanism/tools/common/integration/gender/ToolsGenderCapabilityHelper.java` | Deleted | Gender integration not ported; it called the removed `MekanismGenderArmor` |
+| `mekanism/additions/common/MekanismAdditions.java`, `registries/AdditionsEntityTypes.java`, `client/AdditionsClientRegistration.java` | Registers blocks, the obsidian TNT entity and its renderer, and block colors. Voice, baby spawning and the item registry are not called | Baby mobs, balloons and the walkie-talkie are a later slice. The TNT entity stays because the block primes it |
+| `mekanism/additions/common/config/AdditionsConfig.java`, `AdditionsClientConfig.java` | Server config keeps the obsidian TNT delay and radius. The client spec is empty | Voice and baby-spawn options belonged to the removed features |
+| `mekanism/additions/common/AdditionsTags.java`, `advancements/AdditionsAdvancements.java` | Tags keep the plastic block and item tags. The only advancement constant is glow in the dark | Balloon and baby-mob tags and advancements pointed at content that is not registered |
+| Additions baby entities, balloons, walkie-talkie, voice client and server, and biome and structure modifier serializers | Deleted, along with their recipes, loot, entity tags and advancements | Those features are not in this slice. Their assets remain unused in the jar |
