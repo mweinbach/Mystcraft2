@@ -3,7 +3,7 @@
   "id": "mekanismtools",
   "version": "${version}",
   "name": "Mekanism: Tools",
-  "description": "Tools module for Mekanism. This jar is an empty scaffold.",
+  "description": "Tools module for Mekanism.",
   "authors": [
     "Aidancbrady",
     "Thommy101",

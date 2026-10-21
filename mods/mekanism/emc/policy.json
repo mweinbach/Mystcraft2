@@ -2,7 +2,8 @@
   "namespace": "mekanism",
   "namespaces": [
     "mekanism",
-    "mekanismgenerators"
+    "mekanismgenerators",
+    "mekanismtools"
   ],
   "loaders": {
     "projecte": "forge",
@@ -12,18 +13,21 @@
     "projecte": [
       "src/main/resources",
       "src/forge/resources",
-      "src/generators/resources"
+      "src/generators/resources",
+      "src/tools/resources"
     ],
     "itemalchemy": [
       "src/main/resources",
       "src/fabric/resources",
-      "src/generators/resources"
+      "src/generators/resources",
+      "src/tools/resources"
     ]
   },
   "output": "src/main/resources",
   "outputs": {
     "mekanism": "src/main/resources",
-    "mekanismgenerators": "src/generators/resources"
+    "mekanismgenerators": "src/generators/resources",
+    "mekanismtools": "src/tools/resources"
   },
   "conditions": {
     "mekanism:mod_version_loaded": {
@@ -56,7 +60,9 @@
     "",
     "Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did.",
     "",
-    "Generators items with a shaped crafting recipe take that recipe's cost. The wind generator is stored as mek_data and the hohlraum is a metallurgic infusion, so each has a conversion at its item cost, the same way the core module prices those recipe types. Bioethanol, deuterium, tritium and fusion-fuel buckets are filled by generator processes and have no item recipe, so they are excluded until those processes are priced."
+    "Generators items with a shaped crafting recipe take that recipe's cost. The wind generator is stored as mek_data and the hohlraum is a metallurgic infusion, so each has a conversion at its item cost, the same way the core module prices those recipe types. Bioethanol, deuterium, tritium and fusion-fuel buckets are filled by generator processes and have no item recipe, so they are excluded until those processes are priced.",
+    "",
+    "Tools and armor take their crafting cost. A paxel recipe is a shaped craft of an axe, a pickaxe, a shovel and two sticks, and smithing turns a diamond paxel into a netherite paxel. The banner shield recipe adds a banner to an existing shield and creates no item. Smelting or blasting a tool returns one nugget, which is worth less than the tool."
   ],
   "values": {
     "mekanism:ingot_osmium": {

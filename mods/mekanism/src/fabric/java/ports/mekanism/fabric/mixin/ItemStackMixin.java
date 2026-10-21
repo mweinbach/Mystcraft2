@@ -24,7 +24,7 @@ import ports.mekanism.lib.common.extensions.IForgeItem;
 import ports.mekanism.lib.common.extensions.IForgeItemStack;
 
 /**
- * Gives item stacks the capabilities of their item, and routes durability and tooltip hide flags through the item
+ * Gives item stacks the capabilities of their item, and routes max damage and tooltip hide flags through the item
  * hooks Forge calls from {@code ItemStack}.
  */
 @Mixin(ItemStack.class)
@@ -50,6 +50,12 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
         // The generic signature of hurtAndBreak makes ModifyVariable see an extra int, so the damage hook wraps hurt.
         int modified = ((IForgeItem) stack.getItem()).damageItem(stack, amount, entity, onBroken);
         return original.call(stack, modified, random, player);
+    }
+
+    @Inject(method = "getMaxDamage", at = @At("HEAD"), cancellable = true)
+    private void mekanism$maxDamage(CallbackInfoReturnable<Integer> cir) {
+        ItemStack self = (ItemStack) (Object) this;
+        cir.setReturnValue(((IForgeItem) self.getItem()).getMaxDamage(self));
     }
 
     @Inject(method = "getHideFlags", at = @At("HEAD"), cancellable = true)
