@@ -16,6 +16,7 @@ import mekanism.common.Mekanism;
 import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
 import mekanism.gametest.DynamicTankGameTests;
+import mekanism.gametest.FactoryGameTests;
 import mekanism.gametest.FluidGameTests;
 import mekanism.gametest.GeneratorsModuleGameTests;
 import mekanism.gametest.InductionMatrixGameTests;
@@ -40,9 +41,10 @@ import net.minecraftforge.gametest.GameTestHolder;
 public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(ChunkLoadingGameTests.class, CoreMachineGameTests.class,
-          FluidGameTests.class, GeneratorsModuleGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
+          DynamicTankGameTests.class, FactoryGameTests.class, FluidGameTests.class, GeneratorsModuleGameTests.class,
+          InductionMatrixGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
-          DynamicTankGameTests.class, InductionMatrixGameTests.class, SimpleGeneratorGameTests.class, ToolsModuleGameTests.class);
+          SimpleGeneratorGameTests.class, ToolsModuleGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

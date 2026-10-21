@@ -41,7 +41,9 @@ Forge's mod-bus events in Forge's order; configs, the network channel and menus 
 wired but not yet exercised. In the
 client the enrichment chamber, crusher, energized smelter and metallurgic infuser process their recipes, powered by
 creative energy cubes directly and through universal cables, and energy cubes and transmitters render with their
-OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
+OBJ and custom models. The basic smelting factory's screen opened with its three slots, energy bar and sorting tab.
+The infusion bar, gas bar, sawmill's second output row and the wider ultimate factory screen were not opened.
+Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
 the shared placement modifiers. Mekanism fluids render from their fluid-type client extensions: each still and flowing
@@ -51,20 +53,23 @@ gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's d
 true (structural glass) are marked transparent so the overlay sprite is drawn against them. Client ticks, the HUD,
 fog, living-entity and arm rendering, armor layers, block highlighting and in-game key and scroll input are wired
 (see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
-A dynamic tank shell of casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2,
-and moves fluid through the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the
-fluid and the container edit mode back. The master's render box is that structure. In the development client that
-formed tank draws the fluid it is holding through the structural glass. An induction matrix of induction casing, one
-port, one basic cell and one basic provider forms at 3×3×4. A missing block, a 2×2×2 shell and stone inside the shell
-do not. The port moves energy through Forge Energy and Team Reborn Energy at the provider's transfer rate, and only in
-the direction its input or output mode allows. A casing block does not accept energy. An energy tablet in the port's
-charge slot is charged from the matrix, and cobblestone is refused. Breaking the blocks and loading their saved data
-brings the cell's energy back, and the reloaded port can output it. The master's render box is that structure.
-Upstream 10.3.9 has no separate induction-matrix renderer, so the formed structure is the casing and port models. The
-development client draws that formed casing and port. The shared GameTests (core machines, loader
-interop, chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds,
-the player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction
-matrix, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+Factories for all nine recipe types and four tiers place their tiles. A basic smelting factory smelts one item in
+each of its three slots in the same operation, auto-sort spreads one input stack across those slots, and an advanced
+tier installer replaces the block while keeping the items, stored energy and auto-sort flag. A dynamic tank shell of
+casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
+the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
+edit mode back. The master's render box is that structure. In the development client that formed tank draws the fluid
+it is holding through the structural glass. An induction matrix of induction casing, one port, one basic cell and one
+basic provider forms at 3×3×4. A missing block, a 2×2×2 shell and stone inside the shell do not. The port moves
+energy through Forge Energy and Team Reborn Energy at the provider's transfer rate, and only in the direction its
+input or output mode allows. A casing block does not accept energy. An energy tablet in the port's charge slot is
+charged from the matrix, and cobblestone is refused. Breaking the blocks and loading their saved data brings the
+cell's energy back, and the reloaded port can output it. The master's render box is that structure. Upstream 10.3.9
+has no separate induction-matrix renderer, so the formed structure is the casing and port models. The development
+client draws that formed casing and port. The shared GameTests (core machines, factories, loader interop, chemical
+lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the player and
+living events, a Generators registry smoke test, the simple generators, the dynamic tank, the induction matrix, and
+Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -191,10 +196,10 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, the other multiblocks (evaporation, boiler and SPS), QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers, and the turbine, fission and fusion
-  renderers. The wind generator item is registered with Fabric's builtin item renderer; that registration has not
-  been watched in a client. A formed dynamic tank holding water was checked: the fluid body renders inside the
-  structural glass. A formed induction matrix was checked: the casing and port models draw. Upstream 10.3.9 ships no
-  separate matrix renderer.
+  renderers. Factory screens other than the basic smelting factory were not opened. The wind generator item is
+  registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
+  dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed induction
+  matrix was checked: the casing and port models draw. Upstream 10.3.9 ships no separate matrix renderer.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
