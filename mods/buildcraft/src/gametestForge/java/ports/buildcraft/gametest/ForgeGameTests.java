@@ -320,5 +320,8 @@ public final class ForgeGameTests {
     public static void fullFacadeBlocksAndHollowStaysOpen(GameTestHelper helper) { FacadeTests.fullFacadeBlocksAndHollowStaysOpen(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void facadeQuadsStayInTheShell(GameTestHelper helper) { FacadeTests.facadeQuadsStayInTheShell(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

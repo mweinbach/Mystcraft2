@@ -16,18 +16,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.silicon.plug.FacadeBlockStateInfo;
 import ports.buildcraft.silicon.plug.FacadeInstance;
 import ports.buildcraft.silicon.plug.FacadeItem;
 import ports.buildcraft.silicon.plug.FacadePhasedState;
+import ports.buildcraft.silicon.plug.FacadeShell;
 import ports.buildcraft.silicon.plug.PluggableFacade;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 
 /**
  * Upstream {@code PlugBakerFacade}: the copied block's face quads, remapped onto the two-pixel facade shell.
+ * Corner positions come from {@link FacadeShell}: the inner face is sampled from the opposite side, so its depth flips onto that slab.
  * A hollow facade keeps a four-pixel frame and the hole's inner walls. Quads baked with no face are included
  * when their direction is that face, because 1.19 models often store culled quads that way.
  */
@@ -95,52 +96,11 @@ public final class FacadeRenderer {
     }
 
     private static List<BakedQuad> bake(BlockState state, BakedModel model, Direction side, boolean hollow) {
-        int size = PluggableFacade.SIZE;
-        int inner = 16 - size;
         List<BakedQuad> quads = new ArrayList<>();
-        if (!hollow) {
-            add(quads, state, model, side, v(0, 16, 0), v(16, 16, 0), v(16, 0, 0), v(0, 0, 0));
-            add(quads, state, model, side.getOpposite(), v(size, inner, inner), v(inner, inner, inner), v(inner, size, inner), v(size, size, inner));
-        }
-        for (Rotation rotation : Rotation.values()) {
-            if (hollow) {
-                boolean even = rotation.ordinal() % 2 == 0;
-                addRotated(quads, state, model, side, rotation,
-                        v(0, even ? 4 : 0, 0), v(4, even ? 4 : 0, 0), v(4, even ? 16 : 12, 0), v(0, even ? 16 : 12, 0));
-            }
-            addRotated(quads, state, model, side.getOpposite(), rotation,
-                    v(0, 16, 16), v(size, inner, inner), v(size, size, inner), v(0, 0, 16));
-            if (hollow) {
-                boolean even = rotation.ordinal() % 2 == 0;
-                addRotated(quads, state, model, side.getOpposite(), rotation,
-                        v(size, even ? inner : 12, inner), v(4, even ? inner : 12, inner),
-                        v(4, even ? 4 : size, inner), v(size, even ? 4 : size, inner));
-            }
-        }
-        if (hollow) {
-            boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-            for (Direction facing : Direction.values()) {
-                if (facing.getAxis() == side.getAxis()) continue;
-                boolean across = side.getAxis() == Direction.Axis.Z && facing.getAxis() == Direction.Axis.X
-                        || side.getAxis() == Direction.Axis.X && facing.getAxis() == Direction.Axis.Y
-                        || side.getAxis() == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z;
-                if (across) {
-                    add(quads, state, model, facing,
-                            v(positive ? 16 : size, 4, 12.003), v(positive ? 16 : size, 12, 12.003),
-                            v(positive ? inner : 0, 12, 12.003), v(positive ? inner : 0, 4, 12.003));
-                } else {
-                    add(quads, state, model, facing,
-                            v(4, positive ? 16 : size, 12.003), v(4, positive ? inner : 0, 12.003),
-                            v(12, positive ? inner : 0, 12.003), v(12, positive ? 16 : size, 12.003));
-                }
-            }
+        for (FacadeShell.Quad shell : FacadeShell.quads(side, hollow)) {
+            add(quads, state, model, shell.face(), shell.p0(), shell.p1(), shell.p2(), shell.p3());
         }
         return quads;
-    }
-
-    private static void addRotated(List<BakedQuad> quads, BlockState state, BakedModel model, Direction side, Rotation rotation,
-            Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3) {
-        add(quads, state, model, side, rotate(p0, rotation), rotate(p1, rotation), rotate(p2, rotation), rotate(p3, rotation));
     }
 
     private static void add(List<BakedQuad> quads, BlockState state, BakedModel model, Direction side, Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3) {
@@ -160,7 +120,7 @@ public final class FacadeRenderer {
 
     private static BakedQuad transform(BakedQuad quad, Direction side, Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3) {
         Vertex[] source = read(quad);
-        Vec3[] targets = {map(p0, side), map(p1, side), map(p2, side), map(p3, side)};
+        Vec3[] targets = {FacadeShell.map(p0, side), FacadeShell.map(p1, side), FacadeShell.map(p2, side), FacadeShell.map(p3, side)};
         Vec3[] origins = new Vec3[4];
         float minU = Float.MAX_VALUE, minV = Float.MAX_VALUE, maxU = -Float.MAX_VALUE, maxV = -Float.MAX_VALUE;
         for (int i = 0; i < 4; i++) {
@@ -195,25 +155,6 @@ public final class FacadeRenderer {
         return write(quad, moved);
     }
 
-    /** Upstream {@code PlugBakerFacade.rotate}, including its swapped ninety-degree cases. */
-    private static Vec3 rotate(Vec3 vec, Rotation rotation) {
-        return switch (rotation) {
-            case NONE -> vec;
-            case CLOCKWISE_90 -> new Vec3(1 - vec.y, 1 - vec.x, vec.z);
-            case CLOCKWISE_180 -> new Vec3(1 - vec.x, 1 - vec.y, vec.z);
-            case COUNTERCLOCKWISE_90 -> new Vec3(vec.y, vec.x, vec.z);
-        };
-    }
-
-    private static Vec3 map(Vec3 pos, Direction side) {
-        boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-        return switch (side.getAxis()) {
-            case X -> new Vec3(positive ? 1 - pos.z : pos.z, pos.y, pos.x);
-            case Y -> new Vec3(pos.x, positive ? 1 - pos.z : pos.z, pos.y);
-            case Z -> new Vec3(pos.y, pos.x, positive ? 1 - pos.z : pos.z);
-        };
-    }
-
     private static int index(Vec3[] positions, Direction.Axis axis, boolean min1, boolean min2) {
         Direction.Axis axis1 = axis == Direction.Axis.X ? Direction.Axis.Y : Direction.Axis.X;
         Direction.Axis axis2 = axis == Direction.Axis.Y ? Direction.Axis.Z : (axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.Y);
@@ -242,10 +183,6 @@ public final class FacadeRenderer {
             case Y -> pos.y;
             case Z -> pos.z;
         };
-    }
-
-    private static Vec3 v(double x, double y, double z) {
-        return new Vec3(x / 16.0, y / 16.0, z / 16.0);
     }
 
     private static Vertex[] read(BakedQuad quad) {

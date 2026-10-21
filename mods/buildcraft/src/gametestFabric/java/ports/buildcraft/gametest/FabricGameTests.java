@@ -318,5 +318,8 @@ public final class FabricGameTests implements FabricGameTest {
     public void fullFacadeBlocksAndHollowStaysOpen(GameTestHelper helper) { FacadeTests.fullFacadeBlocksAndHollowStaysOpen(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void facadeQuadsStayInTheShell(GameTestHelper helper) { FacadeTests.facadeQuadsStayInTheShell(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

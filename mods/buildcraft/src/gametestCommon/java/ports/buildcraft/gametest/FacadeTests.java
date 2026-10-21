@@ -17,6 +17,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mojang.authlib.GameProfile;
@@ -29,6 +30,7 @@ import ports.buildcraft.silicon.plug.FacadeAssemblyRecipe;
 import ports.buildcraft.silicon.plug.FacadeBlockStateInfo;
 import ports.buildcraft.silicon.plug.FacadeInstance;
 import ports.buildcraft.silicon.plug.FacadeItem;
+import ports.buildcraft.silicon.plug.FacadeShell;
 import ports.buildcraft.silicon.plug.FacadeStateManager;
 import ports.buildcraft.silicon.plug.PluggableFacade;
 import ports.buildcraft.transport.BCTransport;
@@ -173,6 +175,54 @@ public final class FacadeTests {
                     && BuilderTests.dropped(helper, c, glassDrop), "the server's block breaking takes off only the hollow facade");
             helper.succeed();
         });
+    }
+
+    /**
+     * Every copied-block corner stays inside the two-pixel slab. The inner face is sampled from the opposite
+     * side, which flips depth, so its local Z of 14/16 lands on the inner plane rather than across the pipe.
+     */
+    public static void facadeQuadsStayInTheShell(GameTestHelper helper) {
+        for (Direction side : Direction.values()) {
+            AABB box = FacadeShell.box(side);
+            for (boolean hollow : new boolean[] {false, true}) {
+                double min = Double.POSITIVE_INFINITY;
+                double max = Double.NEGATIVE_INFINITY;
+                for (FacadeShell.Quad quad : FacadeShell.quads(side, hollow)) {
+                    for (Vec3 local : quad.corners()) {
+                        Vec3 corner = FacadeShell.map(local, quad.face());
+                        BCTests.require(helper, inside(box, corner), side.getSerializedName()
+                                + (hollow ? " hollow" : " full") + " facade quad leaves the two-pixel shell at " + corner);
+                        double depth = switch (side.getAxis()) {
+                            case X -> corner.x;
+                            case Y -> corner.y;
+                            case Z -> corner.z;
+                        };
+                        min = Math.min(min, depth);
+                        max = Math.max(max, depth);
+                    }
+                }
+                double start = switch (side.getAxis()) {
+                    case X -> box.minX;
+                    case Y -> box.minY;
+                    case Z -> box.minZ;
+                };
+                double end = switch (side.getAxis()) {
+                    case X -> box.maxX;
+                    case Y -> box.maxY;
+                    case Z -> box.maxZ;
+                };
+                BCTests.require(helper, Math.abs(min - start) < 1e-6 && Math.abs(max - end) < 1e-6,
+                        side.getSerializedName() + " shell spans exactly two pixels");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static boolean inside(AABB box, Vec3 corner) {
+        double epsilon = 1.0e-6;
+        return corner.x >= box.minX - epsilon && corner.x <= box.maxX + epsilon
+                && corner.y >= box.minY - epsilon && corner.y <= box.maxY + epsilon
+                && corner.z >= box.minZ - epsilon && corner.z <= box.maxZ + epsilon;
     }
 
     private static void requireState(GameTestHelper helper, BlockState state, boolean valid, boolean transparent) {
