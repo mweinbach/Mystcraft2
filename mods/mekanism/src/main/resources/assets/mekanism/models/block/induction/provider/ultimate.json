@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "mekanism:block/ultimate_induction_provider"
+  }
+}
