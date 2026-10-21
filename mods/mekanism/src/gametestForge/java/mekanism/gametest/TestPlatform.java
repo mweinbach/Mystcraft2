@@ -15,6 +15,8 @@ import mekanism.api.Action;
 import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.chemical.gas.IGasHandler;
+import mekanism.api.chemical.slurry.Slurry;
+import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.heat.IHeatHandler;
 import mekanism.common.Mekanism;
 import mekanism.common.capabilities.Capabilities;
@@ -267,6 +269,22 @@ public final class TestPlatform {
         }).orElse(0L);
     }
 
+    public static SlurryStack extractSlurry(BlockEntity blockEntity, Direction side, long amount, boolean execute) {
+        return blockEntity.getCapability(Capabilities.SLURRY_HANDLER, side)
+              .map(handler -> handler.extractChemical(amount, chemicalAction(execute)))
+              .orElse(SlurryStack.EMPTY);
+    }
+
+    public static long insertSlurry(BlockEntity blockEntity, Direction side, Slurry slurry, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        return blockEntity.getCapability(Capabilities.SLURRY_HANDLER, side).map(handler -> {
+            SlurryStack remainder = handler.insertChemical(new SlurryStack(slurry, amount), chemicalAction(execute));
+            return amount - remainder.getAmount();
+        }).orElse(0L);
+    }
+
     public static int gasTanks(BlockEntity blockEntity, Direction side) {
         return blockEntity.getCapability(Capabilities.GAS_HANDLER, side).map(IGasHandler::getTanks).orElse(0);
     }
@@ -285,6 +303,14 @@ public final class TestPlatform {
 
     public static int heatCapacitors(BlockEntity blockEntity, Direction side) {
         return blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).map(IHeatHandler::getHeatCapacitorCount).orElse(0);
+    }
+
+    public static double blockTemperature(BlockEntity blockEntity, Direction side) {
+        return blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).map(IHeatHandler::getTotalTemperature).orElse(Double.NaN);
+    }
+
+    public static void handleBlockHeat(BlockEntity blockEntity, Direction side, double amount) {
+        blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).ifPresent(handler -> handler.handleHeat(amount));
     }
 
     public static int itemGasTanks(ItemStack stack) {
