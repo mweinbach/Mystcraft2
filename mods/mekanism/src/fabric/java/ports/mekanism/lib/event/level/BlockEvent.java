@@ -54,7 +54,6 @@ public class BlockEvent extends Event {
             super(level, pos, state);
             this.player = player;
             this.exp = ForgeHooks.getExpDrop(level, pos, state, player);
-            ForgeHooks.captureBreakExp(this.exp);
         }
 
         public Player getPlayer() {
