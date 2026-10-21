@@ -11,7 +11,7 @@ Osmium ingots cost one and a half iron ingots. The osmium rail recipe yields twe
 Uranium ingots follow ProjectE's uranium ingot tag (4096). Raw uranium matches the ingot, and uranium nuggets are excluded because 4096 does not divide by nine.
 
 Tin and lead ores and raw ores are fixed at Item Alchemy's tag values. Tin and lead nuggets then settle slightly under the raw ore; the ingot is not fixed, so that split does not fight a tag.
-
+Hydrogen, oxygen, chlorine, brine, lithium, sodium, superheated sodium, steam, ethene, heavy water and hydrogen chloride are made from water, so a bucket of each costs an empty bucket. Nutritional paste is not: a bucket is twenty food points of dried kelp plus the bucket. Sulfur dioxide, sulfur trioxide and sulfuric acid are ten sulfur dust per bucket, because the infuser preserves that volume; hydrofluoric acid, uranium oxide and uranium hexafluoride are priced from the items that produce them.
 Sawdust is fixed at 64 because three sawdust craft six paper. The sawmill's plank and log recipes turn vanilla logs into more planks than crafting does; both ends of that recipe are vanilla, so it is not a conversion.
 
 Sulfur dust matches gunpowder, because injecting gunpowder and enriching the dust are one-to-one. Coal gasification also makes sulfur from coal, which is worth less than gunpowder; that recipe is not a conversion, or sulfur could not match gunpowder.
@@ -25,6 +25,8 @@ One substrate and ethene make eight substrate. That reaction is not a conversion
 The fission reactor is not in this port. Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.
 
 Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too.
+
+Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did.
 
 ## Explicit values
 
@@ -98,7 +100,7 @@ Shipped to ProjectE as custom conversion groups and applied to Item Alchemy valu
 | fill_steam_bucket | `mekanism:steam_bucket` | `minecraft:bucket` | 1 | This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket. |
 | fill_ethene_bucket | `mekanism:ethene_bucket` | `minecraft:bucket` | 1 | This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket. |
 | fill_heavy_water_bucket | `mekanism:heavy_water_bucket` | `minecraft:bucket` | 1 | This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket. |
-| fill_nutritional_paste_bucket | `mekanism:nutritional_paste_bucket` | `minecraft:bucket` | 1 | This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket. |
+| fill_nutritional_paste_bucket | `mekanism:nutritional_paste_bucket` | `minecraft:dried_kelp` ×20, `minecraft:bucket` | 1 | The nutritional liquifier makes 50 mB per food point, so a 1,000 mB bucket holds twenty points and drinking it returns the empty bucket. Dried kelp restores one point and is the cheapest food on both ProjectE and Item Alchemy (1 EMC), so the paste costs twenty kelp plus the bucket. |
 | hydrogen_chloride_bucket | `mekanism:hydrogen_chloride_bucket` | `minecraft:bucket` | 1 | One salt becomes 2 mB of hydrogen chloride. Salt is evaporated from water, which has no EMC, so a bucket costs the empty bucket. |
 | hydrofluoric_acid_bucket | `mekanism:hydrofluoric_acid_bucket` | `mekanism:fluorite_gem`, `minecraft:bucket` | 1 | Dissolving one fluorite gem yields 1,000 mB of hydrofluoric acid, so a bucket is one gem and the bucket. The millibucket of sulfuric acid is a catalyst. |
 | uranium_hexafluoride_bucket | `mekanism:uranium_hexafluoride_bucket` ×2 | `mekanism:hydrofluoric_acid_bucket`, `mekanism:uranium_oxide_bucket` | 1 | One millibucket of hydrofluoric acid and one of uranium oxide make two of uranium hexafluoride, so two buckets cost one of each input bucket. |
@@ -109,7 +111,7 @@ Shipped to ProjectE as custom conversion groups and applied to Item Alchemy valu
 | ore_chain_crystal_from_shard | `mekanism:crystal_{metal}` | `mekanism:shard_{metal}` | 7 | Each ore-processing step turns one of these into one of the next, so the earlier form costs the same as the dust. The doubled ore and raw-ore recipes are not conversions. |
 | pellet_antimatter_from_polonium | `mekanism:pellet_antimatter` | `mekanism:pellet_polonium` ×1000 | 1 | Crystallizing 1,000 mB of antimatter yields one pellet. The SPS makes each millibucket from 1,000 mB of polonium, and the polonium pellet reaction is the item recipe that consumes 1,000 mB of polonium, so one antimatter pellet costs a thousand polonium pellets. This port has no fission-reactor block, so the fuel that produces the gas is not an extra item cost. |
 | sulfur_dioxide_bucket | `mekanism:sulfur_dioxide_bucket` | `mekanism:dust_sulfur` ×10, `minecraft:bucket` | 1 | Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so a bucket is ten dust and the bucket. |
-| sulfuric_acid_bucket | `mekanism:sulfuric_acid_bucket` | `mekanism:dust_sulfur` ×500, `minecraft:bucket` | 1 | One sulfur dust converts into 2 mB of sulfuric acid, so a bucket is five hundred dust and the bucket. |
+| sulfuric_acid_bucket | `mekanism:sulfuric_acid_bucket` | `mekanism:sulfur_dioxide_bucket` | 1 | Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, two of that plus free oxygen make two sulfur trioxide, and one trioxide plus free water vapor makes one sulfuric acid. A bucket is ten dust, the same as sulfur dioxide. The gas conversion of one dust into 2 mB is the expensive path and is not the cost. |
 | sulfur_trioxide_bucket | `mekanism:sulfur_trioxide_bucket` | `mekanism:sulfur_dioxide_bucket` | 1 | Two sulfur dioxide and one oxygen make two sulfur trioxide, so a bucket of trioxide costs the dioxide in a bucket. |
 | uranium_oxide_bucket | `mekanism:uranium_oxide_bucket` | `mekanism:yellow_cake_uranium` ×4, `minecraft:bucket` | 1 | Oxidizing one yellow cake yields 250 mB of uranium oxide, so a bucket is four yellow cake and the bucket. |
 | mek_atomic_disassembler | `mekanism:atomic_disassembler` | `#mekanism:alloys/infused` ×4, `mekanism:energy_tablet`, `#mekanism:alloys/atomic`, `#forge:ingots/refined_obsidian` | 1 | Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data. |
@@ -371,5 +373,20 @@ Shipped to ProjectE as custom conversion groups and applied to Item Alchemy valu
 | mek_scuba_tank | `mekanism:scuba_tank` | `#forge:circuits/basic`, `#mekanism:alloys/infused` ×2, `mekanism:basic_chemical_tank`, `#forge:ingots/steel` ×3 | 1 | Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data. |
 | mek_seismic_reader | `mekanism:seismic_reader` | `#forge:ingots/steel` ×7, `#forge:gems/lapis`, `mekanism:energy_tablet` | 1 | Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data. |
 | induction_provider_basic | `mekanism:basic_induction_provider` | `#forge:circuits/basic` ×4, `mekanism:basic_energy_cube` | 1 | Four basic circuits and one basic energy cube. The four lithium dust are crystallized from water, which has no EMC, so they add nothing. |
+
+## Processes checked for EMC gain
+
+ProjectE cannot see these machine or world processes, so `emc.py check` verifies that no output is worth more than its input.
+
+| Process | Checks | Why |
+| --- | ---: | --- |
+| sulfur_dioxide_bucket | 2 | Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so ten dust and one bucket fill one bucket. A higher value would let that route create EMC. |
+| sulfur_trioxide_bucket | 2 | Two sulfur dioxide and one oxygen make two sulfur trioxide. Oxygen comes from water and adds no EMC, so a trioxide bucket cannot be worth more than a dioxide bucket. |
+| sulfuric_acid_bucket | 2 | One sulfur trioxide and one water vapor make one sulfuric acid, and water vapor is free, so an acid bucket cannot be worth more than a trioxide bucket. The direct conversion of one dust into 2 mB is a worse route. |
+| uranium_oxide_bucket | 2 | Oxidizing one yellow cake yields 250 mB of uranium oxide, so four cakes and one bucket fill one bucket. |
+| hydrofluoric_acid_bucket | 2 | Dissolving one fluorite gem yields 1,000 mB of hydrofluoric acid. The millibucket of sulfuric acid is a catalyst and is not counted; a bucket cannot be worth more than one gem and the bucket. |
+| uranium_hexafluoride_buckets | 2 | One millibucket of hydrofluoric acid and one of uranium oxide make two of uranium hexafluoride, so two buckets cannot be worth more than one of each input bucket. |
+| liquify_nutritional_paste | 2 | The liquifier makes 50 mB per food point. Twenty dried kelp, the cheapest food at one point per EMC, plus a bucket fill one bucket of paste. A higher paste value would make liquifying kelp create EMC. |
+| drink_nutritional_paste | 2 | Drinking a full bucket restores twenty food points and returns the empty bucket. Priced as twenty dried kelp, that food cannot be worth more than the bucket, or drinking a transmuted bucket would be free food. |
 
 Recipe types ProjectE does not map, so items made only by them need a conversion, value or exclusion: `mekanism:activating`, `mekanism:bin_extract`, `mekanism:bin_insert`, `mekanism:centrifuging`, `mekanism:chemical_infusing`, `mekanism:combining`, `mekanism:compressing`, `mekanism:crushing`, `mekanism:crystallizing`, `mekanism:dissolution`, `mekanism:energy_conversion`, `mekanism:enriching`, `mekanism:evaporating`, `mekanism:gas_conversion`, `mekanism:infusion_conversion`, `mekanism:injecting`, `mekanism:mek_data`, `mekanism:metallurgic_infusing`, `mekanism:nucleosynthesizing`, `mekanism:oxidizing`, `mekanism:painting`, `mekanism:pigment_extracting`, `mekanism:pigment_mixing`, `mekanism:purifying`, `mekanism:reaction`, `mekanism:rotary`, `mekanism:sawing`, `mekanism:separating`, `mekanism:washing`.

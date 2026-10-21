@@ -112,11 +112,12 @@
       ]
     },
     "mekanism_fill_nutritional_paste_bucket": {
-      "comment": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "comment": "The nutritional liquifier makes 50 mB per food point, so a 1,000 mB bucket holds twenty points and drinking it returns the empty bucket. Dried kelp restores one point and is the cheapest food on both ProjectE and Item Alchemy (1 EMC), so the paste costs twenty kelp plus the bucket.",
       "conversions": [
         {
           "output": "mekanism:nutritional_paste_bucket",
           "ingredients": {
+            "minecraft:dried_kelp": 20,
             "minecraft:bucket": 1
           }
         }
@@ -381,13 +382,12 @@
       ]
     },
     "mekanism_sulfuric_acid_bucket": {
-      "comment": "One sulfur dust converts into 2 mB of sulfuric acid, so a bucket is five hundred dust and the bucket.",
+      "comment": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, two of that plus free oxygen make two sulfur trioxide, and one trioxide plus free water vapor makes one sulfuric acid. A bucket is ten dust, the same as sulfur dioxide. The gas conversion of one dust into 2 mB is the expensive path and is not the cost.",
       "conversions": [
         {
           "output": "mekanism:sulfuric_acid_bucket",
           "ingredients": {
-            "mekanism:dust_sulfur": 500,
-            "minecraft:bucket": 1
+            "mekanism:sulfur_dioxide_bucket": 1
           }
         }
       ]

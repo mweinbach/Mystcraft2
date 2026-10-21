@@ -1346,8 +1346,8 @@
       "source": "recipe"
     },
     "mekanism:nutritional_paste_bucket": {
-      "projecte": 768,
-      "itemalchemy": 768,
+      "projecte": 788,
+      "itemalchemy": 788,
       "source": "conversion fill_nutritional_paste_bucket"
     },
     "mekanism:oredictionificator": {
@@ -1661,8 +1661,8 @@
       "source": "conversion sulfur_trioxide_bucket"
     },
     "mekanism:sulfuric_acid_bucket": {
-      "projecte": 96768,
-      "itemalchemy": 96768,
+      "projecte": 2688,
+      "itemalchemy": 2688,
       "source": "conversion sulfuric_acid_bucket"
     },
     "mekanism:supercharged_coil": {

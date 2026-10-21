@@ -29,7 +29,7 @@
     "Uranium ingots follow ProjectE's uranium ingot tag (4096). Raw uranium matches the ingot, and uranium nuggets are excluded because 4096 does not divide by nine.",
     "",
     "Tin and lead ores and raw ores are fixed at Item Alchemy's tag values. Tin and lead nuggets then settle slightly under the raw ore; the ingot is not fixed, so that split does not fight a tag.",
-    "",
+    "Hydrogen, oxygen, chlorine, brine, lithium, sodium, superheated sodium, steam, ethene, heavy water and hydrogen chloride are made from water, so a bucket of each costs an empty bucket. Nutritional paste is not: a bucket is twenty food points of dried kelp plus the bucket. Sulfur dioxide, sulfur trioxide and sulfuric acid are ten sulfur dust per bucket, because the infuser preserves that volume; hydrofluoric acid, uranium oxide and uranium hexafluoride are priced from the items that produce them.",
     "Sawdust is fixed at 64 because three sawdust craft six paper. The sawmill's plank and log recipes turn vanilla logs into more planks than crafting does; both ends of that recipe are vanilla, so it is not a conversion.",
     "",
     "Sulfur dust matches gunpowder, because injecting gunpowder and enriching the dust are one-to-one. Coal gasification also makes sulfur from coal, which is worth less than gunpowder; that recipe is not a conversion, or sulfur could not match gunpowder.",
@@ -42,7 +42,9 @@
     "",
     "The fission reactor is not in this port. Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.",
     "",
-    "Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too."
+    "Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too.",
+    "",
+    "Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did."
   ],
   "values": {
     "mekanism:ingot_osmium": {
@@ -195,9 +197,10 @@
     },
     {
       "name": "fill_nutritional_paste_bucket",
-      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "why": "The nutritional liquifier makes 50 mB per food point, so a 1,000 mB bucket holds twenty points and drinking it returns the empty bucket. Dried kelp restores one point and is the cheapest food on both ProjectE and Item Alchemy (1 EMC), so the paste costs twenty kelp plus the bucket.",
       "output": "mekanism:nutritional_paste_bucket",
       "ingredients": {
+        "minecraft:dried_kelp": 20,
         "minecraft:bucket": 1
       }
     },
@@ -287,11 +290,10 @@
     },
     {
       "name": "sulfuric_acid_bucket",
-      "why": "One sulfur dust converts into 2 mB of sulfuric acid, so a bucket is five hundred dust and the bucket.",
+      "why": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, two of that plus free oxygen make two sulfur trioxide, and one trioxide plus free water vapor makes one sulfuric acid. A bucket is ten dust, the same as sulfur dioxide. The gas conversion of one dust into 2 mB is the expensive path and is not the cost.",
       "output": "mekanism:sulfuric_acid_bucket",
       "ingredients": {
-        "mekanism:dust_sulfur": 500,
-        "minecraft:bucket": 1
+        "mekanism:sulfur_dioxide_bucket": 1
       }
     },
     {
@@ -2895,7 +2897,94 @@
       }
     }
   ],
-  "processes": [],
+  "processes": [
+    {
+      "name": "sulfur_dioxide_bucket",
+      "why": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so ten dust and one bucket fill one bucket. A higher value would let that route create EMC.",
+      "in": {
+        "mekanism:dust_sulfur": 10,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      }
+    },
+    {
+      "name": "sulfur_trioxide_bucket",
+      "why": "Two sulfur dioxide and one oxygen make two sulfur trioxide. Oxygen comes from water and adds no EMC, so a trioxide bucket cannot be worth more than a dioxide bucket.",
+      "in": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      },
+      "out": {
+        "mekanism:sulfur_trioxide_bucket": 1
+      }
+    },
+    {
+      "name": "sulfuric_acid_bucket",
+      "why": "One sulfur trioxide and one water vapor make one sulfuric acid, and water vapor is free, so an acid bucket cannot be worth more than a trioxide bucket. The direct conversion of one dust into 2 mB is a worse route.",
+      "in": {
+        "mekanism:sulfur_trioxide_bucket": 1
+      },
+      "out": {
+        "mekanism:sulfuric_acid_bucket": 1
+      }
+    },
+    {
+      "name": "uranium_oxide_bucket",
+      "why": "Oxidizing one yellow cake yields 250 mB of uranium oxide, so four cakes and one bucket fill one bucket.",
+      "in": {
+        "mekanism:yellow_cake_uranium": 4,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:uranium_oxide_bucket": 1
+      }
+    },
+    {
+      "name": "hydrofluoric_acid_bucket",
+      "why": "Dissolving one fluorite gem yields 1,000 mB of hydrofluoric acid. The millibucket of sulfuric acid is a catalyst and is not counted; a bucket cannot be worth more than one gem and the bucket.",
+      "in": {
+        "mekanism:fluorite_gem": 1,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:hydrofluoric_acid_bucket": 1
+      }
+    },
+    {
+      "name": "uranium_hexafluoride_buckets",
+      "why": "One millibucket of hydrofluoric acid and one of uranium oxide make two of uranium hexafluoride, so two buckets cannot be worth more than one of each input bucket.",
+      "in": {
+        "mekanism:hydrofluoric_acid_bucket": 1,
+        "mekanism:uranium_oxide_bucket": 1
+      },
+      "out": {
+        "mekanism:uranium_hexafluoride_bucket": 2
+      }
+    },
+    {
+      "name": "liquify_nutritional_paste",
+      "why": "The liquifier makes 50 mB per food point. Twenty dried kelp, the cheapest food at one point per EMC, plus a bucket fill one bucket of paste. A higher paste value would make liquifying kelp create EMC.",
+      "in": {
+        "minecraft:dried_kelp": 20,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:nutritional_paste_bucket": 1
+      }
+    },
+    {
+      "name": "drink_nutritional_paste",
+      "why": "Drinking a full bucket restores twenty food points and returns the empty bucket. Priced as twenty dried kelp, that food cannot be worth more than the bucket, or drinking a transmuted bucket would be free food.",
+      "in": {
+        "mekanism:nutritional_paste_bucket": 1
+      },
+      "out": {
+        "minecraft:dried_kelp": 20,
+        "minecraft:bucket": 1
+      }
+    }
+  ],
   "vanilla": {
     "minecraft:elytra": {
       "systems": [
