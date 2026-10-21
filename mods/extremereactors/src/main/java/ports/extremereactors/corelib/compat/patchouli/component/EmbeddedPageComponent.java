@@ -13,9 +13,9 @@ import vazkii.patchouli.api.IVariable;
 import vazkii.patchouli.client.book.BookContentsBuilder;
 import vazkii.patchouli.client.book.BookEntry;
 import vazkii.patchouli.client.book.BookPage;
-import vazkii.patchouli.client.book.ClientBookRegistry;
 import vazkii.patchouli.client.book.gui.GuiBookEntry;
 import vazkii.patchouli.client.book.template.TemplateComponent;
+import vazkii.patchouli.common.util.SerializationUtil;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -71,7 +71,9 @@ public abstract class EmbeddedPageComponent<P extends BookPage>
             }
         }
 
-        this._page = ClientBookRegistry.INSTANCE.gson.fromJson(properties, this._pageClass);
+        // Patchouli's page adapter wants a page type; the component's own type is not one, so read the page directly
+        this._page = SerializationUtil.RAW_GSON.fromJson(properties, this._pageClass);
+        this._page.sourceObject = properties;
     }
 
     @Override
