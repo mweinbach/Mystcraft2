@@ -123,13 +123,19 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         updateMarked = false;
         ConnectedType[] old = connections.clone();
         for (Direction face : Direction.values()) connections[face.ordinal()] = computeConnection(face);
+        boolean changed = false;
         for (Direction face : Direction.values()) {
             int i = face.ordinal();
-            if ((old[i] == null) != (connections[i] == null) && neighbourTile(face) instanceof PipeBlockEntity other) {
-                other.markForUpdate();
-            }
+            if ((old[i] == null) == (connections[i] == null)) continue;
+            changed = true;
+            if (neighbourTile(face) instanceof PipeBlockEntity other) other.markForUpdate();
         }
         refreshState();
+        // Wires cross only connected faces, so systems joined or split by a blocker must be rebuilt once connections settle.
+        if (changed && !wires.parts().isEmpty() && level instanceof ServerLevel server) {
+            WireSystems.get(server).rebuildWireSystemsAround(this);
+            wires.updateBetweens(false);
+        }
     }
 
     @Nullable

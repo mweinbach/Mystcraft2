@@ -131,10 +131,17 @@ public final class WireSystems extends SavedData {
         return level.isLoaded(pos) && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe ? pipe : null;
     }
 
-    /** Upstream {@code rebuildWireSystemsAround}: called when a pluggable that might emit comes or goes. */
+    /**
+     * Upstream {@code rebuildWireSystemsAround}: called when a pluggable that might emit comes or goes, or the pipe's
+     * connections change. Unlike upstream it also starts from the holder's own wires, so a lone corner takes in a new gate.
+     */
     public void rebuildWireSystemsAround(PipeBlockEntity holder) {
         Set<WireSystem.Element> starts = new HashSet<>();
-        for (WirePart part : WirePart.VALUES) starts.addAll(WireSystem.connectedElements(holder, WireSystem.Element.wire(holder.getBlockPos(), part)));
+        for (WirePart part : WirePart.VALUES) {
+            WireSystem.Element element = WireSystem.Element.wire(holder.getBlockPos(), part);
+            if (holder.wires().getColourOfPart(part) != null) starts.add(element);
+            starts.addAll(WireSystem.connectedElements(holder, element));
+        }
         starts.forEach(this::buildAndAddWireSystem);
     }
 

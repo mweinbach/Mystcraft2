@@ -261,6 +261,9 @@ public final class FabricGameTests implements FabricGameTest {
     public void pipeSignalCarriesAGateSignal(GameTestHelper helper) { WireTests.pipeSignalCarriesAGateSignal(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void wireSystemsFollowPluggables(GameTestHelper helper) { WireTests.wireSystemsFollowPluggables(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)

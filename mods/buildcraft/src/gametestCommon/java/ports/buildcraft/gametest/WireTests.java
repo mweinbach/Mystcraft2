@@ -226,6 +226,41 @@ public final class WireTests {
     }
 
     /**
+     * Plugging the face between two wired pipes splits their wire system once the pipes disconnect, and unplugging it
+     * joins them again. A gate added next to a lone wire corner joins that corner's system.
+     */
+    public static void wireSystemsFollowPluggables(GameTestHelper helper) {
+        BlockPos a = new BlockPos(2, 2, 2), b = new BlockPos(3, 2, 2), lone = new BlockPos(2, 2, 5);
+        PipeBlockEntity first = pipe(helper, a, BCTransport.STONE_ITEM);
+        PipeBlockEntity second = pipe(helper, b, BCTransport.STONE_ITEM);
+        PipeBlockEntity single = pipe(helper, lone, BCTransport.STONE_ITEM);
+        WireSystems systems = WireSystems.get(helper.getLevel());
+        WireSystem.Element here = WireSystem.Element.wire(first.getBlockPos(), UP_SOUTH_EAST);
+        WireSystem.Element there = WireSystem.Element.wire(second.getBlockPos(), UP_SOUTH_WEST);
+
+        helper.runAfterDelay(2, () -> {
+            first.wires().addPart(UP_SOUTH_EAST, DyeColor.RED);
+            second.wires().addPart(UP_SOUTH_WEST, DyeColor.RED);
+            single.wires().addPart(UP_SOUTH_EAST, DyeColor.RED);
+            require(helper, systems.getWireSystemsWithElement(here).get(0).elements.contains(there), "the two wires start joined");
+            first.replacePluggable(Direction.EAST, BCTransport.BLOCKER.create(first, Direction.EAST));
+            gate(single, Direction.EAST);
+        });
+        helper.runAfterDelay(5, () -> {
+            require(helper, systems.getWireSystemsWithElement(here).size() == 1 && !systems.getWireSystemsWithElement(here).get(0).elements.contains(there)
+                    && first.wires().betweens().isEmpty() && second.wires().betweens().isEmpty(), "a blocker between the pipes splits the wire");
+            require(helper, systems.getWireSystemsWithElement(WireSystem.Element.wire(single.getBlockPos(), UP_SOUTH_EAST)).get(0).elements
+                    .contains(WireSystem.Element.emitter(single.getBlockPos(), Direction.EAST)), "a new gate joins a lone corner's system");
+            first.replacePluggable(Direction.EAST, null);
+        });
+        helper.runAfterDelay(8, () -> {
+            require(helper, systems.getWireSystemsWithElement(here).size() == 1 && systems.getWireSystemsWithElement(here).get(0).elements.contains(there)
+                    && first.wires().betweens().get(WireBetween.EAST_UP_SOUTH) == DyeColor.RED, "taking the blocker off joins the wire again");
+            helper.succeed();
+        });
+    }
+
+    /**
      * A gate's "Pipe Signal" action powers the wire of its colour on its pipe and every wire joined to it, and its
      * parameters power further colours. Another gate on that wire offers the colour's "Pipe Signal On" and "Off"
      * triggers, whose parameters require other colours on or off; here one turns on a redstone signal. Saving keeps

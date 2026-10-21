@@ -263,6 +263,9 @@ public final class ForgeGameTests {
     public static void pipeSignalCarriesAGateSignal(GameTestHelper helper) { WireTests.pipeSignalCarriesAGateSignal(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void wireSystemsFollowPluggables(GameTestHelper helper) { WireTests.wireSystemsFollowPluggables(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
