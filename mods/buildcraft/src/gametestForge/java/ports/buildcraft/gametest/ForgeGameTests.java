@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests} and {@link PulsarTimerTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests} and {@link SensorControlTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -288,6 +288,21 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1000)
     public static void timerTriggersAndPulsarActions(GameTestHelper helper) { PulsarTimerTests.timerTriggersAndPulsarActions(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void lightSensorPlacesAndReadsLight(GameTestHelper helper) { SensorControlTests.lightSensorPlacesAndReadsLight(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void machineControlOfferedOnlyForTheFiller(GameTestHelper helper) { SensorControlTests.machineControlOfferedOnlyForTheFiller(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateSetsFillerPatternAndSkipsFirstParameter(GameTestHelper helper) { SensorControlTests.gateSetsFillerPatternAndSkipsFirstParameter(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void gateTurnsTheFillerOffAndOn(GameTestHelper helper) { SensorControlTests.gateTurnsTheFillerOffAndOn(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void fillerControlModeSurvivesSaving(GameTestHelper helper) { SensorControlTests.fillerControlModeSurvivesSaving(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

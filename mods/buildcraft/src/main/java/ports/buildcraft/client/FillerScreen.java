@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.FillerBlockEntity;
+import ports.buildcraft.lib.Controllable;
 import ports.buildcraft.builders.FillerMenu;
 import ports.buildcraft.builders.filler.FillerParameter;
 import ports.buildcraft.builders.filler.FillerPatterns;
@@ -33,6 +34,8 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
     private static final int PARAM_X = 53, PARAM_Y = 39;
     private static final int EXCAVATE_X = 130, INVERT_X = 152, BUTTON_Y = 40;
     private static final int LOCK_X = 12, LOCK_Y = 16;
+    /** Upstream {@code filler.json} mode icon, shown unless the filler is on. */
+    private static final int MODE_X = 32, MODE_Y = 16;
     private static final int LEDGER_COLOUR = 0xFF6CD41F;
     private static final int LEDGER_TITLE_COLOUR = 0xFFE1C92F;
     private static final int SLOT = SlotRing.SLOT;
@@ -191,6 +194,10 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
             RenderSystem.setShaderTexture(0, LOCK);
             blit(poseStack, leftPos + LOCK_X, topPos + LOCK_Y, 16, 16, 0, 0, 16, 16, 16, 16);
         }
+        if (filler.getControlMode() != Controllable.Mode.ON) {
+            RenderSystem.setShaderTexture(0, BuildCraft.id("textures/triggers/action_machinecontrol_" + filler.getControlMode().lowerCaseName + ".png"));
+            blit(poseStack, leftPos + MODE_X, topPos + MODE_Y, 16, 16, 0, 0, 16, 16, 16, 16);
+        }
         forEachSource((source, x, y) -> drawSlot(poseStack, source, x, y));
         renderLedger(poseStack, filler, partialTicks);
     }
@@ -265,6 +272,9 @@ public final class FillerScreen extends BCScreen<FillerMenu> {
             tooltip = Component.translatable("tip.filler.invert." + (filler.isInverted() ? "on" : "off"));
         }
         if (filler.isLocked() && in(mouseX, mouseY, leftPos + LOCK_X, topPos + LOCK_Y, 16, 16)) tooltip = Component.translatable("gui.buildcraft.locked");
+        if (filler.getControlMode() != Controllable.Mode.ON && in(mouseX, mouseY, leftPos + MODE_X, topPos + MODE_Y, 16, 16)) {
+            tooltip = Component.literal(filler.getControlMode().lowerCaseName);
+        }
         Pattern source = sourceAt(mouseX, mouseY);
         if (source != null) tooltip = tooltipOf(source);
         if (ledger.isExpanded()) {

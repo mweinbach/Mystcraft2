@@ -77,5 +77,6 @@ public final class BCBuilders {
 
     public static void init() {
         BuildersSchematics.init();
+        BuildersStatements.init();
     }
 }

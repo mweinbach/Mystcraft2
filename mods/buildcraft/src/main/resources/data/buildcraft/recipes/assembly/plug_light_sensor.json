@@ -1,0 +1,14 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:plug_light_sensor"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": {
+        "item": "minecraft:daylight_detector"
+      }
+    }
+  ]
+}

@@ -143,6 +143,7 @@ buildcraft:pipe_wood_fluid
 buildcraft:pipe_wood_item
 buildcraft:pipe_wood_power
 buildcraft:plug_blocker
+buildcraft:plug_light_sensor
 buildcraft:plug_power_adaptor
 buildcraft:plug_pulsar
 buildcraft:plug_timer
