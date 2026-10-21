@@ -1,0 +1,30 @@
+/*
+ * Mekanism 1.19.2 port - Fabric mixins applying the port's Forge API shapes to vanilla classes.
+ * Copyright (c) 2026 Mekanism 1.19.2 port contributors. MIT License, see licenses/PORT-LICENSE.txt.
+ */
+package ports.mekanism.fabric.mixin;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.EntityAccess;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.event.entity.EntityJoinLevelEvent;
+
+/**
+ * Forge posts {@link EntityJoinLevelEvent} before an entity is added, from disk or fresh, and skips the add when a
+ * listener cancels it. Players go through this method once, after the level has dropped a duplicate UUID.
+ */
+@Mixin(PersistentEntitySectionManager.class)
+public abstract class PersistentEntitySectionManagerMixin {
+
+    @Inject(method = "addEntity(Lnet/minecraft/world/level/entity/EntityAccess;Z)Z", at = @At("HEAD"), cancellable = true)
+    private void mekanism$join(EntityAccess entity, boolean loadedFromDisk, CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof Entity real && MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(real, real.level, loadedFromDisk))) {
+            cir.setReturnValue(false);
+        }
+    }
+}

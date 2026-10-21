@@ -4,16 +4,20 @@
  */
 package ports.mekanism.lib.event;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.common.util.BlockSnapshot;
+import ports.mekanism.lib.event.entity.player.PlayerEvent;
 import ports.mekanism.lib.event.level.BlockEvent;
 
 /**
@@ -46,5 +50,25 @@ public final class ForgeEventFactory {
 
     public static int onArrowLoose(ItemStack stack, Level level, Player player, int charge, boolean hasAmmo) {
         return charge;
+    }
+
+    public static void onPlayerPreTick(Player player) {
+        MinecraftForge.EVENT_BUS.post(new TickEvent.PlayerTickEvent(TickEvent.Phase.START, player));
+    }
+
+    public static void onPlayerPostTick(Player player) {
+        MinecraftForge.EVENT_BUS.post(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
+    }
+
+    /**
+     * @return the speed after listeners, or {@code -1} when a listener canceled the break
+     */
+    public static float getBreakSpeed(Player player, BlockState state, float original, @Nullable BlockPos pos) {
+        PlayerEvent.BreakSpeed event = new PlayerEvent.BreakSpeed(player, state, original, pos);
+        return MinecraftForge.EVENT_BUS.post(event) ? -1 : event.getNewSpeed();
+    }
+
+    public static void firePlayerCraftingEvent(Player player, ItemStack crafted, Container craftMatrix) {
+        MinecraftForge.EVENT_BUS.post(new PlayerEvent.ItemCraftedEvent(player, crafted, craftMatrix));
     }
 }

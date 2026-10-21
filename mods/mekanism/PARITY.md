@@ -23,7 +23,8 @@ modifiers contribute, at the same decoration step. Vein size, height, attempts p
 the shared placement modifiers. Client ticks, the HUD, fog, living-entity and arm rendering, armor layers, block
 highlighting and in-game key and scroll input are wired (see below). An anchor upgrade keeps that machine's chunk
 loaded, and the same tickets come back when the level loads. The shared GameTests (core machines, loader interop,
-chemical lookups, ore generation, item and block hooks, chunk loading, and render bounds) pass on both loaders.
+chemical lookups, ore generation, the item and block hooks, chunk loading, render bounds, and the player and living
+events) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -110,18 +111,45 @@ These fire at the same points Forge 43.5.0 does. Fabric API is used where it has
 
 Checked on a Fabric development client in creative and then survival: the MekaSuit module list, jetpack mode,
 configurator mode and compass draw, and the survival energy bar draws above the health row. The radiation tint reads
-the client dose. That dose is synced from the player tick, which is still unwired, so the tint was not seen. The
-MekaSuit armor layer is attached when the renderers reload.
+the client dose. That dose is synced from the player tick. The player tick was unwired when the client was checked,
+so the tint was not seen. The MekaSuit armor layer is attached when the renderers reload.
+
+## Fabric: player and living events
+
+These fire from the same vanilla methods Forge 43.5.0 patches. Listeners on the port's bus see them, so the server
+applies jetpack thrust, scuba air, free-runner fall absorption, radiation, step assist and the MekaSuit's break-speed
+modules. `onArmorTick` already ran; the modules that only needed a player tick now run with it.
+
+- Player tick, start and end. The server end tick is what drives the jetpack, scuba tank, radiation and step assist.
+  Step assist and the hydrostatic repulsor write Forge's step-height and swim-speed attributes. Living entities have
+  those attributes, players also have reach distance, collision steps up by the step-height attribute, and swimming
+  scales by swim speed. The client publishes the ascend key from `ClientTickEvent` start, which the client tick
+  wiring posts, so a normal-mode jetpack follows the jump key.
+- Living tick, attack, hurt, damage, fall, jump and death. A non-player posts living attack from `LivingEntity.hurt`.
+  A player posts it from `Player.hurt` and skips the living-entity copy, matching Forge. Death is posted from
+  `LivingEntity.die`, `Player.die` and `ServerPlayer.die`, so an uncancelled player death posts three times.
+  `ServerPlayer` posts after its death game event. Living damage is posted from the health change inside
+  `actuallyHurt`, and the adjusted amount is what combat tracking, food exhaustion, damage statistics and the
+  following absorption update use. Cancelling the event skips that bookkeeping. The attacker's absorbed-damage
+  statistic stays the absorption applied before the event. When armor and absorption already reduced the damage to
+  zero, vanilla never changes health, so that zero-damage event is not posted.
+- Break speed, including the position `getDestroyProgress` is measuring. Direct `getDestroySpeed` calls pass an empty
+  position. A cancelled break speed returns -1, which stops the break. This is the hook the Meka-Tool, atomic
+  disassembler and MekaSuit gyroscopic stabilization use.
+- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, and the crafting player is set around the
+  remainder lookup. Bin insert recipes consume the rest of the grid through this event.
+- Entity join, cancellable, from `PersistentEntitySectionManager.addEntity` before the entity is added. A cardboard
+  box uses it to swallow dropped items and experience. Players are included once, after a duplicate UUID is removed.
+  Forge posts a player's join slightly earlier, from `ServerLevel.addPlayer`, and then skips this second post.
+- Entity leave, from Fabric's server entity unload, after the entity stops being tracked. Forge also posts it on the
+  client; the client copy is unwired.
 
 ## Fabric: not written yet
 
 - Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
   is not called.
-- Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
-  item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
-  load and unload, and recipes updated. MekaSuit and jetpack ticking, radiation damage on players and free runners'
-  fall behavior need the player and living events. `onArmorTick` does run; the modules that need a player tick still
-  do not.
+- Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
+  unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
