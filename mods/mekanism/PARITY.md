@@ -33,8 +33,10 @@ OBJ and custom models. The shared GameTests (core machines and loader interop) p
 
 ## Fabric: not written yet
 
-- Team Reborn Energy and Transfer API bridges for item stacks (`EnergyStorage.ITEM`, `FluidStorage.ITEM`): Mekanism
-  cannot charge other mods' batteries or fill their fluid containers, and other mods do not see Mekanism's items.
+- Other mods cannot use Mekanism's own energy and fluid items. Mekanism charges other mods' batteries and fills
+  their fluid containers through `EnergyStorage.ITEM` and `FluidStorage.ITEM`, but `foreignCapability` does not
+  register those lookups for Mekanism's own namespaces, so another mod cannot charge an energy tablet or fill a
+  Mekanism tank, gauge dropper or fluid bucket.
 - Biome modifiers for ore and salt generation: Mekanism ores do not generate on Fabric. Chunk loading tickets.
 - Fluid render handlers for Mekanism's fluids.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
@@ -55,7 +57,6 @@ OBJ and custom models. The shared GameTests (core machines and loader interop) p
   - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
-- A loader-parity check script, and EMC values for ProjectE and Item Alchemy.
 
 ## Fabric: deliberate limits of the Forge API mirror
 

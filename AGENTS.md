@@ -96,6 +96,21 @@ BuildCraft changes, run:
 - `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy`
 
+## Mekanism loader support
+
+Mekanism uses the same layout: gameplay, registries, recipes, assets and EMC data
+in `mods/mekanism/src/main`; Forge metadata in `src/forge`, Fabric adapters in
+`src/fabric`, and the Loom build in `mods/mekanism/fabric`. Fabric rewrites
+`net.minecraftforge` references in the shared sources onto `ports.mekanism.lib`.
+After Mekanism changes, run:
+
+- `./scripts/gradle.sh :mekanism:build`
+- `./scripts/gradle.sh -p mods/mekanism/fabric build`
+- `python3 mods/mekanism/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :mekanism:runGameTestServer`
+- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest`
+
 ## Extreme Reactors loader support
 
 Extreme Reactors uses the same layout: Extreme Reactors 2's gameplay, assets and
