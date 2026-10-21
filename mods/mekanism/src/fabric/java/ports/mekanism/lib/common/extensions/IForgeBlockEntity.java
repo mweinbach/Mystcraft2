@@ -9,8 +9,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.client.model.data.ModelData;
@@ -81,9 +85,32 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
         requestModelDataUpdate();
     }
 
+    /**
+     * The box the level renderer tests against the frustum. Matches Forge: the block's collision shape, except the
+     * vanilla blocks whose renderer draws outside that shape.
+     */
     default AABB getRenderBoundingBox() {
-        BlockPos pos = self().getBlockPos();
-        return new AABB(pos.offset(-1, 0, -1), pos.offset(2, 2, 2));
+        BlockEntity blockEntity = self();
+        BlockPos pos = blockEntity.getBlockPos();
+        BlockState state = blockEntity.getBlockState();
+        Block block = state.getBlock();
+        if (block == Blocks.ENCHANTING_TABLE) {
+            return new AABB(pos, pos.offset(1, 1, 1));
+        } else if (block == Blocks.CHEST || block == Blocks.TRAPPED_CHEST) {
+            return new AABB(pos.offset(-1, 0, -1), pos.offset(2, 2, 2));
+        } else if (block == Blocks.STRUCTURE_BLOCK || block == Blocks.BEACON) {
+            return INFINITE_EXTENT_AABB;
+        }
+        try {
+            VoxelShape collisionShape = state.getCollisionShape(blockEntity.getLevel(), pos);
+            if (!collisionShape.isEmpty()) {
+                return collisionShape.bounds().move(pos);
+            }
+        } catch (Exception ignored) {
+            // A block entity can arrive before its chunk. Forge uses a one-block box rather than failing the render.
+            return new AABB(pos.offset(-1, 0, -1), pos.offset(1, 1, 1));
+        }
+        return INFINITE_EXTENT_AABB;
     }
 
     /**
