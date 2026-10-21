@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "O": {
+      "tag": "forge:obsidian"
+    },
+    "T": {
+      "item": "minecraft:tnt"
+    }
+  },
+  "pattern": [
+    "OOO",
+    "TTT",
+    "OOO"
+  ],
+  "result": {
+    "item": "mekanismadditions:obsidian_tnt"
+  }
+}
