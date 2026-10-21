@@ -178,12 +178,14 @@ behave the same. Each one can be turned off in
   overflow" with a full exhaust tank). Extreme Reactors' unused
   `disableReactorParticles` and `disableTurbineParticles` client options also
   turn these off.
-- **Alarms** (`alarmLamps`, `alarmSounds`, `alarmVolume`,
-  `overheatAlarmTemperature`, `lowCoolantAlarm`). The controller's two grey
-  indicator lamps flash red while the fuel is at or above 2000 °C or a running
-  actively-cooled reactor's coolant tank is under 10%, with a looping alarm;
-  and amber when a running reactor has no fuel or waste fills 90% of the fuel
-  pool. Extreme Reactors has no meltdown, so these only warn.
+- **Alarms** (`alarmLamps`, `alarmSounds`, `alarmVolume`). The controller's
+  two grey indicator lamps flash red while the fuel is at or above 2000 °C or a
+  running actively-cooled reactor's coolant tank is under 10%, with a looping
+  alarm; and amber when a running reactor has no fuel or waste fills 90% of the
+  fuel pool. Extreme Reactors has no meltdown, so these only warn. The
+  thresholds are fixed (`effects.EffectThresholds`), not client options: the
+  server resends a reactor's state whenever it crosses one, so it has to know
+  them.
 - **SCRAM** (`scram`). When a reactor shuts down and all its rods go fully in
   within a second, as its controller's SCRAM button does, the drives drop and
   bounce, the lamps flash red and white for ten seconds, steam vents from the
@@ -191,17 +193,30 @@ behave the same. Each one can be turned off in
   scripted shutdowns that do the same look the same.
 
 Cost: the effects tick only for machines within `range` blocks (64 by
-default) of the camera and forget the others. Each reactor's part lists are
+default) of the camera and forget the others. A reactor's client state is also
+dropped as soon as it stops ticking (disassembled, unloaded or left behind with
+its world) and when its level unloads, so the cache never keeps a controller,
+its parts or an old level alive. Each reactor's part lists are
 rebuilt only when its part count changes, or every five seconds. The glow is
 drawn once per reactor by its first controller, two boxes per fuel column. Each
 control rod is a block entity renderer of three boxes. Particles are capped per
 port and per tick, and vanilla's particle setting still applies.
 
-Network: the server now resends a reactor's state when its fuel temperature
-changes by 5% (at least 20 °C) or a tank by 5%, at most every two seconds; a
-steady reactor sends nothing. Each update re-renders the chunk section of the
-reactor's reference corner on clients, as the turbine's rotor speed updates
-already did. Rod insertion and on/off already reached clients without a screen
+Network: the server now resends a machine's state to nearby clients, at most
+every two seconds, when it changes noticeably or crosses a threshold an effect
+switches at; a steady machine sends nothing. Values are compared with what was
+last sent, so a crossing during the two seconds is sent at their end.
+
+- A reactor: its fuel temperature by 5% (at least 20 °C) or a tank by 5%, or
+  crossing 100 °C (steam), 2000 °C (overheat), 10% coolant, 90% waste, or
+  running out of fuel.
+- A turbine: the steam it took last tick by 25% (at least 10 mB) or starting or
+  stopping, its exhaust tank by 5% or filling up, or its vent setting. Upstream
+  only sent these to players with its screen open, so the plume of a turbine
+  started or stopped nearby would otherwise never change.
+
+Each update re-renders the chunk section of the machine's reference corner on
+clients. Rod insertion and on/off already reached clients without a screen
 open.
 
 Gaps and risks:
@@ -219,7 +234,7 @@ Gaps and risks:
 | --- | --- |
 | `FuelContainerTest` (JUnit, both builds) | Fuel and waste accounting. |
 | `LayoutEngineTest`, `GuiDataTest` (JUnit, both builds) | `corelib`'s fixed, vertical, horizontal, tabular and anchored layouts; text input constraints, tooltip templates and data bindings. |
-| `EffectsLogicTest` (JUnit, both builds) | Rod drive motion and SCRAM drop, SCRAM recognition, alarm conditions, and the rate limit of the reactor status sync. |
+| `EffectsLogicTest` (JUnit, both builds) | Rod drive motion and SCRAM drop, SCRAM recognition, alarm conditions, the reactor and turbine status sync (rate limit, threshold crossings, turbine flow, venting and vent setting), and the client cache dropping machines that stop ticking. |
 | `basicReactorAssembles`, `basicTurbineAssembles` | Assembly of minimal machines. |
 | `reactorWithoutControllerDoesNotAssemble`, `reactorFuelRodNeedsCasingBase`, `turbineLooseBladeDoesNotAssemble` | Validation errors. |
 | `turbineCoilsBeforeBladesAssembleLikeUpstream` | The upstream coil-validation quirk. |

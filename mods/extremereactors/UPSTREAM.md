@@ -135,10 +135,14 @@ import mapping, these upstream files were changed:
   `onClientInit` also calls `MachineEffects.initialize()`, which loads the
   port's client-side machine effects (see [Machine effects](PARITY.md#machine-effects)).
 - `gamecontent/multiblock/reactor/MultiblockReactor`: `updateServer` also sends
-  the reactor's state to nearby clients when its fuel temperature or tank levels
-  change noticeably, at most every two seconds (`effects.StatusSyncTracker`), so
-  their alarms follow the reactor without its screen open. The turbine already
-  did this for its rotor speed.
+  the reactor's state to nearby clients when its fuel temperature, tank levels,
+  fuel or waste change noticeably or cross an effect threshold, at most every
+  two seconds (`effects.StatusSyncTracker`), so their alarms and steam follow
+  the reactor without its screen open.
+- `gamecontent/multiblock/turbine/MultiblockTurbine`: `updateServer` likewise
+  sends the turbine's state when the steam it takes, its exhaust tank or its
+  vent setting change, so nearby clients' vent plume follows it. Upstream's
+  rotor speed tracker only marks the chunk for saving and sends nothing.
 - Screens (`client/screen/*` in `common`, `reactor`, `turbine`, `reprocessor`
   and `fluidizer`): no `@OnlyIn`, and Forge `NonNullSupplier` became
   `java.util.function.Supplier`. Nothing else changed.

@@ -54,8 +54,7 @@ Modpacks can add reactants, moderators, coolants and coils with
 
 Clients also read `config/extremereactors/effects.toml`, the port's own file,
 which turns each machine effect on or off and sets their range, glow strength,
-particle density, alarm volume and alarm thresholds. It is read when the client
-starts.
+particle density and alarm volume. It is read when the client starts.
 
 ## Source layout
 
