@@ -703,6 +703,19 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_facades": {
+      "comment": "The assembly table makes six facades from one block and three structure pipes (upstream FacadeAssemblyRecipes), with laser power left unvalued. One item id covers every block, and transmutation strips NBT, so the value is this cheapest recipe: dirt, a full block, plus the pipes, divided by six. Six facades therefore cannot be worth more than the block they were made from.",
+      "conversions": [
+        {
+          "output": "buildcraft:plug_facade",
+          "count": 6,
+          "ingredients": {
+            "minecraft:dirt": 1,
+            "buildcraft:pipe_structure": 3
+          }
+        }
+      ]
     }
   },
   "values": {

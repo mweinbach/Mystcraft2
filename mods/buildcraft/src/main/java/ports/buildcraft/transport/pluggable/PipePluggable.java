@@ -56,6 +56,11 @@ public abstract class PipePluggable {
         return false;
     }
 
+    /** True when this face can hold a torch, as the copied block's face would. */
+    public boolean isSideSolid() {
+        return false;
+    }
+
     /** True if redstone wire connects to the pipe through this face. */
     public boolean canConnectToRedstone(@Nullable Direction to) {
         return false;

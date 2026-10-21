@@ -103,7 +103,7 @@ public abstract class LaserTableBlockEntity extends BlockEntity implements World
             int remaining = definition.count();
             for (int i = 0; i < inv.size() && remaining > 0; i++) {
                 ItemStack slotStack = inv.get(i);
-                if (slotStack.isEmpty() || !definition.ingredient().test(slotStack)) continue;
+                if (slotStack.isEmpty() || !definition.matches(slotStack)) continue;
                 int spend = Math.min(remaining, slotStack.getCount());
                 remaining -= spend;
                 if (!simulate) {

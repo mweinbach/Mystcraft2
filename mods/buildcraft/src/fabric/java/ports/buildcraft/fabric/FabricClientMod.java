@@ -3,6 +3,7 @@ package ports.buildcraft.fabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -27,6 +28,8 @@ import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.builders.SnapshotTooltip;
 import ports.buildcraft.client.BCClient;
 import ports.buildcraft.client.ClientPlatform;
+import ports.buildcraft.client.FacadeRenderer;
+import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.energy.BCFluidDefinition;
 
@@ -39,6 +42,8 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
         BCClient.registerScreens();
         BCClient.registerItemColours(ColorProviderRegistry.ITEM::register);
         BCClient.registerItemProperties(FabricModelPredicateProviderRegistry::register);
+        BuiltinItemRendererRegistry.INSTANCE.register(BCSilicon.FACADE_ITEM.get(),
+                (stack, mode, matrices, consumers, light, overlay) -> FacadeRenderer.renderItem(stack, matrices, consumers, light, overlay));
         for (Block block : BCClient.cutoutBlocks()) BlockRenderLayerMap.INSTANCE.putBlock(block, RenderType.cutout());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             FluidRenderHandlerRegistry.INSTANCE.register(fluid.source(), fluid.flowing(),

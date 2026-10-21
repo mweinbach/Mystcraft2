@@ -119,7 +119,7 @@ public final class BCTransport {
     }
 
     private static BlockBehaviour.Properties pipeProperties() {
-        return BlockBehaviour.Properties.of(Material.METAL).strength(0.25F, 3.0F).sound(SoundType.STONE).noOcclusion();
+        return BlockBehaviour.Properties.of(Material.METAL).strength(0.25F, 3.0F).sound(SoundType.STONE).noOcclusion().dynamicShape();
     }
 
     private static Function<PipeBlockEntity, PipeBehaviour> separate(Kind kind) {

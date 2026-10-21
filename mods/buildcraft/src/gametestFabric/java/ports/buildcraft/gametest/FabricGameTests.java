@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests} and {@link SensorControlTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests} and {@link FacadeTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -307,6 +307,18 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void integrationTableIntegratesAroundCentre(GameTestHelper helper) { SiliconTests.integrationTableIntegratesAroundCentre(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void facadeRules(GameTestHelper helper) { FacadeTests.facadeRules(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void assemblyAndSwap(GameTestHelper helper) { FacadeTests.assemblyAndSwap(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void fullFacadeBlocksAndHollowStaysOpen(GameTestHelper helper) { FacadeTests.fullFacadeBlocksAndHollowStaysOpen(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void facadeQuadsStayInTheShell(GameTestHelper helper) { FacadeTests.facadeQuadsStayInTheShell(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

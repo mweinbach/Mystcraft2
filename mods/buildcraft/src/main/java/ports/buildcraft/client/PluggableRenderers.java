@@ -41,8 +41,10 @@ public final class PluggableRenderers {
     private static final Map<PluggableDefinition, Renderer> RENDERERS = new HashMap<>();
     private static final List<ResourceLocation> SPRITES = new ArrayList<>();
 
+    private static final Element BLOCKER = new Element(2, 4, 4, 4.01F, 12, 12, new float[] {2, 4, 4, 12}, new float[] {4, 4, 12, 12});
+
     static {
-        register(BCTransport.BLOCKER, PLUG, new Element(2, 4, 4, 4.01F, 12, 12, new float[] {2, 4, 4, 12}, new float[] {4, 4, 12, 12}));
+        register(BCTransport.BLOCKER, PLUG, BLOCKER);
         register(BCTransport.POWER_ADAPTOR, POWER_ADAPTER,
                 new Element(2, 4, 4, 4.01F, 12, 12, new float[] {2, 4, 4, 12}, new float[] {4, 4, 12, 12}),
                 new Element(0, 3, 3, 2, 13, 13, new float[] {0, 3, 2, 13}, new float[] {3, 3, 13, 13}));
@@ -55,6 +57,18 @@ public final class PluggableRenderers {
                 new Element(2, 5, 5, 4.01F, 11, 11, new float[] {3, 5, 5, 11}, new float[] {5, 5, 11, 11}));
         register(BCSilicon.PULSAR, PulsarRenderer::render);
         SPRITES.addAll(PulsarRenderer.sprites());
+        register(BCSilicon.FACADE, FacadeRenderer::render);
+    }
+
+    /** The pipe plug drawn inside an opaque full facade, as upstream's baker added the blocker quads. */
+    public static void renderBlocker(Direction side, PoseStack poseStack, MultiBufferSource buffers, int light) {
+        VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutout(InventoryMenu.BLOCK_ATLAS));
+        poseStack.pushPose();
+        RenderUtil.rotateFromWestAny(poseStack, side);
+        RenderUtil.box(poseStack, consumer, RenderUtil.sprite(PLUG),
+                (face, x1, y1, z1, x2, y2, z2) -> face.getAxis() == Direction.Axis.X ? BLOCKER.endUv : BLOCKER.sideUv,
+                BLOCKER.x1, BLOCKER.y1, BLOCKER.z1, BLOCKER.x2, BLOCKER.y2, BLOCKER.z2, 0xFFFFFFFF, light);
+        poseStack.popPose();
     }
 
     private PluggableRenderers() {}
