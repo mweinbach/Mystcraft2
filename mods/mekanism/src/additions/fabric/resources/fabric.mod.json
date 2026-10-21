@@ -3,7 +3,7 @@
   "id": "mekanismadditions",
   "version": "${version}",
   "name": "Mekanism: Additions",
-  "description": "Additions module for Mekanism, containing plastic blocks, glow panels and obsidian TNT.",
+  "description": "Additions module for Mekanism, containing plastic blocks, glow panels, obsidian TNT, baby mobs and balloons. The walkie-talkie is not included.",
   "authors": [
     "Aidancbrady",
     "Thommy101",
@@ -18,6 +18,9 @@
   "license": "MIT",
   "icon": "logo.png",
   "environment": "*",
+  "mixins": [
+    "mekanismadditions.mixins.json"
+  ],
   "entrypoints": {
     "main": [
       "ports.mekanism.additions.fabric.AdditionsFabricMod"

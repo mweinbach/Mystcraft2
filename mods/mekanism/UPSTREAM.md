@@ -29,7 +29,8 @@ Copied unchanged, then edited as listed below:
   `mekanism/tools/client/jei/ToolsJEI.java` was not copied.
 - `src/additions/java`, `src/additions/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismadditions` (merged into `src/additions/resources`), via the same importer.
-  Baby mobs, balloons, the walkie-talkie, voice chat and the biome and structure modifiers were removed after import.
+  The walkie-talkie, voice chat and their recipe were removed after import. Baby mobs, balloons and the biome and
+  structure modifiers are registered.
 - `mekanism.client.jei.MekanismJEIRecipeType`, `mekanism.client.jei.interfaces` and `mekanism.client.jei.recipe`.
   They do not use the JEI API; GUIs use them for recipe-viewer click areas and ghost slots.
 
@@ -72,7 +73,8 @@ Every edit beyond the scripted import rewrite:
 | `mekanism/tools/common/material/BaseMekanismMaterial.java`, tool item constructors, `MekanismTools.registerTiers` | The material no longer implements `Tier` itself. `MaterialItemTier` delegates the same stats. Tool constructors and tier registration use `asTier()` | `Tier` and `ArmorMaterial` both declare `getEnchantmentValue` and `getRepairIngredient`. Fabric's remapper cannot map one method onto both |
 | `mekanism/tools/common/item/ItemMekanismArmor.java` | Removed `initCapabilities` | It only attached the Wildfire Gender capability |
 | `mekanism/tools/common/integration/gender/ToolsGenderCapabilityHelper.java` | Deleted | Gender integration not ported; it called the removed `MekanismGenderArmor` |
-| `mekanism/additions/common/MekanismAdditions.java`, `registries/AdditionsEntityTypes.java`, `client/AdditionsClientRegistration.java` | Registers blocks, the obsidian TNT entity and its renderer, and block colors. Voice, baby spawning and the item registry are not called | Baby mobs, balloons and the walkie-talkie are a later slice. The TNT entity stays because the block primes it |
-| `mekanism/additions/common/config/AdditionsConfig.java`, `AdditionsClientConfig.java` | Server config keeps the obsidian TNT delay and radius. The client spec is empty | Voice and baby-spawn options belonged to the removed features |
-| `mekanism/additions/common/AdditionsTags.java`, `advancements/AdditionsAdvancements.java` | Tags keep the plastic block and item tags. The only advancement constant is glow in the dark | Balloon and baby-mob tags and advancements pointed at content that is not registered |
-| Additions baby entities, balloons, walkie-talkie, voice client and server, and biome and structure modifier serializers | Deleted, along with their recipes, loot, entity tags and advancements | Those features are not in this slice. Their assets remain unused in the jar |
+| `mekanism/additions/common/MekanismAdditions.java`, `registries/AdditionsItems.java`, `client/AdditionsClientRegistration.java` | Registers blocks, items, baby mobs, balloons and obsidian TNT. The voice server, walkie-talkie item, its model override and key bindings are not called | The walkie-talkie and voice chat are a later slice |
+| `mekanism/additions/common/config/AdditionsConfig.java`, `AdditionsClientConfig.java` | Server config keeps the obsidian TNT delay and radius and the baby spawn weights. The client spec is empty | Voice options belonged to the removed walkie-talkie |
+| `mekanism/additions/client/render/entity/layer/BabyEndermanHeldBlockLayer.java` | Renders the carried block with vanilla's five-argument `renderSingleBlock` | Forge's seven-argument overload is not on Fabric, and the dropped arguments were an empty model-data and a null render type |
+| `mekanism/additions/common/world/modifier/BabyEntitySpawnBiomeModifier.java`, `BabyEntitySpawnStructureModifier.java` | The biome and structure holders are read with `value()` | Forge's `Holder.get()` is the supplier method. Vanilla's method is `value()`, and both loaders have it |
+| Additions walkie-talkie item, voice client and voice server | Not imported. The walkie-talkie recipe was not copied. Item models and lang keys remain unused in the jar | Voice chat is a later slice |
