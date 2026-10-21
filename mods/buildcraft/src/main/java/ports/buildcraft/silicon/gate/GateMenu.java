@@ -218,7 +218,7 @@ public class GateMenu extends BCMenu {
         int index = buffer.readUnsignedByte();
         if (op == OP_CONNECTION) {
             boolean connected = buffer.readBoolean();
-            if (index >= logic.connections.length) return;
+            if (index >= logic.connections.length || logic.isSplitInTwo() && index == logic.statements.length / 2 - 1) return;
             logic.connections[index] = connected;
             changed(logic);
             return;

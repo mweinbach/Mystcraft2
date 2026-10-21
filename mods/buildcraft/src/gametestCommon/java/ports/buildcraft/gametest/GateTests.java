@@ -362,6 +362,15 @@ public final class GateTests {
             pipe.replacePluggable(Direction.EAST, null);
             GateMenu.receive(player, buffer(buffer -> GateMenu.writeStatementChange(buffer, id, 0, false, contains)));
             require(helper, logic.statements[0].trigger.get() == null && !menu.stillValid(player), "the server stops listening once the gate is gone");
+
+            GateLogic gold = gate(pipe, Direction.WEST, GOLD_AND).logic();
+            useAt(helper, player, pos, Direction.WEST, ON_GATE, ItemStack.EMPTY);
+            require(helper, player.containerMenu instanceof GateMenu goldMenu && goldMenu.slotHeight == 4, "a gold gate's GUI shows two columns of four pairs");
+            int goldId = player.containerMenu.containerId;
+            GateMenu.receive(player, buffer(buffer -> GateMenu.writeConnectionChange(buffer, goldId, 3, true)));
+            GateMenu.receive(player, buffer(buffer -> GateMenu.writeConnectionChange(buffer, goldId, 4, true)));
+            require(helper, !gold.connections[3] && gold.connections[4],
+                    "the server refuses to group the last pair of a gold gate's left column with the first of its right, which the GUI never links");
             helper.succeed();
         });
     }
