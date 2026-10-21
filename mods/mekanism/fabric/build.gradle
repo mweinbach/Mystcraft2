@@ -59,6 +59,7 @@ def forgeOnlyVanillaMembers = [
     [~/\bextends AbstractContainerScreen</, "extends ${patched}ForgeAbstractContainerScreen<"],
     [~/\bItemProperties\.register\(/, "${patched}ForgeItemProperties.register("],
     [~/\bnew LiquidBlock\(/, "new ${patched}ForgeLiquidBlock("],
+    [~/\bclass (\w+) extends StairBlock\b/, "class \$1 extends ${patched}ForgeStairBlock"],
     [~/\bextends KeyMapping\b/, 'extends ports.mekanism.lib.client.settings.ForgeKeyMapping'],
     [~/\bItemTags\.create\(/, "${patched}ForgeTagKeys.item("],
     [~/\bBlockTags\.create\(/, "${patched}ForgeTagKeys.block("],

@@ -13,14 +13,16 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
 them.
 
-## Status: core module, simple generators and Tools; many features still missing
+## Status: core module, simple generators, Tools and Additions blocks; many features still missing
 
 The core module is in this port. Generators, Tools and Additions are extra mod ids
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
 gas-burning, bio and wind generators produce energy on both loaders. Turbine, fission and fusion are not verified
 yet. Tools' paxels, tools, armor and shields are imported, and both loaders register them, craft them and run their
-strip, flatten and till actions. Additions is an empty scaffold.
+strip, flatten and till actions. Additions' plastic blocks (every color, including slabs, stairs, fences, roads,
+transparent and glow variants), glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the
+walkie-talkie are not.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -44,8 +46,8 @@ strip, flatten and till actions. Additions is an empty scaffold.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
   lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player and
-  living events, a Generators registry smoke test, the simple generators, and Tools registration, crafting, tool
-  actions and shield blocking) pass on both loaders.
+  living events, a Generators registry smoke test, the simple generators, Tools registration, crafting, tool
+  actions and shield blocking, and Additions registration, crafting and block behaviour) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -56,7 +58,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Empty Additions scaffold. A later slice fills it in |
+| `src/additions` | Additions plastic, glow panels and obsidian TNT, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

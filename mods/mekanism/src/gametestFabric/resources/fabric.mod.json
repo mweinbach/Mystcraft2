@@ -8,6 +8,7 @@
   "environment": "*",
   "entrypoints": {
     "fabric-gametest": [
+      "mekanism.gametest.AdditionsModuleGameTests",
       "mekanism.gametest.ChunkLoadingGameTests",
       "mekanism.gametest.CoreMachineGameTests",
       "mekanism.gametest.FluidGameTests",

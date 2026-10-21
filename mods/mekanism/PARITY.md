@@ -25,7 +25,12 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
   `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
   posted. The Wildfire's Gender capability is not attached.
-- **Additions** loads as an empty module. Its items, blocks and entities are not imported.
+- **Additions** plastic, glow panels and obsidian TNT are imported. Both loaders register the 271 blocks
+  (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel support,
+  slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic tints a
+  beacon. Flint, redstone, explosions, projectiles and fire spread prime obsidian TNT into its own entity. Baby
+  mobs, balloons, the walkie-talkie and voice chat are not ported. Balloon and baby-mob assets are still in the jar
+  and nothing registers them. The balloon pop sound event is still registered.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
 
@@ -53,7 +58,8 @@ fog, living-entity and arm rendering, armor layers, block highlighting and in-ga
 (see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
 The shared GameTests (core machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid
 placement, chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple
-generators, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+generators, Tools registration, crafting, tool actions and shield blocking, and Additions registration, crafting
+and block behaviour) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
