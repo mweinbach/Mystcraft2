@@ -23,7 +23,7 @@ import ports.mekanism.lib.event.AttachCapabilitiesEvent;
  * invalidated while the block entity is removed. The block entity's model data is its render attachment, which is how
  * Fabric's renderer hands it to the port's models.
  */
-@Mixin(BlockEntity.class)
+@Mixin(value = BlockEntity.class, priority = 1100)
 public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCapabilities.Holder, RenderAttachmentBlockEntity {
 
     @Unique

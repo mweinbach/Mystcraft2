@@ -4,13 +4,9 @@
  */
 package ports.mekanism.fabric.mixin;
 
-import java.util.Map;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,10 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelChunk.class)
 public abstract class LevelChunkMixin {
 
-    @Shadow
-    @Final
-    Map<BlockPos, BlockEntity> blockEntities;
-
     @Inject(method = "addAndRegisterBlockEntity", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/chunk/LevelChunk;updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V", shift = At.Shift.AFTER))
     private void mekanism$onLoad(BlockEntity blockEntity, CallbackInfo ci) {
@@ -34,11 +26,12 @@ public abstract class LevelChunkMixin {
 
     @Inject(method = "registerAllBlockEntitiesAfterLevelLoad", at = @At("TAIL"))
     private void mekanism$queueOnLoad(CallbackInfo ci) {
-        ((LevelChunk) (Object) this).getLevel().addFreshBlockEntities(blockEntities.values());
+        LevelChunk self = (LevelChunk) (Object) this;
+        self.getLevel().addFreshBlockEntities(self.getBlockEntities().values());
     }
 
     @Inject(method = "clearAllBlockEntities", at = @At("HEAD"))
     private void mekanism$onChunkUnloaded(CallbackInfo ci) {
-        blockEntities.values().forEach(BlockEntity::onChunkUnloaded);
+        ((LevelChunk) (Object) this).getBlockEntities().values().forEach(BlockEntity::onChunkUnloaded);
     }
 }

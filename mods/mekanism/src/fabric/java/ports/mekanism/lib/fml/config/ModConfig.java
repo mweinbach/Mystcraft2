@@ -39,6 +39,7 @@ public class ModConfig {
         this.spec = spec;
         this.container = container;
         this.fileName = fileName;
+        ConfigTracker.INSTANCE.trackConfig(this);
     }
 
     public ModConfig(Type type, ForgeConfigSpec spec, ModContainer container) {

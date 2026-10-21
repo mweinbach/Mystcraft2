@@ -8,7 +8,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import ports.mekanism.lib.eventbus.api.EventBus;
 import ports.mekanism.lib.eventbus.api.IEventBus;
-import ports.mekanism.lib.fml.config.ConfigTracker;
 import ports.mekanism.lib.fml.config.ModConfig;
 import ports.mekanism.lib.forgespi.language.IModInfo;
 import ports.mekanism.platform.ModMetadata;
@@ -45,7 +44,6 @@ public class ModContainer {
 
     public void addConfig(ModConfig modConfig) {
         configs.put(modConfig.getType(), modConfig);
-        ConfigTracker.INSTANCE.trackConfig(modConfig);
     }
 
     public Map<ModConfig.Type, ModConfig> getConfigs() {

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanism_gametest",
+  "version": "1.0.0",
+  "name": "Mekanism Game Tests",
+  "description": "Development-only server tests for the Fabric build of Mekanism.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "mekanism.gametest.CoreMachineGameTests"
+    ]
+  },
+  "depends": {
+    "mekanism": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

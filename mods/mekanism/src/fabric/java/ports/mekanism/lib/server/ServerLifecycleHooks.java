@@ -6,21 +6,15 @@ package ports.mekanism.lib.server;
 
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.platform.Platform;
 
 public final class ServerLifecycleHooks {
-
-    @Nullable
-    private static volatile MinecraftServer currentServer;
 
     private ServerLifecycleHooks() {
     }
 
     @Nullable
     public static MinecraftServer getCurrentServer() {
-        return currentServer;
-    }
-
-    public static void setCurrentServer(@Nullable MinecraftServer server) {
-        currentServer = server;
+        return Platform.currentServer();
     }
 }

@@ -25,6 +25,14 @@ public final class MinecraftForge {
     }
 
     /**
+     * Posts a break event the loader itself raised from {@link PlayerBlockBreakEvents#BEFORE}, without offering it
+     * back to that callback.
+     */
+    public static boolean postLoaderBreakEvent(BlockEvent.BreakEvent event) {
+        return ((GameBus) EVENT_BUS).delegate().post(event);
+    }
+
+    /**
      * Mekanism posts {@link BlockEvent.BreakEvent} itself to ask whether a machine or tool may break a block. On
      * Fabric, protection mods answer through {@link PlayerBlockBreakEvents#BEFORE}, so a break event is also offered
      * there.

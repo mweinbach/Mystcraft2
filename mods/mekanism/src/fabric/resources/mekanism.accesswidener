@@ -146,3 +146,9 @@ accessible field net/minecraft/client/renderer/entity/layers/ElytraLayer WINGS_L
 accessible method net/minecraft/client/renderer/block/model/BlockModel bakeFace (Lnet/minecraft/client/renderer/block/model/BlockElement;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/block/model/BakedQuad;
 accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
 mutable field net/minecraft/world/item/CreativeModeTab TABS [Lnet/minecraft/world/item/CreativeModeTab;
+# Fabric adapter: Forge-style menu opening with extra data.
+accessible method net/minecraft/server/level/ServerPlayer nextContainerCounter ()V
+accessible field net/minecraft/server/level/ServerPlayer containerCounter I
+accessible method net/minecraft/server/level/ServerPlayer initMenu (Lnet/minecraft/world/inventory/AbstractContainerMenu;)V
+accessible field net/minecraft/world/inventory/MenuType constructor Lnet/minecraft/world/inventory/MenuType$MenuSupplier;
+accessible method net/minecraft/client/gui/screens/MenuScreens getConstructor (Lnet/minecraft/world/inventory/MenuType;)Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;

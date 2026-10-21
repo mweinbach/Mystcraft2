@@ -98,7 +98,7 @@ sourceSets {
     // In-world tests are a separate development-only mod; they never enter the production JAR.
     gametest {
         java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
-        resources.setSrcDirs(['../src/gametestCommon/resources', '../src/gametestFabric/resources'])
+        resources.setSrcDirs(['../src/gametestFabric/resources'])
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
@@ -138,6 +138,7 @@ tasks.withType(AbstractArchiveTask).configureEach {
 
 loom {
     accessWidenerPath = file('../src/fabric/resources/mekanism.accesswidener')
+    mixin { defaultRefmapName = 'mekanism.refmap.json' }
     mods {
         mekanism { sourceSet sourceSets.main }
         mekanism_gametest { sourceSet sourceSets.gametest }
@@ -155,6 +156,9 @@ loom {
             vmArg "-Demc.values=${file('../emc/values.json')}"
         }
     }
+}
+tasks.named('processGametestResources', ProcessResources) {
+    from('../src/gametestCommon/structures') { into 'data/mekanism/gametest/structures' }
 }
 tasks.named('runGametest') {
     // Item Alchemy only reads default_emcs when it has no saved emc_config.json.

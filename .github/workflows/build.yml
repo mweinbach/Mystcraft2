@@ -88,8 +88,10 @@ jobs:
         run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi -PwithItemAlchemy
       - name: Build Mekanism for Fabric
         run: ./gradlew --no-daemon -p mods/mekanism/fabric build
-      - name: Load Mekanism on a Forge GameTest server
+      - name: Run Mekanism's Forge GameTests
         run: ./gradlew --no-daemon :mekanism:runGameTestServer
+      - name: Run Mekanism's Fabric GameTests
+        run: ./gradlew --no-daemon -p mods/mekanism/fabric runGametest
       # The headless GameTest server reports assertion messages only in these files.
       - name: Upload GameTest reports
         if: failure()
@@ -116,6 +118,8 @@ jobs:
             mods/jurassicraft/fabric/build/gametest-results.xml
             mods/jurassicraft/fabric/build/gametest/logs/latest.log
             mods/mekanism/run/gameTestServer/logs/latest.log
+            mods/mekanism/fabric/build/gametest-results.xml
+            mods/mekanism/fabric/build/gametest/logs/latest.log
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
