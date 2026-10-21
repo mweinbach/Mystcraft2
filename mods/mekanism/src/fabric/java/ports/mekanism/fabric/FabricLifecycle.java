@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
@@ -55,20 +56,53 @@ public final class FabricLifecycle {
     private record OwnMod(String modId, Supplier<Object> constructor) {
     }
 
+    /**
+     * Module ids built from this port. A loaded jar must register before common setup runs.
+     */
+    public static final List<String> OWN_MODS = List.of("mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions");
+
     private static final List<OwnMod> MODS = new ArrayList<>();
     private static final List<ModContainer> CONTAINERS = new ArrayList<>();
+    private static boolean started;
 
     private FabricLifecycle() {
     }
 
     /**
-     * Adds one of the port's mods. Mods are constructed in the order they are added.
+     * Adds one of the port's mods. Mods are constructed in the order they are added, once every loaded module has
+     * registered.
      */
-    static void addMod(String modId, Supplier<Object> constructor) {
+    public static void addMod(String modId, Supplier<Object> constructor) {
+        if (started) {
+            throw new IllegalStateException("Mod " + modId + " registered after loading started");
+        }
+        if (MODS.stream().anyMatch(mod -> mod.modId().equals(modId))) {
+            throw new IllegalStateException("Mod " + modId + " is already registered");
+        }
         MODS.add(new OwnMod(modId, constructor));
     }
 
-    static void startCommon() {
+    /**
+     * Starts common setup once every installed module jar has called {@link #addMod}. Further calls do nothing.
+     */
+    public static void tryStart() {
+        if (started) {
+            return;
+        }
+        long expected = OWN_MODS.stream().filter(id -> FabricLoader.getInstance().isModLoaded(id)).count();
+        if (MODS.size() != expected) {
+            return;
+        }
+        // Entrypoints can run in any order. Core has to exist before a module calls Mekanism.addModule.
+        MODS.sort(Comparator.comparingInt(mod -> {
+            int index = OWN_MODS.indexOf(mod.modId());
+            return index < 0 ? OWN_MODS.size() : index;
+        }));
+        started = true;
+        startCommon();
+    }
+
+    private static void startCommon() {
         for (OwnMod mod : MODS) {
             ModContainer container = ModList.get().addOwnContainer(mod.modId());
             ModLoadingContext.get().setActiveContainer(container);

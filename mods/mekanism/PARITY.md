@@ -5,6 +5,19 @@ runs them on Forge itself. Fabric runs them on the port's Forge API mirror (`src
 injected interfaces on vanilla classes and the mixins in `ports.mekanism.fabric.mixin`. This file lists where the
 Fabric variant does not yet match Forge and where the port differs from upstream.
 
+## Modules
+
+Generators, Tools and Additions are separate mod ids built from this port. Each loader emits
+`mekanismgenerators`, `mekanismtools` and `mekanismadditions` jars that depend on the core jar.
+
+- **Generators** is imported: registries, config, the packet handler, assets and the checked-in datagen output.
+  Both loaders load the jar and register its blocks, items, fluids and the heat generator's block entity
+  (`GeneratorsModuleGameTests`). Solar, wind, gas, bio, turbine, fission and fusion gameplay is not verified, and
+  the wind generator's item renderer and the rotor's render box are still the later generator slices.
+- **Tools and Additions** load as empty modules. Their items, blocks and entities are not imported.
+- Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
+  not yet have Fabric `c:` bridges.
+
 ## Not ported from upstream
 
 The JEI plugin, CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod, The One Probe, Jade,
@@ -72,8 +85,8 @@ and block methods are.
   `onArmorTick` does run; the modules that need a player tick still do not.
 - `BlockEntity.getRenderBoundingBox` and `Entity.onRemovedFromWorld`.
 - Key mappings bound to more than one key and custom ingredient types.
-- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
-  energy cube's core renderer.
+- Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear, the
+  energy cube's core renderer, and anything in the Generators jar.
 
 ## Fabric: deliberate limits of the Forge API mirror
 

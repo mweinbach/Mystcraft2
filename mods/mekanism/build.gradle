@@ -18,12 +18,20 @@ dependencies {
 tasks.named('test', Test) { useJUnitPlatform() }
 
 // GameTests are merged into the mod only for the GameTest server run, never into the JAR.
+['generators', 'tools', 'additions'].each { String name ->
+    // The source set's own src/<name>/java and src/<name>/resources are the Gradle defaults.
+    // Adding them again makes processResources see every file twice.
+    def module = sourceSets.create(name)
+    module.resources.srcDir "src/${name}/forge/resources"
+    module.compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    module.runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+}
 sourceSets {
     gametest {
         java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
         resources.srcDirs = []
-        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
-        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath + sourceSets.generators.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath + sourceSets.generators.output
     }
 }
 minecraft.runs {
@@ -42,6 +50,36 @@ def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     dependsOn copyGameTestStructures, tasks.named('gametestClasses')
     doFirst { delete file('run/gameTestServer/world') }
+}
+
+// Separate jars, one per upstream module, each depending on the core mod. Tools and Additions are empty scaffolds.
+['generators', 'tools', 'additions'].each { String name ->
+    def module = sourceSets.getByName(name)
+    def modId = "mekanism${name}"
+    tasks.named(module.processResourcesTaskName, ProcessResources) {
+        inputs.properties portMetadata
+        filesMatching('META-INF/mods.toml') {
+            expand portMetadata
+        }
+        from('src/main/resources/logo.png')
+    }
+    def jarTask = tasks.register(module.jarTaskName, Jar) {
+        from module.output
+        archiveBaseName = "${modId}-forge-1.19.2"
+        archiveClassifier = ''
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+        manifest.attributes('Implementation-Title': modId, 'Implementation-Version': project.version)
+        from('LICENSE')
+    }
+    def reobfTask = extensions.getByName('reobf').register(module.jarTaskName)
+    reobfTask.configure { libraries.from(module.compileClasspath) }
+    jarTask.configure { finalizedBy reobfTask }
+    tasks.named('assemble') { dependsOn jarTask }
+    minecraft.runs.configureEach {
+        mods {
+            "${modId}" { source module }
+        }
+    }
 }
 
 tasks.withType(Jar).configureEach {

@@ -1,5 +1,9 @@
 {
   "namespace": "mekanism",
+  "namespaces": [
+    "mekanism",
+    "mekanismgenerators"
+  ],
   "loaders": {
     "projecte": "forge",
     "itemalchemy": "fabric"
@@ -7,14 +11,20 @@
   "resources": {
     "projecte": [
       "src/main/resources",
-      "src/forge/resources"
+      "src/forge/resources",
+      "src/generators/resources"
     ],
     "itemalchemy": [
       "src/main/resources",
-      "src/fabric/resources"
+      "src/fabric/resources",
+      "src/generators/resources"
     ]
   },
   "output": "src/main/resources",
+  "outputs": {
+    "mekanism": "src/main/resources",
+    "mekanismgenerators": "src/generators/resources"
+  },
   "conditions": {
     "mekanism:mod_version_loaded": {
       "holds": false,
@@ -40,11 +50,13 @@
     "",
     "One substrate and ethene make eight substrate. That reaction is not a conversion, or substrate would be worth a fraction of itself. Substrate is priced at two bio fuel, which crushing plants produces.",
     "",
-    "The fission reactor is not in this port. Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.",
+    "Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. The fission reactor's fuel cycle is not an EMC conversion yet. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.",
     "",
     "Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too.",
     "",
-    "Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did."
+    "Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did.",
+    "",
+    "Generators items with a shaped crafting recipe take that recipe's cost. The wind generator is stored as mek_data and the hohlraum is a metallurgic infusion, so each has a conversion at its item cost, the same way the core module prices those recipe types. Bioethanol, deuterium, tritium and fusion-fuel buckets are filled by generator processes and have no item recipe, so they are excluded until those processes are priced."
   ],
   "values": {
     "mekanism:ingot_osmium": {
@@ -112,7 +124,8 @@
     "mekanism:nugget_osmium": "An osmium ingot is fixed at 384 so osmium rails do not devalue vanilla rails, and nine nuggets cannot split 384 evenly.",
     "mekanism:salt": "A thermal evaporation plant makes brine from water, and crystallizing that brine makes salt. Water has no EMC, so salt does not either.",
     "mekanism:block_salt": "Nine salt pack into a block, and salt is evaporated from water, which has no EMC.",
-    "mekanism:dust_lithium": "Lithium dust is crystallized from lithium, which a thermal evaporation plant makes from brine, which is water. Water has no EMC, so the dust does not either."
+    "mekanism:dust_lithium": "Lithium dust is crystallized from lithium, which a thermal evaporation plant makes from brine, which is water. Water has no EMC, so the dust does not either.",
+    "mekanismgenerators:*_bucket": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
   },
   "conversions": [
     {
@@ -2894,6 +2907,28 @@
       "ingredients": {
         "#forge:circuits/basic": 4,
         "mekanism:basic_energy_cube": 1
+      }
+    },
+    {
+      "name": "generators_wind_generator",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanismgenerators:wind_generator",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/osmium": 3,
+        "#mekanism:alloys/infused": 1,
+        "mekanism:energy_tablet": 2,
+        "#forge:circuits/basic": 1
+      }
+    },
+    {
+      "name": "generators_hohlraum",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical: one enriched carbon is 80 mB, and each hohlraum takes 10 mB plus four gold dust.",
+      "output": "mekanismgenerators:hohlraum",
+      "count": 8,
+      "ingredients": {
+        "#forge:dusts/gold": 32,
+        "#mekanism:enriched/carbon": 1
       }
     }
   ],

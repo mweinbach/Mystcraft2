@@ -13,9 +13,12 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
 them.
 
-## Status: core module; core machines run on Fabric, many features still missing
+## Status: core module and a Generators scaffold; many features still missing
 
-This branch holds the Mekanism core module only. Generators, Tools and Additions are later pieces.
+The core module is in this port. Generators, Tools and Additions are extra mod ids
+(`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
+depends on the core jar. Generators' code, assets and generated data are imported and both loaders register them;
+generator gameplay is not verified yet. Tools and Additions are empty scaffolds.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -31,7 +34,7 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   The Forge events behind gear ticking, HUD overlays and player effects are not;
   [PARITY.md](PARITY.md) lists every gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, ore
-  generation, and the item and block hooks) pass on both loaders.
+  generation, the item and block hooks, and a Generators registry smoke test) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -40,6 +43,8 @@ Do not install either JAR in a world you care about.
 | Path | Contents |
 | --- | --- |
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
+| `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
+| `src/tools`, `src/additions` | Empty Tools and Additions scaffolds. Later slices fill them in |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

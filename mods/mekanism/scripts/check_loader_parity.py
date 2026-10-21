@@ -171,5 +171,86 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
           f'{len(overrides)} Fabric tag-bridge overrides; loader isolation, mixins, nested libraries, '
           'EMC data and attribution valid.')
 
+
+MODULES = (
+    ('generators', 'mekanismgenerators', True),
+    ('tools', 'mekanismtools', False),
+    ('additions', 'mekanismadditions', False),
+)
+
+
+def module_jars(name, mod_id):
+    return (MOD / 'build/libs' / f'{mod_id}-forge-1.19.2-{version}.jar',
+            MOD / 'fabric/build/libs' / f'{mod_id}-fabric-1.19.2-{version}.jar')
+
+
+def check_module(name, mod_id, expect_emc):
+    """One extra mod id: its own jar on each loader, sharing the module's classes and resources."""
+    forge_path, fabric_path = module_jars(name, mod_id)
+    for path in (forge_path, fabric_path):
+        require(path.is_file(), f'missing {path.relative_to(MOD)}; build both variants first')
+    shared = files_under(MOD / 'src' / name / 'resources')
+    prefix = f'mekanism/{name}/'
+    entry = f'ports/mekanism/{name}/fabric/'
+    emc_names = (
+        f'data/{mod_id}/pe_custom_conversions/{mod_id}.json',
+        f'data/{mod_id}/default_emcs/{mod_id}.json',
+    )
+    with zipfile.ZipFile(forge_path) as forge_jar, zipfile.ZipFile(fabric_path) as fabric_jar:
+        require(forge_jar.testzip() is None and fabric_jar.testzip() is None, f'{mod_id}: corrupt artifact')
+        forge_names = set(forge_jar.namelist())
+        fabric_names = set(fabric_jar.namelist())
+        require('fabric.mod.json' not in forge_names, f'{mod_id}: Fabric descriptor leaked into Forge')
+        require('META-INF/mods.toml' not in fabric_names, f'{mod_id}: Forge descriptor leaked into Fabric')
+        forge_mod = tomllib.loads(forge_jar.read('META-INF/mods.toml').decode())['mods'][0]
+        fabric_mod = json.loads(fabric_jar.read('fabric.mod.json'))
+        require(forge_mod['modId'] == fabric_mod['id'] == mod_id, f'{mod_id}: mod ID mismatch')
+        require(forge_mod['version'] == fabric_mod['version'] == version, f'{mod_id}: version mismatch')
+        require(fabric_mod['depends'].get('mekanism'), f'{mod_id}: Fabric jar must depend on mekanism')
+        for jar, forbidden, label in (
+                (forge_jar, (b'net/fabricmc/', b'team/reborn/'), 'Forge'),
+                (fabric_jar, (b'net/minecraftforge/',), 'Fabric')):
+            for entry_name in jar.namelist():
+                if entry_name.endswith('.class'):
+                    body = jar.read(entry_name)
+                    for marker in forbidden:
+                        require(marker not in body, f'{mod_id} {label} class references {marker.decode()} in {entry_name}')
+                    require('gametest' not in entry_name.lower(), f'{mod_id}: GameTest class shipped: {entry_name}')
+                require('/gametest/' not in entry_name and not entry_name.endswith('.snbt'),
+                        f'{mod_id}: GameTest fixture shipped: {entry_name}')
+        forge_classes = {entry_name for entry_name in forge_names if entry_name.endswith('.class') and entry_name.startswith(prefix)}
+        fabric_classes = {entry_name for entry_name in fabric_names if entry_name.endswith('.class') and entry_name.startswith(prefix)}
+        require(forge_classes and forge_classes == fabric_classes,
+                f'{mod_id}: shared class set differs: ' + ', '.join(sorted(forge_classes ^ fabric_classes)[:8]))
+        require(not any(entry_name.startswith('ports/') for entry_name in forge_names),
+                f'{mod_id}: Fabric adapter leaked into Forge')
+        require(any(entry_name.startswith(entry) and entry_name.endswith('.class') for entry_name in fabric_names),
+                f'{mod_id}: missing Fabric entrypoint under {entry}')
+        forge_paths = gameplay(forge_names)
+        fabric_paths = gameplay(fabric_names)
+        expected = gameplay(shared) | {'logo.png'}
+        require(forge_paths == fabric_paths == expected,
+                f'{mod_id}: gameplay paths differ: ' + ', '.join(sorted((forge_paths ^ expected) | (fabric_paths ^ expected))[:8]))
+        for entry_name in sorted(expected - {'logo.png'}):
+            require(forge_jar.read(entry_name) == fabric_jar.read(entry_name) == shared[entry_name],
+                    f'{mod_id}: shared resource differs: {entry_name}')
+        require(forge_jar.read('logo.png') == fabric_jar.read('logo.png') == (MOD / 'src/main/resources/logo.png').read_bytes(),
+                f'{mod_id}: logo mismatch')
+        for entry_name in emc_names:
+            present = entry_name in forge_paths and forge_jar.read(entry_name) == fabric_jar.read(entry_name)
+            require(present == expect_emc, f'{mod_id}: EMC data {"missing" if expect_emc else "unexpected"}: {entry_name}')
+        for jar in (forge_jar, fabric_jar):
+            require(ATTRIBUTION in jar.namelist(), f'{mod_id}: missing upstream attribution')
+            require(jar.read(ATTRIBUTION) == (MOD / 'UPSTREAM.md').read_bytes(), f'{mod_id}: UPSTREAM.md mismatch')
+            require('LICENSE' in jar.namelist() and jar.read('LICENSE') == (MOD / 'LICENSE').read_bytes(),
+                    f'{mod_id}: LICENSE mismatch')
+    print(f'PASS: {mod_id} {len(forge_classes)} shared classes, {len(expected)} gameplay resources.')
+    for path in (forge_path, fabric_path):
+        print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')
+
+
+for module_name, module_id, module_emc in MODULES:
+    check_module(module_name, module_id, module_emc)
+
 for path in (forge, fabric):
     print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')

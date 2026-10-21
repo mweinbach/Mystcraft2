@@ -88,6 +88,18 @@ def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
     into rewrittenTest
     filter rewriteForFabric
 }
+// Generators, Tools and Additions are separate mod jars. Their shared sources are rewritten like the core module.
+def rewriteModule = { String name ->
+    tasks.register("rewrite${name.capitalize()}Sources", Sync) {
+        inputs.property 'rewriteRules', rewriteRules
+        from "../src/${name}/java"
+        into layout.buildDirectory.dir("generated/sources/fabricShared/${name}")
+        filter rewriteForFabric
+    }
+}
+def rewriteGenerators = rewriteModule('generators')
+def rewriteTools = rewriteModule('tools')
+def rewriteAdditions = rewriteModule('additions')
 sourceSets {
     main {
         java.setSrcDirs([rewriteMain, '../src/fabric/java'])
@@ -96,12 +108,32 @@ sourceSets {
     }
     test.java.setSrcDirs([rewriteTest])
     test.resources.setSrcDirs([])
+    generators {
+        java.setSrcDirs([rewriteGenerators, '../src/generators/fabric/java'])
+        resources.setSrcDirs(['../src/generators/fabric/resources', '../src/generators/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    tools {
+        java.setSrcDirs([rewriteTools, '../src/tools/fabric/java'])
+        resources.setSrcDirs(['../src/tools/fabric/resources', '../src/tools/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    additions {
+        java.setSrcDirs([rewriteAdditions, '../src/additions/fabric/java'])
+        resources.setSrcDirs(['../src/additions/fabric/resources', '../src/additions/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
     // In-world tests are a separate development-only mod; they never enter the production JAR.
     gametest {
         java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
         resources.setSrcDirs(['../src/gametestFabric/resources'])
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.generators.output + sourceSets.tools.output + sourceSets.additions.output
+        runtimeClasspath += sourceSets.generators.output + sourceSets.tools.output + sourceSets.additions.output
     }
 }
 tasks.withType(JavaCompile).configureEach {
@@ -134,6 +166,37 @@ tasks.withType(Jar).configureEach {
     from('../licenses') { into 'META-INF/licenses/mekanism' }
 }
 tasks.named('jar', Jar) { from('../LICENSE') }
+def moduleVersion = project.version.toString()
+['generators', 'tools', 'additions'].each { String name ->
+    tasks.named("process${name.capitalize()}Resources", ProcessResources) {
+        from('../src/main/resources/logo.png')
+        filesMatching('fabric.mod.json') {
+            filter { String line -> line.replace('${version}', moduleVersion) }
+        }
+    }
+}
+// Each module jar depends on the core jar and does not bundle the core's nested libraries.
+def remapModule = { String name, String modId ->
+    def named = tasks.register("${name}NamedJar", Jar) {
+        from sourceSets.getByName(name).output
+        archiveBaseName = "${modId}-fabric-1.19.2"
+        archiveClassifier = 'named'
+        destinationDirectory = layout.buildDirectory.dir('devlibs')
+        from('../LICENSE')
+    }
+    tasks.register("remap${name.capitalize()}Jar", net.fabricmc.loom.task.RemapJarTask) {
+        dependsOn named
+        inputFile = named.flatMap { it.archiveFile }
+        classpath.from(sourceSets.getByName(name).compileClasspath)
+        archiveBaseName = "${modId}-fabric-1.19.2"
+        archiveClassifier = ''
+        addNestedDependencies = false
+    }
+}
+def remapGenerators = remapModule('generators', 'mekanismgenerators')
+def remapTools = remapModule('tools', 'mekanismtools')
+def remapAdditions = remapModule('additions', 'mekanismadditions')
+tasks.named('assemble') { dependsOn remapGenerators, remapTools, remapAdditions }
 tasks.named('sourcesJar', Jar) { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
@@ -145,6 +208,9 @@ loom {
     mixin { defaultRefmapName = 'mekanism.refmap.json' }
     mods {
         mekanism { sourceSet sourceSets.main }
+        mekanismgenerators { sourceSet sourceSets.generators }
+        mekanismtools { sourceSet sourceSets.tools }
+        mekanismadditions { sourceSet sourceSets.additions }
         mekanism_gametest { sourceSet sourceSets.gametest }
     }
     runs {
