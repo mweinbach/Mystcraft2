@@ -19,6 +19,7 @@
     "buildcraft:assembly_table",
     "buildcraft:advanced_crafting_table",
     "buildcraft:integration_table",
+    "buildcraft:zone_planner",
     "buildcraft:pipe_wood_item",
     "buildcraft:pipe_cobblestone_item",
     "buildcraft:pipe_stone_item",

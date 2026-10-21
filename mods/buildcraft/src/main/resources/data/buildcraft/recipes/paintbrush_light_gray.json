@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "buildcraft:paintbrush_colouring",
+  "ingredients": [
+    {
+      "item": "buildcraft:paintbrush"
+    },
+    [
+      {
+        "tag": "c:light_gray_dyes"
+      },
+      {
+        "tag": "forge:dyes/light_gray"
+      }
+    ]
+  ],
+  "result": {
+    "item": "buildcraft:paintbrush_light_gray"
+  }
+}
