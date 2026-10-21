@@ -5,6 +5,15 @@
 package mekanism.gametest;
 
 import java.util.function.Function;
+import mekanism.api.Action;
+import mekanism.api.chemical.gas.Gas;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.gas.IGasHandler;
+import mekanism.api.chemical.infuse.IInfusionHandler;
+import mekanism.api.chemical.pigment.IPigmentHandler;
+import mekanism.api.chemical.slurry.ISlurryHandler;
+import mekanism.api.heat.IHeatHandler;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -20,14 +29,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import ports.mekanism.fabric.api.MekanismChemicalLookups;
 import ports.mekanism.lib.fluids.FluidStack;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
 import ports.mekanism.lib.items.ItemHandlerHelper;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
- * What the shared tests do through the loader's APIs: Team Reborn Energy and the Transfer API.
- * Item energy is 1 E per FE. Item fluid is {@link #DROPLETS_PER_MB} droplets per millibucket.
+ * What the shared tests do through the loader's APIs: Team Reborn Energy, the Transfer API and
+ * {@link MekanismChemicalLookups}. Item energy is 1 E per FE. Item fluid is {@link #DROPLETS_PER_MB} droplets per
+ * millibucket. Chemicals are Mekanism units.
  */
 public final class TestPlatform {
 
@@ -167,6 +178,98 @@ public final class TestPlatform {
                 return moved / DROPLETS_PER_MB;
             }
         });
+    }
+
+    public static GasStack extractGas(BlockEntity blockEntity, Direction side, long amount, boolean execute) {
+        IGasHandler handler = find(MekanismChemicalLookups.GAS, blockEntity, side);
+        return handler == null ? GasStack.EMPTY : handler.extractChemical(amount, chemicalAction(execute));
+    }
+
+    public static int gasTanks(BlockEntity blockEntity, Direction side) {
+        IGasHandler handler = find(MekanismChemicalLookups.GAS, blockEntity, side);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int infusionTanks(BlockEntity blockEntity, Direction side) {
+        IInfusionHandler handler = find(MekanismChemicalLookups.INFUSION, blockEntity, side);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int pigmentTanks(BlockEntity blockEntity, Direction side) {
+        IPigmentHandler handler = find(MekanismChemicalLookups.PIGMENT, blockEntity, side);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int slurryTanks(BlockEntity blockEntity, Direction side) {
+        ISlurryHandler handler = find(MekanismChemicalLookups.SLURRY, blockEntity, side);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int heatCapacitors(BlockEntity blockEntity, Direction side) {
+        IHeatHandler handler = find(MekanismChemicalLookups.HEAT, blockEntity, side);
+        return handler == null ? 0 : handler.getHeatCapacitorCount();
+    }
+
+    public static int itemGasTanks(ItemStack stack) {
+        IGasHandler handler = MekanismChemicalLookups.GAS_ITEM.find(stack, null);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int itemInfusionTanks(ItemStack stack) {
+        IInfusionHandler handler = MekanismChemicalLookups.INFUSION_ITEM.find(stack, null);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int itemPigmentTanks(ItemStack stack) {
+        IPigmentHandler handler = MekanismChemicalLookups.PIGMENT_ITEM.find(stack, null);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static int itemSlurryTanks(ItemStack stack) {
+        ISlurryHandler handler = MekanismChemicalLookups.SLURRY_ITEM.find(stack, null);
+        return handler == null ? 0 : handler.getTanks();
+    }
+
+    public static long insertItemGas(ItemStack stack, Gas gas, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        IGasHandler handler = MekanismChemicalLookups.GAS_ITEM.find(stack, null);
+        if (handler == null) {
+            return 0;
+        }
+        return amount - handler.insertChemical(new GasStack(gas, amount), chemicalAction(execute)).getAmount();
+    }
+
+    public static long extractItemGas(ItemStack stack, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        IGasHandler handler = MekanismChemicalLookups.GAS_ITEM.find(stack, null);
+        return handler == null ? 0 : handler.extractChemical(amount, chemicalAction(execute)).getAmount();
+    }
+
+    public static long itemGas(ItemStack stack) {
+        IGasHandler handler = MekanismChemicalLookups.GAS_ITEM.find(stack, null);
+        if (handler == null) {
+            return 0;
+        }
+        long total = 0;
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            total += handler.getChemicalInTank(tank).getAmount();
+        }
+        return total;
+    }
+
+    private static Action chemicalAction(boolean execute) {
+        return execute ? Action.EXECUTE : Action.SIMULATE;
+    }
+
+    private static <A, C> A find(BlockApiLookup<A, C> lookup, BlockEntity blockEntity, C context) {
+        if (blockEntity.getLevel() == null) {
+            return null;
+        }
+        return lookup.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, context);
     }
 
     public static void fillBlockFluid(BlockEntity blockEntity, Fluid fluid, int milliBuckets) {

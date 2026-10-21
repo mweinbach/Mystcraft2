@@ -7,11 +7,16 @@ package mekanism.gametest;
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
 
+import mekanism.api.Action;
+import mekanism.api.AutomationType;
+import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.api.math.FloatingLong;
 import mekanism.common.registries.MekanismBlocks;
+import mekanism.common.registries.MekanismGases;
 import mekanism.common.registries.MekanismItems;
+import mekanism.common.tile.TileEntityChemicalTank;
 import mekanism.common.tile.base.TileEntityMekanism;
 import mekanism.common.tile.machine.TileEntityElectrolyticSeparator;
 import mekanism.common.util.StorageUtils;
@@ -28,8 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Mekanism's machines and other blocks' storages meet through the loader's energy and item APIs: Forge Energy and
- * capabilities on Forge, Team Reborn Energy and the Transfer API on Fabric.
+ * Mekanism's machines and other blocks' storages meet through the loader's public APIs: Forge Energy, capabilities and
+ * the chemical capabilities on Forge; Team Reborn Energy, the Transfer API and the chemical lookups on Fabric.
  */
 public class LoaderInteropGameTests {
 
@@ -134,6 +139,78 @@ public class LoaderInteropGameTests {
         check(TestPlatform.itemFluidDroplets(tank) == 0, "The loader still reports fluid");
         ItemStack iron = new ItemStack(Items.IRON_INGOT);
         check(TestPlatform.insertItemFluid(iron, Fluids.WATER, 1, true) == 0, "An iron ingot accepted fluid");
+        helper.succeed();
+    }
+
+    /**
+     * Another mod drains a chemical tank through the loader's public gas API. The tank's front is its output; the other
+     * sides accept gas and do not give it back. A simulated drain leaves the stored gas unchanged, and a chest has no
+     * gas handler.
+     */
+    @GameTest(template = TEMPLATE)
+    public static void foreignLookupDrainsGasFromAChemicalTank(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, MekanismBlocks.BASIC_CHEMICAL_TANK.getBlock());
+        TileEntityChemicalTank tank = (TileEntityChemicalTank) helper.getBlockEntity(pos);
+        long stored = 1_000;
+        long drain = 400;
+        GasStack remainder = tank.getGasTank().insert(new GasStack(MekanismGases.HYDROGEN, stored), Action.EXECUTE, AutomationType.MANUAL);
+        check(remainder.isEmpty(), "The chemical tank refused hydrogen: " + remainder);
+        Direction front = tank.getDirection();
+        GasStack simulated = TestPlatform.extractGas(tank, front, drain, false);
+        check(simulated.getAmount() == drain && simulated.getType() == MekanismGases.HYDROGEN.get(),
+              "A simulated drain returned " + simulated.getAmount() + " of " + simulated.getType());
+        check(tank.getGasTank().getStored() == stored, "A simulated drain left " + tank.getGasTank().getStored() + " hydrogen");
+        GasStack drained = TestPlatform.extractGas(tank, front, drain, true);
+        check(drained.getAmount() == drain && drained.getType() == MekanismGases.HYDROGEN.get(),
+              "The public gas API drained " + drained.getAmount() + " of " + drained.getType());
+        check(tank.getGasTank().getStored() == stored - drain, "The tank holds " + tank.getGasTank().getStored() + " after the drain");
+        GasStack refused = TestPlatform.extractGas(tank, front.getClockWise(), drain, true);
+        check(refused.isEmpty(), "An input side gave gas back: " + refused.getAmount());
+        check(tank.getGasTank().getStored() == stored - drain, "The input side left " + tank.getGasTank().getStored() + " hydrogen");
+        BlockPos chestPos = new BlockPos(3, 1, 1);
+        helper.setBlock(chestPos, Blocks.CHEST);
+        BlockEntity chest = helper.getBlockEntity(chestPos);
+        check(TestPlatform.gasTanks(chest, Direction.UP) == 0, "A chest exposed a gas handler");
+        check(TestPlatform.extractGas(chest, Direction.UP, drain, true).isEmpty(), "A chest gave gas back");
+        helper.succeed();
+    }
+
+    /**
+     * The same public API exposes the tank's other chemicals, a heater's heat, and a chemical tank item's gas. An
+     * uncommitted item fill leaves the stack unchanged. An iron ingot has none of it.
+     */
+    @GameTest(template = TEMPLATE)
+    public static void publicLookupsExposeChemicalsHeatAndGasItems(GameTestHelper helper) {
+        BlockPos tankPos = new BlockPos(1, 1, 1);
+        helper.setBlock(tankPos, MekanismBlocks.BASIC_CHEMICAL_TANK.getBlock());
+        BlockEntity tank = helper.getBlockEntity(tankPos);
+        Direction front = ((TileEntityChemicalTank) tank).getDirection();
+        check(TestPlatform.infusionTanks(tank, front) == 1, "The chemical tank exposed " + TestPlatform.infusionTanks(tank, front) + " infusion tanks");
+        check(TestPlatform.pigmentTanks(tank, front) == 1, "The chemical tank exposed " + TestPlatform.pigmentTanks(tank, front) + " pigment tanks");
+        check(TestPlatform.slurryTanks(tank, front) == 1, "The chemical tank exposed " + TestPlatform.slurryTanks(tank, front) + " slurry tanks");
+        check(TestPlatform.heatCapacitors(tank, front) == 0, "The chemical tank exposed a heat handler");
+        BlockPos heaterPos = new BlockPos(3, 1, 1);
+        helper.setBlock(heaterPos, MekanismBlocks.RESISTIVE_HEATER.getBlock());
+        check(TestPlatform.heatCapacitors(helper.getBlockEntity(heaterPos), Direction.NORTH) > 0, "The resistive heater exposed no heat handler");
+
+        ItemStack tankItem = new ItemStack(MekanismBlocks.BASIC_CHEMICAL_TANK.asItem());
+        check(TestPlatform.itemGasTanks(tankItem) == 1, "The chemical tank item exposed " + TestPlatform.itemGasTanks(tankItem) + " gas tanks");
+        check(TestPlatform.itemInfusionTanks(tankItem) == 1, "The chemical tank item has no infusion handler");
+        check(TestPlatform.itemPigmentTanks(tankItem) == 1, "The chemical tank item has no pigment handler");
+        check(TestPlatform.itemSlurryTanks(tankItem) == 1, "The chemical tank item has no slurry handler");
+        long offered = TestPlatform.insertItemGas(tankItem, MekanismGases.HYDROGEN.get(), 500, false);
+        check(offered == 500, "Filling the item offered " + offered + " of 500 hydrogen");
+        check(TestPlatform.itemGas(tankItem) == 0, "An uncommitted fill stored " + TestPlatform.itemGas(tankItem) + " hydrogen");
+        long filled = TestPlatform.insertItemGas(tankItem, MekanismGases.HYDROGEN.get(), 500, true);
+        check(filled == 500, "Filling the item moved " + filled + " hydrogen");
+        check(TestPlatform.itemGas(tankItem) == 500, "The item reports " + TestPlatform.itemGas(tankItem) + " hydrogen");
+        long drained = TestPlatform.extractItemGas(tankItem, 200, true);
+        check(drained == 200, "Draining the item moved " + drained + " hydrogen");
+        check(TestPlatform.itemGas(tankItem) == 300, "The item reports " + TestPlatform.itemGas(tankItem) + " hydrogen after the drain");
+        ItemStack iron = new ItemStack(Items.IRON_INGOT);
+        check(TestPlatform.itemGasTanks(iron) == 0, "An iron ingot exposed a gas handler");
+        check(TestPlatform.insertItemGas(iron, MekanismGases.HYDROGEN.get(), 1, true) == 0, "An iron ingot accepted gas");
         helper.succeed();
     }
 
