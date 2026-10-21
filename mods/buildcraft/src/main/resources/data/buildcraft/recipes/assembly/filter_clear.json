@@ -12,6 +12,102 @@
         },
         {
           "tag": "forge:glass/colorless"
+        },
+        {
+          "tag": "c:white_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/white"
+        },
+        {
+          "tag": "c:orange_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/orange"
+        },
+        {
+          "tag": "c:magenta_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/magenta"
+        },
+        {
+          "tag": "c:light_blue_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/light_blue"
+        },
+        {
+          "tag": "c:yellow_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/yellow"
+        },
+        {
+          "tag": "c:lime_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/lime"
+        },
+        {
+          "tag": "c:pink_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/pink"
+        },
+        {
+          "tag": "c:gray_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/gray"
+        },
+        {
+          "tag": "c:light_gray_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/light_gray"
+        },
+        {
+          "tag": "c:cyan_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/cyan"
+        },
+        {
+          "tag": "c:purple_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/purple"
+        },
+        {
+          "tag": "c:blue_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/blue"
+        },
+        {
+          "tag": "c:brown_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/brown"
+        },
+        {
+          "tag": "c:green_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/green"
+        },
+        {
+          "tag": "c:red_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/red"
+        },
+        {
+          "tag": "c:black_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/black"
         }
       ]
     },

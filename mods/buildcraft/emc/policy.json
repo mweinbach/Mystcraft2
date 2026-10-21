@@ -9,7 +9,7 @@
   "notes": [
     "Every survival BuildCraft item in this port apart from fluid buckets is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller and heat exchanger), the tank, land and path marks, the marker connector, waterproof, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
     "",
-    "Gates, the gate copier and pipe wire come from the assembly table, which ProjectE and Item Alchemy do not map, so each assembly recipe is restated as a conversion with laser power left unvalued. Basic gates and the iron and nether brick gates and iron lapis and quartz gates also have crafting recipes, and the one-item recipes that swap a gate between AND and OR give both logics the same value; where assembly is cheaper, the conversion sets the value so that assembling a gate and transmuting it gains nothing.",
+    "Gates, the gate copier, pipe wire, lenses and filters come from the assembly table, which ProjectE and Item Alchemy do not map, so each assembly recipe is restated as a conversion with laser power left unvalued. Basic gates and the iron and nether brick gates and iron lapis and quartz gates also have crafting recipes, and the one-item recipes that swap a gate between AND and OR give both logics the same value; where assembly is cheaper, the conversion sets the value so that assembling a gate and transmuting it gains nothing.",
     "",
     "The mining well, quarry and pump take blocks and fluids from the world for power alone, as a player with a pickaxe or bucket would; they consume no items, so there is no item process to check for EMC gain.",
     "",
@@ -106,6 +106,30 @@
       "output": "buildcraft:wire_{colour}",
       "count": 8,
       "ingredients": {"minecraft:redstone": 1, "minecraft:{colour}_dye": 1}
+    },
+    {
+      "name": "assemble_lenses",
+      "why": "The assembly table makes a lens from a stained glass block of its colour and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "output": "buildcraft:lens_{colour}",
+      "ingredients": {"minecraft:{colour}_stained_glass": 1}
+    },
+    {
+      "name": "assemble_filters",
+      "why": "The assembly table makes a filter from a stained glass block of its colour, iron bars and laser power, which is left unvalued.",
+      "output": "buildcraft:filter_{colour}",
+      "ingredients": {"minecraft:{colour}_stained_glass": 1, "minecraft:iron_bars": 1}
+    },
+    {
+      "name": "assemble_clear_lens",
+      "why": "The assembly table makes a clear lens from any glass block and laser power; upstream's blockGlass includes stained glass, and plain glass is the cheapest.",
+      "output": "buildcraft:lens_clear",
+      "ingredients": {"minecraft:glass": 1}
+    },
+    {
+      "name": "assemble_clear_filter",
+      "why": "The assembly table makes a clear filter from any glass block, iron bars and laser power; plain glass is the cheapest.",
+      "output": "buildcraft:filter_clear",
+      "ingredients": {"minecraft:glass": 1, "minecraft:iron_bars": 1}
     }
   ],
   "exclude": {

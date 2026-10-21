@@ -428,6 +428,247 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_lenses": {
+      "comment": "The assembly table makes a lens from a stained glass block of its colour and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:lens_black",
+          "ingredients": {
+            "minecraft:black_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_blue",
+          "ingredients": {
+            "minecraft:blue_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_brown",
+          "ingredients": {
+            "minecraft:brown_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_cyan",
+          "ingredients": {
+            "minecraft:cyan_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_gray",
+          "ingredients": {
+            "minecraft:gray_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_green",
+          "ingredients": {
+            "minecraft:green_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_light_blue",
+          "ingredients": {
+            "minecraft:light_blue_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_light_gray",
+          "ingredients": {
+            "minecraft:light_gray_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_lime",
+          "ingredients": {
+            "minecraft:lime_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_magenta",
+          "ingredients": {
+            "minecraft:magenta_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_orange",
+          "ingredients": {
+            "minecraft:orange_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_pink",
+          "ingredients": {
+            "minecraft:pink_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_purple",
+          "ingredients": {
+            "minecraft:purple_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_red",
+          "ingredients": {
+            "minecraft:red_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_white",
+          "ingredients": {
+            "minecraft:white_stained_glass": 1
+          }
+        },
+        {
+          "output": "buildcraft:lens_yellow",
+          "ingredients": {
+            "minecraft:yellow_stained_glass": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_filters": {
+      "comment": "The assembly table makes a filter from a stained glass block of its colour, iron bars and laser power, which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:filter_black",
+          "ingredients": {
+            "minecraft:black_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_blue",
+          "ingredients": {
+            "minecraft:blue_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_brown",
+          "ingredients": {
+            "minecraft:brown_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_cyan",
+          "ingredients": {
+            "minecraft:cyan_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_gray",
+          "ingredients": {
+            "minecraft:gray_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_green",
+          "ingredients": {
+            "minecraft:green_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_light_blue",
+          "ingredients": {
+            "minecraft:light_blue_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_light_gray",
+          "ingredients": {
+            "minecraft:light_gray_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_lime",
+          "ingredients": {
+            "minecraft:lime_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_magenta",
+          "ingredients": {
+            "minecraft:magenta_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_orange",
+          "ingredients": {
+            "minecraft:orange_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_pink",
+          "ingredients": {
+            "minecraft:pink_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_purple",
+          "ingredients": {
+            "minecraft:purple_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_red",
+          "ingredients": {
+            "minecraft:red_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_white",
+          "ingredients": {
+            "minecraft:white_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        },
+        {
+          "output": "buildcraft:filter_yellow",
+          "ingredients": {
+            "minecraft:yellow_stained_glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_clear_lens": {
+      "comment": "The assembly table makes a clear lens from any glass block and laser power; upstream's blockGlass includes stained glass, and plain glass is the cheapest.",
+      "conversions": [
+        {
+          "output": "buildcraft:lens_clear",
+          "ingredients": {
+            "minecraft:glass": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_clear_filter": {
+      "comment": "The assembly table makes a clear filter from any glass block, iron bars and laser power; plain glass is the cheapest.",
+      "conversions": [
+        {
+          "output": "buildcraft:filter_clear",
+          "ingredients": {
+            "minecraft:glass": 1,
+            "minecraft:iron_bars": 1
+          }
+        }
+      ]
     }
   },
   "values": {

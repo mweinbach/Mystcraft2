@@ -1162,10 +1162,14 @@ class Generator:
                            "components": [{"ingredient": ingredient} for ingredient in ingredients]})
 
     def lens_recipes(self) -> None:
-        """Upstream BCSiliconRecipes: a lens from glass of its colour, a filter from that and iron bars, each at 500 MJ."""
+        """Upstream BCSiliconRecipes: a lens from glass of its colour, a filter from that and iron bars, each at 500 MJ.
+
+        Clear ones take upstream's blockGlass, which stained glass was also registered under.
+        """
         bars = {"item": "minecraft:iron_bars"}
-        for colour, _, _ in WIRE_COLOURS + [("clear", None, None)]:
-            glass = GLASS if colour == "clear" else tags(f"{colour}_glass_blocks", f"glass/{colour}")
+        stained = {colour: tags(f"{colour}_glass_blocks", f"glass/{colour}") for colour, _, _ in WIRE_COLOURS}
+        stained["clear"] = GLASS + [tag for colour_glass in stained.values() for tag in colour_glass]
+        for colour, glass in stained.items():
             self.assembly(f"assembly/lens_{colour}", f"lens_{colour}", 500, [glass])
             self.assembly(f"assembly/filter_{colour}", f"filter_{colour}", 500, [glass, bars])
 
