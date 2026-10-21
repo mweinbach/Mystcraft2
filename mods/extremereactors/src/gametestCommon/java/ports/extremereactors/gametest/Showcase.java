@@ -407,7 +407,13 @@ public final class Showcase {
         parts.put(new BlockPos(7, 2, 0), Content.Blocks.REACTOR_CHARGINGPORT_FE_REINFORCED.get());
 
         cuboid(level, at, 9, 9, 9, Content.Blocks.REACTOR_CASING_REINFORCED.get(), parts);
-        screen("large_reactor_controller", at.offset(4, 2, 0));
+        screen("reactor_controller", at.offset(4, 2, 0));
+        screen("reactor_solid_accessport", at.offset(1, 1, 0));
+        screen("reactor_fluid_accessport", at.offset(2, 1, 0));
+        screen("reactor_redstoneport", at.offset(3, 1, 0));
+        screen("reactor_fluidport", at.offset(5, 1, 0));
+        screen("reactor_chargingport", at.offset(7, 2, 0));
+        screen("reactor_controlrod", at.offset(2, 8, 2));
         s_vented.add(at.offset(4, 2, 0));
 
         whenAssembled(level, at.offset(4, 2, 0), controller -> {
@@ -468,7 +474,10 @@ public final class Showcase {
         parts.put(new BlockPos(3, 5, 6), Content.Blocks.TURBINE_CREATIVE_STEAM_GENERATOR_REINFORCED.get());
 
         cuboid(level, at, 7, 12, 7, Content.Blocks.TURBINE_CASING_REINFORCED.get(), parts);
-        screen("large_turbine_controller", at.offset(3, 1, 0));
+        screen("turbine_controller", at.offset(3, 1, 0));
+        screen("turbine_fluidport", at.offset(1, 1, 0));
+        screen("turbine_redstoneport", at.offset(2, 1, 0));
+        screen("turbine_chargingport", at.offset(5, 1, 0));
 
         whenAssembled(level, at.offset(3, 1, 0), controller -> {
 

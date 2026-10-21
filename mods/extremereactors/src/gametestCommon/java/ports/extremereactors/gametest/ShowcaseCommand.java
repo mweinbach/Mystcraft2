@@ -80,7 +80,10 @@ public final class ShowcaseCommand {
                                         return 1;
                                     }
 
-                                    context.getSource().sendFailure(Component.literal("Unknown part " + part));
+                                    context.getSource().sendFailure(Component.literal(Showcase.screens().isEmpty()
+                                            ? "Run /ershowcase build or /ershowcase plant first"
+                                            : "Unknown part " + part + "; this showcase has "
+                                                    + String.join(", ", Showcase.screens())));
                                     return 0;
                                 }))));
     }
