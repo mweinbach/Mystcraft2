@@ -54,6 +54,11 @@ public abstract class PipePluggable {
         return false;
     }
 
+    /** True if redstone wire connects to the pipe through this face. */
+    public boolean canConnectToRedstone(@Nullable Direction to) {
+        return false;
+    }
+
     @Nullable
     public EnergyPort energyPort() {
         return null;

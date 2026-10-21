@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -40,6 +41,8 @@ import ports.buildcraft.transport.pluggable.PluggableItem;
  */
 public class PipeBlock extends BaseEntityBlock {
     public static final Map<Direction, EnumProperty<PipeSide>> SIDES = new EnumMap<>(Direction.class);
+    /** Whether a pluggable that redstone connects to is on any face, which makes the pipe a signal source. */
+    public static final BooleanProperty REDSTONE = BooleanProperty.create("redstone");
     private static final double HIT_EPSILON = 1.0e-4;
     /** Further than any player reaches; the pick only has to land on the pipe being broken. */
     private static final double PICK_RANGE = 8;
@@ -69,12 +72,13 @@ public class PipeBlock extends BaseEntityBlock {
         this.definition = definition;
         BlockState state = stateDefinition.any();
         for (EnumProperty<PipeSide> side : SIDES.values()) state = state.setValue(side, PipeSide.NONE);
-        registerDefaultState(state);
+        registerDefaultState(state.setValue(REDSTONE, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         for (Direction face : Direction.values()) builder.add(SIDES.get(face));
+        builder.add(REDSTONE);
     }
 
     public static boolean isConnected(BlockState state, Direction face) {
@@ -116,6 +120,34 @@ public class PipeBlock extends BaseEntityBlock {
         return level.isClientSide
                 ? (lvl, pos, st, be) -> ((PipeBlockEntity) be).clientTick()
                 : (lvl, pos, st, be) -> ((PipeBlockEntity) be).serverTick();
+    }
+
+    // Redstone. Upstream emitted the same strong and weak signal from each face, as its gates set it.
+
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return state.getValue(REDSTONE);
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof PipeBlockEntity pipe ? pipe.getRedstoneOutput(direction.getOpposite()) : 0;
+    }
+
+    @Override
+    public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return getSignal(state, level, pos, direction);
+    }
+
+    /**
+     * Forge's {@code IForgeBlock.canConnectRedstone}: wire connects only through a face whose pluggable allows it.
+     * Vanilla wire, as on Fabric, connects to any signal source, so there it connects to every face of a pipe
+     * carrying such a pluggable.
+     */
+    public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
+        if (direction == null || !(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return false;
+        PipePluggable plug = pipe.getPluggable(direction.getOpposite());
+        return plug != null && plug.canConnectToRedstone(direction);
     }
 
     @Override
