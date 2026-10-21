@@ -39,6 +39,7 @@ public final class GuiOverlayManager {
     private static final Map<ResourceLocation, VanillaGuiOverlay> VANILLA = new HashMap<>();
     private static Map<Hook, List<NamedGuiOverlay>> byHook;
     private static ForgeGui gui;
+    private static float partialTick;
 
     static {
         for (VanillaGuiOverlay overlay : VanillaGuiOverlay.values()) {
@@ -102,7 +103,21 @@ public final class GuiOverlayManager {
         return byHook;
     }
 
+    /**
+     * Posts the vanilla overlay event. Canceling the pre event means vanilla should skip that part of the HUD.
+     */
+    public static boolean preVanilla(VanillaGuiOverlay overlay, PoseStack poseStack) {
+        Minecraft minecraft = Minecraft.getInstance();
+        return MinecraftForge.EVENT_BUS.post(new RenderGuiOverlayEvent.Pre(minecraft.getWindow(), poseStack, partialTick, overlay.type()));
+    }
+
+    public static void postVanilla(VanillaGuiOverlay overlay, PoseStack poseStack) {
+        Minecraft minecraft = Minecraft.getInstance();
+        MinecraftForge.EVENT_BUS.post(new RenderGuiOverlayEvent.Post(minecraft.getWindow(), poseStack, partialTick, overlay.type()));
+    }
+
     public static void render(Hook hook, PoseStack poseStack, float partialTick) {
+        GuiOverlayManager.partialTick = partialTick;
         Minecraft minecraft = Minecraft.getInstance();
         if (gui == null) {
             gui = new ForgeGui(minecraft);
