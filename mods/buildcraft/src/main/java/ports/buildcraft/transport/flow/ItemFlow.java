@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,6 +25,7 @@ import ports.buildcraft.transport.ItemEntry;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.SideCheck;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
+import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /**
@@ -67,18 +69,29 @@ public final class ItemFlow extends PipeFlow implements Injectable {
 
     // Extraction (wooden pipes).
 
-    /** @return the number of items extracted from the inventory on {@code from}. */
-    public int tryExtractItems(int count, Direction from, Predicate<ItemStack> filter, boolean simulate) {
+    /** @return the number of items extracted from the inventory on {@code from}, which travel with {@code colour}. */
+    public int tryExtractItems(int count, Direction from, @Nullable DyeColor colour, Predicate<ItemStack> filter, boolean simulate) {
         if (from == null || count <= 0) return 0;
         ItemPort port = Ports.items(level(), pipe.getBlockPos().relative(from), from.getOpposite());
         if (port == null) return 0;
         ItemStack possible = port.extract(filter, count, true);
-        if (possible.isEmpty()) return 0;
+        if (possible.isEmpty() || !canItemEnter(colour, from)) return 0;
         count = Math.min(count, Math.min(possible.getCount(), possible.getMaxStackSize()));
         ItemStack stack = port.extract(filter, count, simulate);
         if (stack.isEmpty()) return 0;
-        if (!simulate) insertItemEvents(stack, EXTRACT_SPEED, from);
+        if (!simulate) insertItemEvents(stack, colour, EXTRACT_SPEED, from);
         return stack.getCount();
+    }
+
+    private boolean canItemEnter(@Nullable DyeColor colour, Direction from) {
+        PipePluggable plug = pipe.getPluggable(from);
+        return plug == null || plug.canItemEnter(colour);
+    }
+
+    @Nullable
+    private DyeColor colourThrough(@Nullable DyeColor colour, Direction face) {
+        PipePluggable plug = pipe.getPluggable(face);
+        return plug == null ? colour : plug.colourItemThrough(colour);
     }
 
     // Ticking.
@@ -100,12 +113,17 @@ public final class ItemFlow extends PipeFlow implements Injectable {
         PipeBehaviour behaviour = pipe.behaviour();
         ItemStack stack = behaviour.onItemReachCenter(item.stack, item.side);
         if (stack.isEmpty()) return;
-        SideCheck sideCheck = new SideCheck(stack, item.side);
+        SideCheck sideCheck = new SideCheck(stack, item.colour, item.side);
         sideCheck.disallow(item.side);
         for (Direction face : Direction.values()) {
             if (item.tried.contains(face) || !pipe.isConnected(face)) sideCheck.disallow(face);
         }
         behaviour.itemSideCheck(sideCheck);
+        for (Direction face : Direction.values()) {
+            PipePluggable plug = pipe.getPluggable(face);
+            if (plug != null) plug.itemSideCheck(sideCheck);
+        }
+        neighbourSideChecks(sideCheck);
         List<EnumSet<Direction>> order = sideCheck.order();
         if (order.isEmpty()) {
             if (behaviour.canBounce()) {
@@ -129,6 +147,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
                 continue;
             }
             TravellingItem newItem = new TravellingItem(entry.stack);
+            newItem.colour = item.colour;
             newItem.tried.addAll(item.tried);
             newItem.toCenter = false;
             newItem.side = destinations.get(0);
@@ -136,6 +155,15 @@ public final class ItemFlow extends PipeFlow implements Injectable {
             newItem.genTimings(now, pipeLength(newItem.side));
             items.add(newItem.timeToDest, newItem);
             onItemsChanged();
+        }
+    }
+
+    /** Upstream {@code FilterEventHandler}: the pluggables facing this pipe from the next pipes weigh in on its exits. */
+    private void neighbourSideChecks(SideCheck sideCheck) {
+        for (Direction face : Direction.values()) {
+            if (!sideCheck.isAllowed(face) || !(pipe.neighbourTile(face) instanceof PipeBlockEntity neighbour)) continue;
+            PipePluggable facing = neighbour.getPluggable(face.getOpposite());
+            if (facing != null) facing.neighbourItemSideCheck(sideCheck, colourThrough(sideCheck.colour, face));
         }
     }
 
@@ -160,6 +188,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
     }
 
     private void onItemReachEnd(TravellingItem item) {
+        item.colour = colourThrough(item.colour, item.side);
         ItemStack excess = item.stack;
         if (excess.isEmpty()) return;
         if (pipe.isConnected(item.side)) {
@@ -167,11 +196,11 @@ public final class ItemFlow extends PipeFlow implements Injectable {
             BlockEntity tile = pipe.neighbourTile(item.side);
             if (pipe.connectedType(item.side) == PipeBlockEntity.ConnectedType.PIPE) {
                 if (tile instanceof PipeBlockEntity other && other.flow() instanceof ItemFlow otherFlow) {
-                    excess = otherFlow.injectItem(excess.copy(), true, opposite, item.speed);
+                    excess = otherFlow.injectItem(excess.copy(), true, opposite, item.colour, item.speed);
                 }
             } else if (tile != null) {
                 if (tile instanceof Injectable injectable && injectable.canInjectItems(opposite)) {
-                    excess = injectable.injectItem(excess.copy(), true, opposite, item.speed);
+                    excess = injectable.injectItem(excess.copy(), true, opposite, item.colour, item.speed);
                 }
                 if (!excess.isEmpty()) {
                     ItemPort port = Ports.items(level(), tile.getBlockPos(), opposite);
@@ -212,15 +241,16 @@ public final class ItemFlow extends PipeFlow implements Injectable {
     }
 
     @Override
-    public ItemStack injectItem(ItemStack stack, boolean doAdd, Direction from, double speed) {
+    public ItemStack injectItem(ItemStack stack, boolean doAdd, Direction from, @Nullable DyeColor colour, double speed) {
         if (level().isClientSide) throw new IllegalStateException("Cannot inject items on the client side!");
-        if (stack.isEmpty() || !canInjectItems(from)) return stack;
-        if (doAdd) insertItemEvents(stack.copy(), Math.max(0.01, speed), from);
+        if (stack.isEmpty() || !canInjectItems(from) || !canItemEnter(colour, from)) return stack;
+        if (doAdd) insertItemEvents(stack.copy(), colour, Math.max(0.01, speed), from);
         return ItemStack.EMPTY;
     }
 
-    private void insertItemEvents(ItemStack toInsert, double speed, Direction from) {
+    private void insertItemEvents(ItemStack toInsert, @Nullable DyeColor colour, double speed, Direction from) {
         TravellingItem item = new TravellingItem(toInsert);
+        item.colour = colourThrough(colour, from);
         item.side = from;
         item.toCenter = true;
         item.speed = speed;
@@ -292,7 +322,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
             @Override
             public ItemStack insert(ItemStack stack, boolean simulate) {
                 if (!canInjectItems(side)) return stack;
-                return injectItem(stack, !simulate, side, 0);
+                return injectItem(stack, !simulate, side, null, 0);
             }
 
             @Override
@@ -343,6 +373,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
                 if (list.size() >= MAX_CLIENT_ITEMS) break outer;
                 CompoundTag entry = new CompoundTag();
                 entry.put("stack", item.stack.save(new CompoundTag()));
+                TravellingItem.writeColour(entry, item.colour);
                 entry.putBoolean("toCenter", item.toCenter);
                 entry.putByte("side", (byte) item.side.get3DDataValue());
                 entry.putInt("elapsed", (int) (now - item.tickStarted));
@@ -361,6 +392,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entry = list.getCompound(i);
             TravellingItem item = new TravellingItem(ItemStack.of(entry.getCompound("stack")));
+            item.colour = TravellingItem.readColour(entry);
             item.toCenter = entry.getBoolean("toCenter");
             item.side = Direction.from3DDataValue(entry.getByte("side"));
             item.tickStarted = now - entry.getInt("elapsed");

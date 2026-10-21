@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -15,13 +16,17 @@ import net.minecraft.world.item.ItemStack;
  */
 public final class SideCheck {
     public final ItemStack stack;
+    /** The travelling item's colour, which lenses give and filters sort by; null for fluids and unpainted items. */
+    @Nullable
+    public final DyeColor colour;
     @Nullable
     public final Direction from;
     private final int[] priority = new int[6];
     private final EnumSet<Direction> allowed = EnumSet.allOf(Direction.class);
 
-    public SideCheck(ItemStack stack, @Nullable Direction from) {
+    public SideCheck(ItemStack stack, @Nullable DyeColor colour, @Nullable Direction from) {
         this.stack = stack;
+        this.colour = colour;
         this.from = from;
     }
 
@@ -47,8 +52,16 @@ public final class SideCheck {
         allowed.retainAll(sides);
     }
 
+    public void increasePriority(Direction side) {
+        increasePriority(side, 1);
+    }
+
     public void increasePriority(Direction side, int by) {
         priority[side.ordinal()] -= by;
+    }
+
+    public void decreasePriority(Direction side) {
+        increasePriority(side, -1);
     }
 
     /** Item routing: every allowed face, grouped into sets of equal priority. */

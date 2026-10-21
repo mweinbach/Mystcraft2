@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -14,6 +15,7 @@ import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.ItemPort;
 import ports.buildcraft.transport.PipeBlockEntity;
+import ports.buildcraft.transport.SideCheck;
 
 /**
  * Upstream {@code PipePluggable}: something attached to one face of a pipe. Upstream's capability
@@ -73,6 +75,26 @@ public abstract class PipePluggable {
     public FluidPort fluidPort() {
         return null;
     }
+
+    /** Upstream {@code PipeEventItem.TryInsert} for this face: false refuses an item entering through it. */
+    public boolean canItemEnter(@Nullable DyeColor colour) {
+        return true;
+    }
+
+    /** Upstream {@code PipeEventItem.OnInsert} and {@code ReachEnd} for this face: an item's colour once it enters or leaves through it. */
+    @Nullable
+    public DyeColor colourItemThrough(@Nullable DyeColor colour) {
+        return colour;
+    }
+
+    /** Upstream {@code PipeEventItem.SideCheck}: where an item at this pipe's centre may go next. */
+    public void itemSideCheck(SideCheck check) {}
+
+    /**
+     * Upstream {@code FilterEventHandler}: the side check of an item in the pipe this face looks into, which would have
+     * {@code colour} on crossing into this pipe.
+     */
+    public void neighbourItemSideCheck(SideCheck check, @Nullable DyeColor colour) {}
 
     /** Called whenever this pluggable is removed from the pipe. */
     public void onRemove() {}

@@ -167,7 +167,7 @@ public final class FluidFlow extends PipeFlow {
             if (!section.direction().canOutput()) continue;
             int maxDrain = section.drainInternal(transferPerTick, false);
             if (maxDrain <= 0) continue;
-            SideCheck sideCheck = new SideCheck(ItemStack.EMPTY, null);
+            SideCheck sideCheck = new SideCheck(ItemStack.EMPTY, null, null);
             sideCheck.disallowAllExcept(face);
             pipe.behaviour().fluidSideCheck(sideCheck);
             if (sideCheck.firstOrder().size() != 1) continue;
@@ -198,7 +198,7 @@ public final class FluidFlow extends PipeFlow {
             if (section.maxFilled() > 0 && neighbourPort(direction) != null) realDirections.add(direction);
         }
         if (realDirections.isEmpty()) return;
-        SideCheck sideCheck = new SideCheck(ItemStack.EMPTY, null);
+        SideCheck sideCheck = new SideCheck(ItemStack.EMPTY, null, null);
         sideCheck.disallowAllExcept(realDirections);
         pipe.behaviour().fluidSideCheck(sideCheck);
         List<Direction> random = new ArrayList<>(sideCheck.firstOrder());
