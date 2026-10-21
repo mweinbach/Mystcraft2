@@ -52,9 +52,20 @@ dependencies {
     // The handbook pages extend Patchouli's page classes, which are not part of its API jar.
     modCompileOnly('vazkii.patchouli:Patchouli:1.19.2-77-FABRIC') { transitive = false }
     modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2:api') { transitive = false }
-    // The Mekanism Fabric port, for the gas-port adapter. compileOnly keeps it out of this JAR.
-    modCompileOnly "ports.mekanism:mekanism-fabric:${mekanismVersion}"
+    // The Mekanism Fabric port, for the gas-port adapter. This is a plain compile dependency, not a
+    // Loom mod dependency: Loom reads mod jars while configuring, before an included build has produced
+    // one, and a clean Fabric build would fail. compileOnly keeps the port out of this JAR. The included
+    // build compiles it first and supplies its classes.
+    compileOnly "ports.mekanism:mekanism-fabric:${mekanismVersion}"
     if (providers.gradleProperty('withMekanism').isPresent()) {
+        // A dev run does need the built mod jar. Produce it before Loom inspects the runtime mod.
+        def mekanismJar = file("../../mekanism/fabric/build/libs/mekanism-fabric-1.19.2-${mekanismVersion}.jar")
+        if (!mekanismJar.isFile()) {
+            exec {
+                workingDir file('../../..')
+                commandLine file('../../../gradlew').absolutePath, '--no-daemon', '-p', 'mods/mekanism/fabric', 'remapJar'
+            }
+        }
         modRuntimeOnly "ports.mekanism:mekanism-fabric:${mekanismVersion}"
     }
     if (providers.gradleProperty('withCompat').isPresent()) {
