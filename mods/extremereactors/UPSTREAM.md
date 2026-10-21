@@ -132,6 +132,9 @@ import mapping, these upstream files were changed:
   `corelib`'s `MekanismGas.HANDLER` and forwards fills to a neighbor's. The
   `IGasHandler` methods and the rotary recipe fluid-to-gas mappings moved to the
   Forge adapter, `ForgeMekanism`, which bridges that capability to Mekanism's.
+  Unlike upstream, the gas tank's capacity is converted to gas units like its
+  content, and the mappings are rebuilt when the server's recipes reload
+  instead of being kept for the whole game.
 - `ReactorComputerPortEntity`, `TurbineComputerPortEntity`: they implement
   `corelib`'s `IComputerPort` instead of holding the ComputerCraft connector;
   `ComputerCraftPeripheral` offers them to CC: Tweaked and CC: Restitched.
@@ -139,7 +142,9 @@ import mapping, these upstream files were changed:
   `corelib` (`AbstractModRecipeCategory`, `ProgressBarDrawable`), fluid slots
   use `JeiFluids` instead of `ForgeTypes.FLUID_STACK` and its capacities in the
   loader's fluid unit, and the energy tooltips take the loader's energy unit.
-  `ExtremeReactorsJeiPlugin` initializes `JeiFluids`.
+  `ExtremeReactorsJeiPlugin` initializes `JeiFluids`. `ReprocessorRecipeCategory`
+  drops a second copy of the solid input slot that upstream placed over the
+  first one.
 - Client models and renderers: no `@OnlyIn`; Forge `NonNullConsumer` became
   `java.util.function.Consumer`; model data is `corelib`'s. The fuel rod model
   takes its base quads through `ModRenderHelper.getQuads` and uses vanilla's
