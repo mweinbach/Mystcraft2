@@ -50,7 +50,6 @@ public final class FabricClientMod implements ClientModInitializer {
             String namespace = container.getNamespace();
             container.getEventBus().post(new ModelEvent.RegisterGeometryLoaders(namespace));
             container.getEventBus().post(new RegisterGuiOverlaysEvent(namespace));
-            container.getEventBus().post(new RegisterClientReloadListenersEvent(namespace));
         });
         ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> {
             Set<ResourceLocation> models = new HashSet<>();
@@ -62,6 +61,14 @@ public final class FabricClientMod implements ClientModInitializer {
             FabricLifecycle.postToMods(new TextureStitchEvent.Pre(atlas, sprites));
             sprites.forEach(registry::register);
         });
+    }
+
+    /**
+     * Client entrypoints run before the window exists, while Forge fires reload listener registration and client
+     * setup once a GL context is current. Called just before the initial resource reload.
+     */
+    public static void beforeInitialResourceReload() {
+        FabricLifecycle.forEachMod(container -> container.getEventBus().post(new RegisterClientReloadListenersEvent(container.getNamespace())));
         FabricLifecycle.startClient();
     }
 
