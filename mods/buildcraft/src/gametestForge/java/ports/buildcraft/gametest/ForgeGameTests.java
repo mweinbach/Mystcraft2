@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests} and {@link WireTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests} and {@link LensTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -264,6 +264,15 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void wireSystemsFollowPluggables(GameTestHelper helper) { WireTests.wireSystemsFollowPluggables(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void lensPlacesSyncsAndSaves(GameTestHelper helper) { LensTests.lensPlacesSyncsAndSaves(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void lensesPaintAndFiltersSort(GameTestHelper helper) { LensTests.lensesPaintAndFiltersSort(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void neighbourFilterSteersAndClearLensWashes(GameTestHelper helper) { LensTests.neighbourFilterSteersAndClearLensWashes(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }
