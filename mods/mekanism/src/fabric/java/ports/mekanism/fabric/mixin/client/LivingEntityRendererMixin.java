@@ -5,8 +5,6 @@
 package ports.mekanism.fabric.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -21,32 +19,34 @@ import ports.mekanism.lib.common.MinecraftForge;
 
 /**
  * Posts living-entity render events around the same method Forge patches. A canceled pre event skips the entity and
- * does not post the matching post event. The stack keeps a nested render's cancel from swallowing the outer post.
+ * does not post the matching post event. Canceling returns before the return hook, so only a render that continues
+ * is counted; a nested cancel cannot drop the outer post.
  */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
 
     @Unique
-    private final Deque<Boolean> mekanism$renderCanceled = new ArrayDeque<>();
+    private int mekanism$renderDepth;
 
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
           at = @At("HEAD"), cancellable = true)
     private void mekanism$renderLivingPre(LivingEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight,
           CallbackInfo ci) {
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new RenderLivingEvent.Pre<>(entity, renderer(), partialTick, poseStack, buffer, packedLight));
-        this.mekanism$renderCanceled.push(canceled);
-        if (canceled) {
+        if (MinecraftForge.EVENT_BUS.post(new RenderLivingEvent.Pre<>(entity, renderer(), partialTick, poseStack, buffer, packedLight))) {
             ci.cancel();
+            return;
         }
+        this.mekanism$renderDepth++;
     }
 
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
           at = @At("RETURN"))
     private void mekanism$renderLivingPost(LivingEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight,
           CallbackInfo ci) {
-        if (this.mekanism$renderCanceled.isEmpty() || this.mekanism$renderCanceled.pop()) {
+        if (this.mekanism$renderDepth == 0) {
             return;
         }
+        this.mekanism$renderDepth--;
         MinecraftForge.EVENT_BUS.post(new RenderLivingEvent.Post<>(entity, renderer(), partialTick, poseStack, buffer, packedLight));
     }
 

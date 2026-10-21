@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.mekanism.lib.client.event.ViewportEvent;
 import ports.mekanism.lib.common.MinecraftForge;
@@ -34,14 +35,17 @@ public abstract class FogRendererMixin {
     @Shadow
     private static float fogBlue;
 
-    // Powder snow clears the color and then falls through. Forge posts the event only at the final clear.
-    @Inject(method = "setupColor", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V", ordinal = 1))
-    private static void mekanism$fogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, CallbackInfo ci) {
-        ViewportEvent.ComputeFogColor event = new ViewportEvent.ComputeFogColor(camera, partialTick, fogRed, fogGreen, fogBlue);
+    // Powder snow clears the color and then falls through. Forge posts the event only at the final clear. The
+    // invocation's floats are already on the stack, so the redirect passes the event colors into clearColor itself.
+    @Redirect(method = "setupColor", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V", ordinal = 1))
+    private static void mekanism$fogColor(float red, float green, float blue, float alpha, Camera camera, float partialTick, ClientLevel level,
+          int renderDistance, float darkenWorldAmount) {
+        ViewportEvent.ComputeFogColor event = new ViewportEvent.ComputeFogColor(camera, partialTick, red, green, blue);
         MinecraftForge.EVENT_BUS.post(event);
         fogRed = event.getRed();
         fogGreen = event.getGreen();
         fogBlue = event.getBlue();
+        RenderSystem.clearColor(fogRed, fogGreen, fogBlue, alpha);
     }
 
     @Inject(method = "setupFog", at = @At(value = "INVOKE", shift = At.Shift.AFTER,
