@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:lens_blue"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:blue_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/blue"
+        }
+      ]
+    }
+  ]
+}

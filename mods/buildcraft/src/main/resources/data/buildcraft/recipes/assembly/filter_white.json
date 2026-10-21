@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:filter_white"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:white_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/white"
+        }
+      ]
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:iron_bars"
+      }
+    }
+  ]
+}

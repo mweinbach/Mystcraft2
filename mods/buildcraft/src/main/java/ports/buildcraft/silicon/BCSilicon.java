@@ -21,13 +21,16 @@ import ports.buildcraft.silicon.gate.GateItem;
 import ports.buildcraft.silicon.gate.GateMenu;
 import ports.buildcraft.silicon.gate.GateVariant;
 import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.silicon.plug.LensItem;
+import ports.buildcraft.silicon.plug.LensPluggable;
+import ports.buildcraft.silicon.plug.LensVariant;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
 
 /**
  * Upstream BuildCraft Silicon: the laser, the assembly, advanced crafting and integration tables it powers, the
- * five chipsets the assembly table makes, and gates with the gate copier. Upstream's single {@code redstone_chipset}
- * item with five damage values is flattened into one item per chipset, and its single NBT-keyed gate item into one
- * item per gate variant.
+ * five chipsets the assembly table makes, gates with the gate copier, and lenses and filters. Upstream's single
+ * {@code redstone_chipset} item with five damage values is flattened into one item per chipset, its single NBT-keyed
+ * gate item into one item per gate variant, and its 34-damage lens item into one item per lens or filter.
  */
 public final class BCSilicon {
     public static final Supplier<LaserBlock> LASER = Reg.block("laser", () -> new LaserBlock(machine().noOcclusion()));
@@ -68,9 +71,15 @@ public final class BCSilicon {
     public static final Supplier<Item> GATE_COPIER = Reg.item("gate_copier", () -> new GateCopierItem(BuildCraft.itemProperties()));
     public static final Supplier<MenuType<GateMenu>> GATE_MENU = Platform.menu("gate", GateMenu::new);
 
+    public static final PluggableDefinition LENS = PluggableDefinition.register(BuildCraft.id("lens"), LensPluggable::new);
+    public static final Map<LensVariant, Supplier<Item>> LENS_ITEMS = new LinkedHashMap<>();
+
     static {
         for (GateVariant variant : GateVariant.VALUES) {
             GATE_ITEMS.put(variant, Reg.item("gate_" + variant.variantName(), () -> new GateItem(BuildCraft.itemProperties(), variant)));
+        }
+        for (LensVariant variant : LensVariant.VALUES) {
+            LENS_ITEMS.put(variant, Reg.item(variant.itemName(), () -> new LensItem(BuildCraft.itemProperties(), variant)));
         }
     }
 
@@ -91,6 +100,10 @@ public final class BCSilicon {
     public static Item gateItem(GateVariant variant) {
         Supplier<Item> item = GATE_ITEMS.get(variant);
         return (item != null ? item : GATE_ITEMS.get(GateVariant.BASIC)).get();
+    }
+
+    public static Item lensItem(LensVariant variant) {
+        return LENS_ITEMS.get(variant).get();
     }
 
     private static Supplier<Item> chipset(String name) {

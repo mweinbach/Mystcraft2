@@ -68,6 +68,8 @@ import ports.buildcraft.silicon.gate.EnumGateModifier;
 import ports.buildcraft.silicon.gate.GateLogic;
 import ports.buildcraft.silicon.gate.GateVariant;
 import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.silicon.plug.LensPluggable;
+import ports.buildcraft.silicon.plug.LensVariant;
 import ports.buildcraft.statement.ActionWrapper;
 import ports.buildcraft.statement.StatementParameterItemStack;
 import ports.buildcraft.statement.TriggerWrapper;
@@ -168,6 +170,15 @@ public final class Showcase {
      */
     public static void buildWires(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).wires();
+    }
+
+    /**
+     * Builds a lens bench: redstone engines pull cobblestone from the west and dirt from the north through a red and a
+     * blue lens into a junction, whose red filter sends the red items east and blue filter the blue ones south; behind
+     * them a row of pipes, each with one of the 17 lenses on top and the filter of that colour on its south face.
+     */
+    public static void buildLenses(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).lenses();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -401,6 +412,40 @@ public final class Showcase {
                 for (boolean z : new boolean[] {false, true}) pipe.wires().addPart(WirePart.get(x, true, z), colours[i]);
             }
         }
+    }
+
+    private void lenses() {
+        prepare(-3, 18, -4, 10);
+        chest(0, 0, 2, new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.COBBLESTONE, 64));
+        pipe(1, 0, 2, BCTransport.WOOD_ITEM);
+        engine(1, 1, 2, BCEnergy.REDSTONE_ENGINE.get(), Direction.DOWN);
+        redstone(1, 2, 2);
+        lens(pipe(2, 0, 2, BCTransport.STONE_ITEM), Direction.EAST, new LensVariant(DyeColor.RED, false));
+        chest(3, 0, -1, new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64));
+        pipe(3, 0, 0, BCTransport.WOOD_ITEM);
+        engine(3, 1, 0, BCEnergy.REDSTONE_ENGINE.get(), Direction.DOWN);
+        redstone(3, 2, 0);
+        lens(pipe(3, 0, 1, BCTransport.STONE_ITEM), Direction.SOUTH, new LensVariant(DyeColor.BLUE, false));
+        PipeBlockEntity junction = pipe(3, 0, 2, BCTransport.STONE_ITEM);
+        lens(junction, Direction.EAST, new LensVariant(DyeColor.RED, true));
+        lens(junction, Direction.SOUTH, new LensVariant(DyeColor.BLUE, true));
+        pipe(4, 0, 2, BCTransport.STONE_ITEM);
+        pipe(5, 0, 2, BCTransport.STONE_ITEM);
+        chest(6, 0, 2);
+        pipe(3, 0, 3, BCTransport.STONE_ITEM);
+        pipe(3, 0, 4, BCTransport.STONE_ITEM);
+        chest(3, 0, 5);
+        for (int i = 0; i < LensVariant.VALUES.size() / 2; i++) {
+            LensVariant variant = LensVariant.VALUES.get(i);
+            PipeBlockEntity pipe = pipe(i, 0, 8, BCTransport.STONE_ITEM);
+            lens(pipe, Direction.UP, variant);
+            lens(pipe, Direction.SOUTH, new LensVariant(variant.colour(), true));
+        }
+        for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private static void lens(PipeBlockEntity pipe, Direction side, LensVariant variant) {
+        pipe.replacePluggable(side, new LensPluggable(BCSilicon.LENS, pipe, side, variant));
     }
 
     /** A lever, a line of six stone pipes with red wire on top and blue below their south edges, and a lamp. */

@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:filter_yellow"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:yellow_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/yellow"
+        }
+      ]
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:iron_bars"
+      }
+    }
+  ]
+}

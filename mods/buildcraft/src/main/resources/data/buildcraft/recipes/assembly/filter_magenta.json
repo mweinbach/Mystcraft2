@@ -1,0 +1,24 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:filter_magenta"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:magenta_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/magenta"
+        }
+      ]
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:iron_bars"
+      }
+    }
+  ]
+}

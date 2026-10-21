@@ -158,6 +158,7 @@ WIRE_COLOURS = [
     ("red", "red", "Red"), ("black", "black", "Black"),
 ]
 MATERIAL_TAGS.update({(f"{colour}_dyes", f"dyes/{colour}"): [f"minecraft:{colour}_dye"] for colour, _, _ in WIRE_COLOURS})
+MATERIAL_TAGS.update({(f"{colour}_glass_blocks", f"glass/{colour}"): [f"minecraft:{colour}_stained_glass"] for colour, _, _ in WIRE_COLOURS})
 
 # Upstream EnumRedstoneChipset and its assembly_recipes_examples: (id, texture, name, MJ, extra ingredient).
 CHIPSETS = [
@@ -981,6 +982,76 @@ class Generator:
             "gate.trigger.pipe.wire.inactive": "%s Pipe Signal Off",
         })
 
+    # Vanilla FaceInfo corner order, as (x, y, z) picks of an element's from (0) or to (1).
+    VANILLA_CORNERS = {
+        "down": [(0, 0, 1), (0, 0, 0), (1, 0, 0), (1, 0, 1)], "up": [(0, 1, 0), (0, 1, 1), (1, 1, 1), (1, 1, 0)],
+        "north": [(1, 1, 0), (1, 0, 0), (0, 0, 0), (0, 1, 0)], "south": [(0, 1, 1), (0, 0, 1), (1, 0, 1), (1, 1, 1)],
+        "west": [(0, 1, 0), (0, 0, 0), (0, 0, 1), (0, 1, 1)], "east": [(1, 1, 1), (1, 0, 1), (1, 0, 0), (1, 1, 0)],
+    }
+
+    @classmethod
+    def vanilla_face(cls, face: str, uv: list[float], rotation: int) -> dict:
+        """
+        Upstream's variable models place a face's UVs with ModelUtil.createFace, which mirrors some faces against
+        vanilla, then turn them with rotateTextureUp: find the vanilla UV rectangle and rotation that put the same
+        texture point on every corner.
+        """
+        axis = {"down": 1, "up": 1, "north": 2, "south": 2, "west": 0, "east": 0}[face]
+        positive = face in ("up", "south", "east")
+        points = []
+        for u, v in [(False, False), (False, True), (True, True), (True, False)]:
+            point = [1 if u else 0, 0 if v else 1, (0 if v else 1) if axis == 1 else (1 if u else 0)]
+            point[axis] = 1 if positive else 0
+            points.append(tuple(point))
+        base = [(uv[0], uv[1]), (uv[0], uv[3]), (uv[2], uv[3]), (uv[2], uv[1])]
+        vertices = list(zip(points, base)) if (not positive) != (axis == 2) else list(zip(points, base))[::-1]
+        upstream = {vertices[i][0]: vertices[(i + rotation) % 4][1] for i in range(4)}
+        for turn in range(4):
+            for u1, u2 in [(uv[0], uv[2]), (uv[2], uv[0])]:
+                for v1, v2 in [(uv[1], uv[3]), (uv[3], uv[1])]:
+                    corners = [(u1, v1), (u1, v2), (u2, v2), (u2, v1)]
+                    if all(upstream[corner] == corners[(i + turn) % 4] for i, corner in enumerate(cls.VANILLA_CORNERS[face])):
+                        result = {"uv": [u1, v1, u2, v2]}
+                        if turn:
+                            result["rotation"] = turn * 90
+                        return result
+        raise ValueError(f"no vanilla face matches {face} {uv} {rotation}")
+
+    def lens_item(self, colour: str | None, upstream: str | None, is_filter: bool) -> None:
+        """Upstream ModelLensItem: the lens or filter plug model facing west, its pane tinted by LensRenderer's item colour."""
+        lens = json.loads((self.src / "buildcraftsilicon/models/plugs/lens.json").read_text(encoding="utf-8"))
+        cutout = lens["cutout"]
+        if is_filter:
+            cutout = cutout + json.loads((self.src / "buildcraftsilicon/models/plugs/filter.json").read_text(encoding="utf-8"))["cutout"]
+        elements = []
+        for element in cutout:
+            faces = {face: dict(self.vanilla_face(face, value["uv"], value.get("rotation", 0)), texture="#main")
+                     for face, value in element["faces"].items()}
+            elements.append({"from": element["from"], "to": element["to"], "faces": faces})
+        if colour is not None or not is_filter:
+            for element in lens["translucent"]:
+                faces = {face: dict(self.vanilla_face(face, value["uv"], value.get("rotation", 0)), texture="#pane", tintindex=0)
+                         for face, value in element["faces"].items()}
+                elements.append({"from": element["from"], "to": element["to"], "faces": faces})
+        kind = "filter" if is_filter else "lens"
+        textures = {"main": rl(f"block/lens/{kind}"), "pane": rl("block/lens/overlay") if colour else "minecraft:block/water_flow",
+                    "particle": "#main"}
+        self.model(f"item/{kind}_{colour or 'clear'}", {"gui_light": "front", "textures": textures, "elements": elements,
+                                                         "display": self.PLUG_ITEM_DISPLAY})
+
+    def lenses(self) -> None:
+        for name, target in [("lens", "lens"), ("filter", "filter"), ("overlay_lens", "overlay")]:
+            self.copy(f"buildcraftsilicon/textures/plugs/{name}.png", f"block/lens/{target}.png")
+        self.copy("buildcrafttransport/textures/pipes/colour_item_box.png", "block/pipe/colour_item_box.png")
+        for is_filter in [False, True]:
+            for colour, upstream, _ in WIRE_COLOURS:
+                self.lens_item(colour, upstream, is_filter)
+            self.lens_item(None, None, is_filter)
+        self.lang.update({f"item.{MOD}.lens": "%s Lens", f"item.{MOD}.filter": "%s Filter", "color.clear": "Clear"})
+        for colour, _, title in WIRE_COLOURS + [("clear", None, "Clear")]:
+            self.lang[f"item.{MOD}.lens_{colour}"] = f"{title} Lens"
+            self.lang[f"item.{MOD}.filter_{colour}"] = f"{title} Filter"
+
     def write_lang(self) -> None:
         self.lang.update({
             f"itemGroup.{MOD}.main": "BuildCraft",
@@ -1090,6 +1161,18 @@ class Generator:
         self.recipe(name, {"type": rl("assembly"), "result": output, "MJ": mj,
                            "components": [{"ingredient": ingredient} for ingredient in ingredients]})
 
+    def lens_recipes(self) -> None:
+        """Upstream BCSiliconRecipes: a lens from glass of its colour, a filter from that and iron bars, each at 500 MJ.
+
+        Clear ones take upstream's blockGlass, which stained glass was also registered under.
+        """
+        bars = {"item": "minecraft:iron_bars"}
+        stained = {colour: tags(f"{colour}_glass_blocks", f"glass/{colour}") for colour, _, _ in WIRE_COLOURS}
+        stained["clear"] = GLASS + [tag for colour_glass in stained.values() for tag in colour_glass]
+        for colour, glass in stained.items():
+            self.assembly(f"assembly/lens_{colour}", f"lens_{colour}", 500, [glass])
+            self.assembly(f"assembly/filter_{colour}", f"filter_{colour}", 500, [glass, bars])
+
     def wire_recipes(self) -> None:
         """Upstream BCTransportRecipes: eight wires of a colour from redstone and that dye."""
         for colour, _, _ in WIRE_COLOURS:
@@ -1181,6 +1264,7 @@ class Generator:
         self.silicon()
         self.gates()
         self.wires()
+        self.lenses()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
@@ -1190,6 +1274,7 @@ class Generator:
         self.silicon_recipes()
         self.gate_recipes()
         self.wire_recipes()
+        self.lens_recipes()
         self.data_tags()
         self.loot_tables()
 

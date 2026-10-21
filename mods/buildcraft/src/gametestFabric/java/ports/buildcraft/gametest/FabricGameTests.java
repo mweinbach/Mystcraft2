@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests} and {@link WireTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests} and {@link LensTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -262,6 +262,18 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void wireSystemsFollowPluggables(GameTestHelper helper) { WireTests.wireSystemsFollowPluggables(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void lensPlacesSyncsAndSaves(GameTestHelper helper) { LensTests.lensPlacesSyncsAndSaves(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void lensesPaintAndFiltersSort(GameTestHelper helper) { LensTests.lensesPaintAndFiltersSort(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void neighbourFilterSteersAndClearLensWashes(GameTestHelper helper) { LensTests.neighbourFilterSteersAndClearLensWashes(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) { LensTests.diamondPipeSplitKeepsFilterPriority(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

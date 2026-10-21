@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -345,8 +346,8 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     }
 
     @Override
-    public ItemStack injectItem(ItemStack stack, boolean doAdd, Direction from, double speed) {
-        return flow instanceof ItemFlow items ? items.injectItem(stack, doAdd, from, speed) : stack;
+    public ItemStack injectItem(ItemStack stack, boolean doAdd, Direction from, @Nullable DyeColor colour, double speed) {
+        return flow instanceof ItemFlow items ? items.injectItem(stack, doAdd, from, colour, speed) : stack;
     }
 
     // Persistence and client sync.

@@ -47,6 +47,9 @@ worlds do not migrate between them or from 1.12.
 - Pipe wire: sixteen colours of wire laid along pipe edges, made in the assembly table. Wires of
   one colour that touch form a network; a gate's pipe signal action powers it, and gates on the
   network react to it with pipe signal triggers.
+- Lenses and filters: sixteen colours and clear, made in the assembly table, go on item pipe faces.
+  A lens paints the items passing through it (a clear lens washes them), and a filter lets through
+  only items of its colour and pulls them its way.
 - Oil: medium and large oil wells in the Overworld (surface lake, underground deposit and
   gushing spout), with an oil spring under large wells that slowly regrows oil, and the oil desert
   and oil ocean biomes, where wells are thirty times as common.
@@ -55,7 +58,7 @@ worlds do not migrate between them or from 1.12.
 - Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
-**This is not full BuildCraft.** Lenses, filters, pulsars, timers, light sensors, facades, robots and several pipe types are not ported, and no machine yet takes gate control. The port has passed GameTests on dedicated servers for both loaders but has not been
+**This is not full BuildCraft.** Pulsars, timers, light sensors, facades, robots and several pipe types are not ported, and no machine yet takes gate control. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
 

@@ -31,7 +31,7 @@ public final class InventoryUtil {
             if (face == ignore) continue;
             BlockEntity tile = level.getBlockEntity(pos.relative(face));
             if (tile instanceof Injectable injectable && injectable.canInjectItems(face.getOpposite())) {
-                stack = injectable.injectItem(stack, true, face.getOpposite(), 0);
+                stack = injectable.injectItem(stack, true, face.getOpposite(), null, 0);
                 if (stack.isEmpty()) return ItemStack.EMPTY;
             }
         }

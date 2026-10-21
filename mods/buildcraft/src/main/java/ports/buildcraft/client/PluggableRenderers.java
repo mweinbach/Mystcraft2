@@ -48,6 +48,7 @@ public final class PluggableRenderers {
                 new Element(0, 3, 3, 2, 13, 13, new float[] {0, 3, 2, 13}, new float[] {3, 3, 13, 13}));
         register(BCSilicon.GATE, GateRenderer::render);
         SPRITES.addAll(GateRenderer.sprites());
+        register(BCSilicon.LENS, LensRenderer::render);
     }
 
     private PluggableRenderers() {}

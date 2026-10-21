@@ -68,7 +68,7 @@ public class WoodBehaviour extends DirectionalBehaviour {
         if (pipe.flow() instanceof ItemFlow items) {
             int maxItems = (int) Math.min(Integer.MAX_VALUE, power / MJ_PER_ITEM);
             if (maxItems > 0) {
-                int extracted = items.tryExtractItems(maxItems, currentDir, stack -> true, simulate);
+                int extracted = items.tryExtractItems(maxItems, currentDir, null, stack -> true, simulate);
                 if (extracted > 0) return power - extracted * MJ_PER_ITEM;
             }
         } else if (pipe.flow() instanceof FluidFlow fluids) {

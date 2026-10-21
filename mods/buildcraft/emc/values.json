@@ -52,6 +52,91 @@
     "buildcraft:filler": {
       "excluded": "Creative-only: upstream has no recipe for the filler, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
     },
+    "buildcraft:filter_black": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_blue": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_brown": {
+      "projecte": 105,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_clear": {
+      "projecte": 97,
+      "itemalchemy": 61,
+      "source": "conversion assemble_clear_filter"
+    },
+    "buildcraft:filter_cyan": {
+      "projecte": 98,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_gray": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_green": {
+      "projecte": 98,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_light_blue": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_light_gray": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_lime": {
+      "projecte": 98,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_magenta": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_orange": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_pink": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_purple": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_red": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_white": {
+      "projecte": 99,
+      "itemalchemy": 61,
+      "source": "conversion assemble_filters"
+    },
+    "buildcraft:filter_yellow": {
+      "projecte": 99,
+      "itemalchemy": 62,
+      "source": "conversion assemble_filters"
+    },
     "buildcraft:fragile_fluid_shard": {
       "excluded": "NBT item: a shard only holds the fluid a broken machine or pipe dropped, and a blank shard holds nothing and cannot be filled. Transmutation never copies NBT, so a value could only be paid out for an empty, useless shard."
     },
@@ -284,6 +369,91 @@
       "projecte": 16832,
       "itemalchemy": 4544,
       "source": "recipe"
+    },
+    "buildcraft:lens_black": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_blue": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_brown": {
+      "projecte": 9,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_clear": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion assemble_clear_lens"
+    },
+    "buildcraft:lens_cyan": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_gray": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_green": {
+      "projecte": 2,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_light_blue": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_light_gray": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_lime": {
+      "projecte": 2,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_magenta": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_orange": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_pink": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_purple": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_red": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_white": {
+      "projecte": 3,
+      "itemalchemy": 1,
+      "source": "conversion assemble_lenses"
+    },
+    "buildcraft:lens_yellow": {
+      "projecte": 3,
+      "itemalchemy": 2,
+      "source": "conversion assemble_lenses"
     },
     "buildcraft:marker_connector": {
       "projecte": 872,

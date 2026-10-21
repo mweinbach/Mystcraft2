@@ -1,8 +1,10 @@
 package ports.buildcraft.transport.flow;
 
 import java.util.EnumSet;
+import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -13,6 +15,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class TravellingItem {
     ItemStack stack;
+    @Nullable
+    DyeColor colour;
     boolean toCenter;
     double speed = 0.05;
     long tickStarted;
@@ -27,6 +31,7 @@ public final class TravellingItem {
 
     TravellingItem(CompoundTag tag, long tickNow) {
         stack = ItemStack.of(tag.getCompound("stack"));
+        colour = readColour(tag);
         toCenter = tag.getBoolean("toCenter");
         speed = Math.max(0.001, tag.getDouble("speed"));
         tickStarted = tag.getInt("tickStarted") + tickNow;
@@ -44,6 +49,7 @@ public final class TravellingItem {
     CompoundTag save(long tickNow) {
         CompoundTag tag = new CompoundTag();
         tag.put("stack", stack.save(new CompoundTag()));
+        writeColour(tag, colour);
         tag.putBoolean("toCenter", toCenter);
         tag.putDouble("speed", speed);
         tag.putInt("tickStarted", (int) (tickStarted - tickNow));
@@ -54,6 +60,17 @@ public final class TravellingItem {
         for (Direction face : tried) triedBits |= 1 << face.ordinal();
         tag.putByte("tried", (byte) triedBits);
         return tag;
+    }
+
+    /** Upstream stores no colour as 0 and a colour as its id plus one. */
+    @Nullable
+    static DyeColor readColour(CompoundTag tag) {
+        int colour = tag.getByte("colour");
+        return colour <= 0 || colour > 16 ? null : DyeColor.byId(colour - 1);
+    }
+
+    static void writeColour(CompoundTag tag, @Nullable DyeColor colour) {
+        tag.putByte("colour", (byte) (colour == null ? 0 : colour.getId() + 1));
     }
 
     int currentDelay(long tickNow) {
@@ -68,6 +85,7 @@ public final class TravellingItem {
 
     boolean canMerge(TravellingItem with) {
         return toCenter == with.toCenter
+                && colour == with.colour
                 && side == with.side
                 && Math.abs(tickFinished - with.tickFinished) < 4
                 && stack.getMaxStackSize() >= stack.getCount() + with.stack.getCount()
@@ -82,6 +100,11 @@ public final class TravellingItem {
 
     public ItemStack stack() {
         return stack;
+    }
+
+    @Nullable
+    public DyeColor colour() {
+        return colour;
     }
 
     /** Upstream {@code getRenderPosition}, relative to the block origin. */

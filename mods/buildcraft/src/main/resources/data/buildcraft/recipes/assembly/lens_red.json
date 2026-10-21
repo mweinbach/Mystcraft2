@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:lens_red"
+  },
+  "MJ": 500,
+  "components": [
+    {
+      "ingredient": [
+        {
+          "tag": "c:red_glass_blocks"
+        },
+        {
+          "tag": "forge:glass/red"
+        }
+      ]
+    }
+  ]
+}
