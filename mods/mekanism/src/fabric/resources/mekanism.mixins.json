@@ -39,6 +39,7 @@
     "client.BakedModelMixin",
     "client.BakedQuadMixin",
     "client.BlockModelMixin",
+    "client.ElytraLayerMixin",
     "client.ItemOverridesMixin",
     "client.KeyMappingMixin",
     "client.ModelManagerMixin",

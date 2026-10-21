@@ -161,6 +161,9 @@
       ],
       "net/minecraft/class_2404": [
         "ports/mekanism/lib/common/extensions/IForgeLiquidBlock"
+      ],
+      "net/minecraft/class_979": [
+        "ports/mekanism/lib/client/extensions/IForgeElytraLayer<TT;>"
       ]
     }
   }

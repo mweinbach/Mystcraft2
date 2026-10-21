@@ -54,7 +54,10 @@ def patched = 'ports.mekanism.lib.patched.'
 def forgeOnlyVanillaMembers = [
     [~/\bnet\.minecraftforge\./, 'ports.mekanism.lib.'],
     [~/\bBucketItem::new\b/, "${patched}ForgeBucketItem::new"],
-    [~/\bextends BucketItem\b/, "extends ${patched}ForgeBucketItem"],
+    [~/\bclass (\w+) extends BucketItem\b/, "class \$1 extends ${patched}ForgeBucketItem"],
+    [~/\bclass (\w+) extends CreativeModeTab\b/, "class \$1 extends ${patched}ForgeCreativeModeTab"],
+    [~/\bextends AbstractContainerScreen</, "extends ${patched}ForgeAbstractContainerScreen<"],
+    [~/\bItemProperties\.register\(/, "${patched}ForgeItemProperties.register("],
     [~/\bnew LiquidBlock\(/, "new ${patched}ForgeLiquidBlock("],
     [~/\bextends KeyMapping\b/, 'extends ports.mekanism.lib.client.settings.ForgeKeyMapping'],
     [~/\bItemTags\.create\(/, "${patched}ForgeTagKeys.item("],

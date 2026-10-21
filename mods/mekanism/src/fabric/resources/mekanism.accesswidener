@@ -143,3 +143,6 @@ accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadLi
 accessible method net/minecraft/resources/ResourceLocation validNamespaceChar (C)Z
 accessible field net/minecraft/client/renderer/item/ItemProperties PROPERTIES Ljava/util/Map;
 accessible field net/minecraft/client/renderer/entity/layers/ElytraLayer WINGS_LOCATION Lnet/minecraft/resources/ResourceLocation;
+accessible method net/minecraft/client/renderer/block/model/BlockModel bakeFace (Lnet/minecraft/client/renderer/block/model/BlockElement;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/block/model/BakedQuad;
+accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
+mutable field net/minecraft/world/item/CreativeModeTab TABS [Lnet/minecraft/world/item/CreativeModeTab;

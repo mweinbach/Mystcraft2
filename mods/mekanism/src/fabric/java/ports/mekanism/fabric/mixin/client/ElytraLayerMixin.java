@@ -5,10 +5,10 @@
 package ports.mekanism.fabric.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -47,10 +47,6 @@ public abstract class ElytraLayerMixin<T extends LivingEntity> implements IForge
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
           at = @At(value = "STORE"), ordinal = 0)
     private ResourceLocation mekanism$elytraTexture(ResourceLocation texture) {
-        if (texture == ElytraLayer.WINGS_LOCATION && !(mekanism$entity instanceof AbstractClientPlayer)) {
-            return getElytraTexture(mekanism$entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST), mekanism$entity);
-        }
-        return texture == ElytraLayer.WINGS_LOCATION ? getElytraTexture(mekanism$entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST),
-              mekanism$entity) : texture;
+        return texture == ElytraLayer.WINGS_LOCATION ? getElytraTexture(mekanism$entity.getItemBySlot(EquipmentSlot.CHEST), mekanism$entity) : texture;
     }
 }
