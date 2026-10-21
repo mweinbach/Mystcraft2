@@ -1,5 +1,6 @@
 package ports.buildcraft.transport.behaviour;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -12,6 +13,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.platform.EnergyPort;
+import ports.buildcraft.statement.Action;
+import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.transport.ItemEntry;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.SideCheck;
@@ -79,6 +82,12 @@ public abstract class PipeBehaviour {
     public EnergyPort energyPort(@Nullable Direction side) {
         return null;
     }
+
+    /** Upstream {@code PipeEventStatement.AddActionInternal}, as fired to the behaviour. */
+    public void addInternalActions(Collection<Action.Internal> actions) {}
+
+    /** Upstream {@code PipeEventActionActivate}: a gate on this pipe has {@code action} active this tick. */
+    public void onActionActivate(Action action, StatementParameter[] parameters) {}
 
     public void save(CompoundTag tag) {}
 

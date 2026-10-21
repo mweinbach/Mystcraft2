@@ -1,5 +1,6 @@
 package ports.buildcraft.transport.behaviour;
 
+import java.util.Collection;
 import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -7,7 +8,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import ports.buildcraft.core.Wrenches;
+import ports.buildcraft.statement.Action;
+import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.transport.PipeBlockEntity;
+import ports.buildcraft.transport.statements.ActionPipeDirection;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /** Upstream {@code PipeBehaviourDirectional}: a pipe with one selected face, rotated with a wrench. */
 public abstract class DirectionalBehaviour extends PipeBehaviour {
@@ -56,6 +61,18 @@ public abstract class DirectionalBehaviour extends PipeBehaviour {
         currentDir = direction;
         pipe.setChanged();
         pipe.refreshState();
+    }
+
+    @Override
+    public void addInternalActions(Collection<Action.Internal> actions) {
+        for (Direction face : Direction.values()) {
+            if (canFaceDirection(face)) actions.add(BCTransportStatements.ACTION_PIPE_DIRECTION[face.ordinal()]);
+        }
+    }
+
+    @Override
+    public void onActionActivate(Action action, StatementParameter[] parameters) {
+        if (action instanceof ActionPipeDirection direction && canFaceDirection(direction.direction)) setCurrentDir(direction.direction);
     }
 
     @Override

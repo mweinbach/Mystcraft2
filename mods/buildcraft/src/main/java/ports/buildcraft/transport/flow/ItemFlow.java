@@ -1,6 +1,7 @@
 package ports.buildcraft.transport.flow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -18,10 +19,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.lib.Injectable;
 import ports.buildcraft.lib.Ports;
 import ports.buildcraft.platform.ItemPort;
+import ports.buildcraft.statement.Trigger;
 import ports.buildcraft.transport.ItemEntry;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.SideCheck;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /**
  * Upstream {@code PipeFlowItems}. Items travel to the pipe centre, pick an exit through the
@@ -243,6 +246,22 @@ public final class ItemFlow extends PipeFlow implements Injectable {
 
     public boolean containsItems() {
         return items.maxDelay() > 0;
+    }
+
+    /** Upstream {@code containsItemMatching}: any item when {@code filter} is empty. */
+    public boolean containsItemMatching(ItemStack filter) {
+        if (filter.isEmpty()) return containsItems();
+        for (List<TravellingItem> list : items.all()) {
+            for (TravellingItem item : list) {
+                if (!item.stack.isEmpty() && ItemStack.isSameItemSameTags(filter, item.stack)) return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void addInternalTriggers(Collection<Trigger.Internal> triggers) {
+        triggers.add(BCTransportStatements.TRIGGER_ITEMS_TRAVERSING);
     }
 
     public int itemCount() {

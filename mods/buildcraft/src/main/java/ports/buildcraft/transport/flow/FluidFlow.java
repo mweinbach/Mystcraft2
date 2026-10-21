@@ -2,6 +2,7 @@ package ports.buildcraft.transport.flow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -19,8 +20,10 @@ import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Fluids2;
 import ports.buildcraft.lib.Ports;
 import ports.buildcraft.platform.FluidPort;
+import ports.buildcraft.statement.Trigger;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.SideCheck;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /**
  * Upstream {@code PipeFlowFluids}: seven sections (six faces and the centre), each with a direction
@@ -75,6 +78,11 @@ public final class FluidFlow extends PipeFlow {
         int total = 0;
         for (Section section : sections) total += section.amount;
         return total;
+    }
+
+    @Override
+    public void addInternalTriggers(Collection<Trigger.Internal> triggers) {
+        triggers.add(BCTransportStatements.TRIGGER_FLUIDS_TRAVERSING);
     }
 
     @Override
