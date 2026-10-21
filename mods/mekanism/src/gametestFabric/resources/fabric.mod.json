@@ -23,6 +23,7 @@
       "mekanism.gametest.InductionMatrixGameTests",
       "mekanism.gametest.IndustrialTurbineGameTests",
       "mekanism.gametest.SimpleGeneratorGameTests",
+      "mekanism.gametest.ThermoelectricBoilerGameTests",
       "mekanism.gametest.ToolsModuleGameTests"
     ]
   },
