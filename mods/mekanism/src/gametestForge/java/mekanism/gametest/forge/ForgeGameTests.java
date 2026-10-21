@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import mekanism.common.Mekanism;
+import mekanism.gametest.AdditionsModuleGameTests;
 import mekanism.gametest.ChemicalMachineGameTests;
 import mekanism.gametest.ChunkLoadingGameTests;
 import mekanism.gametest.CoreMachineGameTests;
@@ -21,6 +22,7 @@ import mekanism.gametest.FactoryGameTests;
 import mekanism.gametest.FissionReactorGameTests;
 import mekanism.gametest.FluidGameTests;
 import mekanism.gametest.GeneratorsModuleGameTests;
+import mekanism.gametest.InductionMatrixGameTests;
 import mekanism.gametest.IndustrialTurbineGameTests;
 import mekanism.gametest.ItemBlockHookGameTests;
 import mekanism.gametest.LoaderInteropGameTests;
@@ -43,11 +45,10 @@ import net.minecraftforge.gametest.GameTestHolder;
 @GameTestHolder(Mekanism.MODID)
 public class ForgeGameTests {
 
-    private static final List<Class<?>> SHARED_TESTS = List.of(ChemicalMachineGameTests.class, ChunkLoadingGameTests.class,
-          CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class, FissionReactorGameTests.class,
-          FluidGameTests.class,
-          GeneratorsModuleGameTests.class, IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class,
-          LoaderInteropGameTests.class,
+    private static final List<Class<?>> SHARED_TESTS = List.of(AdditionsModuleGameTests.class, ChemicalMachineGameTests.class,
+          ChunkLoadingGameTests.class, CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class,
+          FissionReactorGameTests.class, FluidGameTests.class, GeneratorsModuleGameTests.class, InductionMatrixGameTests.class,
+          IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
           SimpleGeneratorGameTests.class, ThermoelectricBoilerGameTests.class, ToolsModuleGameTests.class);
 

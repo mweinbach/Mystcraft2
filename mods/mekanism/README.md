@@ -13,7 +13,7 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
 them.
 
-## Status: core module, simple generators and Tools; many features still missing
+## Status: core module, simple generators, Tools and Additions blocks; many features still missing
 
 The core module is in this port. Generators, Tools and Additions are extra mod ids
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
@@ -23,7 +23,8 @@ through the gas handler and outputs energy. The thermoelectric boiler forms, tak
 and outputs steam. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
 meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
-Additions is an empty scaffold.
+Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
+glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the walkie-talkie are not.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -52,22 +53,25 @@ Additions is an empty scaffold.
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
-  the development client draws that stored fluid through the glass. A formed industrial turbine in that client draws
-  its rotor and blades through the glass. A formed thermoelectric boiler in that client shows its casing and
-  valves, and its screen opens. The water and steam bodies are drawn inside the opaque casing. A formed fission
-  reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the casing frame and
-  a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and coolant body were not
-  drawn, and the reactor screen was not opened.
+  the development client draws that stored fluid through the glass.
+  An induction matrix of casing, one port, a basic cell and a basic provider forms, and the port moves energy through
+  Team Reborn Energy. An energy tablet in the port's charge slot takes energy out of the matrix. Saving the blocks and
+  loading them brings that stored energy back. The development client draws the formed casing and port.
+  A formed industrial turbine in that client draws its rotor and blades through the glass.
+  A formed thermoelectric boiler in that client shows its casing and valves, and its screen opens. The water and steam
+  bodies are drawn inside the opaque casing. A formed fission reactor in that client is the 18×18×18 shell from
+  `/mek build fission`: reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods.
+  It was not fueled, so the burn glow and coolant body were not drawn, and the reactor screen was not opened.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
-  machines, loader interop,
-  chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
-  player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the
-  thermoelectric boiler, the industrial turbine, the fission reactor, and Tools registration, crafting, tool actions and shield blocking)
+  machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
+  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
+  tank, the induction matrix, the thermoelectric boiler, the industrial turbine, the fission reactor, Tools
+  registration, crafting, tool actions and shield blocking, and Additions registration, crafting and block behaviour)
   pass on both loaders.
 
 Do not install either JAR in a world you care about.
@@ -79,7 +83,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Empty Additions scaffold. A later slice fills it in |
+| `src/additions` | Additions plastic, glow panels and obsidian TNT, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |
