@@ -30,11 +30,13 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. HUD overlays, fog and the client jump-key sync are still unwired.
+  Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   An anchor upgrade keeps that machine's chunk loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, chemical
-  lookups, ore generation, the item and block hooks, chunk loading, and the player and living events) pass on both loaders.
+  lookups, ore generation, the item and block hooks, chunk loading, render bounds, and the player and living events)
+  pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -91,9 +93,10 @@ constants are `GAS`, `INFUSION`, `PIGMENT`, `SLURRY`, `HEAT` and the item forms 
 | `ISlurryHandler` | `mekanism:slurry_handler` | `Direction` | `Void` (pass null) |
 | `IHeatHandler` | `mekanism:heat_handler` | `Direction` | `Void` (pass null) |
 
-Mekanism registers its own block entities and items. Other mods register theirs on the same lookup; that is how a
-port can offer gas to a Mekanism tube. Asking a Mekanism capability of a foreign block does not consult these
-lookups. To drain a neighbor:
+Mekanism registers its own block entities and items. Other mods register theirs on the same lookup. A pressurized
+tube reads a neighbor through the gas capability, and on Fabric that capability falls back to this lookup, so a
+port registered here is what the tube pulls. The same fallback covers infusion, pigment, slurry and heat.
+Mekanism's own blocks are not asked that way. To drain a neighbor:
 
 ```java
 IGasHandler handler = MekanismChemicalLookups.GAS.find(level, pos, state, blockEntity, side);

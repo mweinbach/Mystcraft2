@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.ToLongFunction;
+import mekanism.common.capabilities.Capabilities;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -32,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.fabric.api.MekanismChemicalLookups;
 import ports.mekanism.lib.common.capabilities.Capability;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
 import ports.mekanism.lib.common.util.LazyOptional;
@@ -110,8 +113,10 @@ public final class FabricTransfer {
     }
 
     /**
-     * The item, fluid or energy storage another mod's block entity offers through the Fabric APIs. The port's own block
-     * entities answer through their Forge capabilities, so they are never looked up here.
+     * The item, fluid, energy, chemical or heat storage another mod's block entity offers through the Fabric APIs. The
+     * port's own block entities answer through their Forge capabilities, so they are never looked up here. A foreign
+     * chemical provider must not ask {@code getCapability} for the same handler, because this fallback calls the
+     * lookup.
      */
     @SuppressWarnings("unchecked")
     static <T> LazyOptional<T> foreignCapability(BlockEntity blockEntity, Capability<T> capability, @Nullable Direction side) {
@@ -126,8 +131,28 @@ public final class FabricTransfer {
             return storage == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> new StorageFluidHandler(storage));
         } else if (capability == ForgeCapabilities.ENERGY) {
             return (LazyOptional<T>) FabricEnergy.foreignEnergy(blockEntity, side);
+        } else if (capability == Capabilities.GAS_HANDLER) {
+            return chemical(MekanismChemicalLookups.GAS, blockEntity, side);
+        } else if (capability == Capabilities.INFUSION_HANDLER) {
+            return chemical(MekanismChemicalLookups.INFUSION, blockEntity, side);
+        } else if (capability == Capabilities.PIGMENT_HANDLER) {
+            return chemical(MekanismChemicalLookups.PIGMENT, blockEntity, side);
+        } else if (capability == Capabilities.SLURRY_HANDLER) {
+            return chemical(MekanismChemicalLookups.SLURRY, blockEntity, side);
+        } else if (capability == Capabilities.HEAT_HANDLER) {
+            return chemical(MekanismChemicalLookups.HEAT, blockEntity, side);
         }
         return LazyOptional.empty();
+    }
+
+    /**
+     * The handler another mod registered on one of {@link MekanismChemicalLookups}. Missing is empty, the same answer
+     * a block with no provider gives.
+     */
+    @SuppressWarnings("unchecked")
+    private static <T, H> LazyOptional<T> chemical(BlockApiLookup<H, Direction> lookup, BlockEntity blockEntity, Direction side) {
+        H handler = lookup.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, side);
+        return handler == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> handler);
     }
 
     /**

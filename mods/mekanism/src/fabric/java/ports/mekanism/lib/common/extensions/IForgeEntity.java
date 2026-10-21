@@ -27,7 +27,8 @@ import ports.mekanism.lib.fluids.FluidTypes;
 /**
  * Methods Forge adds to {@link Entity}, including those of its capability provider base class, injected into it on
  * Fabric. The capabilities come from {@link ports.mekanism.lib.event.AttachCapabilitiesEvent} and are saved with the
- * entity; mixins invalidate them when the entity is removed and call {@link #onRemovedFromWorld}.
+ * entity. Mixins invalidate them from {@link Entity#remove}. {@link #onRemovedFromWorld} runs when the entity leaves
+ * the level's tracking lists, including a chunk unload, which is where Forge calls it.
  */
 public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
 

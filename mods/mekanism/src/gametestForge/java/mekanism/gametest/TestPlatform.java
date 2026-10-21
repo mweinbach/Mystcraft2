@@ -31,6 +31,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.fluids.FluidStack;
@@ -49,6 +50,10 @@ public final class TestPlatform {
     private static final String ANCHOR_TICKET = "forge:block";
 
     private TestPlatform() {
+    }
+
+    public static AABB renderBounds(BlockEntity blockEntity) {
+        return blockEntity.getRenderBoundingBox();
     }
 
     public static long insertEnergy(BlockEntity blockEntity, Direction side, long amount) {

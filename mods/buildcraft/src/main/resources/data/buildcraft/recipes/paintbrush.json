@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " iw",
+    " gi",
+    "s  "
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:string"
+    },
+    "w": {
+      "item": "minecraft:white_wool"
+    },
+    "g": [
+      {
+        "tag": "c:wood_gears"
+      },
+      {
+        "tag": "forge:gears/wood"
+      }
+    ],
+    "s": [
+      {
+        "tag": "c:wooden_rods"
+      },
+      {
+        "tag": "forge:rods/wooden"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:paintbrush"
+  }
+}

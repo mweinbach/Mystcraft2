@@ -13,6 +13,8 @@ import ports.buildcraft.core.BCCore;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.robotics.BCRobotics;
+import ports.buildcraft.robotics.ZonePackets;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.GateMenu;
 import ports.buildcraft.transport.BCTransport;
@@ -53,7 +55,9 @@ public final class BuildCraft {
                 ElectronicLibraryBlockEntity.SELECT_CHANNEL, ElectronicLibraryBlockEntity::receiveSelect,
                 ElectronicLibraryBlockEntity.UP_CHANNEL, ElectronicLibraryBlockEntity::receiveUp,
                 SnapshotPackets.REQUEST_CHANNEL, SnapshotPackets::receiveRequest,
-                GateMenu.CHANNEL, GateMenu::receive);
+                GateMenu.CHANNEL, GateMenu::receive,
+                ZonePackets.PLAN_CHANNEL, ZonePackets::receivePlan,
+                ZonePackets.MAP_REQUEST_CHANNEL, ZonePackets::receiveMapRequest);
     }
 
     /** Loads every module so its registry entries are queued, in upstream module order. */
@@ -66,5 +70,6 @@ public final class BuildCraft {
         BCBuilders.init();
         BCTransport.init();
         BCSilicon.init();
+        BCRobotics.init();
     }
 }

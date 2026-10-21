@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "buildcraft:paintbrush_colouring",
+  "ingredients": [
+    {
+      "item": "buildcraft:paintbrush"
+    },
+    [
+      {
+        "tag": "c:red_dyes"
+      },
+      {
+        "tag": "forge:dyes/red"
+      }
+    ]
+  ],
+  "result": {
+    "item": "buildcraft:paintbrush_red"
+  }
+}
