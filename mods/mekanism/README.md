@@ -24,8 +24,9 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   port's Forge API mirror in `src/fabric/java/ports/mekanism/lib`, and the methods Forge adds to vanilla classes are
   supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
   enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
-  universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API.
-  Ore generation, other mods' access to Mekanism's energy and fluid items, and the Forge events behind gear, HUD overlays and player
+  universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
+  other mods can charge Mekanism's energy items and fill its fluid items the same way.
+  Ore generation and the Forge events behind gear, HUD overlays and player
   effects are not wired yet; [PARITY.md](PARITY.md) lists every gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines and loader interop) pass on
   both loaders.
