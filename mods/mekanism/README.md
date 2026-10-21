@@ -27,10 +27,11 @@ This branch holds the Mekanism core module only. Generators, Tools and Additions
   universal cables. Energy, items and fluids reach other mods through Team Reborn Energy and the Transfer API, and
   other mods can charge Mekanism's energy items and fill its fluid items the same way.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
-  Ore generation and the Forge events behind gear ticking, HUD overlays and player effects are not;
+  Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
+  The Forge events behind gear ticking, HUD overlays and player effects are not;
   [PARITY.md](PARITY.md) lists every gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, and the
-  item and block hooks) pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, loader interop, ore
+  generation, and the item and block hooks) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -44,7 +45,8 @@ Do not install either JAR in a world you care about.
 | `fabric/` | The isolated Loom build of the Fabric variant |
 | `src/test` | Upstream JUnit tests, run on both loaders |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Shared GameTests and each loader's `TestPlatform`; development only |
-| `scripts` | The Fabric tag bridge generator and its Forge tag baseline |
+| `scripts` | The Fabric tag bridge generator, the loader-parity check and its Forge tag baseline |
+| `emc` | EMC policy and the generated ProjectE and Item Alchemy values |
 
 ## Build and test
 
@@ -54,6 +56,8 @@ Do not install either JAR in a world you care about.
 ./scripts/gradle.sh :mekanism:runGameTestServer
 ./scripts/gradle.sh -p mods/mekanism/fabric runGametest
 python3 mods/mekanism/scripts/generate_fabric_tags.py --check
+python3 mods/mekanism/scripts/check_loader_parity.py
+python3 scripts/emc.py check
 ```
 
 ## License

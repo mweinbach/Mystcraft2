@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
@@ -41,6 +43,7 @@ import ports.mekanism.lib.registries.NewRegistryEvent;
 import ports.mekanism.lib.registries.RegisterEvent;
 import ports.mekanism.lib.registries.RegistryManager;
 import ports.mekanism.lib.registries.SimpleForgeRegistry;
+import ports.mekanism.lib.registries.VanillaForgeRegistry;
 import ports.mekanism.platform.Platform;
 
 /**
@@ -152,7 +155,8 @@ public final class FabricLifecycle {
     /**
      * Fires one {@link RegisterEvent} per registry. Fluid types, fluids, blocks and items go first, in that order,
      * because the port's buckets and liquid blocks look their fluid up when they are created; the rest follow sorted
-     * by name, as on Forge.
+     * by name, as on Forge. Configured and placed features live in {@link BuiltinRegistries} and are already frozen, so
+     * they are opened, filled, and frozen again after the static registries.
      */
     private static void registerContent() {
         Map<ResourceKey<? extends Registry<?>>, RegisterEvent.Registrar> registrars = new LinkedHashMap<>();
@@ -178,6 +182,29 @@ public final class FabricLifecycle {
               .forEachOrdered(entry -> registrars.put(entry.getKey(), entry.getValue()));
 
         registrars.forEach((key, registrar) -> postToMods(new RegisterEvent(key, registrar)));
+        registerWorldgen();
+    }
+
+    /**
+     * Configured and placed features are not in {@link Registry#REGISTRY}. Forge still fires their registration events.
+     * Configured features are registered first: a placed feature holds the configured feature's registry holder.
+     */
+    private static void registerWorldgen() {
+        registerWorldgen(BuiltinRegistries.CONFIGURED_FEATURE);
+        registerWorldgen(BuiltinRegistries.PLACED_FEATURE);
+    }
+
+    private static void registerWorldgen(Registry<?> registry) {
+        if (registry instanceof MappedRegistry<?> mapped) {
+            unfreeze(mapped);
+        }
+        RegistryManager.ACTIVE.add(new VanillaForgeRegistry<>(registry));
+        postToMods(new RegisterEvent(registry.key(), vanilla(registry)));
+        registry.freeze();
+    }
+
+    private static <T> void unfreeze(MappedRegistry<T> registry) {
+        registry.frozen = false;
     }
 
     private static RegisterEvent.Registrar vanilla(Registry<?> registry) {

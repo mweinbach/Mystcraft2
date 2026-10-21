@@ -1,0 +1,1887 @@
+{
+  "namespace": "mekanism",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "mekanism:advanced_bin": {
+      "projecte": 1994,
+      "itemalchemy": 1978,
+      "source": "conversion mek_bin_advanced"
+    },
+    "mekanism:advanced_chemical_tank": {
+      "projecte": 4384,
+      "itemalchemy": 4368,
+      "source": "conversion mek_chemical_tank_advanced"
+    },
+    "mekanism:advanced_combining_factory": {
+      "projecte": 27034,
+      "itemalchemy": 14622,
+      "source": "conversion mek_factory_advanced_combining"
+    },
+    "mekanism:advanced_compressing_factory": {
+      "projecte": 11128,
+      "itemalchemy": 11020,
+      "source": "conversion mek_factory_advanced_compressing"
+    },
+    "mekanism:advanced_control_circuit": {
+      "projecte": 928,
+      "itemalchemy": 920,
+      "source": "recipe"
+    },
+    "mekanism:advanced_crushing_factory": {
+      "projecte": 7864,
+      "itemalchemy": 7788,
+      "source": "conversion mek_factory_advanced_crushing"
+    },
+    "mekanism:advanced_energy_cube": {
+      "projecte": 31736,
+      "itemalchemy": 31584,
+      "source": "conversion mek_energy_cube_advanced"
+    },
+    "mekanism:advanced_enriching_factory": {
+      "projecte": 8248,
+      "itemalchemy": 8164,
+      "source": "conversion mek_factory_advanced_enriching"
+    },
+    "mekanism:advanced_fluid_tank": {
+      "projecte": 3360,
+      "itemalchemy": 3312,
+      "source": "conversion mek_fluid_tank_advanced"
+    },
+    "mekanism:advanced_induction_cell": {
+      "projecte": 234520,
+      "itemalchemy": 233548,
+      "source": "conversion mek_induction_cell_advanced"
+    },
+    "mekanism:advanced_induction_provider": {
+      "projecte": 106072,
+      "itemalchemy": 105528,
+      "source": "recipe"
+    },
+    "mekanism:advanced_infusing_factory": {
+      "projecte": 6800,
+      "itemalchemy": 6744,
+      "source": "conversion mek_factory_advanced_infusing"
+    },
+    "mekanism:advanced_injecting_factory": {
+      "projecte": 36376,
+      "itemalchemy": 23914,
+      "source": "conversion mek_factory_advanced_injecting"
+    },
+    "mekanism:advanced_logistical_transporter": {
+      "projecte": 148,
+      "itemalchemy": 145,
+      "source": "recipe"
+    },
+    "mekanism:advanced_mechanical_pipe": {
+      "projecte": 194,
+      "itemalchemy": 191,
+      "source": "recipe"
+    },
+    "mekanism:advanced_pressurized_tube": {
+      "projecte": 98,
+      "itemalchemy": 95,
+      "source": "recipe"
+    },
+    "mekanism:advanced_purifying_factory": {
+      "projecte": 11928,
+      "itemalchemy": 11812,
+      "source": "conversion mek_factory_advanced_purifying"
+    },
+    "mekanism:advanced_sawing_factory": {
+      "projecte": 9032,
+      "itemalchemy": 8932,
+      "source": "conversion mek_factory_advanced_sawing"
+    },
+    "mekanism:advanced_smelting_factory": {
+      "projecte": 7738,
+      "itemalchemy": 7662,
+      "source": "conversion mek_factory_advanced_smelting"
+    },
+    "mekanism:advanced_thermodynamic_conductor": {
+      "projecte": 114,
+      "itemalchemy": 111,
+      "source": "recipe"
+    },
+    "mekanism:advanced_tier_installer": {
+      "projecte": 3688,
+      "itemalchemy": 3656,
+      "source": "recipe"
+    },
+    "mekanism:advanced_universal_cable": {
+      "projecte": 106,
+      "itemalchemy": 103,
+      "source": "recipe"
+    },
+    "mekanism:alloy_atomic": {
+      "projecte": 2829,
+      "itemalchemy": 907,
+      "source": "conversion mek_metallurgic_infusing_alloy_atomic"
+    },
+    "mekanism:alloy_infused": {
+      "projecte": 264,
+      "itemalchemy": 260,
+      "source": "conversion mek_metallurgic_infusing_alloy_infused"
+    },
+    "mekanism:alloy_reinforced": {
+      "projecte": 2312,
+      "itemalchemy": 772,
+      "source": "conversion mek_metallurgic_infusing_alloy_reinforced"
+    },
+    "mekanism:antiprotonic_nucleosynthesizer": {
+      "projecte": 547168,
+      "itemalchemy": 525580,
+      "source": "recipe"
+    },
+    "mekanism:atomic_disassembler": {
+      "projecte": 11848,
+      "itemalchemy": 9122,
+      "source": "conversion mek_atomic_disassembler"
+    },
+    "mekanism:basic_bin": {
+      "projecte": 533,
+      "itemalchemy": 533,
+      "source": "recipe"
+    },
+    "mekanism:basic_chemical_tank": {
+      "projecte": 1792,
+      "itemalchemy": 1792,
+      "source": "recipe"
+    },
+    "mekanism:basic_combining_factory": {
+      "projecte": 23354,
+      "itemalchemy": 10974,
+      "source": "conversion mek_factory_basic_combining"
+    },
+    "mekanism:basic_compressing_factory": {
+      "projecte": 7448,
+      "itemalchemy": 7372,
+      "source": "conversion mek_factory_basic_compressing"
+    },
+    "mekanism:basic_control_circuit": {
+      "projecte": 400,
+      "itemalchemy": 400,
+      "source": "conversion mek_control_circuit_basic"
+    },
+    "mekanism:basic_crushing_factory": {
+      "projecte": 4184,
+      "itemalchemy": 4140,
+      "source": "conversion mek_factory_basic_crushing"
+    },
+    "mekanism:basic_energy_cube": {
+      "projecte": 16056,
+      "itemalchemy": 15966,
+      "source": "conversion mek_energy_cube_basic"
+    },
+    "mekanism:basic_enriching_factory": {
+      "projecte": 4568,
+      "itemalchemy": 4516,
+      "source": "conversion mek_factory_basic_enriching"
+    },
+    "mekanism:basic_fluid_tank": {
+      "projecte": 1280,
+      "itemalchemy": 1264,
+      "source": "recipe"
+    },
+    "mekanism:basic_induction_cell": {
+      "projecte": 43768,
+      "itemalchemy": 43586,
+      "source": "conversion mek_induction_cell_basic"
+    },
+    "mekanism:basic_induction_provider": {
+      "projecte": 17656,
+      "itemalchemy": 17566,
+      "source": "conversion induction_provider_basic"
+    },
+    "mekanism:basic_infusing_factory": {
+      "projecte": 3120,
+      "itemalchemy": 3096,
+      "source": "conversion mek_factory_basic_infusing"
+    },
+    "mekanism:basic_injecting_factory": {
+      "projecte": 32696,
+      "itemalchemy": 20266,
+      "source": "conversion mek_factory_basic_injecting"
+    },
+    "mekanism:basic_logistical_transporter": {
+      "projecte": 115,
+      "itemalchemy": 113,
+      "source": "recipe"
+    },
+    "mekanism:basic_mechanical_pipe": {
+      "projecte": 161,
+      "itemalchemy": 159,
+      "source": "recipe"
+    },
+    "mekanism:basic_pressurized_tube": {
+      "projecte": 65,
+      "itemalchemy": 63,
+      "source": "recipe"
+    },
+    "mekanism:basic_purifying_factory": {
+      "projecte": 8248,
+      "itemalchemy": 8164,
+      "source": "conversion mek_factory_basic_purifying"
+    },
+    "mekanism:basic_sawing_factory": {
+      "projecte": 5352,
+      "itemalchemy": 5284,
+      "source": "conversion mek_factory_basic_sawing"
+    },
+    "mekanism:basic_smelting_factory": {
+      "projecte": 4058,
+      "itemalchemy": 4014,
+      "source": "conversion mek_factory_basic_smelting"
+    },
+    "mekanism:basic_thermodynamic_conductor": {
+      "projecte": 81,
+      "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "mekanism:basic_tier_installer": {
+      "projecte": 1576,
+      "itemalchemy": 1568,
+      "source": "recipe"
+    },
+    "mekanism:basic_universal_cable": {
+      "projecte": 73,
+      "itemalchemy": 71,
+      "source": "recipe"
+    },
+    "mekanism:bio_fuel": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "1/5",
+        "itemalchemy": "1/5"
+      },
+      "itemalchemy": 0,
+      "source": "conversion mek_crushing_biofuel_acacia_leaves, mek_crushing_biofuel_acacia_sapling, mek_crushing_biofuel_allium, mek_crushing_biofuel_apple, mek_crushing_biofuel_azalea, mek_crushing_biofuel_azalea_leaves, mek_crushing_biofuel_azure_bluet, mek_crushing_biofuel_baked_potato, mek_crushing_biofuel_beetroot, mek_crushing_biofuel_beetroot_seeds, mek_crushing_biofuel_big_dripleaf, mek_crushing_biofuel_birch_leaves, mek_crushing_biofuel_birch_sapling, mek_crushing_biofuel_blue_orchid, mek_crushing_biofuel_bread, mek_crushing_biofuel_brown_mushroom, mek_crushing_biofuel_brown_mushroom_block, mek_crushing_biofuel_cactus, mek_crushing_biofuel_cake, mek_crushing_biofuel_carrot, mek_crushing_biofuel_carved_pumpkin, mek_crushing_biofuel_cocoa_beans, mek_crushing_biofuel_cookie, mek_crushing_biofuel_cornflower, mek_crushing_biofuel_crimson_fungus, mek_crushing_biofuel_crimson_roots, mek_crushing_biofuel_dandelion, mek_crushing_biofuel_dark_oak_leaves, mek_crushing_biofuel_dark_oak_sapling, mek_crushing_biofuel_dried_kelp, mek_crushing_biofuel_dried_kelp_block, mek_crushing_biofuel_fern, mek_crushing_biofuel_flowering_azalea, mek_crushing_biofuel_flowering_azalea_leaves, mek_crushing_biofuel_glow_berries, mek_crushing_biofuel_glow_lichen, mek_crushing_biofuel_grass, mek_crushing_biofuel_hanging_roots, mek_crushing_biofuel_hay_block, mek_crushing_biofuel_jungle_leaves, mek_crushing_biofuel_jungle_sapling, mek_crushing_biofuel_kelp, mek_crushing_biofuel_large_fern, mek_crushing_biofuel_lilac, mek_crushing_biofuel_lily_of_the_valley, mek_crushing_biofuel_lily_pad, mek_crushing_biofuel_mangrove_leaves, mek_crushing_biofuel_mangrove_propagule, mek_crushing_biofuel_mangrove_roots, mek_crushing_biofuel_melon, mek_crushing_biofuel_melon_seeds, mek_crushing_biofuel_melon_slice, mek_crushing_biofuel_moss_block, mek_crushing_biofuel_moss_carpet, mek_crushing_biofuel_mushroom_stem, mek_crushing_biofuel_nether_sprouts, mek_crushing_biofuel_nether_wart, mek_crushing_biofuel_nether_wart_block, mek_crushing_biofuel_oak_leaves, mek_crushing_biofuel_oak_sapling, mek_crushing_biofuel_orange_tulip, mek_crushing_biofuel_oxeye_daisy, mek_crushing_biofuel_peony, mek_crushing_biofuel_pink_tulip, mek_crushing_biofuel_poppy, mek_crushing_biofuel_potato, mek_crushing_biofuel_pumpkin, mek_crushing_biofuel_pumpkin_pie, mek_crushing_biofuel_pumpkin_seeds, mek_crushing_biofuel_red_mushroom, mek_crushing_biofuel_red_mushroom_block, mek_crushing_biofuel_red_tulip, mek_crushing_biofuel_rose_bush, mek_crushing_biofuel_sea_pickle, mek_crushing_biofuel_seagrass, mek_crushing_biofuel_shroomlight, mek_crushing_biofuel_small_dripleaf, mek_crushing_biofuel_spore_blossom, mek_crushing_biofuel_spruce_leaves, mek_crushing_biofuel_spruce_sapling, mek_crushing_biofuel_sugar_cane, mek_crushing_biofuel_sunflower, mek_crushing_biofuel_sweet_berries, mek_crushing_biofuel_tall_grass, mek_crushing_biofuel_twisting_vines, mek_crushing_biofuel_vine, mek_crushing_biofuel_warped_fungus, mek_crushing_biofuel_warped_roots, mek_crushing_biofuel_warped_wart_block, mek_crushing_biofuel_weeping_vines, mek_crushing_biofuel_wheat, mek_crushing_biofuel_wheat_seeds, mek_crushing_biofuel_white_tulip, mek_crushing_biofuel_wither_rose"
+    },
+    "mekanism:block_bronze": {
+      "projecte": 891,
+      "itemalchemy": 891,
+      "source": "recipe"
+    },
+    "mekanism:block_charcoal": {
+      "projecte": 288,
+      "itemalchemy": 288,
+      "source": "recipe"
+    },
+    "mekanism:block_fluorite": {
+      "projecte": 2304,
+      "itemalchemy": 2304,
+      "source": "recipe"
+    },
+    "mekanism:block_lead": {
+      "projecte": 2268,
+      "itemalchemy": 2268,
+      "source": "recipe"
+    },
+    "mekanism:block_osmium": {
+      "projecte": 3456,
+      "itemalchemy": 3456,
+      "source": "recipe"
+    },
+    "mekanism:block_raw_lead": {
+      "projecte": 2304,
+      "itemalchemy": 2304,
+      "source": "recipe"
+    },
+    "mekanism:block_raw_osmium": {
+      "projecte": 3456,
+      "itemalchemy": 3456,
+      "source": "recipe"
+    },
+    "mekanism:block_raw_tin": {
+      "projecte": 1728,
+      "itemalchemy": 1728,
+      "source": "recipe"
+    },
+    "mekanism:block_raw_uranium": {
+      "projecte": 36864,
+      "itemalchemy": 36864,
+      "source": "recipe"
+    },
+    "mekanism:block_refined_glowstone": {
+      "projecte": 3402,
+      "itemalchemy": 3402,
+      "source": "recipe"
+    },
+    "mekanism:block_refined_obsidian": {
+      "projecte": 9315,
+      "itemalchemy": 2430,
+      "source": "recipe"
+    },
+    "mekanism:block_salt": {
+      "excluded": "Nine salt pack into a block, and salt is evaporated from water, which has no EMC."
+    },
+    "mekanism:block_steel": {
+      "projecte": 2349,
+      "itemalchemy": 2268,
+      "source": "recipe"
+    },
+    "mekanism:block_tin": {
+      "projecte": 1701,
+      "itemalchemy": 1701,
+      "source": "recipe"
+    },
+    "mekanism:block_uranium": {
+      "projecte": 36864,
+      "itemalchemy": 36864,
+      "source": "recipe"
+    },
+    "mekanism:boiler_casing": {
+      "projecte": 325,
+      "itemalchemy": 315,
+      "source": "recipe"
+    },
+    "mekanism:boiler_valve": {
+      "projecte": 1114,
+      "itemalchemy": 1090,
+      "source": "recipe"
+    },
+    "mekanism:bounding_block": {
+      "excluded": "A multiblock places this structural block. It has no recipe and drops nothing."
+    },
+    "mekanism:brine_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_brine_bucket"
+    },
+    "mekanism:canteen": {
+      "projecte": 762,
+      "itemalchemy": 762,
+      "source": "recipe"
+    },
+    "mekanism:cardboard_box": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "recipe"
+    },
+    "mekanism:chargepad": {
+      "projecte": 7474,
+      "itemalchemy": 7415,
+      "source": "conversion mek_chargepad"
+    },
+    "mekanism:chemical_crystallizer": {
+      "projecte": 28504,
+      "itemalchemy": 11544,
+      "source": "recipe"
+    },
+    "mekanism:chemical_dissolution_chamber": {
+      "projecte": 31576,
+      "itemalchemy": 14616,
+      "source": "conversion mek_chemical_dissolution_chamber"
+    },
+    "mekanism:chemical_infuser": {
+      "projecte": 6872,
+      "itemalchemy": 6820,
+      "source": "conversion mek_chemical_infuser"
+    },
+    "mekanism:chemical_injection_chamber": {
+      "projecte": 31128,
+      "itemalchemy": 18706,
+      "source": "conversion mek_chemical_injection_chamber"
+    },
+    "mekanism:chemical_oxidizer": {
+      "projecte": 5919,
+      "itemalchemy": 5865,
+      "source": "conversion mek_chemical_oxidizer"
+    },
+    "mekanism:chemical_washer": {
+      "projecte": 31064,
+      "itemalchemy": 14088,
+      "source": "conversion mek_chemical_washer"
+    },
+    "mekanism:chlorine_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_chlorine_bucket"
+    },
+    "mekanism:clump_copper": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion mek_processing_copper_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion mek_processing_gold_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_iron": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_iron_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_lead_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion mek_processing_osmium_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion mek_processing_tin_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:clump_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion mek_processing_uranium_clump_from_shard, ore_chain_clump_from_dirty"
+    },
+    "mekanism:combiner": {
+      "projecte": 21786,
+      "itemalchemy": 9414,
+      "source": "recipe"
+    },
+    "mekanism:configuration_card": {
+      "projecte": 1456,
+      "itemalchemy": 1440,
+      "source": "recipe"
+    },
+    "mekanism:configurator": {
+      "projecte": 8324,
+      "itemalchemy": 8293,
+      "source": "recipe"
+    },
+    "mekanism:crafting_formula": {
+      "projecte": 432,
+      "itemalchemy": 432,
+      "source": "recipe"
+    },
+    "mekanism:creative_bin": {
+      "excluded": "Creative-only bin. It has no survival recipe, and a value would only make a creative container transmutable."
+    },
+    "mekanism:creative_chemical_tank": {
+      "excluded": "Creative-only chemical tank. It has no survival recipe."
+    },
+    "mekanism:creative_energy_cube": {
+      "excluded": "Creative-only energy cube. It has no survival recipe."
+    },
+    "mekanism:creative_fluid_tank": {
+      "excluded": "Creative-only fluid tank. It has no survival recipe."
+    },
+    "mekanism:crusher": {
+      "projecte": 2616,
+      "itemalchemy": 2580,
+      "source": "recipe"
+    },
+    "mekanism:crystal_copper": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_iron": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:crystal_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion ore_chain_crystal_from_shard"
+    },
+    "mekanism:deepslate_fluorite_ore": {
+      "excluded": "Drops a Fortune-boosted number of fluorite gems. Only the gems are valued."
+    },
+    "mekanism:deepslate_lead_ore": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "mekanism:deepslate_osmium_ore": {
+      "excluded": "Drops a Fortune-boosted number of raw osmium. Only the raw ore is valued."
+    },
+    "mekanism:deepslate_tin_ore": {
+      "projecte": 192,
+      "itemalchemy": 192,
+      "source": "explicit"
+    },
+    "mekanism:deepslate_uranium_ore": {
+      "excluded": "Drops a Fortune-boosted number of raw uranium. Only the raw ore is valued."
+    },
+    "mekanism:dictionary": {
+      "projecte": 560,
+      "itemalchemy": 560,
+      "source": "recipe"
+    },
+    "mekanism:digital_miner": {
+      "projecte": 76208,
+      "itemalchemy": 48732,
+      "source": "conversion mek_digital_miner"
+    },
+    "mekanism:dimensional_stabilizer": {
+      "projecte": 105946,
+      "itemalchemy": 29882,
+      "source": "recipe"
+    },
+    "mekanism:dirty_dust_copper": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion mek_processing_copper_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion mek_processing_gold_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_iron": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_iron_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_lead_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion mek_processing_osmium_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion mek_processing_tin_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_dust_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion mek_processing_uranium_dirty_dust_from_clump, ore_chain_dirty_from_dust"
+    },
+    "mekanism:dirty_netherite_scrap": {
+      "projecte": 12288,
+      "itemalchemy": 12288,
+      "source": "conversion dirty_netherite_scrap_from_scrap"
+    },
+    "mekanism:diversion_transporter": {
+      "projecte": 501,
+      "itemalchemy": 474,
+      "source": "recipe"
+    },
+    "mekanism:dosimeter": {
+      "projecte": 1072,
+      "itemalchemy": 1072,
+      "source": "recipe"
+    },
+    "mekanism:dust_bronze": {
+      "projecte": 99,
+      "itemalchemy": 99,
+      "source": "conversion mek_processing_bronze_dust_from_infusing, mek_processing_bronze_dust_from_ingot"
+    },
+    "mekanism:dust_charcoal": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "conversion mek_crushing_charcoal_dust, mek_enriching_charcoal_dust, mek_reaction_wood_gasification_logs, mek_reaction_wood_gasification_planks"
+    },
+    "mekanism:dust_coal": {
+      "projecte": 128,
+      "itemalchemy": 3904,
+      "source": "conversion mek_processing_coal_to_dust"
+    },
+    "mekanism:dust_copper": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion mek_processing_copper_dust_from_dirty_dust, mek_processing_copper_dust_from_ingot"
+    },
+    "mekanism:dust_diamond": {
+      "projecte": 8192,
+      "itemalchemy": 2048,
+      "source": "conversion mek_processing_diamond_to_dust"
+    },
+    "mekanism:dust_emerald": {
+      "projecte": 16384,
+      "itemalchemy": 512,
+      "source": "conversion mek_processing_emerald_to_dust"
+    },
+    "mekanism:dust_fluorite": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "conversion mek_processing_fluorite_to_dust"
+    },
+    "mekanism:dust_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion mek_processing_gold_dust_from_dirty_dust, mek_processing_gold_dust_from_ingot"
+    },
+    "mekanism:dust_iron": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_iron_dust_from_dirty_dust, mek_processing_iron_dust_from_ingot"
+    },
+    "mekanism:dust_lapis_lazuli": {
+      "projecte": 864,
+      "itemalchemy": 864,
+      "source": "conversion mek_processing_lapis_lazuli_to_dust"
+    },
+    "mekanism:dust_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_lead_dust_from_dirty_dust, mek_processing_lead_dust_from_ingot"
+    },
+    "mekanism:dust_lithium": {
+      "excluded": "Lithium dust is crystallized from lithium, which a thermal evaporation plant makes from brine, which is water. Water has no EMC, so the dust does not either."
+    },
+    "mekanism:dust_netherite": {
+      "projecte": 57344,
+      "itemalchemy": 57344,
+      "source": "conversion mek_processing_netherite_ingot_to_dust"
+    },
+    "mekanism:dust_obsidian": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "conversion mek_enriching_conversion_obsidian_to_obsidian_dust"
+    },
+    "mekanism:dust_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion mek_processing_osmium_dust_from_dirty_dust, mek_processing_osmium_dust_from_ingot"
+    },
+    "mekanism:dust_quartz": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "conversion mek_processing_quartz_to_dust"
+    },
+    "mekanism:dust_refined_obsidian": {
+      "projecte": 1035,
+      "itemalchemy": 270,
+      "source": "conversion mek_processing_refined_obsidian_dust_from_ingot, mek_processing_refined_obsidian_dust_from_obsidian_dust"
+    },
+    "mekanism:dust_steel": {
+      "projecte": 261,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_steel_enriched_iron_to_dust, mek_processing_steel_ingot_to_dust"
+    },
+    "mekanism:dust_sulfur": {
+      "projecte": 192,
+      "itemalchemy": 192,
+      "source": "explicit"
+    },
+    "mekanism:dust_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion mek_processing_tin_dust_from_dirty_dust, mek_processing_tin_dust_from_ingot"
+    },
+    "mekanism:dust_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion mek_processing_uranium_dust_from_dirty_dust, mek_processing_uranium_dust_from_ingot"
+    },
+    "mekanism:dye_base": {
+      "projecte": 48,
+      "itemalchemy": 48,
+      "source": "recipe"
+    },
+    "mekanism:dynamic_tank": {
+      "projecte": 453,
+      "itemalchemy": 444,
+      "source": "recipe"
+    },
+    "mekanism:dynamic_valve": {
+      "projecte": 1106,
+      "itemalchemy": 1088,
+      "source": "recipe"
+    },
+    "mekanism:electric_bow": {
+      "projecte": 7492,
+      "itemalchemy": 7461,
+      "source": "conversion mek_electric_bow"
+    },
+    "mekanism:electric_pump": {
+      "projecte": 3880,
+      "itemalchemy": 3836,
+      "source": "recipe"
+    },
+    "mekanism:electrolytic_core": {
+      "projecte": 4392,
+      "itemalchemy": 4363,
+      "source": "recipe"
+    },
+    "mekanism:electrolytic_separator": {
+      "projecte": 6072,
+      "itemalchemy": 6019,
+      "source": "recipe"
+    },
+    "mekanism:elite_bin": {
+      "projecte": 12175,
+      "itemalchemy": 5991,
+      "source": "conversion mek_bin_elite"
+    },
+    "mekanism:elite_chemical_tank": {
+      "projecte": 15168,
+      "itemalchemy": 8992,
+      "source": "conversion mek_chemical_tank_elite"
+    },
+    "mekanism:elite_combining_factory": {
+      "projecte": 51482,
+      "itemalchemy": 26724,
+      "source": "conversion mek_factory_elite_combining"
+    },
+    "mekanism:elite_compressing_factory": {
+      "projecte": 35576,
+      "itemalchemy": 23122,
+      "source": "conversion mek_factory_elite_compressing"
+    },
+    "mekanism:elite_control_circuit": {
+      "projecte": 5552,
+      "itemalchemy": 2464,
+      "source": "recipe"
+    },
+    "mekanism:elite_crushing_factory": {
+      "projecte": 32312,
+      "itemalchemy": 19890,
+      "source": "conversion mek_factory_elite_crushing"
+    },
+    "mekanism:elite_energy_cube": {
+      "projecte": 58936,
+      "itemalchemy": 52568,
+      "source": "conversion mek_energy_cube_elite"
+    },
+    "mekanism:elite_enriching_factory": {
+      "projecte": 32696,
+      "itemalchemy": 20266,
+      "source": "conversion mek_factory_elite_enriching"
+    },
+    "mekanism:elite_fluid_tank": {
+      "projecte": 13632,
+      "itemalchemy": 7408,
+      "source": "conversion mek_fluid_tank_elite"
+    },
+    "mekanism:elite_induction_cell": {
+      "projecte": 1024728,
+      "itemalchemy": 1014380,
+      "source": "conversion mek_induction_cell_elite"
+    },
+    "mekanism:elite_induction_provider": {
+      "projecte": 505432,
+      "itemalchemy": 484536,
+      "source": "recipe"
+    },
+    "mekanism:elite_infusing_factory": {
+      "projecte": 31248,
+      "itemalchemy": 18846,
+      "source": "conversion mek_factory_elite_infusing"
+    },
+    "mekanism:elite_injecting_factory": {
+      "projecte": 60824,
+      "itemalchemy": 36016,
+      "source": "conversion mek_factory_elite_injecting"
+    },
+    "mekanism:elite_logistical_transporter": {
+      "projecte": 437,
+      "itemalchemy": 241,
+      "source": "recipe"
+    },
+    "mekanism:elite_mechanical_pipe": {
+      "projecte": 483,
+      "itemalchemy": 287,
+      "source": "recipe"
+    },
+    "mekanism:elite_pressurized_tube": {
+      "projecte": 387,
+      "itemalchemy": 191,
+      "source": "recipe"
+    },
+    "mekanism:elite_purifying_factory": {
+      "projecte": 36376,
+      "itemalchemy": 23914,
+      "source": "conversion mek_factory_elite_purifying"
+    },
+    "mekanism:elite_sawing_factory": {
+      "projecte": 33480,
+      "itemalchemy": 21034,
+      "source": "conversion mek_factory_elite_sawing"
+    },
+    "mekanism:elite_smelting_factory": {
+      "projecte": 32186,
+      "itemalchemy": 19764,
+      "source": "conversion mek_factory_elite_smelting"
+    },
+    "mekanism:elite_thermodynamic_conductor": {
+      "projecte": 403,
+      "itemalchemy": 207,
+      "source": "recipe"
+    },
+    "mekanism:elite_tier_installer": {
+      "projecte": 24456,
+      "itemalchemy": 12110,
+      "source": "recipe"
+    },
+    "mekanism:elite_universal_cable": {
+      "projecte": 395,
+      "itemalchemy": 199,
+      "source": "recipe"
+    },
+    "mekanism:energized_smelter": {
+      "projecte": 2490,
+      "itemalchemy": 2454,
+      "source": "recipe"
+    },
+    "mekanism:energy_tablet": {
+      "projecte": 6928,
+      "itemalchemy": 6905,
+      "source": "recipe"
+    },
+    "mekanism:enriched_carbon": {
+      "projecte": 32,
+      "itemalchemy": 32,
+      "source": "conversion mek_enriching_enriched_carbon"
+    },
+    "mekanism:enriched_diamond": {
+      "projecte": 8192,
+      "itemalchemy": 2048,
+      "source": "conversion mek_enriching_enriched_diamond"
+    },
+    "mekanism:enriched_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion mek_enriching_enriched_gold"
+    },
+    "mekanism:enriched_iron": {
+      "projecte": 260,
+      "itemalchemy": 256,
+      "source": "conversion mek_processing_iron_enriched"
+    },
+    "mekanism:enriched_redstone": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "conversion mek_enriching_enriched_redstone"
+    },
+    "mekanism:enriched_refined_obsidian": {
+      "projecte": 1035,
+      "itemalchemy": 270,
+      "source": "conversion mek_enriching_enriched_refined_obsidian"
+    },
+    "mekanism:enriched_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion mek_enriching_enriched_tin"
+    },
+    "mekanism:enrichment_chamber": {
+      "projecte": 3000,
+      "itemalchemy": 2956,
+      "source": "recipe"
+    },
+    "mekanism:ethene_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_ethene_bucket"
+    },
+    "mekanism:flamethrower": {
+      "projecte": 3934,
+      "itemalchemy": 3922,
+      "source": "conversion mek_flamethrower"
+    },
+    "mekanism:fluidic_plenisher": {
+      "projecte": 5814,
+      "itemalchemy": 5770,
+      "source": "conversion mek_fluidic_plenisher"
+    },
+    "mekanism:fluorite_gem": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "mekanism:fluorite_ore": {
+      "excluded": "Drops a Fortune-boosted number of fluorite gems. Only the gems are valued."
+    },
+    "mekanism:formulaic_assemblicator": {
+      "projecte": 3372,
+      "itemalchemy": 3300,
+      "source": "recipe"
+    },
+    "mekanism:free_runners": {
+      "projecte": 15184,
+      "itemalchemy": 15130,
+      "source": "conversion mek_free_runners"
+    },
+    "mekanism:free_runners_armored": {
+      "projecte": 34115,
+      "itemalchemy": 21692,
+      "source": "conversion mek_free_runners_armored"
+    },
+    "mekanism:fuelwood_heater": {
+      "projecte": 3153,
+      "itemalchemy": 3072,
+      "source": "recipe"
+    },
+    "mekanism:gauge_dropper": {
+      "projecte": 385,
+      "itemalchemy": 389,
+      "source": "recipe"
+    },
+    "mekanism:geiger_counter": {
+      "projecte": 1408,
+      "itemalchemy": 1408,
+      "source": "recipe"
+    },
+    "mekanism:hazmat_boots": {
+      "projecte": 1024,
+      "itemalchemy": 1024,
+      "source": "recipe"
+    },
+    "mekanism:hazmat_gown": {
+      "projecte": 2032,
+      "itemalchemy": 2032,
+      "source": "recipe"
+    },
+    "mekanism:hazmat_mask": {
+      "projecte": 1276,
+      "itemalchemy": 1276,
+      "source": "recipe"
+    },
+    "mekanism:hazmat_pants": {
+      "projecte": 1780,
+      "itemalchemy": 1780,
+      "source": "recipe"
+    },
+    "mekanism:hdpe_elytra": {
+      "projecte": 22126,
+      "itemalchemy": 18282,
+      "source": "recipe"
+    },
+    "mekanism:hdpe_pellet": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "2/5",
+        "itemalchemy": "2/5"
+      },
+      "itemalchemy": 0,
+      "source": "conversion mek_reaction_substrate_ethene_oxygen"
+    },
+    "mekanism:hdpe_rod": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "mekanism:hdpe_sheet": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "conversion mek_enriching_hdpe_sheet"
+    },
+    "mekanism:hdpe_stick": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "mekanism:heavy_water_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_heavy_water_bucket"
+    },
+    "mekanism:hydrofluoric_acid_bucket": {
+      "projecte": 1024,
+      "itemalchemy": 1024,
+      "source": "conversion hydrofluoric_acid_bucket"
+    },
+    "mekanism:hydrogen_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_hydrogen_bucket"
+    },
+    "mekanism:hydrogen_chloride_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion hydrogen_chloride_bucket"
+    },
+    "mekanism:induction_casing": {
+      "projecte": 1993,
+      "itemalchemy": 1978,
+      "source": "recipe"
+    },
+    "mekanism:induction_port": {
+      "projecte": 6762,
+      "itemalchemy": 5188,
+      "source": "recipe"
+    },
+    "mekanism:industrial_alarm": {
+      "projecte": 4104,
+      "itemalchemy": 4104,
+      "source": "recipe"
+    },
+    "mekanism:ingot_bronze": {
+      "projecte": 99,
+      "itemalchemy": 99,
+      "source": "conversion mek_processing_bronze_ingot_from_infusing"
+    },
+    "mekanism:ingot_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "recipe"
+    },
+    "mekanism:ingot_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "explicit"
+    },
+    "mekanism:ingot_refined_glowstone": {
+      "projecte": 378,
+      "itemalchemy": 378,
+      "source": "conversion mek_processing_refined_glowstone_ingot_from_dust"
+    },
+    "mekanism:ingot_refined_obsidian": {
+      "projecte": 1035,
+      "itemalchemy": 270,
+      "source": "conversion mek_processing_refined_obsidian_ingot_from_dust"
+    },
+    "mekanism:ingot_steel": {
+      "projecte": 261,
+      "itemalchemy": 252,
+      "source": "recipe"
+    },
+    "mekanism:ingot_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "recipe"
+    },
+    "mekanism:ingot_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "tag #forge:ingots/uranium"
+    },
+    "mekanism:isotopic_centrifuge": {
+      "projecte": 25724,
+      "itemalchemy": 11860,
+      "source": "conversion mek_isotopic_centrifuge"
+    },
+    "mekanism:jetpack": {
+      "projecte": 3281,
+      "itemalchemy": 3263,
+      "source": "conversion mek_jetpack"
+    },
+    "mekanism:jetpack_armored": {
+      "projecte": 22212,
+      "itemalchemy": 9825,
+      "source": "conversion mek_jetpack_armored"
+    },
+    "mekanism:laser": {
+      "projecte": 30416,
+      "itemalchemy": 19570,
+      "source": "conversion mek_laser"
+    },
+    "mekanism:laser_amplifier": {
+      "projecte": 26075,
+      "itemalchemy": 19778,
+      "source": "conversion mek_laser_amplifier"
+    },
+    "mekanism:laser_tractor_beam": {
+      "projecte": 27893,
+      "itemalchemy": 21567,
+      "source": "conversion mek_laser_tractor_beam"
+    },
+    "mekanism:lead_ore": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "mekanism:lithium_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_lithium_bucket"
+    },
+    "mekanism:logistical_sorter": {
+      "projecte": 2540,
+      "itemalchemy": 2508,
+      "source": "recipe"
+    },
+    "mekanism:meka_tool": {
+      "projecte": 86874,
+      "itemalchemy": 70071,
+      "source": "recipe"
+    },
+    "mekanism:mekasuit_bodyarmor": {
+      "projecte": 178374,
+      "itemalchemy": 80656,
+      "source": "recipe"
+    },
+    "mekanism:mekasuit_boots": {
+      "projecte": 145606,
+      "itemalchemy": 80656,
+      "source": "recipe"
+    },
+    "mekanism:mekasuit_helmet": {
+      "projecte": 153798,
+      "itemalchemy": 80656,
+      "source": "recipe"
+    },
+    "mekanism:mekasuit_pants": {
+      "projecte": 170182,
+      "itemalchemy": 80656,
+      "source": "recipe"
+    },
+    "mekanism:metallurgic_infuser": {
+      "projecte": 1552,
+      "itemalchemy": 1536,
+      "source": "recipe"
+    },
+    "mekanism:modification_station": {
+      "projecte": 24176,
+      "itemalchemy": 10276,
+      "source": "recipe"
+    },
+    "mekanism:module_attack_amplification_unit": {
+      "projecte": 1975,
+      "itemalchemy": 1951,
+      "source": "recipe"
+    },
+    "mekanism:module_base": {
+      "projecte": 400,
+      "itemalchemy": 400,
+      "source": "recipe"
+    },
+    "mekanism:module_blasting_unit": {
+      "projecte": 30210,
+      "itemalchemy": 12502,
+      "source": "recipe"
+    },
+    "mekanism:module_charge_distribution_unit": {
+      "projecte": 28072,
+      "itemalchemy": 21822,
+      "source": "recipe"
+    },
+    "mekanism:module_color_modulation_unit": {
+      "projecte": 83271,
+      "itemalchemy": 47545,
+      "source": "recipe"
+    },
+    "mekanism:module_dosimeter_unit": {
+      "projecte": 2531,
+      "itemalchemy": 2515,
+      "source": "recipe"
+    },
+    "mekanism:module_electrolytic_breathing_unit": {
+      "projecte": 5851,
+      "itemalchemy": 5806,
+      "source": "recipe"
+    },
+    "mekanism:module_elytra_unit": {
+      "projecte": 288286,
+      "itemalchemy": 278282,
+      "source": "recipe"
+    },
+    "mekanism:module_energy_unit": {
+      "projecte": 45227,
+      "itemalchemy": 45029,
+      "source": "recipe"
+    },
+    "mekanism:module_excavation_escalation_unit": {
+      "projecte": 2235,
+      "itemalchemy": 2207,
+      "source": "recipe"
+    },
+    "mekanism:module_farming_unit": {
+      "projecte": 1979,
+      "itemalchemy": 1955,
+      "source": "recipe"
+    },
+    "mekanism:module_fortune_unit": {
+      "projecte": 156650,
+      "itemalchemy": 42978,
+      "source": "recipe"
+    },
+    "mekanism:module_frost_walker_unit": {
+      "projecte": 11696,
+      "itemalchemy": 5536,
+      "source": "recipe"
+    },
+    "mekanism:module_geiger_unit": {
+      "projecte": 2867,
+      "itemalchemy": 2851,
+      "source": "recipe"
+    },
+    "mekanism:module_gravitational_modulating_unit": {
+      "projecte": 5247442,
+      "itemalchemy": 4968194,
+      "source": "recipe"
+    },
+    "mekanism:module_gyroscopic_stabilization_unit": {
+      "projecte": 5792,
+      "itemalchemy": 2712,
+      "source": "recipe"
+    },
+    "mekanism:module_hydraulic_propulsion_unit": {
+      "projecte": 34832,
+      "itemalchemy": 31652,
+      "source": "recipe"
+    },
+    "mekanism:module_hydrostatic_repulsor_unit": {
+      "projecte": 10800,
+      "itemalchemy": 4640,
+      "source": "recipe"
+    },
+    "mekanism:module_inhalation_purification_unit": {
+      "projecte": 12621,
+      "itemalchemy": 6434,
+      "source": "recipe"
+    },
+    "mekanism:module_jetpack_unit": {
+      "projecte": 13697,
+      "itemalchemy": 7519,
+      "source": "recipe"
+    },
+    "mekanism:module_laser_dissipation_unit": {
+      "projecte": 27534,
+      "itemalchemy": 21221,
+      "source": "recipe"
+    },
+    "mekanism:module_locomotive_boosting_unit": {
+      "projecte": 76992,
+      "itemalchemy": 30858,
+      "source": "recipe"
+    },
+    "mekanism:module_magnetic_attraction_unit": {
+      "projecte": 16992,
+      "itemalchemy": 7700,
+      "source": "recipe"
+    },
+    "mekanism:module_motorized_servo_unit": {
+      "projecte": 11506,
+      "itemalchemy": 6744,
+      "source": "recipe"
+    },
+    "mekanism:module_nutritional_injection_unit": {
+      "projecte": 11178,
+      "itemalchemy": 5018,
+      "source": "recipe"
+    },
+    "mekanism:module_radiation_shielding_unit": {
+      "projecte": 3727,
+      "itemalchemy": 3711,
+      "source": "recipe"
+    },
+    "mekanism:module_shearing_unit": {
+      "projecte": 1971,
+      "itemalchemy": 1947,
+      "source": "recipe"
+    },
+    "mekanism:module_silk_touch_unit": {
+      "projecte": 58362,
+      "itemalchemy": 18418,
+      "source": "recipe"
+    },
+    "mekanism:module_teleportation_unit": {
+      "projecte": 801118,
+      "itemalchemy": 783432,
+      "source": "recipe"
+    },
+    "mekanism:module_vein_mining_unit": {
+      "projecte": 63160,
+      "itemalchemy": 17072,
+      "source": "recipe"
+    },
+    "mekanism:module_vision_enhancement_unit": {
+      "projecte": 26800,
+      "itemalchemy": 4768,
+      "source": "recipe"
+    },
+    "mekanism:network_reader": {
+      "projecte": 7718,
+      "itemalchemy": 7678,
+      "source": "conversion mek_network_reader"
+    },
+    "mekanism:nugget_bronze": {
+      "projecte": 11,
+      "itemalchemy": 11,
+      "source": "recipe"
+    },
+    "mekanism:nugget_lead": {
+      "projecte": 28,
+      "itemalchemy": 28,
+      "source": "recipe"
+    },
+    "mekanism:nugget_osmium": {
+      "excluded": "An osmium ingot is fixed at 384 so osmium rails do not devalue vanilla rails, and nine nuggets cannot split 384 evenly."
+    },
+    "mekanism:nugget_refined_glowstone": {
+      "projecte": 42,
+      "itemalchemy": 42,
+      "source": "recipe"
+    },
+    "mekanism:nugget_refined_obsidian": {
+      "projecte": 115,
+      "itemalchemy": 30,
+      "source": "recipe"
+    },
+    "mekanism:nugget_steel": {
+      "projecte": 29,
+      "itemalchemy": 28,
+      "source": "recipe"
+    },
+    "mekanism:nugget_tin": {
+      "projecte": 21,
+      "itemalchemy": 21,
+      "source": "recipe"
+    },
+    "mekanism:nugget_uranium": {
+      "excluded": "ProjectE fixes a uranium ingot at 4096, which nine nuggets cannot split evenly. Any nugget value lets one of the two crafting recipes gain EMC."
+    },
+    "mekanism:nutritional_liquifier": {
+      "projecte": 2500,
+      "itemalchemy": 2464,
+      "source": "recipe"
+    },
+    "mekanism:nutritional_paste_bucket": {
+      "projecte": 788,
+      "itemalchemy": 788,
+      "source": "conversion fill_nutritional_paste_bucket"
+    },
+    "mekanism:oredictionificator": {
+      "projecte": 2468,
+      "itemalchemy": 2433,
+      "source": "recipe"
+    },
+    "mekanism:osmium_compressor": {
+      "projecte": 5880,
+      "itemalchemy": 5812,
+      "source": "recipe"
+    },
+    "mekanism:osmium_ore": {
+      "excluded": "Drops a Fortune-boosted number of raw osmium. Only the raw ore is valued, as ProjectE does for ores."
+    },
+    "mekanism:oxygen_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_oxygen_bucket"
+    },
+    "mekanism:painting_machine": {
+      "projecte": 4440,
+      "itemalchemy": 4372,
+      "source": "recipe"
+    },
+    "mekanism:pellet_antimatter": {
+      "projecte": 256000,
+      "itemalchemy": 256000,
+      "source": "conversion pellet_antimatter_from_polonium"
+    },
+    "mekanism:pellet_plutonium": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "conversion mek_processing_lategame_plutonium_pellet_from_reaction"
+    },
+    "mekanism:pellet_polonium": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "conversion mek_processing_lategame_polonium_pellet_from_reaction"
+    },
+    "mekanism:personal_barrel": {
+      "projecte": 1818,
+      "itemalchemy": 1789,
+      "source": "recipe"
+    },
+    "mekanism:personal_chest": {
+      "projecte": 1834,
+      "itemalchemy": 1789,
+      "source": "recipe"
+    },
+    "mekanism:pigment_extractor": {
+      "projecte": 2496,
+      "itemalchemy": 2460,
+      "source": "recipe"
+    },
+    "mekanism:pigment_mixer": {
+      "projecte": 21786,
+      "itemalchemy": 9414,
+      "source": "recipe"
+    },
+    "mekanism:portable_qio_dashboard": {
+      "projecte": 46372,
+      "itemalchemy": 26377,
+      "source": "recipe"
+    },
+    "mekanism:portable_teleporter": {
+      "projecte": 36058,
+      "itemalchemy": 26014,
+      "source": "conversion mek_portable_teleporter"
+    },
+    "mekanism:precision_sawmill": {
+      "projecte": 3784,
+      "itemalchemy": 3724,
+      "source": "recipe"
+    },
+    "mekanism:pressure_disperser": {
+      "projecte": 1692,
+      "itemalchemy": 1508,
+      "source": "recipe"
+    },
+    "mekanism:pressurized_reaction_chamber": {
+      "projecte": 8623,
+      "itemalchemy": 8548,
+      "source": "conversion mek_pressurized_reaction_chamber"
+    },
+    "mekanism:purification_chamber": {
+      "projecte": 6680,
+      "itemalchemy": 6604,
+      "source": "conversion mek_purification_chamber"
+    },
+    "mekanism:qio_dashboard": {
+      "projecte": 23178,
+      "itemalchemy": 13181,
+      "source": "recipe"
+    },
+    "mekanism:qio_drive_array": {
+      "projecte": 46664,
+      "itemalchemy": 22774,
+      "source": "conversion mek_qio_drive_array"
+    },
+    "mekanism:qio_drive_base": {
+      "projecte": 46104,
+      "itemalchemy": 18376,
+      "source": "recipe"
+    },
+    "mekanism:qio_drive_hyper_dense": {
+      "projecte": 193616,
+      "itemalchemy": 76560,
+      "source": "conversion mek_qio_drive_hyper_dense"
+    },
+    "mekanism:qio_drive_supermassive": {
+      "projecte": 3424432,
+      "itemalchemy": 1488048,
+      "source": "conversion mek_qio_drive_supermassive"
+    },
+    "mekanism:qio_drive_time_dilating": {
+      "projecte": 791856,
+      "itemalchemy": 307760,
+      "source": "conversion mek_qio_drive_time_dilating"
+    },
+    "mekanism:qio_exporter": {
+      "projecte": 33976,
+      "itemalchemy": 17042,
+      "source": "recipe"
+    },
+    "mekanism:qio_importer": {
+      "projecte": 34008,
+      "itemalchemy": 17074,
+      "source": "recipe"
+    },
+    "mekanism:qio_redstone_adapter": {
+      "projecte": 44978,
+      "itemalchemy": 21116,
+      "source": "recipe"
+    },
+    "mekanism:quantum_entangloporter": {
+      "projecte": 53620,
+      "itemalchemy": 22854,
+      "source": "recipe"
+    },
+    "mekanism:radioactive_waste_barrel": {
+      "projecte": 2052,
+      "itemalchemy": 2016,
+      "source": "recipe"
+    },
+    "mekanism:raw_lead": {
+      "projecte": 256,
+      "itemalchemy": 256,
+      "source": "explicit"
+    },
+    "mekanism:raw_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "explicit"
+    },
+    "mekanism:raw_tin": {
+      "projecte": 192,
+      "itemalchemy": 192,
+      "source": "explicit"
+    },
+    "mekanism:raw_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "explicit"
+    },
+    "mekanism:reprocessed_fissile_fragment": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "conversion mek_processing_uranium_reprocessing_from_plutonium"
+    },
+    "mekanism:resistive_heater": {
+      "projecte": 9308,
+      "itemalchemy": 9249,
+      "source": "conversion mek_resistive_heater"
+    },
+    "mekanism:restrictive_transporter": {
+      "projecte": 309,
+      "itemalchemy": 282,
+      "source": "recipe"
+    },
+    "mekanism:robit": {
+      "projecte": 20834,
+      "itemalchemy": 17298,
+      "source": "conversion mek_robit"
+    },
+    "mekanism:rotary_condensentrator": {
+      "projecte": 10804,
+      "itemalchemy": 10765,
+      "source": "conversion mek_rotary_condensentrator"
+    },
+    "mekanism:salt": {
+      "excluded": "A thermal evaporation plant makes brine from water, and crystallizing that brine makes salt. Water has no EMC, so salt does not either."
+    },
+    "mekanism:sawdust": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "explicit"
+    },
+    "mekanism:scuba_mask": {
+      "projecte": 1185,
+      "itemalchemy": 1158,
+      "source": "recipe"
+    },
+    "mekanism:scuba_tank": {
+      "projecte": 3503,
+      "itemalchemy": 3468,
+      "source": "conversion mek_scuba_tank"
+    },
+    "mekanism:security_desk": {
+      "projecte": 34983,
+      "itemalchemy": 18737,
+      "source": "recipe"
+    },
+    "mekanism:seismic_reader": {
+      "projecte": 9619,
+      "itemalchemy": 9533,
+      "source": "conversion mek_seismic_reader"
+    },
+    "mekanism:seismic_vibrator": {
+      "projecte": 4041,
+      "itemalchemy": 4005,
+      "source": "recipe"
+    },
+    "mekanism:shard_copper": {
+      "projecte": 128,
+      "itemalchemy": 128,
+      "source": "conversion mek_processing_copper_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_gold": {
+      "projecte": 2048,
+      "itemalchemy": 2043,
+      "source": "conversion mek_processing_gold_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_iron": {
+      "projecte": 256,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_iron_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_lead": {
+      "projecte": 252,
+      "itemalchemy": 252,
+      "source": "conversion mek_processing_lead_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_osmium": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion mek_processing_osmium_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_tin": {
+      "projecte": 189,
+      "itemalchemy": 189,
+      "source": "conversion mek_processing_tin_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:shard_uranium": {
+      "projecte": 4096,
+      "itemalchemy": 4096,
+      "source": "conversion mek_processing_uranium_shard_from_crystal, ore_chain_shard_from_clump"
+    },
+    "mekanism:sodium_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_sodium_bucket"
+    },
+    "mekanism:solar_neutron_activator": {
+      "projecte": 17458,
+      "itemalchemy": 8166,
+      "source": "recipe"
+    },
+    "mekanism:sps_casing": {
+      "projecte": 1284,
+      "itemalchemy": 1284,
+      "source": "recipe"
+    },
+    "mekanism:sps_port": {
+      "projecte": 16346,
+      "itemalchemy": 9414,
+      "source": "recipe"
+    },
+    "mekanism:steam_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_steam_bucket"
+    },
+    "mekanism:steel_casing": {
+      "projecte": 1432,
+      "itemalchemy": 1396,
+      "source": "recipe"
+    },
+    "mekanism:structural_glass": {
+      "projecte": 261,
+      "itemalchemy": 252,
+      "source": "recipe"
+    },
+    "mekanism:substrate": {
+      "projecte": 0,
+      "below_one": {
+        "projecte": "2/5",
+        "itemalchemy": "2/5"
+      },
+      "itemalchemy": 0,
+      "source": "conversion mek_reaction_substrate_water_hydrogen"
+    },
+    "mekanism:sulfur_dioxide_bucket": {
+      "projecte": 2688,
+      "itemalchemy": 2688,
+      "source": "conversion sulfur_dioxide_bucket"
+    },
+    "mekanism:sulfur_trioxide_bucket": {
+      "projecte": 2688,
+      "itemalchemy": 2688,
+      "source": "conversion sulfur_trioxide_bucket"
+    },
+    "mekanism:sulfuric_acid_bucket": {
+      "projecte": 2688,
+      "itemalchemy": 2688,
+      "source": "conversion sulfuric_acid_bucket"
+    },
+    "mekanism:supercharged_coil": {
+      "projecte": 53988,
+      "itemalchemy": 29278,
+      "source": "recipe"
+    },
+    "mekanism:superheated_sodium_bucket": {
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_superheated_sodium_bucket"
+    },
+    "mekanism:superheating_element": {
+      "projecte": 2200,
+      "itemalchemy": 2164,
+      "source": "recipe"
+    },
+    "mekanism:teleportation_core": {
+      "projecte": 21402,
+      "itemalchemy": 11404,
+      "source": "recipe"
+    },
+    "mekanism:teleporter": {
+      "projecte": 28730,
+      "itemalchemy": 18588,
+      "source": "recipe"
+    },
+    "mekanism:teleporter_frame": {
+      "projecte": 962,
+      "itemalchemy": 282,
+      "source": "recipe"
+    },
+    "mekanism:thermal_evaporation_block": {
+      "projecte": 293,
+      "itemalchemy": 284,
+      "source": "recipe"
+    },
+    "mekanism:thermal_evaporation_controller": {
+      "projecte": 4089,
+      "itemalchemy": 4029,
+      "source": "recipe"
+    },
+    "mekanism:thermal_evaporation_valve": {
+      "projecte": 2100,
+      "itemalchemy": 2056,
+      "source": "recipe"
+    },
+    "mekanism:tin_ore": {
+      "projecte": 192,
+      "itemalchemy": 192,
+      "source": "explicit"
+    },
+    "mekanism:ultimate_bin": {
+      "projecte": 29048,
+      "itemalchemy": 12088,
+      "source": "conversion mek_bin_ultimate"
+    },
+    "mekanism:ultimate_chemical_tank": {
+      "projecte": 28020,
+      "itemalchemy": 14156,
+      "source": "conversion mek_chemical_tank_ultimate"
+    },
+    "mekanism:ultimate_combining_factory": {
+      "projecte": 101602,
+      "itemalchemy": 43004,
+      "source": "conversion mek_factory_ultimate_combining"
+    },
+    "mekanism:ultimate_compressing_factory": {
+      "projecte": 85696,
+      "itemalchemy": 39402,
+      "source": "conversion mek_factory_ultimate_compressing"
+    },
+    "mekanism:ultimate_control_circuit": {
+      "projecte": 11210,
+      "itemalchemy": 4278,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_crushing_factory": {
+      "projecte": 82432,
+      "itemalchemy": 36170,
+      "source": "conversion mek_factory_ultimate_crushing"
+    },
+    "mekanism:ultimate_energy_cube": {
+      "projecte": 100492,
+      "itemalchemy": 74102,
+      "source": "conversion mek_energy_cube_ultimate"
+    },
+    "mekanism:ultimate_enriching_factory": {
+      "projecte": 82816,
+      "itemalchemy": 36546,
+      "source": "conversion mek_factory_ultimate_enriching"
+    },
+    "mekanism:ultimate_fluid_tank": {
+      "projecte": 25972,
+      "itemalchemy": 12044,
+      "source": "conversion mek_fluid_tank_ultimate"
+    },
+    "mekanism:ultimate_induction_cell": {
+      "projecte": 4227116,
+      "itemalchemy": 4159242,
+      "source": "conversion mek_induction_cell_ultimate"
+    },
+    "mekanism:ultimate_induction_provider": {
+      "projecte": 2167060,
+      "itemalchemy": 2029358,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_infusing_factory": {
+      "projecte": 81368,
+      "itemalchemy": 35126,
+      "source": "conversion mek_factory_ultimate_infusing"
+    },
+    "mekanism:ultimate_injecting_factory": {
+      "projecte": 110944,
+      "itemalchemy": 52296,
+      "source": "conversion mek_factory_ultimate_injecting"
+    },
+    "mekanism:ultimate_logistical_transporter": {
+      "projecte": 790,
+      "itemalchemy": 354,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_mechanical_pipe": {
+      "projecte": 836,
+      "itemalchemy": 400,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_pressurized_tube": {
+      "projecte": 740,
+      "itemalchemy": 304,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_purifying_factory": {
+      "projecte": 86496,
+      "itemalchemy": 40194,
+      "source": "conversion mek_factory_ultimate_purifying"
+    },
+    "mekanism:ultimate_sawing_factory": {
+      "projecte": 83600,
+      "itemalchemy": 37314,
+      "source": "conversion mek_factory_ultimate_sawing"
+    },
+    "mekanism:ultimate_smelting_factory": {
+      "projecte": 82306,
+      "itemalchemy": 36044,
+      "source": "conversion mek_factory_ultimate_smelting"
+    },
+    "mekanism:ultimate_thermodynamic_conductor": {
+      "projecte": 756,
+      "itemalchemy": 320,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_tier_installer": {
+      "projecte": 50128,
+      "itemalchemy": 16288,
+      "source": "recipe"
+    },
+    "mekanism:ultimate_universal_cable": {
+      "projecte": 748,
+      "itemalchemy": 312,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_anchor": {
+      "projecte": 8722,
+      "itemalchemy": 2570,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_energy": {
+      "projecte": 2578,
+      "itemalchemy": 2565,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_filter": {
+      "projecte": 719,
+      "itemalchemy": 711,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_gas": {
+      "projecte": 786,
+      "itemalchemy": 774,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_muffling": {
+      "projecte": 791,
+      "itemalchemy": 774,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_speed": {
+      "projecte": 914,
+      "itemalchemy": 906,
+      "source": "recipe"
+    },
+    "mekanism:upgrade_stone_generator": {
+      "projecte": 330,
+      "itemalchemy": 326,
+      "source": "recipe"
+    },
+    "mekanism:uranium_hexafluoride_bucket": {
+      "projecte": 4992,
+      "itemalchemy": 4992,
+      "source": "conversion uranium_hexafluoride_bucket"
+    },
+    "mekanism:uranium_ore": {
+      "excluded": "Drops a Fortune-boosted number of raw uranium. Only the raw ore is valued."
+    },
+    "mekanism:uranium_oxide_bucket": {
+      "projecte": 8960,
+      "itemalchemy": 8960,
+      "source": "conversion uranium_oxide_bucket"
+    },
+    "mekanism:yellow_cake_uranium": {
+      "projecte": 2048,
+      "itemalchemy": 2048,
+      "source": "conversion mek_processing_uranium_yellow_cake_uranium"
+    }
+  },
+  "vanilla": {
+    "minecraft:elytra": {
+      "projecte": 16463
+    }
+  }
+}

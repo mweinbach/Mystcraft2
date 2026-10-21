@@ -17,7 +17,11 @@ Forge's mod-bus events in Forge's order; configs, the network channel and menus 
 wired but not yet exercised. In the
 client the enrichment chamber, crusher, energized smelter and metallurgic infuser process their recipes, powered by
 creative energy cubes directly and through universal cables, and energy cubes and transmitters render with their
-OBJ and custom models. The shared GameTests (core machines, loader interop, and the item and block hooks) pass on both loaders.
+OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
+`#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
+modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
+the shared placement modifiers. The shared GameTests (core machines, loader interop, ore generation, and the item and
+block hooks) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -57,7 +61,7 @@ and block methods are.
 
 ## Fabric: not written yet
 
-- Biome modifiers for ore and salt generation: Mekanism ores do not generate on Fabric. Chunk loading tickets.
+- Chunk loading tickets.
 - Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
   is not called.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
@@ -70,7 +74,6 @@ and block methods are.
 - Key mappings bound to more than one key and custom ingredient types.
 - Not yet checked in the client: chemical machines, multiblocks, QIO, the digital miner, Robit, gear and the
   energy cube's core renderer.
-- A loader-parity check script, and EMC values for ProjectE and Item Alchemy.
 
 ## Fabric: deliberate limits of the Forge API mirror
 
