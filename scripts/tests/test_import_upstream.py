@@ -37,6 +37,7 @@ class ImportUpstreamTests(unittest.TestCase):
         destination = root / "out"
         write(destination / "resources/data/mekanismgenerators/pe_custom_conversions/mekanismgenerators.json",
               '{"kept":true}\n')
+        write(destination / "resources/data/c/tags/items/axes.json", '{"replace": false}\n')
         write(destination / "fabric/java/Keep.java", "class Keep {}\n")
 
         result = importer.import_module(upstream, "generators", destination)
@@ -56,6 +57,7 @@ class ImportUpstreamTests(unittest.TestCase):
         self.assertFalse(list((destination / "resources").rglob(".cache")))
         self.assertEqual((destination / "resources/data/mekanismgenerators/pe_custom_conversions/mekanismgenerators.json").read_text(),
                          '{"kept":true}\n')
+        self.assertEqual((destination / "resources/data/c/tags/items/axes.json").read_text(), '{"replace": false}\n')
         self.assertTrue((destination / "fabric/java/Keep.java").is_file())
 
     def test_unknown_module_is_rejected(self):

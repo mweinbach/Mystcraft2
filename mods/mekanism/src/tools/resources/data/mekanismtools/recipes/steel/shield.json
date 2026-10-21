@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/steel"
+    },
+    "P": {
+      "item": "minecraft:shield"
+    }
+  },
+  "pattern": [
+    "IPI",
+    "III",
+    " I "
+  ],
+  "result": {
+    "item": "mekanismtools:steel_shield"
+  }
+}

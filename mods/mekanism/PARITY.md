@@ -16,7 +16,16 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   gas-burning generator burning hydrogen, and energy leaving through Forge Energy and Team Reborn Energy. The wind
   rotor's render box is the extended box the block entity reports, and on Fabric the wind generator item is drawn by
   `BuiltinItemRendererRegistry`. Turbine, fission and fusion gameplay is not verified.
-- **Tools and Additions** load as empty modules. Their items, blocks and entities are not imported.
+- **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
+  refined obsidian and steel, plus vanilla paxels. Both loaders register them
+  (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
+  strip and flatten. Paxels do not till, matching upstream. Fabric harvest uses the numeric tier level. The
+  `needs_*_tool` tags are empty, and the tier-sorting registry only records the order. Hoe till on Fabric is vanilla's tillable map, gated by
+  `canPerformAction`. `c:` tool and armor tags ship in the tools jar alongside the `forge:` tags. Shield items use
+  the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
+  `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
+  posted. The Wildfire's Gender capability is not attached.
+- **Additions** loads as an empty module. Its items, blocks and entities are not imported.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
 
@@ -47,8 +56,8 @@ and moves fluid through the valve's loader fluid API. Breaking the blocks and lo
 fluid and the container edit mode back. The master's render box is that structure. In the development client that
 formed tank draws the fluid it is holding through the structural glass. The shared GameTests (core machines, loader
 interop, chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds,
-the player and living events, a Generators registry smoke test, the simple generators, and the dynamic tank) pass on
-both loaders.
+the player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, and Tools
+registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through

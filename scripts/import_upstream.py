@@ -102,6 +102,11 @@ def import_module(upstream, module, destination=None):
                     for file in path.rglob("*"):
                         if file.is_file():
                             preserved.append((file.relative_to(resources_dest), file.read_bytes()))
+        convention = resources_dest / "data" / "c"
+        if convention.is_dir():
+            for file in convention.rglob("*"):
+                if file.is_file():
+                    preserved.append((file.relative_to(resources_dest), file.read_bytes()))
         shutil.rmtree(resources_dest)
     for path in _files(resources_src):
         relative = path.relative_to(resources_src)

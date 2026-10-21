@@ -234,6 +234,15 @@ loom {
         }
     }
 }
+// The client and server runs start from the core source set. Module outputs have to be on that classpath
+// or the dev game never loads Generators, Tools or Additions.
+['runClient', 'runServer'].each { String taskName ->
+    tasks.named(taskName) {
+        classpath += sourceSets.generators.output
+        classpath += sourceSets.tools.output
+        classpath += sourceSets.additions.output
+    }
+}
 tasks.named('processGametestResources', ProcessResources) {
     from('../src/gametestCommon/structures') { into 'data/mekanism/gametest/structures' }
 }

@@ -2034,6 +2034,366 @@
       "projecte": 15672,
       "itemalchemy": 15622,
       "source": "conversion generators_wind_generator"
+    },
+    "mekanismtools:bronze_axe": {
+      "projecte": 305,
+      "itemalchemy": 305,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_boots": {
+      "projecte": 396,
+      "itemalchemy": 396,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_chestplate": {
+      "projecte": 792,
+      "itemalchemy": 792,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_helmet": {
+      "projecte": 495,
+      "itemalchemy": 495,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_hoe": {
+      "projecte": 206,
+      "itemalchemy": 206,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_leggings": {
+      "projecte": 693,
+      "itemalchemy": 693,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_paxel": {
+      "projecte": 725,
+      "itemalchemy": 725,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_pickaxe": {
+      "projecte": 305,
+      "itemalchemy": 305,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_shield": {
+      "projecte": 898,
+      "itemalchemy": 894,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_shovel": {
+      "projecte": 107,
+      "itemalchemy": 107,
+      "source": "recipe"
+    },
+    "mekanismtools:bronze_sword": {
+      "projecte": 202,
+      "itemalchemy": 202,
+      "source": "recipe"
+    },
+    "mekanismtools:diamond_paxel": {
+      "projecte": 57376,
+      "itemalchemy": 14368,
+      "source": "recipe"
+    },
+    "mekanismtools:gold_paxel": {
+      "projecte": 14368,
+      "itemalchemy": 14333,
+      "source": "recipe"
+    },
+    "mekanismtools:iron_paxel": {
+      "projecte": 1824,
+      "itemalchemy": 1796,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_axe": {
+      "projecte": 2600,
+      "itemalchemy": 2600,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_boots": {
+      "projecte": 3456,
+      "itemalchemy": 3456,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_chestplate": {
+      "projecte": 6912,
+      "itemalchemy": 6912,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_helmet": {
+      "projecte": 4320,
+      "itemalchemy": 4320,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_hoe": {
+      "projecte": 1736,
+      "itemalchemy": 1736,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_leggings": {
+      "projecte": 6048,
+      "itemalchemy": 6048,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_paxel": {
+      "projecte": 6080,
+      "itemalchemy": 6080,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_pickaxe": {
+      "projecte": 2600,
+      "itemalchemy": 2600,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_shield": {
+      "projecte": 5488,
+      "itemalchemy": 5484,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_shovel": {
+      "projecte": 872,
+      "itemalchemy": 872,
+      "source": "recipe"
+    },
+    "mekanismtools:lapis_lazuli_sword": {
+      "projecte": 1732,
+      "itemalchemy": 1732,
+      "source": "recipe"
+    },
+    "mekanismtools:netherite_paxel": {
+      "projecte": 114720,
+      "itemalchemy": 71712,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_axe": {
+      "projecte": 1160,
+      "itemalchemy": 1160,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_boots": {
+      "projecte": 1536,
+      "itemalchemy": 1536,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_chestplate": {
+      "projecte": 3072,
+      "itemalchemy": 3072,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_helmet": {
+      "projecte": 1920,
+      "itemalchemy": 1920,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_hoe": {
+      "projecte": 776,
+      "itemalchemy": 776,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_leggings": {
+      "projecte": 2688,
+      "itemalchemy": 2688,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_paxel": {
+      "projecte": 2720,
+      "itemalchemy": 2720,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_pickaxe": {
+      "projecte": 1160,
+      "itemalchemy": 1160,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_shield": {
+      "projecte": 2608,
+      "itemalchemy": 2604,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_shovel": {
+      "projecte": 392,
+      "itemalchemy": 392,
+      "source": "recipe"
+    },
+    "mekanismtools:osmium_sword": {
+      "projecte": 772,
+      "itemalchemy": 772,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_axe": {
+      "projecte": 1142,
+      "itemalchemy": 1142,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_boots": {
+      "projecte": 1512,
+      "itemalchemy": 1512,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_chestplate": {
+      "projecte": 3024,
+      "itemalchemy": 3024,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_helmet": {
+      "projecte": 1890,
+      "itemalchemy": 1890,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_hoe": {
+      "projecte": 764,
+      "itemalchemy": 764,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_leggings": {
+      "projecte": 2646,
+      "itemalchemy": 2646,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_paxel": {
+      "projecte": 2678,
+      "itemalchemy": 2678,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_pickaxe": {
+      "projecte": 1142,
+      "itemalchemy": 1142,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_shield": {
+      "projecte": 2572,
+      "itemalchemy": 2568,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_shovel": {
+      "projecte": 386,
+      "itemalchemy": 386,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_glowstone_sword": {
+      "projecte": 760,
+      "itemalchemy": 760,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_axe": {
+      "projecte": 3113,
+      "itemalchemy": 818,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_boots": {
+      "projecte": 4140,
+      "itemalchemy": 1080,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_chestplate": {
+      "projecte": 8280,
+      "itemalchemy": 2160,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_helmet": {
+      "projecte": 5175,
+      "itemalchemy": 1350,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_hoe": {
+      "projecte": 2078,
+      "itemalchemy": 548,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_leggings": {
+      "projecte": 7245,
+      "itemalchemy": 1890,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_paxel": {
+      "projecte": 7277,
+      "itemalchemy": 1922,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_pickaxe": {
+      "projecte": 3113,
+      "itemalchemy": 818,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_shield": {
+      "projecte": 6514,
+      "itemalchemy": 1920,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_shovel": {
+      "projecte": 1043,
+      "itemalchemy": 278,
+      "source": "recipe"
+    },
+    "mekanismtools:refined_obsidian_sword": {
+      "projecte": 2074,
+      "itemalchemy": 544,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_axe": {
+      "projecte": 1295,
+      "itemalchemy": 1260,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_boots": {
+      "projecte": 1044,
+      "itemalchemy": 1008,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_chestplate": {
+      "projecte": 2088,
+      "itemalchemy": 2016,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_helmet": {
+      "projecte": 1305,
+      "itemalchemy": 1260,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_hoe": {
+      "projecte": 1034,
+      "itemalchemy": 1008,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_leggings": {
+      "projecte": 1827,
+      "itemalchemy": 1764,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_paxel": {
+      "projecte": 3875,
+      "itemalchemy": 3780,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_pickaxe": {
+      "projecte": 1295,
+      "itemalchemy": 1260,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_shield": {
+      "projecte": 1870,
+      "itemalchemy": 1812,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_shovel": {
+      "projecte": 773,
+      "itemalchemy": 756,
+      "source": "recipe"
+    },
+    "mekanismtools:steel_sword": {
+      "projecte": 778,
+      "itemalchemy": 756,
+      "source": "recipe"
+    },
+    "mekanismtools:stone_paxel": {
+      "projecte": 39,
+      "itemalchemy": 39,
+      "source": "recipe"
+    },
+    "mekanismtools:wood_paxel": {
+      "projecte": 88,
+      "itemalchemy": 88,
+      "source": "recipe"
     }
   },
   "vanilla": {
