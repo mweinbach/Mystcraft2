@@ -8,7 +8,6 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 public final class ForgeChunkManager {
 
     private static final String DATA_NAME = "mekanism_port_forced_chunks";
-    private static final TicketType<TicketOwner> TICKET = TicketType.create("mekanism_port:forced", Comparator.naturalOrder());
+    private static final TicketType<TicketOwner> TICKET = TicketType.create("mekanism_port:forced", TicketOwner::compareTo);
     private static final Map<String, LoadingValidationCallback> CALLBACKS = new ConcurrentHashMap<>();
 
     private ForgeChunkManager() {

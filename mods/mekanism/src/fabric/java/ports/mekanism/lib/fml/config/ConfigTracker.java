@@ -36,7 +36,7 @@ public final class ConfigTracker {
         }
     }
 
-    void trackConfig(ModConfig config) {
+    public void trackConfig(ModConfig config) {
         if (fileMap.putIfAbsent(config.getFileName(), config) != null) {
             throw new IllegalStateException("Config file " + config.getFileName() + " is already registered");
         }

@@ -4,8 +4,19 @@
   "version": "${version}",
   "name": "Mekanism",
   "description": "${mod_description}",
-  "authors": ["Aidancbrady", "Thommy101", "Thiakil", "pupnewfster", "dizzyd"],
-  "contributors": ["unpairedbracket", "CyanideX", "Ridanisaurus", "1.19.2 port contributors"],
+  "authors": [
+    "Aidancbrady",
+    "Thommy101",
+    "Thiakil",
+    "pupnewfster",
+    "dizzyd"
+  ],
+  "contributors": [
+    "unpairedbracket",
+    "CyanideX",
+    "Ridanisaurus",
+    "1.19.2 port contributors"
+  ],
   "contact": {
     "homepage": "https://aidancbrady.com/mekanism/",
     "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/mekanism"
@@ -14,8 +25,12 @@
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["ports.mekanism.fabric.FabricMod"],
-    "client": ["ports.mekanism.fabric.client.FabricClientMod"]
+    "main": [
+      "ports.mekanism.fabric.FabricMod"
+    ],
+    "client": [
+      "ports.mekanism.fabric.client.FabricClientMod"
+    ]
   },
   "accessWidener": "mekanism.accesswidener",
   "depends": {
@@ -24,5 +39,129 @@
     "minecraft": "1.19.2",
     "java": ">=17",
     "team_reborn_energy": "*"
+  },
+  "mixins": [
+    "mekanism.mixins.json"
+  ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1792": [
+        "ports/mekanism/lib/common/extensions/IForgeItem"
+      ],
+      "net/minecraft/class_1799": [
+        "ports/mekanism/lib/common/extensions/IForgeItemStack"
+      ],
+      "net/minecraft/class_2248": [
+        "ports/mekanism/lib/common/extensions/IForgeBlock"
+      ],
+      "net/minecraft/class_2680": [
+        "ports/mekanism/lib/common/extensions/IForgeBlockState"
+      ],
+      "net/minecraft/class_2586": [
+        "ports/mekanism/lib/common/extensions/IForgeBlockEntity"
+      ],
+      "net/minecraft/class_1297": [
+        "ports/mekanism/lib/common/extensions/IForgeEntity"
+      ],
+      "net/minecraft/class_3611": [
+        "ports/mekanism/lib/common/extensions/IForgeFluid"
+      ],
+      "net/minecraft/class_3610": [
+        "ports/mekanism/lib/common/extensions/IForgeFluidState"
+      ],
+      "net/minecraft/class_2263": [
+        "ports/mekanism/lib/common/extensions/IForgeBucketPickup"
+      ],
+      "net/minecraft/class_1293": [
+        "ports/mekanism/lib/common/extensions/IForgeMobEffectInstance"
+      ],
+      "net/minecraft/class_6880$class_6883": [
+        "ports/mekanism/lib/common/extensions/IForgeHolder<TT;>"
+      ],
+      "net/minecraft/class_6880$class_6881": [
+        "ports/mekanism/lib/common/extensions/IForgeHolder<TT;>"
+      ],
+      "net/minecraft/class_1937": [
+        "ports/mekanism/lib/common/extensions/IForgeLevel"
+      ],
+      "net/minecraft/class_1792$class_1793": [
+        "ports/mekanism/lib/common/extensions/IForgeItemProperties"
+      ],
+      "net/minecraft/class_1299": [
+        "ports/mekanism/lib/common/extensions/IForgeEntityType"
+      ],
+      "net/minecraft/class_1927": [
+        "ports/mekanism/lib/common/extensions/IForgeExplosion"
+      ],
+      "net/minecraft/class_1869": [
+        "ports/mekanism/lib/common/extensions/IForgeShapedRecipe"
+      ],
+      "net/minecraft/class_1856": [
+        "ports/mekanism/lib/common/extensions/IForgeIngredient"
+      ],
+      "net/minecraft/class_1735": [
+        "ports/mekanism/lib/common/extensions/IForgeSlot"
+      ],
+      "net/minecraft/class_2535": [
+        "ports/mekanism/lib/common/extensions/IForgeConnection"
+      ],
+      "net/minecraft/class_1744": [
+        "ports/mekanism/lib/common/extensions/IForgeArrowItem"
+      ],
+      "net/minecraft/class_1753": [
+        "ports/mekanism/lib/common/extensions/IForgeBowItem"
+      ],
+      "net/minecraft/class_2540": [
+        "ports/mekanism/lib/common/extensions/IForgeFriendlyByteBuf"
+      ],
+      "net/minecraft/class_437": [
+        "ports/mekanism/lib/client/extensions/IForgeScreen"
+      ],
+      "net/minecraft/class_465": [
+        "ports/mekanism/lib/client/extensions/IForgeAbstractContainerScreen"
+      ],
+      "net/minecraft/class_339": [
+        "ports/mekanism/lib/client/extensions/IForgeAbstractWidget"
+      ],
+      "net/minecraft/class_806": [
+        "ports/mekanism/lib/client/extensions/IForgeItemOverrides"
+      ],
+      "net/minecraft/class_777": [
+        "ports/mekanism/lib/client/extensions/IForgeBakedQuad"
+      ],
+      "net/minecraft/class_702": [
+        "ports/mekanism/lib/client/extensions/IForgeParticleEngine"
+      ],
+      "net/minecraft/class_727": [
+        "ports/mekanism/lib/client/extensions/IForgeTerrainParticle"
+      ],
+      "net/minecraft/class_1092": [
+        "ports/mekanism/lib/client/extensions/IForgeModelManager"
+      ],
+      "net/minecraft/class_4590": [
+        "ports/mekanism/lib/client/extensions/IForgeTransformation"
+      ],
+      "net/minecraft/class_1160": [
+        "ports/mekanism/lib/client/extensions/IForgeVector3f"
+      ],
+      "net/minecraft/class_4588": [
+        "ports/mekanism/lib/client/extensions/IForgeVertexConsumer"
+      ],
+      "net/minecraft/class_1087": [
+        "ports/mekanism/lib/client/extensions/IForgeBakedModel"
+      ],
+      "net/minecraft/class_793": [
+        "ports/mekanism/lib/client/extensions/IForgeBlockModel"
+      ],
+      "net/minecraft/class_304": [
+        "ports/mekanism/lib/client/extensions/IForgeKeyMapping"
+      ],
+      "net/minecraft/class_1755": [
+        "ports/mekanism/lib/common/extensions/IForgeBucketItem"
+      ],
+      "net/minecraft/class_2404": [
+        "ports/mekanism/lib/common/extensions/IForgeLiquidBlock"
+      ]
+    }
   }
 }

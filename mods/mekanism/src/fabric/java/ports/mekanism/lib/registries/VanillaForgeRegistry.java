@@ -134,8 +134,10 @@ public class VanillaForgeRegistry<V> implements IForgeRegistry<V> {
 
     @NotNull
     @Override
+    @SuppressWarnings("unchecked")
     public Holder.Reference<V> getDelegateOrThrow(V value) {
-        return registry.getHolderOrThrow(registry.getResourceKey(value).orElseThrow(() -> new IllegalArgumentException("Unregistered " + value)));
+        //Registered values are always held by references
+        return (Holder.Reference<V>) registry.getHolderOrThrow(registry.getResourceKey(value).orElseThrow(() -> new IllegalArgumentException("Unregistered " + value)));
     }
 
     @NotNull

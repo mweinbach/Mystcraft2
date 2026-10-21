@@ -47,17 +47,40 @@ java {
     withSourcesJar()
 }
 // The shared sources are upstream Forge code. On Fabric their Forge API references point at the port's mirror in
-// src/fabric/java/ports/mekanism/lib; the rewrite keeps line numbers unchanged.
-def forgeReference = ~/\bnet\.minecraftforge\./
-def rewriteForFabric = { String line -> line.replaceAll(forgeReference, 'ports.mekanism.lib.') }
+// src/fabric/java/ports/mekanism/lib; the rewrite keeps line numbers unchanged. Methods Forge adds to vanilla classes
+// are injected interfaces, but Java has no way to add constructors, static methods or fields to a vanilla class, so
+// those uses are rewritten to the port's equivalents in ports.mekanism.lib.patched or to accessor methods.
+def patched = 'ports.mekanism.lib.patched.'
+def forgeOnlyVanillaMembers = [
+    [~/\bnet\.minecraftforge\./, 'ports.mekanism.lib.'],
+    [~/\bBucketItem::new\b/, "${patched}ForgeBucketItem::new"],
+    [~/\bextends BucketItem\b/, "extends ${patched}ForgeBucketItem"],
+    [~/\bnew LiquidBlock\(/, "new ${patched}ForgeLiquidBlock("],
+    [~/\bextends KeyMapping\b/, 'extends ports.mekanism.lib.client.settings.ForgeKeyMapping'],
+    [~/\bItemTags\.create\(/, "${patched}ForgeTagKeys.item("],
+    [~/\bBlockTags\.create\(/, "${patched}ForgeTagKeys.block("],
+    [~/\bFluidTags\.create\(/, "${patched}ForgeTagKeys.fluid("],
+    [~/\bItemPredicate\.register\(/, "${patched}ForgeItemPredicates.register("],
+    [~/\bInventoryScreen\.renderEntityInInventoryRaw\(/, "${patched}ForgeInventoryScreen.renderEntityInInventoryRaw("],
+    [~/\bItemBlockRenderTypes\.setRenderLayer\(/, "${patched}ForgeRenderLayers.setRenderLayer("],
+    [~/\bnew ShaderInstance\(/, "${patched}ForgeShaders.create("],
+    [~/\.restoringBlockSnapshots = (true|false)\b/, '.setRestoringBlockSnapshots($1)'],
+    [~/\.customData\b/, '.getCustomData()'],
+]
+def rewriteForFabric = { String line ->
+    forgeOnlyVanillaMembers.inject(line) { String result, rule -> result.replaceAll(rule[0], rule[1].toString()) }
+}
 def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
 def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
+def rewriteRules = forgeOnlyVanillaMembers.collect { "${it[0]} -> ${it[1]}" }
 def rewriteMain = tasks.register('rewriteSharedSources', Sync) {
+    inputs.property 'rewriteRules', rewriteRules
     from '../src/main/java'
     into rewrittenMain
     filter rewriteForFabric
 }
 def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
+    inputs.property 'rewriteRules', rewriteRules
     from '../src/test/java'
     into rewrittenTest
     filter rewriteForFabric

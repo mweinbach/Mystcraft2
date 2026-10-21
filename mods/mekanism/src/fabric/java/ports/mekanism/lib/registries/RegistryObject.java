@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +69,12 @@ public final class RegistryObject<T> implements Supplier<T> {
     @SuppressWarnings("unchecked")
     public ResourceKey<T> getKey() {
         return ResourceKey.create((ResourceKey) registryKey, name);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Optional<Holder<T>> getHolder() {
+        IForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry((ResourceKey) registryKey);
+        return registry == null ? Optional.empty() : registry.getHolder(name);
     }
 
     public boolean isPresent() {

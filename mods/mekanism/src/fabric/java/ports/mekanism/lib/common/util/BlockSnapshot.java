@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -61,5 +62,24 @@ public final class BlockSnapshot {
     @Nullable
     public CompoundTag getTag() {
         return nbt;
+    }
+
+    /**
+     * Puts the saved block back. Unless forced, nothing changes when the block at the position is no longer the one
+     * that replaced the snapshot.
+     */
+    public boolean restore(boolean force, boolean notifyNeighbors) {
+        BlockState current = getCurrentBlock();
+        if (current.getBlock() != state.getBlock() && !force) {
+            return false;
+        }
+        level.setBlock(pos, state, notifyNeighbors ? Block.UPDATE_ALL : Block.UPDATE_CLIENTS);
+        if (nbt != null) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity != null) {
+                blockEntity.load(nbt);
+            }
+        }
+        return true;
     }
 }

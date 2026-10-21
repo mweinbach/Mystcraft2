@@ -90,7 +90,7 @@ public class ForgeConfigSpec {
             Object raw = config.get(value.path);
             Object corrected = raw == null ? null : value.correct(raw);
             if (corrected == null) {
-                config.set(value.path, value.serialize(value.defaultSupplier.get()));
+                config.set(value.path, serializedDefault(value));
                 changes++;
             } else if (corrected != raw) {
                 config.set(value.path, corrected);
@@ -540,5 +540,9 @@ public class ForgeConfigSpec {
             }
             return null;
         }
+    }
+
+    private static <T> Object serializedDefault(ValueSpec<T> value) {
+        return value.serialize(value.defaultSupplier.get());
     }
 }

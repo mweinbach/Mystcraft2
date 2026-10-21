@@ -4,6 +4,9 @@
  */
 package ports.mekanism.lib.client.extensions;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.KeyMapping;
 import ports.mekanism.lib.client.settings.IKeyConflictContext;
 import ports.mekanism.lib.client.settings.KeyConflictContext;
 import ports.mekanism.lib.client.settings.KeyModifier;
@@ -24,5 +27,13 @@ public interface IForgeKeyMapping {
 
     default boolean isConflictContextAndModifierActive() {
         return getKeyConflictContext().isActive() && getKeyModifier().isActive(getKeyConflictContext());
+    }
+
+    default InputConstants.Key getKey() {
+        return KeyBindingHelper.getBoundKeyOf((KeyMapping) this);
+    }
+
+    default boolean isActiveAndMatches(InputConstants.Key keyCode) {
+        return keyCode != InputConstants.UNKNOWN && keyCode.equals(getKey()) && isConflictContextAndModifierActive();
     }
 }

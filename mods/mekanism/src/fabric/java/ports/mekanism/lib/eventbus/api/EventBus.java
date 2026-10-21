@@ -82,7 +82,7 @@ public final class EventBus implements IEventBus {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Event> void addListener(EventPriority priority, boolean receiveCancelled, Class<T> eventType, Consumer<T> consumer) {
-        add(eventType, priority, receiveCancelled, (Consumer<Object>) consumer);
+        add(eventType, priority, receiveCancelled, (Consumer<Object>) (Consumer<?>) consumer);
     }
 
     private synchronized void add(Class<?> type, EventPriority priority, boolean receiveCanceled, Consumer<Object> consumer) {

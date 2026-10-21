@@ -4,6 +4,7 @@
  */
 package ports.mekanism.lib.network;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
@@ -18,13 +19,13 @@ import ports.mekanism.platform.Platform;
  */
 public final class PacketDistributor<T> {
 
-    public static final PacketDistributor<ServerPlayer> PLAYER = new PacketDistributor<>(player -> Platform.players(server -> java.util.List.of(player)));
-    public static final PacketDistributor<Void> ALL = new PacketDistributor<>(ignored -> Platform.players(server -> server.getPlayerList().getPlayers()));
-    public static final PacketDistributor<ResourceKey<Level>> DIMENSION = new PacketDistributor<>(dimension -> Platform.players(
+    public static final PacketDistributor<ServerPlayer> PLAYER = new PacketDistributor<>(player -> () -> Platform.players(server -> List.of(player)));
+    public static final PacketDistributor<Void> ALL = new PacketDistributor<>(ignored -> () -> Platform.players(server -> server.getPlayerList().getPlayers()));
+    public static final PacketDistributor<ResourceKey<Level>> DIMENSION = new PacketDistributor<>(dimension -> () -> Platform.players(
           server -> server.getPlayerList().getPlayers().stream().filter(player -> player.getLevel().dimension() == dimension).toList()));
-    public static final PacketDistributor<Entity> TRACKING_ENTITY = new PacketDistributor<>(entity -> Platform.players(server -> Platform.trackingPlayers(entity, false)));
-    public static final PacketDistributor<Entity> TRACKING_ENTITY_AND_SELF = new PacketDistributor<>(entity -> Platform.players(server -> Platform.trackingPlayers(entity, true)));
-    public static final PacketDistributor<LevelChunk> TRACKING_CHUNK = new PacketDistributor<>(chunk -> Platform.players(server -> Platform.trackingPlayers(chunk)));
+    public static final PacketDistributor<Entity> TRACKING_ENTITY = new PacketDistributor<>(entity -> () -> Platform.players(server -> Platform.trackingPlayers(entity, false)));
+    public static final PacketDistributor<Entity> TRACKING_ENTITY_AND_SELF = new PacketDistributor<>(entity -> () -> Platform.players(server -> Platform.trackingPlayers(entity, true)));
+    public static final PacketDistributor<LevelChunk> TRACKING_CHUNK = new PacketDistributor<>(chunk -> () -> Platform.players(server -> Platform.trackingPlayers(chunk)));
 
     private final Function<T, PacketTarget> targets;
 
