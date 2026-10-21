@@ -18,7 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
- * The Generators module jar is present and its registries have run. Gameplay of the generators is a later slice.
+ * The Generators module jar is present and its registries have run. Simple generator gameplay is
+ * {@link SimpleGeneratorGameTests}.
  */
 public class GeneratorsModuleGameTests {
 

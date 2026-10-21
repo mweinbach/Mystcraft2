@@ -60,6 +60,15 @@ public final class TestPlatform {
         return blockEntity.getCapability(ForgeCapabilities.ENERGY, side).map(storage -> storage.receiveEnergy((int) amount, false)).orElse(0);
     }
 
+    public static long extractEnergy(BlockEntity blockEntity, Direction side, long amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+        return blockEntity.getCapability(ForgeCapabilities.ENERGY, side)
+              .map(storage -> (long) storage.extractEnergy((int) Math.min(amount, Integer.MAX_VALUE), false))
+              .orElse(0L);
+    }
+
     public static long insertItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
         return insertThroughItemCapability(blockEntity, side, stack);
     }
