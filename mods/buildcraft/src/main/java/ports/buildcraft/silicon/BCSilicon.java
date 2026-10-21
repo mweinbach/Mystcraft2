@@ -1,5 +1,7 @@
 package ports.buildcraft.silicon;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.world.inventory.MenuType;
@@ -14,11 +16,18 @@ import net.minecraft.world.level.material.Material;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.platform.Reg;
+import ports.buildcraft.silicon.gate.GateCopierItem;
+import ports.buildcraft.silicon.gate.GateItem;
+import ports.buildcraft.silicon.gate.GateMenu;
+import ports.buildcraft.silicon.gate.GateVariant;
+import ports.buildcraft.silicon.gate.PluggableGate;
+import ports.buildcraft.transport.pluggable.PluggableDefinition;
 
 /**
- * Upstream BuildCraft Silicon outside its gates: the laser, the assembly, advanced crafting and integration tables
- * it powers, and the five chipsets the assembly table makes. Upstream's single {@code redstone_chipset} item with
- * five damage values is flattened into one item per chipset.
+ * Upstream BuildCraft Silicon: the laser, the assembly, advanced crafting and integration tables it powers, the
+ * five chipsets the assembly table makes, and gates with the gate copier. Upstream's single {@code redstone_chipset}
+ * item with five damage values is flattened into one item per chipset, and its single NBT-keyed gate item into one
+ * item per gate variant.
  */
 public final class BCSilicon {
     public static final Supplier<LaserBlock> LASER = Reg.block("laser", () -> new LaserBlock(machine().noOcclusion()));
@@ -54,6 +63,17 @@ public final class BCSilicon {
             Platform.menu("advanced_crafting_table", AdvancedCraftingTableMenu::new);
     public static final Supplier<MenuType<IntegrationTableMenu>> INTEGRATION_TABLE_MENU = Platform.menu("integration_table", IntegrationTableMenu::new);
 
+    public static final PluggableDefinition GATE = PluggableDefinition.register(BuildCraft.id("gate"), PluggableGate::new);
+    public static final Map<GateVariant, Supplier<Item>> GATE_ITEMS = new LinkedHashMap<>();
+    public static final Supplier<Item> GATE_COPIER = Reg.item("gate_copier", () -> new GateCopierItem(BuildCraft.itemProperties()));
+    public static final Supplier<MenuType<GateMenu>> GATE_MENU = Platform.menu("gate", GateMenu::new);
+
+    static {
+        for (GateVariant variant : GateVariant.VALUES) {
+            GATE_ITEMS.put(variant, Reg.item("gate_" + variant.variantName(), () -> new GateItem(BuildCraft.itemProperties(), variant)));
+        }
+    }
+
     public static final Supplier<RecipeType<AssemblyRecipe>> ASSEMBLY_TYPE = recipeType("assembly");
     public static final Supplier<RecipeType<IntegrationRecipe>> INTEGRATION_TYPE = recipeType("integration");
     public static final Supplier<RecipeSerializer<AssemblyRecipe>> ASSEMBLY_SERIALIZER =
@@ -65,6 +85,12 @@ public final class BCSilicon {
 
     private static BlockBehaviour.Properties machine() {
         return BlockBehaviour.Properties.of(Material.METAL).strength(5.0F, 10.0F).sound(SoundType.METAL);
+    }
+
+    /** The item of {@code variant}; variants no item makes, such as a modified clay gate from edited data, give the basic gate. */
+    public static Item gateItem(GateVariant variant) {
+        Supplier<Item> item = GATE_ITEMS.get(variant);
+        return (item != null ? item : GATE_ITEMS.get(GateVariant.BASIC)).get();
     }
 
     private static Supplier<Item> chipset(String name) {

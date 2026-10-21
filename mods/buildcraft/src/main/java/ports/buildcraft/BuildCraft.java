@@ -14,6 +14,7 @@ import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.silicon.BCSilicon;
+import ports.buildcraft.silicon.gate.GateMenu;
 import ports.buildcraft.transport.BCTransport;
 
 /** Shared entrypoint. Loader adapters install {@link Platform} first, then call {@link #init()}. */
@@ -51,7 +52,8 @@ public final class BuildCraft {
         return Map.of(ArchitectTableMenu.NAME_CHANNEL, ArchitectTableMenu::receiveName,
                 ElectronicLibraryBlockEntity.SELECT_CHANNEL, ElectronicLibraryBlockEntity::receiveSelect,
                 ElectronicLibraryBlockEntity.UP_CHANNEL, ElectronicLibraryBlockEntity::receiveUp,
-                SnapshotPackets.REQUEST_CHANNEL, SnapshotPackets::receiveRequest);
+                SnapshotPackets.REQUEST_CHANNEL, SnapshotPackets::receiveRequest,
+                GateMenu.CHANNEL, GateMenu::receive);
     }
 
     /** Loads every module so its registry entries are queued, in upstream module order. */
