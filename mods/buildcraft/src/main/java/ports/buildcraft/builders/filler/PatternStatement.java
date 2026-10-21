@@ -4,6 +4,7 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import ports.buildcraft.statement.StatementParameter;
 
 /**
  * Upstream {@code FullStatement<IFillerPattern>} with four parameter slots, saved under upstream's NBT
@@ -19,6 +20,18 @@ public final class PatternStatement {
     }
 
     /** Upstream {@code FullStatement.set}, including its off-by-one that refreshes the slot at {@code maxParameters}. */
+    /**
+     * Upstream {@code FullStatement.set(statement, params)}. The loop starts at the last slot and stops above 0, so a
+     * gate never writes the pattern's first parameter: that slot keeps the default {@link #set(Pattern)} just stored.
+     */
+    public void set(Pattern pattern, StatementParameter[] incoming) {
+        set(pattern);
+        if (incoming == null) return;
+        for (int i = Math.min(params.length, incoming.length) - 1; i > 0; i--) {
+            if (incoming[i] instanceof FillerParameter parameter) params[i] = parameter;
+        }
+    }
+
     public void set(@Nullable Pattern to) {
         pattern = to == null ? FillerPatterns.NONE : to;
         if (to == null) {

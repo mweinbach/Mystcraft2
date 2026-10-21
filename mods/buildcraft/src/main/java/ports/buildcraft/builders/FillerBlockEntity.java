@@ -1,5 +1,6 @@
 package ports.buildcraft.builders;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import ports.buildcraft.builders.filler.FilledTemplate;
 import ports.buildcraft.builders.filler.FillerParameter;
 import ports.buildcraft.builders.filler.FillerPatterns;
+import ports.buildcraft.builders.filler.Pattern;
 import ports.buildcraft.builders.filler.PatternStatement;
+import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.builders.snapshot.BuildingInfo;
 import ports.buildcraft.builders.snapshot.TemplateBuilder;
 import ports.buildcraft.core.marker.volume.Lock;
@@ -31,6 +34,7 @@ import ports.buildcraft.core.marker.volume.VolumeBox;
 import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.lib.AreaProvider;
 import ports.buildcraft.lib.Box;
+import ports.buildcraft.lib.Controllable;
 import ports.buildcraft.lib.InventoryUtil;
 import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
@@ -41,9 +45,10 @@ import ports.buildcraft.platform.PortHolder;
 /**
  * Upstream {@code TileFiller}: takes the volume box or marked area behind it, fills that box with the
  * selected pattern from block items in its 27 resource slots, and clears blocks the pattern leaves
- * empty. Resources can be inserted from any side but not pulled out.
+ * empty. A gate can set that pattern and turn the filler on, off or into a loop. Resources can be
+ * inserted from any side but not pulled out.
  */
-public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, WorldlyContainer, MenuProvider, TemplateBuilder.Host {
+public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, WorldlyContainer, MenuProvider, TemplateBuilder.Host, Controllable {
     public static final int RESOURCE_SLOTS = 27;
     private static final int[] SLOTS = IntStream.range(0, RESOURCE_SLOTS).toArray();
     public static final int BUTTON_EXCAVATE = 0;
@@ -58,6 +63,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
     private boolean inverted;
     private boolean finished;
     private byte lockedTicks;
+    private Controllable.Mode mode = Controllable.Mode.ON;
     public final Box box = new Box();
     public boolean markerBox = true;
     public final PatternStatement patternStatement = new PatternStatement();
@@ -136,8 +142,10 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
 
     void serverTick() {
         builder.startListening();
+        boolean wasLocked = isLocked();
         if (lockedTicks > 0) lockedTicks--;
-        if (getBuilder() != null) {
+        if (wasLocked && !isLocked()) queueSync();
+        if (mode != Controllable.Mode.OFF && getBuilder() != null) {
             builder.tick();
             setChanged();
         }
@@ -215,13 +223,52 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         return inverted;
     }
 
+    /** Upstream {@code isFinished}: a loop keeps going, so it never counts as finished. */
     public boolean isFinished() {
-        return finished;
+        return mode != Controllable.Mode.LOOP && finished;
     }
 
-    /** Upstream locks the pattern for a few ticks after a gate sets it; gates are not ported, so this stays false. */
+    /** Upstream locks the pattern for three ticks after a gate sets it, and for as long as the gate keeps setting it. */
     public boolean isLocked() {
         return lockedTicks > 0;
+    }
+
+    @Override
+    public Controllable.Mode getControlMode() {
+        return mode;
+    }
+
+    /**
+     * Upstream {@code setControlMode}. Leaving off clears finished. Upstream's tick only skips work while off; the
+     * check that would also stop a finished machine that is not looping is commented out upstream, and nothing in
+     * upstream ever sets finished, so on and loop both keep building.
+     */
+    @Override
+    public void setControlMode(Controllable.Mode mode) {
+        if (!acceptsControlMode(mode) || this.mode == mode) return;
+        if (this.mode == Controllable.Mode.OFF) finished = false;
+        this.mode = mode;
+        setChanged();
+        queueSync();
+    }
+
+    /**
+     * Upstream {@code setPattern}. The statement is replaced, the pattern stays locked for three ticks and finished
+     * is cleared. Upstream did not rebuild its cached template here, so a gate's pattern never reached the builder
+     * until something else refreshed it; a change rebuilds the template, and the same pattern again does not.
+     */
+    public void setPattern(Pattern pattern, StatementParameter[] parameters) {
+        Pattern before = patternStatement.get();
+        FillerParameter[] beforeParams = patternStatement.parameters();
+        patternStatement.set(pattern, parameters);
+        finished = false;
+        boolean wasLocked = isLocked();
+        lockedTicks = 3;
+        if (patternStatement.get() != before || !Arrays.equals(beforeParams, patternStatement.parameters())) onStatementChange();
+        else if (!wasLocked) {
+            setChanged();
+            queueSync();
+        }
     }
 
     public int getCountToBreak() {
@@ -382,6 +429,14 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         return new FillerMenu(id, inventory, this);
     }
 
+    private static Controllable.Mode readMode(CompoundTag tag) {
+        String name = tag.getString("mode");
+        for (Controllable.Mode value : Controllable.Mode.VALUES) {
+            if (value.name().equals(name)) return value;
+        }
+        return Controllable.Mode.ON;
+    }
+
     // Persistence
 
     @Override
@@ -392,6 +447,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         tag.putBoolean("inverted", inverted);
         tag.putBoolean("finished", finished);
         tag.putByte("lockedTicks", lockedTicks);
+        tag.putString("mode", mode.name());
         tag.put("box", box.save());
         tag.putBoolean("markerBox", markerBox);
         tag.put("patternStatement", patternStatement.save());
@@ -406,6 +462,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         inverted = tag.getBoolean("inverted");
         finished = tag.getBoolean("finished");
         lockedTicks = tag.getByte("lockedTicks");
+        mode = readMode(tag);
         box.load(tag.getCompound("box"));
         markerBox = !tag.contains("markerBox") || tag.getBoolean("markerBox");
         patternStatement.load(tag.getCompound("patternStatement"));
@@ -424,6 +481,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         tag.putBoolean("inverted", inverted);
         tag.putBoolean("finished", finished);
         tag.putBoolean("locked", isLocked());
+        tag.putString("mode", mode.name());
         builder.writeClient(tag);
     }
 
@@ -436,6 +494,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         inverted = tag.getBoolean("inverted");
         finished = tag.getBoolean("finished");
         lockedTicks = (byte) (tag.getBoolean("locked") ? 1 : 0);
+        mode = readMode(tag);
         builder.readClient(tag);
     }
 }

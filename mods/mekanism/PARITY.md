@@ -27,7 +27,10 @@ the shared placement modifiers. The shared GameTests (core machines, loader inte
   `EnergyStorage.SIDED`, `ItemStorage.SIDED` and `FluidStorage.SIDED`, and Forge capabilities asked of other block
   entities fall back to those lookups. Item stacks without Mekanism's own fluid or energy capability answer through
   `FluidStorage.ITEM` and `EnergyStorage.ITEM`, so vanilla buckets and other mods' tanks and batteries work in
-  Mekanism's slots. Chemicals stay on Mekanism's own API.
+  Mekanism's slots. The reverse is exposed too: Mekanism's energy items (the energy tablet, energy cubes and anything
+  else upstream gives an item energy capability) are `EnergyStorage.ITEM` storages through `ContainerItemContext`, and
+  its fluid items (fluid tanks and the other item fluid handlers) are `FluidStorage.ITEM` storages, at 81 droplets per
+  mB. Chemicals stay on Mekanism's own API.
 - `scripts/generate_fabric_tags.py` writes the Fabric tag bridges: the `forge:` tags Forge itself defines (from
   `scripts/forge-tags.json`, Forge 43.5.0's data), each Mekanism `forge:` tag with its `c:` equivalent as an optional
   entry, and `c:` tags holding Mekanism's own items. `--check` fails when they are stale.
@@ -36,8 +39,6 @@ the shared placement modifiers. The shared GameTests (core machines, loader inte
 
 ## Fabric: not written yet
 
-- Team Reborn Energy and Transfer API bridges for item stacks (`EnergyStorage.ITEM`, `FluidStorage.ITEM`): Mekanism
-  cannot charge other mods' batteries or fill their fluid containers, and other mods do not see Mekanism's items.
 - Chunk loading tickets.
 - Fluid render handlers for Mekanism's fluids.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,

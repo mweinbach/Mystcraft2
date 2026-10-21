@@ -33,7 +33,7 @@ import ports.buildcraft.transport.pluggable.PipePluggable;
  * {@code /bcshowcase library} the electronic library and replacer bench, {@code /bcshowcase silicon} the laser and table bench,
  * {@code /bcshowcase plugs} the pipe plug, power adapter and structure pipe bench, {@code /bcshowcase gates} the gate bench,
  * {@code /bcshowcase wires} the pipe wire bench, {@code /bcshowcase lenses} the lens and filter bench,
- * {@code /bcshowcase pulsars} the pulsar and timer bench,
+ * {@code /bcshowcase pulsars} the pulsar and timer bench, {@code /bcshowcase sensors} the light sensor and filler control bench,
  * {@code /bcshowcase refinery} a running refinery,
  * {@code /bcshowcase oilwell} reports the nearest oil well, {@code /bcshowcase use <pos>} right-clicks a block
  * with an empty hand to open its screen and {@code /bcshowcase useitem} right-clicks with the held item where the caller looks.
@@ -94,6 +94,10 @@ public final class FabricShowcase implements ModInitializer {
                         }))
                         .then(Commands.literal("pulsars").executes(context -> {
                             Showcase.buildPulsars(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
+                            return 1;
+                        }))
+                        .then(Commands.literal("sensors").executes(context -> {
+                            Showcase.buildSensors(context.getSource().getLevel(), new BlockPos(context.getSource().getPosition()));
                             return 1;
                         }))
                         .then(Commands.literal("refinery").executes(context -> {

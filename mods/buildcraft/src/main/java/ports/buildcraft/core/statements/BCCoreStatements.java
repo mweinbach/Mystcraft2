@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.energy.PowerStage;
+import ports.buildcraft.lib.Controllable;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.Ports;
 import ports.buildcraft.platform.FluidPort;
@@ -17,8 +18,8 @@ import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.statement.Trigger;
 
 /**
- * Upstream {@code BCCoreStatements}. Machine control and the stored-power triggers are left out: no
- * ported block is controllable, and upstream offered stored power for no BuildCraft block.
+ * Upstream {@code BCCoreStatements}. The stored-power triggers are left out: upstream offered them for no
+ * BuildCraft block. Machine control is offered for a neighbouring {@link Controllable}.
  */
 public final class BCCoreStatements {
     public static final TriggerTrue TRIGGER_TRUE = new TriggerTrue();
@@ -32,6 +33,13 @@ public final class BCCoreStatements {
     public static final TriggerRedstoneInput[] TRIGGER_REDSTONE = {TRIGGER_REDSTONE_ACTIVE, TRIGGER_REDSTONE_INACTIVE};
 
     public static final ActionRedstoneOutput ACTION_REDSTONE = new ActionRedstoneOutput();
+
+    public static final ActionMachineControl ACTION_MACHINE_CONTROL_OFF = new ActionMachineControl(Controllable.Mode.OFF);
+    public static final ActionMachineControl ACTION_MACHINE_CONTROL_ON = new ActionMachineControl(Controllable.Mode.ON);
+    public static final ActionMachineControl ACTION_MACHINE_CONTROL_LOOP = new ActionMachineControl(Controllable.Mode.LOOP);
+    public static final ActionMachineControl[] ACTION_MACHINE_CONTROL = {
+        ACTION_MACHINE_CONTROL_OFF, ACTION_MACHINE_CONTROL_ON, ACTION_MACHINE_CONTROL_LOOP
+    };
 
     public static final TriggerInventory TRIGGER_INVENTORY_EMPTY = new TriggerInventory(TriggerInventory.State.EMPTY);
     public static final TriggerInventory TRIGGER_INVENTORY_CONTAINS = new TriggerInventory(TriggerInventory.State.CONTAINS);

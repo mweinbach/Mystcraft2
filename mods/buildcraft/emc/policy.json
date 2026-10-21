@@ -142,6 +142,12 @@
       "why": "The assembly table makes a timer from a clock and laser power (upstream BCSiliconRecipes), which is left unvalued.",
       "output": "buildcraft:plug_timer",
       "ingredients": {"minecraft:clock": 1}
+    },
+    {
+      "name": "assemble_light_sensor",
+      "why": "The assembly table makes a light sensor from a daylight detector and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "output": "buildcraft:plug_light_sensor",
+      "ingredients": {"minecraft:daylight_detector": 1}
     }
   ],
   "exclude": {

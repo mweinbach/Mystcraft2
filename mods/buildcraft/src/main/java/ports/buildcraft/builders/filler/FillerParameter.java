@@ -7,15 +7,20 @@ import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.statement.Statement;
+import ports.buildcraft.statement.StatementContainer;
+import ports.buildcraft.statement.StatementParameter;
 
 /**
  * Upstream {@code IStatementParameter} as the filler's pattern parameters use it: an enum constant
  * saved under its type's unique tag, with a sprite, a description and the values offered when the
  * player clicks it.
  */
-public interface FillerParameter {
+public interface FillerParameter extends StatementParameter {
     Map<String, Function<CompoundTag, FillerParameter>> READERS = Map.of(
             PatternParameterAxis.TAG, PatternParameterAxis::readFromNbt,
             PatternParameterCenter.TAG, PatternParameterCenter::readFromNbt,
@@ -57,7 +62,43 @@ public interface FillerParameter {
         return Arrays.stream(possible).filter(Objects::nonNull).toList();
     }
 
+    @Override
     void writeToNbt(CompoundTag tag);
+
+    @Override
+    default String getUniqueTag() {
+        return uniqueTag();
+    }
+
+    @Override
+    default Component getDescription() {
+        return Component.translatable(translationKey());
+    }
+
+    @Override
+    default ResourceLocation getSprite() {
+        return sprite();
+    }
+
+    @Override
+    default ItemStack getItemStack() {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    default StatementParameter onClick(StatementContainer source, Statement statement, ItemStack stack, MouseClick mouse) {
+        return null;
+    }
+
+    @Override
+    default StatementParameter rotateLeft() {
+        return this;
+    }
+
+    @Override
+    default StatementParameter[] getPossible(StatementContainer source) {
+        return getPossible();
+    }
 
     /** Upstream {@code StatementTypeParam.writeToNbt}. */
     static CompoundTag save(@Nullable FillerParameter parameter) {

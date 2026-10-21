@@ -1071,12 +1071,28 @@ class Generator:
         self.lang["gate.action.pulsar.single"] = "Single Power Pulse"
         self.lang["gate.trigger.timer"] = "%s Sec Timer"
 
+    def light_sensor(self) -> None:
+        """Upstream light sensor plug, its bright and dark triggers, and the machine-control action icons."""
+        self.copy("buildcraftsilicon/textures/plugs/daylight_sensor.png", "block/pipe/light_sensor.png")
+        for name in ["trigger_light_dark", "trigger_light_bright"]:
+            self.copy(f"buildcraftsilicon/textures/triggers/{name}.png", f"triggers/{name}.png")
+        for name in ["action_machinecontrol_on", "action_machinecontrol_off", "action_machinecontrol_loop"]:
+            self.copy(f"buildcraftcore/textures/triggers/{name}.png", f"triggers/{name}.png")
+        self.plug_item("plug_light_sensor", "buildcraftsilicon/models/plugs/light_sensor.json", {"all": rl("block/pipe/light_sensor")})
+        self.lang[f"item.{MOD}.plug_light_sensor"] = "Light Sensor"
+        self.lang["gate.trigger.light.bright"] = "Bright"
+        self.lang["gate.trigger.light.dark"] = "Dark"
+        self.lang["gate.action.machine.on"] = "On"
+        self.lang["gate.action.machine.off"] = "Off"
+        self.lang["gate.action.machine.loop"] = "Loop"
+
     def pulsar_timer_recipes(self) -> None:
         """Upstream BCSiliconRecipes: a pulsar from a redstone engine and two iron ingots at 1000 MJ, a timer from a clock at 500 MJ."""
         self.recipe("assembly/plug_pulsar", {
             "type": rl("assembly"), "result": {"item": rl("plug_pulsar")}, "MJ": 1000,
             "components": [{"ingredient": {"item": rl("redstone_engine")}}, {"ingredient": IRON, "amount": 2}]})
         self.assembly("assembly/plug_timer", "plug_timer", 500, [{"item": "minecraft:clock"}])
+        self.assembly("assembly/plug_light_sensor", "plug_light_sensor", 500, [{"item": "minecraft:daylight_detector"}])
 
     def lenses(self) -> None:
         for name, target in [("lens", "lens"), ("filter", "filter"), ("overlay_lens", "overlay")]:
@@ -1305,6 +1321,7 @@ class Generator:
         self.wires()
         self.lenses()
         self.pulsars()
+        self.light_sensor()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
