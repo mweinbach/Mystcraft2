@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanismgenerators",
+  "version": "${version}",
+  "name": "Mekanism: Generators",
+  "description": "Generators module for Mekanism.",
+  "authors": [
+    "Aidancbrady",
+    "Thommy101",
+    "Thiakil",
+    "pupnewfster",
+    "dizzyd"
+  ],
+  "contact": {
+    "homepage": "https://aidancbrady.com/mekanism/",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/mekanism"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.mekanism.generators.fabric.GeneratorsFabricMod"
+    ],
+    "client": [
+      "ports.mekanism.generators.fabric.GeneratorsFabricClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "1.19.2",
+    "java": ">=17",
+    "mekanism": "${version}"
+  }
+}

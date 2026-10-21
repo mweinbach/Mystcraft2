@@ -70,6 +70,21 @@ public final class TestPlatform {
         }
     }
 
+    public static long extractEnergy(BlockEntity blockEntity, Direction side, long amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+        EnergyStorage storage = EnergyStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        try (Transaction transaction = Transaction.openOuter()) {
+            long extracted = storage.extract(amount, transaction);
+            transaction.commit();
+            return extracted;
+        }
+    }
+
     public static long insertItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
         if (storage == null) {

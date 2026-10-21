@@ -18,7 +18,8 @@ public final class FabricMod implements ModInitializer {
         Platform.install(FabricPlatform.INSTANCE);
         FabricGameEvents.register();
         FabricLifecycle.addMod(Mekanism.MODID, Mekanism::new);
-        FabricLifecycle.startCommon();
+        // Other module jars register themselves and call tryStart. With only the core jar installed, this is the start.
+        FabricLifecycle.tryStart();
         FabricWorldgen.register();
     }
 }
