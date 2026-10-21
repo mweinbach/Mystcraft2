@@ -1,0 +1,36 @@
+// Mekanism for Forge: the shared upstream sources plus the Forge-only adapters. The Fabric variant builds from the
+// same shared sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'mekanism-forge-1.19.2'
+
+minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
+
+dependencies {
+    // Forge ships maven-artifact, Night Config and jsr305 at runtime; jsr305 is compile-only as upstream.
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testImplementation 'org.quicktheories:quicktheories:0.26'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) { useJUnitPlatform() }
+
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enableGameTest', 'true'
+        property 'forge.enabledGameTestNamespaces', 'mekanism'
+    }
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst { delete file('run/gameTestServer/world') }
+}
+
+tasks.withType(Jar).configureEach {
+    from('UPSTREAM.md') {
+        into 'META-INF'
+        rename { 'Mekanism-UPSTREAM.md' }
+    }
+    from('licenses') { into 'META-INF/licenses/mekanism' }
+}

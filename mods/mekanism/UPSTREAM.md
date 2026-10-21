@@ -6,7 +6,7 @@ Each JAR carries this file as `META-INF/Mekanism-UPSTREAM.md` and the files in [
 | Part | Source | Revision | Terms | Where it lives |
 | --- | --- | --- | --- | --- |
 | Mekanism (API, core code, assets, generated data) | [mekanism/Mekanism](https://github.com/mekanism/Mekanism), branch `1.19.x`, tag `v1.19.2-10.3.9.13` | `71e96905ef7ea47f0b65c78c1a9ac5e2bdabd04d` (2023-07-15) | MIT, Copyright (c) 2017-2023 Aidan C. Brady, [LICENSE](LICENSE) | `src/main/java/mekanism`, `src/main/resources`, `src/test/java` |
-| Forge API mirror, loader adapters, tests, tooling | Written for this port | this repository | MIT, [licenses/PORT-LICENSE.txt](licenses/PORT-LICENSE.txt) | `src/main/java/ports/mekanism`, `src/forge`, `src/fabric`, `src/gametest*`, `scripts` |
+| Forge API mirror, loader adapters, tests, tooling | Written for this port | this repository | MIT, [licenses/PORT-LICENSE.txt](licenses/PORT-LICENSE.txt) | `src/forge`, `src/fabric`, `fabric/`, `build.gradle` |
 
 `v1.19.2-10.3.9.13` is the last Mekanism release for Minecraft 1.19.2. Only the official repository was used.
 
@@ -25,12 +25,18 @@ Blockbench/Blender model sources.
 
 ## The Forge API mirror
 
-Upstream Mekanism is a Forge mod. `scripts/rewrite_forge_references.py` replaces every `net.minecraftforge.`
-reference in the imported sources with `ports.mekanism.lib.`. That package reimplements, for both loaders, the subset
-of Forge API shapes Mekanism uses: fluid stacks, capabilities and lazy optionals, item/fluid/energy handlers,
-registries and deferred registers, config specs, the event bus and the events Mekanism listens to, networking
-channels and client model/render hooks. It was written from the API shapes Mekanism calls, not copied from Forge.
-Loader services sit behind `ports.mekanism.platform.Platform`, implemented in `src/forge` and `src/fabric`.
+Upstream Mekanism is a Forge mod, and the shared sources keep their `net.minecraftforge` references; the Forge
+build compiles them against Forge itself. The Fabric build (`fabric/build.gradle`) copies them to
+`fabric/build/generated/sources/fabricShared` and rewrites, line for line, every `net.minecraftforge.` reference to
+`ports.mekanism.lib.` and the few uses of Forge-only constructors and static methods on vanilla classes to the
+port's equivalents in `ports.mekanism.lib.patched`. The rule list is `forgeOnlyVanillaMembers` in that build file.
+
+`ports.mekanism.lib` (in `src/fabric/java`) reimplements the subset of Forge API shapes Mekanism uses: fluid stacks,
+capabilities and lazy optionals, item/fluid/energy handlers, registries and deferred registers, config specs, the
+event bus and the events Mekanism listens to, networking channels, client model and render hooks, and the methods
+Forge adds to vanilla classes (injected interfaces in `lib.common.extensions` and `lib.client.extensions`, applied by
+the mixins in `ports.mekanism.fabric.mixin`). It was written from the API shapes Mekanism calls, not copied from
+Forge. Fabric loader services sit behind `ports.mekanism.platform.Platform`.
 
 ## Hand edits to upstream files
 
@@ -48,3 +54,4 @@ Every edit beyond the scripted import rewrite:
 | `mekanism/common/content/qio/QIOCraftingWindow.java` | Removed Recipe Stages checks | Recipe Stages not ported |
 | `mekanism/common/item/gear/ItemHazmatSuitArmor.java`, `ItemSpecialArmor.java` | Removed the Wildfire Gender capability | Gender integration not ported |
 | `mekanism/client/ClientRegistration.java`, `client/render/RenderTickHandler.java` | Removed the JEI recipe-screen listener (`guiOpening`) | JEI integration not ported |
+| `pack.mcmeta` | Wrote in the pack formats upstream's build expanded (`pack_format` 10, resource 9, data 10) | The port's builds do not expand upstream's template variables |
