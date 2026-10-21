@@ -316,6 +316,39 @@ public final class TestPlatform {
         return execute ? Action.EXECUTE : Action.SIMULATE;
     }
 
+    public static long insertBlockFluid(BlockEntity blockEntity, Direction side, Fluid fluid, long milliBuckets, boolean commit) {
+        return moveBlockFluid(blockEntity, side, fluid, milliBuckets, commit, true);
+    }
+
+    public static long extractBlockFluid(BlockEntity blockEntity, Direction side, Fluid fluid, long milliBuckets, boolean commit) {
+        return moveBlockFluid(blockEntity, side, fluid, milliBuckets, commit, false);
+    }
+
+    public static long blockFluid(BlockEntity blockEntity, Direction side) {
+        return blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side).map(handler -> {
+            long total = 0;
+            for (int tank = 0; tank < handler.getTanks(); tank++) {
+                total += handler.getFluidInTank(tank).getAmount();
+            }
+            return total;
+        }).orElse(0L);
+    }
+
+    private static long moveBlockFluid(BlockEntity blockEntity, Direction side, Fluid fluid, long milliBuckets, boolean commit, boolean insert) {
+        if (milliBuckets <= 0) {
+            return 0;
+        }
+        int amount = (int) Math.min(milliBuckets, Integer.MAX_VALUE);
+        return blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side).map(handler -> {
+            FluidStack stack = new FluidStack(fluid, amount);
+            if (insert) {
+                return (long) handler.fill(stack, commit ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
+            }
+            FluidStack drained = handler.drain(stack, commit ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
+            return drained.isEmpty() ? 0L : (long) drained.getAmount();
+        }).orElse(0L);
+    }
+
     public static void fillBlockFluid(BlockEntity blockEntity, Fluid fluid, int milliBuckets) {
         if (blockEntity instanceof TileEntityFluidTank tank) {
             tank.fluidTank.setStack(new FluidStack(fluid, milliBuckets));

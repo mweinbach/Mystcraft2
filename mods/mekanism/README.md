@@ -40,6 +40,8 @@ strip, flatten and till actions. Additions is an empty scaffold.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
+  A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
+  the development client draws that stored fluid through the glass.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -47,8 +49,8 @@ strip, flatten and till actions. Additions is an empty scaffold.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
-  player and living events, a Generators registry smoke test, the simple generators, and Tools registration, crafting,
-  tool actions and shield blocking) pass on both loaders.
+  player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, and Tools
+  registration, crafting, tool actions and shield blocking) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
