@@ -45,6 +45,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import ports.extremereactors.corelib.block.AbstractModBlockEntity;
 import ports.extremereactors.corelib.internal.Log;
 import ports.extremereactors.corelib.CodeHelper;
 import ports.extremereactors.corelib.data.geometry.CuboidBoundingBox;
@@ -1421,6 +1422,16 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * Marks the whole multiblock for a render update on the client. On the server, this does nothing
      */
 	protected void markMultiblockForRenderUpdate() {
+
+        if (this.calledByLogicalClient()) {
+            // The parts cache their model data, which depends on whether the machine is assembled.
+            this._connectedParts.forEach(part -> {
+                if (part instanceof AbstractModBlockEntity entity) {
+                    entity.invalidateModelData();
+                }
+            });
+        }
+
 	    this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
 	}
 

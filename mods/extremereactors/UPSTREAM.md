@@ -9,6 +9,7 @@ file as `META-INF/ExtremeReactors-UPSTREAM.md` and the files in
 | Extreme Reactors 2 (code, assets, data) | [ZeroNoRyouki/ExtremeReactors2](https://github.com/ZeroNoRyouki/ExtremeReactors2), branch `1.19` | `127cb0311a7d7a6dd43fbde2fd88837bef2739d1` (2023-08-21) | MIT, as declared in its `mods.toml` | `src/main/java/it/zerono/mods/extremereactors`, `src/main/resources` |
 | ZeroCore 2 multiblock API | [ZeroNoRyouki/ZeroCore2](https://github.com/ZeroNoRyouki/ZeroCore2), branch `1.19`, `lib/multiblock` only | `dd1c1357beb837ab97ad81606b5a02a86c642a9d` (2023-08-12) | MIT, [ZeroCore2-multiblock-LICENSE.md](licenses/ZeroCore2-multiblock-LICENSE.md) | `src/main/java/ports/extremereactors/multiblock` |
 | `corelib`, loader adapters, tests, tooling | Written for this port | this repository | MIT, [LICENSE](LICENSE) | `src/main/java/ports/extremereactors/{corelib,platform}`, `src/forge`, `src/fabric`, `src/gametest*`, `src/test`, `scripts`, `emc` |
+| Machine and storage block textures | Drawn for this port by `scripts/generate_textures.py` | this repository | MIT, [LICENSE](LICENSE) | `src/main/resources/assets/bigreactors/textures/block` (not the ores), `textures/fluid/fluid.fuelcolumn.*` |
 
 ## Lineage
 
@@ -144,6 +145,9 @@ In the MIT multiblock package:
   tick for server and client levels, so `MultiblockClientRegistry` was removed.
 - `AbstractMultiblockController` creates its sync provider through `corelib` and
   wraps the payload in `multiblockData`, so the reference part forwards it.
+  On the client, `markMultiblockForRenderUpdate` also drops each connected
+  part's cached model data, so casings and glass switch to their connected
+  variants when the machine assembles or breaks.
 
 Resources:
 
@@ -168,6 +172,14 @@ Resources:
   `assets/bigreactors/textures/item/bucket_fluid_overlay.png` stand in for
   Forge's dynamic bucket model. The overlay is the port's own texture.
 - The multiblock validation messages appended to `en_us.json`.
+- The machine textures are redrawn (see [Machine textures](PARITY.md#machine-textures)).
+  Every reactor, turbine, reprocessor and fluidizer part, the fuel column fill
+  and the nine storage blocks, including graphite, have new images under the
+  same file names, drawn by `scripts/generate_textures.py`. The controllers'
+  active and error faces gained animation metadata, as the idle face and the
+  charging ports already had. Upstream's glass was 32×32 and is now 16×16. Models,
+  blockstates, ores, items, fluids other than the fuel column, and GUI textures
+  are upstream's.
 
 ## Not imported
 

@@ -60,7 +60,7 @@ and active fluid ports.
 | Screens | All 13 upstream screen classes, for every controller and port that has a menu, with Extreme Reactors' textures, layouts, tooltips and controls, on `corelib`'s GUI layer (see below). |
 | Fuel and coolant registries, modpack API (`modpack_api.json`), IMC | Ported; see the dispatcher note below. |
 | Ores, ingots, dusts, blocks, fluids, buckets, wrench | Ported. Ores generate at upstream's heights and honor the worldgen switches (see below). |
-| Block models, fuel rod and rotor rendering | Ported; the rotor animates from the synchronized rotor speed. |
+| Block models, fuel rod and rotor rendering | Ported; the rotor animates from the synchronized rotor speed. The textures are the port's own (see [Machine textures](#machine-textures)). |
 | EMC | Every item has a value or a documented exclusion; see [emc/README.md](emc/README.md). |
 
 ## Known gaps
@@ -125,6 +125,38 @@ multiplayer and moving worlds between loaders are not supported, and there is
 no migration from Extreme Reactors 2 worlds: the mod id is the same
 (`bigreactors`), but saves are untested across the two.
 
+## Machine textures
+
+The port replaces upstream's machine textures with its own set, drawn by
+`scripts/generate_textures.py`, so a reactor, its turbines, the reprocessor and
+the fluidizer read as one plant. This is a deliberate visual departure; the
+structures, rules, models and blockstates are upstream's.
+
+- One steel palette per tier: galvanized steel for basic parts, darker gunmetal
+  with hazard-striped corners for reinforced ones. Each machine keeps an accent
+  on its frame corners, controller screen and glass tint: yellow for the
+  reactor, blue for the turbine, green for the reprocessor, violet for the
+  fluidizer.
+- Casings use upstream's variant models: a seamless plate on faces and a
+  continuous frame on edges and corners. Glass connects to its neighbors
+  through upstream's sixteen-mask models.
+- Every port has the same bezel. A glyph says what it carries (fuel, waste,
+  water, steam, energy, redstone, computer), and arrows on the bezel say which
+  way it flows: green in, orange out. Unconnected ports are dimmed, as upstream.
+- Controllers show a red alert when the machine is not assembled, a dim idle
+  screen when it is off, and an animated readout when it runs.
+- Fuel rods have hazard bands and rotor blades accent-colored tips. The fuel
+  column fill is drawn as stacked pellets with a slow glow moving along it,
+  still tinted by the reactant color.
+- Ores, ingots, dusts, items, buckets, fluids other than the fuel column, and
+  the screens keep upstream's textures.
+
+Upstream's casings and glass never showed their connected variants in this port
+before this change: parts cached their model data from before the machine
+assembled. `corelib` now drops that cache when a multiblock re-renders and when
+a client update changes a part's model data, so assembled machines and running
+controllers draw the right faces on both loaders.
+
 ## Tests
 
 | Test | Covers |
@@ -148,3 +180,6 @@ fuel rods render their fill level, the turbine rotor spins, and the buckets
 render tinted. With `/ershowcase` (see the [README](README.md)), every screen
 was opened on a running machine on Fabric, and the reactor and turbine
 controllers on Forge, showing live values, tooltips and working buttons.
+`/ershowcase build` and `/ershowcase plant` were photographed on both loaders
+with the redrawn textures: assembled casings join up, glass connects, and
+running controllers show their active face.

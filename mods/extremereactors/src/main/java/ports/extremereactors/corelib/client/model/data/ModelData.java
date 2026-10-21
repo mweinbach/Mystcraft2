@@ -83,6 +83,16 @@ public final class ModelData {
         private final Map<ModelProperty<?>, Object> _values;
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        return this == other || (other instanceof ModelData data && this._properties.equals(data._properties));
+    }
+
+    @Override
+    public int hashCode() {
+        return this._properties.hashCode();
+    }
+
     private ModelData(final ImmutableMap<ModelProperty<?>, Object> properties) {
         this._properties = properties;
     }

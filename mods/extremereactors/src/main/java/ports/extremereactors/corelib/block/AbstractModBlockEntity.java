@@ -128,7 +128,14 @@ public abstract class AbstractModBlockEntity
      * The data shown by this block entity changed, for example because its multiblock controller updated.
      */
     protected void onDataUpdate() {
+
         this.DataUpdated.raise(Runnable::run);
+
+        // A controller's face, for example, follows whether its machine is running.
+        if (this.calledByLogicalClient() && null != this._modelData &&
+                !this._modelData.equals(this.getUpdatedModelData())) {
+            this.markForRenderUpdate();
+        }
     }
 
     /** Raise {@link #DataUpdated}, as when new data for this block entity arrives on the client. */
@@ -265,10 +272,19 @@ public abstract class AbstractModBlockEntity
 
             final BlockState state = this.getBlockState();
 
-            this._modelData = null;
-            this.onModelDataInvalidated();
+            this.invalidateModelData();
             this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_IMMEDIATE);
         }
+    }
+
+    /**
+     * Client: forget the cached model data so that the next render of the block recomputes it. Unlike
+     * {@link #markForRenderUpdate()} this does not re-render the block.
+     */
+    public void invalidateModelData() {
+
+        this._modelData = null;
+        this.onModelDataInvalidated();
     }
 
     /**

@@ -14,8 +14,10 @@ The port includes Extreme Reactors 2's basic and reinforced reactors and
 turbines, the reprocessor and the fluidizer, with the upstream reactor, turbine,
 fuel, waste, moderator and coolant simulation. It also includes yellorite,
 anglesite and benitoite ores, ingots, dusts, storage blocks, reactant and
-coolant fluids, and the wrench. Blocks, models, textures and the fuel rod and
-rotor animations are Extreme Reactors' own.
+coolant fluids, and the wrench. Blocks, models and the fuel rod and rotor
+animations are Extreme Reactors' own. The machine textures are a cohesive set
+redrawn for this port; ores, items, fluids and screens keep upstream's (see
+[PARITY.md](PARITY.md#machine-textures)).
 
 Every upstream machine screen is ported with Extreme Reactors' own textures and
 layouts: the reactor, turbine, reprocessor and fluidizer controllers, and the
@@ -93,9 +95,14 @@ GameTest mod, which adds the `/ershowcase` command. `/ershowcase build` clears
 an area next to the player and builds a passive reactor, an active reactor, a
 turbine, a reprocessor and a fluidizer, loads them with fuel and inputs, then
 keeps the reprocessor and fluidizer powered, the reprocessor watered and the
-active reactor's steam vented. `/ershowcase open <part>` opens a part's screen,
-for example `reactor_controller` or `turbine_fluidport`. Neither the command
-nor the GameTest mod is in the release JARs.
+active reactor's steam vented. `/ershowcase plant` builds a running 9×9×9
+reinforced reactor and a 7×12×7 reinforced turbine with every reinforced port
+variant, for reviewing textures; the turbine's power taps and active fluid port
+are on its east face. Each build replaces the previous one, including the
+machines `/ershowcase` keeps supplied. `/ershowcase open <part>` opens a part's
+screen, for example `reactor_controller` or `turbine_fluidport`. Neither the
+command nor the GameTest mod is in the release JARs. After editing
+`scripts/generate_textures.py`, run it to redraw the textures.
 
 ## License
 
