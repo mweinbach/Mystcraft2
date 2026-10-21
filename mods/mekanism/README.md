@@ -18,11 +18,11 @@ them.
 The core module is in this port. Generators, Tools and Additions are extra mod ids
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
-gas-burning, bio and wind generators produce energy on both loaders. Turbine, fission and fusion are not verified
-yet. Tools' paxels, tools, armor and shields are imported, and both loaders register them, craft them and run their
-strip, flatten and till actions. Additions' plastic blocks (every color, including slabs, stairs, fences, roads,
-transparent and glow variants), glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the
-walkie-talkie are not.
+gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
+through the gas handler and outputs energy. Fission and fusion are not verified yet. Tools' paxels, tools, armor
+and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
+Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
+glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the walkie-talkie are not.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -43,7 +43,8 @@ walkie-talkie are not.
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
-  the development client draws that stored fluid through the glass.
+  the development client draws that stored fluid through the glass. A formed industrial turbine in that client draws
+  its rotor and blades through the glass.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -51,9 +52,9 @@ walkie-talkie are not.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
   chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading, render bounds, the player
-  and living events, a Generators registry smoke test, the simple generators, the dynamic tank, Tools registration,
-  crafting, tool actions and shield blocking, and Additions registration, crafting and block behaviour) pass on both
-  loaders.
+  and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the industrial
+  turbine, Tools registration, crafting, tool actions and shield blocking, and Additions registration, crafting and
+  block behaviour) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

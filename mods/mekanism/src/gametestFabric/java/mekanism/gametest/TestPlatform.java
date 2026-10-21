@@ -211,6 +211,29 @@ public final class TestPlatform {
         return handler == null ? GasStack.EMPTY : handler.extractChemical(amount, chemicalAction(execute));
     }
 
+    public static long insertBlockGas(BlockEntity blockEntity, Direction side, Gas gas, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        IGasHandler handler = find(MekanismChemicalLookups.GAS, blockEntity, side);
+        if (handler == null) {
+            return 0;
+        }
+        return amount - handler.insertChemical(new GasStack(gas, amount), chemicalAction(execute)).getAmount();
+    }
+
+    public static long blockGas(BlockEntity blockEntity, Direction side) {
+        IGasHandler handler = find(MekanismChemicalLookups.GAS, blockEntity, side);
+        if (handler == null) {
+            return 0;
+        }
+        long total = 0;
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            total += handler.getChemicalInTank(tank).getAmount();
+        }
+        return total;
+    }
+
     public static int gasTanks(BlockEntity blockEntity, Direction side) {
         IGasHandler handler = find(MekanismChemicalLookups.GAS, blockEntity, side);
         return handler == null ? 0 : handler.getTanks();
