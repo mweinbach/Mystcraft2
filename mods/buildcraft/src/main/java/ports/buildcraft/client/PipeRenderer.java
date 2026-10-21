@@ -23,7 +23,10 @@ import ports.buildcraft.transport.flow.FluidFlow;
 import ports.buildcraft.transport.flow.ItemFlow;
 import ports.buildcraft.transport.flow.PowerFlow;
 
-/** Upstream {@code PipeFlowRendererItems}, {@code PipeFlowRendererFluids} and {@code PipeFlowRendererPower}. */
+/**
+ * Upstream {@code RenderPipeHolder}: pluggables, then wires, items, fluids and power within the TESR range, through
+ * {@code PipeWireRenderer}, {@code PipeFlowRendererItems}, {@code PipeFlowRendererFluids} and {@code PipeFlowRendererPower}.
+ */
 public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> {
     public static final ResourceLocation POWER_FLOW = BuildCraft.id("block/pipe/power_flow");
     private static final float ITEM_SCALE = 0.7F;
@@ -42,6 +45,7 @@ public final class PipeRenderer implements BlockEntityRenderer<PipeBlockEntity> 
         PluggableRenderers.render(pipe, partialTicks, poseStack, buffers, light);
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         if (!Vec3.atCenterOf(pipe.getBlockPos()).closerThan(camera, FLOW_RANGE)) return;
+        PipeWireRenderer.render(pipe, poseStack, buffers, light);
         if (pipe.flow() instanceof ItemFlow items) renderItems(pipe, items, partialTicks, poseStack, buffers, light);
         else if (pipe.flow() instanceof FluidFlow fluids) renderFluids(pipe, fluids, partialTicks, poseStack, buffers, light);
         else if (pipe.flow() instanceof PowerFlow power) renderPower(pipe, power, partialTicks, poseStack, buffers);

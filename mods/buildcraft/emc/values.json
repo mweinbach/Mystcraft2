@@ -576,6 +576,86 @@
       "itemalchemy": 16,
       "source": "recipe"
     },
+    "buildcraft:wire_black": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_blue": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_brown": {
+      "projecte": 16,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_cyan": {
+      "projecte": 9,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_gray": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_green": {
+      "projecte": 9,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_light_blue": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_light_gray": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_lime": {
+      "projecte": 9,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_magenta": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_orange": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_pink": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_purple": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_red": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_white": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
+    "buildcraft:wire_yellow": {
+      "projecte": 10,
+      "itemalchemy": 10,
+      "source": "conversion assemble_pipe_wire"
+    },
     "buildcraft:wrench": {
       "projecte": 788,
       "itemalchemy": 776,

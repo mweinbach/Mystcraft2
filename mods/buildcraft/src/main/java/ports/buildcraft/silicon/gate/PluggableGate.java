@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -15,12 +16,13 @@ import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
+import ports.buildcraft.transport.wire.WireEmitter;
 
 /**
  * Upstream {@code PluggableGate}: a gate on one face of a pipe. Clicking it with a gate copier copies or
  * pastes its configuration; clicking it otherwise opens its GUI. Placement advancements are not ported.
  */
-public class PluggableGate extends PipePluggable {
+public class PluggableGate extends PipePluggable implements WireEmitter {
     private static final AABB[] BOXES = faceBoxes(2, 4, 5, 11);
 
     private GateLogic logic;
@@ -65,7 +67,7 @@ public class PluggableGate extends PipePluggable {
     private void readLogic(CompoundTag data) {
         GateVariant variant = GateVariant.readFromNbt(data.getCompound("variant"));
         if (!variant.equals(logic.variant)) logic = new GateLogic(this, variant);
-        logic.readConfigData(data);
+        logic.readFromNbt(data);
     }
 
     // PipePluggable
@@ -96,6 +98,16 @@ public class PluggableGate extends PipePluggable {
     }
 
     @Override
+    public boolean isEmitting(DyeColor colour) {
+        return logic.isEmitting(colour);
+    }
+
+    @Override
+    public void emitWire(DyeColor colour) {
+        logic.emitWire(colour);
+    }
+
+    @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, Vec3 hit) {
         if (player instanceof ServerPlayer serverPlayer) {
             if (!interactWithCopier(player, player.getMainHandItem()) && !interactWithCopier(player, player.getOffhandItem())) {
@@ -123,7 +135,7 @@ public class PluggableGate extends PipePluggable {
             player.displayClientMessage(Component.translatable("chat.gateCopier.noInformation"), true);
             return false;
         }
-        GateCopierItem.setCopiedGateData(stack, logic.writeToNbt());
+        GateCopierItem.setCopiedGateData(stack, logic.writeConfigData());
         player.displayClientMessage(Component.translatable("chat.gateCopier.gateCopied"), true);
         return true;
     }

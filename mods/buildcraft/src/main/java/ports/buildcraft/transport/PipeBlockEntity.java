@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,10 +32,14 @@ import ports.buildcraft.transport.flow.PowerFlow;
 import ports.buildcraft.transport.flow.StructureFlow;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
+import ports.buildcraft.transport.wire.PipeWires;
+import ports.buildcraft.transport.wire.WireBetween;
+import ports.buildcraft.transport.wire.WirePart;
+import ports.buildcraft.transport.wire.WireSystems;
 
 /**
- * Upstream {@code TilePipeHolder} and {@code Pipe}: owns one behaviour, one flow and a pluggable
- * on each face, and works out which faces connect to neighbouring pipes and blocks.
+ * Upstream {@code TilePipeHolder} and {@code Pipe}: owns one behaviour, one flow, a pluggable on each
+ * face and the pipe's wires, and works out which faces connect to neighbouring pipes and blocks.
  */
 public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, Injectable {
     public enum ConnectedType { PIPE, TILE }
@@ -46,7 +51,8 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     private final PipeFlow flow;
     private final ConnectedType[] connections = new ConnectedType[6];
     private final PipePluggable[] pluggables = new PipePluggable[6];
-    private volatile VoxelShape pluggableShape = Shapes.empty();
+    private final PipeWires wires = new PipeWires(this);
+    private volatile VoxelShape extraShape = Shapes.empty();
     @Nullable
     private volatile CombinedShape combinedShape;
     private boolean updateMarked = true;
@@ -75,6 +81,10 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
 
     public PipeFlow flow() {
         return flow;
+    }
+
+    public PipeWires wires() {
+        return wires;
     }
 
     @Override
@@ -113,13 +123,19 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         updateMarked = false;
         ConnectedType[] old = connections.clone();
         for (Direction face : Direction.values()) connections[face.ordinal()] = computeConnection(face);
+        boolean changed = false;
         for (Direction face : Direction.values()) {
             int i = face.ordinal();
-            if ((old[i] == null) != (connections[i] == null) && neighbourTile(face) instanceof PipeBlockEntity other) {
-                other.markForUpdate();
-            }
+            if ((old[i] == null) == (connections[i] == null)) continue;
+            changed = true;
+            if (neighbourTile(face) instanceof PipeBlockEntity other) other.markForUpdate();
         }
         refreshState();
+        // Wires cross only connected faces, so systems joined or split by a blocker must be rebuilt once connections settle.
+        if (changed && !wires.parts().isEmpty() && level instanceof ServerLevel server) {
+            WireSystems.get(server).rebuildWireSystemsAround(this);
+            wires.updateBetweens(false);
+        }
     }
 
     @Nullable
@@ -155,8 +171,9 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         redstoneOutput = new int[6];
         PipePluggable old = pluggables[side.ordinal()];
         pluggables[side.ordinal()] = with;
-        updatePluggableShape();
+        updateExtraShape();
         if (level != null && !level.isClientSide) {
+            if (old != with) WireSystems.get((ServerLevel) level).rebuildWireSystemsAround(this);
             markForUpdate();
             queueSync();
             setChanged();
@@ -175,14 +192,14 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         }
     }
 
-    /** The union of the pluggables' boxes, which {@link PipeBlock} adds to the pipe's own shape. */
-    public VoxelShape pluggableShape() {
-        return pluggableShape;
+    /** The union of the pluggables' and wires' boxes, which {@link PipeBlock} adds to the pipe's own shape. */
+    public VoxelShape extraShape() {
+        return extraShape;
     }
 
-    /** {@code pipeShape} joined with {@link #pluggableShape()}. Shapes are also read off the main thread, so the cache is one volatile record. */
+    /** {@code pipeShape} joined with {@link #extraShape()}. Shapes are also read off the main thread, so the cache is one volatile record. */
     VoxelShape shapeWith(VoxelShape pipeShape) {
-        VoxelShape plugs = pluggableShape;
+        VoxelShape plugs = extraShape;
         CombinedShape cached = combinedShape;
         if (cached == null || cached.pipe != pipeShape || cached.plugs != plugs) {
             cached = new CombinedShape(pipeShape, plugs, Shapes.or(pipeShape, plugs).optimize());
@@ -191,12 +208,28 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         return cached.combined;
     }
 
-    private void updatePluggableShape() {
+    private void updateExtraShape() {
         VoxelShape shape = Shapes.empty();
         for (PipePluggable plug : pluggables) {
             if (plug != null) shape = Shapes.or(shape, Shapes.create(plug.getBoundingBox()));
         }
-        pluggableShape = shape.optimize();
+        for (WirePart part : wires.parts().keySet()) shape = Shapes.or(shape, Shapes.create(part.boundingBox));
+        for (WireBetween between : wires.betweens().keySet()) shape = Shapes.or(shape, Shapes.create(between.boundingBox));
+        extraShape = shape.optimize();
+    }
+
+    /** Called by {@link PipeWires} when a wire is added or removed. */
+    public void onWiresChanged() {
+        updateExtraShape();
+        if (level != null && !level.isClientSide) {
+            queueSync();
+            setChanged();
+        }
+    }
+
+    /** Called by {@link PipeWires} when the lengths drawn between wires change. */
+    public void onWireShapeChanged() {
+        updateExtraShape();
     }
 
     private record CombinedShape(VoxelShape pipe, VoxelShape plugs, VoxelShape combined) {}
@@ -259,6 +292,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         behaviour.onTick();
         flow.serverTick();
         tickPluggables();
+        if (wires.tick()) queueSync();
         updateRedstoneNeighbours();
         flushSync();
     }
@@ -266,6 +300,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     void clientTick() {
         flow.clientTick();
         tickPluggables();
+        wires.tick();
     }
 
     private void tickPluggables() {
@@ -327,6 +362,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         tag.put("flow", flowTag);
         tag.put("plugs", writePluggables(false));
         tag.putIntArray("redstone", redstoneOutput);
+        tag.put("wireManager", wires.save());
     }
 
     @Override
@@ -336,6 +372,8 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         readPluggables(tag.getCompound("plugs"), false);
         int[] redstone = tag.getIntArray("redstone");
         if (redstone.length == 6) redstoneOutput = redstone;
+        wires.load(tag.getCompound("wireManager"));
+        updateExtraShape();
         updateMarked = true;
     }
 
@@ -343,12 +381,14 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     protected void writeClient(CompoundTag tag) {
         flow.writeClient(tag);
         tag.put("plugs", writePluggables(true));
+        tag.put("wires", wires.writeClient());
     }
 
     @Override
     protected void readClient(CompoundTag tag) {
         flow.readClient(tag);
         readPluggables(tag.getCompound("plugs"), true);
+        wires.readClient(tag.getCompound("wires"));
     }
 
     /** Upstream {@code PluggableHolder.writeToNbt}: each face's pluggable id and data, keyed by face name. */
@@ -384,6 +424,6 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
             else plug.load(entry.getCompound("data"));
             pluggables[face.ordinal()] = plug;
         }
-        updatePluggableShape();
+        updateExtraShape();
     }
 }

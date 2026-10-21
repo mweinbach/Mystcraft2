@@ -5,7 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests} and {@link GateTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests} and {@link WireTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -250,6 +250,18 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) { GateTests.gateTurnsIronPipeAndReadsInventories(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void wirePlacesJoinsAndSaves(GameTestHelper helper) { WireTests.wirePlacesJoinsAndSaves(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void wireBreaksOffAndDrops(GameTestHelper helper) { WireTests.wireBreaksOffAndDrops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 60)
+    public void pipeSignalCarriesAGateSignal(GameTestHelper helper) { WireTests.pipeSignalCarriesAGateSignal(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void wireSystemsFollowPluggables(GameTestHelper helper) { WireTests.wireSystemsFollowPluggables(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

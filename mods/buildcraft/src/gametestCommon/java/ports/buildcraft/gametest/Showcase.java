@@ -12,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -76,6 +77,7 @@ import ports.buildcraft.transport.PipeDefinition;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
 import ports.buildcraft.transport.statements.BCTransportStatements;
+import ports.buildcraft.transport.wire.WirePart;
 
 /**
  * Development-only demonstration layout for screenshots: every implemented machine running on real
@@ -157,6 +159,15 @@ public final class Showcase {
      */
     public static void buildGates(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).gates();
+    }
+
+    /**
+     * Builds a pipe wire bench: two lines of stone pipes carrying red and blue wire along their south edges, where a
+     * lever-driven gate at the west end sends a red pipe signal that a gate at the east end turns into redstone for a
+     * lamp, one lever on and one off; behind them a row of pipes each ringed on top with one of the sixteen colours.
+     */
+    public static void buildWires(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).wires();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -377,6 +388,42 @@ public final class Showcase {
         set(3, 0, z, Blocks.REDSTONE_LAMP);
         set(0, 0, z, Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.FLOOR)
                 .setValue(LeverBlock.FACING, Direction.EAST).setValue(LeverBlock.POWERED, on));
+    }
+
+    private void wires() {
+        prepare(-3, 18, -6, 6);
+        signalLine(0, true);
+        signalLine(3, false);
+        DyeColor[] colours = DyeColor.values();
+        for (int i = 0; i < colours.length; i++) {
+            PipeBlockEntity pipe = pipe(i, 0, -3, BCTransport.STONE_ITEM);
+            for (boolean x : new boolean[] {false, true}) {
+                for (boolean z : new boolean[] {false, true}) pipe.wires().addPart(WirePart.get(x, true, z), colours[i]);
+            }
+        }
+    }
+
+    /** A lever, a line of six stone pipes with red wire on top and blue below their south edges, and a lamp. */
+    private void signalLine(int z, boolean on) {
+        set(0, 0, z, Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.FLOOR)
+                .setValue(LeverBlock.FACING, Direction.EAST).setValue(LeverBlock.POWERED, on));
+        PipeBlockEntity[] line = new PipeBlockEntity[6];
+        for (int i = 0; i < line.length; i++) {
+            line[i] = pipe(1 + i, 0, z, BCTransport.STONE_ITEM);
+            for (boolean east : new boolean[] {false, true}) {
+                if (east ? i == line.length - 1 : i == 0) continue;
+                line[i].wires().addPart(WirePart.get(east, true, true), DyeColor.RED);
+                line[i].wires().addPart(WirePart.get(east, false, true), DyeColor.BLUE);
+            }
+        }
+        GateVariant iron = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
+        GateLogic sender = gate(line[0], Direction.NORTH, iron);
+        sender.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_REDSTONE_ACTIVE, null));
+        sender.statements[0].action.set(ActionWrapper.wrap(BCTransportStatements.ACTION_PIPE_SIGNAL[DyeColor.RED.getId()], null));
+        GateLogic receiver = gate(line[line.length - 1], Direction.NORTH, iron);
+        receiver.statements[0].trigger.set(TriggerWrapper.wrap(BCTransportStatements.TRIGGER_PIPE_SIGNAL[DyeColor.RED.getId() * 2], null));
+        receiver.statements[0].action.set(ActionWrapper.wrap(BCCoreStatements.ACTION_REDSTONE, null));
+        set(1 + line.length, 0, z, Blocks.REDSTONE_LAMP);
     }
 
     private static GateLogic gate(PipeBlockEntity pipe, Direction side, GateVariant variant) {

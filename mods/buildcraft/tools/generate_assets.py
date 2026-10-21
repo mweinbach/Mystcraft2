@@ -149,6 +149,16 @@ MATERIAL_TAGS = {
     ("quartz", "gems/quartz"): ["minecraft:quartz"],
 }
 
+# DyeColor order: (1.19 name, upstream EnumDyeColor name, title).
+WIRE_COLOURS = [
+    ("white", "white", "White"), ("orange", "orange", "Orange"), ("magenta", "magenta", "Magenta"),
+    ("light_blue", "light_blue", "Light Blue"), ("yellow", "yellow", "Yellow"), ("lime", "lime", "Lime"),
+    ("pink", "pink", "Pink"), ("gray", "gray", "Gray"), ("light_gray", "silver", "Light Gray"), ("cyan", "cyan", "Cyan"),
+    ("purple", "purple", "Purple"), ("blue", "blue", "Blue"), ("brown", "brown", "Brown"), ("green", "green", "Green"),
+    ("red", "red", "Red"), ("black", "black", "Black"),
+]
+MATERIAL_TAGS.update({(f"{colour}_dyes", f"dyes/{colour}"): [f"minecraft:{colour}_dye"] for colour, _, _ in WIRE_COLOURS})
+
 # Upstream EnumRedstoneChipset and its assembly_recipes_examples: (id, texture, name, MJ, extra ingredient).
 CHIPSETS = [
     ("redstone_chipset", "red", "Redstone Chipset", 10000, None),
@@ -955,6 +965,22 @@ class Generator:
             title = f"{material_names[material]} {logic.upper()} Gate" if material in material_names else "Basic Gate"
             self.lang[f"item.{MOD}.{gate_name(logic, material, modifier)}"] = title
 
+    def wires(self) -> None:
+        for colour, upstream, title in WIRE_COLOURS:
+            self.copy(f"buildcrafttransport/textures/wires/{upstream}.png", f"block/wire/{upstream}.png")
+            self.copy(f"buildcrafttransport/textures/items/wire/{upstream}.png", f"item/wire/{upstream}.png")
+            self.generated_item(f"wire_{colour}", f"wire/{upstream}")
+            for state in ["active", "inactive"]:
+                sprite = f"trigger_pipesignal_{upstream}_{state}"
+                self.copy(f"buildcrafttransport/textures/triggers/{sprite}.png", f"triggers/{sprite}.png")
+            self.lang[f"item.{MOD}.wire_{colour}"] = f"{title} Pipe Wire"
+        self.lang.update({
+            f"item.{MOD}.wire": "%s Pipe Wire",
+            "gate.action.pipe.wire": "%s Pipe Signal",
+            "gate.trigger.pipe.wire.active": "%s Pipe Signal On",
+            "gate.trigger.pipe.wire.inactive": "%s Pipe Signal Off",
+        })
+
     def write_lang(self) -> None:
         self.lang.update({
             f"itemGroup.{MOD}.main": "BuildCraft",
@@ -1057,9 +1083,17 @@ class Generator:
             components = [{"ingredient": REDSTONE}] + ([{"ingredient": extra}] if extra else [])
             self.recipe(name, {"type": rl("assembly"), "result": {"item": rl(name)}, "MJ": mj, "components": components})
 
-    def assembly(self, name: str, result: str, mj: int, ingredients: list[dict]) -> None:
-        self.recipe(name, {"type": rl("assembly"), "result": {"item": rl(result)}, "MJ": mj,
+    def assembly(self, name: str, result: str, mj: int, ingredients: list[dict], count: int = 1) -> None:
+        output = {"item": rl(result)}
+        if count != 1:
+            output["count"] = count
+        self.recipe(name, {"type": rl("assembly"), "result": output, "MJ": mj,
                            "components": [{"ingredient": ingredient} for ingredient in ingredients]})
+
+    def wire_recipes(self) -> None:
+        """Upstream BCTransportRecipes: eight wires of a colour from redstone and that dye."""
+        for colour, _, _ in WIRE_COLOURS:
+            self.assembly(f"assembly/wire_{colour}", f"wire_{colour}", 10_000, [REDSTONE, tags(f"{colour}_dyes", f"dyes/{colour}")], count=8)
 
     def gate_recipes(self) -> None:
         """Upstream BCSiliconRecipes: crafted basic, iron and nether brick gates, iron gate modifiers, AND/OR swaps and assembly."""
@@ -1146,6 +1180,7 @@ class Generator:
         self.markers()
         self.silicon()
         self.gates()
+        self.wires()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
@@ -1154,6 +1189,7 @@ class Generator:
         self.recipes()
         self.silicon_recipes()
         self.gate_recipes()
+        self.wire_recipes()
         self.data_tags()
         self.loot_tables()
 

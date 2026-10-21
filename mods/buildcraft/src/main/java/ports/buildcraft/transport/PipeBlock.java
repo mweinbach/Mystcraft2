@@ -12,6 +12,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -34,10 +35,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import ports.buildcraft.core.Wrenches;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.pluggable.PluggableItem;
+import ports.buildcraft.transport.wire.WireBetween;
+import ports.buildcraft.transport.wire.WireItem;
+import ports.buildcraft.transport.wire.WireNode;
+import ports.buildcraft.transport.wire.WirePart;
 
 /**
  * Upstream {@code BlockPipeHolder} for a single pipe type; each face's connection is block state, and
- * the pipe's pluggables add their boxes to its shape.
+ * the pipe's pluggables and wires add their boxes to its shape.
  */
 public class PipeBlock extends BaseEntityBlock {
     public static final Map<Direction, EnumProperty<PipeSide>> SIDES = new EnumMap<>(Direction.class);
@@ -91,7 +96,7 @@ public class PipeBlock extends BaseEntityBlock {
         for (Direction face : Direction.values()) {
             if (state.getValue(SIDES.get(face)).isConnected()) mask |= 1 << face.ordinal();
         }
-        if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe && !pipe.pluggableShape().isEmpty()) {
+        if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe && !pipe.extraShape().isEmpty()) {
             return pipe.shapeWith(SHAPES[mask]);
         }
         return SHAPES[mask];
@@ -175,10 +180,80 @@ public class PipeBlock extends BaseEntityBlock {
             if (!player.getAbilities().instabuild) held.shrink(1);
             return InteractionResult.CONSUME;
         }
+        if (held.getItem() instanceof WireItem wire) {
+            if (level.isClientSide) return InteractionResult.SUCCESS;
+            if (placeWire(pipe, hit, wire.colour)) {
+                if (!player.getAbilities().instabuild) held.shrink(1);
+                return InteractionResult.CONSUME;
+            }
+        }
         if (level.isClientSide) {
             return definition.hasMenu || Wrenches.isWrench(held) ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
         return pipe.behaviour().onUse((ServerPlayer) player, hand, part);
+    }
+
+    /**
+     * Upstream's wire placement in {@code onBlockActivated}: clicking a wire puts the new one on the next corner
+     * across the clicked face, which may be the next pipe's; clicking anywhere else picks the corner nearest the
+     * click. Placement advancements are not ported.
+     */
+    private static boolean placeWire(PipeBlockEntity pipe, BlockHitResult hit, DyeColor colour) {
+        WireHit wireHit = wireAt(pipe, hit.getLocation());
+        PipeBlockEntity attach = pipe;
+        WirePart part;
+        if (wireHit != null && wireHit.part() != null) {
+            WireNode node = new WireNode(pipe.getBlockPos(), wireHit.part()).offset(hit.getDirection());
+            part = node.part();
+            if (!node.pos().equals(pipe.getBlockPos())) {
+                attach = pipe.getLevel().getBlockEntity(node.pos()) instanceof PipeBlockEntity other ? other : null;
+            }
+        } else {
+            Vec3 location = hit.getLocation();
+            part = WirePart.get(fraction(location.x) > 0.5, fraction(location.y) > 0.5, fraction(location.z) > 0.5);
+        }
+        return attach != null && attach.wires().addPart(part, colour);
+    }
+
+    private static double fraction(double value) {
+        return value - Math.floor(value);
+    }
+
+    /** A wire corner or a length between corners that a point on the pipe's shape lies on. */
+    public record WireHit(@Nullable WirePart part, @Nullable WireBetween between) {}
+
+    /** Upstream's wire boxes in {@code rayTrace}: the corner or length at {@code location}, or null if it is on neither. */
+    @Nullable
+    public static WireHit wireAt(PipeBlockEntity pipe, Vec3 location) {
+        BlockPos pos = pipe.getBlockPos();
+        Vec3 local = location.subtract(pos.getX(), pos.getY(), pos.getZ());
+        for (WirePart part : pipe.wires().parts().keySet()) {
+            if (part.boundingBox.inflate(HIT_EPSILON).contains(local)) return new WireHit(part, null);
+        }
+        for (WireBetween between : pipe.wires().betweens().keySet()) {
+            if (between.boundingBox.inflate(HIT_EPSILON).contains(local)) return new WireHit(null, between);
+        }
+        return null;
+    }
+
+    /**
+     * Upstream {@code removedByPlayer} on a wire: a corner drops its wire; a length along the centre takes off the
+     * corners at both ends; a length to the next pipe takes off this pipe's corner.
+     */
+    private static List<ItemStack> removeWire(PipeBlockEntity pipe, WireHit hit) {
+        List<ItemStack> drops = new ArrayList<>();
+        if (hit.part() != null) {
+            DyeColor colour = pipe.wires().removePart(hit.part());
+            if (colour != null) drops.add(new ItemStack(BCTransport.wireItem(colour)));
+        } else if (hit.between() != null) {
+            WireBetween between = hit.between();
+            DyeColor colour = pipe.wires().getColourOfPart(between.parts[0]);
+            if (colour == null) return drops;
+            drops.add(new ItemStack(BCTransport.wireItem(colour), between.to == null ? 2 : 1));
+            if (between.to == null) pipe.wires().removeParts(List.of(between.parts));
+            else pipe.wires().removePart(between.parts[0]);
+        }
+        return drops;
     }
 
     /** The face whose pluggable contains {@code location}, a point on the pipe's shape, or null if it is on the pipe itself. */
@@ -194,27 +269,31 @@ public class PipeBlock extends BaseEntityBlock {
     }
 
     /**
-     * Upstream {@code removedByPlayer}: breaking a pluggable takes off only that pluggable, which drops
+     * Upstream {@code removedByPlayer}: breaking a pluggable or a wire takes off only that, which drops
      * unless the player is in creative. The game-mode mixins call this on both sides before a block is
      * destroyed and keep the pipe when it returns true. A creative player breaking the pipe itself
-     * loses its pluggables, as upstream drops nothing in creative.
+     * loses its pluggables and wires, as upstream drops nothing in creative.
      */
     public static boolean onPlayerDestroy(Level level, BlockPos pos, Player player) {
         if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return false;
         HitResult hit = player.pick(PICK_RANGE, 1.0F, false);
-        Direction side = hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK && blockHit.getBlockPos().equals(pos)
-                ? pluggableAt(pipe, hit.getLocation()) : null;
-        if (level.isClientSide) return side != null;
+        boolean onPipe = hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK && blockHit.getBlockPos().equals(pos);
+        Direction side = onPipe ? pluggableAt(pipe, hit.getLocation()) : null;
+        WireHit wire = onPipe && side == null ? wireAt(pipe, hit.getLocation()) : null;
+        if (level.isClientSide) return side != null || wire != null;
         List<ItemStack> drops = new ArrayList<>();
         if (side != null) {
             pipe.removePluggable(side, drops);
+        } else if (wire != null) {
+            drops.addAll(removeWire(pipe, wire));
         } else if (player.getAbilities().instabuild) {
             for (Direction face : Direction.values()) pipe.removePluggable(face, drops);
+            pipe.wires().removeAll();
         }
         if (!player.getAbilities().instabuild) {
             for (ItemStack stack : drops) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
         }
-        return side != null;
+        return side != null || wire != null;
     }
 
     /** Upstream {@code EnumPipePart} of a hit: null for the centre, otherwise the clicked arm's face. */
@@ -240,6 +319,7 @@ public class PipeBlock extends BaseEntityBlock {
                 plug.onRemove();
                 plug.addDrops(drops);
             }
+            for (DyeColor colour : pipe.wires().removeAll()) drops.add(new ItemStack(BCTransport.wireItem(colour)));
             for (ItemStack stack : drops) Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
         }
         super.onRemove(state, level, pos, newState, moving);
