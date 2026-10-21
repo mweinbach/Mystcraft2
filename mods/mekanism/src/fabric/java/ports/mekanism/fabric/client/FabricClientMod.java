@@ -67,6 +67,7 @@ public final class FabricClientMod implements ClientModInitializer {
             FabricLifecycle.postToMods(new TextureStitchEvent.Pre(atlas, sprites));
             sprites.forEach(registry::register);
         });
+        FabricFluidRendering.register();
     }
 
     /**

@@ -20,8 +20,12 @@ creative energy cubes directly and through universal cables, and energy cubes an
 OBJ and custom models. Osmium, tin, lead, uranium, fluorite and salt generate in biomes tagged
 `#minecraft:is_overworld`. Fabric reads the shared `forge/biome_modifier` files and adds the placed features those
 modifiers contribute, at the same decoration step. Vein size, height, attempts per chunk and the generate toggles are
-the shared placement modifiers. The shared GameTests (core machines, loader interop, ore generation, and the item and
-block hooks) pass on both loaders.
+the shared placement modifiers. Mekanism fluids render from their fluid-type client extensions: each still and flowing
+fluid is registered with Fabric's fluid render handler (still texture, flowing texture, overlay and tint) and on the
+translucent block render layer, and those textures are stitched into the block atlas that bucket models and fluid
+gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's default state, and blocks that return
+true (structural glass) are marked transparent so the overlay sprite is drawn against them. The shared GameTests
+(core machines, loader interop, ore generation, item and block hooks, and fluid placement) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -62,8 +66,6 @@ and block methods are.
 ## Fabric: not written yet
 
 - Chunk loading tickets.
-- Fluid render handlers for Mekanism's fluids. `shouldDisplayFluidOverlay` is part of Forge's fluid-sprite rewrite and
-  is not called.
 - Forge events that are not fired yet: player ticks, living entity events (hurt, fall, attack, jump), break speed,
   item crafted, chunk data load and save, `AddReloadListenerEvent`, cancelling `EntityJoinLevelEvent`, client level
   events, recipes updated, GUI overlay rendering, block highlight, living entity rendering, fog, mouse scrolling and
@@ -93,4 +95,7 @@ and block methods are.
 - Key mapping modifiers are not saved.
 - HUD overlays are drawn in registration order rather than Forge's overlay order.
 - OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
+- Fabric's fluid renderer ignores tint alpha. Mekanism's fluid tints are opaque, and steam's transparency is in its
+  texture. `shouldDisplayFluidOverlay` is read from the default block state when the client starts, not again per face;
+  structural glass always requests the overlay, so the fluids drawn against it match Forge.
 - Data generation runs on Forge only; both loaders ship the checked-in generated data.
