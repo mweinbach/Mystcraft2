@@ -287,6 +287,14 @@ public final class TestPlatform {
         return blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).map(IHeatHandler::getHeatCapacitorCount).orElse(0);
     }
 
+    public static double blockTemperature(BlockEntity blockEntity, Direction side) {
+        return blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).map(IHeatHandler::getTotalTemperature).orElse(Double.NaN);
+    }
+
+    public static void handleBlockHeat(BlockEntity blockEntity, Direction side, double amount) {
+        blockEntity.getCapability(Capabilities.HEAT_HANDLER, side).ifPresent(handler -> handler.handleHeat(amount));
+    }
+
     public static int itemGasTanks(ItemStack stack) {
         return stack.getCapability(Capabilities.GAS_HANDLER).map(IGasHandler::getTanks).orElse(0);
     }

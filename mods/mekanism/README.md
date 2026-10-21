@@ -19,7 +19,8 @@ The core module is in this port. Generators, Tools and Additions are extra mod i
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
-through the gas handler and outputs energy. Fission and fusion are not verified yet. Tools' paxels, tools, armor
+through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
+and outputs steam. Fission and fusion are not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions is an empty scaffold.
 
@@ -43,7 +44,8 @@ Additions is an empty scaffold.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass. A formed industrial turbine in that client draws
-  its rotor and blades through the glass.
+  its rotor and blades through the glass. A formed thermoelectric boiler in that client shows its casing and
+  valves, and its screen opens. The water and steam bodies are drawn inside the opaque casing.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -51,8 +53,9 @@ Additions is an empty scaffold.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
-  player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the industrial
-  turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
+  player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the
+  thermoelectric boiler, the industrial turbine, and Tools registration, crafting, tool actions and shield blocking)
+  pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
