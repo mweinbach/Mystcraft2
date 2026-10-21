@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.SchematicSingleItem;
 import ports.buildcraft.core.BCCoreEvents;
+import ports.buildcraft.core.MapLocationItem;
 import ports.buildcraft.platform.Platform;
 
 /** Forge entrypoint: installs the platform, loads the shared modules and attaches capabilities. */
@@ -40,6 +41,7 @@ public final class ForgeMod {
         });
         forgeBus.addListener((PlayerInteractEvent.RightClickBlock event) -> {
             InteractionResult result = SchematicSingleItem.useFirst(event.getEntity(), event.getLevel(), event.getHand(), event.getHitVec());
+            if (result == InteractionResult.PASS) result = MapLocationItem.useFirst(event.getEntity(), event.getLevel(), event.getHand(), event.getHitVec());
             if (result != InteractionResult.PASS) {
                 event.setCanceled(true);
                 event.setCancellationResult(result);

@@ -35,6 +35,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.BlockHitResult;
 import ports.mekanism.lib.common.ForgeHooks;
 import ports.mekanism.lib.common.MinecraftForge;
+import ports.mekanism.lib.common.world.ForgeChunkManager;
 import ports.mekanism.lib.event.RegisterCommandsEvent;
 import ports.mekanism.lib.event.TagsUpdatedEvent;
 import ports.mekanism.lib.event.TickEvent;
@@ -69,7 +70,10 @@ public final class FabricGameEvents {
         ServerTickEvents.END_SERVER_TICK.register(server -> post(new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, server)));
         ServerTickEvents.START_WORLD_TICK.register(level -> post(new TickEvent.LevelTickEvent(LogicalSide.SERVER, TickEvent.Phase.START, level, () -> true)));
         ServerTickEvents.END_WORLD_TICK.register(level -> post(new TickEvent.LevelTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, level, () -> true)));
-        ServerWorldEvents.LOAD.register((server, level) -> post(new LevelEvent.Load(level)));
+        ServerWorldEvents.LOAD.register((server, level) -> {
+            ForgeChunkManager.reinstatePersistentChunks(level);
+            post(new LevelEvent.Load(level));
+        });
         ServerWorldEvents.UNLOAD.register((server, level) -> post(new LevelEvent.Unload(level)));
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> post(new ChunkEvent.Load(chunk, level)));
         ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> post(new ChunkEvent.Unload(chunk, level)));

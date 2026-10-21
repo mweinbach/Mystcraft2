@@ -13,7 +13,8 @@
     "OilBiomeSourceMixin",
     "OilBiomeSurfaceRuleMixin",
     "ServerLevelBlockUpdateMixin",
-    "ServerPlayerGameModeMixin"
+    "ServerPlayerGameModeMixin",
+    "ItemStackLimitMixin"
   ],
   "client": [
     "MultiPlayerGameModeMixin"

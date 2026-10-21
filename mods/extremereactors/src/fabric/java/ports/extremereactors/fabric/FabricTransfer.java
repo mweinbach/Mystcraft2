@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.ToLongFunction;
 
 /**
@@ -49,6 +50,22 @@ import java.util.function.ToLongFunction;
 public final class FabricTransfer {
 
     public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / 1000;
+
+    /**
+     * Another mod's handler, found at a block and already adapted to the corelib capability that stands for it.
+     * Registered before any world loads.
+     */
+    @FunctionalInterface
+    public interface ForeignLookup<T> {
+
+        @Nullable T find(Level level, BlockPos position, BlockState state, @Nullable BlockEntity blockEntity,
+                         Direction side);
+    }
+
+    /** Bridge an optional mod's block lookup. Call it before any world loads. */
+    public static <T> void registerForeign(final Capability<T> capability, final ForeignLookup<T> lookup) {
+        FOREIGN.add(new RegisteredForeign(capability, lookup));
+    }
 
     /**
      * Expose the handlers of the block entities of these blocks. Registered per block rather than per block entity
@@ -88,6 +105,12 @@ public final class FabricTransfer {
 
         if (CapabilityHelper.ENERGY == capability) {
             return (LazyOptional<T>) FabricEnergy.foreignEnergy(level, position, state, blockEntity, side);
+        }
+
+        for (final RegisteredForeign foreign : FOREIGN) {
+            if (foreign.capability() == capability) {
+                return adoptForeign(foreign, level, position, state, blockEntity, side);
+            }
         }
 
         return LazyOptional.empty();
@@ -622,6 +645,21 @@ public final class FabricTransfer {
     }
 
     //endregion
+
+    @SuppressWarnings("unchecked")
+    private static <T> LazyOptional<T> adoptForeign(final RegisteredForeign foreign, final Level level,
+                                                    final BlockPos position, final BlockState state,
+                                                    @Nullable final BlockEntity blockEntity, final Direction side) {
+
+        final Object found = ((ForeignLookup<Object>) foreign.lookup()).find(level, position, state, blockEntity, side);
+
+        return null == found ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> found);
+    }
+
+    private record RegisteredForeign(Capability<?> capability, ForeignLookup<?> lookup) {
+    }
+
+    private static final List<RegisteredForeign> FOREIGN = new CopyOnWriteArrayList<>();
 
     private FabricTransfer() {
     }

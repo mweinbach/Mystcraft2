@@ -5,3 +5,10 @@ pluginManagement {
     }
 }
 rootProject.name = 'extremereactors-fabric'
+
+// The Mekanism Fabric port is a compile dependency of the gas-port adapter. It is not shipped inside this JAR.
+includeBuild('../../mekanism/fabric') {
+    dependencySubstitution {
+        substitute module('ports.mekanism:mekanism-fabric') using project(':')
+    }
+}

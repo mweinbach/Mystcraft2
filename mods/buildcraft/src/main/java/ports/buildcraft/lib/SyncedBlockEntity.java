@@ -29,6 +29,11 @@ public abstract class SyncedBlockEntity extends BlockEntity {
         syncQueued = true;
     }
 
+    /** Whether {@link #flushSync()} still has a client update to send. */
+    public boolean hasPendingClientUpdate() {
+        return syncQueued;
+    }
+
     /** Sends a queued client update; call once at the end of the server tick. */
     protected void flushSync() {
         if (syncQueued && level != null && !level.isClientSide) {

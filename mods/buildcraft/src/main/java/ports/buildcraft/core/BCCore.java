@@ -1,9 +1,12 @@
 package ports.buildcraft.core;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -37,6 +40,12 @@ public final class BCCore {
             () -> new MarkerConnectorItem(BuildCraft.itemProperties()));
     /** Upstream has no recipe for the volume box; it is a creative item, as are the machines that read it. */
     public static final Supplier<VolumeBoxItem> VOLUME_BOX = Reg.item("volume_box", () -> new VolumeBoxItem(BuildCraft.itemProperties()));
+    /** Upstream {@code ItemPaintbrush_BC8}: one clean brush and one brush per dye, where metadata selected the colour. */
+    public static final Supplier<PaintbrushItem> PAINTBRUSH = paintbrush(null);
+    public static final Map<DyeColor, Supplier<PaintbrushItem>> PAINTBRUSHES = paintbrushes();
+    /** Upstream {@code ItemMapLocation}. It has no recipe. A clean stack holds 16 and a recorded one does not stack. */
+    public static final Supplier<MapLocationItem> MAP_LOCATION = Reg.item("map_location",
+            () -> new MapLocationItem(BuildCraft.itemProperties().stacksTo(16)));
     public static final Supplier<BlockEntityType<MarkerVolumeBlockEntity>> MARKER_VOLUME_TYPE = Reg.blockEntity("marker_volume",
             () -> BlockEntityType.Builder.of(MarkerVolumeBlockEntity::new, MARKER_VOLUME.get()).build(null));
     public static final Supplier<BlockEntityType<MarkerPathBlockEntity>> MARKER_PATH_TYPE = Reg.blockEntity("marker_path",
@@ -71,5 +80,16 @@ public final class BCCore {
 
     private static Supplier<Item> gear(String material) {
         return Reg.item("gear_" + material, () -> new Item(BuildCraft.itemProperties()));
+    }
+
+    private static Supplier<PaintbrushItem> paintbrush(DyeColor colour) {
+        String name = colour == null ? "paintbrush" : "paintbrush_" + colour.getName();
+        return Reg.item(name, () -> new PaintbrushItem(colour, BuildCraft.itemProperties().stacksTo(1)));
+    }
+
+    private static Map<DyeColor, Supplier<PaintbrushItem>> paintbrushes() {
+        Map<DyeColor, Supplier<PaintbrushItem>> brushes = new EnumMap<>(DyeColor.class);
+        for (DyeColor colour : DyeColor.values()) brushes.put(colour, paintbrush(colour));
+        return Map.copyOf(brushes);
     }
 }

@@ -53,7 +53,7 @@ dependencies {
             runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
         }
     }
-    // Mekanism is Forge-only on 1.19.2. -PwithMekanism adds it to the GameTest server too.
+    // -PwithMekanism adds upstream Mekanism to the Forge GameTest server. Fabric uses this repository's port.
     if (providers.gradleProperty('withCompat').isPresent() || providers.gradleProperty('withMekanism').isPresent()) {
         runtimeOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13')) { transitive = false }
     }
