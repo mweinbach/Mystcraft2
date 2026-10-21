@@ -1,0 +1,2997 @@
+{
+  "namespace": "mekanism",
+  "loaders": {
+    "projecte": "forge",
+    "itemalchemy": "fabric"
+  },
+  "resources": {
+    "projecte": [
+      "src/main/resources",
+      "src/forge/resources"
+    ],
+    "itemalchemy": [
+      "src/main/resources",
+      "src/fabric/resources"
+    ]
+  },
+  "output": "src/main/resources",
+  "conditions": {
+    "mekanism:mod_version_loaded": {
+      "holds": false,
+      "why": "It only gates I Like Wood compat recipes, and that mod is not part of this port."
+    }
+  },
+  "notes": [
+    "Survival items are priced at their crafting recipe, or at the item cost of the machine recipe when that is the way to make them. Energy stored on an item is not part of the cost: transmutation does not copy that data.",
+    "",
+    "Osmium ingots cost one and a half iron ingots. The osmium rail recipe yields twenty-four rails from six ingots, and a cheaper osmium ingot would make vanilla rails cheaper to transmute than to craft. Osmium nuggets are excluded because 384 does not divide by nine.",
+    "",
+    "Uranium ingots follow ProjectE's uranium ingot tag (4096). Raw uranium matches the ingot, and uranium nuggets are excluded because 4096 does not divide by nine.",
+    "",
+    "Tin and lead ores and raw ores are fixed at Item Alchemy's tag values. Tin and lead nuggets then settle slightly under the raw ore; the ingot is not fixed, so that split does not fight a tag.",
+    "Hydrogen, oxygen, chlorine, brine, lithium, sodium, superheated sodium, steam, ethene, heavy water and hydrogen chloride are made from water, so a bucket of each costs an empty bucket. Nutritional paste is not: a bucket is twenty food points of dried kelp plus the bucket. Sulfur dioxide, sulfur trioxide and sulfuric acid are ten sulfur dust per bucket, because the infuser preserves that volume; hydrofluoric acid, uranium oxide and uranium hexafluoride are priced from the items that produce them.",
+    "Sawdust is fixed at 64 because three sawdust craft six paper. The sawmill's plank and log recipes turn vanilla logs into more planks than crafting does; both ends of that recipe are vanilla, so it is not a conversion.",
+    "",
+    "Sulfur dust matches gunpowder, because injecting gunpowder and enriching the dust are one-to-one. Coal gasification also makes sulfur from coal, which is worth less than gunpowder; that recipe is not a conversion, or sulfur could not match gunpowder.",
+    "",
+    "Ore factories that double raw ore or silk-touched ore are not conversions. Crystals, shards, clumps and dirty dust are worth one dust, and one dust is one ingot.",
+    "",
+    "Hydrogen, oxygen, chlorine, brine, lithium, sodium, superheated sodium, steam, ethene, heavy water, nutritional paste and hydrogen chloride are made from water. A bucket of each costs an empty bucket. Sulfur dioxide, sulfur trioxide, sulfuric acid, hydrofluoric acid, uranium oxide and uranium hexafluoride are priced from the items that produce them.",
+    "",
+    "One substrate and ethene make eight substrate. That reaction is not a conversion, or substrate would be worth a fraction of itself. Substrate is priced at two bio fuel, which crushing plants produces.",
+    "",
+    "The fission reactor is not in this port. Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.",
+    "",
+    "Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too.",
+    "",
+    "Chemical bucket processes check the volume ratios. A route that fills a bucket for less than its value fails the check, which is what the old sulfuric-acid price (one dust per 2 mB, five hundred per bucket) and a paste bucket priced as an empty bucket both did."
+  ],
+  "values": {
+    "mekanism:ingot_osmium": {
+      "emc": 384,
+      "why": "Six osmium ingots craft twenty-four rails. Vanilla rails cost six iron for sixteen, so an osmium ingot must be worth one and a half ProjectE iron ingots (384) or the rail recipe devalues rails."
+    },
+    "mekanism:raw_osmium": {
+      "emc": 384,
+      "why": "One raw osmium smelts into one osmium ingot."
+    },
+    "mekanism:raw_uranium": {
+      "emc": 4096,
+      "why": "ProjectE values the uranium ingot tag at 4096, and one raw uranium smelts into one ingot."
+    },
+    "mekanism:fluorite_gem": {
+      "like": "minecraft:quartz",
+      "why": "Fluorite ore drops a Fortune-boosted handful of gems, about as common as nether quartz; only the gems are valued."
+    },
+    "mekanism:tin_ore": {
+      "emc": 192,
+      "why": "Item Alchemy's c:tin_ores tag values tin ore at 192, so the stone ore matches that tag."
+    },
+    "mekanism:deepslate_tin_ore": {
+      "emc": 192,
+      "why": "Item Alchemy's c:tin_ores tag values deepslate tin ore at 192."
+    },
+    "mekanism:lead_ore": {
+      "emc": 256,
+      "why": "Item Alchemy's c:lead_ores tag values lead ore at 256."
+    },
+    "mekanism:deepslate_lead_ore": {
+      "emc": 256,
+      "why": "Item Alchemy's c:lead_ores tag values deepslate lead ore at 256."
+    },
+    "mekanism:raw_tin": {
+      "emc": 192,
+      "why": "Item Alchemy's c:raw_tin_ores tag values raw tin at 192, and one raw tin smelts into one ingot."
+    },
+    "mekanism:raw_lead": {
+      "emc": 256,
+      "why": "Item Alchemy's c:raw_lead_ores tag values raw lead at 256, and one raw lead smelts into one ingot."
+    },
+    "mekanism:sawdust": {
+      "emc": 64,
+      "why": "Three sawdust craft six paper. Paper is 32, so sawdust is 64 or that recipe would devalue paper. The sawmill only returns sawdust as a chance byproduct."
+    },
+    "mekanism:dust_sulfur": {
+      "like": "minecraft:gunpowder",
+      "why": "Injecting one gunpowder yields one sulfur dust, and enriching that dust yields one gunpowder, so the dust is worth the gunpowder."
+    }
+  },
+  "exclude": {
+    "mekanism:creative_bin": "Creative-only bin. It has no survival recipe, and a value would only make a creative container transmutable.",
+    "mekanism:creative_fluid_tank": "Creative-only fluid tank. It has no survival recipe.",
+    "mekanism:creative_energy_cube": "Creative-only energy cube. It has no survival recipe.",
+    "mekanism:creative_chemical_tank": "Creative-only chemical tank. It has no survival recipe.",
+    "mekanism:bounding_block": "A multiblock places this structural block. It has no recipe and drops nothing.",
+    "mekanism:osmium_ore": "Drops a Fortune-boosted number of raw osmium. Only the raw ore is valued, as ProjectE does for ores.",
+    "mekanism:deepslate_osmium_ore": "Drops a Fortune-boosted number of raw osmium. Only the raw ore is valued.",
+    "mekanism:uranium_ore": "Drops a Fortune-boosted number of raw uranium. Only the raw ore is valued.",
+    "mekanism:deepslate_uranium_ore": "Drops a Fortune-boosted number of raw uranium. Only the raw ore is valued.",
+    "mekanism:fluorite_ore": "Drops a Fortune-boosted number of fluorite gems. Only the gems are valued.",
+    "mekanism:deepslate_fluorite_ore": "Drops a Fortune-boosted number of fluorite gems. Only the gems are valued.",
+    "mekanism:nugget_uranium": "ProjectE fixes a uranium ingot at 4096, which nine nuggets cannot split evenly. Any nugget value lets one of the two crafting recipes gain EMC.",
+    "mekanism:nugget_osmium": "An osmium ingot is fixed at 384 so osmium rails do not devalue vanilla rails, and nine nuggets cannot split 384 evenly.",
+    "mekanism:salt": "A thermal evaporation plant makes brine from water, and crystallizing that brine makes salt. Water has no EMC, so salt does not either.",
+    "mekanism:block_salt": "Nine salt pack into a block, and salt is evaporated from water, which has no EMC.",
+    "mekanism:dust_lithium": "Lithium dust is crystallized from lithium, which a thermal evaporation plant makes from brine, which is water. Water has no EMC, so the dust does not either."
+  },
+  "conversions": [
+    {
+      "name": "fill_hydrogen_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:hydrogen_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_oxygen_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:oxygen_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_chlorine_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:chlorine_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_brine_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:brine_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_lithium_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:lithium_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_sodium_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:sodium_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_superheated_sodium_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:superheated_sodium_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_steam_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:steam_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_ethene_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:ethene_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_heavy_water_bucket",
+      "why": "This chemical is made from water, and a water bucket is worth only its empty bucket, so filling one costs the bucket.",
+      "output": "mekanism:heavy_water_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "fill_nutritional_paste_bucket",
+      "why": "The nutritional liquifier makes 50 mB per food point, so a 1,000 mB bucket holds twenty points and drinking it returns the empty bucket. Dried kelp restores one point and is the cheapest food on both ProjectE and Item Alchemy (1 EMC), so the paste costs twenty kelp plus the bucket.",
+      "output": "mekanism:nutritional_paste_bucket",
+      "ingredients": {
+        "minecraft:dried_kelp": 20,
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "hydrogen_chloride_bucket",
+      "why": "One salt becomes 2 mB of hydrogen chloride. Salt is evaporated from water, which has no EMC, so a bucket costs the empty bucket.",
+      "output": "mekanism:hydrogen_chloride_bucket",
+      "ingredients": {
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "hydrofluoric_acid_bucket",
+      "why": "Dissolving one fluorite gem yields 1,000 mB of hydrofluoric acid, so a bucket is one gem and the bucket. The millibucket of sulfuric acid is a catalyst.",
+      "output": "mekanism:hydrofluoric_acid_bucket",
+      "ingredients": {
+        "mekanism:fluorite_gem": 1,
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "uranium_hexafluoride_bucket",
+      "why": "One millibucket of hydrofluoric acid and one of uranium oxide make two of uranium hexafluoride, so two buckets cost one of each input bucket.",
+      "output": "mekanism:uranium_hexafluoride_bucket",
+      "count": 2,
+      "ingredients": {
+        "mekanism:hydrofluoric_acid_bucket": 1,
+        "mekanism:uranium_oxide_bucket": 1
+      }
+    },
+    {
+      "name": "dirty_netherite_scrap_from_scrap",
+      "why": "Enriching one dirty netherite scrap yields one scrap. The crusher's three-scrap debris recipe is the fortune-style bonus and is not the conversion.",
+      "output": "mekanism:dirty_netherite_scrap",
+      "ingredients": {
+        "minecraft:netherite_scrap": 1
+      }
+    },
+    {
+      "name": "ore_chain_dirty_from_dust",
+      "why": "Each ore-processing step turns one of these into one of the next, so the earlier form costs the same as the dust. The doubled ore and raw-ore recipes are not conversions.",
+      "output": "mekanism:dirty_dust_{metal}",
+      "ingredients": {
+        "mekanism:dust_{metal}": 1
+      }
+    },
+    {
+      "name": "ore_chain_clump_from_dirty",
+      "why": "Each ore-processing step turns one of these into one of the next, so the earlier form costs the same as the dust. The doubled ore and raw-ore recipes are not conversions.",
+      "output": "mekanism:clump_{metal}",
+      "ingredients": {
+        "mekanism:dirty_dust_{metal}": 1
+      }
+    },
+    {
+      "name": "ore_chain_shard_from_clump",
+      "why": "Each ore-processing step turns one of these into one of the next, so the earlier form costs the same as the dust. The doubled ore and raw-ore recipes are not conversions.",
+      "output": "mekanism:shard_{metal}",
+      "ingredients": {
+        "mekanism:clump_{metal}": 1
+      }
+    },
+    {
+      "name": "ore_chain_crystal_from_shard",
+      "why": "Each ore-processing step turns one of these into one of the next, so the earlier form costs the same as the dust. The doubled ore and raw-ore recipes are not conversions.",
+      "output": "mekanism:crystal_{metal}",
+      "ingredients": {
+        "mekanism:shard_{metal}": 1
+      }
+    },
+    {
+      "name": "pellet_antimatter_from_polonium",
+      "why": "Crystallizing 1,000 mB of antimatter yields one pellet. The SPS makes each millibucket from 1,000 mB of polonium, and the polonium pellet reaction is the item recipe that consumes 1,000 mB of polonium, so one antimatter pellet costs a thousand polonium pellets. This port has no fission-reactor block, so the fuel that produces the gas is not an extra item cost.",
+      "output": "mekanism:pellet_antimatter",
+      "ingredients": {
+        "mekanism:pellet_polonium": 1000
+      }
+    },
+    {
+      "name": "sulfur_dioxide_bucket",
+      "why": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so a bucket is ten dust and the bucket.",
+      "output": "mekanism:sulfur_dioxide_bucket",
+      "ingredients": {
+        "mekanism:dust_sulfur": 10,
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "sulfuric_acid_bucket",
+      "why": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, two of that plus free oxygen make two sulfur trioxide, and one trioxide plus free water vapor makes one sulfuric acid. A bucket is ten dust, the same as sulfur dioxide. The gas conversion of one dust into 2 mB is the expensive path and is not the cost.",
+      "output": "mekanism:sulfuric_acid_bucket",
+      "ingredients": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      }
+    },
+    {
+      "name": "sulfur_trioxide_bucket",
+      "why": "Two sulfur dioxide and one oxygen make two sulfur trioxide, so a bucket of trioxide costs the dioxide in a bucket.",
+      "output": "mekanism:sulfur_trioxide_bucket",
+      "ingredients": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      }
+    },
+    {
+      "name": "uranium_oxide_bucket",
+      "why": "Oxidizing one yellow cake yields 250 mB of uranium oxide, so a bucket is four yellow cake and the bucket.",
+      "output": "mekanism:uranium_oxide_bucket",
+      "ingredients": {
+        "mekanism:yellow_cake_uranium": 4,
+        "minecraft:bucket": 1
+      }
+    },
+    {
+      "name": "mek_atomic_disassembler",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:atomic_disassembler",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "mekanism:energy_tablet": 1,
+        "#mekanism:alloys/atomic": 1,
+        "#forge:ingots/refined_obsidian": 1
+      }
+    },
+    {
+      "name": "mek_bin_advanced",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_bin",
+      "count": 1,
+      "ingredients": {
+        "#forge:cobblestone/normal": 5,
+        "#forge:circuits/advanced": 1,
+        "#mekanism:alloys/infused": 2,
+        "mekanism:basic_bin": 1
+      }
+    },
+    {
+      "name": "mek_bin_elite",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_bin",
+      "count": 1,
+      "ingredients": {
+        "#forge:cobblestone/normal": 5,
+        "#forge:circuits/elite": 1,
+        "#mekanism:alloys/reinforced": 2,
+        "mekanism:advanced_bin": 1
+      }
+    },
+    {
+      "name": "mek_bin_ultimate",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_bin",
+      "count": 1,
+      "ingredients": {
+        "#forge:cobblestone/normal": 5,
+        "#forge:circuits/ultimate": 1,
+        "#mekanism:alloys/atomic": 2,
+        "mekanism:elite_bin": 1
+      }
+    },
+    {
+      "name": "mek_chargepad",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chargepad",
+      "count": 1,
+      "ingredients": {
+        "minecraft:polished_blackstone_pressure_plate": 3,
+        "#forge:ingots/steel": 2,
+        "mekanism:energy_tablet": 1
+      }
+    },
+    {
+      "name": "mek_chemical_dissolution_chamber",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chemical_dissolution_chamber",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/refined_obsidian": 4,
+        "mekanism:basic_chemical_tank": 2,
+        "#forge:circuits/ultimate": 2,
+        "mekanism:steel_casing": 1
+      }
+    },
+    {
+      "name": "mek_chemical_infuser",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chemical_infuser",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/basic": 2,
+        "mekanism:basic_chemical_tank": 2,
+        "mekanism:steel_casing": 1
+      }
+    },
+    {
+      "name": "mek_chemical_injection_chamber",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chemical_injection_chamber",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:purification_chamber": 1
+      }
+    },
+    {
+      "name": "mek_chemical_oxidizer",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chemical_oxidizer",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/basic": 2,
+        "#mekanism:personal_storage": 1,
+        "mekanism:dynamic_tank": 1,
+        "mekanism:basic_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_chemical_tank_advanced",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_chemical_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:ingots/osmium": 4,
+        "mekanism:basic_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_chemical_tank_elite",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_chemical_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:ingots/osmium": 4,
+        "mekanism:advanced_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_chemical_tank_ultimate",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_chemical_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:ingots/osmium": 4,
+        "mekanism:elite_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_chemical_washer",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:chemical_washer",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/refined_obsidian": 4,
+        "mekanism:basic_fluid_tank": 1,
+        "#forge:circuits/ultimate": 2,
+        "mekanism:steel_casing": 1,
+        "mekanism:basic_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_control_circuit_basic",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:basic_control_circuit",
+      "count": 4,
+      "ingredients": {
+        "#forge:ingots/osmium": 4,
+        "#mekanism:enriched/redstone": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_acacia_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:acacia_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_acacia_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:acacia_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_allium",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:allium": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_apple",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:apple": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_azalea",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:azalea": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_azalea_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:azalea_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_azure_bluet",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:azure_bluet": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_baked_potato",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:baked_potato": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_beetroot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:beetroot": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_beetroot_seeds",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:beetroot_seeds": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_big_dripleaf",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:big_dripleaf": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_birch_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:birch_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_birch_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:birch_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_blue_orchid",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:blue_orchid": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_bread",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:bread": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_brown_mushroom",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:brown_mushroom": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_brown_mushroom_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:brown_mushroom_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_cactus",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:cactus": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_cake",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 8,
+      "ingredients": {
+        "minecraft:cake": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_carrot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:carrot": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_carved_pumpkin",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:carved_pumpkin": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_cocoa_beans",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:cocoa_beans": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_cookie",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:cookie": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_cornflower",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:cornflower": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_crimson_fungus",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:crimson_fungus": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_crimson_roots",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:crimson_roots": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_dandelion",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:dandelion": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_dark_oak_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:dark_oak_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_dark_oak_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:dark_oak_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_dried_kelp",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:dried_kelp": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_dried_kelp_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:dried_kelp_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_fern",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:fern": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_flowering_azalea",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:flowering_azalea": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_flowering_azalea_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:flowering_azalea_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_glow_berries",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:glow_berries": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_glow_lichen",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:glow_lichen": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_grass",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:grass": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_hanging_roots",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:hanging_roots": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_hay_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:hay_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_jungle_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:jungle_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_jungle_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:jungle_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_kelp",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:kelp": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_large_fern",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:large_fern": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_lilac",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:lilac": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_lily_of_the_valley",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:lily_of_the_valley": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_lily_pad",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:lily_pad": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_mangrove_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:mangrove_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_mangrove_propagule",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:mangrove_propagule": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_mangrove_roots",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:mangrove_roots": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_melon",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:melon": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_melon_seeds",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:melon_seeds": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_melon_slice",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:melon_slice": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_moss_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:moss_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_moss_carpet",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:moss_carpet": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_mushroom_stem",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:mushroom_stem": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_nether_sprouts",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:nether_sprouts": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_nether_wart",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:nether_wart": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_nether_wart_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:nether_wart_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_oak_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:oak_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_oak_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:oak_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_orange_tulip",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:orange_tulip": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_oxeye_daisy",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:oxeye_daisy": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_peony",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:peony": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_pink_tulip",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:pink_tulip": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_poppy",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:poppy": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_potato",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:potato": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_pumpkin",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:pumpkin": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_pumpkin_pie",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 8,
+      "ingredients": {
+        "minecraft:pumpkin_pie": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_pumpkin_seeds",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:pumpkin_seeds": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_red_mushroom",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:red_mushroom": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_red_mushroom_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:red_mushroom_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_red_tulip",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:red_tulip": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_rose_bush",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:rose_bush": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_sea_pickle",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:sea_pickle": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_seagrass",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:seagrass": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_shroomlight",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:shroomlight": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_small_dripleaf",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:small_dripleaf": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_spore_blossom",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:spore_blossom": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_spruce_leaves",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:spruce_leaves": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_spruce_sapling",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:spruce_sapling": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_sugar_cane",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:sugar_cane": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_sunflower",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:sunflower": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_sweet_berries",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:sweet_berries": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_tall_grass",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:tall_grass": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_twisting_vines",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:twisting_vines": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_vine",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:vine": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_warped_fungus",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:warped_fungus": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_warped_roots",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:warped_roots": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_warped_wart_block",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 7,
+      "ingredients": {
+        "minecraft:warped_wart_block": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_weeping_vines",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 4,
+      "ingredients": {
+        "minecraft:weeping_vines": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_wheat",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:wheat": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_wheat_seeds",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 2,
+      "ingredients": {
+        "minecraft:wheat_seeds": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_white_tulip",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:white_tulip": 1
+      }
+    },
+    {
+      "name": "mek_crushing_biofuel_wither_rose",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:bio_fuel",
+      "count": 5,
+      "ingredients": {
+        "minecraft:wither_rose": 1
+      }
+    },
+    {
+      "name": "mek_crushing_charcoal_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_charcoal",
+      "count": 1,
+      "ingredients": {
+        "minecraft:charcoal": 1
+      }
+    },
+    {
+      "name": "mek_digital_miner",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:digital_miner",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 2,
+        "#forge:circuits/basic": 1,
+        "mekanism:logistical_sorter": 2,
+        "mekanism:robit": 1,
+        "mekanism:teleportation_core": 2,
+        "mekanism:steel_casing": 1
+      }
+    },
+    {
+      "name": "mek_electric_bow",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:electric_bow",
+      "count": 1,
+      "ingredients": {
+        "#forge:string": 3,
+        "#mekanism:alloys/infused": 2,
+        "mekanism:energy_tablet": 1
+      }
+    },
+    {
+      "name": "mek_energy_cube_advanced",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_energy_cube",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "mekanism:energy_tablet": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_energy_cube_basic",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_energy_cube",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "mekanism:energy_tablet": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:steel_casing": 1
+      }
+    },
+    {
+      "name": "mek_energy_cube_elite",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_energy_cube",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "mekanism:energy_tablet": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_energy_cube_ultimate",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_energy_cube",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "mekanism:energy_tablet": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_enriching_charcoal_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_charcoal",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/wood": 8
+      }
+    },
+    {
+      "name": "mek_enriching_conversion_obsidian_to_obsidian_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_obsidian",
+      "count": 4,
+      "ingredients": {
+        "#forge:obsidian": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_carbon",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_carbon",
+      "count": 1,
+      "ingredients": {
+        "#minecraft:coals": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_diamond",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_diamond",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/diamond": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_gold",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_gold",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/gold": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_redstone",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_redstone",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/redstone": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_refined_obsidian",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_refined_obsidian",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/refined_obsidian": 1
+      }
+    },
+    {
+      "name": "mek_enriching_enriched_tin",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:enriched_tin",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/tin": 1
+      }
+    },
+    {
+      "name": "mek_enriching_hdpe_sheet",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:hdpe_sheet",
+      "count": 1,
+      "ingredients": {
+        "mekanism:hdpe_pellet": 3
+      }
+    },
+    {
+      "name": "mek_enriching_salt",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:salt",
+      "count": 4,
+      "ingredients": {
+        "mekanism:block_salt": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_combining",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_combining_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_combining_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_compressing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_compressing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_compressing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_crushing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_crushing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_crushing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_enriching",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_enriching_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_enriching_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_infusing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_infusing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_infusing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_injecting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_injecting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_injecting_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_purifying",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_purifying_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_purifying_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_sawing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_sawing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_sawing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_advanced_smelting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_smelting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:basic_smelting_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_combining",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_combining_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:combiner": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_compressing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_compressing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:osmium_compressor": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_crushing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_crushing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:crusher": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_enriching",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_enriching_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:enrichment_chamber": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_infusing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_infusing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:metallurgic_infuser": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_injecting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_injecting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:chemical_injection_chamber": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_purifying",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_purifying_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:purification_chamber": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_sawing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_sawing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:precision_sawmill": 1
+      }
+    },
+    {
+      "name": "mek_factory_basic_smelting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:basic_smelting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/basic": 4,
+        "#forge:circuits/basic": 2,
+        "#forge:ingots/iron": 2,
+        "mekanism:energized_smelter": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_combining",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_combining_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_combining_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_compressing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_compressing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_compressing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_crushing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_crushing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_crushing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_enriching",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_enriching_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_enriching_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_infusing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_infusing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_infusing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_injecting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_injecting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_injecting_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_purifying",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_purifying_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_purifying_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_sawing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_sawing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_sawing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_elite_smelting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_smelting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:circuits/elite": 2,
+        "#forge:ingots/gold": 2,
+        "mekanism:advanced_smelting_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_combining",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_combining_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_combining_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_compressing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_compressing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_compressing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_crushing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_crushing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_crushing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_enriching",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_enriching_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_enriching_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_infusing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_infusing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_infusing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_injecting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_injecting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_injecting_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_purifying",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_purifying_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_purifying_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_sawing",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_sawing_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_sawing_factory": 1
+      }
+    },
+    {
+      "name": "mek_factory_ultimate_smelting",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_smelting_factory",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:circuits/ultimate": 2,
+        "#forge:gems/diamond": 2,
+        "mekanism:elite_smelting_factory": 1
+      }
+    },
+    {
+      "name": "mek_flamethrower",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:flamethrower",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/tin": 4,
+        "mekanism:basic_chemical_tank": 1,
+        "minecraft:flint_and_steel": 1,
+        "#forge:ingots/bronze": 2,
+        "#forge:circuits/advanced": 1
+      }
+    },
+    {
+      "name": "mek_fluid_tank_advanced",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_fluid_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:ingots/iron": 4,
+        "mekanism:basic_fluid_tank": 1
+      }
+    },
+    {
+      "name": "mek_fluid_tank_elite",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_fluid_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 4,
+        "#forge:ingots/iron": 4,
+        "mekanism:advanced_fluid_tank": 1
+      }
+    },
+    {
+      "name": "mek_fluid_tank_ultimate",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_fluid_tank",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/atomic": 4,
+        "#forge:ingots/iron": 4,
+        "mekanism:elite_fluid_tank": 1
+      }
+    },
+    {
+      "name": "mek_fluidic_plenisher",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:fluidic_plenisher",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/tin": 6,
+        "#forge:circuits/basic": 2,
+        "mekanism:electric_pump": 1
+      }
+    },
+    {
+      "name": "mek_free_runners",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:free_runners",
+      "count": 1,
+      "ingredients": {
+        "#forge:circuits/basic": 2,
+        "#mekanism:alloys/infused": 2,
+        "mekanism:energy_tablet": 2
+      }
+    },
+    {
+      "name": "mek_free_runners_armored",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:free_runners_armored",
+      "count": 1,
+      "ingredients": {
+        "#forge:storage_blocks/steel": 1,
+        "#forge:dusts/diamond": 2,
+        "mekanism:free_runners": 1,
+        "#forge:ingots/bronze": 2
+      }
+    },
+    {
+      "name": "mek_induction_cell_advanced",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:advanced_induction_cell",
+      "count": 1,
+      "ingredients": {
+        "mekanism:energy_tablet": 4,
+        "mekanism:basic_induction_cell": 4,
+        "mekanism:advanced_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_induction_cell_basic",
+      "why": "Four energy tablets and one basic energy cube, stored as mek_data because the cell keeps energy data. The four lithium dust are crystallized from water, which has no EMC, so they add nothing.",
+      "output": "mekanism:basic_induction_cell",
+      "count": 1,
+      "ingredients": {
+        "mekanism:energy_tablet": 4,
+        "mekanism:basic_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_induction_cell_elite",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:elite_induction_cell",
+      "count": 1,
+      "ingredients": {
+        "mekanism:energy_tablet": 4,
+        "mekanism:advanced_induction_cell": 4,
+        "mekanism:elite_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_induction_cell_ultimate",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:ultimate_induction_cell",
+      "count": 1,
+      "ingredients": {
+        "mekanism:energy_tablet": 4,
+        "mekanism:elite_induction_cell": 4,
+        "mekanism:ultimate_energy_cube": 1
+      }
+    },
+    {
+      "name": "mek_injecting_gunpowder_to_sulfur",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_sulfur",
+      "count": 1,
+      "ingredients": {
+        "#forge:gunpowder": 1
+      }
+    },
+    {
+      "name": "mek_isotopic_centrifuge",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:isotopic_centrifuge",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/lead": 6,
+        "#forge:circuits/ultimate": 2,
+        "mekanism:basic_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_jetpack",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:jetpack",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 2,
+        "#forge:circuits/basic": 1,
+        "#forge:ingots/tin": 3,
+        "mekanism:basic_chemical_tank": 1
+      }
+    },
+    {
+      "name": "mek_jetpack_armored",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:jetpack_armored",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/diamond": 2,
+        "#forge:ingots/bronze": 2,
+        "#forge:storage_blocks/steel": 1,
+        "mekanism:jetpack": 1
+      }
+    },
+    {
+      "name": "mek_laser",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:laser",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 3,
+        "mekanism:energy_tablet": 2,
+        "mekanism:steel_casing": 1,
+        "#forge:gems/diamond": 1
+      }
+    },
+    {
+      "name": "mek_laser_amplifier",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:laser_amplifier",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 7,
+        "mekanism:basic_energy_cube": 1,
+        "#forge:gems/diamond": 1
+      }
+    },
+    {
+      "name": "mek_laser_tractor_beam",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:laser_tractor_beam",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:personal_storage": 1,
+        "mekanism:laser_amplifier": 1
+      }
+    },
+    {
+      "name": "mek_metallurgic_infusing_alloy_atomic",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:alloy_atomic",
+      "count": 2,
+      "ingredients": {
+        "#mekanism:alloys/reinforced": 2,
+        "#mekanism:enriched/obsidian": 1
+      }
+    },
+    {
+      "name": "mek_metallurgic_infusing_alloy_infused",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:alloy_infused",
+      "count": 8,
+      "ingredients": {
+        "#forge:ingots/iron": 8,
+        "#mekanism:enriched/redstone": 1
+      }
+    },
+    {
+      "name": "mek_metallurgic_infusing_alloy_reinforced",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:alloy_reinforced",
+      "count": 4,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#mekanism:enriched/diamond": 1
+      }
+    },
+    {
+      "name": "mek_network_reader",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:network_reader",
+      "count": 1,
+      "ingredients": {
+        "#forge:glass": 1,
+        "#mekanism:alloys/infused": 2,
+        "mekanism:energy_tablet": 1,
+        "#forge:ingots/steel": 1
+      }
+    },
+    {
+      "name": "mek_portable_teleporter",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:portable_teleporter",
+      "count": 1,
+      "ingredients": {
+        "mekanism:energy_tablet": 2,
+        "#forge:circuits/basic": 2,
+        "mekanism:teleportation_core": 1
+      }
+    },
+    {
+      "name": "mek_pressurized_reaction_chamber",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:pressurized_reaction_chamber",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 2,
+        "#mekanism:alloys/infused": 1,
+        "#forge:circuits/basic": 2,
+        "mekanism:enrichment_chamber": 1,
+        "mekanism:basic_chemical_tank": 2,
+        "mekanism:dynamic_tank": 1
+      }
+    },
+    {
+      "name": "mek_processing_bronze_dust_from_infusing",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:dust_bronze",
+      "count": 32,
+      "ingredients": {
+        "#forge:dusts/copper": 24,
+        "#mekanism:enriched/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_bronze_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_bronze",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/bronze": 1
+      }
+    },
+    {
+      "name": "mek_processing_bronze_ingot_from_infusing",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:ingot_bronze",
+      "count": 32,
+      "ingredients": {
+        "#forge:ingots/copper": 24,
+        "#mekanism:enriched/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_coal_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_coal",
+      "count": 1,
+      "ingredients": {
+        "minecraft:coal": 1
+      }
+    },
+    {
+      "name": "mek_processing_copper_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_copper",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/copper": 1
+      }
+    },
+    {
+      "name": "mek_processing_copper_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_copper",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/copper": 1
+      }
+    },
+    {
+      "name": "mek_processing_copper_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_copper",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/copper": 1
+      }
+    },
+    {
+      "name": "mek_processing_copper_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_copper",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/copper": 1
+      }
+    },
+    {
+      "name": "mek_processing_copper_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_copper",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/copper": 1
+      }
+    },
+    {
+      "name": "mek_processing_diamond_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_diamond",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/diamond": 1
+      }
+    },
+    {
+      "name": "mek_processing_emerald_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_emerald",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/emerald": 1
+      }
+    },
+    {
+      "name": "mek_processing_fluorite_from_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:fluorite_gem",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/fluorite": 1
+      }
+    },
+    {
+      "name": "mek_processing_fluorite_to_deepslate_ore",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:deepslate_fluorite_ore",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/fluorite": 14,
+        "#forge:cobblestone/deepslate": 1
+      }
+    },
+    {
+      "name": "mek_processing_fluorite_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_fluorite",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/fluorite": 1
+      }
+    },
+    {
+      "name": "mek_processing_fluorite_to_ore",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:fluorite_ore",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/fluorite": 14,
+        "#forge:cobblestone/normal": 1
+      }
+    },
+    {
+      "name": "mek_processing_gold_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_gold",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/gold": 1
+      }
+    },
+    {
+      "name": "mek_processing_gold_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_gold",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/gold": 1
+      }
+    },
+    {
+      "name": "mek_processing_gold_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_gold",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/gold": 1
+      }
+    },
+    {
+      "name": "mek_processing_gold_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_gold",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/gold": 1
+      }
+    },
+    {
+      "name": "mek_processing_gold_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_gold",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/gold": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_iron",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/iron": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_iron",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/iron": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_iron",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/iron": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_iron",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/iron": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_enriched",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:enriched_iron",
+      "count": 8,
+      "ingredients": {
+        "#forge:ingots/iron": 8,
+        "#mekanism:enriched/carbon": 1
+      }
+    },
+    {
+      "name": "mek_processing_iron_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_iron",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/iron": 1
+      }
+    },
+    {
+      "name": "mek_processing_lapis_lazuli_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_lapis_lazuli",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/lapis": 1
+      }
+    },
+    {
+      "name": "mek_processing_lategame_plutonium_pellet_from_reaction",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:pellet_plutonium",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/fluorite": 1
+      }
+    },
+    {
+      "name": "mek_processing_lategame_polonium_pellet_from_reaction",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:pellet_polonium",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/fluorite": 1
+      }
+    },
+    {
+      "name": "mek_processing_lead_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_lead",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/lead": 1
+      }
+    },
+    {
+      "name": "mek_processing_lead_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_lead",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/lead": 1
+      }
+    },
+    {
+      "name": "mek_processing_lead_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_lead",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/lead": 1
+      }
+    },
+    {
+      "name": "mek_processing_lead_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_lead",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/lead": 1
+      }
+    },
+    {
+      "name": "mek_processing_lead_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_lead",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/lead": 1
+      }
+    },
+    {
+      "name": "mek_processing_netherite_ingot_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_netherite",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/netherite": 1
+      }
+    },
+    {
+      "name": "mek_processing_osmium_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_osmium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/osmium": 1
+      }
+    },
+    {
+      "name": "mek_processing_osmium_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_osmium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/osmium": 1
+      }
+    },
+    {
+      "name": "mek_processing_osmium_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_osmium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/osmium": 1
+      }
+    },
+    {
+      "name": "mek_processing_osmium_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_osmium",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/osmium": 1
+      }
+    },
+    {
+      "name": "mek_processing_osmium_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_osmium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/osmium": 1
+      }
+    },
+    {
+      "name": "mek_processing_quartz_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_quartz",
+      "count": 1,
+      "ingredients": {
+        "#forge:gems/quartz": 1
+      }
+    },
+    {
+      "name": "mek_processing_refined_glowstone_ingot_from_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:ingot_refined_glowstone",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/glowstone": 1
+      }
+    },
+    {
+      "name": "mek_processing_refined_obsidian_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_refined_obsidian",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/refined_obsidian": 1
+      }
+    },
+    {
+      "name": "mek_processing_refined_obsidian_dust_from_obsidian_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:dust_refined_obsidian",
+      "count": 8,
+      "ingredients": {
+        "#forge:dusts/obsidian": 8,
+        "#mekanism:enriched/diamond": 1
+      }
+    },
+    {
+      "name": "mek_processing_refined_obsidian_ingot_from_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:ingot_refined_obsidian",
+      "count": 1,
+      "ingredients": {
+        "#forge:dusts/refined_obsidian": 1
+      }
+    },
+    {
+      "name": "mek_processing_steel_enriched_iron_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients. Infusion is priced at the enriched material, which yields eight times the raw chemical.",
+      "output": "mekanism:dust_steel",
+      "count": 8,
+      "ingredients": {
+        "mekanism:enriched_iron": 8,
+        "#mekanism:enriched/carbon": 1
+      }
+    },
+    {
+      "name": "mek_processing_steel_ingot_to_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_steel",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 1
+      }
+    },
+    {
+      "name": "mek_processing_tin_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_tin",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_tin_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_tin",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_tin_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_tin",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_tin_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_tin",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_tin_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_tin",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/tin": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_clump_from_shard",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:clump_uranium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:shards/uranium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_dirty_dust_from_clump",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dirty_dust_uranium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:clumps/uranium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_dust_from_dirty_dust",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_uranium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:dirty_dusts/uranium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_dust_from_ingot",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_uranium",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/uranium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_reprocessing_from_plutonium",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:reprocessed_fissile_fragment",
+      "count": 4,
+      "ingredients": {
+        "#forge:pellets/plutonium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_shard_from_crystal",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:shard_uranium",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:crystals/uranium": 1
+      }
+    },
+    {
+      "name": "mek_processing_uranium_yellow_cake_uranium",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:yellow_cake_uranium",
+      "count": 2,
+      "ingredients": {
+        "#forge:ingots/uranium": 1
+      }
+    },
+    {
+      "name": "mek_purification_chamber",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:purification_chamber",
+      "count": 1,
+      "ingredients": {
+        "#mekanism:alloys/infused": 4,
+        "#forge:circuits/advanced": 2,
+        "#forge:ingots/osmium": 2,
+        "mekanism:enrichment_chamber": 1
+      }
+    },
+    {
+      "name": "mek_qio_drive_array",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:qio_drive_array",
+      "count": 1,
+      "ingredients": {
+        "#forge:pellets/polonium": 4,
+        "#forge:glass_panes": 1,
+        "#forge:circuits/ultimate": 2,
+        "#mekanism:personal_storage": 1,
+        "mekanism:teleportation_core": 1
+      }
+    },
+    {
+      "name": "mek_qio_drive_hyper_dense",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:qio_drive_hyper_dense",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/lead": 4,
+        "mekanism:qio_drive_base": 4,
+        "#forge:gems/diamond": 1
+      }
+    },
+    {
+      "name": "mek_qio_drive_supermassive",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:qio_drive_supermassive",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/lead": 4,
+        "mekanism:qio_drive_time_dilating": 4,
+        "#forge:pellets/antimatter": 1
+      }
+    },
+    {
+      "name": "mek_qio_drive_time_dilating",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:qio_drive_time_dilating",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/lead": 4,
+        "mekanism:qio_drive_hyper_dense": 4,
+        "#forge:gems/emerald": 1
+      }
+    },
+    {
+      "name": "mek_reaction_substrate_ethene_oxygen",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:hdpe_pellet",
+      "count": 1,
+      "ingredients": {
+        "mekanism:substrate": 1
+      }
+    },
+    {
+      "name": "mek_reaction_substrate_water_hydrogen",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:substrate",
+      "count": 1,
+      "ingredients": {
+        "#forge:fuels/bio": 2
+      }
+    },
+    {
+      "name": "mek_reaction_wood_gasification_logs",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_charcoal",
+      "count": 1,
+      "ingredients": {
+        "#minecraft:logs": 4
+      }
+    },
+    {
+      "name": "mek_reaction_wood_gasification_planks",
+      "why": "Mekanism machine recipe ProjectE does not map, priced at its item ingredients.",
+      "output": "mekanism:dust_charcoal",
+      "count": 1,
+      "ingredients": {
+        "#minecraft:planks": 20
+      }
+    },
+    {
+      "name": "mek_resistive_heater",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:resistive_heater",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/tin": 4,
+        "#forge:dusts/redstone": 3,
+        "mekanism:steel_casing": 1,
+        "mekanism:energy_tablet": 1
+      }
+    },
+    {
+      "name": "mek_robit",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:robit",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 1,
+        "mekanism:energy_tablet": 2,
+        "#mekanism:alloys/atomic": 1,
+        "#forge:ingots/refined_obsidian": 2,
+        "#mekanism:personal_storage": 1
+      }
+    },
+    {
+      "name": "mek_rotary_condensentrator",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:rotary_condensentrator",
+      "count": 1,
+      "ingredients": {
+        "#forge:glass": 4,
+        "#forge:circuits/basic": 2,
+        "mekanism:basic_chemical_tank": 1,
+        "mekanism:energy_tablet": 1,
+        "mekanism:basic_fluid_tank": 1
+      }
+    },
+    {
+      "name": "mek_scuba_tank",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:scuba_tank",
+      "count": 1,
+      "ingredients": {
+        "#forge:circuits/basic": 1,
+        "#mekanism:alloys/infused": 2,
+        "mekanism:basic_chemical_tank": 1,
+        "#forge:ingots/steel": 3
+      }
+    },
+    {
+      "name": "mek_seismic_reader",
+      "why": "Mekanism stores this crafting recipe as mek_data because the result keeps energy or fluid data; the cost is the crafting ingredients, and transmutation does not copy that data.",
+      "output": "mekanism:seismic_reader",
+      "count": 1,
+      "ingredients": {
+        "#forge:ingots/steel": 7,
+        "#forge:gems/lapis": 1,
+        "mekanism:energy_tablet": 1
+      }
+    },
+    {
+      "name": "induction_provider_basic",
+      "why": "Four basic circuits and one basic energy cube. The four lithium dust are crystallized from water, which has no EMC, so they add nothing.",
+      "output": "mekanism:basic_induction_provider",
+      "ingredients": {
+        "#forge:circuits/basic": 4,
+        "mekanism:basic_energy_cube": 1
+      }
+    }
+  ],
+  "processes": [
+    {
+      "name": "sulfur_dioxide_bucket",
+      "why": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so ten dust and one bucket fill one bucket. A higher value would let that route create EMC.",
+      "in": {
+        "mekanism:dust_sulfur": 10,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      }
+    },
+    {
+      "name": "sulfur_trioxide_bucket",
+      "why": "Two sulfur dioxide and one oxygen make two sulfur trioxide. Oxygen comes from water and adds no EMC, so a trioxide bucket cannot be worth more than a dioxide bucket.",
+      "in": {
+        "mekanism:sulfur_dioxide_bucket": 1
+      },
+      "out": {
+        "mekanism:sulfur_trioxide_bucket": 1
+      }
+    },
+    {
+      "name": "sulfuric_acid_bucket",
+      "why": "One sulfur trioxide and one water vapor make one sulfuric acid, and water vapor is free, so an acid bucket cannot be worth more than a trioxide bucket. The direct conversion of one dust into 2 mB is a worse route.",
+      "in": {
+        "mekanism:sulfur_trioxide_bucket": 1
+      },
+      "out": {
+        "mekanism:sulfuric_acid_bucket": 1
+      }
+    },
+    {
+      "name": "uranium_oxide_bucket",
+      "why": "Oxidizing one yellow cake yields 250 mB of uranium oxide, so four cakes and one bucket fill one bucket.",
+      "in": {
+        "mekanism:yellow_cake_uranium": 4,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:uranium_oxide_bucket": 1
+      }
+    },
+    {
+      "name": "hydrofluoric_acid_bucket",
+      "why": "Dissolving one fluorite gem yields 1,000 mB of hydrofluoric acid. The millibucket of sulfuric acid is a catalyst and is not counted; a bucket cannot be worth more than one gem and the bucket.",
+      "in": {
+        "mekanism:fluorite_gem": 1,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:hydrofluoric_acid_bucket": 1
+      }
+    },
+    {
+      "name": "uranium_hexafluoride_buckets",
+      "why": "One millibucket of hydrofluoric acid and one of uranium oxide make two of uranium hexafluoride, so two buckets cannot be worth more than one of each input bucket.",
+      "in": {
+        "mekanism:hydrofluoric_acid_bucket": 1,
+        "mekanism:uranium_oxide_bucket": 1
+      },
+      "out": {
+        "mekanism:uranium_hexafluoride_bucket": 2
+      }
+    },
+    {
+      "name": "liquify_nutritional_paste",
+      "why": "The liquifier makes 50 mB per food point. Twenty dried kelp, the cheapest food at one point per EMC, plus a bucket fill one bucket of paste. A higher paste value would make liquifying kelp create EMC.",
+      "in": {
+        "minecraft:dried_kelp": 20,
+        "minecraft:bucket": 1
+      },
+      "out": {
+        "mekanism:nutritional_paste_bucket": 1
+      }
+    },
+    {
+      "name": "drink_nutritional_paste",
+      "why": "Drinking a full bucket restores twenty food points and returns the empty bucket. Priced as twenty dried kelp, that food cannot be worth more than the bucket, or drinking a transmuted bucket would be free food.",
+      "in": {
+        "mekanism:nutritional_paste_bucket": 1
+      },
+      "out": {
+        "minecraft:dried_kelp": 20,
+        "minecraft:bucket": 1
+      }
+    }
+  ],
+  "vanilla": {
+    "minecraft:elytra": {
+      "systems": [
+        "projecte"
+      ],
+      "emc": 16463,
+      "why": "ProjectE 1.1.0 does not value an elytra. Item Alchemy does, at 16463, and the HDPE elytra is crafted from one, so ProjectE uses the same figure."
+    }
+  }
+}

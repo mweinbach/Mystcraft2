@@ -90,6 +90,8 @@ jobs:
         run: python3 mods/mekanism/scripts/generate_fabric_tags.py --check
       - name: Build Mekanism for Fabric
         run: ./gradlew --no-daemon -p mods/mekanism/fabric build
+      - name: Verify Mekanism loader artifact parity
+        run: python3 mods/mekanism/scripts/check_loader_parity.py
       - name: Run Mekanism's Forge GameTests
         run: ./gradlew --no-daemon :mekanism:runGameTestServer
       - name: Run Mekanism's Fabric GameTests

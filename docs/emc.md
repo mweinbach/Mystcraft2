@@ -10,6 +10,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
+| Mekanism | Forge, Fabric | 379 | 12 | 16 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
 Each port's `emc/README.md` is generated. It lists every explicit value and exclusion with its reason, the
@@ -152,7 +153,8 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | Advanced Genetics | `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy` |
 
 CI runs every audit in the table against its real EMC mod. That catches stale values, changed dependency
-coordinates and data-format regressions.
+coordinates and data-format regressions. Mekanism ships the same two data files; `scripts/emc.py check` covers
+them. Its GameTests do not run `EmcAudit` or install an EMC mod yet.
 
 ## Adding EMC to a port
 

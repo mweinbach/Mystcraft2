@@ -43,7 +43,8 @@ Do not install either JAR in a world you care about.
 | `fabric/` | The isolated Loom build of the Fabric variant |
 | `src/test` | Upstream JUnit tests, run on both loaders |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Shared GameTests and each loader's `TestPlatform`; development only |
-| `scripts` | The Fabric tag bridge generator and its Forge tag baseline |
+| `scripts` | The Fabric tag bridge generator, the loader-parity check and its Forge tag baseline |
+| `emc` | EMC policy and the generated ProjectE and Item Alchemy values |
 
 ## Build and test
 
@@ -53,6 +54,8 @@ Do not install either JAR in a world you care about.
 ./scripts/gradle.sh :mekanism:runGameTestServer
 ./scripts/gradle.sh -p mods/mekanism/fabric runGametest
 python3 mods/mekanism/scripts/generate_fabric_tags.py --check
+python3 mods/mekanism/scripts/check_loader_parity.py
+python3 scripts/emc.py check
 ```
 
 ## License
