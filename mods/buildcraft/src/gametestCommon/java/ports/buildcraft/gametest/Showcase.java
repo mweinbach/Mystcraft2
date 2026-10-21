@@ -70,6 +70,8 @@ import ports.buildcraft.silicon.gate.GateVariant;
 import ports.buildcraft.silicon.gate.PluggableGate;
 import ports.buildcraft.silicon.plug.LensPluggable;
 import ports.buildcraft.silicon.plug.LensVariant;
+import ports.buildcraft.silicon.plug.PluggablePulsar;
+import ports.buildcraft.silicon.statement.BCSiliconStatements;
 import ports.buildcraft.statement.ActionWrapper;
 import ports.buildcraft.statement.StatementParameterItemStack;
 import ports.buildcraft.statement.TriggerWrapper;
@@ -179,6 +181,15 @@ public final class Showcase {
      */
     public static void buildLenses(ServerLevel level, BlockPos origin) {
         new Showcase(level, origin).lenses();
+    }
+
+    /**
+     * Builds a pulsar bench: a wooden pipe pulling cobblestone, with a gate on top holding its south pulsar on so the
+     * piston strokes and the red light shows; a pulsar switched on by hand, with the green light; a pulsar left off;
+     * and a timer. A second gate, on a pipe that also has a timer and a pulsar, is there to open.
+     */
+    public static void buildPulsars(ServerLevel level, BlockPos origin) {
+        new Showcase(level, origin).pulsars();
     }
 
     /** The oil well of {@code type}, or of any type when null, nearest to chunk {@code (cx, cz)} within {@code radius} chunks. */
@@ -442,6 +453,32 @@ public final class Showcase {
             lens(pipe, Direction.SOUTH, new LensVariant(variant.colour(), true));
         }
         for (BlockPos pos : redstone) level.setBlock(pos, Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    private void pulsars() {
+        prepare(-1, 8, -1, 4);
+        chest(0, 0, 1, new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.COBBLESTONE, 64));
+        PipeBlockEntity pulling = pipe(1, 0, 1, BCTransport.WOOD_ITEM);
+        pulsar(pulling, Direction.SOUTH);
+        GateLogic logic = gate(pulling, Direction.UP, new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER));
+        logic.statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
+        logic.statements[0].action.set(ActionWrapper.wrap(BCSiliconStatements.ACTION_PULSAR_CONSTANT, Direction.SOUTH));
+        pulling.replacePluggable(Direction.NORTH, BCSilicon.TIMER.create(pulling, Direction.NORTH));
+
+        PluggablePulsar byHand = pulsar(pipe(3, 0, 1, BCTransport.WOOD_ITEM), Direction.SOUTH);
+        byHand.toggleManual();
+        pulsar(pipe(5, 0, 1, BCTransport.STONE_ITEM), Direction.SOUTH);
+        PipeBlockEntity timed = pipe(7, 0, 1, BCTransport.STONE_ITEM);
+        timed.replacePluggable(Direction.SOUTH, BCSilicon.TIMER.create(timed, Direction.SOUTH));
+        timed.replacePluggable(Direction.EAST, BCSilicon.PULSAR.create(timed, Direction.EAST));
+        gate(timed, Direction.UP, new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER));
+        chest(1, 0, 3, new ItemStack(BCSilicon.PULSAR_ITEM.get()), new ItemStack(BCSilicon.TIMER_ITEM.get()));
+    }
+
+    private static PluggablePulsar pulsar(PipeBlockEntity pipe, Direction side) {
+        PluggablePulsar pulsar = new PluggablePulsar(BCSilicon.PULSAR, pipe, side);
+        pipe.replacePluggable(side, pulsar);
+        return pulsar;
     }
 
     private static void lens(PipeBlockEntity pipe, Direction side, LensVariant variant) {

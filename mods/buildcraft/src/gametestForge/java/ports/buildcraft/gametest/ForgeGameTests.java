@@ -6,7 +6,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests} and {@link LensTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests} and {@link PulsarTimerTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -276,6 +276,18 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void diamondPipeSplitKeepsFilterPriority(GameTestHelper helper) { LensTests.diamondPipeSplitKeepsFilterPriority(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void pulsarAndTimerPlaceSaveAndSync(GameTestHelper helper) { PulsarTimerTests.pulsarAndTimerPlaceSaveAndSync(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void pulsarPulsesEveryTwentyTicks(GameTestHelper helper) { PulsarTimerTests.pulsarPulsesEveryTwentyTicks(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void singlePulseRetriesUntilThePipeCanTakeIt(GameTestHelper helper) { PulsarTimerTests.singlePulseRetriesUntilThePipeCanTakeIt(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1000)
+    public static void timerTriggersAndPulsarActions(GameTestHelper helper) { PulsarTimerTests.timerTriggersAndPulsarActions(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void advancedCraftingTableCraftsBlueprint(GameTestHelper helper) { SiliconTests.advancedCraftingTableCraftsBlueprint(helper); }

@@ -669,6 +669,29 @@
           }
         }
       ]
+    },
+    "buildcraft_assemble_pulsar": {
+      "comment": "The assembly table makes a pipe pulsar from a redstone engine, two iron ingots and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:plug_pulsar",
+          "ingredients": {
+            "buildcraft:redstone_engine": 1,
+            "minecraft:iron_ingot": 2
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_timer": {
+      "comment": "The assembly table makes a timer from a clock and laser power (upstream BCSiliconRecipes), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:plug_timer",
+          "ingredients": {
+            "minecraft:clock": 1
+          }
+        }
+      ]
     }
   },
   "values": {

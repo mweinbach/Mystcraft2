@@ -681,6 +681,16 @@
       "itemalchemy": 532,
       "source": "recipe"
     },
+    "buildcraft:plug_pulsar": {
+      "projecte": 917,
+      "itemalchemy": 905,
+      "source": "conversion assemble_pulsar"
+    },
+    "buildcraft:plug_timer": {
+      "projecte": 8256,
+      "itemalchemy": 8236,
+      "source": "conversion assemble_timer"
+    },
     "buildcraft:pump": {
       "projecte": 2916,
       "itemalchemy": 2884,

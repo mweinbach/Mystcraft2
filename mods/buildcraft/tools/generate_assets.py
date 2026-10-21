@@ -1039,6 +1039,45 @@ class Generator:
         self.model(f"item/{kind}_{colour or 'clear'}", {"gui_light": "front", "textures": textures, "elements": elements,
                                                          "display": self.PLUG_ITEM_DISPLAY})
 
+    def pulsars(self) -> None:
+        """Upstream pulsar and timer plugs. The pulsar item is the switched-off model from setModelVariablesForItem."""
+        for name in ["pulsar_static", "pulsar_dynamic_on", "pulsar_dynamic_off", "timer"]:
+            self.copy(f"buildcraftsilicon/textures/plugs/{name}.png", f"block/pipe/{name}.png")
+        for name in ["trigger_timer_short", "trigger_timer_medium", "trigger_timer_long", "action_pulsar_on", "action_pulsar_single"]:
+            self.copy(f"buildcraftsilicon/textures/triggers/{name}.png", f"triggers/{name}.png")
+        self.plug_item("plug_timer", "buildcraftsilicon/models/plugs/timer.json", {"all": rl("block/pipe/timer")})
+        static = json.loads((self.src / "buildcraftsilicon/models/plugs/pulsar_static.json").read_text(encoding="utf-8"))
+        piston = {"from": [1.999, 6, 6], "to": [3.999, 10, 10], "shade": True, "faces": {
+            face: {"uv": [5.8, 6, 6, 10] if face in ("down", "up", "north", "south") else [6, 6, 10, 10], "texture": "#piston"}
+            for face in ("down", "up", "north", "south", "west", "east")}}
+        leds = [
+            ([2.5, 6.5, 4.9], [3.5, 7.5, 5]), ([2.5, 8.5, 4.9], [3.5, 9.5, 5]),
+            ([2.5, 8.5, 11], [3.5, 9.5, 11.1]), ([2.5, 6.5, 11], [3.5, 7.5, 11.1]),
+            ([2.5, 4.9, 8.5], [3.5, 5, 9.5]), ([2.5, 4.9, 6.5], [3.5, 5, 7.5]),
+            ([2.5, 11, 6.5], [3.5, 11.1, 7.5]), ([2.5, 11, 8.5], [3.5, 11.1, 9.5]),
+        ]
+        led_elements = [{"from": start, "to": end, "shade": True, "faces": {
+            face: {"uv": [0, 0, 16, 16], "texture": "#led", "tintindex": 0} for face in ("down", "up", "north", "south", "west", "east")}}
+            for start, end in leds]
+        self.model("item/plug_pulsar", {
+            "gui_light": "front",
+            "textures": {"all": rl("block/pipe/pulsar_static"), "piston": rl("block/pipe/pulsar_dynamic_off"),
+                         "led": "minecraft:block/white_concrete", "particle": "#all"},
+            "elements": static["elements"] + [piston] + led_elements,
+            "display": self.PLUG_ITEM_DISPLAY})
+        self.lang[f"item.{MOD}.plug_pulsar"] = "Pipe Pulsar"
+        self.lang[f"item.{MOD}.plug_timer"] = "Timer"
+        self.lang["gate.action.pulsar.constant"] = "Power Pulsar"
+        self.lang["gate.action.pulsar.single"] = "Single Power Pulse"
+        self.lang["gate.trigger.timer"] = "%s Sec Timer"
+
+    def pulsar_timer_recipes(self) -> None:
+        """Upstream BCSiliconRecipes: a pulsar from a redstone engine and two iron ingots at 1000 MJ, a timer from a clock at 500 MJ."""
+        self.recipe("assembly/plug_pulsar", {
+            "type": rl("assembly"), "result": {"item": rl("plug_pulsar")}, "MJ": 1000,
+            "components": [{"ingredient": {"item": rl("redstone_engine")}}, {"ingredient": IRON, "amount": 2}]})
+        self.assembly("assembly/plug_timer", "plug_timer", 500, [{"item": "minecraft:clock"}])
+
     def lenses(self) -> None:
         for name, target in [("lens", "lens"), ("filter", "filter"), ("overlay_lens", "overlay")]:
             self.copy(f"buildcraftsilicon/textures/plugs/{name}.png", f"block/lens/{target}.png")
@@ -1265,6 +1304,7 @@ class Generator:
         self.gates()
         self.wires()
         self.lenses()
+        self.pulsars()
         self.fluids()
         self.oil_wells()
         self.oil_biomes()
@@ -1275,6 +1315,7 @@ class Generator:
         self.gate_recipes()
         self.wire_recipes()
         self.lens_recipes()
+        self.pulsar_timer_recipes()
         self.data_tags()
         self.loot_tables()
 

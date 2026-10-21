@@ -77,7 +77,7 @@ public final class BCClient {
         void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
     }
 
-    /** The shard's fluid layer is tinted with the average colour of the fluid it holds, and a lens's pane with its colour. */
+    /** The shard's fluid layer is tinted with the average colour of the fluid it holds, a lens's pane with its colour, and a pulsar's lights with the switched-off colour. */
     public static void registerItemColours(ItemColourSink sink) {
         sink.register((stack, layer) -> layer == 1 ? FluidColours.average(FragileFluidShardItem.getFluid(stack).fluid()) : -1,
                 BCCore.FRAGILE_FLUID_SHARD.get());
@@ -85,6 +85,7 @@ public final class BCClient {
             int tint = LensRenderer.tint(lens.getKey());
             sink.register((stack, layer) -> layer == 0 ? tint : -1, lens.getValue().get());
         }
+        sink.register((stack, layer) -> layer == 0 ? PulsarRenderer.ITEM_LED_COLOUR : -1, BCSilicon.PULSAR_ITEM.get());
     }
 
     /**

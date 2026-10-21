@@ -145,6 +145,8 @@
   "buildcraft:pipe_wood_power": 66,
   "buildcraft:plug_blocker": 0,
   "buildcraft:plug_power_adaptor": 532,
+  "buildcraft:plug_pulsar": 905,
+  "buildcraft:plug_timer": 8236,
   "buildcraft:pump": 2884,
   "buildcraft:quarry": 62484,
   "buildcraft:quartz_chipset": 320,
