@@ -9,9 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
-import ports.mekanism.lib.event.entity.EntityAttributeCreationEvent;
-import ports.mekanism.lib.eventbus.api.IEventBus;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class EntityTypeDeferredRegister extends WrappedDeferredRegister<EntityType<?>> {
 

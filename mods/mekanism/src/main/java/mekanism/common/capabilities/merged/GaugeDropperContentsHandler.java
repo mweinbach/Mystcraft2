@@ -23,9 +23,9 @@ import mekanism.common.capabilities.resolver.ICapabilityResolver;
 import mekanism.common.util.ItemDataUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
-import ports.mekanism.lib.fluids.FluidType;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

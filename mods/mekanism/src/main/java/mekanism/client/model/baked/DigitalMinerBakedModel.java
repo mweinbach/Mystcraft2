@@ -9,8 +9,8 @@ import mekanism.common.config.MekanismConfig;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import ports.mekanism.lib.client.event.TextureStitchEvent;
-import ports.mekanism.lib.client.model.data.ModelData;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

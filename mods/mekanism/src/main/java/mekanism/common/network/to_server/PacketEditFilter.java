@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketEditFilter<FILTER extends IFilter<FILTER>> implements IMekanismPacket {
 

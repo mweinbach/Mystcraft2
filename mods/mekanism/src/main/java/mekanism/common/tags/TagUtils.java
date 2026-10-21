@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import ports.mekanism.lib.registries.IForgeRegistry;
-import ports.mekanism.lib.registries.tags.IReverseTag;
-import ports.mekanism.lib.registries.tags.ITag;
-import ports.mekanism.lib.registries.tags.ITagManager;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.tags.IReverseTag;
+import net.minecraftforge.registries.tags.ITag;
+import net.minecraftforge.registries.tags.ITagManager;
 
 public class TagUtils {
 

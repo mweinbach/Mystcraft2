@@ -2,8 +2,8 @@ package mekanism.api.radiation.capability;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
-import ports.mekanism.lib.common.capabilities.AutoRegisterCapability;
-import ports.mekanism.lib.common.util.INBTSerializable;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
 /**

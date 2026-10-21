@@ -4,7 +4,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @MethodsReturnNonnullByDefault
 public interface IEntityTypeProvider extends IBaseProvider {

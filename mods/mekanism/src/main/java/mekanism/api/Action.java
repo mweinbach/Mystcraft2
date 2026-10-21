@@ -1,6 +1,6 @@
 package mekanism.api;
 
-import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public enum Action {
     EXECUTE(FluidAction.EXECUTE),

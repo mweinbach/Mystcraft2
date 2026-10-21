@@ -9,7 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import ports.mekanism.lib.common.ForgeMod;
+import net.minecraftforge.common.ForgeMod;
 
 public final class MultipartUtils {
 

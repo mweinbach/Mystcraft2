@@ -6,7 +6,7 @@ import mekanism.client.render.lib.QuadTransformation;
 import mekanism.client.render.lib.QuadTransformation.TextureFilteredTransformation;
 import mekanism.common.tile.qio.TileEntityQIORedstoneAdapter;
 import net.minecraft.client.resources.model.BakedModel;
-import ports.mekanism.lib.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

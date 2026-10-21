@@ -3,9 +3,9 @@ package mekanism.client.key;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import ports.mekanism.lib.client.settings.IKeyConflictContext;
-import ports.mekanism.lib.client.settings.KeyConflictContext;
-import ports.mekanism.lib.client.settings.KeyModifier;
+import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import org.lwjgl.glfw.GLFW;
 
 public class MekKeyHandler {

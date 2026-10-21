@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
-import ports.mekanism.lib.common.crafting.IShapedRecipe;
+import net.minecraftforge.common.crafting.IShapedRecipe;
 
 @NothingNullByDefault
 public abstract class WrappedShapedRecipe implements CraftingRecipe, IShapedRecipe<CraftingContainer> {

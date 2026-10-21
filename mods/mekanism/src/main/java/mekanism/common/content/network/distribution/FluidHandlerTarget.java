@@ -3,9 +3,9 @@ package mekanism.common.content.network.distribution;
 import java.util.Collection;
 import mekanism.common.lib.distribution.SplitInfo;
 import mekanism.common.lib.distribution.Target;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.capability.IFluidHandler;
-import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import org.jetbrains.annotations.NotNull;
 
 public class FluidHandlerTarget extends Target<IFluidHandler, Integer, @NotNull FluidStack> {

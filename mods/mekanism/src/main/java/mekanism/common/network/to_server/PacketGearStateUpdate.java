@@ -6,7 +6,7 @@ import mekanism.common.network.IMekanismPacket;
 import mekanism.common.network.to_client.PacketPlayerData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketGearStateUpdate implements IMekanismPacket {
 

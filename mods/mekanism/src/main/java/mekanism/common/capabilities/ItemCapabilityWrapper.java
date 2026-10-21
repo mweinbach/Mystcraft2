@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import mekanism.common.capabilities.resolver.ICapabilityResolver;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

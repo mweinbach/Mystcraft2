@@ -16,8 +16,8 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidType;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
 public interface IStateFluidLoggable extends BucketPickup, LiquidBlockContainer {

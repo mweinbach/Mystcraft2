@@ -5,7 +5,7 @@ import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.providers.IFluidProvider;
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import net.minecraft.world.level.material.Fluid;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 @NothingNullByDefault
 public interface IFluidStackIngredientCreator extends IIngredientCreator<Fluid, FluidStack, FluidStackIngredient> {

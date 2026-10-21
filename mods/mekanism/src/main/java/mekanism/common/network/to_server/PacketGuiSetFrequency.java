@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketGuiSetFrequency<FREQ extends Frequency> implements IMekanismPacket {
 

@@ -11,7 +11,6 @@ import mekanism.api.text.ILangEntry;
 import mekanism.common.CommonPlayerTickHandler;
 import mekanism.common.Mekanism;
 import mekanism.common.MekanismLang;
-import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.MekanismUtils.ResourceType;
 import net.minecraft.network.chat.Component;
@@ -69,8 +68,6 @@ public interface IJetpackItem {
 
     /**
      * Gets the first found active jetpack from an entity, if one is worn.
-     * <br>
-     * If Curios is loaded, the curio slots will be checked as well.
      *
      * @param entity the entity on which to look for the jetpack
      *
@@ -83,8 +80,6 @@ public interface IJetpackItem {
 
     /**
      * Gets the first found jetpack from an entity, if one is worn. Purpose of this is to get the correct jetpack mode to use.
-     * <br>
-     * If Curios is loaded, the curio slots will be checked as well.
      *
      * @param entity the entity on which to look for the jetpack
      *
@@ -99,8 +94,6 @@ public interface IJetpackItem {
         ItemStack chest = entity.getItemBySlot(EquipmentSlot.CHEST);
         if (matcher.test(chest)) {
             return chest;
-        } else if (Mekanism.hooks.CuriosLoaded) {
-            return CuriosIntegration.findFirstCurio(entity, matcher);
         }
         return ItemStack.EMPTY;
     }

@@ -31,16 +31,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.event.TickEvent.LevelTickEvent;
-import ports.mekanism.lib.event.TickEvent.Phase;
-import ports.mekanism.lib.event.TickEvent.ServerTickEvent;
-import ports.mekanism.lib.event.entity.EntityJoinLevelEvent;
-import ports.mekanism.lib.event.level.BlockEvent;
-import ports.mekanism.lib.event.level.ChunkDataEvent;
-import ports.mekanism.lib.event.level.ChunkEvent;
-import ports.mekanism.lib.event.level.LevelEvent;
-import ports.mekanism.lib.eventbus.api.EventPriority;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.ChunkDataEvent;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class CommonWorldTickHandler {

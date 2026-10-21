@@ -10,7 +10,7 @@ import mekanism.common.network.BasePacketHandler;
 import mekanism.common.network.IMekanismPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketLightningRender implements IMekanismPacket {
 

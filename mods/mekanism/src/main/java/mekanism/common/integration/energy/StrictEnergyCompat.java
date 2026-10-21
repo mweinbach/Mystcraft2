@@ -5,9 +5,9 @@ import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.common.capabilities.Capabilities;
 import mekanism.common.util.CapabilityUtils;
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

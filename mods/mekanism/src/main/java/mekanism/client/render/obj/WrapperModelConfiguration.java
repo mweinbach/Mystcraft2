@@ -4,8 +4,8 @@ import com.mojang.math.Transformation;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.client.RenderTypeGroup;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.RenderTypeGroup;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

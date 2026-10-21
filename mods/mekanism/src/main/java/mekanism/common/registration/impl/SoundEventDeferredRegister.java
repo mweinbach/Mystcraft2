@@ -3,7 +3,7 @@ package mekanism.common.registration.impl;
 import mekanism.common.registration.WrappedDeferredRegister;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class SoundEventDeferredRegister extends WrappedDeferredRegister<SoundEvent> {
 

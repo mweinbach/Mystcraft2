@@ -16,8 +16,8 @@ import mekanism.common.tile.qio.TileEntityQIODriveArray.DriveStatus;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.client.event.ModelEvent.BakingCompleted;
-import ports.mekanism.lib.client.event.ModelEvent.RegisterAdditional;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
+import net.minecraftforge.client.event.ModelEvent.RegisterAdditional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

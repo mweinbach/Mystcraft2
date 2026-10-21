@@ -4,7 +4,7 @@ import java.util.UUID;
 import mekanism.common.Mekanism;
 import mekanism.common.network.IMekanismPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketResetPlayerClient implements IMekanismPacket {
 

@@ -25,12 +25,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.common.util.FakePlayer;
-import ports.mekanism.lib.network.NetworkDirection;
-import ports.mekanism.lib.network.NetworkRegistry;
-import ports.mekanism.lib.network.PacketDistributor;
-import ports.mekanism.lib.network.simple.SimpleChannel;
-import ports.mekanism.lib.server.ServerLifecycleHooks;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BasePacketHandler {

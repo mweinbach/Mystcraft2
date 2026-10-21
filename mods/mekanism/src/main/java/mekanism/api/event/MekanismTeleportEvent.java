@@ -4,10 +4,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.event.entity.EntityTeleportEvent;
-import ports.mekanism.lib.eventbus.api.Cancelable;
-import ports.mekanism.lib.fml.LogicalSide;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.fml.LogicalSide;
 
 /**
  * Base Mekanism extension of the {@link EntityTeleportEvent}.

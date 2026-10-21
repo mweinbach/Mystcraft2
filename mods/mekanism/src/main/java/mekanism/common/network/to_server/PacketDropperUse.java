@@ -35,10 +35,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketDropperUse implements IMekanismPacket {
 

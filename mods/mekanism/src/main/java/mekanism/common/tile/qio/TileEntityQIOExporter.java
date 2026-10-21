@@ -37,8 +37,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
-import ports.mekanism.lib.items.IItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
 
 public class TileEntityQIOExporter extends TileEntityQIOFilterHandler {
 

@@ -13,7 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.client.model.pipeline.QuadBakingVertexConsumer;
+import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
 import org.jetbrains.annotations.NotNull;
 
 public class Quad {

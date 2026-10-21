@@ -1,7 +1,7 @@
 package mekanism.api.heat;
 
 import mekanism.api.annotations.NothingNullByDefault;
-import ports.mekanism.lib.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 @NothingNullByDefault
 @AutoRegisterCapability

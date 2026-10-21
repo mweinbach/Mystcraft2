@@ -1,7 +1,7 @@
 package mekanism.client.render.obj;
 
 import net.minecraft.client.resources.model.Material;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import org.jetbrains.annotations.NotNull;
 
 public class OpaqueModelConfiguration extends WrapperModelConfiguration {

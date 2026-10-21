@@ -11,7 +11,7 @@ import mekanism.common.content.network.transmitter.Transmitter;
 import mekanism.common.lib.transmitter.TransmitterNetworkRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.common.util.LazyOptional;
+import net.minecraftforge.common.util.LazyOptional;
 
 public class NetworkAcceptorCache<ACCEPTOR> {
 

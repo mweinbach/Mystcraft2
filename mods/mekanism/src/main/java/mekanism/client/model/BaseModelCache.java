@@ -21,14 +21,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.client.event.ModelEvent.BakingCompleted;
-import ports.mekanism.lib.client.event.ModelEvent.RegisterAdditional;
-import ports.mekanism.lib.client.model.data.ModelData;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
-import ports.mekanism.lib.client.model.geometry.IUnbakedGeometry;
-import ports.mekanism.lib.client.model.obj.ObjLoader;
-import ports.mekanism.lib.client.model.obj.ObjModel;
-import ports.mekanism.lib.client.model.obj.ObjModel.ModelSettings;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
+import net.minecraftforge.client.event.ModelEvent.RegisterAdditional;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import net.minecraftforge.client.model.obj.ObjLoader;
+import net.minecraftforge.client.model.obj.ObjModel;
+import net.minecraftforge.client.model.obj.ObjModel.ModelSettings;
 import org.jetbrains.annotations.Nullable;
 
 public class BaseModelCache {

@@ -5,7 +5,7 @@ import java.util.function.UnaryOperator;
 import mekanism.common.registration.WrappedDeferredRegister;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class DataSerializerDeferredRegister extends WrappedDeferredRegister<EntityDataSerializer<?>> {

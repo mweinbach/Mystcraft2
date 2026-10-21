@@ -5,7 +5,7 @@ import mekanism.api.text.ILangEntry;
 import mekanism.common.registration.WrappedRegistryObject;
 import net.minecraft.Util;
 import net.minecraft.sounds.SoundEvent;
-import ports.mekanism.lib.registries.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 @NothingNullByDefault
 public class SoundEventRegistryObject<SOUND extends SoundEvent> extends WrappedRegistryObject<SOUND> implements ILangEntry {

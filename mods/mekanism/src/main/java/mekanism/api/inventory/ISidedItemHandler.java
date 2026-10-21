@@ -4,8 +4,8 @@ import mekanism.api.Action;
 import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.items.IItemHandler;
-import ports.mekanism.lib.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -97,8 +97,8 @@ public interface ISidedItemHandler extends IItemHandlerModifiable {
      * Inserts an {@link ItemStack} into the given slot and return the remainder. The {@link ItemStack} <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly different from
-     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(ports.mekanism.lib.fluids.FluidStack,
-     * ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(net.minecraftforge.fluids.FluidStack,
+     * net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param slot   Slot to insert into.
      * @param stack  {@link ItemStack} to insert. This must not be modified by the item handler.

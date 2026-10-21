@@ -17,10 +17,10 @@ import mekanism.common.util.StorageUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 @ParametersAreNotNullByDefault
 public class ModuleNutritionalInjectionUnit implements ICustomModule<ModuleNutritionalInjectionUnit> {

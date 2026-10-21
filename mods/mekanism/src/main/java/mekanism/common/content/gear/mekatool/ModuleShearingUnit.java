@@ -38,9 +38,9 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import ports.mekanism.lib.common.IForgeShearable;
-import ports.mekanism.lib.common.ToolAction;
-import ports.mekanism.lib.common.ToolActions;
+import net.minecraftforge.common.IForgeShearable;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

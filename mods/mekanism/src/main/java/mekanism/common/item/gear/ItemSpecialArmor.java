@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import mekanism.common.capabilities.ItemCapabilityWrapper;
 import mekanism.common.capabilities.ItemCapabilityWrapper.ItemCapability;
-import mekanism.common.integration.gender.GenderCapabilityHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -12,7 +11,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ItemSpecialArmor extends ArmorItem {
@@ -46,7 +45,6 @@ public abstract class ItemSpecialArmor extends ArmorItem {
     }
 
     protected void gatherCapabilities(List<ItemCapability> capabilities, ItemStack stack, CompoundTag nbt) {
-        GenderCapabilityHelper.addGenderCapability(this, capabilities::add);
     }
 
     @Override

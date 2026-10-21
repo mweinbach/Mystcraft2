@@ -2,7 +2,7 @@ package mekanism.common.config.value;
 
 import java.util.function.LongSupplier;
 import mekanism.common.config.IMekanismConfig;
-import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 public class CachedLongValue extends CachedValue<Long> implements LongSupplier {
 

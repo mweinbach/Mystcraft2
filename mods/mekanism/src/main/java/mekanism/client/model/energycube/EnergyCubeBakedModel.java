@@ -28,10 +28,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.client.ChunkRenderTypeSet;
-import ports.mekanism.lib.client.RenderTypeGroup;
-import ports.mekanism.lib.client.model.IDynamicBakedModel;
-import ports.mekanism.lib.client.model.data.ModelData;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.RenderTypeGroup;
+import net.minecraftforge.client.model.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

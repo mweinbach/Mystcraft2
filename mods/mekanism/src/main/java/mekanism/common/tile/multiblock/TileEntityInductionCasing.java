@@ -11,7 +11,7 @@ import mekanism.common.registries.MekanismContainerTypes;
 import mekanism.common.tile.prefab.TileEntityMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
 
 public class TileEntityInductionCasing extends TileEntityMultiblock<MatrixMultiblockData> {

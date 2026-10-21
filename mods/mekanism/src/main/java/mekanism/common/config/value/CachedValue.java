@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import mekanism.common.Mekanism;
 import mekanism.common.config.IMekanismConfig;
-import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 public abstract class CachedValue<T> {
 

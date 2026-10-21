@@ -9,7 +9,7 @@ import mekanism.api.recipes.ingredients.ChemicalStackIngredient.GasStackIngredie
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Contract;
 
 /**

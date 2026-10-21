@@ -8,9 +8,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
-import ports.mekanism.lib.common.world.BiomeGenerationSettingsBuilder;
-import ports.mekanism.lib.common.world.BiomeModifier;
-import ports.mekanism.lib.common.world.ModifiableBiomeInfo.BiomeInfo;
+import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.ModifiableBiomeInfo.BiomeInfo;
 
 public record MekanismSaltBiomeModifier(HolderSet<Biome> biomes, Decoration step) implements BiomeModifier {
 

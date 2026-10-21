@@ -13,8 +13,8 @@ import mekanism.api.chemical.infuse.IInfusionHandler;
 import mekanism.api.chemical.pigment.IPigmentHandler;
 import mekanism.api.chemical.slurry.ISlurryHandler;
 import mekanism.common.util.CapabilityUtils;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 import org.jetbrains.annotations.Nullable;
 
 @ParametersAreNotNullByDefault

@@ -24,9 +24,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
-import ports.mekanism.lib.items.IItemHandler;
-import ports.mekanism.lib.items.ItemHandlerHelper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

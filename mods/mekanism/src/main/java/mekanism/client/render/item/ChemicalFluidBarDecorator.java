@@ -13,11 +13,11 @@ import mekanism.common.util.StorageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.client.IItemDecorator;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.client.IItemDecorator;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 public class ChemicalFluidBarDecorator implements IItemDecorator {
 

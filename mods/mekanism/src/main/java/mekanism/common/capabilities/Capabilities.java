@@ -16,9 +16,9 @@ import mekanism.api.radiation.capability.IRadiationEntity;
 import mekanism.api.radiation.capability.IRadiationShielding;
 import mekanism.api.security.IOwnerObject;
 import mekanism.api.security.ISecurityObject;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.CapabilityManager;
-import ports.mekanism.lib.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class Capabilities {
 

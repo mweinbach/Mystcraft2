@@ -1,14 +1,10 @@
 package mekanism.common.integration;
 
 import java.util.List;
-import mekanism.common.integration.computer.computercraft.CCCapabilityHelper;
-import mekanism.common.integration.curios.CuriosIntegration;
-import mekanism.common.integration.lookingat.theoneprobe.TOPProvider;
-import mekanism.common.integration.projecte.NSSHelper;
-import ports.mekanism.lib.eventbus.api.IEventBus;
-import ports.mekanism.lib.fml.InterModComms;
-import ports.mekanism.lib.fml.ModList;
-import ports.mekanism.lib.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 
 /**
  * Hooks for Mekanism. Use to grab items or blocks out of different mods.
@@ -45,45 +41,20 @@ public final class MekanismHooks {
     public boolean WildfireGenderModLoaded;
 
     public void hookConstructor(final IEventBus bus) {
-        ModList modList = ModList.get();
-        CraftTweakerLoaded = modList.isLoaded(CRAFTTWEAKER_MOD_ID);
-        CuriosLoaded = modList.isLoaded(CURIOS_MODID);
-        if (CuriosLoaded) {
-            CuriosIntegration.addListeners(bus);
-        }
     }
 
     public void hookCommonSetup() {
         ModList modList = ModList.get();
-        CCLoaded = modList.isLoaded(CC_MOD_ID);
         DMELoaded = modList.isLoaded(DARK_MODE_EVERYWHERE_MODID);
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
-        OC2Loaded = modList.isLoaded(OC2_MOD_ID);
-        ProjectELoaded = modList.isLoaded(PROJECTE_MOD_ID);
-        RecipeStagesLoaded = modList.isLoaded(RECIPE_STAGES_MOD_ID);
-        TOPLoaded = modList.isLoaded(TOP_MOD_ID);
-        FluxNetworksLoaded = modList.isLoaded(FLUX_NETWORKS_MOD_ID);
-        WildfireGenderModLoaded = modList.isLoaded(WILDFIRE_GENDER_MOD_ID);
-        if (CCLoaded) {
-            CCCapabilityHelper.registerCCMathHelper();
-        }
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
-        if (CuriosLoaded) {
-            CuriosIntegration.sendIMC();
-        }
         if (DMELoaded) {
             //Note: While it is only strings, so it is safe to call and IMC validates the mods are loaded
             // we add this check here, so we can skip iterating the list of things we want to blacklist when it is not present
             sendDarkModeEverywhereIMC();
-        }
-        if (ProjectELoaded) {
-            NSSHelper.init();
-        }
-        if (TOPLoaded) {
-            InterModComms.sendTo(TOP_MOD_ID, "getTheOneProbe", TOPProvider::new);
         }
     }
 

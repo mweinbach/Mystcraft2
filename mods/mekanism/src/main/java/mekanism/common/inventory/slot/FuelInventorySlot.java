@@ -9,7 +9,7 @@ import mekanism.api.IContentsListener;
 import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.ForgeHooks;
+import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

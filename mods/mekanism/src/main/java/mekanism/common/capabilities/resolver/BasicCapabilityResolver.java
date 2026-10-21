@@ -5,10 +5,10 @@ import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.security.ISecurityObject;
 import mekanism.common.capabilities.Capabilities;
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.common.util.NonNullLazy;
-import ports.mekanism.lib.common.util.NonNullSupplier;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullLazy;
+import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

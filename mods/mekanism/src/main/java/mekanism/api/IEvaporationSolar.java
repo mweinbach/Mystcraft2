@@ -1,6 +1,6 @@
 package mekanism.api;
 
-import ports.mekanism.lib.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 /**
  * Expose this as a capability on your TileEntity to allow for the tile to be able to heat up a Thermal Evaporation Plant.

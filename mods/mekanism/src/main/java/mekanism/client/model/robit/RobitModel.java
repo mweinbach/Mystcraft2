@@ -20,9 +20,9 @@ import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import ports.mekanism.lib.client.model.ElementsModel;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
-import ports.mekanism.lib.client.model.geometry.IGeometryLoader;
+import net.minecraftforge.client.model.ElementsModel;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import org.jetbrains.annotations.NotNull;
 
 public class RobitModel extends ElementsModel {

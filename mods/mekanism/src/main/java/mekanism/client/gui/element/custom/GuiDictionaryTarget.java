@@ -46,11 +46,11 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.registries.ForgeRegistries;
-import ports.mekanism.lib.registries.tags.ITagManager;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.tags.ITagManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -20,9 +20,9 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import ports.mekanism.lib.event.entity.player.PlayerEvent.ItemCraftedEvent;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
-import ports.mekanism.lib.items.ItemHandlerHelper;
+import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 //TODO: Test this recipe in various modded crafting tables/auto crafters
 @NothingNullByDefault

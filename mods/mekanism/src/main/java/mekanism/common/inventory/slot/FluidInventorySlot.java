@@ -14,11 +14,11 @@ import mekanism.common.inventory.container.slot.ContainerSlotType;
 import mekanism.common.util.StackUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

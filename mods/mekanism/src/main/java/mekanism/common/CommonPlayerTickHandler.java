@@ -41,14 +41,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.ForgeMod;
-import ports.mekanism.lib.event.TickEvent.Phase;
-import ports.mekanism.lib.event.TickEvent.PlayerTickEvent;
-import ports.mekanism.lib.event.entity.living.LivingAttackEvent;
-import ports.mekanism.lib.event.entity.living.LivingEvent.LivingJumpEvent;
-import ports.mekanism.lib.event.entity.living.LivingHurtEvent;
-import ports.mekanism.lib.event.entity.player.PlayerEvent.BreakSpeed;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.PlayerTickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class CommonPlayerTickHandler {

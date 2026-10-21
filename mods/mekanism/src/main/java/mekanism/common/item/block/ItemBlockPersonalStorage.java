@@ -20,7 +20,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemBlockPersonalStorage<BLOCK extends Block & IHasDescription & IPersonalStorage> extends ItemBlockTooltip<BLOCK> implements IItemSustainedInventory,

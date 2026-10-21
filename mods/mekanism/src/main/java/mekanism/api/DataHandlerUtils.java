@@ -8,8 +8,8 @@ import mekanism.api.heat.IHeatCapacitor;
 import mekanism.api.inventory.IInventorySlot;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import ports.mekanism.lib.common.util.INBTSerializable;
-import ports.mekanism.lib.fluids.IFluidTank;
+import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fluids.IFluidTank;
 
 @NothingNullByDefault
 public class DataHandlerUtils {

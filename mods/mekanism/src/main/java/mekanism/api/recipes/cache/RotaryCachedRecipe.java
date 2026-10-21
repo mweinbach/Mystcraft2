@@ -7,7 +7,7 @@ import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.RotaryRecipe;
 import mekanism.api.recipes.inputs.IInputHandler;
 import mekanism.api.recipes.outputs.IOutputHandler;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 /**

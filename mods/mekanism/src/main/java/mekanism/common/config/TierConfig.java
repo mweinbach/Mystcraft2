@@ -17,8 +17,8 @@ import mekanism.common.tier.PipeTier;
 import mekanism.common.tier.TransporterTier;
 import mekanism.common.tier.TubeTier;
 import mekanism.common.util.EnumUtils;
-import ports.mekanism.lib.common.ForgeConfigSpec;
-import ports.mekanism.lib.fml.config.ModConfig.Type;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig.Type;
 
 public class TierConfig extends BaseMekanismConfig {
 

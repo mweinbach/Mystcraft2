@@ -9,9 +9,9 @@ import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.text.IHasTranslationKey;
 import mekanism.common.MekanismLang;
 import net.minecraft.client.KeyMapping;
-import ports.mekanism.lib.client.settings.IKeyConflictContext;
-import ports.mekanism.lib.client.settings.KeyConflictContext;
-import ports.mekanism.lib.client.settings.KeyModifier;
+import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

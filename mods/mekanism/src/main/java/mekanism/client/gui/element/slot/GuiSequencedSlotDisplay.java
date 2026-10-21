@@ -6,7 +6,7 @@ import java.util.List;
 import mekanism.client.gui.IGuiWrapper;
 import mekanism.client.gui.element.GuiElement;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.util.NonNullSupplier;
+import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiSequencedSlotDisplay extends GuiElement {

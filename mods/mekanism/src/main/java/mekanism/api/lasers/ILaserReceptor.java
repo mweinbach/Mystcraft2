@@ -1,7 +1,7 @@
 package mekanism.api.lasers;
 
 import mekanism.api.math.FloatingLong;
-import ports.mekanism.lib.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 import org.jetbrains.annotations.NotNull;
 
 /**

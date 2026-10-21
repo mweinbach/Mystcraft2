@@ -5,9 +5,9 @@ import mekanism.api.math.FloatingLong;
 import mekanism.api.math.FloatingLongSupplier;
 import mekanism.common.config.IMekanismConfig;
 import net.minecraft.Util;
-import ports.mekanism.lib.common.ForgeConfigSpec;
-import ports.mekanism.lib.common.ForgeConfigSpec.Builder;
-import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import org.jetbrains.annotations.Nullable;
 
 /**

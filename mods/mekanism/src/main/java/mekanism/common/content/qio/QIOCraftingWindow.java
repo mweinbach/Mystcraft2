@@ -1,7 +1,5 @@
 package mekanism.common.content.qio;
 
-import com.blamejared.recipestages.RecipeStagesUtil;
-import com.blamejared.recipestages.recipes.IStagedRecipe;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -45,10 +43,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import ports.mekanism.lib.common.ForgeHooks;
-import ports.mekanism.lib.common.crafting.IShapedRecipe;
-import ports.mekanism.lib.common.util.RecipeMatcher;
-import ports.mekanism.lib.items.ItemHandlerHelper;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.minecraftforge.common.util.RecipeMatcher;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -180,12 +178,6 @@ public class QIOCraftingWindow implements IContentsListener {
     }
 
     private ItemStack assembleRecipe(CraftingRecipe recipe) {
-        if (Mekanism.hooks.RecipeStagesLoaded) {
-            if (recipe instanceof IStagedRecipe stagedRecipe) {
-                //Force assemble it as we handle validating if specific players can see/grab the output ourselves
-                return stagedRecipe.forceAssemble(craftingInventory);
-            }
-        }
         return recipe.assemble(craftingInventory);
     }
 
@@ -195,12 +187,6 @@ public class QIOCraftingWindow implements IContentsListener {
             //Note: We don't check if it matches as if we don't have a match there won't
             // be anything in our output slot, so it doesn't matter
             return false;
-        }
-        if (Mekanism.hooks.RecipeStagesLoaded) {
-            //If recipe stages is loaded check if the player has access to the recipe
-            if (!RecipeStagesUtil.hasStageForRecipe(lastRecipe, player)) {
-                return false;
-            }
         }
         //If the recipe is dynamic, doLimitedCrafting is disabled, or the recipe is unlocked
         // allow viewing the recipe

@@ -31,8 +31,8 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.server.permission.PermissionAPI;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.server.permission.PermissionAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

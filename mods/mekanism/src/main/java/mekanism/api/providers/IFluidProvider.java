@@ -4,8 +4,8 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @MethodsReturnNonnullByDefault
 public interface IFluidProvider extends IBaseProvider {

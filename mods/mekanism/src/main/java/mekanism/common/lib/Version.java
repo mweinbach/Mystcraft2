@@ -1,6 +1,6 @@
 package mekanism.common.lib;
 
-import ports.mekanism.lib.fml.ModContainer;
+import net.minecraftforge.fml.ModContainer;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 
 /**

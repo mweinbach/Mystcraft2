@@ -45,7 +45,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 
 /**

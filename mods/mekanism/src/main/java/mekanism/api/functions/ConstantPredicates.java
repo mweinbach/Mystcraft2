@@ -3,7 +3,7 @@ package mekanism.api.functions;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import mekanism.api.AutomationType;
-import ports.mekanism.lib.common.util.TriPredicate;
+import net.minecraftforge.common.util.TriPredicate;
 import org.jetbrains.annotations.NotNull;
 
 /**

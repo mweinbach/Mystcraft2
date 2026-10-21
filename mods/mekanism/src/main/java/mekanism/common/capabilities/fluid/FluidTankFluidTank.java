@@ -9,7 +9,7 @@ import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.common.tier.FluidTankTier;
 import mekanism.common.tile.TileEntityFluidTank;
 import mekanism.common.util.WorldUtils;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

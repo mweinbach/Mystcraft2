@@ -33,12 +33,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.client.ChunkRenderTypeSet;
-import ports.mekanism.lib.client.model.BakedModelWrapper;
-import ports.mekanism.lib.client.model.SimpleModelState;
-import ports.mekanism.lib.client.model.data.ModelData;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
-import ports.mekanism.lib.client.model.obj.ObjModel;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.model.BakedModelWrapper;
+import net.minecraftforge.client.model.SimpleModelState;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.obj.ObjModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

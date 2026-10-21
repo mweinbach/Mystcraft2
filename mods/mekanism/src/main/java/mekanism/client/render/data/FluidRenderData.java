@@ -7,7 +7,7 @@ import mekanism.client.render.MekanismRenderer.FluidTextureType;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 @NothingNullByDefault
 public class FluidRenderData extends RenderData {

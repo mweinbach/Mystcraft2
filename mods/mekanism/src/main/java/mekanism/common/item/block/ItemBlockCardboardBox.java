@@ -31,8 +31,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.event.level.BlockEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemBlockCardboardBox extends ItemBlockMekanism<BlockCardboardBox> {

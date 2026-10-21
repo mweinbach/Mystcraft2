@@ -43,9 +43,9 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.common.ToolAction;
-import ports.mekanism.lib.common.ToolActions;
-import ports.mekanism.lib.common.util.Lazy;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.util.Lazy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

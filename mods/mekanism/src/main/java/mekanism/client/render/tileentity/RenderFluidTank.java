@@ -19,8 +19,8 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.util.profiling.ProfilerFiller;
-import ports.mekanism.lib.common.util.Lazy;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 @NothingNullByDefault

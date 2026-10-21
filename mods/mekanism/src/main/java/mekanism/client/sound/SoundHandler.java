@@ -31,12 +31,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.api.distmarker.Dist;
-import ports.mekanism.lib.client.ForgeHooksClient;
-import ports.mekanism.lib.client.event.sound.PlaySoundEvent;
-import ports.mekanism.lib.client.event.sound.SoundEngineLoadEvent;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
-import ports.mekanism.lib.fml.common.Mod;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
+import net.minecraftforge.client.event.sound.SoundEngineLoadEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 /**

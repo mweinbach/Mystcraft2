@@ -13,15 +13,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.event.AttachCapabilitiesEvent;
-import ports.mekanism.lib.event.entity.player.PlayerEvent;
-import ports.mekanism.lib.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
-import ports.mekanism.lib.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import ports.mekanism.lib.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
-import ports.mekanism.lib.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import ports.mekanism.lib.eventbus.api.Event;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CommonPlayerTracker {
 

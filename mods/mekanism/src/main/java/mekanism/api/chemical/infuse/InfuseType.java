@@ -10,7 +10,7 @@ import mekanism.api.providers.IInfuseTypeProvider;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

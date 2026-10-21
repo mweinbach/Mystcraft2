@@ -37,8 +37,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import ports.mekanism.lib.client.model.data.ModelData;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.fluids.FluidStack;
 
 @NothingNullByDefault
 public class RenderNutritionalLiquifier extends MekanismTileEntityRenderer<TileEntityNutritionalLiquifier> {

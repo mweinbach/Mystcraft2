@@ -5,7 +5,7 @@ import mekanism.common.util.StackUtils;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class InsertableSlot extends Slot implements IInsertableSlot {

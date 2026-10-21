@@ -6,7 +6,7 @@ import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 

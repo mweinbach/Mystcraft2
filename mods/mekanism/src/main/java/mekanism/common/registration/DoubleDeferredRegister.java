@@ -5,10 +5,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import ports.mekanism.lib.eventbus.api.IEventBus;
-import ports.mekanism.lib.registries.DeferredRegister;
-import ports.mekanism.lib.registries.IForgeRegistry;
-import ports.mekanism.lib.registries.RegistryObject;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryObject;
 
 public class DoubleDeferredRegister<PRIMARY, SECONDARY> {
 

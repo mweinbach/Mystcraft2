@@ -6,11 +6,11 @@ import mekanism.common.integration.energy.IEnergyCompat;
 import mekanism.common.util.CapabilityUtils;
 import mekanism.common.util.UnitDisplayUtils.EnergyUnit;
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.energy.IEnergyStorage;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

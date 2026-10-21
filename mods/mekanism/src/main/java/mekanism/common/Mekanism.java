@@ -51,7 +51,6 @@ import mekanism.common.content.tank.TankValidator;
 import mekanism.common.content.transporter.PathfinderCache;
 import mekanism.common.content.transporter.TransporterManager;
 import mekanism.common.integration.MekanismHooks;
-import mekanism.common.integration.crafttweaker.content.CrTContentUtils;
 import mekanism.common.item.block.machine.ItemBlockFluidTank.BasicCauldronInteraction;
 import mekanism.common.item.block.machine.ItemBlockFluidTank.BasicDrainCauldronInteraction;
 import mekanism.common.item.block.machine.ItemBlockFluidTank.FluidTankItemDispenseBehavior;
@@ -103,30 +102,28 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.common.crafting.CraftingHelper;
-import ports.mekanism.lib.common.world.ForgeChunkManager;
-import ports.mekanism.lib.data.loading.DatagenModLoader;
-import ports.mekanism.lib.event.AddReloadListenerEvent;
-import ports.mekanism.lib.event.RegisterCommandsEvent;
-import ports.mekanism.lib.event.TagsUpdatedEvent;
-import ports.mekanism.lib.event.level.LevelEvent;
-import ports.mekanism.lib.event.server.ServerStoppedEvent;
-import ports.mekanism.lib.eventbus.api.EventPriority;
-import ports.mekanism.lib.eventbus.api.IEventBus;
-import ports.mekanism.lib.fml.ModContainer;
-import ports.mekanism.lib.fml.ModList;
-import ports.mekanism.lib.fml.ModLoadingContext;
-import ports.mekanism.lib.fml.common.Mod;
-import ports.mekanism.lib.fml.config.ModConfig;
-import ports.mekanism.lib.fml.event.config.ModConfigEvent;
-import ports.mekanism.lib.fml.event.lifecycle.FMLCommonSetupEvent;
-import ports.mekanism.lib.fml.event.lifecycle.InterModEnqueueEvent;
-import ports.mekanism.lib.fml.event.lifecycle.InterModProcessEvent;
-import ports.mekanism.lib.fml.javafmlmod.FMLJavaModLoadingContext;
-import ports.mekanism.lib.fml.javafmlmod.FMLModContainer;
-import ports.mekanism.lib.registries.ForgeRegistries;
-import ports.mekanism.lib.registries.RegisterEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.world.ForgeChunkManager;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 @Mod(Mekanism.MODID)
@@ -232,22 +229,6 @@ public class Mekanism {
         packetHandler = new PacketHandler();
         //Super early hooks, only reliable thing is for checking dependencies that we declare we are after
         hooks.hookConstructor(modEventBus);
-        if (hooks.CraftTweakerLoaded && !DatagenModLoader.isRunningDataGen()) {
-            //Attempt to grab the mod event bus for CraftTweaker so that we can register our custom content in their namespace
-            // to make it clearer which chemicals were added by CraftTweaker, and which are added by actual mods.
-            // Gracefully fallback to our event bus if something goes wrong with getting CrT's and just then have the log have
-            // warnings about us registering things in their namespace.
-            IEventBus crtModEventBus = modEventBus;
-            Optional<? extends ModContainer> crtModContainer = ModList.get().getModContainerById(MekanismHooks.CRAFTTWEAKER_MOD_ID);
-            if (crtModContainer.isPresent()) {
-                ModContainer container = crtModContainer.get();
-                if (container instanceof FMLModContainer modContainer) {
-                    crtModEventBus = modContainer.getEventBus();
-                }
-            }
-            //Register our CrT listener at lowest priority to try and ensure they get later ids than our normal registries
-            crtModEventBus.addListener(EventPriority.LOWEST, CrTContentUtils::registerCrTContent);
-        }
     }
 
     public static synchronized void addModule(IModModule modModule) {

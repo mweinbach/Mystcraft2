@@ -4,7 +4,7 @@ import mekanism.common.network.IMekanismPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.BlockHitResult;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketLaserHitBlock implements IMekanismPacket {
 

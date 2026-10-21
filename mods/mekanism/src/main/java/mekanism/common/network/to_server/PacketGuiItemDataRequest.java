@@ -5,7 +5,7 @@ import mekanism.common.inventory.container.QIOItemViewerContainer;
 import mekanism.common.network.IMekanismPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import ports.mekanism.lib.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PacketGuiItemDataRequest implements IMekanismPacket {
 

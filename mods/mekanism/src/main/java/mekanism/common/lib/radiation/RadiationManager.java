@@ -61,10 +61,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.event.entity.living.LivingEvent.LivingTickEvent;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
-import ports.mekanism.lib.server.ServerLifecycleHooks;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -15,9 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.ChunkPos;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.event.level.ChunkEvent;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ChunkCommand {
 

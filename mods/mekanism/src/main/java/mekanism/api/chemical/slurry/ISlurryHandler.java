@@ -3,7 +3,7 @@ package mekanism.api.chemical.slurry;
 import mekanism.api.chemical.IChemicalHandler;
 import mekanism.api.chemical.IMekanismChemicalHandler;
 import mekanism.api.chemical.ISidedChemicalHandler;
-import ports.mekanism.lib.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 @AutoRegisterCapability
 public interface ISlurryHandler extends IChemicalHandler<Slurry, SlurryStack>, IEmptySlurryProvider {

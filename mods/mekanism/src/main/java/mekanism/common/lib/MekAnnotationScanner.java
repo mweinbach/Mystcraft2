@@ -19,11 +19,11 @@ import java.util.function.Predicate;
 import mekanism.common.Mekanism;
 import mekanism.common.integration.computer.ComputerMethodMapper;
 import mekanism.common.inventory.container.sync.dynamic.SyncMapper;
-import ports.mekanism.lib.fml.ModList;
-import ports.mekanism.lib.fml.loading.moddiscovery.ModAnnotation;
-import ports.mekanism.lib.forgespi.language.IModFileInfo;
-import ports.mekanism.lib.forgespi.language.ModFileScanData;
-import ports.mekanism.lib.forgespi.language.ModFileScanData.AnnotationData;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
+import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.ModFileScanData;
+import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 

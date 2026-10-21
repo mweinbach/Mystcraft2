@@ -13,8 +13,8 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.client.model.data.ModelData;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 public class RenderFluidTankItem extends MekanismISTER {

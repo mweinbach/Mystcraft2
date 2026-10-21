@@ -3,7 +3,7 @@ package mekanism.api.fluid;
 import mekanism.api.Action;
 import mekanism.api.annotations.NothingNullByDefault;
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,7 +23,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
     }
 
     /**
-     * A sided variant of {@link ports.mekanism.lib.fluids.capability.IFluidHandler#getTanks()}, docs copied for convenience.
+     * A sided variant of {@link net.minecraftforge.fluids.capability.IFluidHandler#getTanks()}, docs copied for convenience.
      * <p>
      * Returns the number of fluid storage units ("tanks") available
      *
@@ -39,7 +39,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
     }
 
     /**
-     * A sided variant of {@link ports.mekanism.lib.fluids.capability.IFluidHandler#getFluidInTank(int)}, docs copied for convenience.
+     * A sided variant of {@link net.minecraftforge.fluids.capability.IFluidHandler#getFluidInTank(int)}, docs copied for convenience.
      * <p>
      * Returns the {@link FluidStack} in a given tank.
      *
@@ -100,7 +100,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
     }
 
     /**
-     * A sided variant of {@link ports.mekanism.lib.fluids.capability.IFluidHandler#isFluidValid(int, FluidStack)}, docs copied for convenience.
+     * A sided variant of {@link net.minecraftforge.fluids.capability.IFluidHandler#isFluidValid(int, FluidStack)}, docs copied for convenience.
      *
      * <p>
      * This function should be used instead of simulated insertions in cases where the contents and state of the tank are irrelevant, mainly for the purpose of automation
@@ -132,7 +132,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
      * Inserts a {@link FluidStack} into a given tank and return the remainder. The {@link FluidStack} <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly <strong>different</strong> from
-     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(FluidStack, ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(FluidStack, net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param tank   Tank to insert to.
      * @param stack  {@link FluidStack} to insert. This must not be modified by the tank.
@@ -180,7 +180,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
      * <em>should not</em> be modified in this function!
      * </p>
      * Note: This behaviour is subtly <strong>different</strong> from
-     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(FluidStack, ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(FluidStack, net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param stack  {@link FluidStack} to insert. This must not be modified by the handler.
      * @param action The action to perform, either {@link Action#EXECUTE} or {@link Action#SIMULATE}

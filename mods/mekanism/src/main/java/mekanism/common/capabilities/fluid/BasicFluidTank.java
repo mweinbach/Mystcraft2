@@ -13,7 +13,7 @@ import mekanism.api.functions.ConstantPredicates;
 import mekanism.common.util.NBTUtils;
 import mekanism.common.util.RegistryUtils;
 import net.minecraft.nbt.CompoundTag;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

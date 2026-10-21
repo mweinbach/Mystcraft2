@@ -29,8 +29,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 @NothingNullByDefault

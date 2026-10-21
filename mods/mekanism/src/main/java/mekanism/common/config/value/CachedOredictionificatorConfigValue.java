@@ -10,8 +10,8 @@ import java.util.function.Supplier;
 import mekanism.common.config.IMekanismConfig;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.common.ForgeConfigSpec;
-import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 public class CachedOredictionificatorConfigValue extends CachedResolvableConfigValue<Map<String, List<String>>, List<? extends String>> {
 

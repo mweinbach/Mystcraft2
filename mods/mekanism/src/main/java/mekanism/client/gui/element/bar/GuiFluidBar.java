@@ -10,7 +10,7 @@ import mekanism.common.network.to_server.PacketDropperUse.TankType;
 import mekanism.common.util.text.TextUtils;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiFluidBar extends GuiTankBar<FluidStack> {

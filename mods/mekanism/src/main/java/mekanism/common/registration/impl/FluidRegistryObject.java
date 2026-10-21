@@ -7,8 +7,8 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluid;
-import ports.mekanism.lib.fluids.FluidType;
-import ports.mekanism.lib.registries.RegistryObject;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.registries.RegistryObject;
 
 @ParametersAreNotNullByDefault
 @MethodsReturnNonnullByDefault

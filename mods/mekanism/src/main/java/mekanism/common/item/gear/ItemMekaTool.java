@@ -81,8 +81,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import ports.mekanism.lib.common.MinecraftForge;
-import ports.mekanism.lib.common.ToolAction;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.ToolAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

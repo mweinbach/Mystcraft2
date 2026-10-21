@@ -3,7 +3,7 @@ package mekanism.common.registration.impl;
 import mekanism.common.registration.WrappedRegistryObject;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProviderType;
-import ports.mekanism.lib.registries.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 public class HeightProviderTypeRegistryObject<PROVIDER extends HeightProvider> extends WrappedRegistryObject<HeightProviderType<PROVIDER>> {
 

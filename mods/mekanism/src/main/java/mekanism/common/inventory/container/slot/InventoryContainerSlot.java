@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-//Like ports.mekanism.lib.items.SlotItemHandler, except directly interacts with the IInventorySlot instead
+//Like net.minecraftforge.items.SlotItemHandler, except directly interacts with the IInventorySlot instead
 public class InventoryContainerSlot extends Slot implements IInsertableSlot {
 
     private static final Container emptyInventory = new SimpleContainer(0);

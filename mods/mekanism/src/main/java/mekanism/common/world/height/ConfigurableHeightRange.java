@@ -6,7 +6,7 @@ import mekanism.common.config.IMekanismConfig;
 import mekanism.common.config.value.CachedEnumValue;
 import mekanism.common.config.value.CachedIntValue;
 import mekanism.common.resource.ore.BaseOreConfig;
-import ports.mekanism.lib.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public record ConfigurableHeightRange(Supplier<HeightShape> shape, ConfigurableVerticalAnchor minInclusive, ConfigurableVerticalAnchor maxInclusive,
                                       IntSupplier plateau) {

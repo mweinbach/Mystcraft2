@@ -4,10 +4,10 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import java.nio.file.Path;
 import java.util.function.Function;
 import mekanism.common.Mekanism;
-import ports.mekanism.lib.fml.ModContainer;
-import ports.mekanism.lib.fml.config.ConfigFileTypeHandler;
-import ports.mekanism.lib.fml.config.ModConfig;
-import ports.mekanism.lib.fml.loading.FMLPaths;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.config.ConfigFileTypeHandler;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
  * Custom {@link ModConfig} implementation that allows for rerouting the server config from being in the world's folder to being in the normal config folder. This allows

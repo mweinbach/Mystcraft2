@@ -1,10 +1,10 @@
 package mekanism.common.util;
 
 import net.minecraft.core.Direction;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.common.util.NonNullConsumer;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

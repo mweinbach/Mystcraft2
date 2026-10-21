@@ -7,7 +7,7 @@ import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.providers.IInfuseTypeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import ports.mekanism.lib.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

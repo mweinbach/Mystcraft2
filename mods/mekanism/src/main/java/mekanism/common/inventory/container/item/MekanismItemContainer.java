@@ -5,7 +5,7 @@ import mekanism.common.registration.impl.ContainerTypeRegistryObject;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MekanismItemContainer extends MekanismContainer {

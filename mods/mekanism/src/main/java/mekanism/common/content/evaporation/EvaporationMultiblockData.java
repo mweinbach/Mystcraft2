@@ -49,9 +49,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.common.util.LazyOptional;
-import ports.mekanism.lib.common.util.NonNullConsumer;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

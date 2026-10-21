@@ -18,8 +18,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.fluids.FluidUtil;
-import ports.mekanism.lib.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

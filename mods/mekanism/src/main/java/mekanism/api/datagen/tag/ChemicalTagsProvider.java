@@ -7,9 +7,9 @@ import mekanism.api.chemical.infuse.InfuseType;
 import mekanism.api.chemical.pigment.Pigment;
 import mekanism.api.chemical.slurry.Slurry;
 import net.minecraft.data.DataGenerator;
-import ports.mekanism.lib.common.data.ExistingFileHelper;
-import ports.mekanism.lib.common.data.ForgeRegistryTagsProvider;
-import ports.mekanism.lib.registries.IForgeRegistry;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ForgeRegistryTagsProvider;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

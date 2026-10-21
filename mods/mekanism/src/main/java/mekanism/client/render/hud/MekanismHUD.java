@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import mekanism.client.render.HUDRenderer;
 import mekanism.common.Mekanism;
 import mekanism.common.config.MekanismConfig;
-import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.item.interfaces.IItemHUDProvider;
 import mekanism.common.tags.MekanismTags;
 import net.minecraft.client.Minecraft;
@@ -16,9 +15,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import ports.mekanism.lib.client.gui.overlay.ForgeGui;
-import ports.mekanism.lib.client.gui.overlay.IGuiOverlay;
-import ports.mekanism.lib.items.IItemHandler;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraftforge.items.IItemHandler;
 
 public class MekanismHUD implements IGuiOverlay {
 
@@ -37,18 +36,6 @@ public class MekanismHUD implements IGuiOverlay {
                 ItemStack stack = minecraft.player.getItemBySlot(slotType);
                 if (stack.getItem() instanceof IItemHUDProvider hudProvider) {
                     count += makeComponent(list -> hudProvider.addHUDStrings(list, minecraft.player, stack, slotType), renderStrings);
-                }
-            }
-            if (Mekanism.hooks.CuriosLoaded) {
-                Optional<? extends IItemHandler> invOptional = CuriosIntegration.getCuriosInventory(minecraft.player);
-                if (invOptional.isPresent()) {
-                    IItemHandler inv = invOptional.get();
-                    for (int i = 0, slots = inv.getSlots(); i < slots; i++) {
-                        ItemStack stack = inv.getStackInSlot(i);
-                        if (stack.getItem() instanceof IItemHUDProvider hudProvider) {
-                            count += makeComponent(list -> hudProvider.addCurioHUDStrings(list, minecraft.player, stack), renderStrings);
-                        }
-                    }
                 }
             }
             boolean reverseHud = MekanismConfig.client.reverseHUD.get();

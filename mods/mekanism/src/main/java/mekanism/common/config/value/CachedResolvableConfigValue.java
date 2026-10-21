@@ -2,7 +2,7 @@ package mekanism.common.config.value;
 
 import java.util.function.Supplier;
 import mekanism.common.config.IMekanismConfig;
-import ports.mekanism.lib.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

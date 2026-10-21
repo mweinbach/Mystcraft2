@@ -1,7 +1,7 @@
 package mekanism.client.render.obj;
 
 import java.util.Collection;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 
 public class VisibleModelConfiguration extends WrapperModelConfiguration {
 

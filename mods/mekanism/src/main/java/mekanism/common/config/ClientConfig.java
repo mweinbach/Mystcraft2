@@ -11,8 +11,8 @@ import mekanism.common.inventory.container.QIOItemViewerContainer.ListSortType;
 import mekanism.common.inventory.container.QIOItemViewerContainer.SortDirection;
 import mekanism.common.inventory.container.SelectedWindowData.CachedWindowPosition;
 import mekanism.common.inventory.container.SelectedWindowData.WindowType;
-import ports.mekanism.lib.common.ForgeConfigSpec;
-import ports.mekanism.lib.fml.config.ModConfig.Type;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig.Type;
 
 public class ClientConfig extends BaseMekanismConfig {
 

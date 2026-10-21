@@ -14,7 +14,6 @@ import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.entity.EntityRobit;
-import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.integration.energy.EnergyCompatUtils;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.tile.base.TileEntityMekanism;
@@ -29,8 +28,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
-import ports.mekanism.lib.items.IItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,10 +67,7 @@ public class TileEntityChargepad extends TileEntityMekanism {
                 provideEnergy(robit);
             } else if (entity instanceof Player) {
                 Optional<IItemHandler> itemHandlerCap = entity.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
-                if (!chargeHandler(itemHandlerCap) && Mekanism.hooks.CuriosLoaded) {
-                    //If we didn't charge anything in the inventory and curios is loaded try charging things in the curios slots
-                    chargeHandler(CuriosIntegration.getCuriosInventory(entity));
-                }
+                chargeHandler(itemHandlerCap);
             }
         }
         if (active != getActive()) {

@@ -13,8 +13,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.client.model.BakedModelWrapper;
-import ports.mekanism.lib.client.model.data.ModelData;
+import net.minecraftforge.client.model.BakedModelWrapper;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 @NothingNullByDefault

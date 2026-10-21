@@ -32,9 +32,9 @@ import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import ports.mekanism.lib.client.model.data.ModelData;
-import ports.mekanism.lib.client.model.geometry.IGeometryBakingContext;
-import ports.mekanism.lib.client.model.geometry.StandaloneGeometryBakingContext;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.StandaloneGeometryBakingContext;
 
 @NothingNullByDefault
 public abstract class RenderTransmitterBase<TRANSMITTER extends TileEntityTransmitter> extends MekanismTileEntityRenderer<TRANSMITTER> {

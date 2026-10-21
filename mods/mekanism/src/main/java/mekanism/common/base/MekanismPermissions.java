@@ -8,14 +8,14 @@ import mekanism.common.Mekanism;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
-import ports.mekanism.lib.server.permission.PermissionAPI;
-import ports.mekanism.lib.server.permission.events.PermissionGatherEvent;
-import ports.mekanism.lib.server.permission.nodes.PermissionDynamicContext;
-import ports.mekanism.lib.server.permission.nodes.PermissionDynamicContextKey;
-import ports.mekanism.lib.server.permission.nodes.PermissionNode;
-import ports.mekanism.lib.server.permission.nodes.PermissionNode.PermissionResolver;
-import ports.mekanism.lib.server.permission.nodes.PermissionType;
-import ports.mekanism.lib.server.permission.nodes.PermissionTypes;
+import net.minecraftforge.server.permission.PermissionAPI;
+import net.minecraftforge.server.permission.events.PermissionGatherEvent;
+import net.minecraftforge.server.permission.nodes.PermissionDynamicContext;
+import net.minecraftforge.server.permission.nodes.PermissionDynamicContextKey;
+import net.minecraftforge.server.permission.nodes.PermissionNode;
+import net.minecraftforge.server.permission.nodes.PermissionNode.PermissionResolver;
+import net.minecraftforge.server.permission.nodes.PermissionType;
+import net.minecraftforge.server.permission.nodes.PermissionTypes;
 import org.jetbrains.annotations.Nullable;
 
 public class MekanismPermissions {

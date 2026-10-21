@@ -27,7 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.common.util.Lazy;
+import net.minecraftforge.common.util.Lazy;
 import org.jetbrains.annotations.NotNull;
 
 public class TileEntityLaserTractorBeam extends TileEntityLaserReceptor {

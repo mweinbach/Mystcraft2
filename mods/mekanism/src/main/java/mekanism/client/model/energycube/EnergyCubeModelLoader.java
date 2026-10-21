@@ -13,7 +13,7 @@ import mekanism.api.RelativeSide;
 import mekanism.common.util.EnumUtils;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.util.GsonHelper;
-import ports.mekanism.lib.client.model.geometry.IGeometryLoader;
+import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import org.jetbrains.annotations.NotNull;
 
 /**

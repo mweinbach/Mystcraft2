@@ -7,7 +7,7 @@ import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.fluid.IExtendedFluidTank;
 import mekanism.common.capabilities.merged.MergedTank;
 import net.minecraft.nbt.CompoundTag;
-import ports.mekanism.lib.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 /**

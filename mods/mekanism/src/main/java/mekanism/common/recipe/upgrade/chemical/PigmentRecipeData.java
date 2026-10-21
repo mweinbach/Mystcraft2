@@ -14,7 +14,7 @@ import mekanism.common.tile.base.SubstanceType;
 import mekanism.common.tile.base.TileEntityMekanism;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ListTag;
-import ports.mekanism.lib.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

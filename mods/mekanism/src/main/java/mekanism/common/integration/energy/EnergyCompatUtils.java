@@ -3,14 +3,13 @@ package mekanism.common.integration.energy;
 import java.util.List;
 import java.util.stream.Collectors;
 import mekanism.api.energy.IStrictEnergyHandler;
-import mekanism.common.integration.energy.fluxnetworks.FNEnergyCompat;
 import mekanism.common.integration.energy.forgeenergy.ForgeEnergyCompat;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import ports.mekanism.lib.common.capabilities.Capability;
-import ports.mekanism.lib.common.capabilities.ICapabilityProvider;
-import ports.mekanism.lib.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +21,6 @@ public class EnergyCompatUtils {
     private static final List<IEnergyCompat> energyCompats = List.of(
           //We always have our own energy capability as the first one we check
           new StrictEnergyCompat(),
-          //Note: We check the Flux Networks capability above Forge's so that we allow it to use the higher throughput amount supported by Flux Networks
-          new FNEnergyCompat(),
           new ForgeEnergyCompat()
     );
 

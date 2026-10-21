@@ -8,10 +8,10 @@ import mekanism.common.Mekanism;
 import net.minecraft.client.renderer.RenderStateShard.ShaderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import ports.mekanism.lib.api.distmarker.Dist;
-import ports.mekanism.lib.client.event.RegisterShadersEvent;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
-import ports.mekanism.lib.fml.common.Mod;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Mekanism.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class MekanismShaders {

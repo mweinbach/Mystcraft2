@@ -7,7 +7,7 @@ import mekanism.api.NBTConstants;
 import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.chemical.attribute.ChemicalAttributeValidator;
 import net.minecraft.nbt.CompoundTag;
-import ports.mekanism.lib.common.util.INBTSerializable;
+import net.minecraftforge.common.util.INBTSerializable;
 
 @NothingNullByDefault
 public interface IChemicalTank<CHEMICAL extends Chemical<CHEMICAL>, STACK extends ChemicalStack<CHEMICAL>> extends IEmptyStackProvider<CHEMICAL, STACK>,
@@ -67,8 +67,8 @@ public interface IChemicalTank<CHEMICAL extends Chemical<CHEMICAL>, STACK extend
      * function!
      * </p>
      * Note: This behaviour is subtly different from
-     * {@link ports.mekanism.lib.fluids.capability.IFluidHandler#fill(ports.mekanism.lib.fluids.FluidStack,
-     * ports.mekanism.lib.fluids.capability.IFluidHandler.FluidAction)}
+     * {@link net.minecraftforge.fluids.capability.IFluidHandler#fill(net.minecraftforge.fluids.FluidStack,
+     * net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)}
      *
      * @param stack          {@link ChemicalStack} to insert. This must not be modified by the tank.
      * @param action         The action to perform, either {@link Action#EXECUTE} or {@link Action#SIMULATE}

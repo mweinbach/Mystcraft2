@@ -52,14 +52,14 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FogType;
-import ports.mekanism.lib.client.event.InputEvent.MouseScrollingEvent;
-import ports.mekanism.lib.client.event.RecipesUpdatedEvent;
-import ports.mekanism.lib.client.event.RenderLivingEvent;
-import ports.mekanism.lib.client.event.ViewportEvent;
-import ports.mekanism.lib.event.TickEvent.ClientTickEvent;
-import ports.mekanism.lib.event.TickEvent.Phase;
-import ports.mekanism.lib.eventbus.api.Event;
-import ports.mekanism.lib.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.InputEvent.MouseScrollingEvent;
+import net.minecraftforge.client.event.RecipesUpdatedEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Client-side tick handler for Mekanism. Used mainly for the update check upon startup.

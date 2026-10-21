@@ -2,8 +2,8 @@ package mekanism.api.fluid;
 
 import mekanism.api.Action;
 import mekanism.api.annotations.NothingNullByDefault;
-import ports.mekanism.lib.fluids.FluidStack;
-import ports.mekanism.lib.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 /**
  * Extended version of {@link IFluidHandler} to make it easier to integrate with Mekanism

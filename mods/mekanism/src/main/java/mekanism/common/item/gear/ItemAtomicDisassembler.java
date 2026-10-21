@@ -56,10 +56,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
-import ports.mekanism.lib.common.ToolAction;
-import ports.mekanism.lib.common.ToolActions;
-import ports.mekanism.lib.common.util.Lazy;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.util.Lazy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

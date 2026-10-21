@@ -1,7 +1,7 @@
 package mekanism.common.registration;
 
 import mekanism.api.annotations.NothingNullByDefault;
-import ports.mekanism.lib.registries.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 @NothingNullByDefault
 public class DoubleWrappedRegistryObject<PRIMARY, SECONDARY> implements INamedEntry {

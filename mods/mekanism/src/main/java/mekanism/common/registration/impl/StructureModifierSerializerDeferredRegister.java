@@ -3,8 +3,8 @@ package mekanism.common.registration.impl;
 import com.mojang.serialization.Codec;
 import java.util.function.Supplier;
 import mekanism.common.registration.WrappedDeferredRegister;
-import ports.mekanism.lib.common.world.StructureModifier;
-import ports.mekanism.lib.registries.ForgeRegistries;
+import net.minecraftforge.common.world.StructureModifier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class StructureModifierSerializerDeferredRegister extends WrappedDeferredRegister<Codec<? extends StructureModifier>> {
 

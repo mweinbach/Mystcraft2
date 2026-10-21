@@ -27,6 +27,8 @@ dependencies {
     // Forge ships Night Config; Fabric gets the same version bundled for the TOML config files.
     include(implementation('com.electronwill.night-config:core:3.6.6'))
     include(implementation('com.electronwill.night-config:toml:3.6.6'))
+    // Forge ships maven-artifact; Mekanism compares mod versions with it.
+    include(implementation('org.apache.maven:maven-artifact:3.8.5'))
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
@@ -44,12 +46,28 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
     withSourcesJar()
 }
+// The shared sources are upstream Forge code. On Fabric their Forge API references point at the port's mirror in
+// src/fabric/java/ports/mekanism/lib; the rewrite keeps line numbers unchanged.
+def forgeReference = ~/\bnet\.minecraftforge\./
+def rewriteForFabric = { String line -> line.replaceAll(forgeReference, 'ports.mekanism.lib.') }
+def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
+def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
+def rewriteMain = tasks.register('rewriteSharedSources', Sync) {
+    from '../src/main/java'
+    into rewrittenMain
+    filter rewriteForFabric
+}
+def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
+    from '../src/test/java'
+    into rewrittenTest
+    filter rewriteForFabric
+}
 sourceSets {
     main {
-        java.setSrcDirs(['../src/main/java', '../src/fabric/java'])
+        java.setSrcDirs([rewriteMain, '../src/fabric/java'])
         resources.setSrcDirs(['../src/main/resources', '../src/fabric/resources'])
     }
-    test.java.setSrcDirs(['../src/test/java'])
+    test.java.setSrcDirs([rewriteTest])
     test.resources.setSrcDirs([])
     // In-world tests are a separate development-only mod; they never enter the production JAR.
     gametest {
