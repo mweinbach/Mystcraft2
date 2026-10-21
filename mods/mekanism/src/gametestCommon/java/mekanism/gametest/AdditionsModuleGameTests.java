@@ -5,8 +5,10 @@
 package mekanism.gametest;
 
 import com.mojang.authlib.GameProfile;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import mekanism.additions.common.MekanismAdditions;
@@ -24,6 +26,7 @@ import mekanism.additions.common.entity.baby.EntityBabySkeleton;
 import mekanism.additions.common.registries.AdditionsBlocks;
 import mekanism.additions.common.registries.AdditionsEntityTypes;
 import mekanism.additions.common.registries.AdditionsItems;
+import mekanism.additions.common.world.modifier.BabyEntitySpawnBiomeModifier;
 import mekanism.api.text.EnumColor;
 import mekanism.common.config.value.CachedIntValue;
 import mekanism.common.registries.MekanismItems;
@@ -36,6 +39,7 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -82,6 +86,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.MobSpawnSettingsBuilder;
+import net.minecraftforge.common.world.ModifiableBiomeInfo;
 
 /**
  * Mekanism Additions registers its plastic blocks, obsidian TNT, baby mobs and balloons, crafts them, and runs the
@@ -390,6 +397,108 @@ public class AdditionsModuleGameTests {
         check(popped.isRemoved(), "Damaged balloon is still in the world");
         pig.discard();
         helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void additionsBabyBiomeBlacklistUsesHolderKey(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        Registry<Biome> biomes = level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Holder<Biome> plains = biomes.getHolderOrThrow(Biomes.PLAINS);
+        // A world biome can carry this key while its biome instance is absent from the built-in registry.
+        ResourceKey<Biome> blacklisted = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(MekanismAdditions.MODID, "not_plains"));
+        Holder.Reference<Biome> worldBiome = Holder.Reference.createStandAlone(biomes, blacklisted);
+        try {
+            Method bind = Holder.Reference.class.getDeclaredMethod("bind", ResourceKey.class, Object.class);
+            bind.setAccessible(true);
+            bind.invoke(worldBiome, blacklisted, plains.value());
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not bind the biome holder: " + e);
+        }
+        var config = MekanismAdditionsConfig.additions.getConfig(BabyType.CREEPER);
+        List<ResourceLocation> previous = new ArrayList<>(config.biomeBlackList.get());
+        config.biomeBlackList.set(List.of(blacklisted.location()));
+        try {
+            check(babyWeight(worldBiome) == 0, "Blacklisted biome holder still added a baby creeper");
+        } finally {
+            config.biomeBlackList.set(previous);
+        }
+        check(babyWeight(plains) > 0, "Plains without a blacklist did not add a baby creeper");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void additionsBalloonHoversBelowZero(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        int stoneY = level.getMinBuildHeight();
+        check(stoneY < 0, "Overworld minimum build height is " + stoneY);
+        BlockPos column = helper.absolutePos(new BlockPos(7, 1, 7));
+        BlockPos stone = new BlockPos(column.getX(), stoneY, column.getZ());
+        level.setBlockAndUpdate(stone, Blocks.STONE.defaultBlockState());
+        for (int above = 1; above <= 4; above++) {
+            level.setBlockAndUpdate(stone.above(above), Blocks.AIR.defaultBlockState());
+        }
+        Pig pig = new Pig(EntityType.PIG, level);
+        pig.setNoAi(true);
+        pig.moveTo(stone.getX() + 0.5, stoneY + 2.0, stone.getZ() + 0.5, 0, 0);
+        pig.setDeltaMovement(Vec3.ZERO);
+        level.addFreshEntity(pig);
+        EntityBalloon latched = EntityBalloon.create(pig, EnumColor.RED);
+        check(latched != null, "Could not latch a balloon underground");
+        level.addFreshEntity(latched);
+        latched.tick();
+        check(Math.abs(pig.getDeltaMovement().y) < 1.0E-4,
+              "Balloon lifted the pig from Y " + pig.getY() + ": " + pig.getDeltaMovement().y);
+        latched.discard();
+
+        for (int above = 0; above <= 4; above++) {
+            level.setBlockAndUpdate(stone.above(above), Blocks.AIR.defaultBlockState());
+        }
+        pig.moveTo(stone.getX() + 0.5, stoneY + 2.0, stone.getZ() + 0.5, 0, 0);
+        pig.setDeltaMovement(Vec3.ZERO);
+        EntityBalloon unfloored = EntityBalloon.create(pig, EnumColor.WHITE);
+        check(unfloored != null, "Could not latch a balloon with no floor");
+        level.addFreshEntity(unfloored);
+        unfloored.tick();
+        check(Math.abs(pig.getDeltaMovement().y) < 1.0E-4,
+              "Balloon with no floor pushed the pig: " + pig.getDeltaMovement().y);
+        unfloored.discard();
+        pig.discard();
+        helper.succeed();
+    }
+
+    private static int babyWeight(Holder<Biome> biome) {
+        MobSpawnSettingsBuilder spawns = new MobSpawnSettingsBuilder(MobSpawnSettings.EMPTY);
+        spawns.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.CREEPER, 100, 4, 4));
+        try {
+            new BabyEntitySpawnBiomeModifier(BabyType.CREEPER).modify(biome, BiomeModifier.Phase.REMOVE, biomeBuilder(spawns));
+        } catch (ReflectiveOperationException e) {
+            throw new GameTestAssertException("Could not build biome spawns: " + e);
+        }
+        int weight = 0;
+        for (MobSpawnSettings.SpawnerData data : spawns.getSpawner(MobCategory.MONSTER)) {
+            if (data.type == AdditionsEntityTypes.BABY_CREEPER.get()) {
+                weight += data.getWeight().asInt();
+            }
+        }
+        return weight;
+    }
+
+    /**
+     * Forge's biome builder constructor is private and takes the whole biome. Fabric's takes the spawn builder.
+     * The baby modifier only reads mob spawns, so either constructor is enough.
+     */
+    private static ModifiableBiomeInfo.BiomeInfo.Builder biomeBuilder(MobSpawnSettingsBuilder spawns) throws ReflectiveOperationException {
+        for (Constructor<?> constructor : ModifiableBiomeInfo.BiomeInfo.Builder.class.getDeclaredConstructors()) {
+            Class<?>[] parameters = constructor.getParameterTypes();
+            constructor.setAccessible(true);
+            if (parameters.length == 1 && parameters[0] == MobSpawnSettingsBuilder.class) {
+                return (ModifiableBiomeInfo.BiomeInfo.Builder) constructor.newInstance(spawns);
+            }
+            if (parameters.length == 4 && parameters[3] == MobSpawnSettingsBuilder.class) {
+                return (ModifiableBiomeInfo.BiomeInfo.Builder) constructor.newInstance(null, null, null, spawns);
+            }
+        }
+        throw new NoSuchMethodException("No mob-spawn biome builder");
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)

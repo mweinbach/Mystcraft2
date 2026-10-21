@@ -2,6 +2,7 @@ package mekanism.additions.common.entity;
 
 import com.mojang.math.Vector3f;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import mekanism.additions.common.registries.AdditionsEntityTypes;
 import mekanism.additions.common.registries.AdditionsItems;
@@ -215,16 +216,19 @@ public class EntityBalloon extends Entity implements IEntityAdditionalSpawnData 
         } else if (latched != null) {
             setDeltaMovement(0, 0, 0);
         } else if (latchedEntity != null && latchedEntity.getHealth() > 0) {
-            int floor = getFloor(latchedEntity);
-            Vec3 motion = latchedEntity.getDeltaMovement();
-            if (latchedEntity.getY() - (floor + 1) < -0.1) {
-                latchedEntity.setDeltaMovement(motion.x(), Math.max(0.04, motion.y() * 1.015), motion.z());
-                latchedEntity.hasImpulse = true;
-            } else if (latchedEntity.getY() - (floor + 1) > 0.1) {
-                latchedEntity.setDeltaMovement(motion.x(), Math.min(-0.04, motion.y() * 1.015), motion.z());
-                latchedEntity.hasImpulse = true;
-            } else {
-                latchedEntity.setDeltaMovement(motion.x(), 0, motion.z());
+            OptionalInt floor = getFloor(latchedEntity);
+            if (floor.isPresent()) {
+                Vec3 motion = latchedEntity.getDeltaMovement();
+                double offset = latchedEntity.getY() - (floor.getAsInt() + 1);
+                if (offset < -0.1) {
+                    latchedEntity.setDeltaMovement(motion.x(), Math.max(0.04, motion.y() * 1.015), motion.z());
+                    latchedEntity.hasImpulse = true;
+                } else if (offset > 0.1) {
+                    latchedEntity.setDeltaMovement(motion.x(), Math.min(-0.04, motion.y() * 1.015), motion.z());
+                    latchedEntity.hasImpulse = true;
+                } else {
+                    latchedEntity.setDeltaMovement(motion.x(), 0, motion.z());
+                }
             }
             setPos(latchedEntity.getX(), latchedEntity.getY() + getAddedHeight(), latchedEntity.getZ());
         }
@@ -234,14 +238,14 @@ public class EntityBalloon extends Entity implements IEntityAdditionalSpawnData 
         return latchedEntity.getDimensions(latchedEntity.getPose()).height + 0.8;
     }
 
-    private int getFloor(LivingEntity entity) {
-        BlockPos pos = new BlockPos(entity.position());
-        for (BlockPos posi = pos; posi.getY() > 0; posi = posi.below()) {
+    private OptionalInt getFloor(LivingEntity entity) {
+        int minY = level.getMinBuildHeight();
+        for (BlockPos posi = new BlockPos(entity.position()); posi.getY() >= minY; posi = posi.below()) {
             if (posi.getY() < level.getMaxBuildHeight() && !level.isEmptyBlock(posi)) {
-                return posi.getY() + 1 + (entity instanceof Player ? 1 : 0);
+                return OptionalInt.of(posi.getY() + 1 + (entity instanceof Player ? 1 : 0));
             }
         }
-        return -1;
+        return OptionalInt.empty();
     }
 
     private void pop() {

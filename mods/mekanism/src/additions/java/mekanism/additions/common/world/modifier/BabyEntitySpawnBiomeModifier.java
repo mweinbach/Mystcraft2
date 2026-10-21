@@ -10,6 +10,7 @@ import mekanism.additions.common.registries.AdditionsBiomeModifierSerializers;
 import mekanism.common.Mekanism;
 import mekanism.common.util.RegistryUtils;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.MobSpawnSettingsBuilder;
 import net.minecraftforge.common.world.ModifiableBiomeInfo.BiomeInfo;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public record BabyEntitySpawnBiomeModifier(BabyType babyType, AdditionsConfig.SpawnConfig spawnConfig) implements BiomeModifier {
 
@@ -31,8 +31,9 @@ public record BabyEntitySpawnBiomeModifier(BabyType babyType, AdditionsConfig.Sp
         if (phase == Phase.REMOVE && spawnConfig.shouldSpawn.get()) {
             //Note: We need to run after addition in case we ran after any mods added their skeletons,
             // but we run before after everything to make it easier for another mod to remove us
-            ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biome.value());
-            if (!spawnConfig.biomeBlackList.get().contains(biomeName)) {
+            // The world's biome holder, not the built-in registry. Fabric's world biomes are different instances.
+            ResourceLocation biomeName = biome.unwrapKey().map(ResourceKey::location).orElse(null);
+            if (biomeName != null && !spawnConfig.biomeBlackList.get().contains(biomeName)) {
                 EntityType<?> parent = spawnConfig.parentTypeProvider.getEntityType();
                 MobSpawnSettingsBuilder mobSpawnSettings = builder.getMobSpawnSettings();
                 List<MobSpawnSettings.SpawnerData> monsterSpawns = mobSpawnSettings.getSpawner(MobCategory.MONSTER);
