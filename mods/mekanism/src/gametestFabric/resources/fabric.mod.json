@@ -18,6 +18,7 @@
       "mekanism.gametest.ItemBlockHookGameTests",
       "mekanism.gametest.LoaderInteropGameTests",
       "mekanism.gametest.OreGenerationGameTests",
+      "mekanism.gametest.PigmentMachineGameTests",
       "mekanism.gametest.PlayerEventGameTests",
       "mekanism.gametest.RenderBoundsGameTests",
       "mekanism.gametest.IndustrialTurbineGameTests",

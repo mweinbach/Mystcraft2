@@ -24,6 +24,7 @@ import mekanism.gametest.IndustrialTurbineGameTests;
 import mekanism.gametest.ItemBlockHookGameTests;
 import mekanism.gametest.LoaderInteropGameTests;
 import mekanism.gametest.OreGenerationGameTests;
+import mekanism.gametest.PigmentMachineGameTests;
 import mekanism.gametest.PlayerEventGameTests;
 import mekanism.gametest.RenderBoundsGameTests;
 import mekanism.gametest.SimpleGeneratorGameTests;
@@ -45,7 +46,7 @@ public class ForgeGameTests {
           CoreMachineGameTests.class, DynamicTankGameTests.class, FactoryGameTests.class, FluidGameTests.class,
           GeneratorsModuleGameTests.class, IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class,
           LoaderInteropGameTests.class,
-          OreGenerationGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
+          OreGenerationGameTests.class, PigmentMachineGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
           SimpleGeneratorGameTests.class, ToolsModuleGameTests.class);
 
     @GameTestGenerator

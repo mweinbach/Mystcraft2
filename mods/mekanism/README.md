@@ -39,8 +39,12 @@ Additions is an empty scaffold.
   ethene, the isotopic centrifuge separates fissile fuel, and the solar neutron activator makes polonium when it can
   see the sun. Those gases and slurries move through the chemical lookups. The chemical infuser screen,
   with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
-  The other chemical machine screens were not opened. The nutritional liquifier, pigment
-  extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. Energy, items and fluids reach
+  The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste, the pigment extractor pulls
+  red pigment from red wool, the pigment mixer combines red and yellow into orange, the painting machine
+  paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and antimatter into
+  an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen, with its input slot,
+  progress bar, pigment gauge, drain slot, energy bar and configuration tabs, opened in the development client.
+  The other chemical machine screens were not opened. Energy, items and fluids reach
   other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
   fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
@@ -58,7 +62,7 @@ Additions is an empty scaffold.
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
-  machines, loader interop,
+  machines, pigment machines, loader interop,
   chemical lookups, ore generation, the item and block hooks, fluid placement, chunk loading, render bounds, the
   player and living events, a Generators registry smoke test, the simple generators, the dynamic tank, the industrial
   turbine, and Tools registration, crafting, tool actions and shield blocking) pass on both loaders.
