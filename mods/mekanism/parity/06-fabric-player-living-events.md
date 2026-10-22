@@ -22,8 +22,9 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   disassembler and MekaSuit gyroscopic stabilization use.
 - Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, and the crafting player is set around the
   remainder lookup. Bin insert recipes consume the rest of the grid through this event.
-- Entity join, cancellable, from `PersistentEntitySectionManager.addEntity` before the entity is added. A cardboard
-  box uses it to swallow dropped items and experience. Players are included once, after a duplicate UUID is removed.
-  Forge posts a player's join slightly earlier, from `ServerLevel.addPlayer`, and then skips this second post.
+- Entity join, cancellable, before the entity is added. A fresh or loaded entity is posted from
+  `PersistentEntitySectionManager.addEntity`, and a cancelled join is not added. A cardboard box uses it to swallow
+  dropped items and experience. A player is posted once from `ServerLevel.addPlayer`, before a duplicate UUID is
+  removed, with `loadedFromDisk` false. The section manager then adds that player without posting again.
 - Entity leave, from Fabric's server entity unload, after the entity stops being tracked. Forge also posts it on the
   client; the client copy is unwired.

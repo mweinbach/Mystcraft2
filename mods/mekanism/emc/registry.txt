@@ -639,6 +639,7 @@ mekanismadditions:red_plastic_transparent_slab
 mekanismadditions:red_plastic_transparent_stairs
 mekanismadditions:red_reinforced_plastic
 mekanismadditions:red_slick_plastic
+mekanismadditions:walkie_talkie
 mekanismadditions:white_balloon
 mekanismadditions:white_glow_panel
 mekanismadditions:white_plastic
