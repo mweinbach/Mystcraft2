@@ -7,7 +7,8 @@ otherwise reflects `MekanismJEIHelper`. The shared GameTests and JUnit tests run
 
 The plugin code is shared. Fluid stacks are Mekanism's millibucket stacks on both loaders; JEI's fluid ingredient is
 Forge's `FluidStack` or, on Fabric, `IJeiFluidIngredient` in transfer droplets. `JeiFluids` converts through JEI's
-`IPlatformFluidHelper` (one bucket is 1,000 mB on Forge and 81,000 droplets on Fabric). Gas, infusion, pigment and
+`IPlatformFluidHelper` (one bucket is 1,000 mB on Forge and 81,000 droplets on Fabric). Recipe slots and the fluid
+returned when a gauge is hovered both go through that conversion. Items and chemicals are already JEI ingredient types. Gas, infusion, pigment and
 slurry are custom ingredient types (`MekanismJEI.TYPE_GAS` and the three siblings), drawn by `ChemicalStackRenderer`.
 
 Categories registered for every core `MekanismRecipeType`: crushing, enriching, smelting, chemical infusing,

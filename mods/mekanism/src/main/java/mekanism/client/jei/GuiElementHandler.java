@@ -14,6 +14,7 @@ import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public class GuiElementHandler implements IGuiContainerHandler<GuiMekanism<?>> {
@@ -86,10 +87,22 @@ public class GuiElementHandler implements IGuiContainerHandler<GuiMekanism<?>> {
                 }
             }
             if (child instanceof IJEIIngredientHelper helper && child.isMouseOver(mouseX, mouseY)) {
-                return helper.getIngredient(mouseX, mouseY);
+                return toJeiIngredient(helper.getIngredient(mouseX, mouseY));
             }
         }
         return null;
+    }
+
+    /**
+     * Item and chemical ingredients are already the types JEI registered. Fluid gauges hold Mekanism's millibucket
+     * stack, which on Fabric is not JEI's fluid ingredient.
+     */
+    @Nullable
+    private static Object toJeiIngredient(@Nullable Object ingredient) {
+        if (ingredient instanceof FluidStack stack) {
+            return stack.isEmpty() ? null : JeiFluids.convert(stack);
+        }
+        return ingredient;
     }
 
     @Override
