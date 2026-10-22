@@ -9,6 +9,9 @@
   "entrypoints": {
     "fabric-gametest": [
       "mekanism.gametest.SharedGameTests"
+    ],
+    "client": [
+      "mekanism.gametest.client.FabricBlockShowcase"
     ]
   },
   "depends": {
