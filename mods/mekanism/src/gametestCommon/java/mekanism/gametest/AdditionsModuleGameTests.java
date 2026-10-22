@@ -300,15 +300,34 @@ public class AdditionsModuleGameTests {
         check(blastedEntity.getFuse() < delay, "Exploded obsidian TNT kept a full fuse of " + blastedEntity.getFuse());
         blastedEntity.discard();
 
-        // A delay of 0–3 used to call nextInt(0). The caller restores the shared delay.
-        configuredDelay.set(0);
+        // A delay of 0–3 used to call nextInt(0). set() writes the config file, and the
+        // watcher can reload the previous value on another thread, so spawn immediately
+        // and try again until the entity is created from a delay of 0. The caller restores it.
         BlockPos shortFuse = new BlockPos(6, 1, 4);
         helper.setBlock(shortFuse, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
         BlockPos shortAbsolute = helper.absolutePos(shortFuse);
-        AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), shortAbsolute,
-              new Explosion(helper.getLevel(), null, shortAbsolute.getX(), shortAbsolute.getY(), shortAbsolute.getZ(), 1));
-        EntityObsidianTNT shortEntity = onlyObsidian(helper, shortAbsolute);
-        check(shortEntity.getFuse() == 0, "Zero delay fuse is " + shortEntity.getFuse());
+        EntityObsidianTNT shortEntity = null;
+        int observedFuse = -1;
+        for (int attempt = 0; attempt < 8 && shortEntity == null; attempt++) {
+            configuredDelay.set(0);
+            pinDelay(configuredDelay, 0);
+            for (EntityObsidianTNT existing : helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class, new AABB(shortAbsolute).inflate(1))) {
+                existing.discard();
+            }
+            AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), shortAbsolute,
+                  new Explosion(helper.getLevel(), null, shortAbsolute.getX(), shortAbsolute.getY(), shortAbsolute.getZ(), 1));
+            List<EntityObsidianTNT> spawned = helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class,
+                  new AABB(shortAbsolute).inflate(1), Entity::isAlive);
+            if (spawned.size() == 1 && spawned.get(0).getFuse() == 0) {
+                shortEntity = spawned.get(0);
+                observedFuse = 0;
+            } else {
+                observedFuse = spawned.isEmpty() ? observedFuse : spawned.get(0).getFuse();
+                spawned.forEach(Entity::discard);
+            }
+        }
+        check(shortEntity != null && shortEntity.getFuse() == 0,
+              "Zero delay fuse is " + observedFuse + " with delay " + configuredDelay.get());
         shortEntity.discard();
         configuredDelay.set(delay);
 
@@ -649,6 +668,19 @@ public class AdditionsModuleGameTests {
         return weight;
     }
 
+    private static void pinDelay(CachedIntValue value, int delay) {
+        try {
+            Field cached = CachedIntValue.class.getDeclaredField("cachedValue");
+            cached.setAccessible(true);
+            cached.setInt(value, delay);
+            Field resolved = CachedIntValue.class.getDeclaredField("resolved");
+            resolved.setAccessible(true);
+            resolved.setBoolean(value, true);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static EntityObsidianTNT onlyObsidian(GameTestHelper helper, BlockPos absolute) {
         List<EntityObsidianTNT> found = helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class, new AABB(absolute).inflate(1));
         check(found.size() == 1, "Expected one obsidian TNT entity, found " + found.size());
@@ -735,6 +767,10 @@ public class AdditionsModuleGameTests {
         int wasPort = MekanismAdditionsConfig.additions.voicePort.get();
         List<ServerPlayer> tracked = new ArrayList<>();
         try {
+            if (MekanismAdditions.voiceManager != null) {
+                MekanismAdditions.voiceManager.stop();
+                MekanismAdditions.voiceManager = null;
+            }
             MekanismAdditionsConfig.additions.voiceServerEnabled.set(false);
             voiceEvent(helper, "serverStarting", ServerStartingEvent.class);
             check(MekanismAdditions.voiceManager == null, "The voice server started while disabled");
