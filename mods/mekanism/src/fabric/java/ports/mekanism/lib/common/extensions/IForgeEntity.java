@@ -109,13 +109,18 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
     }
 
     /**
-     * Moves the entity to another dimension where the teleporter says. The teleporter's {@code placeEntity} receives
-     * the entity after it has been moved, so its reposition function only returns it.
+     * Forge calls {@code placeEntity} with a function that moves the entity, and builds a nether portal when that
+     * function is given {@code true}. Fabric's dimension API has no portal builder, so the flag is ignored and
+     * {@link FabricDimensions#teleport} runs only when {@code placeEntity} asks to move. {@code playTeleportSound}
+     * is not consulted, so a player can still hear the vanilla portal travel sound.
      */
     @Nullable
     default Entity changeDimension(ServerLevel destination, ITeleporter teleporter) {
         Entity entity = self();
-        if (!(entity.level instanceof ServerLevel current)) {
+        if (!(entity.level instanceof ServerLevel current) || entity.isRemoved()) {
+            return null;
+        }
+        if (current.dimension() != destination.dimension() && !entity.canChangeDimensions()) {
             return null;
         }
         PortalInfo target = teleporter.getPortalInfo(entity, destination, entity::findDimensionEntryPoint);
@@ -123,10 +128,6 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
             return null;
         }
         float yaw = entity.getYRot();
-        Entity moved = FabricDimensions.teleport(entity, destination, target);
-        if (moved == null) {
-            return null;
-        }
-        return teleporter.placeEntity(entity, current, destination, yaw, spawnPortal -> moved);
+        return teleporter.placeEntity(entity, current, destination, yaw, spawnPortal -> FabricDimensions.teleport(entity, destination, target));
     }
 }

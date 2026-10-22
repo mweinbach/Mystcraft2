@@ -53,6 +53,7 @@ import mekanism.common.util.text.OwnerDisplay;
 import mekanism.common.util.text.UpgradeDisplay;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -569,9 +570,13 @@ public final class MekanismUtils {
         }
         String ret = UsernameCache.getLastKnownUsername(uuid);
         if (ret == null && !warnedFails.contains(uuid) && EffectiveSide.get().isServer()) { // see if MC/Yggdrasil knows about it?!
-            Optional<GameProfile> gp = ServerLifecycleHooks.getCurrentServer().getProfileCache().get(uuid);
-            if (gp.isPresent()) {
-                ret = gp.get().getName();
+            // The GameTest server has no profile cache. A missing cache is an unknown name, not a crash.
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server != null && server.getProfileCache() != null) {
+                Optional<GameProfile> gp = server.getProfileCache().get(uuid);
+                if (gp.isPresent()) {
+                    ret = gp.get().getName();
+                }
             }
         }
         if (ret == null && !warnedFails.contains(uuid)) {
