@@ -134,8 +134,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 210 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 132 on Fabric
+Both loaders run in-world GameTests from development-only mods: 212 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 134 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 
