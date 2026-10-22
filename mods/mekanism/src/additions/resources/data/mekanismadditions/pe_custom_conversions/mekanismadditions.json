@@ -882,10 +882,275 @@
           }
         }
       ]
+    },
+    "mekanismadditions_additions_balloon_black": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:black_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_blue": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:blue_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_green": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:green_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_cyan": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:cyan_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_dark_red": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:dark_red_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_purple": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:purple_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_orange": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:orange_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_light_gray": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:light_gray_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_gray": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:gray_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_light_blue": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:light_blue_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_lime": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:lime_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_aqua": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:aqua_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_red": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:red_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_magenta": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:magenta_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_yellow": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:yellow_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_white": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:white_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_brown": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:brown_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
+    },
+    "mekanismadditions_additions_balloon_pink": {
+      "comment": "One leather and one string make two balloons. The dye is left out so every color, including dark red and aqua which are only painted, has the same value and recoloring cannot create EMC.",
+      "conversions": [
+        {
+          "output": "mekanismadditions:pink_balloon",
+          "count": 2,
+          "ingredients": {
+            "minecraft:leather": 1,
+            "minecraft:string": 1
+          }
+        }
+      ]
     }
   },
   "values": {
     "before": {},
-    "conversion": []
+    "conversion": [
+      {
+        "output": "mekanismadditions:baby_creeper_spawn_egg",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanismadditions:baby_enderman_spawn_egg",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanismadditions:baby_skeleton_spawn_egg",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanismadditions:baby_stray_spawn_egg",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanismadditions:baby_wither_skeleton_spawn_egg",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      }
+    ]
   }
 }

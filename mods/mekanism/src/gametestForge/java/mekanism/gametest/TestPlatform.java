@@ -15,6 +15,8 @@ import mekanism.api.Action;
 import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.chemical.gas.IGasHandler;
+import mekanism.api.chemical.pigment.Pigment;
+import mekanism.api.chemical.pigment.PigmentStack;
 import mekanism.api.chemical.slurry.Slurry;
 import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.heat.IHeatHandler;
@@ -281,6 +283,22 @@ public final class TestPlatform {
         }
         return blockEntity.getCapability(Capabilities.SLURRY_HANDLER, side).map(handler -> {
             SlurryStack remainder = handler.insertChemical(new SlurryStack(slurry, amount), chemicalAction(execute));
+            return amount - remainder.getAmount();
+        }).orElse(0L);
+    }
+
+    public static PigmentStack extractPigment(BlockEntity blockEntity, Direction side, long amount, boolean execute) {
+        return blockEntity.getCapability(Capabilities.PIGMENT_HANDLER, side)
+              .map(handler -> handler.extractChemical(amount, chemicalAction(execute)))
+              .orElse(PigmentStack.EMPTY);
+    }
+
+    public static long insertPigment(BlockEntity blockEntity, Direction side, Pigment pigment, long amount, boolean execute) {
+        if (amount <= 0) {
+            return 0;
+        }
+        return blockEntity.getCapability(Capabilities.PIGMENT_HANDLER, side).map(handler -> {
+            PigmentStack remainder = handler.insertChemical(new PigmentStack(pigment, amount), chemicalAction(execute));
             return amount - remainder.getAmount();
         }).orElse(0L);
     }

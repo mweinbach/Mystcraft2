@@ -42,11 +42,14 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
   `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
   posted. The Wildfire's Gender capability is not attached.
-- **Additions** plastic, glow panels and obsidian TNT are imported. Both loaders register the 271 blocks
-  (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel support,
-  slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic tints a
-  beacon. Flint, redstone, explosions, projectiles and fire spread prime obsidian TNT into its own entity. Baby
-  mobs, balloons, the walkie-talkie and voice chat are not ported. Balloon and baby-mob assets are still in the jar
-  and nothing registers them. The balloon pop sound event is still registered.
+- **Additions** plastic, glow panels, obsidian TNT, baby mobs and balloons are imported. Both loaders register the
+  271 blocks (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel
+  support, slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic
+  tints a beacon. Flint, redstone, explosions, projectiles and fire spread prime obsidian TNT into its own entity.
+  Baby creepers, endermen, skeletons, strays and wither skeletons register with their models and renderers, spawn
+  where the parent mob spawns (Forge biome and structure modifiers; Fabric biome modifications and a structure-spawn
+  mixin) at half the parent's weight, and drop the parent's loot. Balloons craft from leather, string and a dye,
+  latch onto a mob and pop without dropping the item. The walkie-talkie and voice chat are not ported. Walkie-talkie
+  assets are still in the jar and nothing registers them.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.

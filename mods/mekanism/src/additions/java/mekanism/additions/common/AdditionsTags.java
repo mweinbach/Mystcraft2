@@ -1,11 +1,14 @@
 package mekanism.additions.common;
 
+import mekanism.common.tags.TagUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AdditionsTags {
 
@@ -15,6 +18,7 @@ public class AdditionsTags {
     public static void init() {
         Items.init();
         Blocks.init();
+        Entities.init();
     }
 
     private AdditionsTags() {
@@ -27,6 +31,8 @@ public class AdditionsTags {
 
         private Items() {
         }
+
+        public static final TagKey<Item> BALLOONS = tag("balloons");
 
         public static final TagKey<Item> FENCES_PLASTIC = forgeTag("fences/plastic");
         public static final TagKey<Item> FENCE_GATES_PLASTIC = forgeTag("fence_gates/plastic");
@@ -89,6 +95,22 @@ public class AdditionsTags {
 
         private static TagKey<Block> tag(String name) {
             return BlockTags.create(MekanismAdditions.rl(name));
+        }
+    }
+
+    public static class Entities {
+
+        private static void init() {
+        }
+
+        private Entities() {
+        }
+
+        public static final TagKey<EntityType<?>> CREEPERS = forgeTag("creepers");
+        public static final TagKey<EntityType<?>> ENDERMEN = forgeTag("endermen");
+
+        private static TagKey<EntityType<?>> forgeTag(String name) {
+            return TagUtils.createKey(ForgeRegistries.ENTITY_TYPES, new ResourceLocation("forge", name));
         }
     }
 }
