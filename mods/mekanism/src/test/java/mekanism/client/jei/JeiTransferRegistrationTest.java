@@ -27,6 +27,17 @@ class JeiTransferRegistrationTest {
         Assertions.assertTrue(gui.contains("new GhostIngredientHandler<>()"), gui);
     }
 
+    @Test
+    @DisplayName("QIO shuffle capacity uses the synchronized item viewer")
+    void qioShuffleUsesClientCache() throws IOException {
+        String source = Files.readString(source("src/main/java/mekanism/client/jei/QIOCraftingTransferHandler.java"));
+        Assertions.assertFalse(source.contains("getFrequency("), source);
+        Assertions.assertTrue(source.contains("getCountCapacity()"), source);
+        Assertions.assertTrue(source.contains("getTypeCapacity()"), source);
+        Assertions.assertTrue(source.contains("getTotalItems()"), source);
+        Assertions.assertTrue(source.contains("getTotalTypes()"), source);
+    }
+
     private static String method(String source, String name) {
         int start = source.indexOf("void " + name);
         Assertions.assertTrue(start >= 0, name);
@@ -36,7 +47,11 @@ class JeiTransferRegistrationTest {
     }
 
     private static Path pluginSource() {
-        Path relative = Path.of("src/main/java/mekanism/client/jei/MekanismJEI.java");
+        return source("src/main/java/mekanism/client/jei/MekanismJEI.java");
+    }
+
+    private static Path source(String relativePath) {
+        Path relative = Path.of(relativePath);
         Path dir = Path.of("").toAbsolutePath();
         for (int i = 0; i < 8 && dir != null; i++) {
             Path candidate = dir.resolve(relative);
@@ -45,6 +60,6 @@ class JeiTransferRegistrationTest {
             }
             dir = dir.getParent();
         }
-        throw new AssertionError("MekanismJEI.java not found from " + Path.of("").toAbsolutePath());
+        throw new AssertionError(relativePath + " not found from " + Path.of("").toAbsolutePath());
     }
 }

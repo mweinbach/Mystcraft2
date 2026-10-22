@@ -30,7 +30,6 @@ import mekanism.common.content.qio.QIOCraftingTransferHelper.BaseSimulatedInvent
 import mekanism.common.content.qio.QIOCraftingTransferHelper.HashedItemSource;
 import mekanism.common.content.qio.QIOCraftingTransferHelper.SingularHashedItemSource;
 import mekanism.common.content.qio.QIOCraftingWindow;
-import mekanism.common.content.qio.QIOFrequency;
 import mekanism.common.inventory.container.QIOItemViewerContainer;
 import mekanism.common.inventory.container.slot.HotBarSlot;
 import mekanism.common.inventory.container.slot.MainInventorySlot;
@@ -293,9 +292,16 @@ public class QIOCraftingTransferHandler<CONTAINER extends QIOItemViewerContainer
             } else {
                 toTransfer = 1;
             }
-            QIOFrequency frequency = container.getFrequency();
+            // This handler runs on the client. IQIOCraftingWindowHolder#getFrequency is server-only and the
+            // portable dashboard returns null there, so whether leftovers can spill into the QIO comes from
+            // the item viewer's synchronized counts and capacities.
+            long countCapacity = container.getCountCapacity();
+            int typeCapacity = container.getTypeCapacity();
+            long storedItems = container.getTotalItems();
+            int storedTypes = container.getTotalTypes();
+            boolean hasFrequency = countCapacity > 0 || typeCapacity > 0 || storedTypes > 0;
             Byte2ObjectMap<List<SingularHashedItemSource>> sources = new Byte2ObjectArrayMap<>(inputCount);
-            Map<HashedItemSource, List<List<SingularHashedItemSource>>> shuffleLookup = frequency == null ? Collections.emptyMap() : new HashMap<>(inputCount);
+            Map<HashedItemSource, List<List<SingularHashedItemSource>>> shuffleLookup = hasFrequency ? new HashMap<>(inputCount) : Collections.emptyMap();
             for (Map.Entry<HashedItem, ByteList> entry : matchedItems.entrySet()) {
                 HashedItem hashedItem = entry.getKey();
                 HashedItemSource source = qioTransferHelper.getSource(hashedItem);
@@ -316,7 +322,7 @@ public class QIOCraftingTransferHandler<CONTAINER extends QIOItemViewerContainer
                         return invalidSource(hashedItem);
                     }
                     sources.put(slot, actualSources);
-                    if (frequency != null) {
+                    if (hasFrequency) {
                         //The shuffle lookup only comes into play if we have a frequency so might end up having to check if there is room in it
                         int elements = entry.getValue().size();
                         if (elements == 1) {
@@ -327,7 +333,8 @@ public class QIOCraftingTransferHandler<CONTAINER extends QIOItemViewerContainer
                     }
                 }
             }
-            if (!hasRoomToShuffle(qioTransferHelper, frequency, craftingWindow, container.getHotBarSlots(), container.getMainInventorySlots(), shuffleLookup)) {
+            if (!hasRoomToShuffle(qioTransferHelper, hasFrequency, countCapacity, typeCapacity, storedItems, storedTypes, craftingWindow,
+                  container.getHotBarSlots(), container.getMainInventorySlots(), shuffleLookup)) {
                 return handlerHelper.createUserErrorWithTooltip(MekanismLang.JEI_INVENTORY_FULL.translate());
             }
             if (doTransfer) {
@@ -349,8 +356,9 @@ public class QIOCraftingTransferHandler<CONTAINER extends QIOItemViewerContainer
     /**
      * Loosely based on how {@link mekanism.common.content.qio.QIOServerCraftingTransferHandler}'s hasRoomToShuffle method works.
      */
-    private static boolean hasRoomToShuffle(QIOCraftingTransferHelper qioTransferHelper, @Nullable QIOFrequency frequency, QIOCraftingWindow craftingWindow,
-          List<HotBarSlot> hotBarSlots, List<MainInventorySlot> mainInventorySlots, Map<HashedItemSource, List<List<SingularHashedItemSource>>> shuffleLookup) {
+    private static boolean hasRoomToShuffle(QIOCraftingTransferHelper qioTransferHelper, boolean hasFrequency, long countCapacity, int typeCapacity,
+          long storedItems, int storedTypes, QIOCraftingWindow craftingWindow, List<HotBarSlot> hotBarSlots, List<MainInventorySlot> mainInventorySlots,
+          Map<HashedItemSource, List<List<SingularHashedItemSource>>> shuffleLookup) {
         //Map used to keep track of inputs while also merging identical inputs, so we can cut down
         // on how many times we have to check if things can stack
         Object2IntMap<HashedItem> leftOverInput = new Object2IntArrayMap<>(9);
@@ -384,19 +392,19 @@ public class QIOCraftingTransferHandler<CONTAINER extends QIOItemViewerContainer
                     return source.getSlotRemaining((byte) (slot + 9));
                 }
             };
-            Object2IntMap<HashedItem> stillLeftOver = simulatedInventory.shuffleInputs(leftOverInput, frequency != null);
+            Object2IntMap<HashedItem> stillLeftOver = simulatedInventory.shuffleInputs(leftOverInput, hasFrequency);
             if (stillLeftOver == null) {
                 //If we have remaining items and no frequency then we don't have room to shuffle
                 return false;
             }
-            if (!stillLeftOver.isEmpty() && frequency != null) {
+            if (!stillLeftOver.isEmpty() && hasFrequency) {
                 //If we still have left over things try adding them to the frequency. We only are able to do a rough check and estimate
                 // on if the frequency has room or not as depending on how things are stored in the drives there is a chance that we
-                // do not actually have as much item space or types available, but this is the best we can do on the client side
-                // Note: We validate the frequency is not null, even though it shouldn't be null if we have anything still left over
+                // do not actually have as much item space or types available, but this is the best we can do on the client side.
+                // Counts and capacities are the values the server last sent with the item viewer, which is what the client has.
                 //Note: We calculate these numbers as a difference so that it is easier to make sure none of the numbers accidentally overflow
-                int availableItemTypes = frequency.getTotalItemTypeCapacity() - frequency.getTotalItemTypes(true);
-                long availableItemSpace = frequency.getTotalItemCountCapacity() - frequency.getTotalItemCount();
+                int availableItemTypes = typeCapacity - storedTypes;
+                long availableItemSpace = countCapacity - storedItems;
                 Object2BooleanMap<HashedItemSource> usedQIOSource = new Object2BooleanArrayMap<>(shuffleLookup.size());
                 for (Map.Entry<HashedItemSource, List<List<SingularHashedItemSource>>> entry : shuffleLookup.entrySet()) {
                     HashedItemSource source = entry.getKey();

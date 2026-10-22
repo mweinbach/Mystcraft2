@@ -31,8 +31,11 @@ standard slot transfer fills slots 1–9 from the player inventory. The formulai
 `FormulaicRecipeTransferInfo`: the nine `FormulaicCraftingSlot`s are the recipe slots, and the input inventory
 plus the player's inventory are the sources. Both QIO dashboards (the block and the portable item) use
 `QIOCraftingTransferHandler`, which matches ingredients against the selected crafting window, the player's
-inventory and the QIO frequency, then sends `PacketQIOFillCraftingWindow`. `JeiTransferRegistrationTest` checks
-those four registrations are present without loading JEI.
+inventory and the synchronized QIO contents, then sends `PacketQIOFillCraftingWindow`. Whether leftover crafting
+grid items can spill into the QIO uses that same client cache (`getCountCapacity`, `getTypeCapacity`,
+`getTotalItems`, `getTotalTypes`). `getFrequency()` is server-only and is null on the client for the portable
+dashboard, so it is not used for this check. `JeiTransferRegistrationTest` checks those four registrations and
+that the shuffle check reads the cache, without loading JEI.
 
 Dragging an ingredient onto a filter or config slot uses `GhostIngredientHandler`. Slots and the dictionary
 target already implement `IJEIGhostTarget`; the handler exposes the ones that accept the dragged ingredient and

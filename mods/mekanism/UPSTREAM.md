@@ -35,7 +35,9 @@ Copied unchanged, then edited as listed below:
 - The JEI plugin (`mekanism.client.jei`, `mekanism.generators.client.jei`, `mekanism.tools.client.jei`) and
   `mekanism.api.integration.jei.IMekanismJEIHelper`. Fluid ingredients go through JEI's `IPlatformFluidHelper` so the
   same categories compile on Forge and Fabric. Recipe transfer is `FormulaicRecipeTransferInfo`,
-  `GhostIngredientHandler` and `QIOCraftingTransferHandler`.
+  `GhostIngredientHandler` and `QIOCraftingTransferHandler`. The QIO handler's client shuffle check reads the item
+  viewer's synchronized counts and capacities instead of `getFrequency()`, which is null on the client for the
+  portable dashboard.
 
 Not imported: CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod,
 ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model
