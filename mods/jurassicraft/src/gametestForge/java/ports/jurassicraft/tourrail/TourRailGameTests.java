@@ -94,18 +94,21 @@ public final class TourRailGameTests {
     public static void placedTracksFindDiagonalTransition(GameTestHelper h) {
         for (int x = 3; x < 8; x++) for (int z = 3; z < 8; z++) h.setBlock(new BlockPos(x,0,z), Blocks.STONE);
         BlockPos a = new BlockPos(4,1,5), turn = new BlockPos(5,1,5), b = new BlockPos(6,1,4);
+        for (BlockPos pos : new BlockPos[] {a, turn, b}) h.setBlock(pos, TourRailRegistry.RAIL.get());
+        // setBlock notifies cardinal neighbors only. The diagonal is what makes the transition,
+        // so settle each placed rail now. A one-tick schedule does not run within three GameTest
+        // ticks when the batch is behind and the chunk is not ticking yet.
+        var level = h.getLevel();
         for (BlockPos pos : new BlockPos[] {a, turn, b}) {
-            h.setBlock(pos, TourRailRegistry.RAIL.get());
-            h.getLevel().scheduleTick(h.absolutePos(pos), TourRailRegistry.RAIL.get(), 1);
+            BlockPos absolute = h.absolutePos(pos);
+            level.getBlockState(absolute).tick(level, absolute, level.getRandom());
         }
-        h.runAfterDelay(3, () -> {
-            BlockPos ca = h.absolutePos(a), ct = h.absolutePos(turn), cb = h.absolutePos(b);
-            require(h, h.getLevel().getBlockState(ct).getValue(TourRailBlock.SHAPE) == TourRailShape.HORIZONTAL_NE,
-                    "placed rails should form a diagonal transition");
-            require(h, TourRailConnections.connected(h.getLevel(), ca, ct) && TourRailConnections.connected(h.getLevel(), ct, cb),
-                    "automatically shaped rails should connect");
-            h.succeed();
-        });
+        BlockPos ca = h.absolutePos(a), ct = h.absolutePos(turn), cb = h.absolutePos(b);
+        require(h, level.getBlockState(ct).getValue(TourRailBlock.SHAPE) == TourRailShape.HORIZONTAL_NE,
+                "placed rails should form a diagonal transition");
+        require(h, TourRailConnections.connected(level, ca, ct) && TourRailConnections.connected(level, ct, cb),
+                "automatically shaped rails should connect");
+        h.succeed();
     }
     @GameTest(template = "vehicle_test", templateNamespace = PortMod.MOD_ID)
     public static void fastTrackMovesExplorerFaster(GameTestHelper h) {
