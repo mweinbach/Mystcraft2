@@ -8,6 +8,8 @@ import mekanism.additions.common.registries.AdditionsBiomeModifierSerializers;
 import mekanism.additions.common.registries.AdditionsBlocks;
 import mekanism.additions.common.registries.AdditionsEntityTypes;
 import mekanism.additions.common.registries.AdditionsItems;
+import mekanism.additions.common.network.AdditionsPacketHandler;
+import mekanism.additions.common.network.to_client.PacketVoiceSession;
 import mekanism.additions.common.registries.AdditionsSounds;
 import mekanism.additions.common.registries.AdditionsStructureModifierSerializers;
 import mekanism.additions.common.voice.VoiceServerManager;
@@ -20,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Parrot;
@@ -29,6 +32,8 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -57,11 +62,15 @@ public class MekanismAdditions implements IModModule {
      */
     public static VoiceServerManager voiceManager;
 
+    private final AdditionsPacketHandler packetHandler;
+
     public MekanismAdditions() {
         Mekanism.addModule(instance = this);
         MekanismAdditionsConfig.registerConfigs(ModLoadingContext.get());
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
         MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
+        MinecraftForge.EVENT_BUS.addListener(this::playerLoggedIn);
+        MinecraftForge.EVENT_BUS.addListener(this::playerLoggedOut);
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
@@ -75,6 +84,11 @@ public class MekanismAdditions implements IModModule {
 
         //Set our version number to match the mods.toml file, which matches the one in our build.gradle
         versionNumber = new Version(ModLoadingContext.get().getActiveContainer());
+        packetHandler = new AdditionsPacketHandler();
+    }
+
+    public static AdditionsPacketHandler packetHandler() {
+        return instance.packetHandler;
     }
 
     public static ResourceLocation rl(String path) {
@@ -102,6 +116,7 @@ public class MekanismAdditions implements IModModule {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
+        packetHandler.initialize();
         event.enqueueWork(() -> {
             //Ensure our tags are all initialized
             AdditionsTags.init();
@@ -150,6 +165,18 @@ public class MekanismAdditions implements IModModule {
                 voiceManager = new VoiceServerManager();
             }
             voiceManager.start();
+        }
+    }
+
+    private void playerLoggedIn(PlayerLoggedInEvent event) {
+        if (voiceManager != null && MekanismAdditionsConfig.additions.voiceServerEnabled.get() && event.getEntity() instanceof ServerPlayer player) {
+            packetHandler.sendTo(new PacketVoiceSession(voiceManager.issueToken(player.getUUID())), player);
+        }
+    }
+
+    private void playerLoggedOut(PlayerLoggedOutEvent event) {
+        if (voiceManager != null) {
+            voiceManager.revokePlayer(event.getEntity().getUUID());
         }
     }
 

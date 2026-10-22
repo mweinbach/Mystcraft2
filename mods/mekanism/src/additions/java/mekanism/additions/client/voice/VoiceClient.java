@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.UUID;
 import javax.sound.sampled.AudioFormat;
 import mekanism.additions.common.config.MekanismAdditionsConfig;
 import mekanism.common.Mekanism;
@@ -20,9 +21,11 @@ public class VoiceClient extends Thread {
     private boolean running;
     private Socket socket;
     private final String ip;
+    private final UUID session;
 
-    public VoiceClient(String ip) {
+    public VoiceClient(String ip, UUID session) {
         this.ip = ip;
+        this.session = session;
     }
 
     @Override
@@ -35,6 +38,9 @@ public class VoiceClient extends Thread {
 
             input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            output.writeLong(session.getMostSignificantBits());
+            output.writeLong(session.getLeastSignificantBits());
+            output.flush();
 
             (outputThread = new VoiceOutput(this)).start();
             (inputThread = new VoiceInput(this)).start();

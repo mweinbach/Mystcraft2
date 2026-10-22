@@ -7,9 +7,12 @@ package mekanism.gametest;
 import com.mojang.authlib.GameProfile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import mekanism.additions.common.MekanismAdditions;
 import mekanism.additions.common.block.BlockObsidianTNT;
 import mekanism.additions.common.block.ExtendedFluidLogType;
@@ -112,7 +117,8 @@ import net.minecraftforge.common.world.ModifiableBiomeInfo;
  * Mekanism Additions registers its plastic blocks, obsidian TNT, baby mobs, balloons and the walkie-talkie, crafts
  * them, and runs the block and entity behaviour: extended fluid logging, glow panels, slick friction, reinforced blast
  * resistance, roads, the obsidian TNT entity, baby spawns and drops, balloons that latch and pop, walkie channel
- * selection, and the voice server starting only when its config is on.
+ * selection, and the voice server starting only when its config is on. A voice socket claims a one-time session
+ * token, and one recipient's audio frames are written whole.
  */
 public class AdditionsModuleGameTests {
 
@@ -743,6 +749,8 @@ public class AdditionsModuleGameTests {
             check(socket != null && socket.isBound() && !socket.isClosed() && socket.getLocalPort() == port,
                   "Voice server socket is " + (socket == null ? "missing" : socket.getLocalPort()));
             relay(helper, manager, tracked);
+            sessions(helper, manager);
+            frames(helper);
 
             voiceEvent(helper, "serverStopping", ServerStoppingEvent.class);
             check(MekanismAdditions.voiceManager == null, "Stopping left the voice server running");
@@ -817,7 +825,77 @@ public class AdditionsModuleGameTests {
         player.getInventory().setItem(selected ? 0 : 1, stack);
     }
 
-    private static VoiceConnection connection(ServerPlayer player, ByteArrayOutputStream captured) throws Exception {
+    private static void sessions(GameTestHelper helper, VoiceServerManager manager) throws Exception {
+        ServerPlayer first = survival(helper, new BlockPos(2, 2, 2));
+        ServerPlayer second = survival(helper, new BlockPos(3, 2, 2));
+        UUID firstToken = manager.issueToken(first.getUUID());
+        UUID secondToken = manager.issueToken(second.getUUID());
+        check(first.getUUID().equals(manager.claimToken(firstToken)), "The first voice token bound the wrong player");
+        check(manager.claimToken(firstToken) == null, "A voice token was accepted twice");
+        check(second.getUUID().equals(manager.claimToken(secondToken)), "The second voice token bound the wrong player");
+
+        UUID live = manager.issueToken(first.getUUID());
+        try (ServerSocket opened = new ServerSocket(0); Socket client = new Socket()) {
+            opened.setSoTimeout(2_000);
+            Thread connector = new Thread(() -> {
+                try {
+                    client.connect(new InetSocketAddress("127.0.0.1", opened.getLocalPort()), 2_000);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "walkie-session-client");
+            connector.start();
+            try (Socket accepted = opened.accept()) {
+                connector.join(2_000L);
+                check(client.isConnected(), "Voice test client did not connect");
+                VoiceConnection connection = new VoiceConnection(accepted);
+                connection.start();
+                DataOutputStream handshake = new DataOutputStream(client.getOutputStream());
+                handshake.writeLong(live.getMostSignificantBits());
+                handshake.writeLong(live.getLeastSignificantBits());
+                handshake.flush();
+                UUID bound = null;
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+                while (System.nanoTime() < deadline && bound == null) {
+                    bound = (UUID) field(connection, "uuid");
+                    if (bound == null) {
+                        Thread.sleep(10L);
+                    }
+                }
+                check(first.getUUID().equals(bound), "Voice socket bound " + bound);
+                check(manager.claimToken(live) == null, "The socket left the voice token reusable");
+                connection.interrupt();
+            }
+        }
+    }
+
+    private static void frames(GameTestHelper helper) throws Exception {
+        ServerPlayer listener = survival(helper, new BlockPos(4, 2, 2));
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        HoldFirstByte held = new HoldFirstByte(entered, release);
+        VoiceConnection recipient = connection(listener, held);
+        byte[] first = {1, 2, 3, 4};
+        byte[] second = {5, 6, 7, 8};
+        Thread leading = new Thread(() -> recipient.sendToPlayer((short) first.length, first, recipient), "walkie-frame-a");
+        Thread following = new Thread(() -> recipient.sendToPlayer((short) second.length, second, recipient), "walkie-frame-b");
+        leading.start();
+        check(entered.await(2, TimeUnit.SECONDS), "The first voice frame never started writing");
+        following.start();
+        Thread.sleep(100L);
+        release.countDown();
+        leading.join(2_000L);
+        following.join(2_000L);
+        check(!leading.isAlive() && !following.isAlive(), "Voice frame writers did not finish");
+        byte[] bytes = held.toByteArray();
+        byte[] expected = {0, 4, 1, 2, 3, 4, 0, 4, 5, 6, 7, 8};
+        check(bytes.length == expected.length, "Combined voice frames are " + bytes.length + " bytes");
+        for (int i = 0; i < expected.length; i++) {
+            check(bytes[i] == expected[i], "Voice frame byte " + i + " is " + bytes[i]);
+        }
+    }
+
+    private static VoiceConnection connection(ServerPlayer player, OutputStream captured) throws Exception {
         VoiceConnection connection = new VoiceConnection(new Socket());
         Field uuid = VoiceConnection.class.getDeclaredField("uuid");
         uuid.setAccessible(true);
@@ -826,6 +904,39 @@ public class AdditionsModuleGameTests {
         output.setAccessible(true);
         output.set(connection, new DataOutputStream(captured));
         return connection;
+    }
+
+    private static final class HoldFirstByte extends OutputStream {
+        private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        private final CountDownLatch entered;
+        private final CountDownLatch release;
+        private boolean holding = true;
+
+        private HoldFirstByte(CountDownLatch entered, CountDownLatch release) {
+            this.entered = entered;
+            this.release = release;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (holding) {
+                holding = false;
+                entered.countDown();
+                try {
+                    if (!release.await(2, TimeUnit.SECONDS)) {
+                        throw new IOException("Voice frame hold was not released");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException(e);
+                }
+            }
+            bytes.write(b);
+        }
+
+        private byte[] toByteArray() {
+            return bytes.toByteArray();
+        }
     }
 
     private static boolean heard(ByteArrayOutputStream captured, byte[] audio) {

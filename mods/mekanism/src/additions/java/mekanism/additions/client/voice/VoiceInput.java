@@ -32,18 +32,20 @@ public class VoiceInput extends Thread {
             targetLine.start();
             AudioInputStream audioInput = new AudioInputStream(targetLine);
 
+            byte[] audioData = new byte[2_200];
             boolean doFlush = false;
             while (voiceClient.isRunning()) {
                 if (AdditionsKeyHandler.voiceKey.isDown()) {
                     targetLine.flush();
                     while (voiceClient.isRunning() && AdditionsKeyHandler.voiceKey.isDown()) {
                         try {
-                            int availableBytes = audioInput.available();
-                            byte[] audioData = new byte[Math.min(availableBytes, 2_200)];
+                            // TargetDataLine.read blocks until this buffer fills, so an idle microphone does not spin.
                             int bytesRead = audioInput.read(audioData, 0, audioData.length);
                             if (bytesRead > 0) {
-                                voiceClient.getOutputStream().writeShort(audioData.length);
-                                voiceClient.getOutputStream().write(audioData);
+                                voiceClient.getOutputStream().writeShort(bytesRead);
+                                voiceClient.getOutputStream().write(audioData, 0, bytesRead);
+                            } else if (bytesRead == 0) {
+                                Thread.sleep(10L);
                             }
                         } catch (Exception ignored) {
                         }

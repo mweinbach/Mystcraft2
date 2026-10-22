@@ -5,12 +5,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import mekanism.additions.common.config.MekanismAdditionsConfig;
 import mekanism.common.Mekanism;
 
 public class VoiceServerManager {
 
     private final Set<VoiceConnection> connections = new ObjectOpenHashSet<>();
+    private final ConcurrentHashMap<UUID, UUID> sessions = new ConcurrentHashMap<>();
     private ServerSocket serverSocket;
     private Thread listenThread;
     private boolean foundLocal = false;
@@ -55,6 +58,25 @@ public class VoiceServerManager {
 
     public void setFoundLocal(boolean found) {
         foundLocal = found;
+    }
+
+    /**
+     * A one-time token for the voice socket. The game channel carries it to that player; the socket sends it back
+     * instead of being matched by IP address.
+     */
+    public UUID issueToken(UUID playerId) {
+        revokePlayer(playerId);
+        UUID token = UUID.randomUUID();
+        sessions.put(token, playerId);
+        return token;
+    }
+
+    public UUID claimToken(UUID token) {
+        return token == null ? null : sessions.remove(token);
+    }
+
+    public void revokePlayer(UUID playerId) {
+        sessions.entrySet().removeIf(entry -> playerId.equals(entry.getValue()));
     }
 
     public void sendToPlayers(short byteCount, byte[] audioData, VoiceConnection connection) {

@@ -5,9 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 import mekanism.additions.common.MekanismAdditions;
 import mekanism.additions.common.item.ItemWalkieTalkie;
@@ -24,7 +21,7 @@ public class VoiceConnection extends Thread {
     private DataInputStream input;
     private boolean open = true;
     private final Socket socket;
-    private UUID uuid;
+    private volatile UUID uuid;
 
     public VoiceConnection(Socket s) {
         socket = s;
@@ -35,38 +32,24 @@ public class VoiceConnection extends Thread {
         try {
             input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            if (MekanismAdditions.voiceManager != null) {
-                synchronized (MekanismAdditions.voiceManager) {
-                    int retryCount = 0;
-                    while (uuid == null && retryCount <= 100) {
-                        try {
-                            List<ServerPlayer> players = Collections.synchronizedList(new ArrayList<>(server.getPlayerList().getPlayers()));
-                            for (ServerPlayer player : players) {
-                                String playerIP = player.getIpAddress();
-                                if (!server.isDedicatedServer() && playerIP.equals("local") && !MekanismAdditions.voiceManager.isFoundLocal()) {
-                                    MekanismAdditions.voiceManager.setFoundLocal(true);
-                                    uuid = player.getUUID();
-                                    break;
-                                } else if (playerIP.equals(socket.getInetAddress().getHostAddress())) {
-                                    uuid = player.getUUID();
-                                    break;
-                                }
-                            }
-                            retryCount++;
-                            Thread.sleep(50);
-                        } catch (Exception ignored) {
-                        }
-                    }
-
-                    if (uuid == null) {
-                        Mekanism.logger.error("VoiceServer: Unable to trace connection's IP address.");
-                        kill();
-                        return;
-                    } else {
-                        Mekanism.logger.info("VoiceServer: Traced IP for {} in {} attempts.", uuid, retryCount);
-                    }
-                }
+            VoiceServerManager voiceManager = MekanismAdditions.voiceManager;
+            if (voiceManager == null) {
+                Mekanism.logger.error("VoiceServer: Voice server is not running.");
+                open = false;
+                socket.close();
+                return;
             }
+            // The first 16 bytes are the one-time session token issued over the game connection.
+            socket.setSoTimeout(10_000);
+            UUID token = new UUID(input.readLong(), input.readLong());
+            socket.setSoTimeout(0);
+            uuid = voiceManager.claimToken(token);
+            if (uuid == null) {
+                Mekanism.logger.error("VoiceServer: Voice connection presented no live session.");
+                kill();
+                return;
+            }
+            Mekanism.logger.info("VoiceServer: Bound voice connection to {}.", uuid);
         } catch (Exception e) {
             Mekanism.logger.error("VoiceServer: Error while starting server-based connection.", e);
             open = false;
@@ -109,13 +92,19 @@ public class VoiceConnection extends Thread {
     }
 
     public void sendToPlayer(short byteCount, byte[] audioData, VoiceConnection connection) {
-        if (!open) {
-            kill();
+        if (!open || output == null) {
+            if (open) {
+                kill();
+            }
+            return;
         }
         try {
-            output.writeShort(byteCount);
-            output.write(audioData);
-            output.flush();
+            // One recipient can be written by every sender's listen thread. The length and payload stay one frame.
+            synchronized (output) {
+                output.writeShort(byteCount);
+                output.write(audioData);
+                output.flush();
+            }
         } catch (Exception e) {
             Mekanism.logger.error("VoiceServer: Error while sending data to player.", e);
         }

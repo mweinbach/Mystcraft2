@@ -52,9 +52,12 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   latch onto a mob and pop without dropping the item. The walkie-talkie crafts from osmium, steel and a basic
   circuit, toggles on with a sneak-use, and cycles channels 1 through 8. Its model override shows the channel while
   it is on. The voice server listens on the configured TCP port only when `voiceServerEnabled` is true (default
-  false) and relays a short audio frame to other connections whose walkie is on and on that channel, including a
-  walkie in the offhand. The voice key is U. GameTests cover the channel cycle, the disabled tooltip, the socket
-  bind, and that relay. Microphone capture and speaker playback were not run: this environment has no capture
-  device, and `VoiceInput` returns when the line is unsupported.
+  false). A player receives a one-time session token on the game connection and the voice socket presents that
+  token, so two players behind one address stay distinct. It relays a short audio frame to other connections whose
+  walkie is on and on that channel, including a walkie in the offhand, and one recipient's frame is written whole.
+  The voice key is U. While it is held, the microphone read blocks instead of polling an empty buffer. GameTests
+  cover the channel cycle, the disabled tooltip, the socket bind, the session token, whole frames, and that relay.
+  Microphone capture and speaker playback were not run: this environment has no capture device, and `VoiceInput`
+  returns when the line is unsupported.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
