@@ -1,7 +1,9 @@
 package ports.jurassicraft.vehicle;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import ports.jurassicraft.platform.Network;
 import ports.jurassicraft.platform.Reg;
@@ -13,11 +15,7 @@ public final class VehicleNetwork {
     private VehicleNetwork() {}
 
     public static void register() {
-        Network.registerServer(CONTROL, (sender, buffer) -> {
-            int entity = buffer.readVarInt(), state = buffer.readUnsignedByte();
-            if (entity >= 0 && !buffer.isReadable() && sender.level.getEntity(entity) instanceof VehicleEntity vehicle)
-                vehicle.acceptControls(sender, state);
-        });
+        Network.registerServer(CONTROL, VehicleNetwork::applyControl);
         Network.registerServer(RADIO, (sender, buffer) -> {
             int entity = buffer.readVarInt();
             if (entity >= 0 && !buffer.isReadable() && sender.level.getEntity(entity) instanceof VehicleEntity vehicle)
@@ -33,6 +31,12 @@ public final class VehicleNetwork {
             if (entity >= 0 && !buffer.isReadable() && sender.level.getEntity(entity) instanceof HelicopterEntity helicopter)
                 helicopter.toggleFlightMode(sender, mode);
         });
+    }
+    /** One vehicle-control payload: entity id, then the control bits. Trailing bytes are rejected. */
+    static boolean applyControl(Player sender, FriendlyByteBuf buffer) {
+        int entity = buffer.readVarInt(), state = buffer.readUnsignedByte();
+        if (entity < 0 || buffer.isReadable() || !(sender.level.getEntity(entity) instanceof VehicleEntity vehicle)) return false;
+        return vehicle.acceptControls(sender, state);
     }
     static void broadcastRecord(VehicleEntity vehicle, ItemStack record) {
         ItemStack copy = record.copy();

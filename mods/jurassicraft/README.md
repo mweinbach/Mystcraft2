@@ -45,6 +45,7 @@ rules.
 | Change vehicle seat | Ctrl+1 to Ctrl+9 | Keypad 1 to 9 |
 | Helicopter autopilot | Ctrl+A | Home |
 | Helicopter rotation lock | Ctrl+D | End |
+| Helicopter ascend / descend | Space / Left Ctrl | Space / Left Ctrl |
 | Helicopter rotate | Left / Right | Left / Right |
 | Camera zoom in / out | Page Down / Page Up | Page Down / Page Up |
 | Vehicle record player | R | R |
@@ -52,8 +53,15 @@ rules.
 
 Fabric's key mappings cannot require a modifier key, so its defaults avoid the
 upstream Ctrl chords. All keys can be changed in the controls menu. Helicopters
-climb and descend with the jump and sprint keys; the rotor needs time to reach
-flying speed. Use the record player key with a music disc in your main hand to
+ascend and descend with their own keys, Space and Left Ctrl by default. While
+you are piloting, those presses do not also jump or sprint. A vehicle-only binding
+shares its physical key with an ordinary control without a red conflict warning.
+Forge applies that only on the controls screen, through a client mixin; the
+binding comparison used while flying is unchanged. Fabric does the same on its
+controls list. Seat chords are unmarked as well. Descend, autopilot and rotation
+lock still show Forge's gold modifier color against each other, because Left Ctrl
+is the modifier for those chords and all three are active while flying. The rotor needs time
+to reach flying speed. Use the record player key with a music disc in your main hand to
 insert or swap it, or with an empty hand to eject it.
 
 Right-click an imprinted dinosaur with an empty hand to choose wander, follow,
@@ -81,9 +89,14 @@ so values for later content need updating in `emc/policy.json`.
 ## Limitations
 
 The port is still in progress. Some machine, animal, and vehicle behaviors
-are approximations; see the known gaps in [PARITY.md](PARITY.md). Large
-structures, multiplayer, interactions with other mods, and some audiovisual
-details still need broader in-game testing.
+are approximations; see the known gaps in [PARITY.md](PARITY.md). Both loaders
+have walked the visitor centre (its laboratory rooms included), the raptor
+paddock, and the village buildings in GameTests, and a Forge development client
+has walked the visitor centre and paddock. Chunk-edge vines, mushrooms,
+levers, and fence connections still differ from a one-shot placement. A second
+development client saw an Open to LAN world and could not connect to the
+advertised address. Dinosaur and machine animation are still being checked
+separately.
 Genetic item variants use separate IDs rather than legacy item damage values,
 and there is no migration for 1.12 worlds or for saves from the earlier
 separate Fabric alpha.

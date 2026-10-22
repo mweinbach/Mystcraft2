@@ -245,6 +245,12 @@ public final class DnaMachineGameTests {
         otherMenu.clicked(0, AbstractContainerMenu.getQuickcraftMask(1, 0), ClickType.QUICK_CRAFT, player);
         require(helper, !menu.clickMenuButton(player, 42), "unknown button IDs must be rejected");
         require(helper, menu.clickMenuButton(player, 0) && machine.hybridizerMode() && menu.hybridizerMode(), "menu button must switch and sync mode");
+        CompoundTag visual = machine.getUpdateTag();
+        require(helper, visual.getBoolean("VisualSync") && visual.getBoolean("HybridizerMode") && !visual.contains("Items"),
+                "hybridizer mode must reach clients without the inventory");
+        DnaMachineBlockEntity viewer = new DnaMachineBlockEntity(machine.getBlockPos(), machine.getBlockState());
+        viewer.handleUpdateTag(visual);
+        require(helper, viewer.hybridizerMode(), "client must use the hybridizer screens");
         otherMenu.clicked(-999, AbstractContainerMenu.getQuickcraftMask(2, 0), ClickType.QUICK_CRAFT, player);
         require(helper, ItemStack.matches(otherMenu.getCarried(), normalA) && ItemStack.matches(machine.getItem(0), normalA),
                 "a mode change in another menu must not complete a drag into hidden slots");
@@ -280,6 +286,8 @@ public final class DnaMachineGameTests {
         require(helper, menu.clickMenuButton(player, 0) && !machine.hybridizerMode()
                 && ItemStack.matches(machine.getItem(3), full) && ItemStack.matches(machine.getItem(2), normalOutput),
                 "switching back must not mix or remove either inventory");
+        viewer.handleUpdateTag(machine.getUpdateTag());
+        require(helper, !viewer.hybridizerMode(), "client must restore the combinator screens");
         menu.clicked(3, 0, ClickType.PICKUP, player);
         require(helper, menu.getCarried().isEmpty() && ItemStack.matches(machine.getItem(3), full),
                 "switching back must also protect the hidden hybridizer inventory");

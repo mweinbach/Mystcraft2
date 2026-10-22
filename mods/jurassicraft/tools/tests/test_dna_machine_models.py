@@ -20,12 +20,31 @@ class DnaMachineModelTests(unittest.TestCase):
                     inflate = cube.get("mcScale", 0)
                     flat = sum(d + 2 * inflate == 0 for d in cube["dimensions"])
                     # A zero-thickness plane still has two valid sides.
-                    animated_lid = output == "feeder" and cube["name"] in ("Lid 1", "Lid 2")
-                    faces = 0 if cube.get("hidden", False) or flat > 1 or animated_lid else 2 if flat == 1 else 6
+                    # Lids and combinator screens are drawn by block-entity renderers.
+                    animated = (output == "feeder" and cube["name"] in ("Lid 1", "Lid 2")
+                                or output == "dna_combinator_hybridizer" and cube["name"] in ("Screen 1", "Screen 2"))
+                    faces = 0 if cube.get("hidden", False) or flat > 1 or animated else 2 if flat == 1 else 6
                     return faces + sum(count(child) for child in cube["children"])
                 expected_faces = sum(count(cube) for cube in model["cubes"])
                 faces = sum(line.startswith("f ") for line in (MODELS / (output + ".obj")).read_text().splitlines())
                 self.assertEqual(faces, expected_faces)
+
+    def test_overlay_models_keep_variant_cubes(self):
+        parts = MODELS.parent / "machine"
+        def names(path):
+            data = json.loads(path.read_text())
+            found = []
+            def visit(cube):
+                found.append(cube["name"])
+                for child in cube.get("children", []): visit(child)
+            for cube in data["cubes"]: visit(cube)
+            return found
+        embryonic = names(parts / "embryonic_machine_parts.json")
+        self.assertTrue({"Petri dish 1", "Petri dish 2", "Test tube rack 1", "Test tube rack 2"} <= set(embryonic))
+        egg = names(parts / "embryo_calcification_egg.json")
+        self.assertTrue({"Egg base", "shape21"} <= set(egg))
+        for source in ("dna_combinator_screens.json", "dna_hybridizer_screens.json"):
+            self.assertTrue({"Screen 1", "Screen 2"} <= set(names(parts / source)))
 
     def test_animated_feeder_lids_match_source(self):
         with ZipFile(SOURCE / "feeder.tbl") as archive:

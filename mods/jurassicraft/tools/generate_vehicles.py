@@ -79,7 +79,7 @@ write(ROOT/'tools/lang/vehicles.json', {
     'item.jurassicraft.car_tire': 'Car Tire',
     'item.jurassicraft.unfinished_car': 'Unfinished Car',
     'tooltip.jurassicraft.vehicle_drive': 'Mount to drive with the movement keys; sneak to dismount',
-    'tooltip.jurassicraft.helicopter_altitude': 'Jump to ascend; sprint to descend',
+    'tooltip.jurassicraft.helicopter_altitude': 'Ascend with %s; descend with %s',
 })
 
 # Empty 15x6x15 test arena, derived from the existing empty structure template.

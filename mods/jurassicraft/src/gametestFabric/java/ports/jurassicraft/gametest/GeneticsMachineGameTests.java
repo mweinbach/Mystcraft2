@@ -77,6 +77,17 @@ public final class GeneticsMachineGameTests implements FabricGameTest {
         embryonic.setItem(0, tube);
         embryonic.setItem(1, new ItemStack(ComponentsRegistry.PETRI_DISH.get()));
         embryonic.setItem(2, new ItemStack(ComponentsRegistry.EMPTY_SYRINGE.get()));
+        var shown = embryonic.getUpdateTag();
+        check(helper, shown.getBoolean("VisualSync") && shown.getBoolean("VisualDish") && shown.getBoolean("VisualTubes") && !shown.contains("Items"),
+                "embryonic parts must sync without the inventory");
+        var client = new HatcheryBlockEntity(embryonicWorldPos, embryonic.getBlockState(), HatcheryRegistry.Machine.EMBRYONIC);
+        client.load(shown);
+        check(helper, client.visualDish() && client.visualTubes(), "DNA shows the dish parts and the petri dish shows the tube rack");
+        ItemStack keptTube = tube.copy();
+        embryonic.removeItem(0, 1);
+        client.load(embryonic.getUpdateTag());
+        check(helper, !client.visualDish() && client.visualTubes(), "clearing the DNA slot hides the petri-dish parts");
+        embryonic.setItem(0, keptTube);
         for (int i = 0; i < HatcheryRegistry.Machine.EMBRYONIC.ticks; i++)
             HatcheryBlockEntity.tick(level, embryonicWorldPos, embryonic.getBlockState(), embryonic);
         ItemStack syringe = embryonic.getItem(3).copy();
@@ -242,6 +253,12 @@ public final class GeneticsMachineGameTests implements FabricGameTest {
         }
         entity.setItem(2, disc.copy());
         entity.setHybridizerMode(true);
+        var visual = entity.getUpdateTag();
+        check(helper, visual.getBoolean("VisualSync") && visual.getBoolean("HybridizerMode") && !visual.contains("Items"),
+                "hybridizer mode must reach clients without the inventory");
+        var viewer = new DnaMachineBlockEntity(worldPos, entity.getBlockState());
+        viewer.load(visual);
+        check(helper, viewer.hybridizerMode(), "client must use the hybridizer screens");
         try (Transaction tx = Transaction.openOuter()) {
             check(helper, input.insert(variant, 1, tx) == 1, "cached input stopped working after mode change");
             check(helper, output.extract(variant, 1, tx) == 0, "inactive output was extracted");
@@ -249,6 +266,8 @@ public final class GeneticsMachineGameTests implements FabricGameTest {
         }
         check(helper, entity.getItem(0).getCount() == 1 && entity.getItem(3).getCount() == 1 && entity.getItem(2).getCount() == 1, "mode switch mixed slots or lost items");
         entity.setHybridizerMode(false);
+        viewer.load(entity.getUpdateTag());
+        check(helper, !viewer.hybridizerMode(), "client must restore the combinator screens");
         try (Transaction tx = Transaction.openOuter()) {
             check(helper, output.extract(variant, 1, tx) == 1, "active output could not be extracted");
             tx.commit();

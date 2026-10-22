@@ -91,18 +91,33 @@ public class ThermalEvaporationGameTests {
         Plant holed = place(helper, new BlockPos(0, 1, 0), SIZE, HEIGHT, true, true);
         helper.setBlock(holed.origin(), Blocks.AIR);
         Plant small = place(helper, new BlockPos(5, 1, 0), 3, 3, true, true);
-        helper.runAtTickTime(40, () -> {
-            TileEntityThermalEvaporationValve valve = valve(helper, holed);
-            checkSeparate(valve, holed.blocks().size() - 1, "A plant with a missing corner");
-            check(TestPlatform.insertBlockFluid(valve, holed.valveSide(), Fluids.WATER, 1_000, true) == 0,
-                  "An unformed valve accepted water");
-            check(TestPlatform.heatCapacitors(valve, holed.valveSide()) == 0, "An unformed valve exposes a heat handler");
-            check(small.blocks().size() == SMALL_SHELL, "The small shell placed " + small.blocks().size() + " blocks");
-            checkSeparate(valve(helper, small), small.blocks().size(), "A 3x3x3 plant");
-            helper.setBlock(holed.origin(), MekanismBlocks.THERMAL_EVAPORATION_BLOCK.getBlock());
-        });
+        // The broken shell is scanned, rejected, and then repaired. A fixed tick can land after the
+        // rejection was dropped, so the repaired corner never gets a formation pass.
+        int[] phase = {0};
+        boolean[] sawScan = {false};
         helper.succeedWhen(() -> {
             TileEntityThermalEvaporationValve valve = valve(helper, holed);
+            if (phase[0] == 0) {
+                boolean scanned = valve.getStructure().size() == holed.blocks().size() - 1
+                      && valve(helper, small).getStructure().size() == small.blocks().size();
+                if (!scanned) {
+                    sawScan[0] = false;
+                    check(false, "Waiting for the broken shells to be scanned");
+                }
+                if (!sawScan[0]) {
+                    sawScan[0] = true;
+                    check(false, "Waiting for the structure formation attempt");
+                }
+                checkSeparate(valve, holed.blocks().size() - 1, "A plant with a missing corner");
+                check(TestPlatform.insertBlockFluid(valve, holed.valveSide(), Fluids.WATER, 1_000, true) == 0,
+                      "An unformed valve accepted water");
+                check(TestPlatform.heatCapacitors(valve, holed.valveSide()) == 0, "An unformed valve exposes a heat handler");
+                check(small.blocks().size() == SMALL_SHELL, "The small shell placed " + small.blocks().size() + " blocks");
+                checkSeparate(valve(helper, small), small.blocks().size(), "A 3x3x3 plant");
+                helper.setBlock(holed.origin(), MekanismBlocks.THERMAL_EVAPORATION_BLOCK.getBlock());
+                phase[0] = 1;
+                check(false, "Waiting for the repaired plant to form");
+            }
             EvaporationMultiblockData data = formed(valve);
             check(data.length() == SIZE && data.width() == SIZE && data.height() == HEIGHT,
                   "Repairing the corner formed a " + data.length() + "x" + data.height() + "x" + data.width());
@@ -128,8 +143,9 @@ public class ThermalEvaporationGameTests {
                 long offered = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, false);
                 check(offered == WATER, "A simulated fill offered " + offered + " of " + WATER);
                 check(data.inputTank.isEmpty(), "A simulated fill stored water");
-                filled[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
-                check(filled[0] == WATER, "The valve accepted " + filled[0] + " of " + WATER);
+                long accepted = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
+                check(accepted == WATER, "The valve accepted " + accepted + " of " + WATER);
+                filled[0] = accepted;
                 check(TestPlatform.blockFluid(valve, side) == WATER, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
                 check(data.inputTank.getFluid().getFluid() == Fluids.WATER, "The input tank holds " + data.inputTank.getFluid());
                 double temperature = data.getTemperature();
@@ -169,8 +185,9 @@ public class ThermalEvaporationGameTests {
             EvaporationMultiblockData data = formed(valve);
             Direction side = plant.valveSide();
             if (filled[0] == 0) {
-                filled[0] = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
-                check(filled[0] == BRINE, "The valve accepted " + filled[0] + " of " + BRINE + " brine");
+                long accepted = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
+                check(accepted == BRINE, "The valve accepted " + accepted + " of " + BRINE + " brine");
+                filled[0] = accepted;
                 check(data.inputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid(), "The input tank holds " + data.inputTank.getFluid());
                 double temperature = data.getTemperature();
                 TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * data.heatCapacitor.getHeatCapacity());

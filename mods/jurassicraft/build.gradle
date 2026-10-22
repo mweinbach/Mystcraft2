@@ -60,34 +60,6 @@ tasks.withType(Jar).configureEach {
 // Mirrors src/fabric/resources/jurassicraft.accesswidener; each entry documents its use.
 minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
 
-// The village-assembly mixin names official members; production Forge needs their SRG names.
-dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
-def mixinRefmap = layout.buildDirectory.file('generated/mixin/jurassicraft.forge.refmap.json')
-tasks.named('compileJava', JavaCompile) {
-    dependsOn tasks.named('createMcpToSrg')
-    outputs.file(mixinRefmap)
-    doFirst { mixinRefmap.get().asFile.parentFile.mkdirs() }
-    options.compilerArgs += [
-        '-AmappingTypes=tsrg',
-        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
-        "-AoutRefMapFile=${mixinRefmap.get().asFile}",
-        '-AdefaultObfuscationEnv=searge'
-    ]
-}
-tasks.named('processResources', ProcessResources) {
-    dependsOn tasks.named('compileJava')
-    from(mixinRefmap)
-}
-tasks.named('jar', Jar) {
-    manifest.attributes('MixinConfigs': 'jurassicraft.forge.mixins.json')
-}
-minecraft.runs.configureEach {
-    args '--mixin.config', 'jurassicraft.forge.mixins.json'
-    property 'mixin.env.remapRefMap', 'true'
-    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
-}
-tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
-
 // In-world tests and datagen validation live outside the production source set and JAR.
 sourceSets {
     gametest {
@@ -115,6 +87,9 @@ minecraft.runs {
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     doFirst {
         delete file('run/gameTestServer/world')
+        def serverProperties = file('run/gameTestServer/server.properties')
+        serverProperties.parentFile.mkdirs()
+        serverProperties.text = 'max-tick-time=-1\ngenerate-structures=true\n'
         def configDir = file('run/gameTestServer/config')
         configDir.mkdirs()
         new File(configDir, 'fml.toml').text = '''\
@@ -126,3 +101,31 @@ disableOptimizedDFU = true
 '''
     }
 }
+
+// Official-name -> SRG mappings for the village-assembly and controls mixins in the packaged JAR.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def forgeMixinRefmap = layout.buildDirectory.file('generated/mixin/jurassicraft.forge.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(forgeMixinRefmap)
+    doFirst { forgeMixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${forgeMixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(forgeMixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'jurassicraft.forge.mixins.json')
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'jurassicraft.forge.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }

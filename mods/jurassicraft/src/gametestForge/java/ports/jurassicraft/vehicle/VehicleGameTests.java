@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -19,6 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.jurassicraft.PortMod;
+import ports.jurassicraft.platform.Network;
 
 import java.util.stream.Collectors;
 
@@ -41,6 +43,37 @@ public final class VehicleGameTests {
             helicopter.acceptControls(pilot, controls);
             helicopter.tick();
         }
+    }
+    /** The same bytes the client writes: entity id, then one control byte. */
+    private static boolean controlPacket(Player player, VehicleEntity vehicle, int state) {
+        FriendlyByteBuf buffer = Network.buffer(data -> data.writeVarInt(vehicle.getId()).writeByte(state));
+        try {
+            return VehicleNetwork.applyControl(player, buffer);
+        } finally {
+            buffer.release();
+        }
+    }
+    private static void controlPackets(GameTestHelper helper, Player player, VehicleEntity vehicle, int state, int ticks, String message) {
+        for (int i = 0; i < ticks; i++) {
+            require(helper, controlPacket(player, vehicle, state), message);
+            vehicle.tick();
+        }
+    }
+    private static void groundVehicleIgnoresAltitude(GameTestHelper helper, VehicleEntity vehicle, String name) {
+        Player driver = helper.makeMockPlayer();
+        require(helper, driver.startRiding(vehicle), name + " driver should mount");
+        for (int i = 0; i < 5; i++) vehicle.tick();
+        Vec3 parked = vehicle.position();
+        controlPackets(helper, driver, vehicle, VehicleEntity.UP | VehicleEntity.DOWN, 20, name + " should accept an altitude packet");
+        require(helper, Math.abs(vehicle.getY() - parked.y) < .05 && vehicle.position().distanceTo(parked) < .05,
+                name + " must not move when the packet only asks to ascend and descend");
+        controlPackets(helper, driver, vehicle, VehicleEntity.FORWARD | VehicleEntity.UP | VehicleEntity.DOWN, 10,
+                name + " should accept throttle");
+        require(helper, Math.hypot(vehicle.getX() - parked.x, vehicle.getZ() - parked.z) > .1
+                        && Math.abs(vehicle.getY() - parked.y) < .05,
+                name + " should drive without climbing when altitude bits are set");
+        vehicle.ejectPassengers();
+        vehicle.discard();
     }
     @GameTest(template = "vehicle_test", templateNamespace = PortMod.MOD_ID)
     public static void movingVehicleHitsLivingEntities(GameTestHelper helper) {
@@ -261,6 +294,32 @@ public final class VehicleGameTests {
                 "a passenger should be able to take the empty pilot seat");
         helicopter.ejectPassengers();
         helicopter.discard();
+        helper.succeed();
+    }
+    @GameTest(template = "vehicle_test", templateNamespace = PortMod.MOD_ID)
+    public static void helicopterAltitudeFollowsControlPacket(GameTestHelper helper) {
+        floor(helper);
+        HelicopterEntity helicopter = helper.spawn(VehicleRegistry.HELICOPTER.get(), POS);
+        Player pilot = helper.makeMockPlayer(), passenger = helper.makeMockPlayer();
+        require(helper, pilot.startRiding(helicopter) && passenger.startRiding(helicopter), "pilot and passenger should mount");
+        FriendlyByteBuf extra = Network.buffer(data -> data.writeVarInt(helicopter.getId()).writeByte(VehicleEntity.UP).writeByte(1));
+        try {
+            require(helper, !VehicleNetwork.applyControl(pilot, extra), "a control packet with trailing bytes must be ignored");
+        } finally {
+            extra.release();
+        }
+        require(helper, !controlPacket(passenger, helicopter, VehicleEntity.UP), "a passenger altitude packet must be rejected");
+        double startY = helicopter.getY();
+        controlPackets(helper, pilot, helicopter, VehicleEntity.UP, 170, "the ascend packet should be accepted");
+        require(helper, helicopter.getY() > startY + .1, "the ascend packet should lift the helicopter");
+        double peak = helicopter.getY();
+        float rpm = helicopter.engineRpm();
+        controlPackets(helper, pilot, helicopter, VehicleEntity.DOWN, 200, "the descend packet should be accepted");
+        require(helper, helicopter.getY() < peak - .1 && helicopter.engineRpm() < rpm, "the descend packet should lower the helicopter");
+        helicopter.ejectPassengers();
+        helicopter.discard();
+        groundVehicleIgnoresAltitude(helper, helper.spawn(VehicleRegistry.JEEP.get(), POS), "jeep");
+        groundVehicleIgnoresAltitude(helper, helper.spawn(VehicleRegistry.EXPLORER.get(), POS), "explorer");
         helper.succeed();
     }
     @GameTest(template = "vehicle_test", templateNamespace = PortMod.MOD_ID)

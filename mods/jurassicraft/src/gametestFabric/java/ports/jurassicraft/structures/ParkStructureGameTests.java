@@ -17,6 +17,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.mural.MuralRegistry;
@@ -143,6 +144,11 @@ public final class ParkStructureGameTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    @GameTest(template = "jurassicraft:park_structure_test")
+    public void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
+    }
     @GameTest(template = "jurassicraft:park_structure_test")
     public void visitorPaintingKeepsTransformedAnchor(GameTestHelper helper) {
         BlockPos root = helper.absolutePos(BlockPos.ZERO);
@@ -180,8 +186,9 @@ public final class ParkStructureGameTests implements FabricGameTest {
                 .add(origin.getX(), origin.getY(), origin.getZ());
         BlockPos anchor = new BlockPos(transformed);
         var bounds = new BoundingBox(anchor.getX(), anchor.getY(), anchor.getZ(), anchor.getX(), anchor.getY(), anchor.getZ());
-        ParkHangingEntities.place(template, origin, settings, bounds, level);
-        ParkHangingEntities.place(template, origin, settings, new BoundingBox(anchor.offset(4, 0, 0)), level);
+        var placed = new HashSet<BlockPos>();
+        ParkHangingEntities.place(template, origin, settings, bounds, level, placed);
+        ParkHangingEntities.place(template, origin, settings, new BoundingBox(anchor.offset(4, 0, 0)), level, placed);
         helper.runAfterDelay(2, () -> {
             var matches = level.getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class,
                     new AABB(anchor).inflate(2), entity -> entity.hasCustomName() && entity.getName().getString().equals("Park fixture"));
