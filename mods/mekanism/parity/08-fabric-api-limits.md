@@ -22,6 +22,7 @@
   Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
   Their screen position still comes from the same left and right bar heights.
 - OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
+  Refined glowstone armor does not use that path. It is the vanilla armor layer drawn fullbright.
 - Fabric's fluid renderer ignores tint alpha. Mekanism's fluid tints are opaque, and steam's transparency is in its
   texture. `shouldDisplayFluidOverlay` is read from the default block state when the client starts, not again per face;
   structural glass always requests the overlay, so the fluids drawn against it match Forge.

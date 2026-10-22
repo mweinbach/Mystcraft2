@@ -67,7 +67,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Melee attack pose | Fabric's synced attack timer, alongside the shared leap and spit animations | Closest to upstream's `ATTACKING` pose animation; Forge only used the arm swing. |
+| Melee attack pose | Shared species `ATTACKING` keyframes for the full imported duration | Upstream plays that pose from the attack timer. Vanilla `swingTime` is only the hit cue and no longer drives the model. |
 | Juveniles follow food | Fabric's `TemptJuvenileDinosaurGoal` | Upstream `TemptNonAdultEntityAI` (under 50% grown); Forge lacked it. |
 | Carcass on lethal damage | Both (equivalent) | Matches upstream when `allowCarcass` is on. |
 | Birth near a forced pose or tranquilizer | Fabric | Same pause rules; the mother's eggs are found around her. |
@@ -173,7 +173,8 @@ Tests changed while merging:
 
 ## Known gaps against 1.12.2
 
-- Animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
+- The goat's neck sway is not the 1.12.2 procedural chain.
+- Dinosaur feet do not plant on slopes; the 1.12.2 leg solver is not ported. Tail and neck sway, breathing, walk cycles, head look, and species attack poses follow the original animators.
 - Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
 - When a digsite variant can't fit, a different variant is placed, whereas upstream placed nothing.
 - The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.

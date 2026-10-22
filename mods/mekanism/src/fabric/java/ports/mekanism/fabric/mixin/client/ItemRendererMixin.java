@@ -20,7 +20,7 @@ import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
 /**
  * Renders built-in item models with the item's own renderer, as Forge does. An item registered with Fabric's
  * {@link BuiltinItemRendererRegistry} is left on the vanilla renderer: Fabric's mixin on that renderer dispatches the
- * registry. The wind generator item uses that registry.
+ * registry. The wind generator item and the Mekanism Tools shields use that registry.
  */
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {

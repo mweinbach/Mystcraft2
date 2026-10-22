@@ -116,6 +116,7 @@ public class DinosaurEntity extends Animal {
     private int poseTicks;
     private int injuryTicks;
     private int attackTicks;
+    private final DinosaurTailSway tailSway = new DinosaurTailSway();
     private int wireTicks;
     private int disableHerdingTicks;
     private boolean carcassLootExhausted;
@@ -196,6 +197,7 @@ public class DinosaurEntity extends Animal {
     public float attackAnimationTime(float age) {
         return Math.max(0, (float) ((int) level.getGameTime() - entityData.get(ATTACK_STARTED)) + age - tickCount);
     }
+    public DinosaurTailSway tailSway() { return tailSway; }
     /** The start is expressed in local entity ticks, for the pose engine's action token. */
     public int injuryAnimationStart() {
         return tickCount - ((int) level.getGameTime() - entityData.get(INJURY_STARTED));
@@ -385,6 +387,11 @@ public class DinosaurEntity extends Animal {
         getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Mth.lerp(t, p.babyDamage(), p.adultDamage()) * geneticAttributes.damage());
         getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(p.speed() * geneticAttributes.speed());
         if (adjustHealth) setHealth(Math.min(getMaxHealth(), oldHealthFraction * getMaxHealth()));
+    }
+    @Override public void tick() {
+        super.tick();
+        // The original buffer samples body yaw after the living tick, and only on the client.
+        if (level.isClientSide) tailSway.tick(yBodyRotO, yBodyRot);
     }
     @Override public void aiStep() {
         int ageBeforeTick = getAge();
