@@ -24,6 +24,7 @@
     "BucketPickupMixin",
     "ChunkMapMixin",
     "ChunkSerializerMixin",
+    "ClipContextMixin",
     "ComparatorBlockMixin",
     "ConnectionMixin",
     "ElytraItemMixin",

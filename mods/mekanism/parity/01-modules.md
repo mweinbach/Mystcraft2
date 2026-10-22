@@ -31,8 +31,30 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
   waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
   structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
-  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. Fusion
-  gameplay is not verified.
+  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. The fusion
+  reactor (`FusionReactorGameTests`) forms at 5×5×5. The frame follows upstream's face grid: the corners and the
+  twelve holes on each face stay air, frame slots are reactor frame, and the controller is the top centre. A laser
+  focus matrix, one port and a logic adapter fill other slots. A missing frame block, a controller off the top
+  centre, stone in the hollow centre, structural glass in a casing slot and a 2×2×2 stay unformed and are not merged
+  with a neighbour. Structural glass set against the shell does not join it. Deuterium, tritium and D-T fuel enter
+  through the port's gas handler — Forge's capability, and on Fabric the `mekanism:gas_handler` lookup. Hydrogen,
+  steam and lava are refused, a casing block accepts none of them, and a simulated fill stores nothing. A hohlraum
+  takes D-T fuel through the item gas handler and refuses deuterium. One that is not full does not ignite. A laser
+  under the focus matrix, fed through its back, raises the plasma by one tick of laser energy, and the matrix's
+  laser receptor — the call that laser makes — brings the plasma to the burn temperature. That ray is the laser's
+  own clip. Forge 43.5.0's clip constructor uses an empty collision context when the entity is null; vanilla calls
+  `CollisionContext.of(null)` and crashes, so the Fabric build matches Forge there. That consumes the
+  hohlraum, leaves part of its D-T fuel in the fuel tank and starts the burn. Water and steam capacity stay 0 until
+  the injection rate changes. Upstream sizes those tanks only inside `setInjectionRate`, and only when the new rate
+  differs from the current one, so a fresh reactor left at the default rate of 2 cannot take water until that rate
+  is set again. After the rate is set, water enters through the fluid handler. One heating pass at a known casing
+  temperature turns it into steam at the upstream water-heating ratio, steam efficiency and enthalpy, and stores
+  casing heat as energy at the thermocouple efficiency. Energy leaves the port through Forge Energy or Team Reborn
+  Energy; a casing block gives none up, and steam leaves through the gas handler. The logic adapter outputs redstone
+  when the fuel tank is empty and deuterium or tritium is short, when the plasma has reached the ready temperature,
+  and not while it is disabled. Saved deuterium, tritium, D-T fuel, the injection rate, the logic mode, the
+  cooled-logic flag and the port's output mode come back after the blocks are removed and their NBT is loaded.
+  Plasma is still hot after that reload, and stored energy does not fall. The master's render box is the structure.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
