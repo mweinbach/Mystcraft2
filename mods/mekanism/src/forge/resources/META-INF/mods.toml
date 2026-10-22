@@ -23,3 +23,15 @@ license="${mod_license}"
     mandatory=true
     versionRange="[43.5.0,44)"
     side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="jade"
+    mandatory=false
+    versionRange="[8.9,9)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="theoneprobe"
+    mandatory=false
+    versionRange="[1.19-6.2,)"
+    ordering="AFTER"
+    side="BOTH"
