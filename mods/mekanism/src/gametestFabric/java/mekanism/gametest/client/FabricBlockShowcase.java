@@ -62,8 +62,9 @@ public final class FabricBlockShowcase implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // The Jade screenshot client shares this source set and needs the HUD. This row stays off for that run.
-        if (Boolean.getBoolean("mekanism.jade.screenshot")) {
+        // Other screenshot clients share this source set. This row stays off for those runs.
+        if (Boolean.getBoolean("mekanism.jade.screenshot") || Boolean.getBoolean("mekanism.computercraft.screenshot")
+              || Boolean.getBoolean("mekanism.jetpack.screenshot")) {
             return;
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);

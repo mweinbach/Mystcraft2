@@ -291,6 +291,15 @@ loom {
             programArgs '--width', '1600', '--height', '900'
             vmArg '-Dmekanism.computercraft.screenshot=true'
         }
+        // A survival client that equips a filled jetpack. Not part of the production JAR.
+        jetpackClient {
+            client()
+            name 'Mekanism Fabric Jetpack Screenshot'
+            source sourceSets.gametest
+            runDir 'build/jetpack-client'
+            programArgs '--width', '1600', '--height', '900'
+            vmArg '-Dmekanism.jetpack.screenshot=true'
+        }
     }
 }
 // Loom's remapped copy of CC: Restitched drops the jars array, so the dev client never loads Cobalt.
@@ -307,7 +316,7 @@ def extractCcNested = tasks.register('extractCcNested', Copy) {
 }
 // The client and server runs start from the core source set. Module outputs have to be on that classpath
 // or the dev game never loads Generators, Tools or Additions.
-['runClient', 'runServer', 'runShowcaseClient', 'runJadeClient', 'runComputerClient'].each { String taskName ->
+['runClient', 'runServer', 'runShowcaseClient', 'runJadeClient', 'runComputerClient', 'runJetpackClient'].each { String taskName ->
     tasks.named(taskName) {
         classpath += sourceSets.generators.output
         classpath += sourceSets.tools.output
