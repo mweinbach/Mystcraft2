@@ -84,7 +84,7 @@ chunk loading, render bounds, the player and living events, server chunk data an
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
 phase shifter, the industrial turbine, the fission reactor, the fusion reactor, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
-actions and shield blocking, and Additions
+actions, shield blocking and mob armor spawns, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
