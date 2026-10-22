@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
@@ -44,7 +46,7 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     private static Mirror readMirror(CompoundTag tag) { return Mirror.valueOf(tag.getString("ParkMirror")); }
     private static StructurePlaceSettings settings(Rotation rotation, Mirror mirror) {
         return new StructurePlaceSettings().setRotation(rotation).setMirror(mirror)
-                .setIgnoreEntities(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+                .setIgnoreEntities(true).setKnownShape(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
     }
     @Override protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tag) {
         super.addAdditionalSaveData(context,tag); tag.putString("ParkRotation",rotation.name()); tag.putString("ParkMirror",mirror.name());
@@ -54,15 +56,23 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
         ResourceLocation loot = "Chest".equals(marker) ? new ResourceLocation("minecraft", "chests/village/village_weaponsmith")
                 : room != null ? new ResourceLocation(PortMod.MOD_ID, "structure/visitor_centre/" + room) : null;
         if (loot == null || !bounds.isInside(pos)) return;
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), ParkEdges.PLACED);
         RandomizableContainerBlockEntity.setLootTable(level,random,pos.below(),loot);
     }
     @Override public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
             BoundingBox bounds, ChunkPos chunk, BlockPos pivot) {
-        super.postProcess(level,structures,generator,random,bounds,chunk,pivot);
-        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
-        // Support columns stay inside this chunk. Wall shapes are corrected afterwards, including a
-        // neighbour chunk's edge update of a wall this chunk already placed.
+        // Flag 2 would connect fences to whatever is already in this slice and pop vines whose support
+        // is in the next one. Known shape skips that pass. ParkEdges marks the sensitive blocks for
+        // vanilla post-processing and places the finished footprint once every slice is loaded.
+        placeSettings.setBoundingBox(bounds);
+        boundingBox = template.getBoundingBox(placeSettings, templatePosition);
+        if (template.placeInWorld(level, templatePosition, pivot, placeSettings, random, ParkEdges.PLACED)) {
+            for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, Blocks.STRUCTURE_BLOCK)) {
+                if (info.nbt == null || !StructureMode.DATA.name().equals(info.nbt.getString("mode"))) continue;
+                handleDataMarker(info.nbt.getString("metadata"), info.pos, level, random, bounds);
+            }
+        }
+        // Support columns stay inside this chunk. The same placement flags keep them from reshaping the floor.
         BoundingBox box = getBoundingBox();
         for (int x=Math.max(box.minX(),bounds.minX());x<=Math.min(box.maxX(),bounds.maxX());x++)
             for (int z=Math.max(box.minZ(),bounds.minZ());z<=Math.min(box.maxZ(),bounds.maxZ());z++) {
@@ -71,9 +81,11 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
                 BlockPos current=base.below();
                 while (current.getY() >= level.getMinBuildHeight() && bounds.isInside(current)
                         && (level.getBlockState(current).getMaterial().isReplaceable() || !level.getFluidState(current).isEmpty())) {
-                    level.setBlock(current,Blocks.DIRT.defaultBlockState(),2); current=current.below();
+                    level.setBlock(current,Blocks.DIRT.defaultBlockState(),ParkEdges.PLACED); current=current.below();
                 }
             }
-        ParkWalls.correct(template, templatePosition, placeSettings, bounds, level);
+        // A complete footprint is shaped here, before hanging entities look at the walls.
+        ParkEdges.queue(level, template, templatePosition, placeSettings, bounds);
+        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
     }
 }

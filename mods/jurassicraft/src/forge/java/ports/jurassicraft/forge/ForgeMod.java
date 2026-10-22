@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,6 +33,8 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -72,6 +76,12 @@ public final class ForgeMod {
         forgeBus.addListener((RegisterCommandsEvent event) -> JurassicEvents.commands(event.getDispatcher()));
         forgeBus.addListener((ServerAboutToStartEvent event) -> JurassicEvents.serverAboutToStart(event.getServer()));
         forgeBus.addListener((EntityJoinLevelEvent event) -> JurassicEvents.entityJoined(event.getEntity()));
+        forgeBus.addListener((ChunkEvent.Load event) -> {
+            if (event.getLevel() instanceof ServerLevel && event.getChunk() instanceof LevelChunk chunk) JurassicEvents.chunkLoaded(chunk);
+        });
+        forgeBus.addListener((TickEvent.ServerTickEvent event) -> {
+            if (event.phase == TickEvent.Phase.END) JurassicEvents.serverTick(event.getServer());
+        });
         forgeBus.addListener(EventPriority.LOWEST, false, ForgeMod::blockBroken);
         forgeBus.addListener(ForgeMod::lootTable);
         forgeBus.addListener(ForgeMod::trades);

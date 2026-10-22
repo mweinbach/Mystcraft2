@@ -17,6 +17,7 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
 import ports.jurassicraft.bugs.BugHarvest;
@@ -27,6 +28,7 @@ import ports.jurassicraft.goat.GoatRegistry;
 import ports.jurassicraft.loot.BonusLoot;
 import ports.jurassicraft.maps.VisitorCentreMaps;
 import ports.jurassicraft.music.MusicLoot;
+import ports.jurassicraft.structures.ParkEdges;
 import ports.jurassicraft.structures.SpawnParkCommand;
 import ports.jurassicraft.structures.VisitorLocate;
 import ports.jurassicraft.village.PaleontologistDigGoal;
@@ -72,6 +74,14 @@ public final class JurassicEvents {
 
     public static void serverAboutToStart(MinecraftServer server) {
         VillagePools.addVillageBuildings(server);
+    }
+
+    public static void chunkLoaded(LevelChunk chunk) {
+        ParkEdges.finish(chunk);
+    }
+
+    public static void serverTick(MinecraftServer server) {
+        ParkEdges.tick(server);
     }
 
     public static void entityJoined(Entity entity) {

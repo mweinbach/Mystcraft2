@@ -112,7 +112,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | --- | --- | --- |
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
 | `#jurassicraft:park_structures` | Optional structure ids | Forge's create-world screen binds tags against the builtin registries while mod datapacks are already visible, before `visitor_centre` and `raptor_paddock` exist. Optional entries skip that pass and still resolve once the structures load. |
-| Raptor paddock walls | 1.12 low arms and post | 1.19 turns an uncovered connection into a tall side, and a later chunk recomputes the wall from partial neighbours. Both the chunk walk and a one-shot placement keep the low arm, with the centre post down only on a straight run under open air. |
+| Structure edge shapes | Settled when the footprint is loaded | Slices are placed without a neighbour update and marked for vanilla chunk post-processing. Once every chunk of the footprint is loaded, it is placed again with `placeInWorld`, the same neighbour pass as a one-shot structure. Fences, walls, vines, mushrooms, levers and the reported paddock wall match that pass. The shape pass uses the light already stored and queues a relight only after the shapes are chosen. |
 | Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
 | Visitor-centre maps | Forge's `maps` package | Cartographers sell the map on both loaders. |

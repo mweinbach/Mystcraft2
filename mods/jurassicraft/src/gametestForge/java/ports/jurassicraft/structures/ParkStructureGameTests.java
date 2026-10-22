@@ -168,7 +168,7 @@ public final class ParkStructureGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID, timeoutTicks = 200)
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID, timeoutTicks = 1200)
     public static void paddockWallsMatchOneShotAndUpstream(GameTestHelper helper) {
         var failures = PaddockStructureAudit.walls(helper.getLevel());
         check(helper, failures.isEmpty(), String.join("; ", failures));
