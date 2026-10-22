@@ -99,12 +99,20 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
                 require('gametest' not in name.lower(), f'GameTest class shipped: {name}')
             require('/gametest/' not in name and not name.endswith('.snbt'), f'GameTest fixture shipped: {name}')
 
-    # Jade and the ComputerCraft peripheral are shared. The One Probe is Forge-only. WTHIT and the Fabric
-    # peripheral provider are Fabric-only, so those packages are not in both JARs.
-    forge_only = ('mekanism/common/integration/lookingat/theoneprobe/',)
+    # Jade and the ComputerCraft peripheral are shared. The One Probe and the Curios adapter are Forge-only.
+    # WTHIT, the Fabric peripheral provider and the Trinkets adapter are Fabric-only, so those packages are not in
+    # both JARs. GenderArmorCapability is the same name in both JARs and stays in the shared set.
+    forge_only = (
+        'mekanism/common/integration/lookingat/theoneprobe/',
+        'mekanism/common/integration/curios/ForgeCurios',
+        'mekanism/client/render/MekanismCurioRenderer',
+        # Forge's capability token is an anonymous class. Fabric's adapter has no inner class.
+        'mekanism/common/integration/gender/GenderArmorCapability$',
+    )
     fabric_only = (
         'mekanism/common/integration/lookingat/wthit/',
         'mekanism/common/integration/computer/computercraft/FabricPeripheralProvider',
+        'mekanism/common/integration/curios/FabricTrinkets',
     )
     def shared_classes(names, excluded):
         return {name for name in names if name.endswith('.class') and name.startswith('mekanism/')
@@ -123,6 +131,26 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
             'ComputerCraft peripherals are missing from the shared class set')
     require(any(name.startswith(fabric_only[1]) for name in fabric_names), 'Fabric JAR is missing the ComputerCraft provider')
     require(not any(name.startswith(fabric_only[1]) for name in forge_names), 'Fabric ComputerCraft provider leaked into Forge')
+    require(any(name.startswith('mekanism/common/integration/curios/CuriosIntegration') for name in forge_classes),
+            'shared accessory facade is missing')
+    require(any(name.startswith('mekanism/common/network/to_server/PacketModeChangeCurios') for name in forge_classes),
+            'accessory mode packet is missing')
+    require(any(name.startswith('mekanism/common/integration/curios/ForgeCurios') for name in forge_names),
+            'Forge JAR is missing the Curios adapter')
+    require(not any(name.startswith('mekanism/common/integration/curios/ForgeCurios') for name in fabric_names),
+            'Curios adapter leaked into Fabric')
+    require(any(name.startswith('mekanism/client/render/MekanismCurioRenderer') for name in forge_names),
+            'Forge JAR is missing the Curios renderer')
+    require(not any(name.startswith('mekanism/client/render/MekanismCurioRenderer') for name in fabric_names),
+            'Curios renderer leaked into Fabric')
+    require(any(name.startswith('mekanism/common/integration/curios/FabricTrinkets') for name in fabric_names),
+            'Fabric JAR is missing the Trinkets adapter')
+    require(not any(name.startswith('mekanism/common/integration/curios/FabricTrinkets') for name in forge_names),
+            'Trinkets adapter leaked into Forge')
+    require(any(name.startswith('mekanism/common/integration/gender/GenderArmorCapability') for name in forge_classes),
+            'Gender adapter missing from Forge')
+    require(any(name.startswith('mekanism/common/integration/gender/GenderArmorCapability') for name in fabric_classes),
+            'Gender adapter missing from Fabric')
     require(not any(name.startswith('ports/mekanism/') for name in forge_names),
             'Fabric adapter leaked into Forge')
     for package in ('ports/mekanism/lib/', 'ports/mekanism/fabric/'):

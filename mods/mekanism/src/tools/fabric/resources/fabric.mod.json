@@ -36,6 +36,7 @@
     "mekanism": "${version}"
   },
   "suggests": {
-    "jei": "*"
+    "jei": "*",
+    "wildfire_gender": "*"
   }
 }
