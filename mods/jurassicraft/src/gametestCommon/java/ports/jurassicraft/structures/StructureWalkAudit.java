@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -43,8 +42,8 @@ import ports.jurassicraft.village.VillageProcessor;
 /**
  * Places each large structure the way a player meets it: chunk by chunk, then a full
  * {@code /spawnjc} placement, and checks blocks, loot, hanging entities and light.
- * Village and paddock notes are reported separately so known in-progress areas stay visible
- * without hiding a visitor-centre failure.
+ * Village notes stay separate. Paddock and visitor-centre mismatches, including fences,
+ * walls, vines, mushrooms and levers, fail the test.
  */
 public final class StructureWalkAudit {
     private static final BlockPos CONTROLLED = new BlockPos(3208, 90, 3208);
@@ -68,8 +67,8 @@ public final class StructureWalkAudit {
         List<String> notes = new ArrayList<>();
         split(controlled(level, true, Rotation.NONE, Mirror.NONE), failures, notes);
         split(controlled(level, true, Rotation.CLOCKWISE_90, Mirror.LEFT_RIGHT), failures, notes);
-        notes.addAll(prefix("paddock", controlled(level, false, Rotation.NONE, Mirror.NONE)));
-        notes.addAll(prefix("paddock", controlled(level, false, Rotation.CLOCKWISE_90, Mirror.FRONT_BACK)));
+        split(prefix("paddock", controlled(level, false, Rotation.NONE, Mirror.NONE)), failures, notes);
+        split(prefix("paddock", controlled(level, false, Rotation.CLOCKWISE_90, Mirror.FRONT_BACK)), failures, notes);
         notes.addAll(villages(level));
         var natural = natural(level, true);
         if (natural.skipped) notes.add("visitor: " + natural.detail);
@@ -85,23 +84,6 @@ public final class StructureWalkAudit {
             if (issue.startsWith("note: ")) notes.add(issue.substring(6));
             else failures.add(issue);
         }
-    }
-
-    private static boolean attachment(BlockState state) {
-        return state.is(Blocks.VINE) || state.is(Blocks.BROWN_MUSHROOM) || state.is(Blocks.RED_MUSHROOM) || state.is(Blocks.LEVER);
-    }
-
-    /** Fence, wall and pane links depend on neighbors that a chunk-sized post-process cannot see. */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static boolean connectsOnly(BlockState walk, BlockState full) {
-        if (walk.getBlock() != full.getBlock()) return false;
-        for (Property property : walk.getProperties()) {
-            if (walk.getValue(property).equals(full.getValue(property))) continue;
-            String name = property.getName();
-            if (!"north".equals(name) && !"south".equals(name) && !"east".equals(name) && !"west".equals(name) && !"up".equals(name))
-                return false;
-        }
-        return true;
     }
 
     private static List<String> prefix(String name, List<String> issues) {
@@ -143,7 +125,7 @@ public final class StructureWalkAudit {
         prepare(level, footprint);
         prepare(level, referenceBox);
         RandomSource random = RandomSource.create(1234);
-        boolean placed = template.placeInWorld(level, referenceOrigin, referenceOrigin, settings, random, 2);
+        boolean placed = template.placeInWorld(level, referenceOrigin, referenceOrigin, settings, random, ParkEdges.SHAPED);
         if (!placed) issues.add(name + " reference placement failed");
         ParkStructurePiece piece = new ParkStructurePiece(level.getStructureManager(), id, origin, rotation, mirror);
         int minChunkX = footprint.minX() >> 4, maxChunkX = footprint.maxX() >> 4;
@@ -160,6 +142,8 @@ public final class StructureWalkAudit {
                 for (int tick = 0; tick < 101 && !hanging.isRemoved(); tick++) hanging.tick();
             }
         }
+        // The chunk loop leaves raw template states. Settle them the way a loaded footprint does.
+        ParkEdges.finish(level, footprint);
         issues.addAll(compare(level, name + " " + rotation + "/" + mirror, footprint, referenceBox));
         issues.addAll(contents(level, name, footprint, visitor));
         level.getEntitiesOfClass(Entity.class, volume, entity -> !(entity instanceof Player)).forEach(Entity::discard);
@@ -168,23 +152,28 @@ public final class StructureWalkAudit {
     }
 
     private static void prepare(ServerLevel level, BoundingBox box) {
-        for (int cx = (box.minX() >> 4) - 1; cx <= (box.maxX() >> 4) + 1; cx++)
-            for (int cz = (box.minZ() >> 4) - 1; cz <= (box.maxZ() >> 4) + 1; cz++)
+        // One block outside the template, including above it, so both footprints see the same
+        // neighbours. The copies are stacked in Y and the terrain beside them is not.
+        int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
+        int maxY = Math.min(box.maxY() + 1, level.getMaxBuildHeight() - 1);
+        for (int cx = minX >> 4; cx <= maxX >> 4; cx++)
+            for (int cz = minZ >> 4; cz <= maxZ >> 4; cz++)
                 level.getChunk(cx, cz);
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        for (int x = box.minX(); x <= box.maxX(); x++) for (int z = box.minZ(); z <= box.maxZ(); z++) {
+        for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
             LevelChunk chunk = level.getChunk(x >> 4, z >> 4);
             chunk.setBlockState(cursor.set(x, box.minY() - 1, z), Blocks.STONE.defaultBlockState(), false);
-            for (int y = box.minY(); y <= box.maxY(); y++)
+            for (int y = box.minY(); y <= maxY; y++)
                 chunk.setBlockState(cursor.set(x, y, z), Blocks.AIR.defaultBlockState(), false);
         }
-        AABB area = aabb(box).inflate(1);
+        AABB area = new AABB(minX, box.minY(), minZ, maxX + 1, maxY + 1, maxZ + 1);
         level.getEntitiesOfClass(Entity.class, area, entity -> !(entity instanceof Player)).forEach(Entity::discard);
+        PaddockStructureAudit.fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, maxY, maxZ));
     }
 
     private static List<String> compare(ServerLevel level, String label, BoundingBox walked, BoundingBox reference) {
         List<String> issues = new ArrayList<>();
-        int missing = 0, different = 0, extra = 0, attachments = 0;
+        int missing = 0, different = 0, extra = 0;
         Map<String, Integer> missingNames = new HashMap<>();
         Map<String, Integer> extraNames = new HashMap<>();
         String example = "";
@@ -197,10 +186,6 @@ public final class StructureWalkAudit {
                     BlockState walk = level.getBlockState(walkedPos.set(x, y, z));
                     BlockState full = level.getBlockState(referencePos.set(x + dx, y + dy, z + dz));
                     if (walk.equals(full)) continue;
-                    if (attachment(walk) || attachment(full) || connectsOnly(walk, full)) {
-                        attachments++;
-                        continue;
-                    }
                     if (full.isAir() && !walk.isAir()) {
                         extra++;
                         extraNames.merge(String.valueOf(Registry.BLOCK.getKey(walk.getBlock())), 1, Integer::sum);
@@ -213,8 +198,6 @@ public final class StructureWalkAudit {
         if (missing + different + extra > 0)
             issues.add(label + " chunk walk differs from full placement: missing " + missing + " " + top(missingNames)
                     + ", different " + different + ", extra " + extra + " " + top(extraNames) + " (" + example + ")");
-        if (attachments > 0)
-            issues.add("note: " + label + " chunk-edge vines, mushrooms, levers or fence links differ in " + attachments + " blocks");
         return issues;
     }
 
@@ -297,6 +280,7 @@ public final class StructureWalkAudit {
         for (int cx = box.minX() >> 4; cx <= box.maxX() >> 4; cx++)
             for (int cz = box.minZ() >> 4; cz <= box.maxZ() >> 4; cz++)
                 level.getChunk(cx, cz);
+        ParkEdges.finish(level, box);
         List<String> issues = new ArrayList<>();
         int structureBlocks = 0, nonAir = 0;
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();

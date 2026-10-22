@@ -254,7 +254,7 @@ public final class PaddockStructureAudit {
         fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, box.maxY(), maxZ));
     }
 
-    private static void fullSky(ServerLevel level, BoundingBox box) {
+    static void fullSky(ServerLevel level, BoundingBox box) {
         DataLayerStorageMap visible;
         DataLayerStorageMap updating;
         try {

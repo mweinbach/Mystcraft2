@@ -94,7 +94,9 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
                     level.setBlock(current,Blocks.DIRT.defaultBlockState(),ParkEdges.PLACED); current=current.below();
                 }
             }
-        // A complete footprint is shaped here, before hanging entities look at the walls.
+        // /spawnjc passes the whole footprint, so that placement is shaped before hanging
+        // entities look at the walls. A chunk slice only records the footprint; the server
+        // tick shapes it once every chunk is loaded.
         ParkEdges.queue(level, template, templatePosition, placeSettings, bounds);
         ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level, placedHanging);
     }
