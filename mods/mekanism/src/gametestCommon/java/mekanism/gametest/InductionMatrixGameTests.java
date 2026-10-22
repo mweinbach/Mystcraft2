@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class InductionMatrixGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void inductionMatrixForms(GameTestHelper helper) {
         Shell shell = matrix(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityInductionPort port = port(helper, shell);
             MatrixMultiblockData matrix = formed(port);
             check(matrix.length() == 3 && matrix.height() == 3 && matrix.width() == 4,
@@ -68,7 +69,6 @@ public class InductionMatrixGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
@@ -79,7 +79,15 @@ public class InductionMatrixGameTests {
         Shell small = MultiblockStructures.cuboid(helper, new BlockPos(5, 1, 1), 2, 2, 2, casing(), casing(), null);
         Shell blocked = MultiblockStructures.cuboid(helper, new BlockPos(1, 1, 5), 3, 3, 3, casing(), casing(), portBlock());
         helper.setBlock(new BlockPos(2, 2, 6), Blocks.STONE);
-        helper.runAtTickTime(40, () -> {
+        // The holed 3×3×4 and the blocked 3×3×3 share a face, so they merge into one assembly. The scan
+        // has run once each shell's structure holds more than the block that started it.
+        succeedAfterScan(helper, () -> {
+            BlockEntity casing = helper.getBlockEntity(small.origin());
+            return port(helper, holed).getStructure().size() > 1
+                  && casing instanceof TileEntityInductionCasing smallCasing
+                  && smallCasing.getStructure().size() > 1
+                  && port(helper, blocked).getStructure().size() > 1;
+        }, () -> {
             TileEntityInductionPort port = port(helper, holed);
             check(!port.getMultiblock().isFormed(), "A matrix with a missing corner formed");
             check(TestPlatform.insertEnergy(port, holed.valveSide(), rateFe()) == 0, "An unformed port accepted energy");
@@ -88,14 +96,13 @@ public class InductionMatrixGameTests {
             check(!((TileEntityInductionCasing) casing).getMultiblock().isFormed(), "A 2x2x2 matrix formed");
             TileEntityInductionPort blockedPort = port(helper, blocked);
             check(!blockedPort.getMultiblock().isFormed(), "A matrix with stone inside formed");
-            helper.succeed();
         });
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void portMovesEnergyThroughTheLoaderApi(GameTestHelper helper) {
         Shell shell = matrix(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityInductionPort port = port(helper, shell);
             MatrixMultiblockData matrix = formed(port);
             Direction side = shell.valveSide();
@@ -111,27 +118,27 @@ public class InductionMatrixGameTests {
             long extracted = TestPlatform.extractEnergy(port, side, rate);
             check(extracted == rate, "The output port returned " + extracted + " of " + rate);
             check(matrix.getEnergy().isZero(), "The matrix still holds " + matrix.getEnergy() + " after the output");
-            helper.succeed();
         });
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 120)
     public static void portChargesAnEnergyTablet(GameTestHelper helper) {
         Shell shell = matrix(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
-            TileEntityInductionPort port = port(helper, shell);
-            formed(port);
-            long accepted = TestPlatform.insertEnergy(port, shell.valveSide(), rateFe());
-            check(accepted == rateFe(), "The port accepted " + accepted + " before the tablet was inserted");
-            ItemStack tablet = new ItemStack(MekanismItems.ENERGY_TABLET.get());
-            check(TestPlatform.itemEnergy(tablet) == 0, "A new energy tablet already holds energy");
-            long inserted = TestPlatform.insertItems(port, shell.valveSide(), tablet);
-            check(inserted == 1, "The port accepted " + inserted + " energy tablets");
-            check(TestPlatform.insertItems(port, shell.valveSide(), new ItemStack(Items.COBBLESTONE)) == 0, "The port accepted cobblestone");
-        });
-        helper.runAtTickTime(60, () -> {
+        boolean[] charged = {false};
+        helper.succeedWhen(() -> {
             TileEntityInductionPort port = port(helper, shell);
             MatrixMultiblockData matrix = formed(port);
+            if (!charged[0]) {
+                long accepted = TestPlatform.insertEnergy(port, shell.valveSide(), rateFe());
+                check(accepted == rateFe(), "The port accepted " + accepted + " before the tablet was inserted");
+                ItemStack tablet = new ItemStack(MekanismItems.ENERGY_TABLET.get());
+                check(TestPlatform.itemEnergy(tablet) == 0, "A new energy tablet already holds energy");
+                long inserted = TestPlatform.insertItems(port, shell.valveSide(), tablet);
+                check(inserted == 1, "The port accepted " + inserted + " energy tablets");
+                check(TestPlatform.insertItems(port, shell.valveSide(), new ItemStack(Items.COBBLESTONE)) == 0, "The port accepted cobblestone");
+                charged[0] = true;
+                check(false, "Waiting for the energy tablet to charge");
+            }
             ItemStack stored = port.getInventorySlots(null).get(0).getStack();
             check(stored.is(MekanismItems.ENERGY_TABLET.get()), "The charge slot holds " + stored);
             FloatingLong tablet = EnergyUnit.FORGE_ENERGY.convertFrom(TestPlatform.itemEnergy(stored));
@@ -139,56 +146,56 @@ public class InductionMatrixGameTests {
             FloatingLong inserted = EnergyUnit.FORGE_ENERGY.convertFrom(rateFe());
             check(tablet.greaterThan(FloatingLong.ZERO), "The energy tablet was not charged");
             check(total.equals(inserted), "Matrix " + matrix.getEnergy() + " plus tablet " + tablet + " is not the inserted " + inserted);
-            helper.succeed();
         });
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void matrixEnergySurvivesSaveAndLoad(GameTestHelper helper) {
         Shell shell = matrix(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
-            TileEntityInductionPort port = port(helper, shell);
-            formed(port);
-            long accepted = TestPlatform.insertEnergy(port, shell.valveSide(), rateFe());
-            check(accepted == rateFe(), "The port accepted " + accepted + " before the save");
-        });
-        helper.runAtTickTime(50, () -> {
+        int[] phase = {0};
+        helper.succeedWhen(() -> {
             TileEntityInductionPort port = port(helper, shell);
             MatrixMultiblockData matrix = formed(port);
             FloatingLong stored = EnergyUnit.FORGE_ENERGY.convertFrom(rateFe());
-            check(matrix.getEnergy().equals(stored), "The cell had not stored " + stored + " before the save: " + matrix.getEnergy());
-            BlockEntity cell = helper.getBlockEntity(CELL);
-            check(cell instanceof TileEntityInductionCell, "The cell is " + cell);
-            check(((TileEntityInductionCell) cell).getEnergyContainer().getEnergy().equals(stored),
-                  "The cell block stores " + ((TileEntityInductionCell) cell).getEnergyContainer().getEnergy());
-            List<SavedBlock> saved = new ArrayList<>();
-            List<BlockPos> blocks = new ArrayList<>(shell.blocks());
-            blocks.add(CELL);
-            blocks.add(PROVIDER);
-            for (BlockPos pos : blocks) {
-                BlockEntity blockEntity = helper.getBlockEntity(pos);
-                saved.add(new SavedBlock(pos, helper.getBlockState(pos), blockEntity.saveWithFullMetadata()));
+            if (phase[0] == 0) {
+                long accepted = TestPlatform.insertEnergy(port, shell.valveSide(), rateFe());
+                check(accepted == rateFe(), "The port accepted " + accepted + " before the save");
+                phase[0] = 1;
+                check(false, "Waiting for the cell to store the energy");
             }
-            Mekanism.matrixManager.inventories.remove(matrix.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
+            if (phase[0] == 1) {
+                check(matrix.getEnergy().equals(stored), "The cell had not stored " + stored + " before the save: " + matrix.getEnergy());
+                BlockEntity cell = helper.getBlockEntity(CELL);
+                check(cell instanceof TileEntityInductionCell, "The cell is " + cell);
+                check(((TileEntityInductionCell) cell).getEnergyContainer().getEnergy().equals(stored),
+                      "The cell block stores " + ((TileEntityInductionCell) cell).getEnergyContainer().getEnergy());
+                List<SavedBlock> saved = new ArrayList<>();
+                List<BlockPos> blocks = new ArrayList<>(shell.blocks());
+                blocks.add(CELL);
+                blocks.add(PROVIDER);
+                for (BlockPos pos : blocks) {
+                    BlockEntity blockEntity = helper.getBlockEntity(pos);
+                    saved.add(new SavedBlock(pos, helper.getBlockState(pos), blockEntity.saveWithFullMetadata()));
+                }
+                Mekanism.matrixManager.inventories.remove(matrix.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                phase[0] = 2;
+                check(false, "Waiting for the reloaded matrix to form");
             }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(100, () -> {
             TileEntityInductionPort restored = port(helper, shell);
             MatrixMultiblockData data = formed(restored);
-            FloatingLong stored = EnergyUnit.FORGE_ENERGY.convertFrom(rateFe());
             check(data.getEnergy().equals(stored), "Reloaded matrix holds " + data.getEnergy());
             check(data.getCellCount() == 1 && data.getProviderCount() == 1, "Reloaded matrix has " + data.getCellCount() + " cells and " + data.getProviderCount() + " providers");
             restored.setActive(true);
             long extracted = TestPlatform.extractEnergy(restored, shell.valveSide(), rateFe());
             check(extracted == rateFe(), "The reloaded port returned " + extracted);
             check(data.getEnergy().isZero(), "The reloaded matrix still holds " + data.getEnergy());
-            helper.succeed();
         });
     }
 
