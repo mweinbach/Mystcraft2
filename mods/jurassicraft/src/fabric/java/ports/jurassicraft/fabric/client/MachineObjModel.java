@@ -28,12 +28,16 @@ final class MachineObjModel implements UnbakedModel {
     private final MachineObjMesh mesh;
     private final Material surface;
     private final Material particle;
+    private final ItemTransforms transforms;
 
-    MachineObjModel(MachineObjMesh mesh, ResourceLocation surface, ResourceLocation particle) {
+    MachineObjModel(MachineObjMesh mesh, ResourceLocation surface, ResourceLocation particle, ItemTransforms transforms) {
         this.mesh = mesh;
         this.surface = new Material(TextureAtlas.LOCATION_BLOCKS, surface);
         this.particle = new Material(TextureAtlas.LOCATION_BLOCKS, particle);
+        this.transforms = transforms == null ? ItemTransforms.NO_TRANSFORMS : transforms;
     }
+
+    ItemTransforms transforms() { return transforms; }
 
     @Override public Collection<ResourceLocation> getDependencies() { return List.of(); }
 
@@ -50,7 +54,7 @@ final class MachineObjModel implements UnbakedModel {
             BakedFace baked = bakeFace(face, state, texture::getU, texture::getV);
             quads.add(new BakedQuad(baked.data(), -1, baked.direction(), texture, true));
         }
-        return new BakedMachine(List.copyOf(quads), sprites.apply(particle));
+        return new BakedMachine(List.copyOf(quads), sprites.apply(particle), transforms);
     }
 
     record BakedFace(int[] data, Direction direction) {}
@@ -92,7 +96,7 @@ final class MachineObjModel implements UnbakedModel {
         return new BakedFace(data, Direction.getNearest(nx, ny, nz));
     }
 
-    private record BakedMachine(List<BakedQuad> quads, TextureAtlasSprite particle) implements BakedModel {
+    private record BakedMachine(List<BakedQuad> quads, TextureAtlasSprite particle, ItemTransforms transforms) implements BakedModel {
         @Override public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource random) {
             // The converted meshes explicitly disable automatic face culling.
             return side == null ? quads : List.of();
@@ -102,7 +106,7 @@ final class MachineObjModel implements UnbakedModel {
         @Override public boolean usesBlockLight() { return true; }
         @Override public boolean isCustomRenderer() { return false; }
         @Override public TextureAtlasSprite getParticleIcon() { return particle; }
-        @Override public ItemTransforms getTransforms() { return ItemTransforms.NO_TRANSFORMS; }
+        @Override public ItemTransforms getTransforms() { return transforms; }
         @Override public ItemOverrides getOverrides() { return ItemOverrides.EMPTY; }
     }
 }
