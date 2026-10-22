@@ -6,10 +6,14 @@ import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -51,6 +55,18 @@ public final class VillageLimitChecks {
             helper.fail("plains houses were not wrapped with village limits");
             return;
         }
+        requireSaveRoundTrip(helper, Holder.direct(new StructureProcessorList(List.of(new VillageProcessor()))),
+                new ResourceLocation("jurassicraft", "village/plains/fossildigsite_1"));
+        var processorLists = helper.getLevel().registryAccess().registryOrThrow(Registry.PROCESSOR_LIST_REGISTRY);
+        StructureProcessorList decay = processorLists.get(new ResourceLocation("minecraft", "zombie_plains"));
+        if (decay == null) {
+            helper.fail("missing zombie_plains processors");
+            return;
+        }
+        var abandoned = new ArrayList<>(decay.list());
+        abandoned.add(new VillageProcessor());
+        requireSaveRoundTrip(helper, Holder.direct(new StructureProcessorList(abandoned)),
+                new ResourceLocation("jurassicraft", "village/plains/zombie/fossildigsite_3"));
         List<StructurePoolElement> saved = VillagePools.swapTemplates(pool, limited);
         try {
             for (int salt = 1; salt <= 8; salt++) {
@@ -62,12 +78,11 @@ public final class VillageLimitChecks {
             VillagePools.swapTemplates(pool, saved);
         }
         var processors = Holder.direct(new StructureProcessorList(List.of(new VillageProcessor())));
-        var house = StructurePoolElement.single("jurassicraft:village/plains/geneticist_house", processors)
-                .apply(StructureTemplatePool.Projection.RIGID);
+        var house = new ResourceLocation("jurassicraft", "village/plains/geneticist_house");
         List<StructurePoolElement> both = new ArrayList<>();
         for (int copy = 0; copy < 6; copy++) {
-            both.add(new LimitedVillageElement(house, VillageLimits.Category.GENETICIST));
-            both.add(new LimitedVillageElement(house, VillageLimits.Category.DIGSITE));
+            both.add(new LimitedVillageElement(house, processors, VillageLimits.Category.GENETICIST));
+            both.add(new LimitedVillageElement(house, processors, VillageLimits.Category.DIGSITE));
         }
         saved = VillagePools.swapTemplates(pool, both);
         try {
@@ -87,6 +102,21 @@ public final class VillageLimitChecks {
         } finally {
             VillagePools.swapTemplates(pool, saved);
         }
+    }
+
+    /** The piece codec must accept the element that villages actually place, including the village processor. */
+    private static void requireSaveRoundTrip(GameTestHelper helper, Holder<StructureProcessorList> processors, ResourceLocation location) {
+        var element = new LimitedVillageElement(location, processors, VillageLimits.Category.DIGSITE);
+        RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, helper.getLevel().registryAccess());
+        Tag saved = StructurePoolElement.CODEC.encodeStart(ops, element).resultOrPartial(message ->
+                helper.fail("village building did not save: " + message)).orElse(null);
+        if (saved == null) return;
+        StructurePoolElement loaded = StructurePoolElement.CODEC.parse(ops, saved).resultOrPartial(message ->
+                helper.fail("village building did not load: " + message)).orElse(null);
+        if (loaded == null) return;
+        if (!(loaded instanceof SinglePoolElement) || loaded.getProjection() != StructureTemplatePool.Projection.RIGID
+                || !loaded.toString().contains(location.toString()))
+            helper.fail("saved village building changed: " + loaded);
     }
 
     /** {@code byCategory} counts the test wrappers; otherwise it counts the real template names. */

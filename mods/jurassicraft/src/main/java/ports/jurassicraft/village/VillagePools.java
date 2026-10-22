@@ -54,10 +54,9 @@ public final class VillagePools {
 
     private static void addBuilding(ObjectArrayList<StructurePoolElement> elements, Holder<StructureProcessorList> processors,
             String biome, String variant, String id, int copies) {
-        var element = StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors)
-                .apply(StructureTemplatePool.Projection.RIGID);
+        var location = new ResourceLocation(PortMod.MOD_ID, "village/" + biome + "/" + variant + id);
         var category = id.startsWith("fossildigsite") ? VillageLimits.Category.DIGSITE : VillageLimits.Category.GENETICIST;
-        var limited = new LimitedVillageElement(element, category);
+        var limited = new LimitedVillageElement(location, processors, category);
         for (int copy = 0; copy < copies; copy++) elements.add(limited);
     }
 

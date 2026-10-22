@@ -165,6 +165,7 @@ Tests changed while merging:
 - Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
 - Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
+- When a digsite variant can't fit, a different variant is placed, whereas upstream placed nothing.
 - The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
 - The dart gun has a new survival recipe.
