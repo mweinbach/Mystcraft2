@@ -79,6 +79,12 @@ public final class VillageGameTests {
     }
 
     @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void villageLimitsMatchUpstream(GameTestHelper h) {
+        VillageLimitChecks.generatedVillageRespectsCaps(h);
+        h.succeed();
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
     public static void vanillaPoolsContainJigsawBuildings(GameTestHelper h) {
         var pools = h.getLevel().registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         for (String biome : List.of("plains", "desert", "savanna", "snowy", "taiga")) {
@@ -86,6 +92,7 @@ public final class VillageGameTests {
             require(h, pool != null, "missing vanilla village pool for " + biome);
             int size = pool.size();
             var candidates = pool.getShuffledTemplates(RandomSource.create(1));
+            VillageLimitChecks.requireUpstreamDigsiteWeights(h, candidates, "jurassicraft:village/" + biome + "/");
             for (String name : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3")) {
                 String location = "jurassicraft:village/" + biome + "/" + name;
                 var candidate = candidates.stream().filter(element -> element.toString().contains(location)).findFirst();

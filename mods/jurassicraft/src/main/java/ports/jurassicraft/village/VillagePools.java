@@ -43,11 +43,37 @@ public final class VillagePools {
         if (!MODIFIED.add(pool)) return;
         ObjectArrayList<StructurePoolElement> elements = pool.templates;
         Holder<StructureProcessorList> processors = Holder.direct(processorList);
-        // Jigsaw pools have no per-village counter, so the legacy 0–1 cap per building category cannot be preserved here.
-        for (String id : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3", "fossildigsite_3")) {
-            elements.add(StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors).apply(StructureTemplatePool.Projection.RIGID));
-        }
+        // Upstream rolls one digsite, then picks its variant at 50/30/20. Copies are that ratio: type 3, type 1, type 2.
+        addBuilding(elements, processors, biome, variant, "geneticist_house", 1);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_3", 5);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_1", 3);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_2", 2);
         // Recompute the cached jigsaw size with the new buildings.
         pool.maxSize = Integer.MIN_VALUE;
+    }
+
+    private static void addBuilding(ObjectArrayList<StructurePoolElement> elements, Holder<StructureProcessorList> processors,
+            String biome, String variant, String id, int copies) {
+        var location = new ResourceLocation(PortMod.MOD_ID, "village/" + biome + "/" + variant + id);
+        var category = id.startsWith("fossildigsite") ? VillageLimits.Category.DIGSITE : VillageLimits.Category.GENETICIST;
+        var limited = new LimitedVillageElement(location, processors, category);
+        for (int copy = 0; copy < copies; copy++) elements.add(limited);
+    }
+
+    /** Replaces pool entries for a test and returns the previous list. */
+    static List<StructurePoolElement> swapTemplates(StructureTemplatePool pool, List<StructurePoolElement> elements) {
+        List<StructurePoolElement> saved = new ArrayList<>(pool.templates);
+        pool.templates.clear();
+        pool.templates.addAll(elements);
+        pool.maxSize = Integer.MIN_VALUE;
+        return saved;
+    }
+
+    static List<StructurePoolElement> limitedTemplates(StructureTemplatePool pool) {
+        List<StructurePoolElement> found = new ArrayList<>();
+        for (StructurePoolElement element : pool.templates) {
+            if (element instanceof LimitedVillageElement) found.add(element);
+        }
+        return found;
     }
 }

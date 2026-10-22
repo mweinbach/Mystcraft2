@@ -94,6 +94,8 @@ public final class VisitorLocate {
 
     static Pair<BlockPos, Holder<Structure>> nearest(BlockPos origin, Pair<BlockPos, Holder<Structure>> candidate,
             Pair<BlockPos, Holder<Structure>> vanilla) {
-        return vanilla != null && origin.distSqr(vanilla.getFirst()) <= origin.distSqr(candidate.getFirst()) ? vanilla : candidate;
+        // Vanilla's hit is the chunk corner. Keep the bounding-box centre when that hit is this structure.
+        if (vanilla == null || vanilla.getSecond().is(VISITOR)) return candidate;
+        return origin.distSqr(vanilla.getFirst()) <= origin.distSqr(candidate.getFirst()) ? vanilla : candidate;
     }
 }
