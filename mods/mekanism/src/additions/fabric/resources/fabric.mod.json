@@ -3,7 +3,7 @@
   "id": "mekanismadditions",
   "version": "${version}",
   "name": "Mekanism: Additions",
-  "description": "Additions module for Mekanism, containing plastic blocks, glow panels, obsidian TNT, baby mobs and balloons. The walkie-talkie is not included.",
+  "description": "Additions module for Mekanism, containing plastic blocks, glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie. The voice server stays off unless voiceServerEnabled is set.",
   "authors": [
     "Aidancbrady",
     "Thommy101",
