@@ -41,6 +41,16 @@ public final class HatcheryGameTests {
         check(h,HatcheryRecipes.embryonic(wrong,dish,empty).isEmpty(),"mismatched tube must be rejected");
         HatcheryBlockEntity machine=place(h,HatcheryRegistry.Machine.EMBRYONIC);
         machine.setItem(0,tube); machine.setItem(1,dish); machine.setItem(2,empty);
+        var shown=machine.getUpdateTag();
+        check(h,shown.getBoolean("VisualSync") && shown.getBoolean("VisualDish") && shown.getBoolean("VisualTubes") && !shown.contains("Items"),"embryonic parts must sync without the inventory");
+        HatcheryBlockEntity client=new HatcheryBlockEntity(machine.getBlockPos(),machine.getBlockState(),HatcheryRegistry.Machine.EMBRYONIC);
+        client.handleUpdateTag(shown);
+        check(h,client.visualDish() && client.visualTubes(),"DNA shows the dish parts and the petri dish shows the tube rack");
+        ItemStack keptTube=tube.copy();
+        machine.removeItem(0,1);
+        client.handleUpdateTag(machine.getUpdateTag());
+        check(h,!client.visualDish() && client.visualTubes(),"clearing the DNA slot hides the petri-dish parts");
+        machine.setItem(0,keptTube);
         tick(h,machine,90);
         var saved=machine.saveWithoutMetadata();
         HatcheryBlockEntity restored=new HatcheryBlockEntity(machine.getBlockPos(),machine.getBlockState(),HatcheryRegistry.Machine.EMBRYONIC);

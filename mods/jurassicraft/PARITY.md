@@ -106,6 +106,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
 | DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. |
 
+Machine motion follows the 1.12.2 renderers that were actually registered. The cleaning station uses the same spin-up and spin-down and sprays the original wash particles while it is cleaning. The DNA extractor and sequencer show the raw item model, and the sequencer bob uses the local player's age. Feeder lids and incubator eggs were already on the upstream timings. The embryonic machine adds the petri-dish cubes for slot 0 and the test-tube rack for slot 1, which is how the upstream properties were named. Combinator screens are drawn by the block entity because their texture offsets change in hybridizer mode. A placed calcification machine always shows the egg cubes: upstream treated an empty slot as present (`!= null`). The cultivator spin renderer exists upstream but its registration is commented out, so this port does not run it. The fossil grinder, synthesizer, and the remaining machine cubes have no motion in the snapshot; their Tabula files contain no animations.
+
 ### Structures and villages
 
 | Topic | Kept | Reason |
@@ -160,7 +162,7 @@ Tests changed while merging:
 
 - Fossil ore attempts are independent per species instead of sharing 32 attempts per chunk.
 - Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
-- Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
+- Animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
 - Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
