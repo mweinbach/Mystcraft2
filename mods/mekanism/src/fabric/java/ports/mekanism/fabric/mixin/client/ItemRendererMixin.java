@@ -7,14 +7,17 @@ package ports.mekanism.fabric.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import ports.mekanism.lib.client.extensions.IForgeVertexConsumer;
 import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
 
 /**
@@ -34,5 +37,16 @@ public abstract class ItemRendererMixin {
             return;
         }
         original.call(IClientItemExtensions.of(stack).getCustomRenderer(), stack, transformType, poseStack, buffers, light, overlay);
+    }
+
+    /**
+     * Forge's item quad pass keeps the light and colour baked into the quad. Vanilla's pass replaces both, so an
+     * emissive face on an item (an energy cube's corners, a charged machine face) stays dark.
+     */
+    @WrapOperation(method = "renderQuadList", at = @At(value = "INVOKE",
+          target = "Lcom/mojang/blaze3d/vertex/VertexConsumer;putBulkData(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/renderer/block/model/BakedQuad;FFFII)V"))
+    private void mekanism$emissiveItemQuads(VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int light,
+          int overlay, Operation<Void> original) {
+        ((IForgeVertexConsumer) consumer).putBulkData(pose, quad, red, green, blue, 1.0F, light, overlay, true);
     }
 }
