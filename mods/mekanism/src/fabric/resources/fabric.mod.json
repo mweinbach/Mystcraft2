@@ -30,7 +30,14 @@
     ],
     "client": [
       "ports.mekanism.fabric.client.FabricClientMod"
+    ],
+    "jade": [
+      "mekanism.common.integration.lookingat.jade.MekanismJadePlugin"
     ]
+  },
+  "suggests": {
+    "jade": ">=8.7.3",
+    "wthit": ">=5.36.1"
   },
   "accessWidener": "mekanism.accesswidener",
   "depends": {
@@ -44,6 +51,11 @@
     "mekanism.mixins.json"
   ],
   "custom": {
+    "waila:plugins": {
+      "id": "mekanism",
+      "initializer": "mekanism.common.integration.lookingat.wthit.MekanismWTHITPlugin",
+      "environment": "both"
+    },
     "loom:injected_interfaces": {
       "net/minecraft/class_1792": [
         "ports/mekanism/lib/common/extensions/IForgeItem"

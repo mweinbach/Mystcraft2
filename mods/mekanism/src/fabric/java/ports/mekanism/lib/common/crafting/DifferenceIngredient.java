@@ -7,6 +7,7 @@ package ports.mekanism.lib.common.crafting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Arrays;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
@@ -45,13 +46,53 @@ public class DifferenceIngredient extends AbstractIngredient {
         return stacks;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return base.isEmpty();
+    }
+
+    @Override
+    public boolean isSimple() {
+        return base.isSimple() && subtracted.isSimple();
+    }
+
+    @NotNull
+    @Override
+    public IIngredientSerializer<DifferenceIngredient> getSerializer() {
+        return Serializer.INSTANCE;
+    }
+
     @NotNull
     @Override
     public JsonElement toJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("type", "forge:difference");
+        json.addProperty("type", CraftingHelper.getID(Serializer.INSTANCE).toString());
         json.add("base", base.toJson());
         json.add("subtracted", subtracted.toJson());
         return json;
+    }
+
+    public static final class Serializer implements IIngredientSerializer<DifferenceIngredient> {
+
+        public static final Serializer INSTANCE = new Serializer();
+
+        private Serializer() {
+        }
+
+        @Override
+        public DifferenceIngredient parse(JsonObject json) {
+            return new DifferenceIngredient(Ingredient.fromJson(json.get("base")), Ingredient.fromJson(json.get("subtracted")));
+        }
+
+        @Override
+        public DifferenceIngredient parse(FriendlyByteBuf buffer) {
+            return new DifferenceIngredient(Ingredient.fromNetwork(buffer), Ingredient.fromNetwork(buffer));
+        }
+
+        @Override
+        public void write(FriendlyByteBuf buffer, DifferenceIngredient ingredient) {
+            ingredient.base.toNetwork(buffer);
+            ingredient.subtracted.toNetwork(buffer);
+        }
     }
 }

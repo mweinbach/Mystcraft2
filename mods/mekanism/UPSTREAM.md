@@ -35,8 +35,9 @@ Copied unchanged, then edited as listed below:
   They do not use the JEI API; GUIs use them for recipe-viewer click areas and ghost slots.
 
 Not imported: the JEI plugin, CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod,
-The One Probe/Jade/WTHIT, ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the
-Blockbench/Blender model sources.
+ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model
+sources. The look-at providers are imported: Jade and the shared tooltip data are in `src/main`, The One Probe is in
+`src/forge`, and WTHIT is in `src/fabric`. Upstream's Forge WTHIT plugin is not built into the Forge JAR.
 
 ## The Forge API mirror
 
@@ -62,7 +63,8 @@ Every edit beyond the scripted import rewrite:
 | --- | --- | --- |
 | `mekanism/api/MekanismAPI.java` | Removed `getJeiHelper()` and the `mekanism.api.integration.jei` package | JEI integration not ported |
 | `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, ComputerCraft, OC2, ProjectE, TOP, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; their `*Loaded` flags stay `false` | Integrations not ported |
+| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, ComputerCraft, OC2, ProjectE, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; those `*Loaded` flags stay `false`. The One Probe is detected, and its IMC supplier loads `TOPProvider` by name | Those integrations are not ported. The provider class is Forge-only, so the shared hook cannot mention its types |
+| `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
 | `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` adds nothing | ComputerCraft and OC2 not ported |
 | `mekanism/common/integration/energy/EnergyCompatUtils.java` | Removed the Flux Networks energy compat | Flux Networks not ported |
 | `mekanism/client/key/MekanismKeyHandler.java`, `client/render/hud/MekanismHUD.java`, `common/content/gear/mekasuit/ModuleChargeDistributionUnit.java`, `common/tile/TileEntityChargepad.java`, `common/item/interfaces/IJetpackItem.java` | Removed the Curios slot branches | Curios not ported |
