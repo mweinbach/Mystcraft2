@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -48,8 +47,7 @@ public final class FabricMod implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> JurassicEvents.commands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(JurassicEvents::serverAboutToStart);
-        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> JurassicEvents.chunkLoaded(chunk));
-        ServerTickEvents.END_SERVER_TICK.register(JurassicEvents::serverTick);
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> JurassicEvents.chunkLoaded(level, chunk));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> JurassicEvents.entityJoined(entity));
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> JurassicEvents.blockBroken(level, player, pos, state));
         LootTableEvents.MODIFY.register((resources, loot, id, table, source) -> JurassicEvents.lootTable(id, lootSink(table)));

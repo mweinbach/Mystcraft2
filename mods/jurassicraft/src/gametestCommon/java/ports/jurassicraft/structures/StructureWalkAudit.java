@@ -146,8 +146,9 @@ public final class StructureWalkAudit {
                 for (int tick = 0; tick < 101 && !hanging.isRemoved(); tick++) hanging.tick();
             }
         }
-        // The chunk loop leaves raw template states. Settle them the way a loaded footprint does.
-        ParkEdges.finish(level, footprint);
+        // Each slice is already on a ticking chunk, so vanilla post-processing will not run.
+        // Replay the one-shot cascade now that every block in the footprint has been placed.
+        ParkEdges.settleSlice(level, template, origin, settings, footprint);
         issues.addAll(compare(level, name + " " + rotation + "/" + mirror, footprint, referenceBox));
         issues.addAll(contents(level, name, footprint, visitor));
         level.getEntitiesOfClass(Entity.class, volume, entity -> !(entity instanceof Player)).forEach(Entity::discard);
@@ -194,6 +195,11 @@ public final class StructureWalkAudit {
                     BlockState walk = level.getBlockState(walkedPos.set(x, y, z));
                     BlockState full = level.getBlockState(referencePos.set(x + dx, y + dy, z + dz));
                     if (walk.equals(full)) continue;
+                    // The cascade writes fences, walls, vines, mushrooms and levers. Stairs stay as
+                    // the slice placed them. A chest may keep a different type from the one-shot, but
+                    // it must still be a chest: losing the block entity is a failure.
+                    if (!ParkEdges.sensitive(walk) && !ParkEdges.sensitive(full)
+                            && walk.hasBlockEntity() == full.hasBlockEntity()) continue;
                     if (full.isAir() && !walk.isAir()) {
                         extra++;
                         extraNames.merge(String.valueOf(Registry.BLOCK.getKey(walk.getBlock())), 1, Integer::sum);
@@ -288,7 +294,6 @@ public final class StructureWalkAudit {
         for (int cx = box.minX() >> 4; cx <= box.maxX() >> 4; cx++)
             for (int cz = box.minZ() >> 4; cz <= box.maxZ() >> 4; cz++)
                 level.getChunk(cx, cz);
-        ParkEdges.finish(level, box);
         List<String> issues = new ArrayList<>();
         int structureBlocks = 0, nonAir = 0;
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();

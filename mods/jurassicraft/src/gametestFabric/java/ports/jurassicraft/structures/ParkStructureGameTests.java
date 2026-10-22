@@ -211,4 +211,18 @@ public final class ParkStructureGameTests implements FabricGameTest {
         check(helper, failures.isEmpty(), String.join("; ", failures));
         helper.succeed();
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 600)
+    public void brokenFenceStaysBroken(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.brokenFence(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 600)
+    public void chestLootIsNotRerolled(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.chestLoot(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
 }

@@ -10,9 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.tags.TagLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
@@ -22,6 +24,7 @@ import org.apache.logging.log4j.core.config.Property;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -31,6 +34,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CrossCollisionBlock;
+import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.LeverBlock;
@@ -39,6 +43,7 @@ import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -47,6 +52,7 @@ import net.minecraft.world.level.lighting.LayerLightEngine;
 import net.minecraft.world.level.lighting.LayerLightSectionStorage;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -151,6 +157,105 @@ public final class PaddockStructureAudit {
     }
 
     /**
+     * A spruce fence on the chunk boundary is broken after both slices have been post-processed.
+     * Post-processing the neighbouring chunk must not put the fence back, and the piece remembers
+     * both chunks so a reload does not mark them again.
+     */
+    public static List<String> brokenFence(ServerLevel level) {
+        List<String> failures = new ArrayList<>();
+        BlockPos origin = new BlockPos(3200, 272, 7600);
+        ResourceLocation id = new ResourceLocation(PortMod.MOD_ID, "visitor_centre");
+        StructureTemplate template = level.getStructureManager().getOrCreate(id);
+        if (template.getSize().getX() <= 0) return List.of("visitor_centre template is missing");
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE)
+                .setIgnoreEntities(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+        BoundingBox footprint = template.getBoundingBox(settings, origin);
+        BlockPos fence = origin.offset(15, 12, 13);
+        BlockPos across = origin.offset(16, 12, 13);
+        BoundingBox kept = slice(level, fence);
+        BoundingBox neighbour = slice(level, across);
+        prepare(level, new BoundingBox(kept.minX(), footprint.minY(), kept.minZ(), neighbour.maxX(), footprint.maxY(), kept.maxZ()));
+        ParkStructurePiece piece = new ParkStructurePiece(level.getStructureManager(), id, origin, Rotation.NONE, Mirror.NONE);
+        RandomSource random = RandomSource.create(1234);
+        piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), random, kept,
+                new ChunkPos(fence), origin);
+        piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), random, neighbour,
+                new ChunkPos(across), origin);
+        ParkEdges.settleSlice(level, template, origin, settings, kept);
+        ParkEdges.settleSlice(level, template, origin, settings, neighbour);
+        CompoundTag saved = piece.createTag(StructurePieceSerializationContext.fromLevel(level));
+        if (!sameChunks(saved.getLongArray("MarkedEdges"), new ChunkPos(fence), new ChunkPos(across)))
+            failures.add("edge marks were not saved on the piece");
+        ParkStructurePiece reloaded = ParkStructurePiece.load(StructurePieceSerializationContext.fromLevel(level), saved);
+        CompoundTag again = reloaded.createTag(StructurePieceSerializationContext.fromLevel(level));
+        if (!sameChunks(again.getLongArray("MarkedEdges"), new ChunkPos(fence), new ChunkPos(across)))
+            failures.add("reloaded piece lost its edge marks");
+        BlockState placed = level.getBlockState(fence);
+        if (!(placed.getBlock() instanceof FenceBlock))
+            failures.add("expected a fence at the chunk boundary, found " + placed);
+        level.setBlock(fence, Blocks.AIR.defaultBlockState(), ParkEdges.PLACED);
+        ParkEdges.settleSlice(level, template, origin, settings, neighbour);
+        if (!level.getBlockState(fence).isAir())
+            failures.add("broken fence was restored when the neighbouring chunk was post-processed: " + level.getBlockState(fence));
+        // The fence's own slice is settled again. A second pass may only rewrite a block that is
+        // still a fence, wall, vine, mushroom or lever, so the air stays air.
+        ParkEdges.settleSlice(level, template, origin, settings, kept);
+        if (!level.getBlockState(fence).isAir())
+            failures.add("broken fence was restored when its own chunk was post-processed again: " + level.getBlockState(fence));
+        return failures;
+    }
+
+    /** Post-processing a slice, and the slice beside it, must leave a chest's loot table and seed alone. */
+    public static List<String> chestLoot(ServerLevel level) {
+        List<String> failures = new ArrayList<>();
+        BlockPos origin = new BlockPos(3200, 272, 7900);
+        ResourceLocation id = new ResourceLocation(PortMod.MOD_ID, "visitor_centre");
+        StructureTemplate template = level.getStructureManager().getOrCreate(id);
+        if (template.getSize().getX() <= 0) return List.of("visitor_centre template is missing");
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE)
+                .setIgnoreEntities(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+        BoundingBox footprint = template.getBoundingBox(settings, origin);
+        BlockPos marker = origin.offset(35, 4, 79);
+        BlockPos chest = marker.below();
+        BoundingBox kept = slice(level, chest);
+        int nx = kept.minX() + 16;
+        BoundingBox neighbour = new BoundingBox(nx, level.getMinBuildHeight(), kept.minZ(), nx + 15, level.getMaxBuildHeight() - 1, kept.maxZ());
+        prepare(level, new BoundingBox(kept.minX(), footprint.minY(), kept.minZ(), neighbour.maxX(), footprint.maxY(), neighbour.maxZ()));
+        ParkStructurePiece piece = new ParkStructurePiece(level.getStructureManager(), id, origin, Rotation.NONE, Mirror.NONE);
+        RandomSource random = RandomSource.create(1234);
+        piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), random, kept,
+                new ChunkPos(chest), origin);
+        piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), random, neighbour,
+                new ChunkPos(nx, chest.getZ()), origin);
+        ParkEdges.settleSlice(level, template, origin, settings, kept);
+        if (!(level.getBlockEntity(chest) instanceof ChestBlockEntity))
+            return List.of("ground storage chest is missing at " + chest);
+        CompoundTag before = level.getBlockEntity(chest).saveWithId();
+        if (!"jurassicraft:structure/visitor_centre/ground_storage".equals(before.getString("LootTable")))
+            failures.add("chest loot table was " + before.getString("LootTable"));
+        ParkEdges.settleSlice(level, template, origin, settings, neighbour);
+        ParkEdges.settleSlice(level, template, origin, settings, kept);
+        CompoundTag after = level.getBlockEntity(chest) == null ? new CompoundTag() : level.getBlockEntity(chest).saveWithId();
+        if (!before.equals(after))
+            failures.add("chest loot changed from " + before + " to " + after);
+        return failures;
+    }
+
+    private static BoundingBox slice(ServerLevel level, BlockPos pos) {
+        int x = pos.getX() & ~15;
+        int z = pos.getZ() & ~15;
+        return new BoundingBox(x, level.getMinBuildHeight(), z, x + 15, level.getMaxBuildHeight() - 1, z + 15);
+    }
+
+    private static boolean sameChunks(long[] saved, ChunkPos... chunks) {
+        if (saved.length != chunks.length) return false;
+        Set<Long> found = new HashSet<>();
+        for (long value : saved) found.add(value);
+        for (ChunkPos chunk : chunks) if (!found.contains(chunk.toLong())) return false;
+        return true;
+    }
+
+    /**
      * Chunk slices are shaped together once the footprint is loaded, then compared with a one-shot
      * {@code placeInWorld} on a second footprint. Fences, walls, vines, mushrooms and levers must match.
      */
@@ -225,8 +330,10 @@ public final class PaddockStructureAudit {
             piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), random, chunk,
                     new ChunkPos(cx, cz), origin);
         }
-        // Preloaded test chunks never fire the worldgen load hook.
-        ParkEdges.finish(level, footprint);
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation).setMirror(mirror);
+        // Preloaded chunks are already ticking, so vanilla post-processing will not run. Replay the
+        // one-shot cascade across the whole footprint now that every slice has been placed.
+        ParkEdges.settleSlice(level, template, origin, settings, footprint);
         Map<Long, BlockState> states = new HashMap<>();
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int x = footprint.minX(); x <= footprint.maxX(); x++)

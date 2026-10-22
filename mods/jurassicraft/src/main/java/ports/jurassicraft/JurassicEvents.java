@@ -6,6 +6,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +19,6 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
 import ports.jurassicraft.bugs.BugHarvest;
@@ -72,16 +73,13 @@ public final class JurassicEvents {
         AnimateCommand.register(dispatcher);
     }
 
+    /** A chunk has loaded. Park edge shapes run only if this piece has not settled yet. */
+    public static void chunkLoaded(ServerLevel level, LevelChunk chunk) {
+        ParkEdges.settleLoaded(chunk);
+    }
+
     public static void serverAboutToStart(MinecraftServer server) {
         VillagePools.addVillageBuildings(server);
-    }
-
-    public static void chunkLoaded(LevelChunk chunk) {
-        ParkEdges.finish(chunk);
-    }
-
-    public static void serverTick(MinecraftServer server) {
-        ParkEdges.tick(server);
     }
 
     public static void entityJoined(Entity entity) {

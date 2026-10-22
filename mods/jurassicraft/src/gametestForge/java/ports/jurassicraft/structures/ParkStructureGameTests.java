@@ -159,6 +159,20 @@ public final class ParkStructureGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID, timeoutTicks = 600)
+    public static void brokenFenceStaysBroken(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.brokenFence(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID, timeoutTicks = 600)
+    public static void chestLootIsNotRerolled(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.chestLoot(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
     @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
     public static void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
         ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
