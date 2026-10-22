@@ -68,12 +68,19 @@ were not drawn, and the reactor screen was not opened. In the development client
 shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
 no coil, so the orb and the coil bolts were not drawn. In that client `/mek build fusion` built a 5×5×5 reactor.
 The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
-was not drawn, and the controller screen was not opened. The shared GameTests (core machines, factories, chemical
+was not drawn, and the controller screen was not opened. A teleporter frame is the upstream 3×4 portal. Two
+teleporters on one public frequency move an entity in the same dimension and into the nether, at the destination
+portal's position. A private frequency stays with its owner. Trusted is the block's security mode and does not share
+that private frequency. A portable teleporter moves its holder onto a frequency it is allowed to use. Quantum
+entangloporters on one public inventory frequency share energy, water, hydrogen and items. Fabric moves the entity
+with `FabricDimensions.teleport` when `placeEntity` asks to move, and does not build a nether portal. In the Fabric
+development client a formed teleporter draws its purple portal inside the frame, and the quantum entangloporter
+screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
 chunk loading, render bounds, the player and living events, server chunk data and recipe reload, a Generators
 registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
-phase shifter, the industrial turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
 actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 

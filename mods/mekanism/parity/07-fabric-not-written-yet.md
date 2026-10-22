@@ -21,4 +21,6 @@
   port and no coil, so the orb and the coil bolts were not drawn. A formed fusion reactor was checked:
   `/mek build fusion` made a 5×5×5 shell. The frame and its holes are visible, and the controller is the top centre.
   The plasma renderer draws only while the reactor is burning; this reactor was not fueled, so the plasma was not
-  drawn, and the controller screen was not opened.
+  drawn, and the controller screen was not opened. A formed teleporter was checked: the frame and the purple portal
+  are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
+  heat tab and the inventory.

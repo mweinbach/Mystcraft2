@@ -83,6 +83,12 @@ stays off unless `voiceServerEnabled` is set. Microphone capture and speaker pla
   A formed fusion reactor in that client is the 5×5×5 shell from `/mek build fusion`: the frame and its holes are
   visible, and the controller is the top centre. It was not fueled, so the plasma was not drawn, and the controller
   screen was not opened.
+  A teleporter frame is the upstream 3×4 portal. Two teleporters on one public frequency move an entity, including
+  into another dimension. A private frequency stays with its owner. Trusted is the block's security mode and does
+  not share that private frequency. A portable teleporter moves its holder onto a frequency it is allowed to use.
+  Quantum entangloporters on one public inventory frequency share energy, fluid, gas and items through Forge Energy
+  or Team Reborn Energy and the loader's item, fluid and chemical handlers. In the Fabric development client a formed
+  teleporter draws its purple portal inside the frame, and the quantum entangloporter screen opens beside it.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -92,7 +98,7 @@ stays off unless `voiceServerEnabled` is set. Microphone capture and speaker pla
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, server chunk data and recipe reload, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical phase shifter,
-  the industrial turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool actions and
+  the industrial turbine, the fission reactor, the fusion reactor, the teleporter and the quantum entangloporter, Tools registration, crafting, tool actions and
   shield blocking, and Additions registration, crafting, block behaviour, baby mobs, balloons, walkie-talkie channel
   selection and the voice server's on/off config) pass on both loaders.
 

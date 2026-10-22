@@ -8,8 +8,10 @@
 - `MobEffectInstance.isCurativeItem` only accepts milk buckets, Forge's default.
 - `Item.Properties.setNoRepair` does nothing; Mekanism only uses it on items without durability.
 - `Entity.getMaxHeightFluidType`, `isEyeInFluidType` and `isInFluidType` know water and lava only.
-- `Entity.changeDimension(ServerLevel, ITeleporter)` moves the entity with Fabric's dimension API. The reposition
-  function handed to `ITeleporter.placeEntity` ignores its portal flag, and `playTeleportSound` is not consulted.
+- `Entity.changeDimension(ServerLevel, ITeleporter)` asks `getPortalInfo`, then `placeEntity`. The reposition
+  function moves the entity with `FabricDimensions.teleport` and ignores its portal flag: Fabric's dimension API
+  does not build a nether portal. `playTeleportSound` is not consulted, so a player can still hear the vanilla
+  portal travel sound. Mekanism plays the enderman teleport sound itself.
 - Tooltips drawn through `Screen.renderComponentTooltip` ignore the font and item stack arguments.
 - Forced chunks do not random-tick. The ticket level matches vanilla `/forceload`: entities and block entities tick, and
   random ticks still happen only near a player. The dimensional stabilizer asks Forge for fully ticking chunks; on
