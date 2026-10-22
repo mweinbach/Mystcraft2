@@ -83,7 +83,7 @@ machines, pigment machines, loader interop, chemical lookups, ore generation, it
 chunk loading, render bounds, the player and living events, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
-phase shifter, the industrial turbine, the fission reactor, the fusion reactor, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
 actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
