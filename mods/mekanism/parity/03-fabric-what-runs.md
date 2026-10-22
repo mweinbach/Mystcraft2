@@ -66,8 +66,10 @@ controller is the master and its render box is the structure. An advanced solar 
 upstream passive heat source; these tests heat the valve directly and do not place one. In the Fabric development
 client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
-checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
-were not drawn, and the reactor screen was not opened. In the development client `/mek build sps` built a 7×7×7
+checkerboard of fuel assemblies and control rods. A separate development client built a fueled 5×6×5 reactor and
+stood against the south glass. The fuel-assembly column and its control rod are visible, a cyan burn glow surrounds
+the column, and water sits in the bottom of the shell. That frame does not include the reactor screen. Opening
+the screen on that client covers the column; its coolant gauge holds water and its fuel gauge holds fissile fuel. In the development client `/mek build sps` built a 7×7×7
 shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
 no coil, so the orb and the coil bolts were not drawn. A digital miner (`DigitalMinerGameTests`) with radius 1 mines an iron ore its item filter accepts and leaves a coal
 ore beside it. The raw iron is on the back output port, read through Forge's item capability and, on Fabric,

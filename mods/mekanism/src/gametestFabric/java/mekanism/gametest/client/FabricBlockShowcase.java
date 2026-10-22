@@ -63,8 +63,8 @@ public final class FabricBlockShowcase implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Other screenshot clients share this source set. This row stays off for those runs.
-        if (Boolean.getBoolean("mekanism.jade.screenshot") || Boolean.getBoolean("mekanism.computercraft.screenshot")
-              || Boolean.getBoolean("mekanism.jetpack.screenshot")) {
+        if (Boolean.getBoolean("mekanism.jade.screenshot") || Boolean.getBoolean("mekanism.fission.screenshot")
+              || Boolean.getBoolean("mekanism.computercraft.screenshot") || Boolean.getBoolean("mekanism.jetpack.screenshot")) {
             return;
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);

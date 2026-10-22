@@ -3,8 +3,8 @@
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, Robit,
   the simple generators' block-entity renderers. The energy cube core, the industrial alarm, the seismic vibrator and the
-  pigment mixer were checked in `11-block-entity-renderers.md`. The
-  fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
+  pigment mixer were checked in `11-block-entity-renderers.md`.
+  The fission burn glow and coolant body were checked on a fueled reactor: see the generators note below.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
   dynamic tank holding water was checked: the fluid body renders inside the structural glass. A formed induction
@@ -15,7 +15,9 @@
   evaporation plant was checked: the controller face is lit, and the input fluid renders through the structural
   glass. An advanced solar panel on a top corner was not placed. A formed fission reactor was checked:
   `/mek build fission` made an 18×18×18 shell, and reactor glass shows the casing frame and a checkerboard of fuel
-  assemblies and control rods. A formed supercritical phase shifter was checked: `/mek build sps` made a 7×7×7
+  assemblies and control rods. A fueled 5×6×5 reactor in the development client shows the column, a cyan burn glow
+  and water through the south glass. The reactor screen's coolant gauge holds water and its fuel gauge holds fissile
+  fuel; the saved frame is the glass view, because the screen covers the column. A formed supercritical phase shifter was checked: `/mek build sps` made a 7×7×7
   shell, and structural glass shows the casing frame and the empty corner cells of each face. That build has no
   port and no coil, so the orb and the coil bolts were not drawn. A placed digital miner was checked: its screen opens and shows
   Idle, the search state, the blocks left to mine, the eject, pull and silk switches, and the config, start and

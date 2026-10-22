@@ -25,13 +25,20 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   coolant leaves the coolant port; the input port gives nothing up. The logic adapter outputs redstone when the fuel
   tank is empty, the temperature is at least 1,200 K, the waste tank is full, or damage is at 100, and redstone in
   activation mode starts the reactor. Damage falls below 1,200 K. At the cap with meltdowns disabled the reactor
-  force-disables and stays off. Turning meltdowns back on queues a meltdown; the test clears that queued explosion at
+  force-disables and stays off. Turning meltdowns back on queues a meltdown; that test clears the queued explosion at
   radius 0 and calls `meltdownHappened`, which dumps the nuclear waste, leaves the non-radioactive fissile fuel,
-  clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. It does not assert
-  that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
-  waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
-  structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
-  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. The fusion
+  clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. A separate test, in
+  its own batch, leaves meltdowns on and the radius at the upstream default of 8. Crossing the damage cap at 1,800 K
+  queues a meltdown whose saved radius is 8. The explosion breaks the shell. A dirt block about 28 blocks away, past
+  the ray reach of that radius, stays dirt. Fissile fuel and superheated sodium have no radiation attribute, so the
+  release is `(1,000 mB + 0.5 partial waste) × 0.01 Sv/h per mB × the 50× multiplier`. A full waste tank that burns
+  one mB of fuel leaks `0.01` Sv/h at the core. A survival player standing outside the shell, not in the burn
+  `hotZone`, accumulates that field on the player tick, and the same happens after `meltdownHappened`. The dosimeter
+  reports the capability dose in Sv and the Geiger counter reports `getRadiationLevel` in Sv/h. A player in the core
+  is still the existing `radiateEntities` path. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic
+  mode and the waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render
+  box is the structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name
+  contains "reactor". The fusion
   reactor (`FusionReactorGameTests`) forms at 5×5×5. The frame follows upstream's face grid: the corners and the
   twelve holes on each face stay air, frame slots are reactor frame, and the controller is the top centre. A laser
   focus matrix, one port and a logic adapter fill other slots. A missing frame block, a controller off the top
