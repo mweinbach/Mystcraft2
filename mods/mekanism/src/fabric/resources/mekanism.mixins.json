@@ -53,6 +53,7 @@
     "LevelMixin",
     "LivingEntityMixin",
     "LiquidBlockMixin",
+    "MobMixin",
     "MobEffectInstanceMixin",
     "PersistentEntitySectionManagerMixin",
     "PiglinAiMixin",

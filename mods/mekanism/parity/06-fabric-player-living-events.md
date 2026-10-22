@@ -9,6 +9,13 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   those attributes, players also have reach distance, collision steps up by the step-height attribute, and swimming
   scales by swim speed. The client publishes the ascend key from `ClientTickEvent` start, which the client tick
   wiring posts, so a normal-mode jetpack follows the jump key.
+- Living special spawn, from the start of every `Mob.finalizeSpawn`, before that method's own body and before the
+  subclass adds vanilla equipment. Forge fires this on the callers that are about to finalize a mob and skips the
+  call when it is cancelled. Cancelling here returns from `Mob.finalizeSpawn` only, so a subclass that continues
+  after `super.finalizeSpawn` still runs. The tools module listens and may fill empty armor slots on a zombie,
+  skeleton or piglin, and a zombie's main hand. The event carries no mob spawner. A reinforcement or village-siege
+  zombie also rolls, because those paths call `finalizeSpawn` without Forge's event. A spawner entity whose NBT is
+  more than an id never reaches `finalizeSpawn`, so it does not roll.
 - Living tick, attack, hurt, damage, fall, jump and death. A non-player posts living attack from `LivingEntity.hurt`.
   A player posts it from `Player.hurt` and skips the living-entity copy, matching Forge. Death is posted from
   `LivingEntity.die`, `Player.die` and `ServerPlayer.die`, so an uncancelled player death posts three times.
