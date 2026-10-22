@@ -82,6 +82,9 @@ public final class JurassicClient {
         DartClient.colors(colors);
     }
 
+    /** Runs at the start of the client tick, before the local player samples jump and sprint. */
+    public static void beforeTick(Minecraft client) { VehicleClient.beforeTick(client); }
+
     public static void tick(Minecraft client) {
         DinosaurClient.tick(client);
         VehicleClient.tick(client);

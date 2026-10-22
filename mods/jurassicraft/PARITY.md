@@ -10,7 +10,7 @@ imported 1.12.2 baseline (revision `f7b194e`, see [UPSTREAM.md](UPSTREAM.md)).
 | Path | Contents |
 | --- | --- |
 | `src/main` | All gameplay, registry definitions, recipes, loot, worldgen, assets, lang and NBT formats. |
-| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, `mods.toml` and the access transformer. |
+| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, the client key-bind mixin, `mods.toml` and the access transformer. |
 | `src/fabric` | `FabricMod`, `FabricClientMod`, `FabricPlatform`, `FabricConfigBackend`, mixins, the OBJ model loader, EMI, `fabric.mod.json` and the access widener. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Development-only GameTest mods and fixtures; never packaged. |
 | `fabric/` | The isolated Loom build; the root Gradle build produces the Forge JAR. |
@@ -26,8 +26,8 @@ one `jurassicraft:biome_additions` biome modifier and Fabric through
 
 `scripts/check_loader_parity.py` checks both built JARs: descriptor isolation, mod
 ID and version, no references to the other loader, byte-identical shared
-resources, no GameTest classes or structures, the Fabric mixin refmap, and
-matching access-transformer and access-widener entries.
+resources, no GameTest classes or structures, the Fabric and Forge mixin refmaps,
+and matching access-transformer and access-widener entries.
 
 ## Reconciliations
 
@@ -122,9 +122,10 @@ Machine motion follows the 1.12.2 renderers that were actually registered. The c
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. |
+| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. Seat chords are active only while riding and are not shown as conflicts; they were red before, because the vehicle context overlapped in-game play. Autopilot and rotation lock share the strafe keys. The controls screen hides that warning on both loaders when exactly one of the two bindings is vehicle-only. On Forge the three Ctrl bindings still share one riding context, so descend, autopilot and rotation lock stay gold against each other. |
 | Record player key | Union: R | Upstream used only interaction; both ports added a key, now the same one. |
 | Zoom and rotation keys | Both | Page Down/Page Up and Left/Right, as upstream. |
+| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. `KeyMapping.same` still compares the physical key, so that suppression stays in effect. The controls screen hides the red warning when exactly one of the two bindings is vehicle-only. Ascend is white. Descend stays gold next to autopilot and rotation lock, because Forge counts the Ctrl modifier as the Left Ctrl key and both bindings are vehicle-only. Left Ctrl is itself a modifier, so the Forge binding still counts as held while riding; Forge would otherwise ignore an unmodified key whose context does not overlap in-game play. |
 | Journal | Forge: opens on the client | As upstream; Fabric used a server round trip. |
 | Field guide | Union | Using it on a dinosaur sends the upstream inspection packet; empty-hand use opens the manual (port addition). |
 | Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric keeps its first release's `jurassicraft-fabric.json` and key/value vehicle files with the same keys. |
@@ -134,8 +135,8 @@ Machine motion follows the 1.12.2 renderers that were actually registered. The c
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 210 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 132 on Fabric
+Both loaders run in-world GameTests from development-only mods: 211 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 133 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 
@@ -159,11 +160,11 @@ Tests changed while merging:
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
+- The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
 
 ## Known gaps against 1.12.2
 
 - Animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
