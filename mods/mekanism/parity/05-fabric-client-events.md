@@ -22,9 +22,28 @@ These fire at the same points Forge 43.5.0 does. Fabric API is used where it has
   crosshair posts the entity highlight from the same callback; vanilla still draws no entity outline.
 - Mouse wheel in game with no screen open, after a whole notch has accumulated and before the hotbar moves. On macOS a
   horizontal wheel with no vertical movement counts as vertical. Canceling the event consumes the notch. Shift-scroll
-  mode changes use this.
+  mode changes use this. The wheel posts `MouseScrollingEvent`; while the player is sneaking and the held stack is a
+  mode item, `ClientTickHandler` sends `PacketModeChange` for that hand. The server steps the configurator, the atomic
+  disassembler and a Meka-Tool that has a module handling mode changes.
+- Client level load at the end of the `ClientLevel` constructor. `Mekanism.onWorldLoad` stores that level, which is
+  the world player-state sounds read.
+- Client level unload at the start of `Minecraft.setLevel`, before the joining screen, while the previous level is
+  still current, and inside `Minecraft.clearLevel` after the screen is shown and before the integrated server is
+  waited on. Unload drops oredictionificator invalidation listeners that belong to that level.
+- `RecipesUpdatedEvent` at the end of `ClientPacketListener.handleUpdateRecipes`, after the client recipe book is
+  rebuilt. `ClientTickHandler` clears the recipe cache there.
 - A key press is delivered to every mapping bound to that key, so an unmodified binding and a modified one both see it.
   The mapping still has to be in an active conflict context with its modifier held before it counts as down.
+
+Fog color and distance, `EntityRenderersEvent.AddLayers` and the mouse wheel already fired from the mixins above.
+This slice checked them again and left those adapters in place. Fabric API 0.77 has no client-world or recipe
+callback, so level load, level unload and the recipe refresh are mixins at Forge 43.5.0's patch sites.
+
+The shared GameTests encode and handle the mode-change packet: a forward shift, a backward shift and a shift of zero
+on the configurator, the atomic disassembler and a Meka-Tool with one excavation escalation module, a plain item, a
+packet with no sender, and a packet aimed at the other hand. A Fabric development client reached the title screen with
+these mixins applied: client level load, unload from `setLevel` and `clearLevel`, and the recipe refresh at the end
+of `handleUpdateRecipes`. The mouse wheel, fog and armor-layer mixins still applied. No world was joined.
 
 Checked on a Fabric development client in creative and then survival: the MekaSuit module list, jetpack mode,
 configurator mode and compass draw, and the survival energy bar draws above the health row. The radiation tint reads

@@ -4,6 +4,6 @@
   "package": "ports.jurassicraft.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": ["EntityPersistentDataMixin", "FenceClimbMixin"],
-  "client": ["client.VehicleCameraMixin"],
+  "client": ["client.VehicleCameraMixin", "client.DuplicateKeyMappingMixin", "client.KeyBindConflictMixin"],
   "injectors": {"defaultRequire": 1}
 }

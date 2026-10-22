@@ -10,7 +10,7 @@ imported 1.12.2 baseline (revision `f7b194e`, see [UPSTREAM.md](UPSTREAM.md)).
 | Path | Contents |
 | --- | --- |
 | `src/main` | All gameplay, registry definitions, recipes, loot, worldgen, assets, lang and NBT formats. |
-| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, `mods.toml` and the access transformer. |
+| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, the client key-bind mixin, `mods.toml` and the access transformer. |
 | `src/fabric` | `FabricMod`, `FabricClientMod`, `FabricPlatform`, `FabricConfigBackend`, mixins, the OBJ model loader, EMI, `fabric.mod.json` and the access widener. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Development-only GameTest mods and fixtures; never packaged. |
 | `fabric/` | The isolated Loom build; the root Gradle build produces the Forge JAR. |
@@ -26,8 +26,8 @@ one `jurassicraft:biome_additions` biome modifier and Fabric through
 
 `scripts/check_loader_parity.py` checks both built JARs: descriptor isolation, mod
 ID and version, no references to the other loader, byte-identical shared
-resources, no GameTest classes or structures, the Fabric mixin refmap, and
-matching access-transformer and access-widener entries.
+resources, no GameTest classes or structures, the Fabric and Forge mixin refmaps,
+and matching access-transformer and access-widener entries.
 
 ## Reconciliations
 
@@ -104,7 +104,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Iron nuggets, iron ingots, redstone, blue dyes | New `#jurassicraft:` tags | Successors of upstream ore-dictionary inputs: the vanilla item plus optional `#forge:` and `#c:` tags. Literal `minecraft:iron_ingot` stays where upstream used the item. |
 | Fossil-nest replaceable blocks | Union | Both ports' stone, dirt and sand groups plus optional `forge` and `c` ore tags. |
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
-| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. |
+| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. Fabric also substitutes item models that parent those blocks, because a vanilla block model cannot parent that custom model. Both still use the block display transforms from `minecraft:block/block`. |
 
 ### Structures and villages
 
@@ -120,9 +120,10 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. |
+| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. Seat chords are active only while riding and are not shown as conflicts; they were red before, because the vehicle context overlapped in-game play. Autopilot and rotation lock share the strafe keys. The controls screen hides that warning on both loaders when exactly one of the two bindings is vehicle-only. On Forge the three Ctrl bindings still share one riding context, so descend, autopilot and rotation lock stay gold against each other. |
 | Record player key | Union: R | Upstream used only interaction; both ports added a key, now the same one. |
 | Zoom and rotation keys | Both | Page Down/Page Up and Left/Right, as upstream. |
+| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. `KeyMapping.same` still compares the physical key, so that suppression stays in effect. The controls screen hides the red warning when exactly one of the two bindings is vehicle-only. Ascend is white. Descend stays gold next to autopilot and rotation lock, because Forge counts the Ctrl modifier as the Left Ctrl key and both bindings are vehicle-only. Left Ctrl is itself a modifier, so the Forge binding still counts as held while riding; Forge would otherwise ignore an unmodified key whose context does not overlap in-game play. |
 | Journal | Forge: opens on the client | As upstream; Fabric used a server round trip. |
 | Field guide | Union | Using it on a dinosaur sends the upstream inspection packet; empty-hand use opens the manual (port addition). |
 | Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric keeps its first release's `jurassicraft-fabric.json` and key/value vehicle files with the same keys. |
@@ -132,8 +133,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 213 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 136 on Fabric
+Both loaders run in-world GameTests from development-only mods: 214 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 137 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
@@ -164,11 +165,11 @@ Tests changed while merging:
 - Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there. Anchors already placed are saved on the structure piece, so reloading it does not spawn those murals again.
 - Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
 - Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
+- The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
 
 ## Known gaps against 1.12.2
 
 - Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
@@ -180,7 +181,7 @@ Tests changed while merging:
 - A raptor-paddock mossy cobblestone wall can be tall on the chunk walk and low after a full placement. That stays with the paddock work.
 - The Forge client logged that `#jurassicraft:park_structures` could not load its own structure ids while creating a world. `/spawnjc` and the structure sets still placed the buildings.
 - Opening the Forge development world to LAN advertised an IPv6 link-local address. A second development client listed the world and failed to connect to that address (`Invalid argument`).
-- A Fabric development client never reached the menu, with Jade alone and with Jade plus EMI. Model loading threw `BlockModel parent has to be a block model` and the resource reload repeated. The server GameTests with those mods passed. Machine models were left for the machine-animation work.
+- The Fabric client's reload loop, `BlockModel parent has to be a block model`, was fixed by the merged machine-model parent change. This pass did not boot that client again.
 
 ## Loader limits
 

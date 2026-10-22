@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class IndustrialTurbineGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void industrialTurbineForms(GameTestHelper helper) {
         Turbine turbine = place(helper);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityTurbineValve valve = valve(helper, turbine);
             TurbineMultiblockData data = formed(valve);
             check(data.length() == SIZE_XZ && data.width() == SIZE_XZ && data.height() == SIZE_Y,
@@ -74,7 +75,6 @@ public class IndustrialTurbineGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
@@ -82,12 +82,13 @@ public class IndustrialTurbineGameTests {
     public static void shellWithoutInternalsDoesNotForm(GameTestHelper helper) {
         Shell shell = MultiblockStructures.cuboid(helper, ORIGIN, SIZE_XZ, SIZE_Y, SIZE_XZ, GeneratorsBlocks.TURBINE_CASING.getBlock(),
               GeneratorsBlocks.TURBINE_CASING.getBlock(), GeneratorsBlocks.TURBINE_VALVE.getBlock());
-        helper.runAtTickTime(40, () -> {
+        succeedAfterScan(helper, () -> valve(helper, shell).getStructure().size() == shell.blocks().size(), () -> {
             TileEntityTurbineValve valve = valve(helper, shell);
             check(!valve.getMultiblock().isFormed(), "A turbine shell with no complex formed");
+            check(valve.getStructure().size() == shell.blocks().size(),
+                  "A turbine shell with no complex shares a structure of " + valve.getStructure().size() + " blocks");
             check(TestPlatform.insertBlockGas(valve, shell.valveSide(), MekanismGases.STEAM.get(), 1_000, true) == 0,
                   "An unformed valve accepted steam");
-            helper.succeed();
         });
     }
 
@@ -95,29 +96,28 @@ public class IndustrialTurbineGameTests {
     public static void turbineConsumesSteamAndEmitsEnergy(GameTestHelper helper) {
         Turbine turbine = place(helper);
         long[] filled = new long[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityTurbineValve valve = valve(helper, turbine);
-            TurbineMultiblockData data = formed(valve);
-            BlockEntity casing = helper.getBlockEntity(turbine.shell().origin());
-            long capacity = data.gasTank.getCapacity();
-            check(capacity > 0, "The formed turbine has no steam capacity");
-            check(TestPlatform.insertBlockGas(casing, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true) == 0,
-                  "A casing block accepted steam");
-            check(TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.HYDROGEN.get(), 1_000, true) == 0,
-                  "The valve accepted hydrogen");
-            long offered = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, false);
-            check(offered == capacity, "A simulated fill offered " + offered + " of " + capacity);
-            check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == 0, "A simulated fill stored steam");
-            filled[0] = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
-            check(filled[0] == capacity, "The valve accepted " + filled[0] + " of " + capacity);
-            check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == capacity,
-                  "The gas lookup reports " + TestPlatform.blockGas(valve, turbine.shell().valveSide()));
-            check(data.gasTank.getStack().getType() == MekanismGases.STEAM.get(), "The tank holds " + data.gasTank.getStack().getType());
-        });
         helper.succeedWhen(() -> {
-            check(filled[0] > 0, "Steam has not been inserted");
             TileEntityTurbineValve valve = valve(helper, turbine);
             TurbineMultiblockData data = formed(valve);
+            if (filled[0] == 0) {
+                BlockEntity casing = helper.getBlockEntity(turbine.shell().origin());
+                long capacity = data.gasTank.getCapacity();
+                check(capacity > 0, "The formed turbine has no steam capacity");
+                check(TestPlatform.insertBlockGas(casing, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true) == 0,
+                      "A casing block accepted steam");
+                check(TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.HYDROGEN.get(), 1_000, true) == 0,
+                      "The valve accepted hydrogen");
+                long offered = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, false);
+                check(offered == capacity, "A simulated fill offered " + offered + " of " + capacity);
+                check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == 0, "A simulated fill stored steam");
+                long accepted = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
+                check(accepted == capacity, "The valve accepted " + accepted + " of " + capacity);
+                filled[0] = accepted;
+                check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == capacity,
+                      "The gas lookup reports " + TestPlatform.blockGas(valve, turbine.shell().valveSide()));
+                check(data.gasTank.getStack().getType() == MekanismGases.STEAM.get(), "The tank holds " + data.gasTank.getStack().getType());
+                check(false, "Waiting for the turbine to consume steam");
+            }
             long stored = TestPlatform.blockGas(valve, turbine.shell().valveSide());
             check(stored < filled[0], "The turbine did not consume steam: " + stored);
             check(data.gasTank.getStack().getType() == MekanismGases.STEAM.get(), "The tank holds " + data.gasTank.getStack().getType());
@@ -140,37 +140,40 @@ public class IndustrialTurbineGameTests {
     public static void turbineContentsSurviveSaveAndLoad(GameTestHelper helper) {
         Turbine turbine = place(helper);
         long[] steam = new long[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityTurbineValve valve = valve(helper, turbine);
-            TurbineMultiblockData data = formed(valve);
-            long capacity = data.gasTank.getCapacity();
-            long filled = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
-            check(filled == capacity, "The valve accepted " + filled + " before the save");
-            data.energyContainer.setEnergy(STORED_ENERGY);
-            data.setDumpMode(GasMode.DUMPING_EXCESS);
-            steam[0] = data.gasTank.getStored();
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : turbine.shell().blocks()) {
-                saved.add(save(helper, pos));
+        boolean[] reloaded = {false};
+        helper.succeedWhen(() -> {
+            if (!reloaded[0]) {
+                TileEntityTurbineValve valve = valve(helper, turbine);
+                TurbineMultiblockData data = formed(valve);
+                long capacity = data.gasTank.getCapacity();
+                long filled = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
+                check(filled == capacity, "The valve accepted " + filled + " before the save");
+                data.energyContainer.setEnergy(STORED_ENERGY);
+                data.setDumpMode(GasMode.DUMPING_EXCESS);
+                steam[0] = data.gasTank.getStored();
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : turbine.shell().blocks()) {
+                    saved.add(save(helper, pos));
+                }
+                for (BlockPos pos : turbine.internals()) {
+                    saved.add(save(helper, pos));
+                }
+                MekanismGenerators.turbineManager.inventories.remove(data.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                reloaded[0] = true;
+                check(false, "Waiting for the reloaded turbine to form");
             }
-            for (BlockPos pos : turbine.internals()) {
-                saved.add(save(helper, pos));
-            }
-            MekanismGenerators.turbineManager.inventories.remove(data.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
-            }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(80, () -> {
             TileEntityTurbineValve restored = valve(helper, turbine);
             TurbineMultiblockData data = formed(restored);
             long stored = data.gasTank.getStored();
             long maxFlow = Math.round(MekanismGeneratorsConfig.generators.turbineVentGasFlow.get());
-            // Dumping excess keeps 90%, and one vent burns at most its flow each tick of the wait.
+            // Dumping excess keeps 90%, and one vent burns at most its flow on each tick until the turbine forms again.
             long burned = steam[0] / 10 + 50L * maxFlow;
             check(data.gasTank.getStack().getType() == MekanismGases.STEAM.get(), "Reloaded turbine holds " + data.gasTank.getStack().getType());
             check(stored > 0 && stored <= steam[0], "Reloaded turbine stores " + stored + " after saving " + steam[0]);
@@ -181,7 +184,6 @@ public class IndustrialTurbineGameTests {
             check(rotor(helper, turbine.rotor()).getHousedBlades() == 2, "Reloaded rotor lost its blades");
             check(TestPlatform.blockGas(restored, turbine.shell().valveSide()) == stored,
                   "The gas lookup reports " + TestPlatform.blockGas(restored, turbine.shell().valveSide()) + " after reload");
-            helper.succeed();
         });
     }
 

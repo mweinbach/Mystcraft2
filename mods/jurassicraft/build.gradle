@@ -101,3 +101,31 @@ disableOptimizedDFU = true
 '''
     }
 }
+
+// Official-name -> SRG mappings for the client-only controls mixin in the packaged JAR.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def forgeMixinRefmap = layout.buildDirectory.file('generated/mixin/jurassicraft.forge.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(forgeMixinRefmap)
+    doFirst { forgeMixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${forgeMixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(forgeMixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'jurassicraft.forge.mixins.json')
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'jurassicraft.forge.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }

@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.jurassicraft.forge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "jurassicraft.forge.refmap.json",
+  "client": ["client.KeyBindConflictMixin"],
+  "injectors": {"defaultRequire": 1}
+}
