@@ -64,8 +64,20 @@ upstream passive heat source; these tests heat the valve directly and do not pla
 client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
 checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
-were not drawn, and the reactor screen was not opened. The shared GameTests (core machines, factories, chemical
-machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+were not drawn, and the reactor screen was not opened. A basic logistical transporter pulls items from a chest
+and pushes them into a second chest (`TransporterGameTests`). Those chests are the loader item inventory: Forge's
+item handler, and on Fabric `ItemStorage.SIDED`. A logistical sorter facing the line applies an item filter that
+colours iron red and a tag filter for `forge:ingots/gold` that colours gold dark blue, the blue entry in the
+transporter colour list. Iron reaches the chest beyond the red transporter and gold the chest beyond the dark-blue
+one. Dirt matches neither filter. Auto-eject is off, so the dirt stays in the source. A diversion transporter in
+high mode leaves its output side closed while unpowered, and the item stays in the source; a redstone block beside
+it powers that side and the item is delivered. A restrictive transporter is taken once the chest on the basic path
+is full. A basic mechanical pipe pulls 500 mB of water from one fluid tank and pushes it into another. A basic
+pressurized tube pulls 1,000 hydrogen from a chemical tank with eject off and pushes it into a second tank. The
+transporter renderer is registered for the restrictive transporter, the diversion transporter and every logistical
+tier. In the Fabric development client a red basic logistical transporter draws the iron, gold, diamonds, emeralds
+and redstone it is carrying inside the pipe. The shared GameTests (core machines, factories, chemical
+machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
 chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
 turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions

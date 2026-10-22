@@ -72,13 +72,19 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   A formed fission reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the
   casing frame and a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and
   coolant body were not drawn, and the reactor screen was not opened.
+  A basic logistical transporter moves items from one chest into another through the Transfer API. A sorter item
+  filter sends iron along a red transporter and a tag filter sends gold ingots along a dark-blue one. Dirt with no
+  matching filter stays in the source. A diversion transporter delivers once a redstone block powers it, and a
+  restrictive transporter carries an item once the chest on the basic path is full. A mechanical pipe moves water
+  between fluid tanks, and a pressurized tube moves hydrogen between chemical tanks whose ejectors are off.
+  In the Fabric development client a red basic logistical transporter draws those items inside the pipe.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
-  machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
+  machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
   fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,

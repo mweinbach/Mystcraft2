@@ -30,6 +30,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ForcedChunksSavedData;
@@ -81,6 +82,19 @@ public final class TestPlatform {
         return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
               .map(handler -> stack.getCount() - ItemHandlerHelper.insertItem(handler, stack.copy(), false).getCount())
               .orElse(0);
+    }
+
+    public static int countItems(BlockEntity blockEntity, Direction side, Item item) {
+        return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side).map(handler -> {
+            int count = 0;
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (stack.is(item)) {
+                    count += stack.getCount();
+                }
+            }
+            return count;
+        }).orElse(0);
     }
 
     public static long insertItemEnergy(ItemStack stack, long amount, boolean commit) {

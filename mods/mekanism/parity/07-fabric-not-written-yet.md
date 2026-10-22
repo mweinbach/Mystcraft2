@@ -16,4 +16,6 @@
   evaporation plant was checked: the controller face is lit, and the input fluid renders through the structural
   glass. An advanced solar panel on a top corner was not placed. A formed fission reactor was checked:
   `/mek build fission` made an 18×18×18 shell, and reactor glass shows the casing frame and a checkerboard of fuel
-  assemblies and control rods.
+  assemblies and control rods. A red basic logistical transporter was checked: items riding inside it are drawn
+  in the pipe. The sorter, diversion and restrictive screens were not opened, and mechanical pipes and pressurized
+  tubes were not watched in a client.
