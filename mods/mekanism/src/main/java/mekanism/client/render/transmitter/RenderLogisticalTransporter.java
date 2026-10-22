@@ -10,7 +10,6 @@ import java.util.Set;
 import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.api.text.EnumColor;
 import mekanism.client.model.ModelTransporterBox;
-import mekanism.client.render.MekanismRenderType;
 import mekanism.client.render.MekanismRenderer;
 import mekanism.client.render.MekanismRenderer.Model3D;
 import mekanism.client.render.MekanismRenderer.Model3D.SpriteInfo;
@@ -27,7 +26,6 @@ import mekanism.common.util.TransporterUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -88,15 +86,12 @@ public class RenderLogisticalTransporter extends RenderTransmitterBase<TileEntit
                 matrix.pushPose();
                 matrix.translate(stackPos[0], stackPos[1], stackPos[2]);
                 matrix.scale(0.75F, 0.75F, 0.75F);
-                itemRenderer.renderAsStack(matrix, renderer, stack.itemStack);
+                itemRenderer.renderAsStack(matrix, renderer, stack.itemStack, light);
                 matrix.popPose();
                 if (stack.color != null) {
                     modelBox.render(matrix, renderer, LightTexture.FULL_BRIGHT, overlayLight, stackPos[0], stackPos[1], stackPos[2], stack.color);
                 }
             }
-            // Flush before the colored glass pass so the glass blends over the ingot instead of
-            // sharing one translucent batch with it.
-            endIfNeeded(renderer, LazyItemRenderer.ITEM_LAYER);
             matrix.popPose();
         }
         if (transporter instanceof DiversionTransporter diversionTransporter) {
@@ -187,13 +182,6 @@ public class RenderLogisticalTransporter extends RenderTransmitterBase<TileEntit
 
     private static class LazyItemRenderer {
 
-        /**
-         * Ground ingots are one plane on the entity-translucent sheet. That sheet is culled, and the
-         * pipe shell already owns the depth buffer, so the plane never fills the glass. This layer
-         * draws the whole face in front of the shell.
-         */
-        static final RenderType ITEM_LAYER = MekanismRenderType.TRANSPORTER_ITEM;
-
         @Nullable
         private ItemEntity entityItem;
         @Nullable
@@ -206,28 +194,18 @@ public class RenderLogisticalTransporter extends RenderTransmitterBase<TileEntit
                 entityItem.level = world;
             }
             entityItem.setPos(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-            //Age stays fixed so mods such as ItemPhysic do not spin the sprite. bobOffs is final
-            //and random, which turns the ground plane edge-on; cancel it so the face stays along Z.
-            entityItem.age = Math.round(-entityItem.bobOffs * 20.0F);
+            //Reset entity age to fix issues with mods like ItemPhysic
+            entityItem.age = 0;
         }
 
-        private void renderAsStack(PoseStack matrix, MultiBufferSource buffer, ItemStack stack) {
+        private void renderAsStack(PoseStack matrix, MultiBufferSource buffer, ItemStack stack, int light) {
             if (entityItem != null) {
                 if (renderer == null) {
                     renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entityItem);
                 }
                 entityItem.setItem(stack);
-                renderer.render(entityItem, 0, 0, matrix, cutoutItems(buffer), LightTexture.FULL_BRIGHT);
+                renderer.render(entityItem, 0, 0, matrix, buffer, light);
             }
-        }
-
-        private static MultiBufferSource cutoutItems(MultiBufferSource buffer) {
-            return type -> {
-                if (type == Sheets.translucentCullBlockSheet() || type == Sheets.translucentItemSheet()) {
-                    return buffer.getBuffer(ITEM_LAYER);
-                }
-                return buffer.getBuffer(type);
-            };
         }
     }
 }
