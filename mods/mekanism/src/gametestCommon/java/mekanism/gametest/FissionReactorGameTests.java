@@ -8,19 +8,31 @@ import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
 import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
+import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import mekanism.api.Chunk3D;
 import mekanism.api.Coord4D;
+import mekanism.api.NBTConstants;
 import mekanism.api.chemical.attribute.ChemicalAttribute;
+import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.gas.attribute.GasAttributes;
 import mekanism.api.chemical.gas.attribute.GasAttributes.CooledCoolant;
+import mekanism.api.radiation.IRadiationSource;
+import mekanism.common.capabilities.Capabilities;
+import mekanism.common.config.MekanismConfig;
 import mekanism.common.lib.multiblock.IStructuralMultiblock;
 import mekanism.common.lib.radiation.Meltdown;
 import mekanism.common.lib.radiation.RadiationManager;
 import mekanism.common.registries.MekanismGases;
+import mekanism.common.registries.MekanismItems;
 import mekanism.common.util.HeatUtils;
+import mekanism.common.util.UnitDisplayUtils;
+import mekanism.common.util.UnitDisplayUtils.RadiationUnit;
 import mekanism.gametest.MultiblockStructures.Shell;
 import mekanism.generators.common.MekanismGenerators;
 import mekanism.generators.common.block.attribute.AttributeStateFissionPortMode;
@@ -39,19 +51,31 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * A 3×4×3 fission reactor: one fuel assembly, its control rod, reactor glass walls, an input port, a waste port, a
  * coolant port and a logic adapter. Fissile fuel and sodium or water go in through the input port. Waste and heated
  * coolant come back out through the matching ports. Damage builds only above {@code 1,200} K and, at the cap, either
- * scrams the reactor or queues a meltdown that dumps the tanks as radiation.
+ * scrams the reactor or queues a meltdown. The queued meltdown explodes at the configured radius, breaks the shell
+ * and dumps radioactive tanks at the core. A player outside that field accumulates a dose the dosimeter and Geiger
+ * counter report.
  */
 public class FissionReactorGameTests {
 
@@ -372,12 +396,198 @@ public class FissionReactorGameTests {
                       "Post-meltdown damage is " + data.reactorDamage);
                 double after = RadiationManager.INSTANCE.getRadiationLevel(center);
                 check(after > before + 100, "Meltdown radiation rose from " + before + " to " + after);
+                RadiationManager.INSTANCE.removeRadiationSource(center);
                 restoreMeltdownConfig();
                 helper.succeed();
             } catch (RuntimeException e) {
                 if (!(e instanceof GameTestAssertException)) {
                     restoreMeltdownConfig();
                     clearMeltdowns(helper);
+                }
+                throw e;
+            }
+        });
+    }
+
+    /**
+     * The damage cap queues a meltdown at the configured radius. Its explosion breaks the shell and
+     * {@code meltdownHappened} releases the waste. A block well outside that radius stays put.
+     */
+    @GameTest(template = "mekanism:fission_yard", timeoutTicks = 400, batch = "mekanismFissionMeltdown")
+    public static void meltdownExplosionBreaksTheReactor(GameTestHelper helper) {
+        BlockPos origin = new BlockPos(22, 20, 22);
+        Reactor reactor = place(helper, origin);
+        BlockPos sentinel = new BlockPos(2, 20, 2);
+        helper.setBlock(sentinel, Blocks.DIRT);
+        Coord4D[] center = new Coord4D[1];
+        BlockPos[] min = new BlockPos[1];
+        double[] expected = new double[1];
+        int[] phase = new int[1];
+        helper.succeedWhen(() -> {
+            try {
+                if (phase[0] == 0) {
+                    FissionReactorMultiblockData data = formed(input(helper, reactor));
+                    rememberMeltdownConfig();
+                    data.setActive(false);
+                    data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * HOT);
+                    data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(500));
+                    data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(200));
+                    data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(1_000));
+                    data.partialWaste = 0.5;
+                    checkNotRadioactive(MekanismGases.FISSILE_FUEL.get(), "Fissile fuel");
+                    checkNotRadioactive(MekanismGases.SUPERHEATED_SODIUM.get(), "Superheated sodium");
+                    center[0] = new Coord4D(data.getBounds().getCenter(), helper.getLevel());
+                    min[0] = data.getMinPos();
+                    RadiationManager.INSTANCE.removeRadiationSource(center[0]);
+                    MekanismGeneratorsConfig.generators.fissionMeltdownsEnabled.set(true);
+                    MekanismGeneratorsConfig.generators.fissionMeltdownChance.set(1);
+                    MekanismGeneratorsConfig.generators.fissionMeltdownRadius.set(8);
+                    check(MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get() == 50,
+                          "Meltdown radiation multiplier is " + MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get());
+                    expected[0] = (1_000.5D) * wasteRadioactivity() * MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get();
+                    data.reactorDamage = FissionReactorMultiblockData.MAX_DAMAGE;
+                    phase[0] = 1;
+                    check(false, "Waiting for the meltdown");
+                }
+                if (!shellBroken(helper, reactor)) {
+                    checkMeltdownRadius(helper, min[0]);
+                    check(false, "Waiting for the blast");
+                }
+                checkMeltdownRadius(helper, min[0]);
+                check(helper.getBlockState(sentinel).is(Blocks.DIRT), "The blast reached the sentinel at " + sentinel);
+                IRadiationSource source = sourceAt(center[0]);
+                check(source != null, "The meltdown released no radiation");
+                double magnitude = source.getMagnitude();
+                double decay = MekanismConfig.general.radiationSourceDecayRate.get();
+                check(magnitude <= expected[0], "Meltdown radiation " + magnitude + " exceeds " + expected[0]);
+                check(magnitude >= expected[0] * Math.pow(decay, 5), "Meltdown radiation " + magnitude + " is below " + expected[0]);
+                check(RadiationManager.INSTANCE.getRadiationLevel(center[0]) >= RadiationManager.BASELINE + magnitude,
+                      "Exposure at the core ignores the released radiation");
+                clearMeltdowns(helper);
+                RadiationManager.INSTANCE.removeRadiationSource(center[0]);
+                restoreMeltdownConfig();
+                helper.succeed();
+            } catch (RuntimeException e) {
+                if (!(e instanceof GameTestAssertException)) {
+                    restoreMeltdownConfig();
+                    clearMeltdowns(helper);
+                    if (center[0] != null) {
+                        RadiationManager.INSTANCE.removeRadiationSource(center[0]);
+                    }
+                }
+                throw e;
+            }
+        });
+    }
+
+    /** A full waste tank leaks one mB of burned fuel, and a player outside the shell accumulates that field. */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400, batch = "mekanismFissionLeakDose")
+    public static void leakingReactorDosesANearbyPlayer(GameTestHelper helper) {
+        Reactor reactor = place(helper, ORIGIN);
+        ListeningPlayer[] player = new ListeningPlayer[1];
+        double[] startDose = new double[1];
+        int[] phase = new int[1];
+        helper.succeedWhen(() -> {
+            Coord4D center = null;
+            try {
+                FissionReactorMultiblockData data = formed(input(helper, reactor));
+                center = new Coord4D(data.getBounds().getCenter(), helper.getLevel());
+                if (phase[0] == 0) {
+                    RadiationManager.INSTANCE.removeRadiationSource(center);
+                    data.setActive(false);
+                    data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(data.wasteTank.getCapacity()));
+                    data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(1));
+                    data.burnRemaining = 0;
+                    data.partialWaste = 0;
+                    data.setRateLimit(1);
+                    data.setActive(true);
+                    phase[0] = 1;
+                    check(false, "Waiting for the leak");
+                }
+                if (phase[0] == 1) {
+                    IRadiationSource source = sourceAt(center);
+                    double perMilliBucket = wasteRadioactivity();
+                    check(source != null, "The full waste tank has not leaked");
+                    double magnitude = source.getMagnitude();
+                    double decay = MekanismConfig.general.radiationSourceDecayRate.get();
+                    check(magnitude <= perMilliBucket, "Leak magnitude " + magnitude + " exceeds one mB of waste");
+                    check(magnitude >= perMilliBucket * Math.pow(decay, 5), "Leak magnitude " + magnitude + " is below one mB of waste");
+                    data.setActive(false);
+                    player[0] = listening(helper, ORIGIN.offset(SIZE_XZ, 1, 1));
+                    player[0].setNoGravity(true);
+                    startDose[0] = dose(player[0]);
+                    phase[0] = 2;
+                    check(false, "Waiting for the dose");
+                }
+                player[0].doTick();
+                double current = dose(player[0]);
+                check(current > startDose[0], "Dose stayed at " + current);
+                double level = RadiationManager.INSTANCE.getRadiationLevelAndMaxMagnitude(player[0]).level();
+                IRadiationSource leak = sourceAt(center);
+                check(leak != null, "The leak disappeared");
+                double exposure = leak.getMagnitude() / Math.max(1, center.distanceToSquared(new Coord4D(player[0])));
+                check(level >= RadiationManager.BASELINE + exposure * MekanismConfig.general.radiationSourceDecayRate.get(),
+                      "The field at the player is " + level + " from an exposure of " + exposure);
+                reportDose(player[0], current, level);
+                RadiationManager.INSTANCE.removeRadiationSource(center);
+                helper.succeed();
+            } catch (RuntimeException e) {
+                if (!(e instanceof GameTestAssertException) && center != null) {
+                    RadiationManager.INSTANCE.removeRadiationSource(center);
+                }
+                throw e;
+            }
+        });
+    }
+
+    /** Waste dumped by a meltdown doses a player outside the shell, and both instruments report the live values. */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400, batch = "mekanismFissionMeltdownDose")
+    public static void meltedDownReactorDosesANearbyPlayer(GameTestHelper helper) {
+        Reactor reactor = place(helper, ORIGIN);
+        ListeningPlayer[] player = new ListeningPlayer[1];
+        double[] startDose = new double[1];
+        int[] phase = new int[1];
+        helper.succeedWhen(() -> {
+            Coord4D center = null;
+            try {
+                FissionReactorMultiblockData data = formed(input(helper, reactor));
+                center = new Coord4D(data.getBounds().getCenter(), helper.getLevel());
+                if (phase[0] == 0) {
+                    RadiationManager.INSTANCE.removeRadiationSource(center);
+                    data.setActive(false);
+                    data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(500));
+                    data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(200));
+                    data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(1_000));
+                    data.partialWaste = 0.5;
+                    checkNotRadioactive(MekanismGases.FISSILE_FUEL.get(), "Fissile fuel");
+                    checkNotRadioactive(MekanismGases.SUPERHEATED_SODIUM.get(), "Superheated sodium");
+                    data.meltdownHappened(helper.getLevel());
+                    double expected = (1_000.5D) * wasteRadioactivity() * MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get();
+                    IRadiationSource source = sourceAt(center);
+                    check(source != null, "The meltdown released no radiation");
+                    double magnitude = source.getMagnitude();
+                    check(Math.abs(magnitude - expected) < 1.0E-6, "Meltdown radiation is " + magnitude + " instead of " + expected);
+                    player[0] = listening(helper, ORIGIN.offset(SIZE_XZ, 1, 1));
+                    player[0].setNoGravity(true);
+                    startDose[0] = dose(player[0]);
+                    phase[0] = 1;
+                    check(false, "Waiting for the dose");
+                }
+                player[0].doTick();
+                double current = dose(player[0]);
+                check(current > startDose[0], "Dose stayed at " + current);
+                double level = RadiationManager.INSTANCE.getRadiationLevelAndMaxMagnitude(player[0]).level();
+                IRadiationSource source = sourceAt(center);
+                check(source != null, "The meltdown radiation disappeared");
+                double exposure = source.getMagnitude() / Math.max(1, center.distanceToSquared(new Coord4D(player[0])));
+                check(level >= RadiationManager.BASELINE + exposure * MekanismConfig.general.radiationSourceDecayRate.get(),
+                      "The field at the player is " + level + " from an exposure of " + exposure);
+                reportDose(player[0], current, level);
+                RadiationManager.INSTANCE.removeRadiationSource(center);
+                helper.succeed();
+            } catch (RuntimeException e) {
+                if (!(e instanceof GameTestAssertException) && center != null) {
+                    RadiationManager.INSTANCE.removeRadiationSource(center);
                 }
                 throw e;
             }
@@ -619,8 +829,110 @@ public class FissionReactorGameTests {
         return master;
     }
 
+    /** Fills a formed reactor so a client can draw the burn glow, the water and the fuel gauge. */
+    public static void primeRunningReactor(FissionReactorMultiblockData data) {
+        data.setActive(false);
+        data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(Math.max(1L, data.fuelTank.getCapacity() / 2)));
+        data.fluidCoolantTank.setStack(new FluidStack(Fluids.WATER, Math.max(1, data.fluidCoolantTank.getCapacity() / 5)));
+        data.setRateLimit(Math.min(1.0D, data.getMaxBurnRate()));
+        data.setActive(true);
+    }
+
+    private static void checkNotRadioactive(Gas gas, String name) {
+        check(!gas.has(GasAttributes.Radiation.class), name + " is radioactive");
+    }
+
+    private static double wasteRadioactivity() {
+        GasAttributes.Radiation radiation = MekanismGases.NUCLEAR_WASTE.get().get(GasAttributes.Radiation.class);
+        check(radiation != null && radiation.getRadioactivity() == 0.01D, "Nuclear waste radioactivity is " + radiation);
+        return radiation.getRadioactivity();
+    }
+
+    private static IRadiationSource sourceAt(Coord4D center) {
+        return RadiationManager.INSTANCE.getRadiationSources().get(new Chunk3D(center), center);
+    }
+
+    private static void checkMeltdownRadius(GameTestHelper helper, BlockPos min) {
+        Meltdown meltdown = meltdownAt(helper, min);
+        check(meltdown != null, "Crossing the damage threshold queued no meltdown");
+        CompoundTag tag = new CompoundTag();
+        meltdown.write(tag);
+        check(tag.getFloat(NBTConstants.RADIUS) == 8, "Meltdown radius is " + tag.getFloat(NBTConstants.RADIUS));
+    }
+
+    private static Meltdown meltdownAt(GameTestHelper helper, BlockPos min) {
+        for (Meltdown meltdown : meltdowns(helper)) {
+            CompoundTag tag = new CompoundTag();
+            meltdown.write(tag);
+            if (NbtUtils.readBlockPos(tag.getCompound(NBTConstants.MIN)).equals(min)) {
+                return meltdown;
+            }
+        }
+        return null;
+    }
+
+    private static boolean shellBroken(GameTestHelper helper, Reactor reactor) {
+        Block casing = GeneratorsBlocks.FISSION_REACTOR_CASING.getBlock();
+        Block glass = GeneratorsBlocks.REACTOR_GLASS.getBlock();
+        Block port = GeneratorsBlocks.FISSION_REACTOR_PORT.getBlock();
+        Block logic = GeneratorsBlocks.FISSION_REACTOR_LOGIC_ADAPTER.getBlock();
+        for (BlockPos pos : reactor.shell().blocks()) {
+            Block block = helper.getBlockState(pos).getBlock();
+            if (block != casing && block != glass && block != port && block != logic) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static double dose(ServerPlayer player) {
+        var capability = player.getCapability(Capabilities.RADIATION_ENTITY);
+        check(capability.isPresent(), "The player has no radiation capability");
+        return capability.orElseThrow(IllegalStateException::new).getRadiation();
+    }
+
+    private static void reportDose(ListeningPlayer player, double dose, double level) {
+        check(dose > RadiationManager.BASELINE, "Dose " + dose + " is still the baseline");
+        check(level > RadiationManager.BASELINE, "The field " + level + " is still the baseline");
+        player.messages.clear();
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MekanismItems.DOSIMETER.get()));
+        MekanismItems.DOSIMETER.get().use(player.getLevel(), player, InteractionHand.MAIN_HAND);
+        String doseText = UnitDisplayUtils.getDisplayShort(dose, RadiationUnit.SV, 3).getString();
+        check(player.messages.stream().anyMatch(message -> message.contains(doseText)),
+              "Dosimeter said " + player.messages + " for " + doseText);
+        player.messages.clear();
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MekanismItems.GEIGER_COUNTER.get()));
+        MekanismItems.GEIGER_COUNTER.get().use(player.getLevel(), player, InteractionHand.MAIN_HAND);
+        String fieldText = UnitDisplayUtils.getDisplayShort(level, RadiationUnit.SVH, 3).getString();
+        check(player.messages.stream().anyMatch(message -> message.contains(fieldText)),
+              "Geiger counter said " + player.messages + " for " + fieldText);
+    }
+
+    private static ListeningPlayer listening(GameTestHelper helper, BlockPos relative) {
+        ListeningPlayer player = new ListeningPlayer(helper, new GameProfile(UUID.randomUUID(), "fission-dose"));
+        new ServerGamePacketListenerImpl(helper.getLevel().getServer(), new Connection(PacketFlow.SERVERBOUND), player);
+        player.setGameMode(GameType.SURVIVAL);
+        BlockPos absolute = helper.absolutePos(relative);
+        player.moveTo(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5, 0, 0);
+        return player;
+    }
+
     private record Reactor(Shell shell, BlockPos fuel, BlockPos rod, BlockPos waste, Direction wasteSide, BlockPos coolant, Direction coolantSide,
                            BlockPos logic) {
+    }
+
+    private static final class ListeningPlayer extends ServerPlayer {
+
+        private final List<String> messages = new ArrayList<>();
+
+        private ListeningPlayer(GameTestHelper helper, GameProfile profile) {
+            super(helper.getLevel().getServer(), helper.getLevel(), profile, null);
+        }
+
+        @Override
+        public void sendSystemMessage(Component component) {
+            messages.add(component.getString());
+        }
     }
 
     private record SavedBlock(BlockPos pos, BlockState state, CompoundTag tag) {

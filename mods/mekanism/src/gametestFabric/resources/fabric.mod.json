@@ -13,6 +13,7 @@
     "client": [
       "mekanism.gametest.client.FabricBlockShowcase",
       "mekanism.gametest.client.FabricJadeShowcase",
+      "mekanism.gametest.client.FabricFissionShowcase",
       "mekanism.gametest.client.FabricComputerCraftShowcase"
     ]
   },

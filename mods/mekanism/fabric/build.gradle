@@ -282,6 +282,15 @@ loom {
             programArgs '--width', '1600', '--height', '900'
             vmArg '-Dmekanism.jade.screenshot=true'
         }
+        // A fueled fission reactor, for one screenshot. Not part of the production JAR.
+        fissionClient {
+            client()
+            name 'Mekanism Fabric Fission Screenshot'
+            source sourceSets.gametest
+            runDir 'build/fission-client'
+            programArgs '--width', '1600', '--height', '900'
+            vmArg '-Dmekanism.fission.screenshot=true'
+        }
         // CC: Restitched is runtime-only when -PwithComputerCraft is set.
         computerClient {
             client()
@@ -307,7 +316,7 @@ def extractCcNested = tasks.register('extractCcNested', Copy) {
 }
 // The client and server runs start from the core source set. Module outputs have to be on that classpath
 // or the dev game never loads Generators, Tools or Additions.
-['runClient', 'runServer', 'runShowcaseClient', 'runJadeClient', 'runComputerClient'].each { String taskName ->
+['runClient', 'runServer', 'runShowcaseClient', 'runJadeClient', 'runFissionClient', 'runComputerClient'].each { String taskName ->
     tasks.named(taskName) {
         classpath += sourceSets.generators.output
         classpath += sourceSets.tools.output
