@@ -10,7 +10,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
-| Mekanism | Forge, Fabric | 484 | 12 | 20 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
+| Mekanism | Forge, Fabric | 779 | 12 | 21 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
 Each port's `emc/README.md` is generated. It lists every explicit value and exclusion with its reason, the
@@ -154,7 +154,11 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 
 CI runs every audit in the table against its real EMC mod. That catches stale values, changed dependency
 coordinates and data-format regressions. Mekanism ships those two data files for the core module and again
-for Generators and Tools; `scripts/emc.py check` covers them. Its GameTests do not run `EmcAudit` or install an EMC mod yet.
+for Generators, Tools and Additions; `scripts/emc.py check` covers them. Its GameTests do not run `EmcAudit` or
+install an EMC mod yet. On Forge, ProjectE's recipe mappers are an optional compile-only dependency and add a
+machine recipe only when it does not undercut the static table (`projecte_mapper_guard.json`). Item Alchemy has
+no mapper API, so the Fabric build uses the static values alone. See
+[`mods/mekanism/parity/15-projecte.md`](../mods/mekanism/parity/15-projecte.md).
 
 ## Adding EMC to a port
 
