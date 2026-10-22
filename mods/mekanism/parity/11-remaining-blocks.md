@@ -29,8 +29,10 @@ rises by more than one kelvin. Heat on both is readable from any side.
 A chargepad accepts energy through its back and its bottom. A Robit standing on it is filled to the Robit's
 100,000 J capacity from the pad's per-operation transfer. A player standing on it is charged through the item
 handler on the player: Forge provides that handler, and on Fabric `FabricPlayerInventory` attaches one that reads
-the live main inventory, armor and offhand in that order and is not serialized. An energy tablet in the hotbar
-gains energy, and the pad is active while either entity is in the pad's box and the buffer is not empty.
+the live main inventory, armor and offhand in that order and is not serialized. A dimension change removes that
+player and then revives the same instance. The capability store becomes valid again, and the Fabric handler builds
+a new optional because the old one stays empty. After that revival an energy tablet in the hotbar keeps gaining
+energy, and the pad is active while either entity is in the pad's box and the buffer is not empty.
 
 An electric pump spends 100 J a tick from its back. After its operation time it sucks the water source below into
 the top output tank, 1,000 mB, and that fluid is visible on the top side. With water-source pumping left at the

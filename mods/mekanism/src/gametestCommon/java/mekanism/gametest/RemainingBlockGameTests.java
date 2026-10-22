@@ -206,11 +206,23 @@ public class RemainingBlockGameTests {
         player.setNoGravity(true);
         player.getInventory().setItem(0, new ItemStack(MekanismItems.ENERGY_TABLET.get()));
         helper.getLevel().addDuringPortalTeleport(player);
+        FloatingLong[] charged = {FloatingLong.ZERO};
+        boolean[] revived = {false};
         helper.succeedWhen(() -> {
             ItemStack tablet = player.getInventory().getItem(0);
             check(tablet.is(MekanismItems.ENERGY_TABLET.get()), "The tablet left the player's hand");
-            check(StorageUtils.getStoredEnergyFromNBT(tablet).greaterThan(FloatingLong.ZERO), "The tablet stayed empty");
+            FloatingLong energy = StorageUtils.getStoredEnergyFromNBT(tablet);
+            check(energy.greaterThan(FloatingLong.ZERO), "The tablet stayed empty");
             check(pad.getActive(), "The chargepad stayed idle with a player on it");
+            if (!revived[0]) {
+                charged[0] = energy;
+                // A dimension change removes the player and then revives the same instance.
+                player.invalidateCaps();
+                player.reviveCaps();
+                revived[0] = true;
+                throw new GameTestAssertException("The player's capabilities were revived");
+            }
+            check(energy.greaterThan(charged[0]), "After the capabilities were revived the tablet stayed at " + energy);
         });
     }
 

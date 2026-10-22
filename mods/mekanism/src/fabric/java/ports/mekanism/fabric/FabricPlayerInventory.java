@@ -41,22 +41,39 @@ public final class FabricPlayerInventory {
         if (!(event.getObject() instanceof Player player)) {
             return;
         }
-        LazyOptional<IItemHandler> handler = LazyOptional.of(() -> new PlayerInventoryHandler(player.getInventory()));
-        event.addCapability(KEY, new Provider(handler));
-        event.addListener(handler::invalidate);
+        Provider provider = new Provider(player);
+        event.addCapability(KEY, provider);
+        event.addListener(provider::invalidate);
     }
 
+    /**
+     * The optional is created again after it is invalidated. A dimension change removes the player and then revives
+     * that same instance: the capability store becomes valid again, and a {@link LazyOptional} does not.
+     */
     private static final class Provider implements ICapabilityProvider {
 
-        private final LazyOptional<IItemHandler> handler;
+        private final Player player;
+        private LazyOptional<IItemHandler> handler;
 
-        private Provider(LazyOptional<IItemHandler> handler) {
-            this.handler = handler;
+        private Provider(Player player) {
+            this.player = player;
+            this.handler = inventory();
+        }
+
+        private LazyOptional<IItemHandler> inventory() {
+            return LazyOptional.of(() -> new PlayerInventoryHandler(player.getInventory()));
+        }
+
+        private void invalidate() {
+            handler.invalidate();
         }
 
         @NotNull
         @Override
         public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction side) {
+            if (!handler.isPresent()) {
+                handler = inventory();
+            }
             return ForgeCapabilities.ITEM_HANDLER.orEmpty(capability, handler);
         }
     }
