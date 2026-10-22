@@ -133,9 +133,9 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 214 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 137 on Fabric
-(`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
+Both loaders run in-world GameTests from development-only mods, and all required GameTests pass on both loaders
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer` and
+`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
 passed again with `-PwithItemAlchemy`. Each EMC audit compared 626 items with
