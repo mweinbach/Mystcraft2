@@ -50,9 +50,23 @@ heated and cooled sodium, the temperature and the valve mode come back after the
 loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
 and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
-visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
-Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
-fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. A digital miner (`DigitalMinerGameTests`) with radius 1 mines an iron ore its item filter accepts and leaves a coal
+visible from outside the shell. A thermal evaporation plant (`ThermalEvaporationGameTests`) forms at 4×3×4. The
+frame and floor are thermal evaporation blocks, the walls are structural glass, and the roof centre is the 2×2
+opening. One valve and one controller complete it. A missing corner and a 3×3×3 are placed with a block of air
+between them so they do not merge; neither forms, the unformed valve accepts no water, and replacing the corner
+forms the first plant while the small one stays unformed. Water enters through the valve's loader fluid API. The
+casing accepts none, and the valve does not give the input fluid back. Heat through the valve's heat handler —
+Forge's heat capability, and on Fabric the `mekanism:heat_handler` lookup — raises the temperature. Water becomes
+brine, and brine becomes lithium, at ten millibuckets of input per one of output, scaled by the temperature
+multiplier. Saved water, brine and heat come back after the blocks are removed and their NBT is loaded. The
+controller is the master and its render box is the structure. An advanced solar panel on a top corner is the
+upstream passive heat source; these tests heat the valve directly and do not place one. In the Fabric development
+client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
+development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
+checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
+were not drawn, and the reactor screen was not opened. In the development client `/mek build sps` built a 7×7×7
+shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
+no coil, so the orb and the coil bolts were not drawn. A digital miner (`DigitalMinerGameTests`) with radius 1 mines an iron ore its item filter accepts and leaves a coal
 ore beside it. The raw iron is on the back output port, read through Forge's item capability and, on Fabric,
 `ItemStorage`. With auto-eject on, that drop moves into a chest one block past the output port through the same item
 API. A `forge:ores/iron` tag filter selects the iron ore and leaves the coal ore. A filter that requires cobblestone
@@ -64,8 +78,8 @@ client, right-clicking a placed digital miner opens its screen. The screen shows
 blocks left to mine, with the eject, pull and silk switches and the config, start and stop buttons. The shared
 GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
 block hooks, fluid placement, chunk loading, render bounds, the digital miner, the player and living events, a Generators registry
-smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
-turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
+phase shifter, the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
