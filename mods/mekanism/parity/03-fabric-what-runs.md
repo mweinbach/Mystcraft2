@@ -68,7 +68,8 @@ were not drawn, and the reactor screen was not opened. In the development client
 shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
 no coil, so the orb and the coil bolts were not drawn. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
-chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
+chunk loading, render bounds, the player and living events, server chunk data and recipe reload, a Generators
+registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
 phase shifter, the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield
 blocking, and Additions
