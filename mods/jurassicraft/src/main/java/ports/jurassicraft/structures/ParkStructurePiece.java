@@ -1,6 +1,8 @@
 package ports.jurassicraft.structures;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,8 +31,11 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
             "GroundStorage", "ground_storage", "ControlRoom", "control_room", "Laboratory", "laboratory",
             "Cryonics", "cryonics", "Infirmary", "infirmary", "Garage", "garage", "StaffDorms", "staff_dorms",
             "Kitchen", "kitchen", "DormTower", "dorm_tower", "DiningHall", "dining_hall");
+    private static final String PLACED_HANGING = "PlacedHanging";
     private final Rotation rotation;
     private final Mirror mirror;
+    /** Anchors already spawned. Saved with the piece so a reload cannot place them again. */
+    private final Set<BlockPos> placedHanging = new HashSet<>();
     public ParkStructurePiece(StructureTemplateManager manager, ResourceLocation id, BlockPos pos, Rotation rotation, Mirror mirror) {
         super(StructureRegistry.PIECE.get(), 0, manager, id, id.toString(), settings(rotation,mirror), pos);
         this.rotation=rotation; this.mirror=mirror;
@@ -38,6 +43,7 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     private ParkStructurePiece(StructureTemplateManager manager, CompoundTag tag) {
         super(StructureRegistry.PIECE.get(), tag, manager, id -> settings(readRotation(tag), readMirror(tag)));
         rotation=readRotation(tag); mirror=readMirror(tag);
+        for (long packed : tag.getLongArray(PLACED_HANGING)) placedHanging.add(BlockPos.of(packed));
     }
     public static ParkStructurePiece load(StructurePieceSerializationContext context, CompoundTag tag) {
         return new ParkStructurePiece(context.structureTemplateManager(),tag);
@@ -50,6 +56,10 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     }
     @Override protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tag) {
         super.addAdditionalSaveData(context,tag); tag.putString("ParkRotation",rotation.name()); tag.putString("ParkMirror",mirror.name());
+        long[] packed = new long[placedHanging.size()];
+        int index = 0;
+        for (BlockPos anchor : placedHanging) packed[index++] = anchor.asLong();
+        tag.putLongArray(PLACED_HANGING, packed);
     }
     @Override protected void handleDataMarker(String marker, BlockPos pos, ServerLevelAccessor level, RandomSource random, BoundingBox bounds) {
         String room = ROOMS.get(marker);
@@ -86,6 +96,6 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
             }
         // A complete footprint is shaped here, before hanging entities look at the walls.
         ParkEdges.queue(level, template, templatePosition, placeSettings, bounds);
-        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
+        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level, placedHanging);
     }
 }

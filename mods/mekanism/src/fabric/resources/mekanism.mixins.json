@@ -84,6 +84,7 @@
     "client.BlockModelDeserializerMixin",
     "client.BlockModelMixin",
     "client.ClientLevelEntityCallbacksMixin",
+    "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
     "client.ElytraLayerMixin",
     "client.EntityRenderDispatcherMixin",

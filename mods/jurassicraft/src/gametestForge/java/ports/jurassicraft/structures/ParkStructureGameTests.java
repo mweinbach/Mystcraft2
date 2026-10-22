@@ -174,4 +174,9 @@ public final class ParkStructureGameTests {
         check(helper, failures.isEmpty(), String.join("; ", failures));
         helper.succeed();
     }
+
+    @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
+    public static void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
+    }
 }

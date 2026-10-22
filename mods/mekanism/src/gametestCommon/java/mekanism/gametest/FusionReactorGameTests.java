@@ -266,13 +266,13 @@ public class FusionReactorGameTests {
                 // casing to ambient before this callback can fail and retry: succeedWhen keeps going until the
                 // timeout, and each later tick would boil again and hide the measured pass.
                 data.tick(helper.getLevel());
-                double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+                double ambient = structureAmbient(helper, data);
                 data.setPlasmaTemp(ambient);
                 data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * ambient);
                 data.updateTemperatures();
                 phase[0] = 1;
             }
-            double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+            double ambient = structureAmbient(helper, data);
             int expectedSteam = expectedSteam(caseTemperature[0], ambient, waterBefore[0]);
             check(expectedSteam > SAMPLE, "The armed temperature only boils " + expectedSteam + " mB");
             check(data.steamTank.getStack().getType() == MekanismGases.STEAM.get() && data.steamTank.getStored() == expectedSteam,
@@ -363,6 +363,30 @@ public class FusionReactorGameTests {
             long reported = TestPlatform.blockGas(restored, reactor.portSide());
             check(reported == deuterium[0] + tritium[0] + fuel[0], "The gas lookup reports " + reported + " after reload");
         });
+    }
+
+    /**
+     * The reactor stores the average biome temperature of its eight corners, not the controller's own biome.
+     * A structure placed on a biome edge otherwise expects a different energy total than the tick produced.
+     */
+    private static double structureAmbient(GameTestHelper helper, FusionReactorMultiblockData data) {
+        BlockPos min = data.getMinPos();
+        BlockPos max = data.getMaxPos();
+        BlockPos[] corners = {
+              min,
+              new BlockPos(max.getX(), min.getY(), min.getZ()),
+              new BlockPos(min.getX(), min.getY(), max.getZ()),
+              new BlockPos(max.getX(), min.getY(), max.getZ()),
+              new BlockPos(min.getX(), max.getY(), min.getZ()),
+              new BlockPos(max.getX(), max.getY(), min.getZ()),
+              new BlockPos(min.getX(), max.getY(), max.getZ()),
+              max
+        };
+        double sum = 0;
+        for (BlockPos corner : corners) {
+            sum += helper.getLevel().getBiome(corner).value().getTemperature(corner);
+        }
+        return HeatAPI.getAmbientTemp(sum / corners.length);
     }
 
     private static int expectedSteam(double caseTemperature, double ambient, long water) {

@@ -1,5 +1,6 @@
 package ports.jurassicraft.cleaning;
 
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -29,6 +30,8 @@ import ports.jurassicraft.content.Species;
 import ports.jurassicraft.fossil.FossilLootEntry;
 
 public final class CleaningStationBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
+    /** Client setup replaces this. The dedicated server keeps the empty spawner. */
+    public static Consumer<CleaningStationBlockEntity> clientWash = station -> {};
     public static final int INPUT = 0;
     public static final int FUEL = 1;
     public static final int FIRST_OUTPUT = 2;
@@ -107,9 +110,11 @@ public final class CleaningStationBlockEntity extends BlockEntity implements Wor
                 ? Math.min(1.2F, (station.rotationSpeed + .008F) * 1.01F)
                 : Math.max(0, (station.rotationSpeed - .01F) * .95F);
         station.visualRotation += station.rotationSpeed;
+        clientWash.accept(station);
     }
 
     public ItemStack visualInput() { return visualInput; }
+    public boolean visualActive() { return visualActive; }
     public float visualRotation(float partialTick) { return Mth.lerp(partialTick, previousRotation, visualRotation); }
     private void setVisualActive(boolean active) {
         if (visualActive != active) { visualActive = active; syncVisuals(); }

@@ -4,6 +4,8 @@
 The transformation order and per-face UV mapping match the 1.12.2
 JurassicraftVanillaTabulaModel baker. The OBJ loader bakes these static faces;
 the original extractor and sequencer item overlays are rendered separately.
+Combinator screens are also omitted: their texture offsets change when the
+block is in hybridizer mode, so the block-entity renderer draws them.
 """
 from pathlib import Path
 from zipfile import ZipFile
@@ -54,23 +56,24 @@ def rotate(axis, degrees):
 def point(matrix, point):
     return tuple(sum(matrix[i][j] * (point[j] if j < 3 else 1) for j in range(4)) for i in range(3))
 
-def convert(name, tbl_name, texture_name):
+def convert(name, tbl_name, texture_name, geometry_only=False):
     with ZipFile(upstream / "models/block" / (tbl_name + ".tbl")) as archive:
         model = json.loads(archive.read("model.json"))
     width, height = model["textureWidth"], model["textureHeight"]
     destination = assets / "models/block"
     destination.mkdir(parents=True, exist_ok=True)
-    image = assets / "textures/blocks" / (texture_name + ".png")
-    image.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(upstream / "textures/blocks" / (texture_name + ".png"), image)
-    (destination / (name + ".mtl")).write_text(
-        "newmtl machine\nKd 1 1 1\nmap_Kd jurassicraft:blocks/" + texture_name + "\n", encoding="utf8")
-    # These settings avoid culling parts against neighboring full blocks and retain alpha.
-    block_model = {"parent": "minecraft:block/block", "loader": "forge:obj", "model": "jurassicraft:models/block/" + name + ".obj",
-                   "automatic_culling": False, "emissive_ambient": False,
-                   "render_type": "minecraft:translucent" if name == "dna_synthesizer" else "minecraft:cutout",
-                   "textures": {"particle": "minecraft:block/iron_block"}}
-    (destination / (name + ".json")).write_text(json.dumps(block_model, indent=2) + "\n", encoding="utf8")
+    if not geometry_only:
+        image = assets / "textures/blocks" / (texture_name + ".png")
+        image.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(upstream / "textures/blocks" / (texture_name + ".png"), image)
+        (destination / (name + ".mtl")).write_text(
+            "newmtl machine\nKd 1 1 1\nmap_Kd jurassicraft:blocks/" + texture_name + "\n", encoding="utf8")
+        # These settings avoid culling parts against neighboring full blocks and retain alpha.
+        block_model = {"parent": "minecraft:block/block", "loader": "forge:obj", "model": "jurassicraft:models/block/" + name + ".obj",
+                       "automatic_culling": False, "emissive_ambient": False,
+                       "render_type": "minecraft:translucent" if name == "dna_synthesizer" else "minecraft:cutout",
+                       "textures": {"particle": "minecraft:block/iron_block"}}
+        (destination / (name + ".json")).write_text(json.dumps(block_model, indent=2) + "\n", encoding="utf8")
     lines = ["# Converted from JurassiCraft Tabula model: " + tbl_name,
              "mtllib jurassicraft:models/block/" + name + ".mtl", "o machine", "usemtl machine"]
     vertex_count = 0
@@ -102,8 +105,10 @@ def convert(name, tbl_name, texture_name):
                  ((2,3,7,6), (u+d+w,v+d), (u+d+w+w,v)),
                  ((1,0,3,2), (u+d,v+d), (u+d+w,v+d+h)),
                  ((4,5,6,7), (u+d+w+d,v+d), (u+d+w+d+w,v+d+h))]
-        # Feeder lids are rendered separately so they can rotate when the feeder serves food.
-        if not cube.get("hidden", False) and not (feeder and cube["name"] in ("Lid 1", "Lid 2")):
+        # Feeder lids rotate while serving. Combinator screens swap texture offsets in hybridizer mode.
+        animated = (feeder and cube["name"] in ("Lid 1", "Lid 2")
+                    or name == "dna_combinator_hybridizer" and cube["name"] in ("Screen 1", "Screen 2"))
+        if not cube.get("hidden", False) and not animated:
             for indices, (u0,v0), (u1,v1) in faces:
                 corners = [vertices[i] for i in indices]
                 # Degenerate faces are skipped by the upstream baker too.
@@ -126,8 +131,13 @@ def convert(name, tbl_name, texture_name):
     return vertex_count // 4
 
 def main():
-    for name, (tbl, texture) in MODELS.items():
-        print(name, convert(name, tbl, texture), "faces")
+    import sys
+    selected = sys.argv[1:] or list(MODELS)
+    geometry_only = "--obj-only" in selected
+    selected = [name for name in selected if name != "--obj-only"]
+    for name in selected:
+        tbl, texture = MODELS[name]
+        print(name, convert(name, tbl, texture, geometry_only), "faces")
 
 if __name__ == "__main__":
     main()
