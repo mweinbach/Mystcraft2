@@ -17,13 +17,18 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   following absorption update use. Cancelling the event skips that bookkeeping. The attacker's absorbed-damage
   statistic stays the absorption applied before the event. When armor and absorption already reduced the damage to
   zero, vanilla never changes health, so that zero-damage event is not posted.
-- Break speed, including the position `getDestroyProgress` is measuring. Direct `getDestroySpeed` calls pass an empty
-  position. A cancelled break speed returns -1, which stops the break. This is the hook the Meka-Tool, atomic
-  disassembler and MekaSuit gyroscopic stabilization use.
-- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, and the crafting player is set around the
-  remainder lookup. Bin insert recipes consume the rest of the grid through this event.
-- Entity join, cancellable, from `PersistentEntitySectionManager.addEntity` before the entity is added. A cardboard
-  box uses it to swallow dropped items and experience. Players are included once, after a duplicate UUID is removed.
-  Forge posts a player's join slightly earlier, from `ServerLevel.addPlayer`, and then skips this second post.
+- Break speed, from `Player.getDestroySpeed`. `getDestroyProgress` passes the position it is measuring; a direct
+  `getDestroySpeed` call passes an empty position. Cancelling the event makes that speed -1, so destroy progress goes
+  negative and the break does not finish. Mekanism's handler then scales a Meka-Tool by the hardest block in its blast
+  when a position is present, and multiplies by five for MekaSuit gyroscopic stabilization when the player is airborne
+  or has their eyes in water without aqua affinity. An atomic disassembler's efficiency is the speed those adjustments
+  apply to, so the same suit module cancels the disassembler's air and water penalties.
+- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, with the crafting grid still intact. The
+  crafting player is set around the remainder lookup and cleared when that lookup returns. Bin insert recipes consume
+  the rest of the grid through this event.
+- Entity join, cancellable, before the entity is added. A fresh or loaded entity is posted from
+  `PersistentEntitySectionManager.addEntity`, and a cancelled join is not added. A cardboard box uses it to swallow
+  dropped items and experience. A player is posted once from `ServerLevel.addPlayer`, before a duplicate UUID is
+  removed, with `loadedFromDisk` false. The section manager then adds that player without posting again.
 - Entity leave, from Fabric's server entity unload, after the entity stops being tracked. Forge also posts it on the
   client; the client copy is unwired.

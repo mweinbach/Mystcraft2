@@ -31,8 +31,30 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
   waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
   structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
-  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. Fusion
-  gameplay is not verified.
+  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. The fusion
+  reactor (`FusionReactorGameTests`) forms at 5×5×5. The frame follows upstream's face grid: the corners and the
+  twelve holes on each face stay air, frame slots are reactor frame, and the controller is the top centre. A laser
+  focus matrix, one port and a logic adapter fill other slots. A missing frame block, a controller off the top
+  centre, stone in the hollow centre, structural glass in a casing slot and a 2×2×2 stay unformed and are not merged
+  with a neighbour. Structural glass set against the shell does not join it. Deuterium, tritium and D-T fuel enter
+  through the port's gas handler — Forge's capability, and on Fabric the `mekanism:gas_handler` lookup. Hydrogen,
+  steam and lava are refused, a casing block accepts none of them, and a simulated fill stores nothing. A hohlraum
+  takes D-T fuel through the item gas handler and refuses deuterium. One that is not full does not ignite. A laser
+  under the focus matrix, fed through its back, raises the plasma by one tick of laser energy, and the matrix's
+  laser receptor — the call that laser makes — brings the plasma to the burn temperature. That ray is the laser's
+  own clip. Forge 43.5.0's clip constructor uses an empty collision context when the entity is null; vanilla calls
+  `CollisionContext.of(null)` and crashes, so the Fabric build matches Forge there. That consumes the
+  hohlraum, leaves part of its D-T fuel in the fuel tank and starts the burn. Water and steam capacity stay 0 until
+  the injection rate changes. Upstream sizes those tanks only inside `setInjectionRate`, and only when the new rate
+  differs from the current one, so a fresh reactor left at the default rate of 2 cannot take water until that rate
+  is set again. After the rate is set, water enters through the fluid handler. One heating pass at a known casing
+  temperature turns it into steam at the upstream water-heating ratio, steam efficiency and enthalpy, and stores
+  casing heat as energy at the thermocouple efficiency. Energy leaves the port through Forge Energy or Team Reborn
+  Energy; a casing block gives none up, and steam leaves through the gas handler. The logic adapter outputs redstone
+  when the fuel tank is empty and deuterium or tritium is short, when the plasma has reached the ready temperature,
+  and not while it is disabled. Saved deuterium, tritium, D-T fuel, the injection rate, the logic mode, the
+  cooled-logic flag and the port's output mode come back after the blocks are removed and their NBT is loaded.
+  Plasma is still hot after that reload, and stored energy does not fall. The master's render box is the structure.
 - **Tools** is imported: paxels, tools, armor and shields for bronze, lapis lazuli, osmium, refined glowstone,
   refined obsidian and steel, plus vanilla paxels. Both loaders register them
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
@@ -49,7 +71,15 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   Baby creepers, endermen, skeletons, strays and wither skeletons register with their models and renderers, spawn
   where the parent mob spawns (Forge biome and structure modifiers; Fabric biome modifications and a structure-spawn
   mixin) at half the parent's weight, and drop the parent's loot. Balloons craft from leather, string and a dye,
-  latch onto a mob and pop without dropping the item. The walkie-talkie and voice chat are not ported. Walkie-talkie
-  assets are still in the jar and nothing registers them.
+  latch onto a mob and pop without dropping the item. The walkie-talkie crafts from osmium, steel and a basic
+  circuit, toggles on with a sneak-use, and cycles channels 1 through 8. Its model override shows the channel while
+  it is on. The voice server listens on the configured TCP port only when `voiceServerEnabled` is true (default
+  false). A player receives a one-time session token on the game connection and the voice socket presents that
+  token, so two players behind one address stay distinct. It relays a short audio frame to other connections whose
+  walkie is on and on that channel, including a walkie in the offhand, and one recipient's frame is written whole.
+  The voice key is U. While it is held, the microphone read blocks instead of polling an empty buffer. GameTests
+  cover the channel cycle, the disabled tooltip, the socket bind, the session token, whole frames, and that relay.
+  Microphone capture and speaker playback were not run: this environment has no capture device, and `VoiceInput`
+  returns when the line is unsupported.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.

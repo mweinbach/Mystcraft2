@@ -22,11 +22,13 @@ each of its three slots in the same operation, auto-sort spreads one input stack
 tier installer replaces the block while keeping the items, stored energy and auto-sort flag. The chemical infuser,
 oxidizer, dissolution chamber, washer, crystallizer, purification chamber, chemical injection chamber, rotary
 condensentrator, pressurized reaction chamber, isotopic centrifuge and solar neutron activator each run one recipe.
-Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen
-opened in the development client. The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
+Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen,
+with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
+The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
 the pigment extractor pulls red pigment from red wool, the pigment mixer combines red and yellow into orange, the
 painting machine paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and
-antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen opened in
+antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen, with its input slot,
+progress bar, pigment gauge, drain slot, energy bar and configuration tabs, opened in
 the development client; the other chemical machine screens were not opened. A dynamic tank shell of
 casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
@@ -64,7 +66,11 @@ upstream passive heat source; these tests heat the valve directly and do not pla
 client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
 checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
-were not drawn, and the reactor screen was not opened. A basic logistical transporter pulls items from a chest
+were not drawn, and the reactor screen was not opened. In the development client `/mek build sps` built a 7×7×7
+shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
+no coil, so the orb and the coil bolts were not drawn. In that client `/mek build fusion` built a 5×5×5 reactor.
+The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
+was not drawn, and the controller screen was not opened. A basic logistical transporter pulls items from a chest
 and pushes them into a second chest (`TransporterGameTests`). Those chests are the loader item inventory: Forge's
 item handler, and on Fabric `ItemStorage.SIDED`. A logistical sorter facing the line applies an item filter that
 colours iron red and a tag filter for `forge:ingots/gold` that colours gold dark blue, the blue entry in the
@@ -78,9 +84,11 @@ transporter renderer is registered for the restrictive transporter, the diversio
 tier. In the Fabric development client a red basic logistical transporter draws the iron, gold, diamonds, emeralds
 and redstone it is carrying inside the pipe. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
-chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
-the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
-turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+chunk loading, render bounds, the player and living events, server chunk data and recipe reload, a Generators
+registry smoke test, the simple generators,
+the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool
+actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
