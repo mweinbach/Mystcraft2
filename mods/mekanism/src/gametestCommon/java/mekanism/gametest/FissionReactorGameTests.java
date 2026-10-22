@@ -451,7 +451,17 @@ public class FissionReactorGameTests {
                 }
                 if (!shellBroken(helper, reactor)) {
                     checkMeltdownRadius(helper, min[0]);
-                    check(false, "Waiting for the blast");
+                    // The blast rolls about one tick in ten and the meltdown only lives 100 ticks. Drive those
+                    // rolls here so a quiet random sequence cannot burn the whole test timeout.
+                    Meltdown pending = meltdownAt(helper, min[0]);
+                    if (pending != null) {
+                        for (int attempt = 0; attempt < 100 && !shellBroken(helper, reactor); attempt++) {
+                            pending.update(helper.getLevel());
+                        }
+                    }
+                    if (!shellBroken(helper, reactor)) {
+                        check(false, "Waiting for the blast");
+                    }
                 }
                 checkMeltdownRadius(helper, min[0]);
                 check(helper.getBlockState(sentinel).is(Blocks.DIRT), "The blast reached the sentinel at " + sentinel);
