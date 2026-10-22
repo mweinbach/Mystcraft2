@@ -2,7 +2,7 @@
 
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, the digital miner, Robit, gear,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers. The
   fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
@@ -28,4 +28,5 @@
   and restrictive screens were not opened, and mechanical
   pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
-  heat tab and the inventory.
+  heat tab and the inventory. A QIO dashboard on a public frequency was checked: the item viewer shows the
+  frequency name and the diamond, emerald, gold and lapis stored on the drive.
