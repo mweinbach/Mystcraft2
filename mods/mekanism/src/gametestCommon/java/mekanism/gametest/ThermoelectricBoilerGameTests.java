@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ThermoelectricBoilerGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void thermoelectricBoilerForms(GameTestHelper helper) {
         Boiler boiler = place(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityBoilerValve valve = valve(helper, boiler);
             BoilerMultiblockData data = formed(valve);
             check(data.length() == SIZE_XZ && data.width() == SIZE_XZ && data.height() == SIZE_Y,
@@ -86,7 +87,6 @@ public class ThermoelectricBoilerGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
@@ -105,7 +105,14 @@ public class ThermoelectricBoilerGameTests {
         Shell above = shell(helper, elementAbove);
         Shell small = MultiblockStructures.cuboid(helper, new BlockPos(4, 1, 4), 2, 2, 2, MekanismBlocks.BOILER_CASING.getBlock(),
               MekanismBlocks.BOILER_CASING.getBlock(), MekanismBlocks.BOILER_VALVE.getBlock());
-        helper.runAtTickTime(40, () -> {
+        succeedAfterScan(helper, () -> {
+            BlockEntity casing = helper.getBlockEntity(small.origin());
+            return valve(helper, holed).getStructure().size() == holed.shell().blocks().size() - 1
+                  && valve(helper, noDisperser).getStructure().size() == noDisperser.blocks().size()
+                  && valve(helper, above).getStructure().size() == above.blocks().size()
+                  && casing instanceof TileEntityBoilerCasing boilerCasing
+                  && boilerCasing.getStructure().size() == small.blocks().size();
+        }, () -> {
             TileEntityBoilerValve valve = valve(helper, holed);
             checkSeparate(valve, holed.shell().blocks().size() - 1, "A boiler with a missing corner");
             check(TestPlatform.insertBlockFluid(valve, holed.shell().valveSide(), Fluids.WATER, 1_000, true) == 0,
@@ -118,7 +125,6 @@ public class ThermoelectricBoilerGameTests {
             BlockEntity casing = helper.getBlockEntity(small.origin());
             check(casing instanceof TileEntityBoilerCasing, "The undersized shell has no boiler block");
             checkSeparate((TileEntityBoilerCasing) casing, small.blocks().size(), "A 2x2x2 boiler");
-            helper.succeed();
         });
     }
 
@@ -127,39 +133,36 @@ public class ThermoelectricBoilerGameTests {
         Boiler boiler = place(helper, ORIGIN);
         long[] water = new long[1];
         boolean[] outputting = new boolean[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityBoilerValve valve = valve(helper, boiler);
-            BoilerMultiblockData data = formed(valve);
-            Direction side = boiler.shell().valveSide();
-            BlockEntity casing = helper.getBlockEntity(boiler.shell().origin());
-            int room = data.waterTank.getCapacity();
-            check(room > HEATED_SODIUM, "The boiler holds " + room + " mB of water");
-            check(TestPlatform.insertBlockFluid(casing, Direction.WEST, Fluids.WATER, 1_000, true) == 0, "A casing block accepted water");
-            check(TestPlatform.insertBlockGas(casing, Direction.WEST, MekanismGases.SUPERHEATED_SODIUM.get(), 1_000, true) == 0,
-                  "A casing block accepted heated coolant");
-            check(TestPlatform.insertBlockFluid(valve, side, Fluids.LAVA, 1_000, true) == 0, "The valve accepted lava");
-            check(TestPlatform.insertBlockGas(valve, side, MekanismGases.HYDROGEN.get(), 1_000, true) == 0, "The valve accepted hydrogen");
-            check(TestPlatform.insertBlockGas(valve, side, MekanismGases.SODIUM.get(), 1_000, true) == 0, "The valve accepted cooled sodium");
-            check(TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, false) == room, "A simulated fill offered less than the water tank");
-            check(data.waterTank.isEmpty(), "A simulated fill stored water");
-            check(TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, false) == HEATED_SODIUM,
-                  "A simulated fill offered less than the heated coolant tank");
-            check(data.superheatedCoolantTank.isEmpty(), "A simulated fill stored heated coolant");
-            water[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
-            check(water[0] == room, "The valve accepted " + water[0] + " of " + room + " mB");
-            long sodium = TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, true);
-            check(sodium == HEATED_SODIUM, "The valve accepted " + sodium + " of " + HEATED_SODIUM + " heated sodium");
-            check(data.superheatedCoolantTank.getStack().getType() == MekanismGases.SUPERHEATED_SODIUM.get(),
-                  "The heated tank holds " + data.superheatedCoolantTank.getStack().getType());
-            check(TestPlatform.blockFluid(valve, side) == room, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
-            check(TestPlatform.gasTanks(valve, side) == 3, "The gas lookup exposes " + TestPlatform.gasTanks(valve, side) + " tanks");
-            check(TestPlatform.blockGas(valve, side) == HEATED_SODIUM, "The gas lookup reports " + TestPlatform.blockGas(valve, side));
-        });
         helper.succeedWhen(() -> {
-            check(water[0] > 0, "Water has not been inserted");
             TileEntityBoilerValve valve = valve(helper, boiler);
             BoilerMultiblockData data = formed(valve);
             Direction side = boiler.shell().valveSide();
+            if (water[0] == 0) {
+                BlockEntity casing = helper.getBlockEntity(boiler.shell().origin());
+                int room = data.waterTank.getCapacity();
+                check(room > HEATED_SODIUM, "The boiler holds " + room + " mB of water");
+                check(TestPlatform.insertBlockFluid(casing, Direction.WEST, Fluids.WATER, 1_000, true) == 0, "A casing block accepted water");
+                check(TestPlatform.insertBlockGas(casing, Direction.WEST, MekanismGases.SUPERHEATED_SODIUM.get(), 1_000, true) == 0,
+                      "A casing block accepted heated coolant");
+                check(TestPlatform.insertBlockFluid(valve, side, Fluids.LAVA, 1_000, true) == 0, "The valve accepted lava");
+                check(TestPlatform.insertBlockGas(valve, side, MekanismGases.HYDROGEN.get(), 1_000, true) == 0, "The valve accepted hydrogen");
+                check(TestPlatform.insertBlockGas(valve, side, MekanismGases.SODIUM.get(), 1_000, true) == 0, "The valve accepted cooled sodium");
+                check(TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, false) == room, "A simulated fill offered less than the water tank");
+                check(data.waterTank.isEmpty(), "A simulated fill stored water");
+                check(TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, false) == HEATED_SODIUM,
+                      "A simulated fill offered less than the heated coolant tank");
+                check(data.superheatedCoolantTank.isEmpty(), "A simulated fill stored heated coolant");
+                water[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
+                check(water[0] == room, "The valve accepted " + water[0] + " of " + room + " mB");
+                long sodium = TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, true);
+                check(sodium == HEATED_SODIUM, "The valve accepted " + sodium + " of " + HEATED_SODIUM + " heated sodium");
+                check(data.superheatedCoolantTank.getStack().getType() == MekanismGases.SUPERHEATED_SODIUM.get(),
+                      "The heated tank holds " + data.superheatedCoolantTank.getStack().getType());
+                check(TestPlatform.blockFluid(valve, side) == room, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
+                check(TestPlatform.gasTanks(valve, side) == 3, "The gas lookup exposes " + TestPlatform.gasTanks(valve, side) + " tanks");
+                check(TestPlatform.blockGas(valve, side) == HEATED_SODIUM, "The gas lookup reports " + TestPlatform.blockGas(valve, side));
+                check(false, "Waiting for the boiler to boil");
+            }
             int expected = expectedBoil(data);
             check(data.lastBoilRate > 0 && data.lastBoilRate == expected && data.lastMaxBoil == expected,
                   "Boil rate " + data.lastBoilRate + " (max " + data.lastMaxBoil + ") is not the " + expected + " mB the heat allows");
@@ -189,27 +192,26 @@ public class ThermoelectricBoilerGameTests {
     public static void externalHeatBoilsWater(GameTestHelper helper) {
         Boiler boiler = place(helper, ORIGIN);
         double[] ambient = new double[1];
+        boolean[] heated = {false};
         boolean[] outputting = new boolean[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityBoilerValve valve = valve(helper, boiler);
-            BoilerMultiblockData data = formed(valve);
-            Direction side = boiler.shell().valveSide();
-            BlockEntity casing = helper.getBlockEntity(boiler.shell().origin());
-            ambient[0] = data.heatCapacitor.getTemperature();
-            check(TestPlatform.heatCapacitors(casing, Direction.WEST) == 1, "The casing exposes no heat handler");
-            check(TestPlatform.blockTemperature(casing, Direction.WEST) == ambient[0],
-                  "The heat lookup reports " + TestPlatform.blockTemperature(casing, Direction.WEST) + " against " + ambient[0]);
-            long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, 100_000, true);
-            check(filled == 100_000, "The valve accepted " + filled + " mB");
-            TestPlatform.handleBlockHeat(casing, Direction.WEST, EXTERNAL_HEAT);
-            check(data.heatCapacitor.getTemperature() == ambient[0], "Queued heat changed the temperature before the boiler ticked");
-            check(data.superheatedCoolantTank.isEmpty() && data.cooledCoolantTank.isEmpty(), "The heat test started with coolant");
-        });
         helper.succeedWhen(() -> {
-            check(!Double.isNaN(ambient[0]), "Heat has not been inserted");
             TileEntityBoilerValve valve = valve(helper, boiler);
             BoilerMultiblockData data = formed(valve);
             Direction side = boiler.shell().valveSide();
+            if (!heated[0]) {
+                BlockEntity casing = helper.getBlockEntity(boiler.shell().origin());
+                ambient[0] = data.heatCapacitor.getTemperature();
+                check(TestPlatform.heatCapacitors(casing, Direction.WEST) == 1, "The casing exposes no heat handler");
+                check(TestPlatform.blockTemperature(casing, Direction.WEST) == ambient[0],
+                      "The heat lookup reports " + TestPlatform.blockTemperature(casing, Direction.WEST) + " against " + ambient[0]);
+                long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, 100_000, true);
+                check(filled == 100_000, "The valve accepted " + filled + " mB");
+                TestPlatform.handleBlockHeat(casing, Direction.WEST, EXTERNAL_HEAT);
+                check(data.heatCapacitor.getTemperature() == ambient[0], "Queued heat changed the temperature before the boiler ticked");
+                check(data.superheatedCoolantTank.isEmpty() && data.cooledCoolantTank.isEmpty(), "The heat test started with coolant");
+                heated[0] = true;
+                check(false, "Waiting for the external heat to boil water");
+            }
             double temperature = data.heatCapacitor.getTemperature();
             check(temperature > ambient[0] + 50, "External heat left the boiler at " + temperature);
             check(TestPlatform.blockTemperature(valve, side) == temperature, "The valve heat lookup reports " + TestPlatform.blockTemperature(valve, side));
@@ -237,45 +239,48 @@ public class ThermoelectricBoilerGameTests {
         long[] steam = new long[1];
         long[] heated = new long[1];
         long[] cooled = new long[1];
-        helper.runAtTickTime(40, () -> {
+        int[] phase = {0};
+        helper.succeedWhen(() -> {
             TileEntityBoilerValve valve = valve(helper, boiler);
             BoilerMultiblockData data = formed(valve);
-            Direction side = boiler.shell().valveSide();
-            int room = data.waterTank.getCapacity();
-            long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
-            check(filled == room, "The valve accepted " + filled + " before the save");
-            long sodium = TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, true);
-            check(sodium == HEATED_SODIUM, "The valve accepted " + sodium + " heated sodium before the save");
-        });
-        helper.runAtTickTime(70, () -> {
-            TileEntityBoilerValve valve = valve(helper, boiler);
-            BoilerMultiblockData data = formed(valve);
-            check(data.steamTank.getStored() > 0, "The boiler produced no steam before the save");
-            check(data.cooledCoolantTank.getStored() > 0, "The boiler cooled no sodium before the save");
-            check(data.heatCapacitor.getTemperature() > HeatUtils.BASE_BOIL_TEMP - 1, "The boiler was at " + data.heatCapacitor.getTemperature());
-            setMode(helper, boiler.shell().valve(), BoilerValveMode.OUTPUT_STEAM);
-            water[0] = data.waterTank.getFluidAmount();
-            steam[0] = data.steamTank.getStored();
-            heated[0] = data.superheatedCoolantTank.getStored();
-            cooled[0] = data.cooledCoolantTank.getStored();
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : boiler.shell().blocks()) {
-                saved.add(save(helper, pos));
+            if (phase[0] == 0) {
+                Direction side = boiler.shell().valveSide();
+                int room = data.waterTank.getCapacity();
+                long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
+                check(filled == room, "The valve accepted " + filled + " before the save");
+                long sodium = TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, true);
+                check(sodium == HEATED_SODIUM, "The valve accepted " + sodium + " heated sodium before the save");
+                phase[0] = 1;
+                check(false, "Waiting for steam before the save");
             }
-            saved.add(save(helper, boiler.element()));
-            saved.add(save(helper, boiler.disperser()));
-            Mekanism.boilerManager.inventories.remove(data.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
+            if (phase[0] == 1) {
+                check(data.steamTank.getStored() > 0, "The boiler produced no steam before the save");
+                check(data.cooledCoolantTank.getStored() > 0, "The boiler cooled no sodium before the save");
+                check(data.heatCapacitor.getTemperature() > HeatUtils.BASE_BOIL_TEMP - 1, "The boiler was at " + data.heatCapacitor.getTemperature());
+                setMode(helper, boiler.shell().valve(), BoilerValveMode.OUTPUT_STEAM);
+                water[0] = data.waterTank.getFluidAmount();
+                steam[0] = data.steamTank.getStored();
+                heated[0] = data.superheatedCoolantTank.getStored();
+                cooled[0] = data.cooledCoolantTank.getStored();
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : boiler.shell().blocks()) {
+                    saved.add(save(helper, pos));
+                }
+                saved.add(save(helper, boiler.element()));
+                saved.add(save(helper, boiler.disperser()));
+                Mekanism.boilerManager.inventories.remove(data.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                phase[0] = 2;
+                check(false, "Waiting for the reloaded boiler to form");
             }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(120, () -> {
             TileEntityBoilerValve restored = valve(helper, boiler);
-            BoilerMultiblockData data = formed(restored);
+            data = formed(restored);
             long fluids = data.waterTank.getFluidAmount() + data.steamTank.getStored();
             long coolants = data.superheatedCoolantTank.getStored() + data.cooledCoolantTank.getStored();
             check(data.waterTank.isEmpty() || data.waterTank.getFluid().getFluid() == Fluids.WATER, "Reloaded boiler water is " + data.waterTank.getFluid());
@@ -288,7 +293,6 @@ public class ThermoelectricBoilerGameTests {
                   "The heat lookup reports " + TestPlatform.blockTemperature(restored, boiler.shell().valveSide()) + " after reload");
             check(helper.getBlockState(boiler.shell().valve()).getValue(AttributeStateBoilerValveMode.modeProperty) == BoilerValveMode.OUTPUT_STEAM,
                   "Reloaded valve mode is " + helper.getBlockState(boiler.shell().valve()).getValue(AttributeStateBoilerValveMode.modeProperty));
-            helper.succeed();
         });
     }
 

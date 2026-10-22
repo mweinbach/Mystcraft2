@@ -91,18 +91,33 @@ public class ThermalEvaporationGameTests {
         Plant holed = place(helper, new BlockPos(0, 1, 0), SIZE, HEIGHT, true, true);
         helper.setBlock(holed.origin(), Blocks.AIR);
         Plant small = place(helper, new BlockPos(5, 1, 0), 3, 3, true, true);
-        helper.runAtTickTime(40, () -> {
-            TileEntityThermalEvaporationValve valve = valve(helper, holed);
-            checkSeparate(valve, holed.blocks().size() - 1, "A plant with a missing corner");
-            check(TestPlatform.insertBlockFluid(valve, holed.valveSide(), Fluids.WATER, 1_000, true) == 0,
-                  "An unformed valve accepted water");
-            check(TestPlatform.heatCapacitors(valve, holed.valveSide()) == 0, "An unformed valve exposes a heat handler");
-            check(small.blocks().size() == SMALL_SHELL, "The small shell placed " + small.blocks().size() + " blocks");
-            checkSeparate(valve(helper, small), small.blocks().size(), "A 3x3x3 plant");
-            helper.setBlock(holed.origin(), MekanismBlocks.THERMAL_EVAPORATION_BLOCK.getBlock());
-        });
+        // The broken shell is scanned, rejected, and then repaired. A fixed tick can land after the
+        // rejection was dropped, so the repaired corner never gets a formation pass.
+        int[] phase = {0};
+        boolean[] sawScan = {false};
         helper.succeedWhen(() -> {
             TileEntityThermalEvaporationValve valve = valve(helper, holed);
+            if (phase[0] == 0) {
+                boolean scanned = valve.getStructure().size() == holed.blocks().size() - 1
+                      && valve(helper, small).getStructure().size() == small.blocks().size();
+                if (!scanned) {
+                    sawScan[0] = false;
+                    check(false, "Waiting for the broken shells to be scanned");
+                }
+                if (!sawScan[0]) {
+                    sawScan[0] = true;
+                    check(false, "Waiting for the structure formation attempt");
+                }
+                checkSeparate(valve, holed.blocks().size() - 1, "A plant with a missing corner");
+                check(TestPlatform.insertBlockFluid(valve, holed.valveSide(), Fluids.WATER, 1_000, true) == 0,
+                      "An unformed valve accepted water");
+                check(TestPlatform.heatCapacitors(valve, holed.valveSide()) == 0, "An unformed valve exposes a heat handler");
+                check(small.blocks().size() == SMALL_SHELL, "The small shell placed " + small.blocks().size() + " blocks");
+                checkSeparate(valve(helper, small), small.blocks().size(), "A 3x3x3 plant");
+                helper.setBlock(holed.origin(), MekanismBlocks.THERMAL_EVAPORATION_BLOCK.getBlock());
+                phase[0] = 1;
+                check(false, "Waiting for the repaired plant to form");
+            }
             EvaporationMultiblockData data = formed(valve);
             check(data.length() == SIZE && data.width() == SIZE && data.height() == HEIGHT,
                   "Repairing the corner formed a " + data.length() + "x" + data.height() + "x" + data.width());
