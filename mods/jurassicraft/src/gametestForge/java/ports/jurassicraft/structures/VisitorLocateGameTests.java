@@ -50,8 +50,10 @@ public final class VisitorLocateGameTests {
         var level = helper.getLevel();
         var registry = level.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
         var visitor = registry.getHolderOrThrow(VisitorLocate.VISITOR);
+        StructureParityChecks.visitorChunkIsSearchable(helper);
         var candidate = VisitorPlacement.candidateForLocate(level);
         var position = candidate.flatMap(chunk -> VisitorLocate.actualStart(level, visitor.value(), chunk));
+        StructureParityChecks.vanillaSearchFindsVisitor(helper, visitor, candidate, position);
         BlockPos origin = helper.absolutePos(BlockPos.ZERO);
         var source = level.getServer().createCommandSourceStack().withLevel(level).withPermission(2)
                 .withPosition(Vec3.atLowerCornerOf(origin)).withSuppressedOutput();

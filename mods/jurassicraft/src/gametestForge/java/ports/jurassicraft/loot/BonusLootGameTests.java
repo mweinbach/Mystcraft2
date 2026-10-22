@@ -222,6 +222,12 @@ public final class BonusLootGameTests {
     }
 
     @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID)
+    public static void cryonicsLootResolvesToLaboratory(GameTestHelper h) {
+        CryonicsLootChecks.cryonicsResolvesToLaboratory(h);
+        h.succeed();
+    }
+
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID)
     public static void actualTablesReceivePools(GameTestHelper h) {
         var tables = h.getLevel().getServer().getLootTables();
         for (ResourceLocation id : new ResourceLocation[] {id("minecraft", "gameplay/fishing"),
