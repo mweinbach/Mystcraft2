@@ -47,6 +47,8 @@ import ports.jurassicraft.village.VillageProcessor;
  */
 public final class StructureWalkAudit {
     private static final BlockPos CONTROLLED = new BlockPos(3208, 90, 3208);
+    /** Above ordinary terrain, where replacing a sky layer does not trip the light task. */
+    private static final int PARK_Y = 240;
     /** Counts taken from visitor_centre.nbt, not from an earlier guess. */
     private static final Map<String, Integer> VISITOR_BLOCKS = Map.ofEntries(
             Map.entry("jurassicraft:cleaning_station", 2),
@@ -115,12 +117,14 @@ public final class StructureWalkAudit {
             issues.add(name + " template is missing");
             return issues;
         }
-        BlockPos origin = CONTROLLED.offset(visitor ? 0 : 400, visitor ? 0 : 0, mirror == Mirror.NONE ? 0 : 200);
+        BlockPos origin = new BlockPos(CONTROLLED.getX(), PARK_Y, CONTROLLED.getZ())
+                .offset(visitor ? 0 : 400, 0, mirror == Mirror.NONE ? 0 : 200);
         if (rotation != Rotation.NONE) origin = origin.offset(0, 0, 250);
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation).setMirror(mirror)
                 .setIgnoreEntities(true).addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
         BoundingBox footprint = template.getBoundingBox(settings, origin);
-        BlockPos referenceOrigin = origin.offset(0, 48, 0);
+        // Beside the chunk walk, not above it: the visitor centre plus 48 blocks does not fit under the build limit.
+        BlockPos referenceOrigin = origin.offset(220, 0, 0);
         BoundingBox referenceBox = template.getBoundingBox(settings, referenceOrigin);
         prepare(level, footprint, true);
         prepare(level, referenceBox, true);
@@ -156,8 +160,7 @@ public final class StructureWalkAudit {
     }
 
     private static void prepare(ServerLevel level, BoundingBox box, boolean bright) {
-        // One block outside the template, including above it, so both footprints see the same
-        // neighbours. The copies are stacked in Y and the terrain beside them is not.
+        // One block outside the template, including above it, so both footprints see the same neighbours.
         int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
         int maxY = Math.min(box.maxY() + 1, level.getMaxBuildHeight() - 1);
         for (int cx = minX >> 4; cx <= maxX >> 4; cx++)
