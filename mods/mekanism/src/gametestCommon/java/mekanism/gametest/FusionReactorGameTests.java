@@ -262,8 +262,14 @@ public class FusionReactorGameTests {
                 waterBefore[0] = data.waterTank.getFluidAmount();
                 energyBefore[0] = data.energyContainer.getEnergy().copy();
                 // The block entity's own tick can fall on either side of this callback, so one world tick of
-                // waiting is sometimes two heating passes. Run the pass here and read it before that tick.
+                // waiting is sometimes two heating passes. Run the pass here. Then return the plasma and the
+                // casing to ambient before this callback can fail and retry: succeedWhen keeps going until the
+                // timeout, and each later tick would boil again and hide the measured pass.
                 data.tick(helper.getLevel());
+                double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+                data.setPlasmaTemp(ambient);
+                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * ambient);
+                data.updateTemperatures();
                 phase[0] = 1;
             }
             double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
