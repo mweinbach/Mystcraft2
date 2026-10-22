@@ -28,7 +28,8 @@ takes deuterium, tritium and D-T fuel through the gas handler, boils water into 
 paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
-glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
+glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie are in both loaders. The voice server
+stays off unless `voiceServerEnabled` is set. Microphone capture and speaker playback were not run.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -58,7 +59,8 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
-  modules run on a server. The client tick publishes the jump key those jetpacks read.
+  modules run on a server. The client tick publishes the jump key those jetpacks read. Chunk save and load carry
+  Mekanism's world-gen version, so retrogen sees an old chunk, and `/reload` refreshes the recipe cache.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass.
@@ -88,11 +90,11 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
+  render bounds, the player and living events, server chunk data and recipe reload, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical phase shifter,
   the industrial turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool actions and
-  shield blocking, and Additions registration, crafting, block behaviour, baby mobs and balloons) pass on both
-  loaders.
+  shield blocking, and Additions registration, crafting, block behaviour, baby mobs, balloons, walkie-talkie channel
+  selection and the voice server's on/off config) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -103,7 +105,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs and balloons, plus each loader's descriptor. Its own jars |
+| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

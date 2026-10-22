@@ -26,6 +26,8 @@ public class AdditionsConfig extends BaseMekanismConfig {
 
     public final CachedIntValue obsidianTNTDelay;
     public final CachedFloatValue obsidianTNTBlastRadius;
+    public final CachedBooleanValue voiceServerEnabled;
+    public final CachedIntValue voicePort;
     private final Map<BabyType, SpawnConfig> spawnConfigs = new EnumMap<>(BabyType.class);
 
     AdditionsConfig() {
@@ -36,6 +38,11 @@ public class AdditionsConfig extends BaseMekanismConfig {
               .defineInRange("obsidianTNTDelay", 100, 0, Integer.MAX_VALUE));
         obsidianTNTBlastRadius = CachedFloatValue.wrap(this, builder.comment("Radius of the explosion of Obsidian TNT.")
               .defineInRange("obsidianTNTBlastRadius", 12, 0.1, 1_000));
+
+        voiceServerEnabled = CachedBooleanValue.wrap(this, builder.comment("Enables the voice server for Walkie Talkies.").worldRestart()
+              .define("voiceServerEnabled", false));
+        voicePort = CachedIntValue.wrap(this, builder.comment("TCP port for the Voice server to listen on.")
+              .defineInRange("VoicePort", 36_123, 1, 65_535));
 
         builder.comment("Config options regarding spawning of entities.").push("spawning");
         addBabyTypeConfig(BabyType.CREEPER, builder, AdditionsEntityTypes.BABY_CREEPER, () -> EntityType.CREEPER);
