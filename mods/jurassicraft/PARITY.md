@@ -111,6 +111,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Topic | Kept | Reason |
 | --- | --- | --- |
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
+| `#jurassicraft:park_structures` | Optional structure ids | Forge's create-world screen binds tags against the builtin registries while mod datapacks are already visible, before `visitor_centre` and `raptor_paddock` exist. Optional entries skip that pass and still resolve once the structures load. |
+| Raptor paddock walls | 1.12 low arms and post | 1.19 turns an uncovered connection into a tall side, and a later chunk recomputes the wall from partial neighbours. Both the chunk walk and a one-shot placement keep the low arm, with the centre post down only on a straight run under open air. |
 | Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
 | Visitor-centre maps | Forge's `maps` package | Cartographers sell the map on both loaders. |
@@ -132,8 +134,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 210 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 132 on Fabric
+Both loaders run in-world GameTests from development-only mods: 212 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 134 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 

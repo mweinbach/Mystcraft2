@@ -1,7 +1,13 @@
 {
   "replace": false,
   "values": [
-    "jurassicraft:visitor_centre",
-    "jurassicraft:raptor_paddock"
+    {
+      "id": "jurassicraft:visitor_centre",
+      "required": false
+    },
+    {
+      "id": "jurassicraft:raptor_paddock",
+      "required": false
+    }
   ]
 }

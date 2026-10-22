@@ -61,7 +61,8 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
             BoundingBox bounds, ChunkPos chunk, BlockPos pivot) {
         super.postProcess(level,structures,generator,random,bounds,chunk,pivot);
         ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
-        // Support only this chunk's footprint. Never touch a neighboring chunk during worldgen.
+        // Support columns stay inside this chunk. Wall shapes are corrected afterwards, including a
+        // neighbour chunk's edge update of a wall this chunk already placed.
         BoundingBox box = getBoundingBox();
         for (int x=Math.max(box.minX(),bounds.minX());x<=Math.min(box.maxX(),bounds.maxX());x++)
             for (int z=Math.max(box.minZ(),bounds.minZ());z<=Math.min(box.maxZ(),bounds.maxZ());z++) {
@@ -73,5 +74,6 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
                     level.setBlock(current,Blocks.DIRT.defaultBlockState(),2); current=current.below();
                 }
             }
+        ParkWalls.correct(template, templatePosition, placeSettings, bounds, level);
     }
 }

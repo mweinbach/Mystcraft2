@@ -160,4 +160,18 @@ public final class ParkStructureGameTests {
         nearby.forEach(MuralEntity::discard);
         helper.succeed();
     }
+
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID)
+    public static void parkStructureTagBindsItsStructures(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.tag(helper.getLevel().getServer());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID, timeoutTicks = 200)
+    public static void paddockWallsMatchOneShotAndUpstream(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.walls(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
 }
