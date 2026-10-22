@@ -179,6 +179,10 @@ public final class CraftingHelper {
         serializer.write(buffer, ingredient);
     }
 
+    public static boolean hasIngredient(ResourceLocation type) {
+        return INGREDIENTS.containsKey(type);
+    }
+
     public static Ingredient getIngredient(ResourceLocation type, FriendlyByteBuf buffer) {
         IIngredientSerializer<?> serializer = INGREDIENTS.get(type);
         if (serializer == null) {

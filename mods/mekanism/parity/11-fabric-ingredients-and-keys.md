@@ -1,7 +1,8 @@
 ## Fabric: custom ingredients and key modifiers
 
-Fabric API 0.77 has no custom ingredient API and stores one key mapping per physical key. The port reads Forge's
-ingredient types in `Ingredient.fromJson` and keeps a modifier and conflict context on every `KeyMapping`.
+Fabric API 0.77 stores one key mapping per physical key. Its recipe API registers ingredients under `fabric:type`,
+which Mekanism's files do not use. The port reads Forge's `type` values in `Ingredient.fromJson` and keeps a modifier
+and conflict context on every `KeyMapping`.
 
 Ingredient JSON:
 
@@ -17,9 +18,10 @@ Ingredient JSON:
 - An object whose type is `forge:compound` throws. Forge does not accept that type; a compound is an array.
 - An unknown type throws instead of being read as an item.
 - `ItemStack.of` reads the stack, including a `ForgeCaps` compound split out of the `nbt` object.
-- On the network a custom ingredient is a varint `-1`, the type id, then the serializer payload. Vanilla's item list
-  is anything else, rewound so the normal reader runs. Partial NBT items travel by name. The format round-trips on one
-  loader. Cross-loader multiplayer is not promised.
+- On the network a custom ingredient is a varint `-1`, the type id, then the serializer payload. Fabric's recipe API
+  uses that same `-1` marker and rejects an id it does not know. The port's reader runs first and keeps only its own
+  ids; any other `-1` packet is rewound for Fabric, and a normal item list is rewound for vanilla. Partial NBT items
+  travel by name. The format round-trips on one loader. Cross-loader multiplayer is not promised.
 - There is no tag-invalidation counter. Recipes are built after tags bind, and the shared tests read them then.
 
 The shared GameTests load the white stained-glass painting recipe and the crossbow and trident nucleosynthesizing
