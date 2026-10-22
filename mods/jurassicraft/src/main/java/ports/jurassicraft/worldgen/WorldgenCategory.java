@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import ports.jurassicraft.PortMod;
-import ports.jurassicraft.content.Species;
 
 /** Exact placed-feature IDs belonging to each original generation toggle. */
 public enum WorldgenCategory {
-    FOSSILS("mineralGeneration", "fossilGeneration", "Generate prehistoric animal fossils."),
+    FOSSILS("mineralGeneration", "fossilGeneration", "Generate prehistoric animal fossils.", "fossil_deposits"),
     NEST_FOSSILS("mineralGeneration", "nestFossilGeneration", "Generate fossil nest deposits.", "fossil_nest"),
     TRACKWAYS("mineralGeneration", "trackwayGeneration", "Generate independent fossil trackways.", "fossil_trackway"),
     PLANT_FOSSILS("mineralGeneration", "plantFossilGeneration", "Generate plant fossils in coal deposits.", "coal_plant_fossils"),
@@ -30,7 +29,6 @@ public enum WorldgenCategory {
         for (WorldgenCategory category : values()) {
             for (String feature : category.features) add(feature, category);
         }
-        for (Species species : Species.values()) add(species.id() + "_fossil_block", FOSSILS);
     }
 
     WorldgenCategory(String section, String key, String description, String... features) {

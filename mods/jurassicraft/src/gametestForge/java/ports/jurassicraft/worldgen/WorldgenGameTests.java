@@ -18,6 +18,16 @@ public final class WorldgenGameTests {
     private static void require(GameTestHelper helper, boolean value, String message) { if (!value) helper.fail(message); }
 
     @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void fossilAttemptsShareOneChunkBudget(GameTestHelper helper) {
+        FossilGenerationChecks.sharedBudget(helper);
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void fossilVeinReplacesOnlyStone(GameTestHelper helper) {
+        FossilGenerationChecks.veinReplacesOnlyStone(helper);
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
     public static void trackwayReplacesOnlyStone(GameTestHelper helper) {
         var level = helper.getLevel();
         BlockPos start = new BlockPos(0, 1, 1);

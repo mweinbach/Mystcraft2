@@ -17,39 +17,16 @@ them.
 
 The core module is in this port. Generators, Tools and Additions are extra mod ids
 (`mekanismgenerators`, `mekanismtools`, `mekanismadditions`) built from the same tree, each as its own jar that
-depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
-gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
-through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
-and outputs steam. The thermal evaporation plant forms, takes water or brine and heat through its valve, and
-outputs brine and lithium. The supercritical phase shifter forms and turns polonium plus energy from a supercharged coil
-into antimatter. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
-meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
-and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
-Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
-glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
+depends on the core jar. Per-feature behaviour and test coverage are in [`parity/`](parity/).
+Do not list features in this README; add that coverage under [`parity/`](parity/).
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
   has not been launched.
 - **Fabric.** The same sources compile on Fabric. Their Forge API references are rewritten at build time to the
   port's Forge API mirror in `src/fabric/java/ports/mekanism/lib`, and the methods Forge adds to vanilla classes are
-  supplied by injected interfaces and mixins. The JAR loads on a server and in a development client, where the
-  enrichment chamber, crusher, energized smelter and metallurgic infuser run on energy delivered directly or through
-  universal cables. A basic smelting factory processes a stack in each of its three slots at once, auto-sort splits
-  one input stack across those slots, and a tier installer keeps the items, energy and auto-sort setting. Its screen,
-  with the three slots, energy bar and sorting tab, opened in the development client. The chemical infuser combines
-  hydrogen and chlorine, the oxidizer makes sulfur dioxide, the dissolution chamber, washer and crystallizer turn
-  osmium ore into a crystal, the purification chamber and chemical injection chamber turn osmium ore and dirt into
-  clumps and mud, the rotary condensentrator condenses oxygen, the pressurized reaction chamber makes substrate and
-  ethene, the isotopic centrifuge separates fissile fuel, and the solar neutron activator makes polonium when it can
-  see the sun. Those gases and slurries move through the chemical lookups. The chemical infuser screen,
-  with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
-  The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste, the pigment extractor pulls
-  red pigment from red wool, the pigment mixer combines red and yellow into orange, the painting machine
-  paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and antimatter into
-  an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen, with its input slot,
-  progress bar, pigment gauge, drain slot, energy bar and configuration tabs, opened in the development client.
-  The other chemical machine screens were not opened. Energy, items and fluids reach
+  supplied by injected interfaces and mixins. The JAR loads on a server and in a development client.
+  What each machine does there, and the tests that cover it, is in [`parity/`](parity/). Energy, items and fluids reach
   other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
   fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
@@ -58,35 +35,13 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
-  A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
-  the development client draws that stored fluid through the glass.
-  An induction matrix of casing, one port, a basic cell and a basic provider forms, and the port moves energy through
-  Team Reborn Energy. An energy tablet in the port's charge slot takes energy out of the matrix. Saving the blocks and
-  loading them brings that stored energy back. The development client draws the formed casing and port.
-  A formed industrial turbine in that client draws its rotor and blades through the glass.
-  A formed thermoelectric boiler in that client shows its casing and valves, and its screen opens. The water and steam
-  bodies are drawn inside the opaque casing.
-  A thermal evaporation plant forms from thermal evaporation blocks, structural glass, a valve and a controller.
-  The valve moves water, brine and lithium through the Transfer API, and heat through the heat lookup.
-  In the Fabric development client a formed plant shows its lit controller and draws the input fluid through the
-  structural glass. An advanced solar panel was not placed.
-  A formed fission reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the
-  casing frame and a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and
-  coolant body were not drawn, and the reactor screen was not opened.
-  A formed supercritical phase shifter in that client is the 7×7×7 shell from `/mek build sps`: structural glass
-  shows the casing frame and the empty corner cells of each face. It had no port and no coil, so the orb and the
-  coil bolts were not drawn.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
-  machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical phase shifter,
-  the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and
-  Additions registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests pass on both loaders.
+  Per-feature test coverage is in [`parity/`](parity/).
 
 Do not install either JAR in a world you care about.
 
@@ -97,7 +52,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs and balloons, plus each loader's descriptor. Its own jars |
+| `src/additions` | Upstream Additions code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

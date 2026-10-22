@@ -101,21 +101,20 @@ class FossilResourcesTests(unittest.TestCase):
                 self.assertTrue((ASSETS / f"textures/{texture.split(':', 1)[1]}.png").is_file(), texture)
 
     def test_species_worldgen_and_mining_resources_are_connected(self):
-        self.assertEqual(("#minecraft:is_overworld", "underground_ores"), placements()["{species}_fossil_block"])
+        self.assertEqual(("#minecraft:is_overworld", "underground_ores"), placements()["fossil_deposits"])
+        placed = read_json(DATA / "worldgen/placed_feature/fossil_deposits.json")
+        self.assertEqual(placed["feature"], "jurassicraft:fossil_deposits")
+        self.assertEqual(placed["placement"], [])
+        configured = read_json(DATA / "worldgen/configured_feature/fossil_deposits.json")
+        self.assertEqual(configured, {"type": "jurassicraft:fossil_deposits", "config": {}})
         pickaxe = set(read_json(RESOURCES / "data/minecraft/tags/blocks/mineable/pickaxe.json")["values"])
         stone_tier = set(read_json(RESOURCES / "data/minecraft/tags/blocks/needs_stone_tool.json")["values"])
         for name in self.upstream:
             fossil = f"{name}_fossil_block"
             encased = f"{name}_encased_fossil"
             with self.subTest(species=name):
-                placed = read_json(DATA / f"worldgen/placed_feature/{fossil}.json")
-                self.assertEqual(placed["feature"], f"jurassicraft:{fossil}")
-                placement_types = {entry["type"] for entry in placed["placement"]}
-                self.assertTrue({"minecraft:in_square", "minecraft:height_range", "minecraft:biome"} <= placement_types)
-                configured = read_json(DATA / f"worldgen/configured_feature/{fossil}.json")
-                self.assertEqual(configured["type"], "minecraft:ore")
-                self.assertTrue(any(target["state"]["Name"] == f"jurassicraft:{fossil}"
-                                    for target in configured["config"]["targets"]))
+                for folder in ("configured_feature", "placed_feature"):
+                    self.assertFalse((DATA / "worldgen" / folder / f"{fossil}.json").exists())
                 for block in (fossil, encased):
                     self.assertIn(f"jurassicraft:{block}", pickaxe)
                     self.assertIn(f"jurassicraft:{block}", stone_tier)

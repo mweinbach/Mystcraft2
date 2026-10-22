@@ -23,10 +23,7 @@ def packaged_everywhere(relative):
 
 
 def placements():
-    """Feature name -> (biome tag, generation step) as both loaders add them to biomes.
-
-    Per-species fossil ores are keyed as ``{species}_fossil_block``.
-    """
+    """Feature name -> (biome tag, generation step) as both loaders add them to biomes."""
     result = {}
     for species, name, biomes, step in _ADD.findall(PLACEMENTS.read_text(encoding="utf-8")):
         if biomes.startswith("BiomeTags."):

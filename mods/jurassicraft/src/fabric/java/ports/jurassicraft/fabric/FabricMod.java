@@ -3,6 +3,7 @@ package ports.jurassicraft.fabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
+import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -58,7 +59,14 @@ public final class FabricMod implements ModInitializer {
 
     private static void biomes() {
         for (WorldgenPlacements.Placement placement : WorldgenPlacements.all()) {
-            BiomeModifications.addFeature(context -> placement.enabled() && context.hasTag(placement.biomes()), placement.step(), placement.feature());
+            if (placement.afterOtherFeatures()) {
+                // After ordinary additions, so coal placed in later decoration steps is already there.
+                BiomeModifications.create(placement.feature().location()).add(ModificationPhase.POST_PROCESSING,
+                        context -> placement.enabled() && context.hasTag(placement.biomes()),
+                        context -> context.getGenerationSettings().addFeature(placement.step(), placement.feature()));
+            } else {
+                BiomeModifications.addFeature(context -> placement.enabled() && context.hasTag(placement.biomes()), placement.step(), placement.feature());
+            }
         }
         for (NaturalSpawns.Entry entry : NaturalSpawns.entries()) {
             BiomeModifications.addSpawn(context -> accepts(entry, context), entry.category(), entry.type(),
