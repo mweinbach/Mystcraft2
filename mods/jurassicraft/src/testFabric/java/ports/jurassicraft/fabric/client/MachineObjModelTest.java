@@ -1,11 +1,14 @@
 package ports.jurassicraft.fabric.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -74,7 +78,52 @@ public final class MachineObjModelTest {
             MachineModels.load(new MemoryResources(Map.of(jsonPath, json, objPath, "v NaN 0 0")), id);
             throw new AssertionError("Invalid mesh accepted by provider");
         } catch (ModelProviderException expected) { }
+
+        var generated = new ResourceLocation("jurassicraft", "item/dna_extractor");
+        var generatedPath = new ResourceLocation("jurassicraft", "models/item/dna_extractor.json");
+        check(MachineModels.load(new MemoryResources(Map.of(generatedPath,
+                "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"jurassicraft:items/dna_extractor\"}}")),
+                generated) == null, "generated item models stay vanilla block models");
+        check(substituteRealItemParents() == 3, "every item that parents a custom machine block is substituted");
         System.out.println("Machine OBJ models and rotations passed");
+    }
+
+    /** Item JSON that parents a Fabric OBJ block must not be loaded as a BlockModel. */
+    private static int substituteRealItemParents() throws Exception {
+        Path items = Path.of("mods/jurassicraft/src/main/resources/assets/jurassicraft/models/item");
+        Path fabricBlocks = Path.of("mods/jurassicraft/src/fabric/resources/assets/jurassicraft/models/block");
+        Path meshes = Path.of("mods/jurassicraft/src/main/resources/assets/jurassicraft/models/block");
+        String vanillaBlock = """
+                {"gui_light":"side","display":{"gui":{"rotation":[30,225,0],"translation":[0,0,0],"scale":[0.625,0.625,0.625]},"ground":{"rotation":[0,0,0],"translation":[0,3,0],"scale":[0.25,0.25,0.25]},"fixed":{"rotation":[0,0,0],"translation":[0,0,0],"scale":[0.5,0.5,0.5]},"thirdperson_righthand":{"rotation":[75,45,0],"translation":[0,2.5,0],"scale":[0.375,0.375,0.375]},"firstperson_righthand":{"rotation":[0,45,0],"translation":[0,0,0],"scale":[0.4,0.4,0.4]},"firstperson_lefthand":{"rotation":[0,225,0],"translation":[0,0,0],"scale":[0.4,0.4,0.4]}}}
+                """;
+        int substituted = 0;
+        try (Stream<Path> listing = Files.list(items)) {
+            for (Path item : listing.filter(path -> path.getFileName().toString().endsWith(".json")).toList()) {
+                JsonObject json = JsonParser.parseReader(Files.newBufferedReader(item)).getAsJsonObject();
+                if (!json.has("parent")) continue;
+                String parent = json.get("parent").getAsString();
+                if (!parent.startsWith("jurassicraft:block/")) continue;
+                String name = parent.substring("jurassicraft:block/".length());
+                Path marker = fabricBlocks.resolve(name + ".json");
+                if (!Files.isRegularFile(marker)) continue;
+                JsonObject block = JsonParser.parseReader(Files.newBufferedReader(marker)).getAsJsonObject();
+                if (!block.has("jurassicraft_obj")) continue;
+                String mesh = new ResourceLocation(block.get("jurassicraft_obj").getAsString()).getPath();
+                Map<ResourceLocation, String> files = new HashMap<>();
+                String fileName = item.getFileName().toString();
+                files.put(new ResourceLocation("jurassicraft", "models/item/" + fileName), Files.readString(item));
+                files.put(new ResourceLocation("jurassicraft", "models/block/" + name + ".json"), Files.readString(marker));
+                files.put(new ResourceLocation("jurassicraft", mesh), Files.readString(meshes.resolve(Path.of(mesh).getFileName())));
+                files.put(new ResourceLocation("minecraft", "models/block/block.json"), vanillaBlock);
+                UnbakedModel loaded = MachineModels.load(new MemoryResources(files),
+                        new ResourceLocation("jurassicraft", "item/" + fileName.substring(0, fileName.length() - ".json".length())));
+                check(loaded instanceof MachineObjModel, fileName + " must not parent a non-block model");
+                check(Math.abs(((MachineObjModel) loaded).transforms().gui.scale.x() - 0.625F) < 0.0001F,
+                        fileName + " keeps the vanilla block gui scale");
+                substituted++;
+            }
+        }
+        return substituted;
     }
 
     private static void expectInvalid(String obj) throws Exception {

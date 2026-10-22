@@ -208,7 +208,6 @@ public class FusionReactorGameTests {
         long[] waterBefore = new long[1];
         FloatingLong[] energyBefore = new FloatingLong[1];
         double[] caseTemperature = new double[1];
-        double[] ambient = new double[1];
         int[] phase = new int[1];
         helper.succeedWhen(() -> {
             TileEntityFusionReactorPort input = port(helper, reactor);
@@ -257,30 +256,30 @@ public class FusionReactorGameTests {
                 long water = TestPlatform.insertBlockFluid(input, side, Fluids.WATER, 50_000, true);
                 check(water == 50_000, "The port accepted " + water + " mB of water");
                 check(TestPlatform.blockFluid(input, side) == 50_000, "The fluid lookup reports " + TestPlatform.blockFluid(input, side));
-                data.steamTank.setStack(GasStack.EMPTY);
                 data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * CASE_TEMPERATURE);
                 data.updateTemperatures();
-                // The case boils against the average of its corners. Above y=80 that differs from the controller,
-                // and this test's grid position is not stable between runs.
-                ambient[0] = casingAmbient(helper, reactor);
                 caseTemperature[0] = data.getLastCaseTemp();
                 waterBefore[0] = data.waterTank.getFluidAmount();
                 energyBefore[0] = data.energyContainer.getEnergy().copy();
-                // One heating pass, then back to ambient. succeedWhen retries until the timeout, and each later
-                // tick would boil again and hide this sample.
+                // The block entity's own tick can fall on either side of this callback, so one world tick of
+                // waiting is sometimes two heating passes. Run the pass here. Then return the plasma and the
+                // casing to ambient before this callback can fail and retry: succeedWhen keeps going until the
+                // timeout, and each later tick would boil again and hide the measured pass.
                 data.tick(helper.getLevel());
-                data.setPlasmaTemp(ambient[0]);
-                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * ambient[0]);
+                double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+                data.setPlasmaTemp(ambient);
+                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * ambient);
                 data.updateTemperatures();
                 phase[0] = 1;
             }
-            int expectedSteam = expectedSteam(caseTemperature[0], ambient[0], waterBefore[0]);
+            double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+            int expectedSteam = expectedSteam(caseTemperature[0], ambient, waterBefore[0]);
             check(expectedSteam > SAMPLE, "The armed temperature only boils " + expectedSteam + " mB");
             check(data.steamTank.getStack().getType() == MekanismGases.STEAM.get() && data.steamTank.getStored() == expectedSteam,
                   "Steam is " + data.steamTank.getStack() + " from " + expectedSteam);
             check(data.waterTank.getFluidAmount() == waterBefore[0] - expectedSteam,
                   "Water is " + data.waterTank.getFluidAmount() + " after boiling " + expectedSteam);
-            FloatingLong expectedEnergy = expectedEnergy(caseTemperature[0], ambient[0]);
+            FloatingLong expectedEnergy = expectedEnergy(caseTemperature[0], ambient);
             FloatingLong gained = data.energyContainer.getEnergy().subtract(energyBefore[0]);
             check(gained.equals(expectedEnergy), "The casing stored " + gained + " from " + expectedEnergy);
             BlockEntity casing = helper.getBlockEntity(reactor.casing());
@@ -364,26 +363,6 @@ public class FusionReactorGameTests {
             long reported = TestPlatform.blockGas(restored, reactor.portSide());
             check(reported == deuterium[0] + tritium[0] + fuel[0], "The gas lookup reports " + reported + " after reload");
         });
-    }
-
-    /**
-     * Same average as {@code FusionReactorMultiblockData#onCreated}: the eight corners, converted to Kelvin.
-     * The conversion is linear, so the mean of the corner temperatures matches the reactor's stored ambient.
-     */
-    private static double casingAmbient(GameTestHelper helper, Reactor reactor) {
-        BlockPos min = helper.absolutePos(reactor.origin());
-        BlockPos max = min.offset(SIZE - 1, SIZE - 1, SIZE - 1);
-        double sum = 0;
-        int count = 0;
-        for (int x : new int[] {min.getX(), max.getX()}) {
-            for (int y : new int[] {min.getY(), max.getY()}) {
-                for (int z : new int[] {min.getZ(), max.getZ()}) {
-                    sum += HeatAPI.getAmbientTemp(helper.getLevel(), new BlockPos(x, y, z));
-                    count++;
-                }
-            }
-        }
-        return sum / count;
     }
 
     private static int expectedSteam(double caseTemperature, double ambient, long water) {

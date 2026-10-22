@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +37,36 @@ public final class MachineModels {
     }
 
     static UnbakedModel load(ResourceManager resources, ResourceLocation id) throws ModelProviderException {
+        if (!id.getNamespace().equals(MOD_ID)) return null;
+        // Item JSON that parents one of these blocks is still a vanilla BlockModel. BlockModel.getMaterials
+        // rejects a parent that is not itself a BlockModel, which aborts the reload before the title screen.
+        if (id.getPath().startsWith("item/")) return loadItem(resources, id);
+        return loadBlock(resources, id);
+    }
+
+    /** The item model is replaced wholesale so it never resolves the custom parent. */
+    private static UnbakedModel loadItem(ResourceManager resources, ResourceLocation id) throws ModelProviderException {
+        ResourceLocation jsonPath = new ResourceLocation(id.getNamespace(), "models/" + id.getPath() + ".json");
+        if (resources.getResource(jsonPath).isEmpty()) return null;
+        JsonObject model;
+        try (Reader json = resources.openAsReader(jsonPath)) {
+            var parsed = JsonParser.parseReader(json);
+            if (!parsed.isJsonObject()) return null;
+            model = parsed.getAsJsonObject();
+        } catch (IOException | JsonParseException | IllegalStateException e) {
+            return null;
+        }
+        if (!model.has("parent") || !model.get("parent").isJsonPrimitive()) return null;
+        ResourceLocation parent;
+        try {
+            parent = new ResourceLocation(model.get("parent").getAsString());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        return loadBlock(resources, parent);
+    }
+
+    private static UnbakedModel loadBlock(ResourceManager resources, ResourceLocation id) throws ModelProviderException {
         if (!id.getNamespace().equals(MOD_ID) || !id.getPath().startsWith("block/")
                 || !MODELS.contains(id.getPath().substring("block/".length()))) return null;
         ResourceLocation jsonPath = new ResourceLocation(id.getNamespace(), "models/" + id.getPath() + ".json");
@@ -48,10 +80,21 @@ public final class MachineModels {
             ResourceLocation surface = new ResourceLocation(textures.get("surface").getAsString());
             ResourceLocation particle = new ResourceLocation(textures.get("particle").getAsString());
             try (Reader mesh = resources.openAsReader(obj)) {
-                return new MachineObjModel(MachineObjMesh.read(mesh), surface, particle);
+                return new MachineObjModel(MachineObjMesh.read(mesh), surface, particle, blockDisplay(resources));
             }
         } catch (IOException | JsonParseException | IllegalStateException | NullPointerException e) {
             throw new ModelProviderException("Cannot load JurassiCraft machine model " + id, e);
+        }
+    }
+
+    /** Same display transforms Forge inherits from {@code minecraft:block/block}. */
+    private static ItemTransforms blockDisplay(ResourceManager resources) throws ModelProviderException {
+        ResourceLocation id = new ResourceLocation("minecraft", "models/block/block.json");
+        if (resources.getResource(id).isEmpty()) return ItemTransforms.NO_TRANSFORMS;
+        try (Reader reader = resources.openAsReader(id)) {
+            return BlockModel.fromStream(reader).getTransforms();
+        } catch (IOException | JsonParseException e) {
+            throw new ModelProviderException("Cannot read vanilla block display transforms", e);
         }
     }
 }
