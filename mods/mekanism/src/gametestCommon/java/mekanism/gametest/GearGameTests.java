@@ -697,7 +697,8 @@ public class GearGameTests {
 
     private static int dropped(GameTestHelper helper, Item item) {
         int count = 0;
-        AABB bounds = helper.getBounds().inflate(2);
+        BlockPos origin = helper.absolutePos(BlockPos.ZERO);
+        AABB bounds = new AABB(origin).expandTowards(8, 8, 8).inflate(2);
         for (ItemEntity entity : helper.getLevel().getEntitiesOfClass(ItemEntity.class, bounds)) {
             ItemStack stack = entity.getItem();
             if (stack.is(item)) {
