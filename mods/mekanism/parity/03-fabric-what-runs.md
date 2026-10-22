@@ -52,7 +52,9 @@ and valves in input, steam-output and coolant-output modes, and the boiler scree
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
 visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
 Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
-fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
+fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. In the
+development client `/mek build sps` built a 7×7×7 shell. Structural glass shows the casing frame and the empty
+corner cells of each face. The build has no port and no coil, so the orb and the coil bolts were not drawn. The shared
 GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
 block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
 smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the

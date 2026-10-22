@@ -67,6 +67,9 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   bodies are drawn inside the opaque casing. A formed fission reactor in that client is the 18×18×18 shell from
   `/mek build fission`: reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods.
   It was not fueled, so the burn glow and coolant body were not drawn, and the reactor screen was not opened.
+  A formed supercritical phase shifter in that client is the 7×7×7 shell from `/mek build sps`: structural glass
+  shows the casing frame and the empty corner cells of each face. It had no port and no coil, so the orb and the
+  coil bolts were not drawn.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk

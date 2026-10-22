@@ -10,3 +10,6 @@ millibucket of antimatter's worth of Forge Energy or Team Reborn Energy — turn
 antimatter. The gas handler gives that antimatter back and leaves the rest of the polonium. Saved polonium,
 antimatter and the idle port's energy come back after the blocks are removed and their NBT is loaded. The master's
 render box is the structure. Antimatter's EMC stays the crafting cost of a thousand polonium pellets per pellet.
+In the development client `/mek build sps` built that 7×7×7 shell. Structural glass shows the casing frame and
+the empty corner cells of each face. The command places no port and no supercharged coil, and nothing was fed,
+so the orb and the coil bolts were not drawn.
