@@ -30,6 +30,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import ports.jurassicraft.client.JurassicClient;
+import ports.jurassicraft.forge.client.VehicleKeyScopes;
 import ports.jurassicraft.platform.client.ClientPlatform;
 
 /** Drives the shared client phases from Forge's client events. */
@@ -93,14 +94,17 @@ final class ForgeClient implements ClientPlatform.Backend {
                 ? new HeldModifierKey(key.name(), context, code, key.category())
                 : new KeyMapping(key.name(), context, code, key.category());
         keyEvent.register(mapping);
+        if (key.activeWhen() != null) VehicleKeyScopes.mark(mapping);
         return mapping;
     }
 
     /**
      * Active only while riding. A context overlaps only itself, not in-game play and not the other
      * vehicle context, so a seat chord is not a warning against the hotbar or against Left Ctrl.
-     * Forge's {@code same} still compares the physical key when contexts do not overlap, so Space,
-     * Left Ctrl, Ctrl+A and Ctrl+D stay red next to jump, sprint and strafe.
+     * {@code same} still compares the physical key when contexts do not overlap. The controls-screen
+     * mixin hides that warning against an ordinary binding, so a held flight key still matches jump
+     * or sprint. Helicopter bindings share this context, so Left Ctrl stays a gold modifier conflict
+     * with Ctrl+A and Ctrl+D.
      */
     private IKeyConflictContext context(BooleanSupplier active) {
         return contexts.computeIfAbsent(active, supplier -> new IKeyConflictContext() {
