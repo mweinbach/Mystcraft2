@@ -45,6 +45,7 @@ rules.
 | Change vehicle seat | Ctrl+1 to Ctrl+9 | Keypad 1 to 9 |
 | Helicopter autopilot | Ctrl+A | Home |
 | Helicopter rotation lock | Ctrl+D | End |
+| Helicopter ascend / descend | Space / Left Ctrl | Space / Left Ctrl |
 | Helicopter rotate | Left / Right | Left / Right |
 | Camera zoom in / out | Page Down / Page Up | Page Down / Page Up |
 | Vehicle record player | R | R |
@@ -52,8 +53,15 @@ rules.
 
 Fabric's key mappings cannot require a modifier key, so its defaults avoid the
 upstream Ctrl chords. All keys can be changed in the controls menu. Helicopters
-climb and descend with the jump and sprint keys; the rotor needs time to reach
-flying speed. Use the record player key with a music disc in your main hand to
+ascend and descend with their own keys, Space and Left Ctrl by default. While
+you are piloting, those presses do not also jump or sprint. A vehicle-only binding
+shares its physical key with an ordinary control without a red conflict warning.
+Forge applies that only on the controls screen, through a client mixin; the
+binding comparison used while flying is unchanged. Fabric does the same on its
+controls list. Seat chords are unmarked as well. Descend, autopilot and rotation
+lock still show Forge's gold modifier color against each other, because Left Ctrl
+is the modifier for those chords and all three are active while flying. The rotor needs time
+to reach flying speed. Use the record player key with a music disc in your main hand to
 insert or swap it, or with an empty hand to eject it.
 
 Right-click an imprinted dinosaur with an empty hand to choose wander, follow,

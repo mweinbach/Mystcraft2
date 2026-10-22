@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class FissionReactorGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void fissionReactorForms(GameTestHelper helper) {
         Reactor reactor = place(helper, ORIGIN);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityFissionReactorPort input = input(helper, reactor);
             FissionReactorMultiblockData data = formed(input);
             check(data.length() == SIZE_XZ && data.width() == SIZE_XZ && data.height() == SIZE_Y,
@@ -118,7 +119,6 @@ public class FissionReactorGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
@@ -133,7 +133,14 @@ public class FissionReactorGameTests {
         helper.setBlock(missingRod.origin().offset(1, 1, 1), GeneratorsBlocks.FISSION_FUEL_ASSEMBLY.getBlock());
         Shell small = MultiblockStructures.cuboid(helper, new BlockPos(4, 1, 5), 2, 2, 2, GeneratorsBlocks.FISSION_REACTOR_CASING.getBlock(),
               GeneratorsBlocks.FISSION_REACTOR_CASING.getBlock(), GeneratorsBlocks.FISSION_REACTOR_PORT.getBlock());
-        helper.runAtTickTime(40, () -> {
+        succeedAfterScan(helper, () -> {
+            BlockEntity casing = helper.getBlockEntity(small.origin());
+            return port(helper, gapped).getStructure().size() == gapped.blocks().size()
+                  && port(helper, holed).getStructure().size() == holed.blocks().size() - 1
+                  && port(helper, missingRod).getStructure().size() == missingRod.blocks().size()
+                  && casing instanceof TileEntityFissionReactorCasing reactorCasing
+                  && reactorCasing.getStructure().size() == small.blocks().size();
+        }, () -> {
             TileEntityFissionReactorPort gapPort = port(helper, gapped);
             checkSeparate(gapPort, gapped.blocks().size(), "A reactor with a gap in its fuel column");
             check(TestPlatform.insertBlockGas(gapPort, gapped.valveSide(), MekanismGases.FISSILE_FUEL.get(), SAMPLE, true) == 0,
@@ -146,7 +153,6 @@ public class FissionReactorGameTests {
             BlockEntity casing = helper.getBlockEntity(small.origin());
             check(casing instanceof TileEntityFissionReactorCasing, "The undersized shell has no reactor block");
             checkSeparate((TileEntityFissionReactorCasing) casing, small.blocks().size(), "A 2x2x2 reactor");
-            helper.succeed();
         });
     }
 
@@ -154,47 +160,45 @@ public class FissionReactorGameTests {
     public static void reactorBurnsFuelAndEmitsHeatedSodium(GameTestHelper helper) {
         Reactor reactor = place(helper, ORIGIN);
         boolean[] ready = new boolean[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityFissionReactorPort input = input(helper, reactor);
-            FissionReactorMultiblockData data = formed(input);
-            Direction side = reactor.shell().valveSide();
-            BlockEntity casing = helper.getBlockEntity(reactor.shell().origin());
-            TileEntityFissionReactorLogicAdapter logic = logic(helper, reactor);
-            logic.setLogicTypeFromPacket(FissionReactorLogic.DEPLETED);
-            check(signal(helper, reactor.logic()) == 15, "An empty reactor's depleted adapter outputs " + signal(helper, reactor.logic()));
-            check(TestPlatform.insertBlockGas(casing, Direction.DOWN, MekanismGases.FISSILE_FUEL.get(), SAMPLE, true) == 0,
-                  "A casing block accepted fissile fuel");
-            check(TestPlatform.insertBlockGas(casing, Direction.DOWN, MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
-                  "A casing block accepted sodium");
-            check(TestPlatform.insertBlockGas(port(helper, reactor.waste()), reactor.wasteSide(), MekanismGases.FISSILE_FUEL.get(), SAMPLE, true) == 0,
-                  "The waste port accepted fissile fuel");
-            check(TestPlatform.insertBlockGas(port(helper, reactor.coolant()), reactor.coolantSide(), MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
-                  "The coolant port accepted sodium");
-            check(TestPlatform.insertBlockGas(input, side, MekanismGases.HYDROGEN.get(), SAMPLE, true) == 0, "The input port accepted hydrogen");
-            long fuelRoom = data.fuelTank.getCapacity();
-            long sodiumRoom = data.gasCoolantTank.getCapacity();
-            check(TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), fuelRoom, false) == fuelRoom,
-                  "A simulated fill offered less than the fuel tank");
-            check(data.fuelTank.isEmpty(), "A simulated fill stored fissile fuel");
-            long fuel = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), fuelRoom, true);
-            check(fuel == fuelRoom, "The input port accepted " + fuel + " of " + fuelRoom + " fissile fuel");
-            check(signal(helper, reactor.logic()) == 0, "A fuelled reactor still reports depleted");
-            long sodium = TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), sodiumRoom, true);
-            check(sodium == sodiumRoom, "The input port accepted " + sodium + " of " + sodiumRoom + " sodium");
-            check(data.fuelTank.getStack().getType() == MekanismGases.FISSILE_FUEL.get(), "The fuel tank holds " + data.fuelTank.getStack().getType());
-            check(data.gasCoolantTank.getStack().getType() == MekanismGases.SODIUM.get(), "The coolant tank holds " + data.gasCoolantTank.getStack().getType());
-            check(TestPlatform.blockGas(input, side) == fuel + sodium, "The gas lookup reports " + TestPlatform.blockGas(input, side));
-            data.setRateLimit(data.getMaxBurnRate());
-            activate(helper, reactor);
-            ready[0] = true;
-        });
         double[] armed = new double[] {Double.NaN};
         long[] sodiumBefore = new long[1];
         long[] heatedBefore = new long[1];
         long[] wasteBefore = new long[1];
         helper.succeedWhen(() -> {
-            check(ready[0], "Fuel has not been inserted");
-            FissionReactorMultiblockData data = formed(input(helper, reactor));
+            TileEntityFissionReactorPort input = input(helper, reactor);
+            FissionReactorMultiblockData data = formed(input);
+            if (!ready[0]) {
+                Direction side = reactor.shell().valveSide();
+                BlockEntity casing = helper.getBlockEntity(reactor.shell().origin());
+                TileEntityFissionReactorLogicAdapter logic = logic(helper, reactor);
+                logic.setLogicTypeFromPacket(FissionReactorLogic.DEPLETED);
+                check(signal(helper, reactor.logic()) == 15, "An empty reactor's depleted adapter outputs " + signal(helper, reactor.logic()));
+                check(TestPlatform.insertBlockGas(casing, Direction.DOWN, MekanismGases.FISSILE_FUEL.get(), SAMPLE, true) == 0,
+                      "A casing block accepted fissile fuel");
+                check(TestPlatform.insertBlockGas(casing, Direction.DOWN, MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
+                      "A casing block accepted sodium");
+                check(TestPlatform.insertBlockGas(port(helper, reactor.waste()), reactor.wasteSide(), MekanismGases.FISSILE_FUEL.get(), SAMPLE, true) == 0,
+                      "The waste port accepted fissile fuel");
+                check(TestPlatform.insertBlockGas(port(helper, reactor.coolant()), reactor.coolantSide(), MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
+                      "The coolant port accepted sodium");
+                check(TestPlatform.insertBlockGas(input, side, MekanismGases.HYDROGEN.get(), SAMPLE, true) == 0, "The input port accepted hydrogen");
+                long fuelRoom = data.fuelTank.getCapacity();
+                long sodiumRoom = data.gasCoolantTank.getCapacity();
+                check(TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), fuelRoom, false) == fuelRoom,
+                      "A simulated fill offered less than the fuel tank");
+                check(data.fuelTank.isEmpty(), "A simulated fill stored fissile fuel");
+                long fuel = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), fuelRoom, true);
+                check(fuel == fuelRoom, "The input port accepted " + fuel + " of " + fuelRoom + " fissile fuel");
+                check(signal(helper, reactor.logic()) == 0, "A fuelled reactor still reports depleted");
+                long sodium = TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), sodiumRoom, true);
+                check(sodium == sodiumRoom, "The input port accepted " + sodium + " of " + sodiumRoom + " sodium");
+                check(data.fuelTank.getStack().getType() == MekanismGases.FISSILE_FUEL.get(), "The fuel tank holds " + data.fuelTank.getStack().getType());
+                check(data.gasCoolantTank.getStack().getType() == MekanismGases.SODIUM.get(), "The coolant tank holds " + data.gasCoolantTank.getStack().getType());
+                check(TestPlatform.blockGas(input, side) == fuel + sodium, "The gas lookup reports " + TestPlatform.blockGas(input, side));
+                data.setRateLimit(data.getMaxBurnRate());
+                activate(helper, reactor);
+                ready[0] = true;
+            }
             // lastBoilRate is taken from the temperature before this tick applies burn heat, so arm a known temperature
             // and read the rate on the following tick.
             if (Double.isNaN(armed[0])) {
@@ -226,7 +230,6 @@ public class FissionReactorGameTests {
             GasStack heated = TestPlatform.extractGas(port(helper, reactor.coolant()), reactor.coolantSide(), SAMPLE, true);
             check(heated.getType() == MekanismGases.SUPERHEATED_SODIUM.get() && heated.getAmount() == SAMPLE,
                   "The coolant port returned " + heated);
-            helper.succeed();
         });
     }
 
@@ -234,33 +237,31 @@ public class FissionReactorGameTests {
     public static void reactorBoilsWaterIntoSteam(GameTestHelper helper) {
         Reactor reactor = place(helper, ORIGIN);
         boolean[] ready = new boolean[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityFissionReactorPort input = input(helper, reactor);
-            FissionReactorMultiblockData data = formed(input);
-            Direction side = reactor.shell().valveSide();
-            BlockEntity casing = helper.getBlockEntity(reactor.shell().origin());
-            int room = data.fluidCoolantTank.getCapacity();
-            check(TestPlatform.insertBlockFluid(casing, Direction.DOWN, Fluids.WATER, SAMPLE, true) == 0, "A casing block accepted water");
-            check(TestPlatform.insertBlockFluid(input, side, Fluids.LAVA, SAMPLE, true) == 0, "The input port accepted lava");
-            check(TestPlatform.insertBlockFluid(input, side, Fluids.WATER, room, false) == room, "A simulated fill offered less than the water tank");
-            check(data.fluidCoolantTank.isEmpty(), "A simulated fill stored water");
-            long water = TestPlatform.insertBlockFluid(input, side, Fluids.WATER, room, true);
-            check(water == room, "The input port accepted " + water + " of " + room + " mB");
-            check(TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
-                  "The input port accepted sodium while it held water");
-            long fuel = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), data.fuelTank.getCapacity(), true);
-            check(fuel == data.fuelTank.getCapacity(), "The input port accepted " + fuel + " fissile fuel");
-            data.setRateLimit(data.getMaxBurnRate());
-            activate(helper, reactor);
-            ready[0] = true;
-        });
         double[] armed = new double[] {Double.NaN};
         long[] waterBefore = new long[1];
         long[] steamBefore = new long[1];
         long[] wasteBefore = new long[1];
         helper.succeedWhen(() -> {
-            check(ready[0], "Water has not been inserted");
-            FissionReactorMultiblockData data = formed(input(helper, reactor));
+            TileEntityFissionReactorPort input = input(helper, reactor);
+            FissionReactorMultiblockData data = formed(input);
+            if (!ready[0]) {
+                Direction side = reactor.shell().valveSide();
+                BlockEntity casing = helper.getBlockEntity(reactor.shell().origin());
+                int room = data.fluidCoolantTank.getCapacity();
+                check(TestPlatform.insertBlockFluid(casing, Direction.DOWN, Fluids.WATER, SAMPLE, true) == 0, "A casing block accepted water");
+                check(TestPlatform.insertBlockFluid(input, side, Fluids.LAVA, SAMPLE, true) == 0, "The input port accepted lava");
+                check(TestPlatform.insertBlockFluid(input, side, Fluids.WATER, room, false) == room, "A simulated fill offered less than the water tank");
+                check(data.fluidCoolantTank.isEmpty(), "A simulated fill stored water");
+                long water = TestPlatform.insertBlockFluid(input, side, Fluids.WATER, room, true);
+                check(water == room, "The input port accepted " + water + " of " + room + " mB");
+                check(TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), SAMPLE, true) == 0,
+                      "The input port accepted sodium while it held water");
+                long fuel = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), data.fuelTank.getCapacity(), true);
+                check(fuel == data.fuelTank.getCapacity(), "The input port accepted " + fuel + " fissile fuel");
+                data.setRateLimit(data.getMaxBurnRate());
+                activate(helper, reactor);
+                ready[0] = true;
+            }
             if (Double.isNaN(armed[0])) {
                 check(data.isActive(), "The reactor stopped");
                 data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * (HeatUtils.BASE_BOIL_TEMP + 50));
@@ -288,7 +289,6 @@ public class FissionReactorGameTests {
             check(steam.getType() == MekanismGases.STEAM.get() && steam.getAmount() == SAMPLE, "The coolant port returned " + steam);
             GasStack waste = TestPlatform.extractGas(port(helper, reactor.waste()), reactor.wasteSide(), 1, true);
             check(waste.getType() == MekanismGases.NUCLEAR_WASTE.get() && waste.getAmount() == 1, "The waste port returned " + waste);
-            helper.succeed();
         });
     }
 
@@ -392,41 +392,44 @@ public class FissionReactorGameTests {
         long[] waste = new long[1];
         long[] heated = new long[1];
         double[] damage = new double[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityFissionReactorPort input = input(helper, reactor);
-            FissionReactorMultiblockData data = formed(input);
-            Direction side = reactor.shell().valveSide();
-            long filled = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), 400, true);
-            check(filled == 400, "The input port accepted " + filled + " fissile fuel before the save");
-            long coolant = TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), 800, true);
-            check(coolant == 800, "The input port accepted " + coolant + " sodium before the save");
-            data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(80));
-            data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(120));
-            data.reactorDamage = 25;
-            data.setRateLimit(0.4);
-            data.setActive(false);
-            logic(helper, reactor).setLogicTypeFromPacket(FissionReactorLogic.TEMPERATURE);
-            fuel[0] = data.fuelTank.getStored();
-            sodium[0] = data.gasCoolantTank.getStored();
-            waste[0] = data.wasteTank.getStored();
-            heated[0] = data.heatedCoolantTank.getStored();
-            damage[0] = data.reactorDamage;
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : reactor.shell().blocks()) {
-                saved.add(save(helper, pos));
+        boolean[] reloaded = {false};
+        helper.succeedWhen(() -> {
+            if (!reloaded[0]) {
+                TileEntityFissionReactorPort input = input(helper, reactor);
+                FissionReactorMultiblockData data = formed(input);
+                Direction side = reactor.shell().valveSide();
+                long filled = TestPlatform.insertBlockGas(input, side, MekanismGases.FISSILE_FUEL.get(), 400, true);
+                check(filled == 400, "The input port accepted " + filled + " fissile fuel before the save");
+                long coolant = TestPlatform.insertBlockGas(input, side, MekanismGases.SODIUM.get(), 800, true);
+                check(coolant == 800, "The input port accepted " + coolant + " sodium before the save");
+                data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(80));
+                data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(120));
+                data.reactorDamage = 25;
+                data.setRateLimit(0.4);
+                data.setActive(false);
+                logic(helper, reactor).setLogicTypeFromPacket(FissionReactorLogic.TEMPERATURE);
+                fuel[0] = data.fuelTank.getStored();
+                sodium[0] = data.gasCoolantTank.getStored();
+                waste[0] = data.wasteTank.getStored();
+                heated[0] = data.heatedCoolantTank.getStored();
+                damage[0] = data.reactorDamage;
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : reactor.shell().blocks()) {
+                    saved.add(save(helper, pos));
+                }
+                saved.add(save(helper, reactor.fuel()));
+                saved.add(save(helper, reactor.rod()));
+                MekanismGenerators.fissionReactorManager.inventories.remove(data.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                reloaded[0] = true;
+                check(false, "Waiting for the reloaded reactor to form");
             }
-            saved.add(save(helper, reactor.fuel()));
-            saved.add(save(helper, reactor.rod()));
-            MekanismGenerators.fissionReactorManager.inventories.remove(data.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
-            }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(100, () -> {
             TileEntityFissionReactorPort restored = input(helper, reactor);
             FissionReactorMultiblockData data = formed(restored);
             check(data.fuelTank.getStack().getType() == MekanismGases.FISSILE_FUEL.get() && data.fuelTank.getStored() == fuel[0],
@@ -451,7 +454,6 @@ public class FissionReactorGameTests {
                   "The gas lookup reports " + reported + " after reload");
             check(TestPlatform.blockTemperature(restored, reactor.shell().valveSide()) == data.heatCapacitor.getTemperature(),
                   "The heat lookup reports " + TestPlatform.blockTemperature(restored, reactor.shell().valveSide()) + " after reload");
-            helper.succeed();
         });
     }
 

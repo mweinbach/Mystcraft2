@@ -9,6 +9,8 @@
   "key.jurassicraft.vehicle_seat_8": "Vehicle seat 8",
   "key.jurassicraft.vehicle_seat_9": "Vehicle seat 9",
   "tooltip.jurassicraft.vehicle_seats": "Switch seats with the vehicle seat keys; driver seat: %s",
+  "key.jurassicraft.helicopter_ascend": "Helicopter ascend",
+  "key.jurassicraft.helicopter_descend": "Helicopter descend",
   "key.jurassicraft.helicopter_rotate_left": "Helicopter rotate left",
   "key.jurassicraft.helicopter_rotate_right": "Helicopter rotate right",
   "key.jurassicraft.helicopter_zoom_in": "Helicopter camera zoom in",

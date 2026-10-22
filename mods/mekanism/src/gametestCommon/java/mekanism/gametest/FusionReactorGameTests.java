@@ -5,6 +5,7 @@
 package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class FusionReactorGameTests {
         Reactor reactor = place(helper, ORIGIN, Shape.VALID);
         BlockPos glass = reactor.port().relative(Direction.NORTH);
         helper.setBlock(glass, MekanismBlocks.STRUCTURAL_GLASS.getBlock());
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityFusionReactorPort port = port(helper, reactor);
             FusionReactorMultiblockData data = formed(port);
             check(data.length() == SIZE && data.width() == SIZE && data.height() == SIZE,
@@ -109,7 +110,6 @@ public class FusionReactorGameTests {
             check(glassEntity instanceof TileEntityStructuralGlass, "The neighbour is " + glassEntity);
             check(glassEntity instanceof IStructuralMultiblock structural && !structural.hasFormedMultiblock(),
                   "Structural glass joined the reactor");
-            helper.succeed();
         });
     }
 
@@ -121,7 +121,15 @@ public class FusionReactorGameTests {
         Reactor glass = place(helper, new BlockPos(0, 1, 6), Shape.GLASS_CASING);
         Shell small = MultiblockStructures.cuboid(helper, new BlockPos(6, 1, 6), 2, 2, 2, GeneratorsBlocks.FUSION_REACTOR_FRAME.getBlock(),
               GeneratorsBlocks.FUSION_REACTOR_FRAME.getBlock(), GeneratorsBlocks.FUSION_REACTOR_PORT.getBlock());
-        helper.runAtTickTime(40, () -> {
+        succeedAfterScan(helper, () -> {
+            BlockEntity casing = helper.getBlockEntity(small.origin());
+            return port(helper, missing).getStructure().size() == missing.blocks().size()
+                  && port(helper, controller).getStructure().size() == controller.blocks().size()
+                  && port(helper, stone).getStructure().size() == stone.blocks().size()
+                  && port(helper, glass).getStructure().size() == glass.blocks().size()
+                  && casing instanceof TileEntityFusionReactorBlock reactorBlock
+                  && reactorBlock.getStructure().size() == small.blocks().size();
+        }, () -> {
             TileEntityFusionReactorPort missingPort = port(helper, missing);
             checkSeparate(missingPort, missing.blocks().size(), "A reactor missing a frame block");
             check(TestPlatform.insertBlockGas(missingPort, missing.portSide(), GeneratorsGases.DEUTERIUM.get(), SAMPLE, true) == 0,
@@ -135,7 +143,6 @@ public class FusionReactorGameTests {
             BlockEntity casing = helper.getBlockEntity(small.origin());
             check(casing instanceof TileEntityFusionReactorBlock, "The undersized shell has no reactor block");
             checkSeparate((TileEntityFusionReactorBlock) casing, small.blocks().size(), "A 2x2x2 reactor");
-            helper.succeed();
         });
     }
 
@@ -255,8 +262,14 @@ public class FusionReactorGameTests {
                 waterBefore[0] = data.waterTank.getFluidAmount();
                 energyBefore[0] = data.energyContainer.getEnergy().copy();
                 // The block entity's own tick can fall on either side of this callback, so one world tick of
-                // waiting is sometimes two heating passes. Run the pass here and read it before that tick.
+                // waiting is sometimes two heating passes. Run the pass here. Then return the plasma and the
+                // casing to ambient before this callback can fail and retry: succeedWhen keeps going until the
+                // timeout, and each later tick would boil again and hide the measured pass.
                 data.tick(helper.getLevel());
+                double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
+                data.setPlasmaTemp(ambient);
+                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * ambient);
+                data.updateTemperatures();
                 phase[0] = 1;
             }
             double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
@@ -289,42 +302,45 @@ public class FusionReactorGameTests {
         long[] fuel = new long[1];
         double[] plasma = new double[1];
         FloatingLong[] energy = new FloatingLong[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityFusionReactorPort input = port(helper, reactor);
-            FusionReactorMultiblockData data = formed(input);
-            Direction side = reactor.portSide();
-            data.setInjectionRate(4);
-            long filledDeuterium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), 40, true);
-            long filledTritium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.TRITIUM.get(), 30, true);
-            long filledFuel = TestPlatform.insertBlockGas(input, side, GeneratorsGases.FUSION_FUEL.get(), 20, true);
-            check(filledDeuterium == 40 && filledTritium == 30 && filledFuel == 20, "The port did not take the fuel before the save");
-            data.setPlasmaTemp(50_000);
-            data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * 50_000);
-            data.updateTemperatures();
-            data.energyContainer.setEnergy(FloatingLong.createConst(25_000));
-            data.setBurning(false);
-            logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.READY);
-            logic(helper, reactor).nextMode();
-            input.setActive(true);
-            deuterium[0] = data.deuteriumTank.getStored();
-            tritium[0] = data.tritiumTank.getStored();
-            fuel[0] = data.fuelTank.getStored();
-            plasma[0] = data.getPlasmaTemp();
-            energy[0] = data.energyContainer.getEnergy().copy();
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : reactor.blocks()) {
-                saved.add(save(helper, pos));
+        boolean[] reloaded = {false};
+        helper.succeedWhen(() -> {
+            if (!reloaded[0]) {
+                TileEntityFusionReactorPort input = port(helper, reactor);
+                FusionReactorMultiblockData data = formed(input);
+                Direction side = reactor.portSide();
+                data.setInjectionRate(4);
+                long filledDeuterium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), 40, true);
+                long filledTritium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.TRITIUM.get(), 30, true);
+                long filledFuel = TestPlatform.insertBlockGas(input, side, GeneratorsGases.FUSION_FUEL.get(), 20, true);
+                check(filledDeuterium == 40 && filledTritium == 30 && filledFuel == 20, "The port did not take the fuel before the save");
+                data.setPlasmaTemp(50_000);
+                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * 50_000);
+                data.updateTemperatures();
+                data.energyContainer.setEnergy(FloatingLong.createConst(25_000));
+                data.setBurning(false);
+                logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.READY);
+                logic(helper, reactor).nextMode();
+                input.setActive(true);
+                deuterium[0] = data.deuteriumTank.getStored();
+                tritium[0] = data.tritiumTank.getStored();
+                fuel[0] = data.fuelTank.getStored();
+                plasma[0] = data.getPlasmaTemp();
+                energy[0] = data.energyContainer.getEnergy().copy();
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : reactor.blocks()) {
+                    saved.add(save(helper, pos));
+                }
+                MekanismGenerators.fusionReactorManager.inventories.remove(data.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                reloaded[0] = true;
+                check(false, "Waiting for the reloaded reactor to form");
             }
-            MekanismGenerators.fusionReactorManager.inventories.remove(data.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
-            }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(100, () -> {
             TileEntityFusionReactorPort restored = port(helper, reactor);
             FusionReactorMultiblockData data = formed(restored);
             check(data.deuteriumTank.getStack().getType() == GeneratorsGases.DEUTERIUM.get() && data.deuteriumTank.getStored() == deuterium[0],
@@ -346,7 +362,6 @@ public class FusionReactorGameTests {
             check(restored.getActive(), "Reloaded port is not in output mode");
             long reported = TestPlatform.blockGas(restored, reactor.portSide());
             check(reported == deuterium[0] + tritium[0] + fuel[0], "The gas lookup reports " + reported + " after reload");
-            helper.succeed();
         });
     }
 

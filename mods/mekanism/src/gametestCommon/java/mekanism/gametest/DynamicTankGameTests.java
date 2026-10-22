@@ -6,6 +6,7 @@ package mekanism.gametest;
 
 import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
+import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class DynamicTankGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void dynamicTankForms(GameTestHelper helper) {
         Shell shell = MultiblockStructures.dynamicTank(helper, ORIGIN, 3);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityDynamicTank valve = valve(helper, shell);
             TankMultiblockData tank = formed(valve);
             check(tank.length() == 3 && tank.width() == 3 && tank.height() == 3, "Formed tank bounds are " + tank.length() + "x" + tank.height() + "x" + tank.width());
@@ -53,7 +54,6 @@ public class DynamicTankGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
@@ -62,22 +62,31 @@ public class DynamicTankGameTests {
         Shell holed = MultiblockStructures.dynamicTank(helper, ORIGIN, 3);
         helper.setBlock(holed.origin(), Blocks.AIR);
         Shell small = MultiblockStructures.dynamicTank(helper, new BlockPos(5, 1, 1), 2);
-        helper.runAtTickTime(40, () -> {
+        succeedAfterScan(helper, () -> {
+            BlockEntity casing = helper.getBlockEntity(small.origin());
+            return valve(helper, holed).getStructure().size() == holed.blocks().size() - 1
+                  && casing instanceof TileEntityDynamicTank tank
+                  && tank.getStructure().size() == small.blocks().size();
+        }, () -> {
             TileEntityDynamicTank valve = valve(helper, holed);
             check(!valve.getMultiblock().isFormed(), "A tank with a missing corner formed");
+            check(valve.getStructure().size() == holed.blocks().size() - 1,
+                  "A tank with a missing corner shares a structure of " + valve.getStructure().size() + " blocks");
             check(TestPlatform.insertBlockFluid(valve, holed.valveSide(), Fluids.WATER, STORED, true) == 0,
                   "An unformed valve accepted fluid");
             BlockEntity casing = helper.getBlockEntity(small.origin());
             check(casing instanceof TileEntityDynamicTank, "The undersized shell has no tank block");
-            check(!((TileEntityDynamicTank) casing).getMultiblock().isFormed(), "A 2x2x2 tank formed");
-            helper.succeed();
+            TileEntityDynamicTank smallTank = (TileEntityDynamicTank) casing;
+            check(!smallTank.getMultiblock().isFormed(), "A 2x2x2 tank formed");
+            check(smallTank.getStructure().size() == small.blocks().size(),
+                  "A 2x2x2 tank shares a structure of " + smallTank.getStructure().size() + " blocks");
         });
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void valveMovesFluidThroughTheLoaderApi(GameTestHelper helper) {
         Shell shell = MultiblockStructures.dynamicTank(helper, ORIGIN, 3);
-        helper.runAtTickTime(40, () -> {
+        helper.succeedWhen(() -> {
             TileEntityDynamicTank valve = valve(helper, shell);
             formed(valve);
             BlockEntity casing = helper.getBlockEntity(shell.origin());
@@ -92,41 +101,42 @@ public class DynamicTankGameTests {
             long drained = TestPlatform.extractBlockFluid(valve, shell.valveSide(), Fluids.WATER, 500, true);
             check(drained == 500, "The valve returned " + drained);
             check(valve.getMultiblock().getFluidTank().getFluidAmount() == STORED - 500, "The tank stores " + valve.getMultiblock().getFluidTank().getFluidAmount() + " after the drain");
-            helper.succeed();
         });
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void tankContentsSurviveSaveAndLoad(GameTestHelper helper) {
         Shell shell = MultiblockStructures.dynamicTank(helper, ORIGIN, 3);
-        helper.runAtTickTime(40, () -> {
-            TileEntityDynamicTank valve = valve(helper, shell);
-            TankMultiblockData tank = formed(valve);
-            long filled = TestPlatform.insertBlockFluid(valve, shell.valveSide(), Fluids.WATER, STORED, true);
-            check(filled == STORED, "The valve accepted " + filled + " before the save");
-            tank.setContainerEditMode(ContainerEditMode.FILL);
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : shell.blocks()) {
-                BlockEntity blockEntity = helper.getBlockEntity(pos);
-                saved.add(new SavedBlock(pos, helper.getBlockState(pos), blockEntity.saveWithFullMetadata()));
+        boolean[] reloaded = {false};
+        helper.succeedWhen(() -> {
+            if (!reloaded[0]) {
+                TileEntityDynamicTank valve = valve(helper, shell);
+                TankMultiblockData tank = formed(valve);
+                long filled = TestPlatform.insertBlockFluid(valve, shell.valveSide(), Fluids.WATER, STORED, true);
+                check(filled == STORED, "The valve accepted " + filled + " before the save");
+                tank.setContainerEditMode(ContainerEditMode.FILL);
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : shell.blocks()) {
+                    BlockEntity blockEntity = helper.getBlockEntity(pos);
+                    saved.add(new SavedBlock(pos, helper.getBlockState(pos), blockEntity.saveWithFullMetadata()));
+                }
+                Mekanism.tankManager.inventories.remove(tank.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                reloaded[0] = true;
+                check(false, "Waiting for the reloaded tank to form");
             }
-            Mekanism.tankManager.inventories.remove(tank.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
-            }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(80, () -> {
             TileEntityDynamicTank restored = valve(helper, shell);
             TankMultiblockData data = formed(restored);
             check(data.getFluidTank().getFluid().getFluid() == Fluids.WATER && data.getFluidTank().getFluidAmount() == STORED,
                   "Reloaded tank holds " + data.getFluidTank().getFluid());
             check(data.editMode == ContainerEditMode.FILL, "Reloaded tank edit mode is " + data.editMode);
             check(TestPlatform.blockFluid(restored, shell.valveSide()) == STORED, "The loader reports " + TestPlatform.blockFluid(restored, shell.valveSide()) + " after reload");
-            helper.succeed();
         });
     }
 
