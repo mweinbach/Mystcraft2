@@ -15,6 +15,10 @@ repositories {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
 }
 
 dependencies {
@@ -29,7 +33,26 @@ dependencies {
     include(implementation('com.electronwill.night-config:toml:3.6.6'))
     // Forge ships maven-artifact; Mekanism compares mod versions with it.
     include(implementation('org.apache.maven:maven-artifact:3.8.5'))
+    // Jade 8.7.3 and WTHIT 5.36.1 are optional. The plugin classes stay in the JAR; neither mod is required to load.
+    // -PwithJade and -PwithWthit add them to a development run.
+    modCompileOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    modCompileOnly('maven.modrinth:wthit:APJpZnsA') { transitive = false }
+    if (providers.gradleProperty('withJade').isPresent()) {
+        modRuntimeOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    }
+    if (providers.gradleProperty('withWthit').isPresent()) {
+        modRuntimeOnly('maven.modrinth:wthit:APJpZnsA') { transitive = false }
+        modRuntimeOnly('maven.modrinth:badpackets:7Y5NcPRW') { transitive = false }
+    }
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    // JEI is optional at runtime. The plugin entrypoint is only loaded when JEI asks for it.
+    modCompileOnly 'mezz.jei:jei-1.19.2-common-api:11.6.0.1015'
+    modCompileOnly 'mezz.jei:jei-1.19.2-fabric-api:11.6.0.1015'
+    if (providers.gradleProperty('withJei').isPresent()) {
+        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1015') {
+            transitive = false
+        }
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'
@@ -233,11 +256,28 @@ loom {
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('../emc/values.json')}"
         }
+        // A client with the development-only block row, for one screenshot. Not part of the production JAR.
+        showcaseClient {
+            client()
+            name 'Mekanism Fabric Block Showcase'
+            source sourceSets.gametest
+            runDir 'build/showcase'
+            programArgs '--width', '1600', '--height', '900'
+        }
+        // Jade is runtime-only when -PwithJade is set. The property keeps the block-row client from hiding the HUD.
+        jadeClient {
+            client()
+            name 'Mekanism Fabric Jade Screenshot'
+            source sourceSets.gametest
+            runDir 'build/jade-client'
+            programArgs '--width', '1600', '--height', '900'
+            vmArg '-Dmekanism.jade.screenshot=true'
+        }
     }
 }
 // The client and server runs start from the core source set. Module outputs have to be on that classpath
 // or the dev game never loads Generators, Tools or Additions.
-['runClient', 'runServer'].each { String taskName ->
+['runClient', 'runServer', 'runShowcaseClient', 'runJadeClient'].each { String taskName ->
     tasks.named(taskName) {
         classpath += sourceSets.generators.output
         classpath += sourceSets.tools.output

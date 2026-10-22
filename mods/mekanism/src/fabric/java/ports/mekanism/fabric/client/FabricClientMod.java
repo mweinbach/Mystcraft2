@@ -6,6 +6,7 @@ package ports.mekanism.fabric.client;
 
 import java.util.HashSet;
 import java.util.Set;
+import mekanism.common.Mekanism;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
@@ -19,6 +20,7 @@ import ports.mekanism.fabric.FabricGameEvents;
 import ports.mekanism.fabric.FabricLifecycle;
 import ports.mekanism.lib.client.ForgeHooksClient;
 import ports.mekanism.lib.client.event.EntityRenderersEvent;
+import ports.mekanism.lib.client.event.EntityRenderersEvent.AddLayers;
 import ports.mekanism.lib.client.event.ModelEvent;
 import ports.mekanism.lib.client.event.RegisterClientReloadListenersEvent;
 import ports.mekanism.lib.client.event.RegisterColorHandlersEvent;
@@ -34,7 +36,9 @@ import ports.mekanism.lib.client.model.ElementsModel;
 import ports.mekanism.lib.client.model.SeparateTransformsModel;
 import ports.mekanism.lib.client.model.obj.ObjLoader;
 import ports.mekanism.lib.event.TickEvent;
+import ports.mekanism.lib.eventbus.api.EventPriority;
 import ports.mekanism.lib.fml.LogicalSide;
+import ports.mekanism.lib.fml.ModList;
 
 /**
  * The Fabric client entrypoint: fires Forge's client registration events, then client setup.
@@ -44,6 +48,9 @@ public final class FabricClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FabricClientNetworking.install();
+        FabricArmorRendering.register();
+        ModList.get().getModContainerById(Mekanism.MODID).orElseThrow(() -> new IllegalStateException("Mekanism is not loaded"))
+              .getEventBus().addListener(EventPriority.LOWEST, false, AddLayers.class, FabricArmorRendering::dropDuplicateArmorLayer);
         registerGameEvents();
 
         FabricLifecycle.postToMods(new RegisterKeyMappingsEvent());

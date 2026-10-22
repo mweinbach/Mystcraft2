@@ -22,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.mekanism.fabric.FabricGameEvents;
 import ports.mekanism.fabric.client.FabricClientMod;
+import ports.mekanism.lib.client.event.ScreenEvent;
+import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.event.TickEvent;
 import ports.mekanism.lib.event.level.LevelEvent;
 
@@ -33,6 +35,36 @@ public abstract class MinecraftMixin {
 
     @Unique
     private float mekanism$renderPartialTick;
+
+    @Unique
+    private boolean mekanism$openingScreen;
+
+    /**
+     * Forge posts {@code ScreenEvent.Opening} at the start of {@code setScreen}. JEI's recipe screen is how a machine
+     * GUI knows to keep its container open.
+     */
+    @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+    private void mekanism$screenOpening(Screen next, CallbackInfo ci) {
+        if (this.mekanism$openingScreen) {
+            return;
+        }
+        Minecraft minecraft = (Minecraft) (Object) this;
+        ScreenEvent.Opening opening = new ScreenEvent.Opening(minecraft.screen, next);
+        if (MinecraftForge.EVENT_BUS.post(opening)) {
+            ci.cancel();
+            return;
+        }
+        Screen replacement = opening.getNewScreen();
+        if (replacement != next) {
+            ci.cancel();
+            this.mekanism$openingScreen = true;
+            try {
+                minecraft.setScreen(replacement);
+            } finally {
+                this.mekanism$openingScreen = false;
+            }
+        }
+    }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))
     private void mekanism$renderTickStart(boolean renderLevel, CallbackInfo ci) {

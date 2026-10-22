@@ -78,8 +78,8 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
             require(outer_class(name) in declared, f'Non-mixin class in the mixin package: {name}')
     mappings = json.loads(b.read(mixin['refmap']))['mappings']
     for name, side in (('EntityPersistentDataMixin', 'mixins'), ('FenceClimbMixin', 'mixins'),
-                       ('VillageAssemblyMixin', 'mixins'), ('client.VehicleCameraMixin', 'client'),
-                       ('client.KeyBindConflictMixin', 'client')):
+                       ('VillageAssemblyMixin', 'mixins'), ('ParkEdgePostProcessMixin', 'mixins'),
+                       ('client.VehicleCameraMixin', 'client'), ('client.KeyBindConflictMixin', 'client')):
         require(name in mixin.get(side, []), f'Missing Fabric {side} hook: {name}')
         require('method_' in json.dumps(mappings.get('ports/jurassicraft/fabric/mixin/' + name.replace('.', '/'), {})),
                 f'Missing production mixin mapping: {name}')
@@ -87,7 +87,8 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     forge_mixin = json.loads(a.read('jurassicraft.forge.mixins.json'))
     require(forge_mixin.get('required') is True, 'Forge mixins must be required')
     # Village assembly runs while a dedicated server generates chunks, so that mixin is not client-only.
-    require(forge_mixin.get('mixins') == ['VillageAssemblyMixin'], 'Unexpected Forge server mixin set')
+    require(forge_mixin.get('mixins') == ['VillageAssemblyMixin', 'ParkEdgePostProcessMixin'],
+            'Unexpected Forge server mixin set')
     require(forge_mixin.get('client') == ['client.KeyBindConflictMixin'], 'Unexpected Forge client mixin set')
     forge_package = forge_mixin['package'].replace('.', '/') + '/'
     forge_declared = {forge_package + name.replace('.', '/')
@@ -103,6 +104,9 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     village_mapped = json.dumps(json.loads(a.read(forge_mixin['refmap']))['mappings'].get(
         'ports/jurassicraft/forge/mixin/VillageAssemblyMixin', {}))
     require('m_227264_' in village_mapped, 'Missing production Forge mixin mapping: VillageAssemblyMixin')
+    edge_mapped = json.dumps(json.loads(a.read(forge_mixin['refmap']))['mappings'].get(
+        'ports/jurassicraft/forge/mixin/ParkEdgePostProcessMixin', {}))
+    require('m_62812_' in edge_mapped, 'Missing production Forge mixin mapping: ParkEdgePostProcessMixin')
     require('MixinConfigs: jurassicraft.forge.mixins.json' in a.read('META-INF/MANIFEST.MF').decode(),
             'Forge JAR does not load its mixin config')
 

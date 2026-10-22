@@ -6,6 +6,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,6 +29,7 @@ import ports.jurassicraft.goat.GoatRegistry;
 import ports.jurassicraft.loot.BonusLoot;
 import ports.jurassicraft.maps.VisitorCentreMaps;
 import ports.jurassicraft.music.MusicLoot;
+import ports.jurassicraft.structures.ParkEdges;
 import ports.jurassicraft.structures.SpawnParkCommand;
 import ports.jurassicraft.structures.VisitorLocate;
 import ports.jurassicraft.village.PaleontologistDigGoal;
@@ -68,6 +71,11 @@ public final class JurassicEvents {
         VisitorLocate.install(dispatcher.getRoot());
         SpawnParkCommand.register(dispatcher);
         AnimateCommand.register(dispatcher);
+    }
+
+    /** A chunk has loaded. Park edge shapes run only if this piece has not settled yet. */
+    public static void chunkLoaded(ServerLevel level, LevelChunk chunk) {
+        ParkEdges.settleLoaded(chunk);
     }
 
     public static void serverAboutToStart(MinecraftServer server) {

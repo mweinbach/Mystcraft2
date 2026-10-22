@@ -197,4 +197,32 @@ public final class ParkStructureGameTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void parkStructureTagBindsItsStructures(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.tag(helper.getLevel().getServer());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 1200)
+    public void paddockWallsMatchOneShotAndUpstream(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.walls(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 600)
+    public void brokenFenceStaysBroken(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.brokenFence(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 600)
+    public void chestLootIsNotRerolled(GameTestHelper helper) {
+        var failures = PaddockStructureAudit.chestLoot(helper.getLevel());
+        check(helper, failures.isEmpty(), String.join("; ", failures));
+        helper.succeed();
+    }
 }

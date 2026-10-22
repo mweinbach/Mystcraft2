@@ -16,7 +16,8 @@ These fire at the same points Forge 43.5.0 does. Fabric API is used where it has
   First-person arms post `RenderArmEvent` and skip vanilla's arm when it is canceled, which is where the MekaSuit arm
   is drawn.
 - `EntityRenderersEvent.AddLayers` after the entity render dispatcher rebuilds its renderers. That attaches the
-  MekaSuit armor layer and the elytra layer.
+  MekaSuit armor layer and the elytra layer. On Fabric the armor layer is removed again: worn gear is drawn by
+  Fabric's `ArmorRenderer` instead, and the elytra layer stays.
 - Block highlight before vanilla's outline, from Fabric's before-block-outline event. Canceling a block highlight
   skips the outline. The configurator side overlay and custom selection boxes use this event. An entity under the
   crosshair posts the entity highlight from the same callback; vanilla still draws no entity outline.
@@ -32,7 +33,8 @@ These fire at the same points Forge 43.5.0 does. Fabric API is used where it has
   waited on. Unload drops oredictionificator invalidation listeners that belong to that level.
 - `RecipesUpdatedEvent` at the end of `ClientPacketListener.handleUpdateRecipes`, after the client recipe book is
   rebuilt. `ClientTickHandler` clears the recipe cache there.
-- A key press is delivered to every mapping bound to that key, so an unmodified binding and a modified one both see it.
+- A key press is delivered to every mapping bound to that key whose conflict context and modifier are active. A release
+  clears every mapping on that physical key, including one whose modifier is no longer held, so a chord cannot stay down.
   The mapping still has to be in an active conflict context with its modifier held before it counts as down.
 
 Fog color and distance, `EntityRenderersEvent.AddLayers` and the mouse wheel already fired from the mixins above.
@@ -48,4 +50,5 @@ of `handleUpdateRecipes`. The mouse wheel, fog and armor-layer mixins still appl
 Checked on a Fabric development client in creative and then survival: the MekaSuit module list, jetpack mode,
 configurator mode and compass draw, and the survival energy bar draws above the health row. The radiation tint reads
 the client dose. That dose is synced from the player tick. The player tick was unwired when the client was checked,
-so the tint was not seen. The MekaSuit armor layer is attached when the renderers reload.
+so the tint was not seen. The MekaSuit armor layer is attached when the renderers reload, then removed so
+`ArmorRenderer` is the only draw. What that draw shows is in the armor rendering section.
