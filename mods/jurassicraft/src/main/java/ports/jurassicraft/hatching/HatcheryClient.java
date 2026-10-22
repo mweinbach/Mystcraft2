@@ -8,6 +8,8 @@ public final class HatcheryClient {
     private HatcheryClient() {}
     public static void renderers(ClientPlatform.Renderers renderers) {
         renderers.blockEntity(HatcheryRegistry.blockEntity(HatcheryRegistry.Machine.INCUBATOR), IncubatorRenderer::new);
+        renderers.blockEntity(HatcheryRegistry.blockEntity(HatcheryRegistry.Machine.EMBRYONIC), HatcheryPartRenderer::new);
+        renderers.blockEntity(HatcheryRegistry.blockEntity(HatcheryRegistry.Machine.CALCIFIER), HatcheryPartRenderer::new);
     }
     public static void setup() {
         for (var machine : HatcheryRegistry.Machine.values()) {

@@ -1,7 +1,6 @@
 ## Fabric: not written yet
 
-- Forge events that are not fired yet: client level load and unload, and recipes updated. Entity leave is posted on
-  the server; the client copy Forge also posts is unwired.
+- Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers. The

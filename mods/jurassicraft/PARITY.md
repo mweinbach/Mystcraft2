@@ -104,7 +104,9 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Iron nuggets, iron ingots, redstone, blue dyes | New `#jurassicraft:` tags | Successors of upstream ore-dictionary inputs: the vanilla item plus optional `#forge:` and `#c:` tags. Literal `minecraft:iron_ingot` stays where upstream used the item. |
 | Fossil-nest replaceable blocks | Union | Both ports' stone, dirt and sand groups plus optional `forge` and `c` ore tags. |
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
-| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. |
+| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. Fabric also substitutes item models that parent those blocks, because a vanilla block model cannot parent that custom model. Both still use the block display transforms from `minecraft:block/block`. |
+
+Machine motion follows the 1.12.2 renderers that were actually registered. The cleaning station uses the same spin-up and spin-down and sprays the original wash particles while it is cleaning. The DNA extractor and sequencer show the raw item model, and the sequencer bob uses the local player's age. Feeder lids and incubator eggs were already on the upstream timings. The embryonic machine adds the petri-dish cubes for slot 0 and the test-tube rack for slot 1, which is how the upstream properties were named. Combinator screens are drawn by the block entity because their texture offsets change in hybridizer mode. A placed calcification machine always shows the egg cubes: upstream treated an empty slot as present (`!= null`). The cultivator spin renderer exists upstream but its registration is commented out, so this port does not run it. The fossil grinder, synthesizer, and the remaining machine cubes have no motion in the snapshot; their Tabula files contain no animations.
 
 ### Structures and villages
 
@@ -162,7 +164,7 @@ Tests changed while merging:
 
 ## Known gaps against 1.12.2
 
-- Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
+- Animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
