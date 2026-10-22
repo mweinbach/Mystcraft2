@@ -67,7 +67,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Melee attack pose | Fabric's synced attack timer, alongside the shared leap and spit animations | Closest to upstream's `ATTACKING` pose animation; Forge only used the arm swing. |
+| Melee attack pose | Shared species `ATTACKING` keyframes for the full imported duration | Upstream plays that pose from the attack timer. Vanilla `swingTime` is only the hit cue and no longer drives the model. |
 | Juveniles follow food | Fabric's `TemptJuvenileDinosaurGoal` | Upstream `TemptNonAdultEntityAI` (under 50% grown); Forge lacked it. |
 | Carcass on lethal damage | Both (equivalent) | Matches upstream when `allowCarcass` is on. |
 | Birth near a forced pose or tranquilizer | Fabric | Same pause rules; the mother's eggs are found around her. |
@@ -160,7 +160,9 @@ Tests changed while merging:
 
 - Fossil ore attempts are independent per species instead of sharing 32 attempts per chunk.
 - Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
-- Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
+- Some machine animations are simplified.
+- The goat's neck sway is not the 1.12.2 procedural chain.
+- Dinosaur feet do not plant on slopes; the 1.12.2 leg solver is not ported. Tail and neck sway, breathing, walk cycles, head look, and species attack poses follow the original animators.
 - Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
