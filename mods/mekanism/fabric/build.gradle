@@ -19,6 +19,14 @@ repositories {
         url = 'https://maven.blamejared.com/'
         content { includeGroup 'mezz.jei' }
     }
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        url = 'https://maven.ladysnake.org/releases'
+        content { includeGroup 'dev.onyxstudios.cardinal-components-api' }
+    }
 }
 
 dependencies {
@@ -60,6 +68,20 @@ dependencies {
         modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1015') {
             transitive = false
         }
+    }
+    // Trinkets 3.4.2 is the 1.19.2 Fabric equivalent of Curios. Cardinal Components Base is nested in that jar and is
+    // required to compile against TrinketComponent. Neither mod is required to load.
+    modCompileOnly('maven.modrinth:trinkets:OLwsMJv4') { transitive = false }
+    compileOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1') { transitive = false }
+    if (providers.gradleProperty('withTrinkets').isPresent()) {
+        modRuntimeOnly('maven.modrinth:trinkets:OLwsMJv4') { transitive = false }
+        modRuntimeOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1') { transitive = false }
+        modRuntimeOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.0-beta.1') { transitive = false }
+    }
+    // Female Gender Mod fabric-1.19.2-3.0.1 (CurseForge file 4023966). Metadata version is 1.19-3.0.0.
+    modCompileOnly('curse.maven:female-gender-456319:4023966') { transitive = false }
+    if (providers.gradleProperty('withGender').isPresent()) {
+        modRuntimeOnly('curse.maven:female-gender-456319:4023966') { transitive = false }
     }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
