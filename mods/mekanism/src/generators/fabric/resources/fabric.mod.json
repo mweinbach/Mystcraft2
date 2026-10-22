@@ -24,6 +24,9 @@
     ],
     "client": [
       "ports.mekanism.generators.fabric.GeneratorsFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "mekanism.generators.client.jei.GeneratorsJEI"
     ]
   },
   "depends": {
@@ -31,5 +34,8 @@
     "minecraft": "1.19.2",
     "java": ">=17",
     "mekanism": "${version}"
+  },
+  "suggests": {
+    "jei": "*"
   }
 }

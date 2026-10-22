@@ -30,6 +30,9 @@
     ],
     "client": [
       "ports.mekanism.fabric.client.FabricClientMod"
+    ],
+    "jei_mod_plugin": [
+      "mekanism.client.jei.MekanismJEI"
     ]
   },
   "accessWidener": "mekanism.accesswidener",
@@ -39,6 +42,9 @@
     "minecraft": "1.19.2",
     "java": ">=17",
     "team_reborn_energy": "*"
+  },
+  "suggests": {
+    "jei": "*"
   },
   "mixins": [
     "mekanism.mixins.json"
