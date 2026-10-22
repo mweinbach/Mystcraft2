@@ -198,83 +198,78 @@ public class FusionReactorGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void reactorTakesDtFuelAndBoilsWater(GameTestHelper helper) {
         Reactor reactor = place(helper, ORIGIN, Shape.VALID);
-        long[] waterBefore = new long[1];
-        FloatingLong[] energyBefore = new FloatingLong[1];
-        double[] caseTemperature = new double[1];
-        int[] phase = new int[1];
-        helper.succeedWhen(() -> {
+        // One shot, after the shell has formed. succeedWhen would retry a missed sample while the
+        // casing keeps boiling, and the timeout then reports the cooled total instead of the first miss.
+        helper.runAtTickTime(40, () -> {
             TileEntityFusionReactorPort input = port(helper, reactor);
             FusionReactorMultiblockData data = formed(input);
             Direction side = reactor.portSide();
-            if (phase[0] == 0) {
-                BlockEntity casing = helper.getBlockEntity(reactor.casing());
-                logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.DEPLETED);
-                check(signal(helper, reactor.logic()) == 15, "An empty reactor's depleted adapter outputs " + signal(helper, reactor.logic()));
-                check(data.getMaxWater() == 0, "Water capacity is " + data.getMaxWater() + " before the injection rate changes");
-                data.setInjectionRate(4);
-                int waterCapacity = 4 * MekanismGeneratorsConfig.generators.fusionWaterPerInjection.get();
-                long steamCapacity = 4L * MekanismGeneratorsConfig.generators.fusionSteamPerInjection.get();
-                check(data.getMaxWater() == waterCapacity, "Water capacity is " + data.getMaxWater());
-                check(data.getMaxSteam() == steamCapacity, "Steam capacity is " + data.getMaxSteam());
-                check(TestPlatform.insertBlockGas(casing, Direction.DOWN, GeneratorsGases.DEUTERIUM.get(), SAMPLE, true) == 0,
-                      "A casing block accepted deuterium");
-                check(TestPlatform.insertBlockGas(casing, Direction.DOWN, GeneratorsGases.FUSION_FUEL.get(), SAMPLE, true) == 0,
-                      "A casing block accepted D-T fuel");
-                check(TestPlatform.insertBlockFluid(casing, Direction.DOWN, Fluids.WATER, SAMPLE, true) == 0, "A casing block accepted water");
-                check(TestPlatform.insertBlockGas(input, side, MekanismGases.HYDROGEN.get(), SAMPLE, true) == 0, "The port accepted hydrogen");
-                check(TestPlatform.insertBlockGas(input, side, MekanismGases.STEAM.get(), SAMPLE, true) == 0, "The port accepted steam");
-                check(TestPlatform.insertBlockFluid(input, side, Fluids.LAVA, SAMPLE, true) == 0, "The port accepted lava");
-                check(TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), SAMPLE, false) == SAMPLE,
-                      "A simulated deuterium fill was refused");
-                check(data.deuteriumTank.isEmpty(), "A simulated fill stored deuterium");
-                long deuterium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), SAMPLE, true);
-                long tritium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.TRITIUM.get(), SAMPLE, true);
-                long fuel = TestPlatform.insertBlockGas(input, side, GeneratorsGases.FUSION_FUEL.get(), SAMPLE, true);
-                check(deuterium == SAMPLE && tritium == SAMPLE && fuel == SAMPLE,
-                      "The port accepted " + deuterium + " deuterium, " + tritium + " tritium and " + fuel + " D-T fuel");
-                check(data.deuteriumTank.getStack().getType() == GeneratorsGases.DEUTERIUM.get(), "Deuterium tank holds " + data.deuteriumTank.getStack());
-                check(data.tritiumTank.getStack().getType() == GeneratorsGases.TRITIUM.get(), "Tritium tank holds " + data.tritiumTank.getStack());
-                check(data.fuelTank.getStack().getType() == GeneratorsGases.FUSION_FUEL.get(), "Fuel tank holds " + data.fuelTank.getStack());
-                check(TestPlatform.blockGas(input, side) == SAMPLE * 3, "The gas lookup reports " + TestPlatform.blockGas(input, side));
-                check(TestPlatform.extractGas(input, side, 1, true).isEmpty(), "The port gave deuterium back");
-                check(signal(helper, reactor.logic()) == 0, "A fuelled reactor still reports depleted");
-                logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.READY);
-                data.setPlasmaTemp(BURN_TEMPERATURE + 1_000);
-                data.updateTemperatures();
-                check(signal(helper, reactor.logic()) == 15, "A hot reactor's ready adapter outputs " + signal(helper, reactor.logic()));
-                logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.DISABLED);
-                check(signal(helper, reactor.logic()) == 0, "A disabled adapter outputs " + signal(helper, reactor.logic()));
-                data.setPlasmaTemp(data.heatCapacitor.getTemperature());
-                data.updateTemperatures();
-                long water = TestPlatform.insertBlockFluid(input, side, Fluids.WATER, 50_000, true);
-                check(water == 50_000, "The port accepted " + water + " mB of water");
-                check(TestPlatform.blockFluid(input, side) == 50_000, "The fluid lookup reports " + TestPlatform.blockFluid(input, side));
-                data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * CASE_TEMPERATURE);
-                data.updateTemperatures();
-                caseTemperature[0] = data.getLastCaseTemp();
-                waterBefore[0] = data.waterTank.getFluidAmount();
-                energyBefore[0] = data.energyContainer.getEnergy().copy();
-                // The block entity's own tick can fall on either side of this callback, so one world tick of
-                // waiting is sometimes two heating passes. Run the pass here and read it before that tick.
-                data.tick(helper.getLevel());
-                phase[0] = 1;
-            }
-            double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
-            int expectedSteam = expectedSteam(caseTemperature[0], ambient, waterBefore[0]);
+            BlockEntity casing = helper.getBlockEntity(reactor.casing());
+            logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.DEPLETED);
+            check(signal(helper, reactor.logic()) == 15, "An empty reactor's depleted adapter outputs " + signal(helper, reactor.logic()));
+            check(data.getMaxWater() == 0, "Water capacity is " + data.getMaxWater() + " before the injection rate changes");
+            data.setInjectionRate(4);
+            int waterCapacity = 4 * MekanismGeneratorsConfig.generators.fusionWaterPerInjection.get();
+            long steamCapacity = 4L * MekanismGeneratorsConfig.generators.fusionSteamPerInjection.get();
+            check(data.getMaxWater() == waterCapacity, "Water capacity is " + data.getMaxWater());
+            check(data.getMaxSteam() == steamCapacity, "Steam capacity is " + data.getMaxSteam());
+            check(TestPlatform.insertBlockGas(casing, Direction.DOWN, GeneratorsGases.DEUTERIUM.get(), SAMPLE, true) == 0,
+                  "A casing block accepted deuterium");
+            check(TestPlatform.insertBlockGas(casing, Direction.DOWN, GeneratorsGases.FUSION_FUEL.get(), SAMPLE, true) == 0,
+                  "A casing block accepted D-T fuel");
+            check(TestPlatform.insertBlockFluid(casing, Direction.DOWN, Fluids.WATER, SAMPLE, true) == 0, "A casing block accepted water");
+            check(TestPlatform.insertBlockGas(input, side, MekanismGases.HYDROGEN.get(), SAMPLE, true) == 0, "The port accepted hydrogen");
+            check(TestPlatform.insertBlockGas(input, side, MekanismGases.STEAM.get(), SAMPLE, true) == 0, "The port accepted steam");
+            check(TestPlatform.insertBlockFluid(input, side, Fluids.LAVA, SAMPLE, true) == 0, "The port accepted lava");
+            check(TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), SAMPLE, false) == SAMPLE,
+                  "A simulated deuterium fill was refused");
+            check(data.deuteriumTank.isEmpty(), "A simulated fill stored deuterium");
+            long deuterium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.DEUTERIUM.get(), SAMPLE, true);
+            long tritium = TestPlatform.insertBlockGas(input, side, GeneratorsGases.TRITIUM.get(), SAMPLE, true);
+            long fuel = TestPlatform.insertBlockGas(input, side, GeneratorsGases.FUSION_FUEL.get(), SAMPLE, true);
+            check(deuterium == SAMPLE && tritium == SAMPLE && fuel == SAMPLE,
+                  "The port accepted " + deuterium + " deuterium, " + tritium + " tritium and " + fuel + " D-T fuel");
+            check(data.deuteriumTank.getStack().getType() == GeneratorsGases.DEUTERIUM.get(), "Deuterium tank holds " + data.deuteriumTank.getStack());
+            check(data.tritiumTank.getStack().getType() == GeneratorsGases.TRITIUM.get(), "Tritium tank holds " + data.tritiumTank.getStack());
+            check(data.fuelTank.getStack().getType() == GeneratorsGases.FUSION_FUEL.get(), "Fuel tank holds " + data.fuelTank.getStack());
+            check(TestPlatform.blockGas(input, side) == SAMPLE * 3, "The gas lookup reports " + TestPlatform.blockGas(input, side));
+            check(TestPlatform.extractGas(input, side, 1, true).isEmpty(), "The port gave deuterium back");
+            check(signal(helper, reactor.logic()) == 0, "A fuelled reactor still reports depleted");
+            logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.READY);
+            data.setPlasmaTemp(BURN_TEMPERATURE + 1_000);
+            data.updateTemperatures();
+            check(signal(helper, reactor.logic()) == 15, "A hot reactor's ready adapter outputs " + signal(helper, reactor.logic()));
+            logic(helper, reactor).setLogicTypeFromPacket(FusionReactorLogic.DISABLED);
+            check(signal(helper, reactor.logic()) == 0, "A disabled adapter outputs " + signal(helper, reactor.logic()));
+            data.setPlasmaTemp(data.heatCapacitor.getTemperature());
+            data.updateTemperatures();
+            long water = TestPlatform.insertBlockFluid(input, side, Fluids.WATER, 50_000, true);
+            check(water == 50_000, "The port accepted " + water + " mB of water");
+            check(TestPlatform.blockFluid(input, side) == 50_000, "The fluid lookup reports " + TestPlatform.blockFluid(input, side));
+            data.steamTank.setStack(GasStack.EMPTY);
+            data.heatCapacitor.setHeat(data.heatCapacitor.getHeatCapacity() * CASE_TEMPERATURE);
+            data.updateTemperatures();
+            // The case exchanges heat with the average of its corners, not the controller block. Above y=80
+            // those temperatures differ, and the grid position of this test is not stable between runs.
+            double ambient = casingAmbient(helper, reactor);
+            double caseTemperature = data.getLastCaseTemp();
+            long waterBefore = data.waterTank.getFluidAmount();
+            FloatingLong energyBefore = data.energyContainer.getEnergy().copy();
+            data.tick(helper.getLevel());
+            int expectedSteam = expectedSteam(caseTemperature, ambient, waterBefore);
             check(expectedSteam > SAMPLE, "The armed temperature only boils " + expectedSteam + " mB");
             check(data.steamTank.getStack().getType() == MekanismGases.STEAM.get() && data.steamTank.getStored() == expectedSteam,
                   "Steam is " + data.steamTank.getStack() + " from " + expectedSteam);
-            check(data.waterTank.getFluidAmount() == waterBefore[0] - expectedSteam,
+            check(data.waterTank.getFluidAmount() == waterBefore - expectedSteam,
                   "Water is " + data.waterTank.getFluidAmount() + " after boiling " + expectedSteam);
-            FloatingLong expectedEnergy = expectedEnergy(caseTemperature[0], ambient);
-            FloatingLong gained = data.energyContainer.getEnergy().subtract(energyBefore[0]);
+            FloatingLong expectedEnergy = expectedEnergy(caseTemperature, ambient);
+            FloatingLong gained = data.energyContainer.getEnergy().subtract(energyBefore);
             check(gained.equals(expectedEnergy), "The casing stored " + gained + " from " + expectedEnergy);
-            BlockEntity casing = helper.getBlockEntity(reactor.casing());
             check(TestPlatform.extractEnergy(casing, Direction.DOWN, 100_000) == 0, "A casing block gave up energy");
-            check(data.energyContainer.getEnergy().equals(energyBefore[0].add(expectedEnergy)), "A refused extraction changed stored energy");
+            check(data.energyContainer.getEnergy().equals(energyBefore.add(expectedEnergy)), "A refused extraction changed stored energy");
             long extracted = TestPlatform.extractEnergy(input, side, 100_000);
             check(extracted > 0, "The port gave no energy through the loader API");
-            check(data.energyContainer.getEnergy().smallerThan(energyBefore[0].add(expectedEnergy)), "Extracted energy is still stored");
+            check(data.energyContainer.getEnergy().smallerThan(energyBefore.add(expectedEnergy)), "Extracted energy is still stored");
             GasStack steam = TestPlatform.extractGas(input, side, SAMPLE, true);
             check(steam.getType() == MekanismGases.STEAM.get() && steam.getAmount() == SAMPLE, "The port returned " + steam);
             helper.succeed();
@@ -348,6 +343,26 @@ public class FusionReactorGameTests {
             check(reported == deuterium[0] + tritium[0] + fuel[0], "The gas lookup reports " + reported + " after reload");
             helper.succeed();
         });
+    }
+
+    /**
+     * Same average as {@code FusionReactorMultiblockData#onCreated}: the eight corners, converted to Kelvin.
+     * The conversion is linear, so the mean of the corner temperatures matches the reactor's stored ambient.
+     */
+    private static double casingAmbient(GameTestHelper helper, Reactor reactor) {
+        BlockPos min = helper.absolutePos(reactor.origin());
+        BlockPos max = min.offset(SIZE - 1, SIZE - 1, SIZE - 1);
+        double sum = 0;
+        int count = 0;
+        for (int x : new int[] {min.getX(), max.getX()}) {
+            for (int y : new int[] {min.getY(), max.getY()}) {
+                for (int z : new int[] {min.getZ(), max.getZ()}) {
+                    sum += HeatAPI.getAmbientTemp(helper.getLevel(), new BlockPos(x, y, z));
+                    count++;
+                }
+            }
+        }
+        return sum / count;
     }
 
     private static int expectedSteam(double caseTemperature, double ambient, long water) {
