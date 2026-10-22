@@ -33,6 +33,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -105,6 +106,20 @@ public final class TestPlatform {
         return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
               .map(handler -> stack.getCount() - ItemHandlerHelper.insertItem(handler, stack.copy(), false).getCount())
               .orElse(0);
+    }
+
+    public static int countItems(BlockEntity blockEntity, Direction side, Item item) {
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        long total = 0;
+        for (StorageView<ItemVariant> view : storage) {
+            if (view.getResource().getItem() == item) {
+                total += view.getAmount();
+            }
+        }
+        return total > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) total;
     }
 
     public static long insertItemEnergy(ItemStack stack, long amount, boolean commit) {

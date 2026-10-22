@@ -66,6 +66,15 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   bodies are drawn inside the opaque casing. A formed fission reactor in that client is the 18×18×18 shell from
   `/mek build fission`: reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods.
   It was not fueled, so the burn glow and coolant body were not drawn, and the reactor screen was not opened.
+  A digital miner mines an ore its item filter or a `forge:ores/iron` tag filter accepts and leaves a different ore in
+  the radius. The drop is on the back output port, where Forge's item capability and Fabric's item storage can read it,
+  and auto-eject moves it into a chest one block past that port. A filter that requires cobblestone takes that
+  cobblestone from the top input port and leaves cobblestone in the ore's place. Silk touch yields the ore block. An
+  anchor upgrade keeps the miner's chunk loaded, including after the runtime ticket is dropped and loaded again, and
+  removing the miner drops the ticket. The area preview's render box is the mining volume while the preview is on.
+  In the Fabric development client, right-clicking a placed digital miner opens its screen. The screen shows Idle,
+  the search state and the blocks left to mine, with the eject, pull and silk switches and the config, start and
+  stop buttons.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -73,7 +82,7 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
+  render bounds, the digital miner, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the industrial turbine, the fission reactor, Tools
   registration, crafting, tool actions and shield blocking, and Additions registration, crafting, block behaviour,
   baby mobs and balloons) pass on both loaders.

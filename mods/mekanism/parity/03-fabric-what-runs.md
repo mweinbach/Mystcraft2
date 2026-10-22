@@ -52,9 +52,18 @@ and valves in input, steam-output and coolant-output modes, and the boiler scree
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
 visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
 Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
-fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
+fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. A digital miner (`DigitalMinerGameTests`) with radius 1 mines an iron ore its item filter accepts and leaves a coal
+ore beside it. The raw iron is on the back output port, read through Forge's item capability and, on Fabric,
+`ItemStorage`. With auto-eject on, that drop moves into a chest one block past the output port through the same item
+API. A `forge:ores/iron` tag filter selects the iron ore and leaves the coal ore. A filter that requires cobblestone
+takes that cobblestone from the top input port and leaves cobblestone where the ore was. Silk touch yields the iron
+ore block instead of raw iron. An anchor upgrade keeps the miner's chunk loaded. Dropping the runtime ticket and
+loading the saved one brings it back, and removing the miner drops the ticket. The area preview's render box is the
+mining volume while the preview is on, and the block's own box while it is off. In the Fabric development
+client, right-clicking a placed digital miner opens its screen. The screen shows Idle, the search state and the
+blocks left to mine, with the eject, pull and silk switches and the config, start and stop buttons. The shared
 GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
-block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
+block hooks, fluid placement, chunk loading, render bounds, the digital miner, the player and living events, a Generators registry
 smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
 turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
