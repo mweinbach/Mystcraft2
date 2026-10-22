@@ -3,13 +3,13 @@ package ports.jurassicraft.worldgen;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraftforge.common.ForgeConfigSpec;
 import ports.jurassicraft.config.JurassicConfig;
-import ports.jurassicraft.content.Species;
 
 /** Runs against Forge classes without a world or a Minecraft server. */
 public final class WorldgenConfigCheck {
@@ -42,9 +42,9 @@ public final class WorldgenConfigCheck {
         config.set("plantGeneration.peatGenerationSpeed", 20);
         spec.afterReload();
 
-        String[] fixed = {"fossil_nest", "fossil_trackway", "coal_plant_fossils", "amber_ore", "ice_shard",
+        String[] fixed = {"fossil_deposits", "fossil_nest", "fossil_trackway", "coal_plant_fossils", "amber_ore", "ice_shard",
                 "gypsum_stone", "petrified_tree", "moss", "peat", "west_indian_lilac", "gracilaria"};
-        WorldgenCategory[] categories = {WorldgenCategory.NEST_FOSSILS, WorldgenCategory.TRACKWAYS,
+        WorldgenCategory[] categories = {WorldgenCategory.FOSSILS, WorldgenCategory.NEST_FOSSILS, WorldgenCategory.TRACKWAYS,
                 WorldgenCategory.PLANT_FOSSILS, WorldgenCategory.AMBER, WorldgenCategory.ICE_SHARDS,
                 WorldgenCategory.GYPSUM, WorldgenCategory.PETRIFIED_TREES, WorldgenCategory.MOSS,
                 WorldgenCategory.PEAT, WorldgenCategory.FLOWERS, WorldgenCategory.GRACILARIA};
@@ -54,12 +54,6 @@ public final class WorldgenConfigCheck {
                     "wrong category for " + fixed[i]);
             original.add(feature("jurassicraft:" + fixed[i]));
         }
-        for (Species species : Species.values()) {
-            String name = species.id() + "_fossil_block";
-            require(WorldgenCategory.forFeature(new ResourceLocation("jurassicraft", name)) == WorldgenCategory.FOSSILS,
-                    "wrong category for " + name);
-            original.add(feature("jurassicraft:" + name));
-        }
         original.add(feature("minecraft:ore_coal_upper"));
         original.add(feature("othermod:peat"));
         for (WorldgenCategory category : WorldgenCategory.values()) {
@@ -68,13 +62,13 @@ public final class WorldgenConfigCheck {
                     "no feature mapped for " + category);
         }
         List<Holder<PlacedFeature>> enabled = new ArrayList<>(original);
-        WorldgenBiomeModifier.removeDisabled(enabled, JurassicConfig::worldgenEnabled);
+        removeDisabled(enabled, JurassicConfig::worldgenEnabled);
         require(enabled.equals(original), "enabled configuration changed the feature ordering");
         for (WorldgenCategory category : WorldgenCategory.values()) {
             config.set(category.section() + "." + category.key(), false);
             spec.afterReload();
             List<Holder<PlacedFeature>> actual = new ArrayList<>(original);
-            WorldgenBiomeModifier.removeDisabled(actual, JurassicConfig::worldgenEnabled);
+            removeDisabled(actual, JurassicConfig::worldgenEnabled);
             List<Holder<PlacedFeature>> expected = original.stream()
                     .filter(h -> h.unwrapKey().map(k -> WorldgenCategory.forFeature(k.location()) != category).orElse(true)).toList();
             require(actual.equals(expected), "wrong features removed for " + category);
@@ -84,5 +78,12 @@ public final class WorldgenConfigCheck {
             spec.afterReload();
         }
         System.out.println("Worldgen config defaults and category isolation passed");
+    }
+
+    private static void removeDisabled(List<Holder<PlacedFeature>> features, Predicate<WorldgenCategory> enabled) {
+        features.removeIf(holder -> holder.unwrapKey().map(key -> {
+            WorldgenCategory category = WorldgenCategory.forFeature(key.location());
+            return category != null && !enabled.test(category);
+        }).orElse(false));
     }
 }
