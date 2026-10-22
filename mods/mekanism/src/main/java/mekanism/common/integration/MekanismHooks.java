@@ -1,6 +1,7 @@
 package mekanism.common.integration;
 
 import java.util.List;
+import mekanism.common.integration.computer.computercraft.CCCapabilityHelper;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
@@ -45,10 +46,28 @@ public final class MekanismHooks {
 
     public void hookCommonSetup() {
         ModList modList = ModList.get();
+        CCLoaded = modList.isLoaded(CC_MOD_ID);
         DMELoaded = modList.isLoaded(DARK_MODE_EVERYWHERE_MODID);
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
         TOPLoaded = modList.isLoaded(TOP_MOD_ID);
+        if (CCLoaded) {
+            CCCapabilityHelper.registerCCMathHelper();
+            // Forge exposes the peripheral as a capability. Fabric's provider is a separate class so this shared
+            // hook does not mention its types.
+            registerFabricPeripherals();
+        }
+    }
+
+    private static void registerFabricPeripherals() {
+        try {
+            Class.forName("mekanism.common.integration.computer.computercraft.FabricPeripheralProvider")
+                  .getMethod("register").invoke(null);
+        } catch (ClassNotFoundException ignored) {
+            // The Forge JAR attaches the peripheral capability and does not contain the Fabric provider.
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("ComputerCraft is loaded but Mekanism's peripheral provider failed to load", e);
+        }
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {

@@ -4,7 +4,7 @@ The configurator, network reader, gauge dropper, atomic disassembler, flamethrow
 items, models and textures. `HandToolGameTests` runs on both loaders. Energy items accept Forge Energy or Team
 Reborn Energy. The gauge dropper's fluid and the flamethrower's hydrogen use the item capability, which on Fabric
 is the Transfer API. Vein mining uses the existing `onBlockStartBreak` hook, and the flamethrower uses the existing
-server player tick. Module ticking, armor rendering and the MekaSuit are later slices. A bare Meka-Tool still digs.
+server player tick. Module ticking is a later slice. Armor rendering is in the armor section. A bare Meka-Tool still digs.
 
 The configurator starts in item-configuration mode. A right click on a machine side reports that side and spends
 nothing. A shift-right click steps the side through the data types that side supports and spends
