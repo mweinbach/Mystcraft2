@@ -104,7 +104,7 @@ machines, pigment machines, transporters, the sorter, mechanical pipes and press
 chunk loading, render bounds, the digital miner, the player and living events, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
-phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, the dimensional stabilizer, seismic vibrator, industrial alarm, fuelwood heater, resistive heater, chargepad, electric pump, fluidic plenisher, formulaic assemblicator, modification station and personal storage, Tools registration, crafting, tool
 actions, shield blocking and mob armor spawns, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
