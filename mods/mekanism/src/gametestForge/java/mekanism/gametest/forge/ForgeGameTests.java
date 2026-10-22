@@ -30,6 +30,7 @@ import mekanism.gametest.OreGenerationGameTests;
 import mekanism.gametest.PigmentMachineGameTests;
 import mekanism.gametest.PlayerEventGameTests;
 import mekanism.gametest.RenderBoundsGameTests;
+import mekanism.gametest.SPSGameTests;
 import mekanism.gametest.SimpleGeneratorGameTests;
 import mekanism.gametest.ThermoelectricBoilerGameTests;
 import mekanism.gametest.ToolsModuleGameTests;
@@ -51,7 +52,7 @@ public class ForgeGameTests {
           FissionReactorGameTests.class, FluidGameTests.class, GeneratorsModuleGameTests.class, InductionMatrixGameTests.class,
           IndustrialTurbineGameTests.class, ItemBlockHookGameTests.class, LoaderInteropGameTests.class,
           OreGenerationGameTests.class, PigmentMachineGameTests.class, PlayerEventGameTests.class, RenderBoundsGameTests.class,
-          SimpleGeneratorGameTests.class, ThermoelectricBoilerGameTests.class, ToolsModuleGameTests.class);
+          SimpleGeneratorGameTests.class, SPSGameTests.class, ThermoelectricBoilerGameTests.class, ToolsModuleGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

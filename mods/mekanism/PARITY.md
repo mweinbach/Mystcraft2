@@ -118,13 +118,23 @@ heated and cooled sodium, the temperature and the valve mode come back after the
 loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
 and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
-visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
+visible from outside the shell. A supercritical phase shifter (`SPSGameTests`) forms at 7×7×7. The face pattern
+leaves the twelve corner cells of each face empty, frame casings stay on the marked edges, and ports replace the
+other face blocks. One port has a supercharged coil on its inner side. A missing face block, a coil that touches no
+port, a 3×3×3 and a 2×2×2 stay unformed and are not merged with a neighbour. Polonium enters through the port's gas
+handler. Hydrogen, antimatter, a casing block and an unformed port accept none of it, and a simulated fill stores
+nothing. Energy inserted into a port with no coil stays in that port and produces no antimatter. The same amount
+through the coil's port — one millibucket of antimatter's worth of Forge Energy or Team Reborn Energy — turns
+1,000 mB of polonium into 1 mB of antimatter. The gas handler gives that antimatter back and leaves the rest of the
+polonium. Saved polonium, antimatter and the idle port's energy come back after the blocks are removed and their
+NBT is loaded. The master's render box is the structure. In the development client `/mek build fission` built an 18×18×18 reactor.
 Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
 fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. The shared
 GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
 block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
-smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
-turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the
+supercritical phase shifter, the industrial turbine, the fission reactor, Tools registration, crafting, tool actions
+and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)

@@ -20,7 +20,8 @@ The core module is in this port. Generators, Tools and Additions are extra mod i
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
-and outputs steam. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
+and outputs steam. The supercritical phase shifter forms and turns polonium plus energy from a supercharged coil
+into antimatter. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
 meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
@@ -74,7 +75,8 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the induction matrix, the thermoelectric boiler, the industrial turbine, the fission reactor, Tools
+  tank, the induction matrix, the thermoelectric boiler, the supercritical phase shifter, the industrial turbine,
+  the fission reactor, Tools
   registration, crafting, tool actions and shield blocking, and Additions registration, crafting, block behaviour,
   baby mobs and balloons) pass on both loaders.
 
