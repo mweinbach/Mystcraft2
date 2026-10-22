@@ -8,27 +8,7 @@
   "environment": "*",
   "entrypoints": {
     "fabric-gametest": [
-      "mekanism.gametest.AdditionsModuleGameTests",
-      "mekanism.gametest.ChemicalMachineGameTests",
-      "mekanism.gametest.ChunkLoadingGameTests",
-      "mekanism.gametest.CoreMachineGameTests",
-      "mekanism.gametest.DynamicTankGameTests",
-      "mekanism.gametest.FactoryGameTests",
-      "mekanism.gametest.FissionReactorGameTests",
-      "mekanism.gametest.FluidGameTests",
-      "mekanism.gametest.GeneratorsModuleGameTests",
-      "mekanism.gametest.ItemBlockHookGameTests",
-      "mekanism.gametest.LoaderInteropGameTests",
-      "mekanism.gametest.OreGenerationGameTests",
-      "mekanism.gametest.PigmentMachineGameTests",
-      "mekanism.gametest.PlayerEventGameTests",
-      "mekanism.gametest.RenderBoundsGameTests",
-      "mekanism.gametest.InductionMatrixGameTests",
-      "mekanism.gametest.IndustrialTurbineGameTests",
-      "mekanism.gametest.SimpleGeneratorGameTests",
-      "mekanism.gametest.SPSGameTests",
-      "mekanism.gametest.ThermoelectricBoilerGameTests",
-      "mekanism.gametest.ToolsModuleGameTests"
+      "mekanism.gametest.SharedGameTests"
     ]
   },
   "depends": {
