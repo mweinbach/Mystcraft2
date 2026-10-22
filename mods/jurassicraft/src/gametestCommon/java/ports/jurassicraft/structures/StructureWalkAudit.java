@@ -126,8 +126,8 @@ public final class StructureWalkAudit {
         // Beside the chunk walk, not above it: the visitor centre plus 48 blocks does not fit under the build limit.
         BlockPos referenceOrigin = origin.offset(220, 0, 0);
         BoundingBox referenceBox = template.getBoundingBox(settings, referenceOrigin);
-        prepare(level, footprint);
-        prepare(level, referenceBox);
+        prepare(level, footprint, true);
+        prepare(level, referenceBox, true);
         RandomSource random = RandomSource.create(1234);
         boolean placed = template.placeInWorld(level, referenceOrigin, referenceOrigin, settings, random, ParkEdges.SHAPED);
         if (!placed) issues.add(name + " reference placement failed");
@@ -156,12 +156,18 @@ public final class StructureWalkAudit {
     }
 
     private static void prepare(ServerLevel level, BoundingBox box) {
+        prepare(level, box, false);
+    }
+
+    private static void prepare(ServerLevel level, BoundingBox box, boolean sky) {
         // One block outside the template, including above it, so both footprints see the same neighbours.
         int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
         int maxY = Math.min(box.maxY() + 1, level.getMaxBuildHeight() - 1);
-        for (int cx = minX >> 4; cx <= maxX >> 4; cx++)
-            for (int cz = minZ >> 4; cz <= maxZ >> 4; cz++)
+        int pad = sky ? 16 : 0;
+        for (int cx = (minX - pad) >> 4; cx <= (maxX + pad) >> 4; cx++)
+            for (int cz = (minZ - pad) >> 4; cz <= (maxZ + pad) >> 4; cz++)
                 level.getChunk(cx, cz);
+        if (sky) PaddockStructureAudit.fullSky(level, minX - pad, minZ - pad, maxX + pad, maxZ + pad);
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
             LevelChunk chunk = level.getChunk(x >> 4, z >> 4);

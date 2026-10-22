@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -38,7 +40,12 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.lighting.DataLayerStorageMap;
+import net.minecraft.world.level.lighting.LayerLightEngine;
+import net.minecraft.world.level.lighting.LayerLightSectionStorage;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -234,13 +241,57 @@ public final class PaddockStructureAudit {
     private static void prepare(ServerLevel level, BoundingBox box) {
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
-        for (int cx = minX >> 4; cx <= maxX >> 4; cx++)
-            for (int cz = minZ >> 4; cz <= maxZ >> 4; cz++) level.getChunk(cx, cz);
+        // Load a chunk of context, then give those columns a full sky layer before any block edit
+        // queues a light task. Editing the layer while a task is running drops the task thread.
+        for (int cx = (minX - 16) >> 4; cx <= (maxX + 16) >> 4; cx++)
+            for (int cz = (minZ - 16) >> 4; cz <= (maxZ + 16) >> 4; cz++) level.getChunk(cx, cz);
+        fullSky(level, minX - 16, minZ - 16, maxX + 16, maxZ + 16);
         for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
             LevelChunk chunk = level.getChunk(x >> 4, z >> 4);
             chunk.setBlockState(cursor.set(x, box.minY() - 1, z), Blocks.STONE.defaultBlockState(), false);
             for (int y = box.minY(); y <= box.maxY(); y++)
                 chunk.setBlockState(cursor.set(x, y, z), Blocks.AIR.defaultBlockState(), false);
         }
+    }
+
+    /** Every vertical section, so a later light update does not read a missing neighbour. */
+    static void fullSky(ServerLevel level, int minX, int minZ, int maxX, int maxZ) {
+        DataLayerStorageMap visible;
+        DataLayerStorageMap updating;
+        try {
+            Field skyField = LevelLightEngine.class.getDeclaredField("skyEngine");
+            skyField.setAccessible(true);
+            Object sky = skyField.get(level.getLightEngine());
+            if (sky == null) return;
+            Field storageField = LayerLightEngine.class.getDeclaredField("storage");
+            storageField.setAccessible(true);
+            Object storage = storageField.get(sky);
+            Field visibleField = LayerLightSectionStorage.class.getDeclaredField("visibleSectionData");
+            Field updatingField = LayerLightSectionStorage.class.getDeclaredField("updatingSectionData");
+            visibleField.setAccessible(true);
+            updatingField.setAccessible(true);
+            visible = (DataLayerStorageMap) visibleField.get(storage);
+            updating = (DataLayerStorageMap) updatingField.get(storage);
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException(failure);
+        }
+        for (int cx = minX >> 4; cx <= maxX >> 4; cx++)
+            for (int cz = minZ >> 4; cz <= maxZ >> 4; cz++)
+                for (int sy = level.getMinSection(); sy < level.getMaxSection(); sy++) {
+                    long section = SectionPos.asLong(cx, sy, cz);
+                    visible.setLayer(section, fullSection());
+                    updating.setLayer(section, fullSection());
+                }
+        visible.clearCache();
+        updating.clearCache();
+    }
+
+    private static DataLayer fullSection() {
+        DataLayer layer = new DataLayer();
+        for (int x = 0; x < 16; x++)
+            for (int y = 0; y < 16; y++)
+                for (int z = 0; z < 16; z++)
+                    layer.set(x, y, z, 15);
+        return layer;
     }
 }
