@@ -3306,6 +3306,11 @@
       "itemalchemy": 1,
       "source": "conversion additions_slick_red"
     },
+    "mekanismadditions:walkie_talkie": {
+      "projecte": 1567,
+      "itemalchemy": 1540,
+      "source": "recipe"
+    },
     "mekanismadditions:white_balloon": {
       "projecte": 38,
       "itemalchemy": 38,
