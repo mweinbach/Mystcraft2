@@ -27,7 +27,7 @@ for feature in ('petrified_tree', 'coal_plant_fossils'):
         'type': 'forge:add_features', 'biomes': '#minecraft:is_overworld',
         # Scan after the ore stage so other mods' normal ore features have run too.
         'features': 'jurassicraft:' + feature,
-        'step': 'underground_decoration' if feature == 'coal_plant_fossils' else 'underground_ores',
+        'step': 'top_layer_modification' if feature == 'coal_plant_fossils' else 'underground_ores',
     })
 
 write(DATA / 'tags/blocks/petrified_tree_replaceable.json', {

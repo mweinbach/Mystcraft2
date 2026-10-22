@@ -30,7 +30,7 @@ class WorldgenConfigResourcesTest(unittest.TestCase):
 
     def test_existing_generation_uses_exact_named_features(self):
         expected = {'amber_ore', 'ice_shard', 'gypsum_stone', 'petrified_tree', 'coal_plant_fossils',
-                    'moss', 'peat', 'west_indian_lilac', 'gracilaria', 'fossil_nest', 'fossil_trackway'}
+                    'moss', 'peat', 'west_indian_lilac', 'gracilaria', 'fossil_deposits', 'fossil_nest', 'fossil_trackway'}
         self.assertTrue(expected <= set(placements()))
         for name in placements():
             with self.subTest(feature=name):
