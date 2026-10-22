@@ -67,7 +67,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Melee attack pose | Fabric's synced attack timer, alongside the shared leap and spit animations | Closest to upstream's `ATTACKING` pose animation; Forge only used the arm swing. |
+| Melee attack pose | Shared species `ATTACKING` keyframes for the full imported duration | Upstream plays that pose from the attack timer. Vanilla `swingTime` is only the hit cue and no longer drives the model. |
 | Juveniles follow food | Fabric's `TemptJuvenileDinosaurGoal` | Upstream `TemptNonAdultEntityAI` (under 50% grown); Forge lacked it. |
 | Carcass on lethal damage | Both (equivalent) | Matches upstream when `allowCarcass` is on. |
 | Birth near a forced pose or tranquilizer | Fabric | Same pause rules; the mother's eggs are found around her. |
@@ -115,7 +115,9 @@ Machine motion follows the 1.12.2 renderers that were actually registered. The c
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
 | `#jurassicraft:park_structures` | Optional structure ids | Forge's create-world screen binds tags against the builtin registries while mod datapacks are already visible, before `visitor_centre` and `raptor_paddock` exist. Optional entries skip that pass and still resolve once the structures load. |
 | Structure edge shapes | Settled when the footprint is loaded | Slices are placed without a neighbour update and marked for vanilla chunk post-processing. Once every chunk of the footprint is loaded, it is placed again with `placeInWorld`, the same neighbour pass as a one-shot structure. Fences, walls, vines, mushrooms, levers and the reported paddock wall match that pass. The shape pass uses the light already stored and queues a relight only after the shapes are chosen. |
-| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. |
+| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. Each village rolls upstream's 0-or-1 limit for the geneticist house and one shared 0-or-1 limit for every digsite. The digsite variant weights are 5:3:2 for types 3, 1 and 2, matching upstream's 50/30/20 roll. |
+| Raptor paddock rarity | Shared `PaddockPlacement` | An eligible chunk succeeds when `nextInt(rarity) == 0`, with no minimum spacing. Upstream drew that roll from the chunk random shared with every other world generator; this port uses the vanilla salted structure random, so the same chunk can differ while the chance stays 1/N. |
+| Visitor-centre search | Shared `VisitorPlacement` | Vanilla structure search only visits concentric rings and random-spread placements. The visitor centre is a random-spread placement whose every cell names its single seed-derived chunk, and world generation still accepts only that chunk. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
 | Visitor-centre maps | Forge's `maps` package | Cartographers sell the map on both loaders. |
 | Villager digsite memory | Shared logic, loader storage | Forge persistent data; Fabric stores the same tag under `JurassiCraftData` via a mixin. |
@@ -173,11 +175,12 @@ Tests changed while merging:
 
 ## Known gaps against 1.12.2
 
-- Animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
-- Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
+- The goat's neck sway is not the 1.12.2 procedural chain.
+- Dinosaur feet do not plant on slopes; the 1.12.2 leg solver is not ported. Tail and neck sway, breathing, walk cycles, head look, and species attack poses follow the original animators.
+- Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
+- When a digsite variant can't fit, a different variant is placed, whereas upstream placed nothing.
+- The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
-- Third-party structure search may skip the visitor centre; `/locate structure jurassicraft:visitor_centre` works.
 - The dart gun has a new survival recipe.
 - Genetic item variants use separate IDs instead of damage values; 1.12 worlds and items are not migrated.
 - A surviving lone dinosaur parent does not form a new family, as upstream.

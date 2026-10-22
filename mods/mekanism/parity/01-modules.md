@@ -60,10 +60,17 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   (`ToolsModuleGameTests`), craft the bronze gear and the paxel (including averaged durability), and run paxel
   strip and flatten. Paxels do not till, matching upstream. Fabric harvest uses the numeric tier level. The
   `needs_*_tool` tags are empty, and the tier-sorting registry only records the order. Hoe till on Fabric is vanilla's tillable map, gated by
-  `canPerformAction`. `c:` tool and armor tags ship in the tools jar alongside the `forge:` tags. Shield items use
-  the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
-  `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
-  posted. The Wildfire's Gender capability is not attached.
+  `canPerformAction`. `c:` tool and armor tags ship in the tools jar alongside the `forge:` tags. Shield items are
+  built-in renderers. Forge draws them with `RenderMekanismShieldItem` through `IClientItemExtensions` (the BEWLR),
+  and Fabric registers that same renderer on `BuiltinItemRendererRegistry`. The six `ShieldTextures` materials are
+  stitched onto the blocks atlas. The `mekanismtools:blocking` property selects the blocking model while the shield
+  is in use, and blocking consumes durability on both loaders. A Fabric development client held and blocked with each
+  material shield in third person; the shield faces matched the upstream textures. Refined glowstone armor is the
+  vanilla armor layer drawn fullbright. Forge calls `getGenericArmorModel`, and Fabric's `ArmorRenderer` calls the
+  same hook, which wraps the layer in `GlowArmor`. That glow is not an OBJ emissive material. The port's OBJ loader
+  still does not support emissive faces or per-vertex colors, so gear that relies on an OBJ emissive pass does not
+  glow that way. The same client showed the refined glowstone set lit in an unlit room. Naturally spawned mobs do
+  not wear the armor, because the living-spawn event is not posted. The Wildfire's Gender capability is not attached.
 - **Additions** plastic, glow panels, obsidian TNT, baby mobs and balloons are imported. Both loaders register the
   271 blocks (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel
   support, slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic

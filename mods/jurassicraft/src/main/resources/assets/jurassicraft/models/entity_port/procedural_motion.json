@@ -1,0 +1,1320 @@
+{
+  "velociraptor": {
+    "tail": [
+      "tail6",
+      "tail5",
+      "tail4",
+      "tail3",
+      "tail2",
+      "tail1"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "body3",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Right thigh",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Left thigh",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "tail6",
+          "tail5",
+          "tail4",
+          "tail3",
+          "tail2",
+          "tail1"
+        ],
+        "speed": 0.5,
+        "degree": 0.05,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "tail6",
+          "tail5",
+          "tail4",
+          "tail3",
+          "tail2",
+          "tail1"
+        ],
+        "speed": 0.5,
+        "degree": 0.1,
+        "root": 2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "body3",
+          "body2",
+          "body1",
+          "neck1",
+          "neck2",
+          "neck3",
+          "neck4",
+          "Head"
+        ],
+        "speed": 0.5,
+        "degree": 0.025,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "tail6",
+          "tail5",
+          "tail4",
+          "tail3",
+          "tail2",
+          "tail1"
+        ],
+        "speed": 0.1,
+        "degree": 0.05,
+        "root": 2,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "body3",
+          "body2",
+          "body1",
+          "neck1",
+          "neck2",
+          "neck3",
+          "neck4",
+          "Head"
+        ],
+        "speed": 0.1,
+        "degree": -0.03,
+        "root": 5,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Right hand",
+          "Right forearm",
+          "Right arm"
+        ],
+        "speed": 0.1,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Left hand",
+          "Left forearm",
+          "Left arm"
+        ],
+        "speed": 0.1,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      }
+    ]
+  },
+  "coelacanth": {
+    "tail": [
+      "Tail Section 3",
+      "Tail Section 2",
+      "Tail Section 1",
+      "Body Section 3",
+      "Body Section 2",
+      "Body Section 1"
+    ],
+    "motions": [
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Body Section 3",
+          "Body Section 2",
+          "Body Section 1"
+        ],
+        "speed": 0.6,
+        "degree": 0.4,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "walk",
+        "part": "Left Front Flipper",
+        "speed": 0.2,
+        "degree": 0.25,
+        "invert": false,
+        "offset": 1,
+        "weight": 0.1,
+        "driver": "age",
+        "amount": 0.25,
+        "water": true
+      },
+      {
+        "op": "walk",
+        "part": "Right Front Flipper",
+        "speed": 0.2,
+        "degree": 0.25,
+        "invert": false,
+        "offset": 1,
+        "weight": 0.1,
+        "driver": "age",
+        "amount": 0.25,
+        "water": true
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail Section 3",
+          "Tail Section 2",
+          "Tail Section 1",
+          "Body Section 3",
+          "Body Section 2",
+          "Body Section 1"
+        ],
+        "speed": 0.05,
+        "degree": -0.075,
+        "root": 1.5,
+        "driver": "age",
+        "amount": 0.25,
+        "water": true
+      },
+      {
+        "op": "bob",
+        "part": "Neck ",
+        "speed": 0.125,
+        "degree": 4.5,
+        "driver": "age",
+        "amount": 0.25,
+        "water": true
+      },
+      {
+        "op": "walk",
+        "part": "Lower jaw front",
+        "speed": 0.1,
+        "degree": 0.7,
+        "invert": false,
+        "offset": 0,
+        "weight": 0.5,
+        "driver": "age",
+        "amount": 0.25,
+        "water": true
+      }
+    ]
+  },
+  "microraptor": {
+    "tail": [
+      "Tail1",
+      "Tail1",
+      "Tail1",
+      "Tail1"
+    ],
+    "glidePitch": true,
+    "motions": [
+      {
+        "op": "bob",
+        "part": "Body1",
+        "speed": 1.0,
+        "degree": 3.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "RightLeg1",
+        "speed": 1.0,
+        "degree": 3.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "LeftLeg1",
+        "speed": 1.0,
+        "degree": 3.0,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail1",
+          "Tail1",
+          "Tail1",
+          "Tail1"
+        ],
+        "speed": 0.1,
+        "degree": 0.05,
+        "root": 2,
+        "driver": "age",
+        "amount": 0.5
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Body2",
+          "Body1",
+          "Neck1",
+          "Neck2",
+          "Head"
+        ],
+        "speed": 0.1,
+        "degree": -0.03,
+        "root": 5,
+        "driver": "age",
+        "amount": 0.5
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "RightArm3",
+          "RightArm2",
+          "RightArm1"
+        ],
+        "speed": 0.1,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.5
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "LeftArm3",
+          "LeftArm2",
+          "LeftArm1"
+        ],
+        "speed": 0.1,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.5
+      }
+    ]
+  },
+  "brachiosaurus": {
+    "tail": [
+      "tail5",
+      "tail4",
+      "tail3",
+      "tail2",
+      "tail1"
+    ],
+    "motions": [
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "tail5",
+          "tail4",
+          "tail3"
+        ],
+        "speed": 0.1,
+        "degree": 0.5,
+        "root": 3,
+        "driver": "age",
+        "amount": 0.025
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "head",
+          "neck7",
+          "neck6",
+          "neck5",
+          "neck4",
+          "neck3",
+          "neck2",
+          "Neck 1"
+        ],
+        "speed": 0.1,
+        "degree": 0.125,
+        "root": -3,
+        "driver": "age",
+        "amount": 0.025
+      }
+    ]
+  },
+  "mussaurus": {
+    "tail": [
+      "Tail8",
+      "Tail7",
+      "Tail6",
+      "Tail5",
+      "Tail4",
+      "Tail3",
+      "Tail2",
+      "Tail1"
+    ],
+    "motions": [
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head1",
+          "Neck3",
+          "Neck2",
+          "Neck1",
+          "Body2",
+          "Body1"
+        ],
+        "speed": 0.075,
+        "degree": -0.01,
+        "root": -2,
+        "driver": "age",
+        "amount": 1.0
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail8",
+          "Tail7",
+          "Tail6",
+          "Tail5",
+          "Tail4",
+          "Tail3",
+          "Tail2",
+          "Tail1"
+        ],
+        "speed": 0.075,
+        "degree": -0.01,
+        "root": 2,
+        "driver": "age",
+        "amount": 1.0
+      }
+    ]
+  },
+  "dilophosaurus": {
+    "tail": [
+      "Tail 6",
+      "Tail 5",
+      "Tail 4",
+      "Tail 3",
+      "Tail 2",
+      "Tail BASE"
+    ],
+    "hideUnlessTarget": [
+      "Frill Lower Left",
+      "Frill Upper Left",
+      "Frill Lower Right",
+      "Frill Upper Right"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "Body REAR",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Leg Right UPPER",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Leg Left UPPER",
+        "speed": 0.5,
+        "degree": 1.0,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail BASE"
+        ],
+        "speed": 0.5,
+        "degree": 0.05,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail BASE"
+        ],
+        "speed": 0.5,
+        "degree": 0.1,
+        "root": 2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck 6",
+          "Neck 5",
+          "Neck 4",
+          "Neck 3",
+          "Neck 2",
+          "Neck Base",
+          "Body FRONT",
+          "Body MIDDLE",
+          "Body REAR"
+        ],
+        "speed": 0.5,
+        "degree": 0.025,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail BASE"
+        ],
+        "speed": 0.15,
+        "degree": -0.03,
+        "root": 2,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck 6",
+          "Neck 5",
+          "Neck 4",
+          "Neck 3",
+          "Neck 2",
+          "Neck Base",
+          "Body FRONT",
+          "Body MIDDLE",
+          "Body REAR"
+        ],
+        "speed": 0.15,
+        "degree": 0.03,
+        "root": 3.5,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Right hand",
+          "Right forearm",
+          "Right arm"
+        ],
+        "speed": 0.15,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Left hand",
+          "Left forearm",
+          "Left arm"
+        ],
+        "speed": 0.15,
+        "degree": -0.1,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail BASE"
+        ],
+        "speed": 0.15,
+        "degree": -0.1,
+        "root": 3,
+        "driver": "age",
+        "amount": 0.25
+      }
+    ]
+  },
+  "gallimimus": {
+    "tail": [
+      "Tail part 6",
+      "Tail part 5",
+      "Tail part 4",
+      "Tail part 3",
+      "Tail part 2",
+      "Tail part 1"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "Body 1",
+        "speed": 0.75,
+        "degree": 1.5,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Right thigh",
+        "speed": 0.75,
+        "degree": 1.5,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Left thigh",
+        "speed": 0.75,
+        "degree": 1.5,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail part 6",
+          "Tail part 5",
+          "Tail part 4",
+          "Tail part 3",
+          "Tail part 2",
+          "Tail part 1"
+        ],
+        "speed": 0.375,
+        "degree": 0.05,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail part 6",
+          "Tail part 5",
+          "Tail part 4",
+          "Tail part 3",
+          "Tail part 2",
+          "Tail part 1"
+        ],
+        "speed": 0.375,
+        "degree": 0.2,
+        "root": 2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck part 5",
+          "Neck part 4",
+          "Neck part 3",
+          "Neck part 2",
+          "Neck part 1",
+          "Body 1",
+          "Body 2",
+          "Body 3"
+        ],
+        "speed": 0.375,
+        "degree": 0.025,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail part 6",
+          "Tail part 5",
+          "Tail part 4",
+          "Tail part 3",
+          "Tail part 2",
+          "Tail part 1"
+        ],
+        "speed": 0.1,
+        "degree": 0.05,
+        "root": 1,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck part 5",
+          "Neck part 4",
+          "Neck part 3",
+          "Neck part 2",
+          "Neck part 1",
+          "Body 1",
+          "Body 2",
+          "Body 3"
+        ],
+        "speed": 0.1,
+        "degree": -0.05,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Right wrist",
+          "Right lower arm",
+          "Right upper arm"
+        ],
+        "speed": 0.1,
+        "degree": -0.15,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Left wrist",
+          "Left lower arm",
+          "Left upper arm"
+        ],
+        "speed": 0.1,
+        "degree": -0.15,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      }
+    ]
+  },
+  "parasaurolophus": {
+    "tail": [
+      "Tail6",
+      "Tail5",
+      "Tail4",
+      "Tail3",
+      "Tail2",
+      "Tail1"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "Body1",
+        "speed": 0.25,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Thigh Right",
+        "speed": 0.25,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "Thigh Left",
+        "speed": 0.25,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail6",
+          "Tail5",
+          "Tail4",
+          "Tail3",
+          "Tail2",
+          "Tail1"
+        ],
+        "speed": 0.125,
+        "degree": 0.08,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail6",
+          "Tail5",
+          "Tail4",
+          "Tail3",
+          "Tail2",
+          "Tail1"
+        ],
+        "speed": 0.125,
+        "degree": 0.2,
+        "root": 2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck3",
+          "Neck2",
+          "Neck1",
+          "Body1",
+          "Body2",
+          "Body3"
+        ],
+        "speed": 0.125,
+        "degree": 0.04,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "walk",
+        "part": "Neck1",
+        "speed": 0.1,
+        "degree": 0.07,
+        "invert": false,
+        "offset": -1,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Head",
+        "speed": 0.1,
+        "degree": 0.07,
+        "invert": true,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Body1",
+        "speed": 0.1,
+        "degree": 0.04,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Upper Arm Right",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": false,
+        "offset": -1,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Upper Arm Left",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": false,
+        "offset": -1,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Lower Arm Right",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": true,
+        "offset": -1.5,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Lower Arm Left",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": true,
+        "offset": -1.5,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Right Hand",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": false,
+        "offset": -2,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "Left Hand",
+        "speed": 0.1,
+        "degree": 0.1,
+        "invert": false,
+        "offset": -2,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail6",
+          "Tail5",
+          "Tail4",
+          "Tail3",
+          "Tail2",
+          "Tail1"
+        ],
+        "speed": 0.1,
+        "degree": -0.02,
+        "root": 2,
+        "driver": "age",
+        "amount": 1
+      }
+    ]
+  },
+  "triceratops": {
+    "tail": [
+      "Tail 6",
+      "Tail 5",
+      "Tail 4",
+      "Tail 3",
+      "Tail 2",
+      "Tail 1"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "Body hips",
+        "speed": 0.5,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "RearLeg Upper Right",
+        "speed": 0.5,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "RearLeg Upper Left",
+        "speed": 0.5,
+        "degree": 1.2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail 1"
+        ],
+        "speed": 0.25,
+        "degree": 0.08,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail 1"
+        ],
+        "speed": 0.25,
+        "degree": 0.2,
+        "root": 2,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Head",
+          "Neck 3",
+          "Neck 2",
+          "Neck 1",
+          "Body shoulders",
+          "Body MAIN",
+          "Body hips"
+        ],
+        "speed": 0.25,
+        "degree": 0.04,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "walk",
+        "part": "Neck 1",
+        "speed": 0.1,
+        "degree": 0.07,
+        "invert": false,
+        "offset": -1,
+        "weight": 0,
+        "driver": "age",
+        "amount": 1
+      },
+      {
+        "op": "walk",
+        "part": "Head",
+        "speed": 0.1,
+        "degree": 0.07,
+        "invert": true,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 1
+      },
+      {
+        "op": "walk",
+        "part": "Body hips",
+        "speed": 0.1,
+        "degree": 0.025,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 1
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg Upper Right",
+        "speed": 0.1,
+        "degree": 0.03,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg MID Right",
+        "speed": 0.1,
+        "degree": 0.09,
+        "invert": true,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg FOOT Right",
+        "speed": 0.1,
+        "degree": 0.0525,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "shiftZ",
+        "part": "FrontLeg Upper Right",
+        "amplitude": 0.5,
+        "frequency": 0.025
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg Upper Left",
+        "speed": 0.1,
+        "degree": 0.03,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg MID Left",
+        "speed": 0.1,
+        "degree": 0.09,
+        "invert": true,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "walk",
+        "part": "FrontLeg FOOT Left",
+        "speed": 0.1,
+        "degree": 0.0525,
+        "invert": false,
+        "offset": 0,
+        "weight": 0,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "shiftZ",
+        "part": "FrontLeg Upper Left",
+        "amplitude": 0.5,
+        "frequency": 0.025
+      },
+      {
+        "op": "chain",
+        "axis": "y",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail 1"
+        ],
+        "speed": 0.1,
+        "degree": 0.05,
+        "root": 2,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "Tail 6",
+          "Tail 5",
+          "Tail 4",
+          "Tail 3",
+          "Tail 2",
+          "Tail 1"
+        ],
+        "speed": 0.1,
+        "degree": -0.05,
+        "root": 1,
+        "driver": "age",
+        "amount": 0.25
+      }
+    ]
+  },
+  "tyrannosaurus": {
+    "tail": [
+      "tail9",
+      "tail8",
+      "tail7",
+      "tail6",
+      "tail5",
+      "tail4",
+      "tail3",
+      "tail2",
+      "tail1"
+    ],
+    "motions": [
+      {
+        "op": "bob",
+        "part": "bodyHips",
+        "speed": 0.25,
+        "degree": 0.75,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "thighRight",
+        "speed": 0.25,
+        "degree": 0.75,
+        "driver": "walk"
+      },
+      {
+        "op": "bob",
+        "part": "thighLeft",
+        "speed": 0.25,
+        "degree": 0.75,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "tail9",
+          "tail8",
+          "tail7",
+          "tail6",
+          "tail5",
+          "tail4",
+          "tail3",
+          "tail2",
+          "tail1"
+        ],
+        "speed": 0.25,
+        "degree": 0.025,
+        "root": 1,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "head",
+          "throat3",
+          "throat2",
+          "throat1",
+          "neck7",
+          "neck6",
+          "neck5",
+          "neck4",
+          "neck3",
+          "neck2",
+          "neck1",
+          "bodyShoulders",
+          "bodyBack",
+          "bodyHips"
+        ],
+        "speed": 0.25,
+        "degree": 0.0125,
+        "root": 3,
+        "driver": "walk"
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "head",
+          "throat3",
+          "throat2",
+          "throat1",
+          "neck7",
+          "neck6",
+          "neck5",
+          "neck4",
+          "neck3",
+          "neck2",
+          "neck1",
+          "bodyShoulders",
+          "bodyBack",
+          "bodyHips"
+        ],
+        "speed": 0.1,
+        "degree": -0.03,
+        "root": 3,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "handRight",
+          "bicepRight"
+        ],
+        "speed": -0.1,
+        "degree": 0.2,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "handLeft",
+          "bicepLeft"
+        ],
+        "speed": -0.1,
+        "degree": 0.2,
+        "root": 4,
+        "driver": "age",
+        "amount": 0.25
+      },
+      {
+        "op": "chain",
+        "axis": "x",
+        "parts": [
+          "tail9",
+          "tail8",
+          "tail7",
+          "tail6",
+          "tail5",
+          "tail4",
+          "tail3",
+          "tail2",
+          "tail1"
+        ],
+        "speed": 0.1,
+        "degree": -0.1,
+        "root": 2,
+        "driver": "age",
+        "amount": 0.1
+      }
+    ]
+  }
+}
