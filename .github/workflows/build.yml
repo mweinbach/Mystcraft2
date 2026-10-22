@@ -1,20 +1,30 @@
 name: Build ports
 
+# The required check is this workflow's `build` job ("Build ports / build").
+# It passes only when tooling and every port job pass. Push runs on main;
+# a pull request runs once via pull_request, not again via push.
+
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: build-ports-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  tooling:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -22,6 +32,8 @@ jobs:
         with:
           python-version: '3.12'
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       - name: Validate port metadata
         run: python3 scripts/ports.py check
       - name: Test port management and EMC tooling
@@ -30,110 +42,196 @@ jobs:
         run: python3 scripts/emc.py check
       - name: Test ICBM material tag validation
         run: python3 -m unittest discover -s mods/icbm_port/tools/tests -v
-      - name: Build all ports
-        run: ./gradlew --no-daemon listPorts build
-      - name: Validate ICBM resources and material mappings
-        run: python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
-      - name: Test ICBM gameplay on a dedicated Fabric server
-        run: ./gradlew --no-daemon :icbm_port:runGametest -PwithItemAlchemy
-      - name: Test material compatibility and datapack reloads
-        run: ./gradlew --no-daemon :icbm_port:runMaterialGametest
-      - name: Test Advanced Genetics and its ProjectE EMC on a dedicated Forge GameTest server
-        run: ./gradlew --no-daemon :advancedgenetics:runGameTestServer -PwithProjectE
-      - name: Build Advanced Genetics for Fabric
-        run: ./gradlew --no-daemon -p mods/advancedgenetics/fabric build
-      - name: Verify Advanced Genetics loader artifact parity
-        run: python3 mods/advancedgenetics/scripts/check_loader_parity.py
-      - name: Test Advanced Genetics and its Item Alchemy EMC on a dedicated Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy
-      - name: Build Mystcraft for Fabric
-        run: ./gradlew --no-daemon -p mods/mystcraft/fabric build
-      - name: Verify Mystcraft loader artifact parity
-        run: python3 mods/mystcraft/scripts/check_loader_parity.py
-      - name: Check Mystcraft EMC against ProjectE on a Forge GameTest server
-        run: ./gradlew --no-daemon :mystcraft:runGameTestServer -PwithProjectE
-      - name: Check Mystcraft EMC against Item Alchemy on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/mystcraft/fabric runGametest -PwithItemAlchemy
-      - name: Build BuildCraft for Fabric
-        run: ./gradlew --no-daemon -p mods/buildcraft/fabric build
-      - name: Verify BuildCraft loader artifact parity
-        run: python3 mods/buildcraft/scripts/check_loader_parity.py
-      - name: Test BuildCraft gameplay and EMC against ProjectE on a Forge GameTest server
-        run: ./gradlew --no-daemon :buildcraft:runGameTestServer -PwithProjectE
-      - name: Test BuildCraft gameplay and EMC against Item Alchemy on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/buildcraft/fabric runGametest -PwithItemAlchemy
-      - name: Build Extreme Reactors for Fabric
-        run: ./gradlew --no-daemon -p mods/extremereactors/fabric build
-      - name: Verify Extreme Reactors loader artifact parity
-        run: python3 mods/extremereactors/scripts/check_loader_parity.py
-      - name: Test Extreme Reactors gameplay and EMC against ProjectE on a Forge GameTest server
-        run: ./gradlew --no-daemon :extremereactors:runGameTestServer -PwithProjectE
-      - name: Test Extreme Reactors gameplay and EMC against Item Alchemy on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/extremereactors/fabric runGametest -PwithItemAlchemy
       - name: Test JurassiCraft resources
         run: python3 -m unittest discover -s mods/jurassicraft/tools/tests -v
-      - name: Build JurassiCraft for Fabric
-        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric build
-      - name: Verify JurassiCraft loader artifact parity
-        run: python3 mods/jurassicraft/scripts/check_loader_parity.py
-      - name: Test JurassiCraft distributions
-        run: |
-          for jar in mods/jurassicraft/build/libs/jurassicraft-forge-1.19.2-*[0-9].jar \
-                     mods/jurassicraft/fabric/build/libs/jurassicraft-fabric-1.19.2-*[0-9].jar; do
-            JURASSICRAFT_TEST_JAR="$PWD/$jar" python3 -m unittest discover -s mods/jurassicraft/tools/tests -p test_built_jar.py -v
-          done
-      - name: Test JurassiCraft gameplay on a Forge GameTest server
-        run: ./gradlew --no-daemon :jurassicraft:runGameTestServer -PwithProjectE
-      - name: Test JurassiCraft gameplay on a Fabric GameTest server
-        run: ./gradlew --no-daemon -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi -PwithItemAlchemy
       - name: Check Mekanism's Fabric tag bridges are up to date
         run: python3 mods/mekanism/scripts/generate_fabric_tags.py --check
-      - name: Build Mekanism for Fabric
-        run: ./gradlew --no-daemon -p mods/mekanism/fabric build
-      - name: Verify Mekanism loader artifact parity
-        run: python3 mods/mekanism/scripts/check_loader_parity.py
-      - name: Run Mekanism's Forge GameTests
-        run: ./gradlew --no-daemon :mekanism:runGameTestServer
-      - name: Run Mekanism's Fabric GameTests
-        run: ./gradlew --no-daemon -p mods/mekanism/fabric runGametest
-      # The headless GameTest server reports assertion messages only in these files.
+      - name: List Gradle ports
+        run: ./gradlew --no-daemon listPorts
+
+  port:
+    name: ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: icbm_port
+            kind: icbm
+            jars: mods/icbm_port/build/libs/*.jar
+            reports: |
+              mods/icbm_port/build/*-results.xml
+              mods/icbm_port/build/gametest/logs/latest.log
+              mods/icbm_port/build/materialtest/logs/latest.log
+          - id: advancedgenetics
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
+            jars: |
+              mods/advancedgenetics/build/libs/*.jar
+              mods/advancedgenetics/fabric/build/libs/*.jar
+            reports: |
+              mods/advancedgenetics/run/gameTestServer/logs/latest.log
+              mods/advancedgenetics/fabric/build/gametest-results.xml
+              mods/advancedgenetics/fabric/build/gametest/logs/latest.log
+          - id: mystcraft
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
+            jars: |
+              mods/mystcraft/build/libs/*.jar
+              mods/mystcraft/fabric/build/libs/*.jar
+            reports: |
+              mods/mystcraft/run/gameTestServer/logs/latest.log
+              mods/mystcraft/fabric/build/gametest-results.xml
+              mods/mystcraft/fabric/build/gametest/logs/latest.log
+          - id: buildcraft
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
+            jars: |
+              mods/buildcraft/build/libs/*.jar
+              mods/buildcraft/fabric/build/libs/*.jar
+            reports: |
+              mods/buildcraft/run/gameTestServer/logs/latest.log
+              mods/buildcraft/fabric/build/gametest-results.xml
+              mods/buildcraft/fabric/build/gametest/logs/latest.log
+          - id: extremereactors
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
+            jars: |
+              mods/extremereactors/build/libs/*.jar
+              mods/extremereactors/fabric/build/libs/*.jar
+            reports: |
+              mods/extremereactors/run/gameTestServer/logs/latest.log
+              mods/extremereactors/fabric/build/gametest-results.xml
+              mods/extremereactors/fabric/build/gametest/logs/latest.log
+          - id: jurassicraft
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy
+            jars: |
+              mods/jurassicraft/build/libs/*.jar
+              mods/jurassicraft/fabric/build/libs/*.jar
+            reports: |
+              mods/jurassicraft/run/gameTestServer/logs/latest.log
+              mods/jurassicraft/fabric/build/gametest-results.xml
+              mods/jurassicraft/fabric/build/gametest/logs/latest.log
+          - id: mekanism
+            kind: dual
+            forge_props: ""
+            fabric_props: ""
+            jars: |
+              mods/mekanism/build/libs/*.jar
+              mods/mekanism/fabric/build/libs/*.jar
+            reports: |
+              mods/mekanism/run/gameTestServer/logs/latest.log
+              mods/mekanism/fabric/build/gametest-results.xml
+              mods/mekanism/fabric/build/gametest/logs/latest.log
+    env:
+      PORT: ${{ matrix.id }}
+      KIND: ${{ matrix.kind }}
+      FORGE_PROPS: ${{ matrix.forge_props }}
+      FABRIC_PROPS: ${{ matrix.fabric_props }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Build and run GameTests
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT="${PORT:-}"
+          KIND="${KIND:-}"
+          FORGE_PROPS="${FORGE_PROPS:-}"
+          FABRIC_PROPS="${FABRIC_PROPS:-}"
+          if [[ ! "$PORT" =~ ^[a-z][a-z0-9_]{1,63}$ ]]; then
+            echo "Unexpected port id: $PORT" >&2
+            exit 1
+          fi
+          gradle_with_props() {
+            local props="$1"
+            shift
+            if [ -n "$props" ]; then
+              local -a extra=()
+              read -r -a extra <<< "$props"
+              ./gradlew --no-daemon "$@" "${extra[@]}"
+            else
+              ./gradlew --no-daemon "$@"
+            fi
+          }
+          case "$KIND" in
+            icbm)
+              gradle_with_props "" :icbm_port:build
+              python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
+              gradle_with_props "-PwithItemAlchemy" :icbm_port:runGametest
+              gradle_with_props "" :icbm_port:runMaterialGametest
+              ;;
+            dual)
+              gradle_with_props "" ":${PORT}:build"
+              gradle_with_props "" -p "mods/${PORT}/fabric" build
+              python3 "mods/${PORT}/scripts/check_loader_parity.py"
+              if [ "$PORT" = jurassicraft ]; then
+                for jar in mods/jurassicraft/build/libs/jurassicraft-forge-1.19.2-*[0-9].jar \
+                           mods/jurassicraft/fabric/build/libs/jurassicraft-fabric-1.19.2-*[0-9].jar; do
+                  JURASSICRAFT_TEST_JAR="$PWD/$jar" python3 -m unittest discover -s mods/jurassicraft/tools/tests -p test_built_jar.py -v
+                done
+              fi
+              gradle_with_props "$FORGE_PROPS" ":${PORT}:runGameTestServer"
+              gradle_with_props "$FABRIC_PROPS" -p "mods/${PORT}/fabric" runGametest
+              ;;
+            *)
+              echo "Unknown port kind: $KIND" >&2
+              exit 1
+              ;;
+          esac
       - name: Upload GameTest reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: gametest-reports
-          path: |
-            mods/icbm_port/build/*-results.xml
-            mods/icbm_port/build/gametest/logs/latest.log
-            mods/icbm_port/build/materialtest/logs/latest.log
-            mods/advancedgenetics/run/gameTestServer/logs/latest.log
-            mods/advancedgenetics/fabric/build/gametest-results.xml
-            mods/advancedgenetics/fabric/build/gametest/logs/latest.log
-            mods/mystcraft/run/gameTestServer/logs/latest.log
-            mods/mystcraft/fabric/build/gametest-results.xml
-            mods/mystcraft/fabric/build/gametest/logs/latest.log
-            mods/buildcraft/run/gameTestServer/logs/latest.log
-            mods/buildcraft/fabric/build/gametest-results.xml
-            mods/buildcraft/fabric/build/gametest/logs/latest.log
-            mods/extremereactors/run/gameTestServer/logs/latest.log
-            mods/extremereactors/fabric/build/gametest-results.xml
-            mods/extremereactors/fabric/build/gametest/logs/latest.log
-            mods/jurassicraft/run/gameTestServer/logs/latest.log
-            mods/jurassicraft/fabric/build/gametest-results.xml
-            mods/jurassicraft/fabric/build/gametest/logs/latest.log
-            mods/mekanism/run/gameTestServer/logs/latest.log
-            mods/mekanism/fabric/build/gametest-results.xml
-            mods/mekanism/fabric/build/gametest/logs/latest.log
+          name: gametest-reports-${{ matrix.id }}
+          path: ${{ matrix.reports }}
           if-no-files-found: ignore
+      - name: Upload port JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: port-jars-${{ matrix.id }}
+          path: ${{ matrix.jars }}
+          if-no-files-found: error
+
+  build:
+    needs: [tooling, port]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require tooling and every port
+        env:
+          TOOLING: ${{ needs.tooling.result }}
+          PORT: ${{ needs.port.result }}
+        run: |
+          set -euo pipefail
+          echo "tooling=$TOOLING"
+          echo "port=$PORT"
+          test "$TOOLING" = success
+          test "$PORT" = success
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: port-jars-*
+          path: collected-jars
+          merge-multiple: true
       - uses: actions/upload-artifact@v4
         with:
           name: minecraft-1.19.2-ports
-          path: |
-            mods/*/build/libs/*.jar
-            mods/mystcraft/fabric/build/libs/*.jar
-            mods/buildcraft/fabric/build/libs/*.jar
-            mods/jurassicraft/fabric/build/libs/*.jar
-            mods/advancedgenetics/fabric/build/libs/*.jar
-            mods/extremereactors/fabric/build/libs/*.jar
-            mods/mekanism/fabric/build/libs/*.jar
+          path: collected-jars
           if-no-files-found: error
