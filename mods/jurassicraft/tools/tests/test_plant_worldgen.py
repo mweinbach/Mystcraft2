@@ -22,7 +22,7 @@ class PlantWorldgenResourcesTest(unittest.TestCase):
                 self.assertEqual('jurassicraft:' + feature, placed['feature'])
                 self.assertEqual(['minecraft:in_square', 'minecraft:heightmap', 'minecraft:biome'],
                                  [entry['type'] for entry in placed['placement']])
-                step = 'underground_decoration' if feature == 'coal_plant_fossils' else 'underground_ores'
+                step = 'top_layer_modification' if feature == 'coal_plant_fossils' else 'underground_ores'
                 self.assertEqual(('#minecraft:is_overworld', step), placements()[feature])
 
     def test_independent_plant_fossil_ore_is_removed(self):

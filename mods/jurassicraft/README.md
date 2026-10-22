@@ -80,10 +80,10 @@ so values for later content need updating in `emc/policy.json`.
 
 ## Limitations
 
-The port is still in progress. World-generation distributions and some
-machine, animal, and vehicle behaviors are approximations; see the known gaps
-in [PARITY.md](PARITY.md). Large structures, multiplayer, interactions with
-other mods, and some audiovisual details still need broader in-game testing.
+The port is still in progress. Some machine, animal, and vehicle behaviors
+are approximations; see the known gaps in [PARITY.md](PARITY.md). Large
+structures, multiplayer, interactions with other mods, and some audiovisual
+details still need broader in-game testing.
 Genetic item variants use separate IDs rather than legacy item damage values,
 and there is no migration for 1.12 worlds or for saves from the earlier
 separate Fabric alpha.

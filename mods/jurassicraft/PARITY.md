@@ -38,11 +38,11 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Dinosaur fossil ore density | Fabric: `jurassicraft:binomial_count` with 32 trials and trapezoid period heights | Upstream makes 32 attempts per chunk; Forge used one placement with a flat height. |
+| Dinosaur fossil ore density | Shared `jurassicraft:fossil_deposits` | One 32-attempt loop per overworld chunk, in upstream's order: a column in the chunk, Y in 0–63, the first strict time-period match, then a Y offset of −4..+3 (periods with no species still consume that offset). One registered species is chosen in `EntityHandler`'s HashMap order. The vein is the 1.12 `WorldGenMinable` of size 5 and replaces stone only. |
 | Amber, ice shard, gypsum, nest, trackway, peat and plant decorations | Both (already identical) | Counts, vein sizes, heights and rarities match upstream. |
 | Biome attachment | New shared `WorldgenPlacements` table | Replaces Forge's per-feature biome-modifier JSONs and Fabric's separate registration; the generation config is applied once in shared code. |
 | Fossil-nest favored biomes | Union in `#jurassicraft:nest_favored` | Upstream favors MOUNTAIN, HILLS, MESA and SANDY. The tag lists mountains, hills, badlands, desert and beach, plus optional `#forge:is_sandy` and `#c:desert`. Forge's hard-coded `forge:is_sandy` check never matched on Fabric; listing desert and beach directly keeps upstream's SANDY scope on both loaders. |
-| Plant fossils in coal | Both (equivalent) | 1 in 10 coal ores, as upstream's coal generator wrapper; the coal tag unions vanilla, `forge` and `c` coal ores. |
+| Plant fossils in coal | Shared late chunk scan | One in ten blocks in `jurassicraft:coal_ores` (vanilla coal ores plus optional `#forge:ores/coal` and `#c:coal_ores`) becomes a plant fossil. The feature runs in `top_layer_modification`, added on Forge's `AFTER_EVERYTHING` phase and Fabric's `POST_PROCESSING` phase, so coal from later decoration steps is included. Untagged ores are not replaced and do not consume this random. Upstream rolled that chance inside the coal vein generator; 1.19.2 has no single coal generator to wrap, so the roll is this scan. Coal added in that same final phase after JurassiCraft, or after biome decoration, is not scanned. |
 | Peat biomes | New `#jurassicraft:swamps` | Swamp and mangrove swamp plus optional `#forge:is_swamp` and `#c:swamp`, matching upstream SWAMP on both loaders. |
 | Moss and lilac biomes | Fabric tags | Built from vanilla biome tags and `#jurassicraft:swamps`, so they no longer depend on Forge-only tags. |
 
@@ -132,8 +132,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 205 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 127 on Fabric
+Both loaders run in-world GameTests from development-only mods: 210 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 132 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 
@@ -150,6 +150,8 @@ Tests changed while merging:
 - Bonus-loot tests read the server loot tables, since the bonus pools now live in the JSON.
 - Park structure tests expect entity-free template placement followed by `ParkHangingEntities`.
 - The plant-fossil test also covers modded coal ores through the shared coal tag.
+- Fossil tests replay the shared 32-attempt loop, including empty periods and the stone-only minable vein, and check that a chunk stays inside that budget.
+- Plant-fossil tests replace tagged coal in chunk-scan order at one in ten, leave other ores, and require the feature after vanilla coal and `freeze_top_layer`.
 - The combinator test checks the stable slot set and per-mode face filtering.
 - The birth test searches for eggs around the mother, who may move while recovering.
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
@@ -158,8 +160,6 @@ Tests changed while merging:
 
 ## Known gaps against 1.12.2
 
-- Fossil ore attempts are independent per species instead of sharing 32 attempts per chunk.
-- Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
 - Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
 - Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
