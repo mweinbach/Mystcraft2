@@ -23,20 +23,27 @@ Copied unchanged, then edited as listed below:
   output `src/datagen/generated/mekanism` (merged into `src/main/resources`) and the JUnit tests in `src/test`.
 - `src/generators/java`, `src/generators/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismgenerators` (merged into `src/generators/resources`), via
-  `scripts/import_upstream.py`. Files that import the JEI API were not copied.
+  `scripts/import_upstream.py`.
 - `src/tools/java`, `src/tools/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismtools` (merged into `src/tools/resources`), via the same importer.
-  `mekanism/tools/client/jei/ToolsJEI.java` was not copied.
 - `src/additions/java`, `src/additions/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismadditions` (merged into `src/additions/resources`), via the same importer.
   Baby mobs, balloons, the walkie-talkie, the voice server and the biome and structure modifiers are registered.
   The walkie-talkie recipe is the upstream shaped recipe.
 - `mekanism.client.jei.MekanismJEIRecipeType`, `mekanism.client.jei.interfaces` and `mekanism.client.jei.recipe`.
   They do not use the JEI API; GUIs use them for recipe-viewer click areas and ghost slots.
+- The JEI plugin (`mekanism.client.jei`, `mekanism.generators.client.jei`, `mekanism.tools.client.jei`) and
+  `mekanism.api.integration.jei.IMekanismJEIHelper`. Fluid ingredients go through JEI's `IPlatformFluidHelper` so the
+  same categories compile on Forge and Fabric. Recipe transfer is `FormulaicRecipeTransferInfo`,
+  `GhostIngredientHandler` and `QIOCraftingTransferHandler`. The QIO handler's client shuffle check reads the item
+  viewer's synchronized counts and capacities instead of `getFrequency()`, which is null on the client for the
+  portable dashboard.
 
-Not imported: the JEI plugin, CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod,
-The One Probe/Jade/WTHIT, ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the
-Blockbench/Blender model sources.
+Not imported: CraftTweaker, OpenComputers 2, Curios, Wildfire's Gender Mod, ProjectE and Flux
+Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. The look-at
+providers are imported: Jade and the shared tooltip data are in `src/main`, The One Probe is in `src/forge`, and
+WTHIT is in `src/fabric`. Upstream's Forge WTHIT plugin is not built into the Forge JAR. The ComputerCraft package
+is imported in `src/main`; the Fabric peripheral provider is port code in `src/fabric`. OpenComputers 2 is not.
 
 ## The Forge API mirror
 
@@ -60,16 +67,19 @@ Every edit beyond the scripted import rewrite:
 
 | File | Edit | Reason |
 | --- | --- | --- |
-| `mekanism/api/MekanismAPI.java` | Removed `getJeiHelper()` and the `mekanism.api.integration.jei` package | JEI integration not ported |
+| `mekanism/api/MekanismAPI.java` | `getJeiHelper()` looks up `MekanismJEIHelper` only after `ModList` reports JEI. The helper interface references JEI's ingredient API | JEI is optional; the API class must not load JEI until something asks for the helper |
 | `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, ComputerCraft, OC2, ProjectE, TOP, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; their `*Loaded` flags stay `false` | Integrations not ported |
-| `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` adds nothing | ComputerCraft and OC2 not ported |
+| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, OC2, ProjectE, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; those `*Loaded` flags stay `false`. ComputerCraft is detected. When it is loaded the math helper is registered, and the Fabric peripheral provider is loaded by name. The One Probe is detected, and its IMC supplier loads `TOPProvider` by name | The remaining integrations are not ported. The Fabric provider and the One Probe class are loader-only, so the shared hook cannot mention their types |
+| `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
+| `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` attaches the ComputerCraft capability and skips the OpenComputers 2 branch | OC2 is not ported. The ComputerCraft helper is the upstream class |
+| `mekanism/common/integration/computer/ComputerMethodMapper.java` | `isEnabled` is also true when `mekanism.gametest.computer` is set | GameTests check method lists without CC: Tweaked installed. The capability is still attached only when that mod is loaded |
+| `data/mekanism/parameter_names/computer.json`, `data/mekanismgenerators/parameter_names/computer.json` | Copied from the Mekanism and Mekanism Generators 10.3.9.13 release jars | The annotation processor that writes these files was not imported. Methods bind without them; the files restore parameter names |
 | `mekanism/common/integration/energy/EnergyCompatUtils.java` | Removed the Flux Networks energy compat | Flux Networks not ported |
 | `mekanism/client/key/MekanismKeyHandler.java`, `client/render/hud/MekanismHUD.java`, `common/content/gear/mekasuit/ModuleChargeDistributionUnit.java`, `common/tile/TileEntityChargepad.java`, `common/item/interfaces/IJetpackItem.java` | Removed the Curios slot branches | Curios not ported |
 | `mekanism/common/network/PacketHandler.java` | Removed `PacketModeChangeCurios`; the packet and `MekanismCurioRenderer` were deleted | Curios not ported |
 | `mekanism/common/content/qio/QIOCraftingWindow.java` | Removed Recipe Stages checks | Recipe Stages not ported |
 | `mekanism/common/item/gear/ItemHazmatSuitArmor.java`, `ItemSpecialArmor.java` | Removed the Wildfire Gender capability | Gender integration not ported |
-| `mekanism/client/ClientRegistration.java`, `client/render/RenderTickHandler.java` | Removed the JEI recipe-screen listener (`guiOpening`) | JEI integration not ported |
+| `mekanism/client/ClientRegistration.java` | Registers `JeiScreenWatcher` on the forge bus only when JEI is loaded. The watcher is the upstream `RenderTickHandler.guiOpening` listener, moved so `RenderTickHandler` does not reference JEI | JEI is optional. Fabric posts `ScreenEvent.Opening` from `MinecraftMixin`; that event was not in the mirror |
 | `pack.mcmeta` | Wrote in the pack formats upstream's build expanded (`pack_format` 10, resource 9, data 10) | The port's builds do not expand upstream's template variables |
 | `mekanism/tools/common/material/BaseMekanismMaterial.java`, tool item constructors, `MekanismTools.registerTiers` | The material no longer implements `Tier` itself. `MaterialItemTier` delegates the same stats. Tool constructors and tier registration use `asTier()` | `Tier` and `ArmorMaterial` both declare `getEnchantmentValue` and `getRepairIngredient`. Fabric's remapper cannot map one method onto both |
 | `mekanism/tools/common/item/ItemMekanismArmor.java` | Removed `initCapabilities` | It only attached the Wildfire Gender capability |

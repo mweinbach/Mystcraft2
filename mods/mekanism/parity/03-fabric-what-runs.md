@@ -66,10 +66,21 @@ controller is the master and its render box is the structure. An advanced solar 
 upstream passive heat source; these tests heat the valve directly and do not place one. In the Fabric development
 client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
-checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
-were not drawn, and the reactor screen was not opened. In the development client `/mek build sps` built a 7×7×7
+checkerboard of fuel assemblies and control rods. A separate development client built a fueled 5×6×5 reactor and
+stood against the south glass. The fuel-assembly column and its control rod are visible, a cyan burn glow surrounds
+the column, and water sits in the bottom of the shell. That frame does not include the reactor screen. Opening
+the screen on that client covers the column; its coolant gauge holds water and its fuel gauge holds fissile fuel. In the development client `/mek build sps` built a 7×7×7
 shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
-no coil, so the orb and the coil bolts were not drawn. In that client `/mek build fusion` built a 5×5×5 reactor.
+no coil, so the orb and the coil bolts were not drawn. A digital miner (`DigitalMinerGameTests`) with radius 1 mines an iron ore its item filter accepts and leaves a coal
+ore beside it. The raw iron is on the back output port, read through Forge's item capability and, on Fabric,
+`ItemStorage`. With auto-eject on, that drop moves into a chest one block past the output port through the same item
+API. A `forge:ores/iron` tag filter selects the iron ore and leaves the coal ore. A filter that requires cobblestone
+takes that cobblestone from the top input port and leaves cobblestone where the ore was. Silk touch yields the iron
+ore block instead of raw iron. An anchor upgrade keeps the miner's chunk loaded. Dropping the runtime ticket and
+loading the saved one brings it back, and removing the miner drops the ticket. The area preview's render box is the
+mining volume while the preview is on, and the block's own box while it is off. In the Fabric development
+client, right-clicking a placed digital miner opens its screen. The screen shows Idle, the search state and the
+blocks left to mine, with the eject, pull and silk switches and the config, start and stop buttons. In that client `/mek build fusion` built a 5×5×5 reactor.
 The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
 was not drawn, and the controller screen was not opened. A basic logistical transporter pulls items from a chest
 and pushes them into a second chest (`TransporterGameTests`). Those chests are the loader item inventory: Forge's
@@ -95,10 +106,10 @@ importer and exporter on one public frequency store chest items on a drive and r
 (`QIOGameTests`). An item filter selects which stacks move. A private frequency stays with its owner, and a
 portable dashboard and a redstone adapter follow that frequency. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, QIO, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
-chunk loading, render bounds, the player and living events, server chunk data and recipe reload, mode-change packets,
+chunk loading, render bounds, the digital miner, the player and living events, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
-phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, the dimensional stabilizer, seismic vibrator, industrial alarm, fuelwood heater, resistive heater, chargepad, electric pump, fluidic plenisher, formulaic assemblicator, modification station and personal storage, Tools registration, crafting, tool
 actions, shield blocking and mob armor spawns, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 

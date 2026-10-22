@@ -453,6 +453,14 @@ public final class TestPlatform {
     }
 
     /**
+     * The dimensional stabilizer has a saved ticking block ticket, and the chunk source is holding that ticket.
+     */
+    public static boolean tickingChunkLoaded(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        return ForgeChunkManager.hasBlockTicket(level, Mekanism.MODID, owner, chunk.x, chunk.z, true)
+              && ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), ForgeChunkManager.BLOCK_TICKING_TICKET);
+    }
+
+    /**
      * Drops the vanilla tickets, then loads the saved ones again. Null when the anchor ticket is back and was gone in
      * between.
      */

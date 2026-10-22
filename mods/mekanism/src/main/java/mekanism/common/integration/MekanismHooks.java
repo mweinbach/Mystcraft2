@@ -1,6 +1,7 @@
 package mekanism.common.integration;
 
 import java.util.List;
+import mekanism.common.integration.computer.computercraft.CCCapabilityHelper;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
@@ -45,9 +46,28 @@ public final class MekanismHooks {
 
     public void hookCommonSetup() {
         ModList modList = ModList.get();
+        CCLoaded = modList.isLoaded(CC_MOD_ID);
         DMELoaded = modList.isLoaded(DARK_MODE_EVERYWHERE_MODID);
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
+        TOPLoaded = modList.isLoaded(TOP_MOD_ID);
+        if (CCLoaded) {
+            CCCapabilityHelper.registerCCMathHelper();
+            // Forge exposes the peripheral as a capability. Fabric's provider is a separate class so this shared
+            // hook does not mention its types.
+            registerFabricPeripherals();
+        }
+    }
+
+    private static void registerFabricPeripherals() {
+        try {
+            Class.forName("mekanism.common.integration.computer.computercraft.FabricPeripheralProvider")
+                  .getMethod("register").invoke(null);
+        } catch (ClassNotFoundException ignored) {
+            // The Forge JAR attaches the peripheral capability and does not contain the Fabric provider.
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("ComputerCraft is loaded but Mekanism's peripheral provider failed to load", e);
+        }
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
@@ -55,6 +75,19 @@ public final class MekanismHooks {
             //Note: While it is only strings, so it is safe to call and IMC validates the mods are loaded
             // we add this check here, so we can skip iterating the list of things we want to blacklist when it is not present
             sendDarkModeEverywhereIMC();
+        }
+        if (TOPLoaded) {
+            // The provider class is Forge-only. Resolving it by name keeps this shared class free of The One Probe
+            // types, so Fabric still compiles and loads when that mod is absent.
+            InterModComms.sendTo(TOP_MOD_ID, "getTheOneProbe", MekanismHooks::topProbe);
+        }
+    }
+
+    private static Object topProbe() {
+        try {
+            return Class.forName("mekanism.common.integration.lookingat.theoneprobe.TOPProvider").getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("The One Probe is loaded but Mekanism's provider failed to load", e);
         }
     }
 

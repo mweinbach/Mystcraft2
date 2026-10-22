@@ -99,10 +99,30 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
                 require('gametest' not in name.lower(), f'GameTest class shipped: {name}')
             require('/gametest/' not in name and not name.endswith('.snbt'), f'GameTest fixture shipped: {name}')
 
-    forge_classes = {name for name in forge_names if name.endswith('.class') and name.startswith('mekanism/')}
-    fabric_classes = {name for name in fabric_names if name.endswith('.class') and name.startswith('mekanism/')}
+    # Jade and the ComputerCraft peripheral are shared. The One Probe is Forge-only. WTHIT and the Fabric
+    # peripheral provider are Fabric-only, so those packages are not in both JARs.
+    forge_only = ('mekanism/common/integration/lookingat/theoneprobe/',)
+    fabric_only = (
+        'mekanism/common/integration/lookingat/wthit/',
+        'mekanism/common/integration/computer/computercraft/FabricPeripheralProvider',
+    )
+    def shared_classes(names, excluded):
+        return {name for name in names if name.endswith('.class') and name.startswith('mekanism/')
+                and not name.startswith(excluded)}
+    forge_classes = shared_classes(forge_names, forge_only)
+    fabric_classes = shared_classes(fabric_names, fabric_only)
     require(forge_classes == fabric_classes,
             'shared class set differs: ' + ', '.join(sorted(forge_classes ^ fabric_classes)[:8]))
+    require(any(name.startswith(forge_only) for name in forge_names), 'Forge JAR is missing The One Probe providers')
+    require(not any(name.startswith(forge_only) for name in fabric_names), 'The One Probe provider leaked into Fabric')
+    require(any(name.startswith(fabric_only) for name in fabric_names), 'Fabric JAR is missing the WTHIT providers')
+    require(not any(name.startswith(fabric_only) for name in forge_names), 'WTHIT provider leaked into Forge')
+    require(any(name.startswith('mekanism/common/integration/lookingat/jade/') for name in forge_classes),
+            'Jade providers are missing from the shared class set')
+    require(any(name.startswith('mekanism/common/integration/computer/computercraft/MekanismPeripheral') for name in forge_classes),
+            'ComputerCraft peripherals are missing from the shared class set')
+    require(any(name.startswith(fabric_only[1]) for name in fabric_names), 'Fabric JAR is missing the ComputerCraft provider')
+    require(not any(name.startswith(fabric_only[1]) for name in forge_names), 'Fabric ComputerCraft provider leaked into Forge')
     require(not any(name.startswith('ports/mekanism/') for name in forge_names),
             'Fabric adapter leaked into Forge')
     for package in ('ports/mekanism/lib/', 'ports/mekanism/fabric/'):
