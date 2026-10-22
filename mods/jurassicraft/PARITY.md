@@ -132,8 +132,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 212 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 135 on Fabric
+Both loaders run in-world GameTests from development-only mods: 213 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 136 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
@@ -161,7 +161,7 @@ Tests changed while merging:
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
 - The structure walk places the visitor centre in two rotations, the raptor paddock, and every village building chunk by chunk, then compares that with a one-shot placement. A mismatch in visitor-centre blocks, loot, murals or paintings fails the test. Paddock and village differences are written out as notes.
-- Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there.
+- Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there. Anchors already placed are saved on the structure piece, so reloading it does not spawn those murals again.
 - Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
 - Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
 

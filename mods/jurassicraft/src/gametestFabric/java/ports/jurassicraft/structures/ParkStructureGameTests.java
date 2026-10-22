@@ -159,6 +159,11 @@ public final class ParkStructureGameTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    @GameTest(template = "jurassicraft:park_structure_test")
+    public void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
+    }
     @GameTest(template = "jurassicraft:park_structure_test")
     public void visitorPaintingKeepsTransformedAnchor(GameTestHelper helper) {
         BlockPos root = helper.absolutePos(BlockPos.ZERO);
