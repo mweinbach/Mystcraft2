@@ -50,14 +50,26 @@ heated and cooled sodium, the temperature and the valve mode come back after the
 loaded. The master's render box is the structure. In the development client a formed boiler shows its casing
 and valves in input, steam-output and coolant-output modes, and the boiler screen opens. The water and steam
 bodies use the same multiblock renderer as the dynamic tank. Boiler casing is opaque, so those bodies are not
-visible from outside the shell. In the development client `/mek build fission` built an 18×18×18 reactor.
-Reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods. The reactor was not
-fueled, so the burn glow and the coolant body were not drawn, and the reactor screen was not opened. In that client
-`/mek build fusion` built a 5×5×5 reactor. The frame and its holes are visible, and the controller is the top centre.
-The reactor was not fueled, so the plasma was not drawn, and the controller screen was not opened. The shared
-GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
-block hooks, fluid placement, chunk loading, render bounds, the player and living events, a Generators registry
-smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the industrial
+visible from outside the shell. A thermal evaporation plant (`ThermalEvaporationGameTests`) forms at 4×3×4. The
+frame and floor are thermal evaporation blocks, the walls are structural glass, and the roof centre is the 2×2
+opening. One valve and one controller complete it. A missing corner and a 3×3×3 are placed with a block of air
+between them so they do not merge; neither forms, the unformed valve accepts no water, and replacing the corner
+forms the first plant while the small one stays unformed. Water enters through the valve's loader fluid API. The
+casing accepts none, and the valve does not give the input fluid back. Heat through the valve's heat handler —
+Forge's heat capability, and on Fabric the `mekanism:heat_handler` lookup — raises the temperature. Water becomes
+brine, and brine becomes lithium, at ten millibuckets of input per one of output, scaled by the temperature
+multiplier. Saved water, brine and heat come back after the blocks are removed and their NBT is loaded. The
+controller is the master and its render box is the structure. An advanced solar panel on a top corner is the
+upstream passive heat source; these tests heat the valve directly and do not place one. In the Fabric development
+client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
+development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
+checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
+were not drawn, and the reactor screen was not opened. In that client `/mek build fusion` built a 5×5×5 reactor.
+The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
+was not drawn, and the controller screen was not opened. The shared GameTests (core machines, factories, chemical
+machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
+the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
 turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 

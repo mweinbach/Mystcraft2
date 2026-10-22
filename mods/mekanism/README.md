@@ -20,9 +20,11 @@ The core module is in this port. Generators, Tools and Additions are extra mod i
 depends on the core jar. Generators' code, assets and generated data are imported. Heat, solar, advanced solar,
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
-and outputs steam. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
-meltdown threshold. The fusion reactor forms, ignites from a full hohlraum and a laser on the focus matrix, takes
-deuterium, tritium and D-T fuel through the gas handler, boils water into steam and outputs energy. Tools' paxels, tools, armor
+and outputs steam. The thermal evaporation plant forms, takes water or brine and heat through its valve, and
+outputs brine and lithium. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and
+crosses the meltdown threshold. The fusion reactor forms, ignites from a full hohlraum and a laser on the focus
+matrix, takes deuterium, tritium and D-T fuel through the gas handler, boils water into steam and outputs energy.
+Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
 glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
@@ -64,9 +66,14 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   loading them brings that stored energy back. The development client draws the formed casing and port.
   A formed industrial turbine in that client draws its rotor and blades through the glass.
   A formed thermoelectric boiler in that client shows its casing and valves, and its screen opens. The water and steam
-  bodies are drawn inside the opaque casing. A formed fission reactor in that client is the 18×18×18 shell from
-  `/mek build fission`: reactor glass shows the casing frame and a checkerboard of fuel assemblies and control rods.
-  It was not fueled, so the burn glow and coolant body were not drawn, and the reactor screen was not opened.
+  bodies are drawn inside the opaque casing.
+  A thermal evaporation plant forms from thermal evaporation blocks, structural glass, a valve and a controller.
+  The valve moves water, brine and lithium through the Transfer API, and heat through the heat lookup.
+  In the Fabric development client a formed plant shows its lit controller and draws the input fluid through the
+  structural glass. An advanced solar panel was not placed.
+  A formed fission reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the
+  casing frame and a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and
+  coolant body were not drawn, and the reactor screen was not opened.
   A formed fusion reactor in that client is the 5×5×5 shell from `/mek build fusion`: the frame and its holes are
   visible, and the controller is the top centre. It was not fueled, so the plasma was not drawn, and the controller
   screen was not opened.
@@ -78,10 +85,9 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the induction matrix, the thermoelectric boiler, the industrial turbine, the fission reactor, the fusion
-  reactor, Tools
-  registration, crafting, tool actions and shield blocking, and Additions registration, crafting, block behaviour,
-  baby mobs and balloons) pass on both loaders.
+  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
+  fission reactor, the fusion reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+  registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
