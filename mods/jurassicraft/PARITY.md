@@ -111,7 +111,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Topic | Kept | Reason |
 | --- | --- | --- |
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
-| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. Each village rolls upstream's 0-or-1 limit for the geneticist house and one shared 0-or-1 limit for every digsite. |
+| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. Each village rolls upstream's 0-or-1 limit for the geneticist house and one shared 0-or-1 limit for every digsite. The digsite variant weights are 5:3:2 for types 3, 1 and 2, matching upstream's 50/30/20 roll. |
 | Raptor paddock rarity | Shared `PaddockPlacement` | An eligible chunk succeeds when `nextInt(rarity) == 0`, with no minimum spacing. Upstream drew that roll from the chunk random shared with every other world generator; this port uses the vanilla salted structure random, so the same chunk can differ while the chance stays 1/N. |
 | Visitor-centre search | Shared `VisitorPlacement` | Vanilla structure search only visits concentric rings and random-spread placements. The visitor centre is a random-spread placement whose every cell names its single seed-derived chunk, and world generation still accepts only that chunk. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
@@ -164,7 +164,7 @@ Tests changed while merging:
 - Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
 - Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
 - Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
-- Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them. The one digsite that spawns is chosen by pool weight (digsite 3 twice, digsites 1 and 2 once) instead of upstream's 50/30/20 roll when the piece is built.
+- Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
 - The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
 - The dart gun has a new survival recipe.

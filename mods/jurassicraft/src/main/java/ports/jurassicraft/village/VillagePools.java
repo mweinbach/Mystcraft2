@@ -43,15 +43,22 @@ public final class VillagePools {
         if (!MODIFIED.add(pool)) return;
         ObjectArrayList<StructurePoolElement> elements = pool.templates;
         Holder<StructureProcessorList> processors = Holder.direct(processorList);
-        // fossildigsite_3 is listed twice so its weight stays about half of the digsites. All three share one cap.
-        for (String id : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3", "fossildigsite_3")) {
-            var element = StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors)
-                    .apply(StructureTemplatePool.Projection.RIGID);
-            var category = id.startsWith("fossildigsite") ? VillageLimits.Category.DIGSITE : VillageLimits.Category.GENETICIST;
-            elements.add(new LimitedVillageElement(element, category));
-        }
+        // Upstream rolls one digsite, then picks its variant at 50/30/20. Copies are that ratio: type 3, type 1, type 2.
+        addBuilding(elements, processors, biome, variant, "geneticist_house", 1);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_3", 5);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_1", 3);
+        addBuilding(elements, processors, biome, variant, "fossildigsite_2", 2);
         // Recompute the cached jigsaw size with the new buildings.
         pool.maxSize = Integer.MIN_VALUE;
+    }
+
+    private static void addBuilding(ObjectArrayList<StructurePoolElement> elements, Holder<StructureProcessorList> processors,
+            String biome, String variant, String id, int copies) {
+        var element = StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors)
+                .apply(StructureTemplatePool.Projection.RIGID);
+        var category = id.startsWith("fossildigsite") ? VillageLimits.Category.DIGSITE : VillageLimits.Category.GENETICIST;
+        var limited = new LimitedVillageElement(element, category);
+        for (int copy = 0; copy < copies; copy++) elements.add(limited);
     }
 
     /** Replaces pool entries for a test and returns the previous list. */

@@ -92,6 +92,7 @@ public final class VillageGameTests {
             require(h, pool != null, "missing vanilla village pool for " + biome);
             int size = pool.size();
             var candidates = pool.getShuffledTemplates(RandomSource.create(1));
+            VillageLimitChecks.requireUpstreamDigsiteWeights(h, candidates, "jurassicraft:village/" + biome + "/");
             for (String name : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3")) {
                 String location = "jurassicraft:village/" + biome + "/" + name;
                 var candidate = candidates.stream().filter(element -> element.toString().contains(location)).findFirst();

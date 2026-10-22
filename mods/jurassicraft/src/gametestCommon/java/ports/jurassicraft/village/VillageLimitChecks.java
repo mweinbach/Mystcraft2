@@ -22,6 +22,23 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 public final class VillageLimitChecks {
     private VillageLimitChecks() {}
 
+    /** Upstream's digsite roll is 50/30/20, expressed as five, three and two pool copies of types 3, 1 and 2. */
+    public static void requireUpstreamDigsiteWeights(GameTestHelper helper, List<StructurePoolElement> elements, String prefix) {
+        int geneticist = count(elements, prefix + "geneticist_house");
+        int digsite1 = count(elements, prefix + "fossildigsite_1");
+        int digsite2 = count(elements, prefix + "fossildigsite_2");
+        int digsite3 = count(elements, prefix + "fossildigsite_3");
+        if (geneticist != 1 || digsite3 != 5 || digsite1 != 3 || digsite2 != 2)
+            helper.fail("digsite variants must weigh 5:3:2 for types 3, 1 and 2 at " + prefix
+                    + "; got " + digsite3 + ":" + digsite1 + ":" + digsite2 + " geneticist=" + geneticist);
+    }
+
+    private static int count(List<StructurePoolElement> elements, String location) {
+        int found = 0;
+        for (StructurePoolElement element : elements) if (element.toString().contains(location)) found++;
+        return found;
+    }
+
     public static void generatedVillageRespectsCaps(GameTestHelper helper) {
         var pools = helper.getLevel().registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         StructureTemplatePool pool = pools.get(new ResourceLocation("minecraft", "village/plains/houses"));
