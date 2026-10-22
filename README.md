@@ -103,17 +103,17 @@ docs/                   Porting and development instructions
 ```
 
 `./scripts/gradle.sh build` builds the default variants of all ports. Build
-the Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme Reactors Fabric
-variants separately with the commands above. GitHub Actions does the following:
+the Fabric variants separately with the commands above. GitHub Actions runs
+these checks in parallel, one job per port, plus a tooling job. The `build`
+job keeps the existing check name and passes only when every port job passes:
 
-- checks metadata and tests the port-management tool;
-- builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and
-  Extreme Reactors;
-- verifies loader parity for the five dual-loader ports;
-- checks EMC coverage and values against ProjectE and Item Alchemy;
-- runs the ICBM dedicated-server GameTests and both the Forge and Fabric
-  GameTest suites of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme
-  Reactors;
+- checks metadata, EMC coverage, and the port-management, EMC, ICBM, and JurassiCraft tooling tests;
+- builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics,
+  Extreme Reactors, and Mekanism;
+- verifies loader parity for each dual-loader port;
+- runs ICBM's dedicated-server GameTests and the Forge and Fabric GameTest
+  suites of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme
+  Reactors, and Mekanism;
 - uploads the resulting JARs.
 
 Add mod-specific dependencies and tests to that port's `build.gradle` and source
