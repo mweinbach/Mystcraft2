@@ -71,7 +71,19 @@ were not drawn, and the reactor screen was not opened. In the development client
 shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
 no coil, so the orb and the coil bolts were not drawn. In that client `/mek build fusion` built a 5×5×5 reactor.
 The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
-was not drawn, and the controller screen was not opened. A teleporter frame is the upstream 3×4 portal. Two
+was not drawn, and the controller screen was not opened. A basic logistical transporter pulls items from a chest
+and pushes them into a second chest (`TransporterGameTests`). Those chests are the loader item inventory: Forge's
+item handler, and on Fabric `ItemStorage.SIDED`. A logistical sorter facing the line applies an item filter that
+colours iron red and a tag filter for `forge:ingots/gold` that colours gold dark blue, the blue entry in the
+transporter colour list. Iron reaches the chest beyond the red transporter and gold the chest beyond the dark-blue
+one. Dirt matches neither filter. Auto-eject is off, so the dirt stays in the source. A diversion transporter in
+high mode leaves its output side closed while unpowered, and the item stays in the source; a redstone block beside
+it powers that side and the item is delivered. A restrictive transporter is taken once the chest on the basic path
+is full. A basic mechanical pipe pulls 500 mB of water from one fluid tank and pushes it into another. A basic
+pressurized tube pulls 1,000 hydrogen from a chemical tank with eject off and pushes it into a second tank. The
+transporter renderer is registered for the restrictive transporter, the diversion transporter and every logistical
+tier. In the Fabric development client a red basic logistical transporter draws the iron, gold, diamonds, emeralds
+and redstone it is carrying inside the pipe. A teleporter frame is the upstream 3×4 portal. Two
 teleporters on one public frequency move an entity in the same dimension and into the nether, at the destination
 portal's position. A private frequency stays with its owner. Trusted is the block's security mode and does not share
 that private frequency. A portable teleporter moves its holder onto a frequency it is allowed to use. Quantum
@@ -79,7 +91,7 @@ entangloporters on one public inventory frequency share energy, water, hydrogen 
 with `FabricDimensions.teleport` when `placeEntity` asks to move, and does not build a nether portal. In the Fabric
 development client a formed teleporter draws its purple portal inside the frame, and the quantum entangloporter
 screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. The shared GameTests (core machines, factories, chemical
-machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
 chunk loading, render bounds, the player and living events, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
