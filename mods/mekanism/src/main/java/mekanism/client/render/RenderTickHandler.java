@@ -258,7 +258,11 @@ public class RenderTickHandler {
                 for (UUID uuid : Mekanism.playerState.getActiveJetpacks()) {
                     Player p = world.getPlayerByUUID(uuid);
                     if (p != null) {
-                        Pos3D playerPos = new Pos3D(p).translate(0, p.getEyeHeight(), 0);
+                        float bodyYaw = Mth.rotLerp(event.renderTickTime, p.yBodyRotO, p.yBodyRot);
+                        double renderX = Mth.lerp(event.renderTickTime, p.xo, p.getX());
+                        double renderY = Mth.lerp(event.renderTickTime, p.yo, p.getY());
+                        double renderZ = Mth.lerp(event.renderTickTime, p.zo, p.getZ());
+                        Pos3D playerPos = new Pos3D(renderX, renderY, renderZ).translate(0, p.getEyeHeight(), 0);
                         Vec3 playerMotion = p.getDeltaMovement();
                         float random = (world.random.nextFloat() - 0.5F) * 0.1F;
                         //This positioning code is somewhat cursed, but it seems to be mostly working and entity pose code seems cursed in general
@@ -279,19 +283,19 @@ public class RenderTickHandler {
                             xRot = -xRot;
                             Pos3D eyeAdjustments;
                             if (p.isFallFlying() && (p != player || !minecraft.options.getCameraType().isFirstPerson())) {
-                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(Pose.STANDING), 0).xRot(xRot).yRot(p.yBodyRot);
+                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(Pose.STANDING), 0).xRot(xRot).yRot(bodyYaw);
                             } else if (p.isVisuallySwimming()) {
-                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(), 0).xRot(xRot).yRot(p.yBodyRot).translate(0, 0.5, 0);
+                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(), 0).xRot(xRot).yRot(bodyYaw).translate(0, 0.5, 0);
                             } else {
-                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(), 0).xRot(xRot).yRot(p.yBodyRot);
+                                eyeAdjustments = new Pos3D(0, p.getEyeHeight(), 0).xRot(xRot).yRot(bodyYaw);
                             }
-                            playerPos = new Pos3D(p.getX() + eyeAdjustments.x, p.getY() + eyeAdjustments.y, p.getZ() + eyeAdjustments.z);
+                            playerPos = new Pos3D(renderX + eyeAdjustments.x, renderY + eyeAdjustments.y, renderZ + eyeAdjustments.z);
                         }
-                        Pos3D vLeft = new Pos3D(-0.43, -0.55, -0.54).xRot(xRot).yRot(p.yBodyRot);
+                        Pos3D vLeft = new Pos3D(-0.43, -0.55, -0.54).xRot(xRot).yRot(bodyYaw);
                         renderJetpackSmoke(world, playerPos.translate(vLeft, playerMotion), vLeft.scale(0.2).translate(playerMotion, vLeft.scale(random)));
-                        Pos3D vRight = new Pos3D(0.43, -0.55, -0.54).xRot(xRot).yRot(p.yBodyRot);
+                        Pos3D vRight = new Pos3D(0.43, -0.55, -0.54).xRot(xRot).yRot(bodyYaw);
                         renderJetpackSmoke(world, playerPos.translate(vRight, playerMotion), vRight.scale(0.2).translate(playerMotion, vRight.scale(random)));
-                        Pos3D vCenter = new Pos3D((world.random.nextFloat() - 0.5) * 0.4, -0.86, -0.30).xRot(xRot).yRot(p.yBodyRot);
+                        Pos3D vCenter = new Pos3D((world.random.nextFloat() - 0.5) * 0.4, -0.86, -0.30).xRot(xRot).yRot(bodyYaw);
                         renderJetpackSmoke(world, playerPos.translate(vCenter, playerMotion), vCenter.scale(0.2).translate(playerMotion));
                     }
                 }

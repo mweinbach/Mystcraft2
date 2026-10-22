@@ -73,7 +73,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 /**
- * Hand tools do the work upstream gives them. Module ticking is a later slice: a bare Meka-Tool still mines.
+ * Hand tools do the work upstream gives them. Gear modules are covered by {@link GearGameTests}. A bare Meka-Tool still mines.
  */
 public class HandToolGameTests {
 

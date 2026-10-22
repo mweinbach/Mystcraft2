@@ -11,7 +11,7 @@ is drawn once. The renderer copies the entity pose onto the slot's armor model, 
 and calls the same `ICustomArmor`. The MekaSuit is the upstream OBJ (`models/entity/mekasuit.obj`) with the
 `rendertype_mekasuit` shader. The jetpack, scuba set and free runners are the upstream Java models and
 `render/jetpack.png`, `render/scuba_set.png` and `render/free_runners.png`. A bare MekaSuit has no module
-geometry. Module ticking is a later slice. The port's OBJ loader still has no emissive faces; LED parts use the
+geometry. Module ticking is in the gear section. The port's OBJ loader still has no emissive faces; LED parts use the
 existing fullbright quad transform.
 
 `ArmorRenderingGameTests` runs on both loaders. Each piece equips into its slot, a full MekaSuit stays worn

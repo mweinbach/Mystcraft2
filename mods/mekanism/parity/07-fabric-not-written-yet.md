@@ -33,4 +33,5 @@
   pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
   heat tab and the inventory. A QIO dashboard on a public frequency was checked: the item viewer shows the
-  frequency name and the diamond, emerald, gold and lapis stored on the drive.
+  frequency name and the diamond, emerald, gold and lapis stored on the drive. A survival player flying with a
+  hydrogen jetpack was checked: close third person, HUD hidden, and flame particles visible behind the jetpack.
