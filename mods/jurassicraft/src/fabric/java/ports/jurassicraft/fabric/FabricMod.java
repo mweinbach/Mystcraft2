@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -46,6 +47,7 @@ public final class FabricMod implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> JurassicEvents.commands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(JurassicEvents::serverAboutToStart);
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> JurassicEvents.chunkLoaded(level, chunk));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> JurassicEvents.entityJoined(entity));
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> JurassicEvents.blockBroken(level, player, pos, state));
         LootTableEvents.MODIFY.register((resources, loot, id, table, source) -> JurassicEvents.lootTable(id, lootSink(table)));

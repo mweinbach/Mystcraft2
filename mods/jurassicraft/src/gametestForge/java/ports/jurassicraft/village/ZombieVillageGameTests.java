@@ -42,6 +42,8 @@ public final class ZombieVillageGameTests {
             var pool = pools.get(new ResourceLocation("minecraft", "village/" + biome + "/zombie/houses"));
             require(h, pool != null, "missing abandoned village pool for " + biome);
             int size = pool.size();
+            VillageLimitChecks.requireUpstreamDigsiteWeights(h, pool.getShuffledTemplates(RandomSource.create(1)),
+                    "jurassicraft:village/" + biome + "/zombie/");
             for (String name : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3")) {
                 var element = candidate(h, biome, name);
                 var markers = element.getShuffledJigsawBlocks(h.getLevel().getStructureManager(), BlockPos.ZERO, Rotation.NONE, RandomSource.create(1));

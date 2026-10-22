@@ -25,13 +25,20 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   coolant leaves the coolant port; the input port gives nothing up. The logic adapter outputs redstone when the fuel
   tank is empty, the temperature is at least 1,200 K, the waste tank is full, or damage is at 100, and redstone in
   activation mode starts the reactor. Damage falls below 1,200 K. At the cap with meltdowns disabled the reactor
-  force-disables and stays off. Turning meltdowns back on queues a meltdown; the test clears that queued explosion at
+  force-disables and stays off. Turning meltdowns back on queues a meltdown; that test clears the queued explosion at
   radius 0 and calls `meltdownHappened`, which dumps the nuclear waste, leaves the non-radioactive fissile fuel,
-  clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. It does not assert
-  that the explosion breaks casings. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic mode and the
-  waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render box is the
-  structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name contains
-  "reactor". A player in the core is not a new test; that dose is the existing `radiateEntities` path. The fusion
+  clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. A separate test, in
+  its own batch, leaves meltdowns on and the radius at the upstream default of 8. Crossing the damage cap at 1,800 K
+  queues a meltdown whose saved radius is 8. The explosion breaks the shell. A dirt block about 28 blocks away, past
+  the ray reach of that radius, stays dirt. Fissile fuel and superheated sodium have no radiation attribute, so the
+  release is `(1,000 mB + 0.5 partial waste) × 0.01 Sv/h per mB × the 50× multiplier`. A full waste tank that burns
+  one mB of fuel leaks `0.01` Sv/h at the core. A survival player standing outside the shell, not in the burn
+  `hotZone`, accumulates that field on the player tick, and the same happens after `meltdownHappened`. The dosimeter
+  reports the capability dose in Sv and the Geiger counter reports `getRadiationLevel` in Sv/h. A player in the core
+  is still the existing `radiateEntities` path. Saved fuel, sodium, waste, heated coolant, burn rate, damage, logic
+  mode and the waste-port mode come back after the blocks are removed and their NBT is loaded. The master's render
+  box is the structure, and reactor glass joins it. Structural glass cannot: upstream rejects a manager whose name
+  contains "reactor". The fusion
   reactor (`FusionReactorGameTests`) forms at 5×5×5. The frame follows upstream's face grid: the corners and the
   twelve holes on each face stay air, frame slots are reactor frame, and the controller is the top centre. A laser
   focus matrix, one port and a logic adapter fill other slots. A missing frame block, a controller off the top
@@ -69,8 +76,20 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   vanilla armor layer drawn fullbright. Forge calls `getGenericArmorModel`, and Fabric's `ArmorRenderer` calls the
   same hook, which wraps the layer in `GlowArmor`. That glow is not an OBJ emissive material. The port's OBJ loader
   still does not support emissive faces or per-vertex colors, so gear that relies on an OBJ emissive pass does not
-  glow that way. The same client showed the refined glowstone set lit in an unlit room. Naturally spawned mobs do
-  not wear the armor, because the living-spawn event is not posted. The Wildfire's Gender capability is not attached.
+  glow that way. The same client showed the refined glowstone set lit in an unlit room. Zombies, skeletons and
+  piglins sometimes spawn wearing Mekanism armor, and a zombie can also spawn holding a Mekanism sword
+  (`ToolsMobArmorGameTests`). Upstream's list is those three classes, so a husk, drowned, zombie villager or
+  zombified piglin is included with zombies, while a stray, wither skeleton or piglin brute is left out. The first
+  roll is `mobArmorSpawnRate` (default 0.03). A hit then picks bronze, lapis lazuli, osmium, refined glowstone,
+  refined obsidian or steel at equal weight, except a piglin always uses refined glowstone. Each piece then rolls
+  its own chance (default 0.5) and fills an empty slot. Forge fires `LivingSpawnEvent.SpecialSpawn` on the callers
+  that are about to run `finalizeSpawn`: natural and chunk spawning, spawners, spawn eggs, the summon command,
+  structure mobs, patrols, phantoms, cats and strider jockeys. Fabric posts that event at the start of every
+  `Mob.finalizeSpawn`. A zombie reinforcement and a village siege call `finalizeSpawn` without that Forge event, so
+  on Fabric those zombies roll for Mekanism gear too. Cancelling the event returns before `Mob.finalizeSpawn`'s own
+  body; a subclass that continues after `super.finalizeSpawn` still runs. The mob spawner Forge passes from a spawner
+  block is absent, and a spawner whose entity NBT is more than an id skips `finalizeSpawn`, so that mob is not
+  rolled. Wildfire's Gender Mod chest settings are in [14-curios-and-gender.md](14-curios-and-gender.md).
 - **Additions** plastic, glow panels, obsidian TNT, baby mobs and balloons are imported. Both loaders register the
   271 blocks (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel
   support, slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic

@@ -19,3 +19,9 @@ license="MIT"
     versionRange="[${mod_version}]"
     ordering="AFTER"
     side="BOTH"
+[[dependencies.mekanismgenerators]]
+    modId="jei"
+    mandatory=false
+    versionRange="[11.2.0.241,)"
+    ordering="AFTER"
+    side="BOTH"

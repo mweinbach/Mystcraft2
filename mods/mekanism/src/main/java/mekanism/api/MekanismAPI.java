@@ -11,6 +11,7 @@ import mekanism.api.chemical.pigment.Pigment;
 import mekanism.api.chemical.slurry.EmptySlurry;
 import mekanism.api.chemical.slurry.Slurry;
 import mekanism.api.gear.IModuleHelper;
+import mekanism.api.integration.jei.IMekanismJEIHelper;
 import mekanism.api.gear.ModuleData;
 import mekanism.api.radial.IRadialDataHelper;
 import mekanism.api.radiation.IRadiationManager;
@@ -21,6 +22,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +77,7 @@ public class MekanismAPI {
     private static IRadiationManager RADIATION_MANAGER;
     private static ISecurityUtils SECURITY_UTILS;
     private static ITooltipHelper TOOLTIP_HELPER;
+    private static IMekanismJEIHelper JEI_HELPER;
 
     //Note: None of the empty variants support registry replacement
     //TODO: Potentially define these with ObjectHolder for purposes of fully defining them outside of the API
@@ -335,6 +338,21 @@ public class MekanismAPI {
             lookupInstance(ISecurityUtils.class, "mekanism.common.util.SecurityUtils", utils -> SECURITY_UTILS = utils);
         }
         return SECURITY_UTILS;
+    }
+
+    /**
+     * Gets a helper to interact with some of Mekanism's JEI integration internals. This should only be called if JEI is loaded.
+     *
+     * @throws IllegalStateException if JEI is not loaded.
+     */
+    public static IMekanismJEIHelper getJeiHelper() {
+        if (!ModList.get().isLoaded("jei")) {
+            throw new IllegalStateException("JEI is not loaded.");
+        }
+        if (JEI_HELPER == null) {//Harmless race
+            lookupInstance(IMekanismJEIHelper.class, "mekanism.client.jei.MekanismJEIHelper", helper -> JEI_HELPER = helper);
+        }
+        return JEI_HELPER;
     }
 
     private static <TYPE> void lookupInstance(Class<TYPE> type, String className, Consumer<TYPE> setter) {

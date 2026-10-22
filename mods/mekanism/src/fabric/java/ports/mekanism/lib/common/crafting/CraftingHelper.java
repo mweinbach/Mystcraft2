@@ -4,6 +4,8 @@
  */
 package ports.mekanism.lib.common.crafting;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,24 +13,30 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.common.crafting.conditions.ICondition;
 import ports.mekanism.lib.common.crafting.conditions.IConditionSerializer;
+import ports.mekanism.lib.common.extensions.IForgeIngredient;
 import ports.mekanism.lib.fml.ModList;
+import ports.mekanism.lib.registries.ForgeRegistries;
 
 /**
  * Forge's data-file conditions and custom ingredient types, read on Fabric by the port's resource and ingredient
@@ -36,7 +44,11 @@ import ports.mekanism.lib.fml.ModList;
  */
 public final class CraftingHelper {
 
+    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    private static final ResourceLocation VANILLA_ITEM = new ResourceLocation("minecraft", "item");
     private static final Map<ResourceLocation, IConditionSerializer<?>> CONDITIONS = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, IIngredientSerializer<?>> INGREDIENTS = new ConcurrentHashMap<>();
+    private static final Map<IIngredientSerializer<?>, ResourceLocation> INGREDIENT_IDS = new IdentityHashMap<>();
 
     static {
         register(simple("true", json -> new Simple("true", context -> true)));
@@ -65,6 +77,12 @@ public final class CraftingHelper {
             List<ICondition> values = conditions(GsonHelper.getAsJsonArray(json, "values"));
             return new Simple("or", context -> values.stream().anyMatch(condition -> condition.test(context)));
         }));
+        register(VANILLA_ITEM, VanillaIngredientSerializer.INSTANCE);
+        register(new ResourceLocation("forge", "nbt"), StrictNBTIngredient.Serializer.INSTANCE);
+        register(new ResourceLocation("forge", "partial_nbt"), PartialNBTIngredient.Serializer.INSTANCE);
+        register(new ResourceLocation("forge", "difference"), DifferenceIngredient.Serializer.INSTANCE);
+        register(new ResourceLocation("forge", "intersection"), IntersectionIngredient.Serializer.INSTANCE);
+        register(new ResourceLocation("forge", "compound"), CompoundIngredient.Serializer.INSTANCE);
     }
 
     private CraftingHelper() {
@@ -132,9 +150,51 @@ public final class CraftingHelper {
         return conditions;
     }
 
+    public static <T extends Ingredient> IIngredientSerializer<T> register(ResourceLocation key, IIngredientSerializer<T> serializer) {
+        if (INGREDIENTS.putIfAbsent(key, serializer) != null) {
+            throw new IllegalStateException("Duplicate recipe ingredient serializer: " + key);
+        }
+        if (INGREDIENT_IDS.putIfAbsent(serializer, key) != null) {
+            throw new IllegalStateException("Duplicate recipe ingredient serializer: " + key + " " + serializer);
+        }
+        return serializer;
+    }
+
+    @Nullable
+    public static ResourceLocation getID(IIngredientSerializer<?> serializer) {
+        return INGREDIENT_IDS.get(serializer);
+    }
+
+    public static <T extends Ingredient> void write(FriendlyByteBuf buffer, T ingredient) {
+        @SuppressWarnings("unchecked")
+        IIngredientSerializer<T> serializer = (IIngredientSerializer<T>) ((IForgeIngredient) ingredient).getSerializer();
+        ResourceLocation key = INGREDIENT_IDS.get(serializer);
+        if (key == null) {
+            throw new IllegalArgumentException("Tried to serialize unregistered Ingredient: " + ingredient + " " + serializer);
+        }
+        if (serializer != VanillaIngredientSerializer.INSTANCE) {
+            buffer.writeVarInt(-1);
+            buffer.writeResourceLocation(key);
+        }
+        serializer.write(buffer, ingredient);
+    }
+
+    public static boolean hasIngredient(ResourceLocation type) {
+        return INGREDIENTS.containsKey(type);
+    }
+
+    public static Ingredient getIngredient(ResourceLocation type, FriendlyByteBuf buffer) {
+        IIngredientSerializer<?> serializer = INGREDIENTS.get(type);
+        if (serializer == null) {
+            throw new IllegalArgumentException("Can not deserialize unknown Ingredient type: " + type);
+        }
+        return serializer.parse(buffer);
+    }
+
     /**
      * Reads an ingredient that vanilla cannot: a JSON object whose {@code type} is a Forge ingredient type, or an array
-     * containing one. Returns {@code null} for anything vanilla's reader handles.
+     * containing one. Returns {@code null} for anything vanilla's reader handles, including {@code minecraft:item}.
+     * An unknown type throws, rather than being misread as an item.
      */
     @Nullable
     public static Ingredient getCustomIngredient(@Nullable JsonElement json) {
@@ -142,55 +202,104 @@ public final class CraftingHelper {
             return null;
         }
         if (json.isJsonArray()) {
-            JsonArray array = json.getAsJsonArray();
-            boolean custom = false;
-            for (JsonElement element : array) {
-                custom |= getCustomIngredient(element) != null;
-            }
-            if (!custom) {
-                return null;
-            }
-            List<Ingredient> children = new ArrayList<>(array.size());
-            for (JsonElement element : array) {
-                children.add(Ingredient.fromJson(element));
-            }
-            return CompoundIngredient.of(children.toArray(Ingredient[]::new));
+            return arrayIngredient(json.getAsJsonArray());
         }
-        if (!json.isJsonObject() || !json.getAsJsonObject().has("type")) {
-            return null;
+        if (!json.isJsonObject()) {
+            throw new JsonSyntaxException("Expected ingredient to be a object or array of objects");
         }
         JsonObject object = json.getAsJsonObject();
+        if (!object.has("type")) {
+            return null;
+        }
         String type = GsonHelper.getAsString(object, "type");
-        return switch (type) {
-            case "forge:nbt" -> StrictNBTIngredient.of(getItemStack(object, true));
-            case "forge:difference" -> DifferenceIngredient.of(Ingredient.fromJson(object.get("base")), Ingredient.fromJson(object.get("subtracted")));
-            case "forge:compound" -> CompoundIngredient.of(children(GsonHelper.getAsJsonArray(object, "children")));
-            default -> null;
-        };
+        if (type.isEmpty()) {
+            throw new JsonSyntaxException("Ingredient type can not be an empty string");
+        }
+        ResourceLocation key = new ResourceLocation(type);
+        if (VANILLA_ITEM.equals(key)) {
+            return null;
+        }
+        IIngredientSerializer<?> serializer = INGREDIENTS.get(key);
+        if (serializer == null) {
+            throw new JsonSyntaxException("Unknown ingredient type: " + type);
+        }
+        return serializer.parse(object);
     }
 
-    private static Ingredient[] children(JsonArray children) {
-        Ingredient[] ingredients = new Ingredient[children.size()];
-        for (int i = 0; i < ingredients.length; i++) {
-            ingredients[i] = Ingredient.fromJson(children.get(i));
+    @Nullable
+    private static Ingredient arrayIngredient(JsonArray array) {
+        if (array.isEmpty()) {
+            return null;
         }
-        return ingredients;
+        List<Ingredient> custom = new ArrayList<>();
+        List<Ingredient> vanilla = new ArrayList<>();
+        boolean anyCustom = false;
+        for (JsonElement element : array) {
+            Ingredient parsed = getCustomIngredient(element);
+            if (parsed == null) {
+                parsed = Ingredient.fromJson(element);
+            } else {
+                anyCustom = true;
+            }
+            if (parsed.getClass() == Ingredient.class) {
+                vanilla.add(parsed);
+            } else {
+                custom.add(parsed);
+            }
+        }
+        if (!anyCustom) {
+            return null;
+        }
+        custom.addAll(vanilla);
+        if (custom.size() == 1) {
+            return custom.get(0);
+        }
+        return new CompoundIngredient(custom);
+    }
+
+    public static Item getItem(String itemName, boolean disallowsAir) {
+        ResourceLocation itemKey = new ResourceLocation(itemName);
+        if (!ForgeRegistries.ITEMS.containsKey(itemKey)) {
+            throw new JsonSyntaxException("Unknown item '" + itemName + "'");
+        }
+        Item item = Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(itemKey));
+        if (disallowsAir && item == Items.AIR) {
+            throw new JsonSyntaxException("Invalid item: " + itemName);
+        }
+        return item;
+    }
+
+    public static CompoundTag getNBT(JsonElement element) {
+        try {
+            if (element.isJsonObject()) {
+                return TagParser.parseTag(GSON.toJson(element));
+            }
+            return TagParser.parseTag(GsonHelper.convertToString(element, "nbt"));
+        } catch (CommandSyntaxException e) {
+            throw new JsonSyntaxException("Invalid NBT Entry: " + e);
+        }
     }
 
     public static ItemStack getItemStack(JsonObject json, boolean readNBT) {
-        ResourceLocation itemName = new ResourceLocation(GsonHelper.getAsString(json, "item"));
-        Item item = Registry.ITEM.getOptional(itemName).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + itemName + "'"));
-        ItemStack stack = new ItemStack(item, GsonHelper.getAsInt(json, "count", 1));
+        return getItemStack(json, readNBT, false);
+    }
+
+    public static ItemStack getItemStack(JsonObject json, boolean readNBT, boolean disallowsAir) {
+        String itemName = GsonHelper.getAsString(json, "item");
+        Item item = getItem(itemName, disallowsAir);
         if (readNBT && json.has("nbt")) {
-            JsonElement element = json.get("nbt");
-            try {
-                CompoundTag tag = element.isJsonObject() ? TagParser.parseTag(element.toString()) : TagParser.parseTag(GsonHelper.convertToString(element, "nbt"));
-                stack.setTag(tag);
-            } catch (CommandSyntaxException e) {
-                throw new JsonSyntaxException("Invalid NBT Entry: " + e);
+            CompoundTag nbt = getNBT(json.get("nbt"));
+            CompoundTag saved = new CompoundTag();
+            if (nbt.contains("ForgeCaps")) {
+                saved.put("ForgeCaps", nbt.get("ForgeCaps"));
+                nbt.remove("ForgeCaps");
             }
+            saved.put("tag", nbt);
+            saved.putString("id", itemName);
+            saved.putInt("Count", GsonHelper.getAsInt(json, "count", 1));
+            return ItemStack.of(saved);
         }
-        return stack;
+        return new ItemStack(item, GsonHelper.getAsInt(json, "count", 1));
     }
 
     private static IConditionSerializer<Simple> simple(String name, Function<JsonObject, Simple> reader) {

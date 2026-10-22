@@ -4,6 +4,7 @@
   "package": "ports.jurassicraft.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "jurassicraft.forge.refmap.json",
+  "mixins": ["VillageAssemblyMixin", "ParkEdgePostProcessMixin"],
   "client": ["client.KeyBindConflictMixin"],
   "injectors": {"defaultRequire": 1}
 }

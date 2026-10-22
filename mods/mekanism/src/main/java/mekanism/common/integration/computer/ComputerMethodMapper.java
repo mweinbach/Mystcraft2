@@ -59,7 +59,9 @@ public class ComputerMethodMapper extends BaseAnnotationScanner {
 
     @Override
     protected boolean isEnabled() {
-        return Mekanism.hooks.computerCompatEnabled();
+        // GameTest servers set this so method lists can be checked with ComputerCraft absent. The peripheral
+        // capability is still attached only when that mod is loaded.
+        return Mekanism.hooks.computerCompatEnabled() || Boolean.getBoolean("mekanism.gametest.computer");
     }
 
     @Override

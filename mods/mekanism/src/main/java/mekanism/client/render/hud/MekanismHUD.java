@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import mekanism.client.render.HUDRenderer;
 import mekanism.common.Mekanism;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.item.interfaces.IItemHUDProvider;
 import mekanism.common.tags.MekanismTags;
 import net.minecraft.client.Minecraft;
@@ -36,6 +37,18 @@ public class MekanismHUD implements IGuiOverlay {
                 ItemStack stack = minecraft.player.getItemBySlot(slotType);
                 if (stack.getItem() instanceof IItemHUDProvider hudProvider) {
                     count += makeComponent(list -> hudProvider.addHUDStrings(list, minecraft.player, stack, slotType), renderStrings);
+                }
+            }
+            if (Mekanism.hooks.CuriosLoaded) {
+                Optional<? extends IItemHandler> invOptional = CuriosIntegration.getCuriosInventory(minecraft.player);
+                if (invOptional.isPresent()) {
+                    IItemHandler inv = invOptional.get();
+                    for (int i = 0, slots = inv.getSlots(); i < slots; i++) {
+                        ItemStack stack = inv.getStackInSlot(i);
+                        if (stack.getItem() instanceof IItemHUDProvider hudProvider) {
+                            count += makeComponent(list -> hudProvider.addCurioHUDStrings(list, minecraft.player, stack), renderStrings);
+                        }
+                    }
                 }
             }
             boolean reverseHud = MekanismConfig.client.reverseHUD.get();
