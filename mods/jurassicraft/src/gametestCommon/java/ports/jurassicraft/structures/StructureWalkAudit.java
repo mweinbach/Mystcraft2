@@ -122,8 +122,8 @@ public final class StructureWalkAudit {
         BoundingBox footprint = template.getBoundingBox(settings, origin);
         BlockPos referenceOrigin = origin.offset(0, 48, 0);
         BoundingBox referenceBox = template.getBoundingBox(settings, referenceOrigin);
-        prepare(level, footprint);
-        prepare(level, referenceBox);
+        prepare(level, footprint, true);
+        prepare(level, referenceBox, true);
         RandomSource random = RandomSource.create(1234);
         boolean placed = template.placeInWorld(level, referenceOrigin, referenceOrigin, settings, random, ParkEdges.SHAPED);
         if (!placed) issues.add(name + " reference placement failed");
@@ -152,6 +152,10 @@ public final class StructureWalkAudit {
     }
 
     private static void prepare(ServerLevel level, BoundingBox box) {
+        prepare(level, box, false);
+    }
+
+    private static void prepare(ServerLevel level, BoundingBox box, boolean bright) {
         // One block outside the template, including above it, so both footprints see the same
         // neighbours. The copies are stacked in Y and the terrain beside them is not.
         int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
@@ -168,7 +172,7 @@ public final class StructureWalkAudit {
         }
         AABB area = new AABB(minX, box.minY(), minZ, maxX + 1, maxY + 1, maxZ + 1);
         level.getEntitiesOfClass(Entity.class, area, entity -> !(entity instanceof Player)).forEach(Entity::discard);
-        PaddockStructureAudit.fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, maxY, maxZ));
+        if (bright) PaddockStructureAudit.fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, maxY, maxZ));
     }
 
     private static List<String> compare(ServerLevel level, String label, BoundingBox walked, BoundingBox reference) {
@@ -301,11 +305,25 @@ public final class StructureWalkAudit {
             int paintings = level.getEntitiesOfClass(Painting.class, area, entity -> !entity.isRemoved()).size();
             if (murals != 11) issues.add("natural visitor centre kept " + murals + " murals, expected 11");
             if (paintings != 3) issues.add("natural visitor centre kept " + paintings + " paintings, expected 3");
-            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, chunk.getMiddleBlockX(), chunk.getMiddleBlockZ());
-            if (box.minY() > y + 30 || box.maxY() < y - 40)
-                issues.add("natural visitor centre sits away from the surface (box " + box.minY() + ".." + box.maxY() + ", surface " + y + ")");
+            // Generation aligns the transformed entrance (38, 3, 1) to the ocean floor.
+            // The chunk centre can be a peak dozens of blocks away, and each GameTest world
+            // has a new seed, so sampling MOTION_BLOCKING there is not the placement height.
+            issues.addAll(entranceHeight(level, (ParkStructurePiece) start.getPieces().get(0)));
         }
         return new Natural(false, "", issues);
+    }
+
+    private static List<String> entranceHeight(ServerLevel level, ParkStructurePiece piece) {
+        BlockPos entrance = StructureTemplate.transform(new BlockPos(38, 3, 1), piece.mirror(), piece.rotation(), BlockPos.ZERO);
+        BlockPos origin = piece.origin();
+        int columnX = origin.getX() + entrance.getX();
+        int columnZ = origin.getZ() + entrance.getZ();
+        int floor = level.getChunkSource().getGenerator().getBaseHeight(columnX, columnZ, Heightmap.Types.OCEAN_FLOOR_WG,
+                level, level.getChunkSource().randomState());
+        int placed = origin.getY() + entrance.getY();
+        if (placed != floor)
+            return List.of("natural visitor centre entrance is at y=" + placed + ", ocean floor at " + columnX + "," + columnZ + " is " + floor);
+        return List.of();
     }
 
     private static ChunkPos paddockChunk(ServerLevel level) {

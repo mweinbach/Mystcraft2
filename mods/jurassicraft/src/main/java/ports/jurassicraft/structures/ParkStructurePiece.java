@@ -34,6 +34,9 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     private static final String PLACED_HANGING = "PlacedHanging";
     private final Rotation rotation;
     private final Mirror mirror;
+    Rotation rotation() { return rotation; }
+    Mirror mirror() { return mirror; }
+    BlockPos origin() { return templatePosition; }
     /** Anchors already spawned. Saved with the piece so a reload cannot place them again. */
     private final Set<BlockPos> placedHanging = new HashSet<>();
     public ParkStructurePiece(StructureTemplateManager manager, ResourceLocation id, BlockPos pos, Rotation rotation, Mirror mirror) {

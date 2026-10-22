@@ -92,8 +92,9 @@ The port is still in progress. Some machine, animal, and vehicle behaviors
 are approximations; see the known gaps in [PARITY.md](PARITY.md). Both loaders
 have walked the visitor centre (its laboratory rooms included), the raptor
 paddock, and the village buildings in GameTests, and a Forge development client
-has walked the visitor centre and paddock. Chunk-edge vines, mushrooms,
-levers, and fence connections still differ from a one-shot placement. A second
+has walked the visitor centre and paddock. Chunk-edge fences, walls, vines,
+mushrooms and levers are settled once the footprint is loaded, and the structure
+walk checks them against a one-shot placement. A second
 development client saw an Open to LAN world and could not connect to the
 advertised address. Dinosaur and machine animation are still being checked
 separately.

@@ -274,23 +274,33 @@ public final class PaddockStructureAudit {
         } catch (ReflectiveOperationException failure) {
             throw new IllegalStateException(failure);
         }
+        DataLayer sharedEmpty;
+        try {
+            Field emptyField = LayerLightSectionStorage.class.getDeclaredField("EMPTY_DATA");
+            emptyField.setAccessible(true);
+            sharedEmpty = (DataLayer) emptyField.get(null);
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException(failure);
+        }
         for (int cx = box.minX() >> 4; cx <= box.maxX() >> 4; cx++)
             for (int cz = box.minZ() >> 4; cz <= box.maxZ() >> 4; cz++)
                 for (int sy = box.minY() >> 4; sy <= box.maxY() >> 4; sy++) {
                     long section = SectionPos.asLong(cx, sy, cz);
-                    visible.setLayer(section, fullSection());
-                    updating.setLayer(section, fullSection());
+                    // Inserting a layer makes the light task read a neighbour that has none and exit.
+                    brighten(visible, section, sharedEmpty);
+                    brighten(updating, section, sharedEmpty);
                 }
         visible.clearCache();
         updating.clearCache();
     }
 
-    private static DataLayer fullSection() {
-        DataLayer layer = new DataLayer();
+    private static void brighten(DataLayerStorageMap map, long section, DataLayer sharedEmpty) {
+        if (!map.hasLayer(section)) return;
+        DataLayer layer = map.getLayer(section);
+        if (layer == null || layer == sharedEmpty) return;
         for (int x = 0; x < 16; x++)
             for (int y = 0; y < 16; y++)
                 for (int z = 0; z < 16; z++)
-                    layer.set(x, y, z, 15);
-        return layer;
+                    if (layer.get(x, y, z) != 15) layer.set(x, y, z, 15);
     }
 }

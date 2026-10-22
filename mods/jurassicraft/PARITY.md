@@ -165,7 +165,7 @@ Tests changed while merging:
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
-- The structure walk places the visitor centre in two rotations and the raptor paddock chunk by chunk, settles each footprint, and compares that with a one-shot placement. A mismatch in blocks, including fences, walls, vines, mushrooms and levers, or in visitor-centre loot, murals or paintings, fails the test. Village differences are written out as notes.
+- The structure walk places the visitor centre in two rotations and the raptor paddock chunk by chunk, settles each footprint, and compares that with a one-shot placement. A mismatch in blocks, including fences, walls, vines, mushrooms and levers, or in visitor-centre loot, murals or paintings, fails the test. The generated visitor centre's entrance must sit on the same ocean-floor column used at generation. Village differences are written out as notes.
 - Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there. Anchors already placed are saved on the structure piece, so reloading it does not spawn those murals again.
 - Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
 - Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
