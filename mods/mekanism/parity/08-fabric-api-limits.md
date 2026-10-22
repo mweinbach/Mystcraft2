@@ -20,7 +20,9 @@
 - Modded HUD overlays anchored inside vanilla's health, armor, food and air group are drawn after that whole group.
   Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
   Their screen position still comes from the same left and right bar heights.
-- OBJ models do not support emissive faces or per-vertex colors; fluid container models ignore fluid luminosity.
+- Block-model faces with Forge's `emissivity` key (0–15) bake that light into the quad, and item quads keep the brighter
+  of the baked light and the light passed in. OBJ models still do not support emissive faces or per-vertex colors; fluid
+  container models ignore fluid luminosity.
   Refined glowstone armor does not use that path. It is the vanilla armor layer drawn fullbright.
 - Fabric's fluid renderer ignores tint alpha. Mekanism's fluid tints are opaque, and steam's transparency is in its
   texture. `shouldDisplayFluidOverlay` is read from the default block state when the client starts, not again per face;

@@ -6,12 +6,16 @@ base.archivesName = 'mekanism-forge-1.19.2'
 
 minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
 
-// Jade and The One Probe are optional at runtime. Their APIs are compile-only so the JAR loads without them.
-// -PwithJade and -PwithTop add them to the development client. JEI is the same kind of optional dependency.
+// Jade, The One Probe, CC: Tweaked and JEI are optional at runtime. Their APIs are compile-only so the JAR loads without them.
+// -PwithJade, -PwithTop, -PwithComputerCraft and -PwithJei add them to a development run.
 repositories {
     maven {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        url = 'https://maven.squiddev.cc'
+        content { includeGroup 'org.squiddev' }
     }
     maven {
         url = 'https://maven.blamejared.com/'
@@ -21,6 +25,12 @@ repositories {
 dependencies {
     compileOnly(fg.deobf('maven.modrinth:jade:8.9.2')) { transitive = false }
     compileOnly(fg.deobf('maven.modrinth:the-one-probe:1.19-6.2.2')) { transitive = false }
+    // Upstream Mekanism 10.3.9 compiled against this API. 1.101.3 and 1.101.4 are later 1.19.2 Forge builds.
+    compileOnly(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.2:api')) { transitive = false }
+    testImplementation(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.2:api')) { transitive = false }
+    if (providers.gradleProperty('withComputerCraft').isPresent()) {
+        runtimeOnly(fg.deobf('org.squiddev:cc-tweaked-1.19.2:1.101.2')) { transitive = false }
+    }
     if (providers.gradleProperty('withJade').isPresent()) {
         runtimeOnly(fg.deobf('maven.modrinth:jade:8.9.2')) { transitive = false }
     }
@@ -66,6 +76,8 @@ minecraft.runs {
         property 'forge.enabledGameTestNamespaces', 'mekanism'
         // MekanismModConfig drops NightConfig's file watch when this is set. See that class.
         property 'mekanism.gametest.skipConfigWatcher', 'true'
+        // Binds computer methods so ComputerGameTests can run without CC: Tweaked installed.
+        property 'mekanism.gametest.computer', 'true'
         mods {
             mekanism { source sourceSets.gametest }
         }

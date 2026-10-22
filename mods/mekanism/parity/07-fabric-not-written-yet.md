@@ -2,7 +2,8 @@
 
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, Robit,
-  the energy cube's core renderer, the simple generators' block-entity renderers.
+  the simple generators' block-entity renderers. The energy cube core, the industrial alarm, the seismic vibrator and the
+  pigment mixer were checked in `11-block-entity-renderers.md`.
   The fission burn glow and coolant body were checked on a fueled reactor: see the generators note below.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
   registered with Fabric's builtin item renderer; that registration has not been watched in a client. A formed
