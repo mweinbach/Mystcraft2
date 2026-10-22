@@ -75,11 +75,13 @@ python3 mods/mekanism/scripts/check_loader_parity.py
 python3 scripts/emc.py check
 ```
 
-Jade, WTHIT, The One Probe, CC: Tweaked, Curios, Trinkets and Wildfire's Gender Mod are optional. The JARs load
-without them. A development client can include one with `-PwithJade`, `-PwithWthit` (Fabric), `-PwithTop` (Forge),
-`-PwithComputerCraft`, `-PwithCurios` (Forge), `-PwithTrinkets` (Fabric) or `-PwithGender`. Versions are in
-[parity/13-computercraft.md](parity/13-computercraft.md) and
-[parity/14-curios-and-gender.md](parity/14-curios-and-gender.md).
+Jade, WTHIT, The One Probe, CC: Tweaked, Curios, Trinkets, Wildfire's Gender Mod and ProjectE are optional. The JARs
+load without them. A development client can include one with `-PwithJade`, `-PwithWthit` (Fabric), `-PwithTop`
+(Forge), `-PwithComputerCraft`, `-PwithCurios` (Forge), `-PwithTrinkets` (Fabric), `-PwithGender` or
+`-PwithProjectE` (Forge). Versions are in
+[parity/13-computercraft.md](parity/13-computercraft.md),
+[parity/14-curios-and-gender.md](parity/14-curios-and-gender.md) and
+[parity/15-projecte.md](parity/15-projecte.md).
 
 ## Chemical lookups (Fabric)
 

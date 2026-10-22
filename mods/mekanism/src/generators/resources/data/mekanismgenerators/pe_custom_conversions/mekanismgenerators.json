@@ -27,35 +27,55 @@
           }
         }
       ]
+    },
+    "mekanismgenerators_fill_bioethanol_bucket": {
+      "comment": "The bio generator turns one bio fuel into 200 mB of bioethanol, so five bio fuel and a bucket fill one bucket. Bio fuel is a fifth of an EMC, and five fifths plus the bucket are the bucket plus one EMC.",
+      "conversions": [
+        {
+          "output": "mekanismgenerators:bioethanol_bucket",
+          "ingredients": {
+            "mekanism:bio_fuel": 5,
+            "minecraft:bucket": 1
+          }
+        }
+      ]
+    },
+    "mekanismgenerators_fill_deuterium_bucket": {
+      "comment": "An electrolytic separator splits heavy water, which a filtered pump makes from water, into deuterium. Water has no EMC, so a deuterium bucket costs the empty bucket.",
+      "conversions": [
+        {
+          "output": "mekanismgenerators:deuterium_bucket",
+          "ingredients": {
+            "minecraft:bucket": 1
+          }
+        }
+      ]
+    },
+    "mekanismgenerators_fill_tritium_bucket": {
+      "comment": "A solar neutron activator turns lithium into tritium. Lithium is evaporated from brine, which is water, so a tritium bucket costs the empty bucket.",
+      "conversions": [
+        {
+          "output": "mekanismgenerators:tritium_bucket",
+          "ingredients": {
+            "minecraft:bucket": 1
+          }
+        }
+      ]
+    },
+    "mekanismgenerators_fill_fusion_fuel_bucket": {
+      "comment": "A chemical infuser combines one deuterium and one tritium into two fusion fuel. Both inputs cost an empty bucket, so each fusion-fuel bucket costs one empty bucket.",
+      "conversions": [
+        {
+          "output": "mekanismgenerators:fusion_fuel_bucket",
+          "ingredients": {
+            "minecraft:bucket": 1
+          }
+        }
+      ]
     }
   },
   "values": {
     "before": {},
-    "conversion": [
-      {
-        "output": "mekanismgenerators:bioethanol_bucket",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "mekanismgenerators:deuterium_bucket",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "mekanismgenerators:fusion_fuel_bucket",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "mekanismgenerators:tritium_bucket",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      }
-    ]
+    "conversion": []
   }
 }

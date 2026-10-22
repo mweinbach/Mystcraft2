@@ -61,6 +61,7 @@ public final class MekanismHooks {
         DMELoaded = modList.isLoaded(DARK_MODE_EVERYWHERE_MODID);
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
+        ProjectELoaded = modList.isLoaded(PROJECTE_MOD_ID);
         TOPLoaded = modList.isLoaded(TOP_MOD_ID);
         if (WildfireGenderModLoaded) {
             // Fabric registers with the Gender Mod here. Forge attaches the capability when a stack is created;
@@ -99,6 +100,21 @@ public final class MekanismHooks {
             // The provider class is Forge-only. Resolving it by name keeps this shared class free of The One Probe
             // types, so Fabric still compiles and loads when that mod is absent.
             InterModComms.sendTo(TOP_MOD_ID, "getTheOneProbe", MekanismHooks::topProbe);
+        }
+        if (ProjectELoaded) {
+            // NSS serializers and the recipe mappers are Forge-only. Resolving the helper by name keeps this shared
+            // class free of ProjectE types. Fabric has no ProjectE mapper API.
+            registerProjectESerializers();
+        }
+    }
+
+    private static void registerProjectESerializers() {
+        try {
+            Class.forName("mekanism.common.integration.projecte.NSSHelper").getMethod("init").invoke(null);
+        } catch (ClassNotFoundException ignored) {
+            // The Fabric JAR does not contain the ProjectE mappers.
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("ProjectE is loaded but Mekanism's NSS serializers failed to load", e);
         }
     }
 
