@@ -102,6 +102,22 @@ public class MekanismRenderType extends RenderType {
                 .createCompositeState(true)
     );
 
+    /**
+     * Ground ingots in a logistical transporter. The pipe shell is already in the depth buffer, and the
+     * entity-translucent sheet culls the plane, so the sprite collapses to a sliver under the tube.
+     * Depth-always cutout draws the whole face; the colored glass pass then tints it.
+     */
+    public static final RenderType TRANSPORTER_ITEM = create("mek_transporter_item", DefaultVertexFormat.NEW_ENTITY, Mode.QUADS, 256, true, false,
+          RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_ENTITY_CUTOUT_NO_CULL_SHADER)
+                .setTextureState(BLOCK_SHEET)
+                .setTransparencyState(NO_TRANSPARENCY)
+                .setCullState(NO_CULL)
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .createCompositeState(true));
+
     public static final Function<ResourceLocation, RenderType> SPS = Util.memoize(resourceLocation -> {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
               .setShaderState(MekanismShaders.SPS.shard)

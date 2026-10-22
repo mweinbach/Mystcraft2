@@ -20,8 +20,12 @@
   port and no coil, so the orb and the coil bolts were not drawn. A formed fusion reactor was checked:
   `/mek build fusion` made a 5×5×5 shell. The frame and its holes are visible, and the controller is the top centre.
   The plasma renderer draws only while the reactor is burning; this reactor was not fueled, so the plasma was not
-  drawn, and the controller screen was not opened. A red basic logistical transporter was checked: items riding
-  inside it are drawn in the pipe. The sorter, diversion and restrictive screens were not opened, and mechanical
+  drawn, and the controller screen was not opened. A red basic logistical transporter was checked.
+  Ground ingots were not visible in the colored glass: the entity-translucent sheet culls that plane, and the
+  pipe shell's depth leaves a dark sliver. They are drawn on a cutout layer with depth testing off, at full
+  brightness, and that layer is flushed before the glass. A gold ingot then reads as a bright yellow bar
+  about (233, 226, 90). An iron ingot was not identified on the tube in those frames. The sorter, diversion
+  and restrictive screens were not opened, and mechanical
   pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
   heat tab and the inventory.
