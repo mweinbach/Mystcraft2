@@ -15,6 +15,10 @@ repositories {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
 }
 
 dependencies {
@@ -49,6 +53,14 @@ dependencies {
         modRuntimeOnly('maven.modrinth:cc-restitched:3S6HU7nl') { transitive = false }
     }
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    // JEI is optional at runtime. The plugin entrypoint is only loaded when JEI asks for it.
+    modCompileOnly 'mezz.jei:jei-1.19.2-common-api:11.6.0.1015'
+    modCompileOnly 'mezz.jei:jei-1.19.2-fabric-api:11.6.0.1015'
+    if (providers.gradleProperty('withJei').isPresent()) {
+        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1015') {
+            transitive = false
+        }
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'

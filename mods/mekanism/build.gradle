@@ -6,8 +6,8 @@ base.archivesName = 'mekanism-forge-1.19.2'
 
 minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
 
-// Jade, The One Probe and CC: Tweaked are optional at runtime. Their APIs are compile-only so the JAR loads without them.
-// -PwithJade, -PwithTop and -PwithComputerCraft add them to a development run.
+// Jade, The One Probe, CC: Tweaked and JEI are optional at runtime. Their APIs are compile-only so the JAR loads without them.
+// -PwithJade, -PwithTop, -PwithComputerCraft and -PwithJei add them to a development run.
 repositories {
     maven {
         url = 'https://api.modrinth.com/maven'
@@ -16,6 +16,10 @@ repositories {
     maven {
         url = 'https://maven.squiddev.cc'
         content { includeGroup 'org.squiddev' }
+    }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
     }
 }
 dependencies {
@@ -35,6 +39,12 @@ dependencies {
     }
     // Forge ships maven-artifact, Night Config and jsr305 at runtime; jsr305 is compile-only as upstream.
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    // JEI is optional at runtime. The plugin is only loaded when JEI asks for it.
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1015')
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-forge-api:11.6.0.1015')
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1015')
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'

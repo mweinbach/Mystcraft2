@@ -31,6 +31,9 @@
     "client": [
       "ports.mekanism.fabric.client.FabricClientMod"
     ],
+    "jei_mod_plugin": [
+      "mekanism.client.jei.MekanismJEI"
+    ],
     "jade": [
       "mekanism.common.integration.lookingat.jade.MekanismJadePlugin"
     ]
@@ -38,7 +41,8 @@
     "suggests": {
     "jade": ">=8.7.3",
     "wthit": ">=5.36.1",
-    "computercraft": ">=1.101.2"
+    "computercraft": ">=1.101.2",
+    "jei": "*"
   },
   "accessWidener": "mekanism.accesswidener",
   "depends": {

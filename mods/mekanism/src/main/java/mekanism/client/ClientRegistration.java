@@ -77,6 +77,7 @@ import mekanism.client.gui.robit.GuiRobitInventory;
 import mekanism.client.gui.robit.GuiRobitMain;
 import mekanism.client.gui.robit.GuiRobitRepair;
 import mekanism.client.gui.robit.GuiRobitSmelting;
+import mekanism.client.jei.JeiScreenWatcher;
 import mekanism.client.key.MekanismKeyHandler;
 import mekanism.client.model.MekanismModelCache;
 import mekanism.client.model.ModelArmoredFreeRunners;
@@ -144,6 +145,7 @@ import mekanism.client.render.transmitter.RenderThermodynamicConductor;
 import mekanism.client.render.transmitter.RenderUniversalCable;
 import mekanism.client.sound.SoundHandler;
 import mekanism.common.Mekanism;
+import mekanism.common.integration.MekanismHooks;
 import mekanism.common.base.HolidayManager;
 import mekanism.common.block.attribute.Attribute;
 import mekanism.common.content.gear.shared.ModuleColorModulationUnit;
@@ -207,6 +209,7 @@ import net.minecraftforge.client.model.SeparateTransformsModel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.RegisterEvent;
@@ -226,6 +229,10 @@ public class ClientRegistration {
         MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new RenderTickHandler());
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, SoundHandler::onTilePlaySound);
+        if (ModList.get().isLoaded(MekanismHooks.JEI_MOD_ID)) {
+            // Checked here rather than MekanismHooks.JEILoaded: common setup can still be running.
+            MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, JeiScreenWatcher::onScreenOpening);
+        }
         HolidayManager.init();
         IModuleHelper moduleHelper = MekanismAPI.getModuleHelper();
         moduleHelper.addMekaSuitModuleModels(Mekanism.rl("models/entity/mekasuit_modules.obj"));
