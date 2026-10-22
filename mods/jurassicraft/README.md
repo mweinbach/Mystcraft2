@@ -92,8 +92,13 @@ The port is still in progress. Some machine, animal, and vehicle behaviors
 are approximations; see the known gaps in [PARITY.md](PARITY.md). Both loaders
 have walked the visitor centre (its laboratory rooms included), the raptor
 paddock, and the village buildings in GameTests, and a Forge development client
-has walked the visitor centre and paddock. Chunk-edge vines, mushrooms,
-levers, and fence connections still differ from a one-shot placement. A second
+has walked the visitor centre and paddock. Chunk-edge fences, walls, vines,
+mushrooms and levers are shaped by replaying the one-shot neighbour cascade
+once, during worldgen, when the whole footprint is loaded. Other blocks are
+put back, including a chest and its loot tag, and entities are not placed. A
+chunk a player has already inhabited does not start that pass and is left
+alone. A broken fence stays broken. The structure walk checks those blocks
+against a one-shot placement. A second
 development client saw an Open to LAN world and could not connect to the
 advertised address. Dinosaur and machine animation are still being checked
 separately.
