@@ -49,19 +49,7 @@ def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
 }
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     dependsOn copyGameTestStructures, tasks.named('gametestClasses')
-    doFirst {
-        delete file('run/gameTestServer/world')
-        // Forge's bundled fml.toml omits keys, so correction rewrites it under the file watcher.
-        def configDir = file('run/gameTestServer/config')
-        configDir.mkdirs()
-        new File(configDir, 'fml.toml').text = '''\
-splashscreen = true
-maxThreads = -1
-versionCheck = true
-defaultConfigPath = "defaultconfigs"
-disableOptimizedDFU = true
-'''
-    }
+    doFirst { delete file('run/gameTestServer/world') }
 }
 
 // Separate jars, one per upstream module, each depending on the core mod.

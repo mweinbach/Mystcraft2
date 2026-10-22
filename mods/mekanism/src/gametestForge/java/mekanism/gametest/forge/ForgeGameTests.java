@@ -4,8 +4,6 @@
  */
 package mekanism.gametest.forge;
 
-import com.electronwill.nightconfig.core.file.FileWatcher;
-import java.io.IOException;
 import java.util.List;
 import mekanism.common.Mekanism;
 import mekanism.gametest.SharedGameTests;
@@ -22,12 +20,6 @@ public class ForgeGameTests {
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
-        // Config correction autosaves while NightConfig's watcher reloads the same file. A torn
-        // additions.toml comes back as the default voice port, and a torn world.toml fails unrelated tests.
-        try {
-            FileWatcher.defaultInstance().stop();
-        } catch (IOException ignored) {
-        }
         return SharedGameTests.sharedTests();
     }
 }
