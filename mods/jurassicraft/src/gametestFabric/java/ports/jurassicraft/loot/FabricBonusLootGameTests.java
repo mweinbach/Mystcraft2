@@ -124,6 +124,12 @@ public final class FabricBonusLootGameTests implements FabricGameTest {
     }
 
     @GameTest(template = "jurassicraft:cleaning_station_test")
+    public void cryonicsLootResolvesToLaboratory(GameTestHelper helper) {
+        CryonicsLootChecks.cryonicsResolvesToLaboratory(helper);
+        helper.succeed();
+    }
+
+    @GameTest(template = "jurassicraft:cleaning_station_test")
     public void vanillaLootInjectionPreservesRate(GameTestHelper helper) {
         LootTable.Builder chestBuilder = LootTable.lootTable().setParamSet(LootContextParamSets.CHEST);
         BonusLoot.addTo(new ResourceLocation("minecraft", "chests/simple_dungeon"), FabricMod.lootSink(chestBuilder), 0);

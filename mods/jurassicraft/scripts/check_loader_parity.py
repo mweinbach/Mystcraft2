@@ -78,7 +78,7 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
             require(outer_class(name) in declared, f'Non-mixin class in the mixin package: {name}')
     mappings = json.loads(b.read(mixin['refmap']))['mappings']
     for name, side in (('EntityPersistentDataMixin', 'mixins'), ('FenceClimbMixin', 'mixins'),
-                       ('client.VehicleCameraMixin', 'client')):
+                       ('VillageAssemblyMixin', 'mixins'), ('client.VehicleCameraMixin', 'client')):
         require(name in mixin.get(side, []), f'Missing Fabric {side} hook: {name}')
         require('method_' in json.dumps(mappings.get('ports/jurassicraft/fabric/mixin/' + name.replace('.', '/'), {})),
                 f'Missing production mixin mapping: {name}')

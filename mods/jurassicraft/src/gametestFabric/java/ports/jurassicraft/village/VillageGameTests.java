@@ -73,6 +73,12 @@ public final class VillageGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void villageLimitsMatchUpstream(GameTestHelper h) {
+        VillageLimitChecks.generatedVillageRespectsCaps(h);
+        h.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void vanillaPoolsContainJigsawBuildings(GameTestHelper h) {
         var pools = h.getLevel().registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         for (String biome : List.of("plains", "desert", "savanna", "snowy", "taiga")) {

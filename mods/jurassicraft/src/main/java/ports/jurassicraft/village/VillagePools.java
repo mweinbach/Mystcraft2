@@ -43,11 +43,31 @@ public final class VillagePools {
         if (!MODIFIED.add(pool)) return;
         ObjectArrayList<StructurePoolElement> elements = pool.templates;
         Holder<StructureProcessorList> processors = Holder.direct(processorList);
-        // Jigsaw pools have no per-village counter, so the legacy 0–1 cap per building category cannot be preserved here.
+        // fossildigsite_3 is listed twice so its weight stays about half of the digsites. All three share one cap.
         for (String id : List.of("geneticist_house", "fossildigsite_1", "fossildigsite_2", "fossildigsite_3", "fossildigsite_3")) {
-            elements.add(StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors).apply(StructureTemplatePool.Projection.RIGID));
+            var element = StructurePoolElement.single(PortMod.MOD_ID + ":village/" + biome + "/" + variant + id, processors)
+                    .apply(StructureTemplatePool.Projection.RIGID);
+            var category = id.startsWith("fossildigsite") ? VillageLimits.Category.DIGSITE : VillageLimits.Category.GENETICIST;
+            elements.add(new LimitedVillageElement(element, category));
         }
         // Recompute the cached jigsaw size with the new buildings.
         pool.maxSize = Integer.MIN_VALUE;
+    }
+
+    /** Replaces pool entries for a test and returns the previous list. */
+    static List<StructurePoolElement> swapTemplates(StructureTemplatePool pool, List<StructurePoolElement> elements) {
+        List<StructurePoolElement> saved = new ArrayList<>(pool.templates);
+        pool.templates.clear();
+        pool.templates.addAll(elements);
+        pool.maxSize = Integer.MIN_VALUE;
+        return saved;
+    }
+
+    static List<StructurePoolElement> limitedTemplates(StructureTemplatePool pool) {
+        List<StructurePoolElement> found = new ArrayList<>();
+        for (StructurePoolElement element : pool.templates) {
+            if (element instanceof LimitedVillageElement) found.add(element);
+        }
+        return found;
     }
 }

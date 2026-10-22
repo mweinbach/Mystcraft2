@@ -79,6 +79,12 @@ public final class VillageGameTests {
     }
 
     @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void villageLimitsMatchUpstream(GameTestHelper h) {
+        VillageLimitChecks.generatedVillageRespectsCaps(h);
+        h.succeed();
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
     public static void vanillaPoolsContainJigsawBuildings(GameTestHelper h) {
         var pools = h.getLevel().registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         for (String biome : List.of("plains", "desert", "savanna", "snowy", "taiga")) {
