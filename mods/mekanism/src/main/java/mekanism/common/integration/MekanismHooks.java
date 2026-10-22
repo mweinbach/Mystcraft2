@@ -48,6 +48,7 @@ public final class MekanismHooks {
         DMELoaded = modList.isLoaded(DARK_MODE_EVERYWHERE_MODID);
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
+        TOPLoaded = modList.isLoaded(TOP_MOD_ID);
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
@@ -55,6 +56,19 @@ public final class MekanismHooks {
             //Note: While it is only strings, so it is safe to call and IMC validates the mods are loaded
             // we add this check here, so we can skip iterating the list of things we want to blacklist when it is not present
             sendDarkModeEverywhereIMC();
+        }
+        if (TOPLoaded) {
+            // The provider class is Forge-only. Resolving it by name keeps this shared class free of The One Probe
+            // types, so Fabric still compiles and loads when that mod is absent.
+            InterModComms.sendTo(TOP_MOD_ID, "getTheOneProbe", MekanismHooks::topProbe);
+        }
+    }
+
+    private static Object topProbe() {
+        try {
+            return Class.forName("mekanism.common.integration.lookingat.theoneprobe.TOPProvider").getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("The One Probe is loaded but Mekanism's provider failed to load", e);
         }
     }
 
