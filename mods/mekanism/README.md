@@ -75,8 +75,9 @@ python3 mods/mekanism/scripts/check_loader_parity.py
 python3 scripts/emc.py check
 ```
 
-Jade, WTHIT and The One Probe are optional. The JARs load without them. A development client can include one with
-`-PwithJade`, `-PwithWthit` (Fabric) or `-PwithTop` (Forge).
+Jade, WTHIT, The One Probe and CC: Tweaked are optional. The JARs load without them. A development client can
+include one with `-PwithJade`, `-PwithWthit` (Fabric), `-PwithTop` (Forge) or `-PwithComputerCraft`. Versions and
+the Fabric CC: Restitched build are in [parity/13-computercraft.md](parity/13-computercraft.md).
 
 ## Chemical lookups (Fabric)
 
