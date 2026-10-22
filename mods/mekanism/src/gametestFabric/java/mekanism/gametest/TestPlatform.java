@@ -101,6 +101,21 @@ public final class TestPlatform {
         }
     }
 
+    public static long extractItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        try (Transaction transaction = Transaction.openOuter()) {
+            long extracted = storage.extract(ItemVariant.of(stack), stack.getCount(), transaction);
+            transaction.commit();
+            return extracted;
+        }
+    }
+
     public static int insertThroughItemCapability(BlockEntity blockEntity, Direction side, ItemStack stack) {
         return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
               .map(handler -> stack.getCount() - ItemHandlerHelper.insertItem(handler, stack.copy(), false).getCount())

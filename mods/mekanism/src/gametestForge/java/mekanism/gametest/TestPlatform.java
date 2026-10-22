@@ -77,6 +77,25 @@ public final class TestPlatform {
         return insertThroughItemCapability(blockEntity, side, stack);
     }
 
+    public static long extractItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side).map(handler -> {
+            int left = stack.getCount();
+            int extracted = 0;
+            for (int slot = 0; slot < handler.getSlots() && left > 0; slot++) {
+                ItemStack preview = handler.extractItem(slot, left, true);
+                if (preview.isEmpty() || !ItemStack.isSameItemSameTags(preview, stack)) {
+                    continue;
+                }
+                extracted += handler.extractItem(slot, left, false).getCount();
+                left = stack.getCount() - extracted;
+            }
+            return (long) extracted;
+        }).orElse(0L);
+    }
+
     public static int insertThroughItemCapability(BlockEntity blockEntity, Direction side, ItemStack stack) {
         return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
               .map(handler -> stack.getCount() - ItemHandlerHelper.insertItem(handler, stack.copy(), false).getCount())
