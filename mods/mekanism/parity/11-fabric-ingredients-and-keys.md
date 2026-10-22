@@ -35,12 +35,14 @@ Key mappings:
 - `NONE` stays active in game and in a universal context while another modifier is held, so sneak plus the hand-mode
   key still changes mode in reverse. In a screen, a held modifier blocks an unmodified key, so Shift+N shows the
   description instead of the details key.
-- The options string is the key name plus `:SHIFT`, `:CONTROL` or `:ALT`. A file saved before that, whose value is the
-  bare default key, keeps the mapping's default modifier. An explicit `:NONE` clears it. Forge would clear the
-  modifier whenever the colon is absent.
+- The options string is the key name plus `:SHIFT`, `:CONTROL` or `:ALT`. Clearing a modifier whose default is not
+  `NONE` writes `:NONE`, so reloading does not put the default modifier back. A file saved before modifiers existed,
+  whose value is the bare default key, still keeps the mapping's default modifier. Forge would clear the modifier
+  whenever the colon is absent.
 - The controls screen stores the modifier that is held, and leaves the row selected when the pressed key is itself a
-  modifier, so Shift then N can be bound. Reset restores the default key and the default modifier. Binding with the
-  mouse keeps the modifier already stored.
+  modifier, so Shift then N can be bound. Releasing that modifier without a following key finishes the binding as the
+  modifier alone. Reset restores the default key and the default modifier. Binding with the mouse keeps the modifier
+  already stored.
 - The displayed name uses Forge's `forge.controlsgui` translations. Control matches the command key on macOS.
 - `same` reports a conflict when contexts conflict and a modifier matches the other key, or when an in-game context
   shares a key with an unmodified binding. The controls list marks that conflict. Forge 43.5.0 draws a modifier-only

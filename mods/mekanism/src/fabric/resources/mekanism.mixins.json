@@ -87,6 +87,7 @@
     "client.ClientLevelEntityCallbacksMixin",
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
+    "client.ContainerEventHandlerMixin",
     "client.ElytraLayerMixin",
     "client.EntityRenderDispatcherMixin",
     "client.FogRendererMixin",

@@ -84,6 +84,10 @@ public abstract class KeyMappingMixin implements IForgeKeyMapping {
     private void mekanism$saveModifier(CallbackInfoReturnable<String> cir) {
         if (mekanism$keyModifier != KeyModifier.NONE) {
             cir.setReturnValue(cir.getReturnValue() + ":" + mekanism$keyModifier.name());
+        } else if (mekanism$keyModifierDefault != KeyModifier.NONE) {
+            // A bare default key is a legacy options entry and reloads the default modifier. Write :NONE when the
+            // player cleared that modifier so the next load keeps the key unmodified.
+            cir.setReturnValue(cir.getReturnValue() + ":NONE");
         }
     }
 
