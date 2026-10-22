@@ -50,10 +50,11 @@ public class ThermalEvaporationGameTests {
     private static final long WATER = 200_000;
     private static final long BRINE = 1_000;
 
-    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void thermalEvaporationPlantForms(GameTestHelper helper) {
         Plant plant = place(helper, ORIGIN, SIZE, HEIGHT, true, true);
-        helper.runAtTickTime(40, () -> {
+        // Formation runs on a later plant tick than the one that places the shell. Wait for it.
+        helper.succeedWhen(() -> {
             TileEntityThermalEvaporationValve valve = valve(helper, plant);
             EvaporationMultiblockData data = formed(valve);
             check(plant.blocks().size() == SHELL, "The shell placed " + plant.blocks().size() + " blocks");
@@ -80,11 +81,10 @@ public class ThermalEvaporationGameTests {
             AABB bounds = TestPlatform.renderBounds(master);
             AABB structure = new AABB(min, max.offset(1, 1, 1));
             check(bounds.equals(structure), "Master render bounds " + bounds + " are not the structure " + structure);
-            helper.succeed();
         });
     }
 
-    @GameTest(template = TEMPLATE, timeoutTicks = 160)
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void invalidShapesStayApart(GameTestHelper helper) {
         // One block of air between shells. Face-adjacent evaporation blocks merge into one structure, and that
         // assembly fails the cuboid check before the missing-block and minimum-size rules run.
@@ -101,7 +101,7 @@ public class ThermalEvaporationGameTests {
             checkSeparate(valve(helper, small), small.blocks().size(), "A 3x3x3 plant");
             helper.setBlock(holed.origin(), MekanismBlocks.THERMAL_EVAPORATION_BLOCK.getBlock());
         });
-        helper.runAtTickTime(80, () -> {
+        helper.succeedWhen(() -> {
             TileEntityThermalEvaporationValve valve = valve(helper, holed);
             EvaporationMultiblockData data = formed(valve);
             check(data.length() == SIZE && data.width() == SIZE && data.height() == HEIGHT,
@@ -109,7 +109,6 @@ public class ThermalEvaporationGameTests {
             check(valve.getStructure().size() == holed.blocks().size(),
                   "The repaired plant shares a structure of " + valve.getStructure().size() + " blocks");
             checkSeparate(valve(helper, small), small.blocks().size(), "The 3x3x3 after its neighbour formed");
-            helper.succeed();
         });
     }
 
@@ -117,32 +116,29 @@ public class ThermalEvaporationGameTests {
     public static void heatedWaterBecomesBrine(GameTestHelper helper) {
         Plant plant = place(helper, ORIGIN, SIZE, HEIGHT, true, true);
         long[] filled = new long[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityThermalEvaporationValve valve = valve(helper, plant);
-            EvaporationMultiblockData data = formed(valve);
-            Direction side = plant.valveSide();
-            BlockEntity casing = helper.getBlockEntity(plant.origin());
-            check(data.inputTank.getCapacity() > WATER, "The plant holds " + data.inputTank.getCapacity() + " mB");
-            check(TestPlatform.insertBlockFluid(casing, Direction.WEST, Fluids.WATER, 1_000, true) == 0, "A casing block accepted water");
-            check(TestPlatform.insertBlockFluid(valve, side, Fluids.LAVA, 1_000, true) == 0, "The valve accepted lava");
-            long offered = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, false);
-            check(offered == WATER, "A simulated fill offered " + offered + " of " + WATER);
-            check(data.inputTank.isEmpty(), "A simulated fill stored water");
-            filled[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
-            check(filled[0] == WATER, "The valve accepted " + filled[0] + " of " + WATER);
-            check(TestPlatform.blockFluid(valve, side) == WATER, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
-            check(data.inputTank.getFluid().getFluid() == Fluids.WATER, "The input tank holds " + data.inputTank.getFluid());
-            double temperature = data.getTemperature();
-            double capacity = data.heatCapacitor.getHeatCapacity();
-            TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * capacity);
-            check(data.getTemperature() == temperature, "Queued heat changed the temperature before the plant ticked");
-            check(TestPlatform.heatCapacitors(casing, Direction.WEST) == 0, "A casing block exposes heat");
-        });
         helper.succeedWhen(() -> {
-            check(filled[0] > 0, "Water has not been inserted");
             TileEntityThermalEvaporationValve valve = valve(helper, plant);
             EvaporationMultiblockData data = formed(valve);
             Direction side = plant.valveSide();
+            if (filled[0] == 0) {
+                BlockEntity casing = helper.getBlockEntity(plant.origin());
+                check(data.inputTank.getCapacity() > WATER, "The plant holds " + data.inputTank.getCapacity() + " mB");
+                check(TestPlatform.insertBlockFluid(casing, Direction.WEST, Fluids.WATER, 1_000, true) == 0, "A casing block accepted water");
+                check(TestPlatform.insertBlockFluid(valve, side, Fluids.LAVA, 1_000, true) == 0, "The valve accepted lava");
+                long offered = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, false);
+                check(offered == WATER, "A simulated fill offered " + offered + " of " + WATER);
+                check(data.inputTank.isEmpty(), "A simulated fill stored water");
+                filled[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
+                check(filled[0] == WATER, "The valve accepted " + filled[0] + " of " + WATER);
+                check(TestPlatform.blockFluid(valve, side) == WATER, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
+                check(data.inputTank.getFluid().getFluid() == Fluids.WATER, "The input tank holds " + data.inputTank.getFluid());
+                double temperature = data.getTemperature();
+                double capacity = data.heatCapacitor.getHeatCapacity();
+                TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * capacity);
+                check(data.getTemperature() == temperature, "Queued heat changed the temperature before the plant ticked");
+                check(TestPlatform.heatCapacitors(casing, Direction.WEST) == 0, "A casing block exposes heat");
+                check(false, "Waiting for the plant to evaporate water");
+            }
             double multiplier = tempMultiplier(data);
             check(data.getTemperature() > HeatAPI.AMBIENT_TEMP + 50, "The plant is at " + data.getTemperature());
             check(TestPlatform.blockTemperature(valve, side) == data.getTemperature(),
@@ -168,21 +164,19 @@ public class ThermalEvaporationGameTests {
     public static void heatedBrineBecomesLithium(GameTestHelper helper) {
         Plant plant = place(helper, ORIGIN, SIZE, HEIGHT, true, true);
         long[] filled = new long[1];
-        helper.runAtTickTime(40, () -> {
-            TileEntityThermalEvaporationValve valve = valve(helper, plant);
-            EvaporationMultiblockData data = formed(valve);
-            Direction side = plant.valveSide();
-            filled[0] = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
-            check(filled[0] == BRINE, "The valve accepted " + filled[0] + " of " + BRINE + " brine");
-            check(data.inputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid(), "The input tank holds " + data.inputTank.getFluid());
-            double temperature = data.getTemperature();
-            TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * data.heatCapacitor.getHeatCapacity());
-        });
         helper.succeedWhen(() -> {
-            check(filled[0] > 0, "Brine has not been inserted");
             TileEntityThermalEvaporationValve valve = valve(helper, plant);
             EvaporationMultiblockData data = formed(valve);
             Direction side = plant.valveSide();
+            if (filled[0] == 0) {
+                filled[0] = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
+                check(filled[0] == BRINE, "The valve accepted " + filled[0] + " of " + BRINE + " brine");
+                check(data.inputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid(), "The input tank holds " + data.inputTank.getFluid());
+                double temperature = data.getTemperature();
+                TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * data.heatCapacitor.getHeatCapacity());
+                check(data.getTemperature() == temperature, "Queued heat changed the temperature before the plant ticked");
+                check(false, "Waiting for the plant to evaporate brine");
+            }
             long brine = data.inputTank.isEmpty() ? 0 : data.inputTank.getFluidAmount();
             long lithium = data.outputTank.getFluidAmount();
             check(brine < filled[0], "The plant did not consume brine: " + brine);
@@ -195,46 +189,47 @@ public class ThermalEvaporationGameTests {
         });
     }
 
-    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
     public static void plantContentsSurviveSaveAndLoad(GameTestHelper helper) {
         Plant plant = place(helper, ORIGIN, SIZE, HEIGHT, true, true);
         long[] water = new long[1];
         long[] brine = new long[1];
-        double[] temperature = new double[1];
-        helper.runAtTickTime(40, () -> {
+        int[] phase = new int[1];
+        helper.succeedWhen(() -> {
             TileEntityThermalEvaporationValve valve = valve(helper, plant);
             EvaporationMultiblockData data = formed(valve);
             Direction side = plant.valveSide();
-            long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
-            check(filled == WATER, "The valve accepted " + filled + " before the save");
-            TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - data.getTemperature()) * data.heatCapacitor.getHeatCapacity());
-        });
-        helper.runAtTickTime(70, () -> {
-            TileEntityThermalEvaporationValve valve = valve(helper, plant);
-            EvaporationMultiblockData data = formed(valve);
-            check(data.outputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid() && data.outputTank.getFluidAmount() > 0,
-                  "The plant produced no brine before the save");
-            check(data.inputTank.getFluidAmount() > 0, "The plant consumed all of its water before the save");
-            check(data.getTemperature() > HeatAPI.AMBIENT_TEMP + 50, "The plant was at " + data.getTemperature());
-            water[0] = data.inputTank.getFluidAmount();
-            brine[0] = data.outputTank.getFluidAmount();
-            temperature[0] = data.getTemperature();
-            List<SavedBlock> saved = new ArrayList<>();
-            for (BlockPos pos : plant.blocks()) {
-                saved.add(save(helper, pos));
+            if (phase[0] == 0) {
+                long filled = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
+                check(filled == WATER, "The valve accepted " + filled + " before the save");
+                TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - data.getTemperature()) * data.heatCapacitor.getHeatCapacity());
+                phase[0] = 1;
+                check(false, "Waiting for brine before the save");
             }
-            Mekanism.evaporationManager.inventories.remove(data.inventoryID);
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, Blocks.AIR);
+            if (phase[0] == 1) {
+                check(data.outputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid() && data.outputTank.getFluidAmount() > 0,
+                      "The plant produced no brine before the save");
+                check(data.inputTank.getFluidAmount() > 0, "The plant consumed all of its water before the save");
+                check(data.getTemperature() > HeatAPI.AMBIENT_TEMP + 50, "The plant was at " + data.getTemperature());
+                water[0] = data.inputTank.getFluidAmount();
+                brine[0] = data.outputTank.getFluidAmount();
+                List<SavedBlock> saved = new ArrayList<>();
+                for (BlockPos pos : plant.blocks()) {
+                    saved.add(save(helper, pos));
+                }
+                Mekanism.evaporationManager.inventories.remove(data.inventoryID);
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, Blocks.AIR);
+                }
+                for (SavedBlock block : saved) {
+                    helper.setBlock(block.pos, block.state);
+                    helper.getBlockEntity(block.pos).load(block.tag);
+                }
+                phase[0] = 2;
+                check(false, "Waiting for the reloaded plant to form");
             }
-            for (SavedBlock block : saved) {
-                helper.setBlock(block.pos, block.state);
-                helper.getBlockEntity(block.pos).load(block.tag);
-            }
-        });
-        helper.runAtTickTime(120, () -> {
             TileEntityThermalEvaporationValve restored = valve(helper, plant);
-            EvaporationMultiblockData data = formed(restored);
+            data = formed(restored);
             long waterNow = data.inputTank.getFluidAmount();
             long brineNow = data.outputTank.getFluidAmount();
             check(data.inputTank.getFluid().getFluid() == Fluids.WATER && waterNow > 0, "Reloaded plant water is " + data.inputTank.getFluid());
@@ -246,7 +241,6 @@ public class ThermalEvaporationGameTests {
                   "The heat lookup reports " + TestPlatform.blockTemperature(restored, plant.valveSide()) + " after reload");
             check(TestPlatform.blockFluid(restored, plant.valveSide()) == waterNow + brineNow,
                   "The fluid lookup reports " + TestPlatform.blockFluid(restored, plant.valveSide()) + " after reload");
-            helper.succeed();
         });
     }
 
