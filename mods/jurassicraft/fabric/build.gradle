@@ -117,5 +117,10 @@ loom {
 }
 tasks.named('runGametest') {
     // Item Alchemy only reads default_emcs when it has no saved emc_config.json.
-    doFirst { delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/itemalchemy') }
+    doFirst {
+        delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/itemalchemy')
+        def serverProperties = layout.buildDirectory.file('gametest/server.properties').get().asFile
+        serverProperties.parentFile.mkdirs()
+        serverProperties.text = 'max-tick-time=-1\ngenerate-structures=true\n'
+    }
 }

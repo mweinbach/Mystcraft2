@@ -82,8 +82,13 @@ so values for later content need updating in `emc/policy.json`.
 
 The port is still in progress. World-generation distributions and some
 machine, animal, and vehicle behaviors are approximations; see the known gaps
-in [PARITY.md](PARITY.md). Large structures, multiplayer, interactions with
-other mods, and some audiovisual details still need broader in-game testing.
+in [PARITY.md](PARITY.md). Both loaders have walked the visitor centre (its
+laboratory rooms included), the raptor paddock, and the village buildings in
+GameTests, and a Forge development client has walked the visitor centre and
+paddock. Chunk-edge vines, mushrooms and levers still differ from a one-shot
+placement. A second development client saw an Open to LAN world and could not
+connect to the advertised address. Fossil distribution, dinosaur and machine
+animation, and helicopter key bindings are still being checked separately.
 Genetic item variants use separate IDs rather than legacy item damage values,
 and there is no migration for 1.12 worlds or for saves from the earlier
 separate Fabric alpha.

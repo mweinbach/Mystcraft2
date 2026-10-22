@@ -1,6 +1,8 @@
 package ports.jurassicraft.structures;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +31,8 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
             "Kitchen", "kitchen", "DormTower", "dorm_tower", "DiningHall", "dining_hall");
     private final Rotation rotation;
     private final Mirror mirror;
+    /** Anchors already spawned while this piece generates. Not saved; placement does not run twice. */
+    private final Set<BlockPos> placedHanging = new HashSet<>();
     public ParkStructurePiece(StructureTemplateManager manager, ResourceLocation id, BlockPos pos, Rotation rotation, Mirror mirror) {
         super(StructureRegistry.PIECE.get(), 0, manager, id, id.toString(), settings(rotation,mirror), pos);
         this.rotation=rotation; this.mirror=mirror;
@@ -60,7 +64,7 @@ public final class ParkStructurePiece extends TemplateStructurePiece {
     @Override public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
             BoundingBox bounds, ChunkPos chunk, BlockPos pivot) {
         super.postProcess(level,structures,generator,random,bounds,chunk,pivot);
-        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level);
+        ParkHangingEntities.place(template, templatePosition, placeSettings, bounds, level, placedHanging);
         // Support only this chunk's footprint. Never touch a neighboring chunk during worldgen.
         BoundingBox box = getBoundingBox();
         for (int x=Math.max(box.minX(),bounds.minX());x<=Math.min(box.maxX(),bounds.maxX());x++)

@@ -132,10 +132,13 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 205 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 127 on Fabric
+Both loaders run in-world GameTests from development-only mods: 208 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 133 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
+The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
+passed again with `-PwithItemAlchemy`. Each EMC audit compared 626 items with
+the live mod.
 
 The vehicle record test and the dinosaur birth test failed intermittently. Vanilla
 starts a test one tick after placing its structure, while newly forced chunks
@@ -155,6 +158,10 @@ Tests changed while merging:
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
+- The structure walk places the visitor centre in two rotations, the raptor paddock, and every village building chunk by chunk, then compares that with a one-shot placement. A mismatch in visitor-centre blocks, loot, murals or paintings fails the test. Paddock and village differences are written out as notes.
+- Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there.
+- Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
+- Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
 
 ## Known gaps against 1.12.2
 
@@ -169,6 +176,11 @@ Tests changed while merging:
 - The dart gun has a new survival recipe.
 - Genetic item variants use separate IDs instead of damage values; 1.12 worlds and items are not migrated.
 - A surviving lone dinosaur parent does not form a new family, as upstream.
+- Chunk-by-chunk generation of the visitor centre and raptor paddock still leaves vines, mushrooms and levers different from one `placeInWorld` call (about 120–144 visitor blocks, 37 paddock blocks). Keeping the template states instead leaves hundreds of plants that a full neighbor update removes. Settling them needs neighboring chunks to be writable during worldgen.
+- A raptor-paddock mossy cobblestone wall can be tall on the chunk walk and low after a full placement. That stays with the paddock work.
+- The Forge client logged that `#jurassicraft:park_structures` could not load its own structure ids while creating a world. `/spawnjc` and the structure sets still placed the buildings.
+- Opening the Forge development world to LAN advertised an IPv6 link-local address. A second development client listed the world and failed to connect to that address (`Invalid argument`).
+- A Fabric development client never reached the menu, with Jade alone and with Jade plus EMI. Model loading threw `BlockModel parent has to be a block model` and the resource reload repeated. The server GameTests with those mods passed. Machine models were left for the machine-animation work.
 
 ## Loader limits
 
