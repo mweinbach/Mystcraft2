@@ -21,8 +21,9 @@ depends on the core jar. Generators' code, assets and generated data are importe
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
 and outputs steam. The thermal evaporation plant forms, takes water or brine and heat through its valve, and
-outputs brine and lithium. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and
-crosses the meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
+outputs brine and lithium. The supercritical phase shifter forms and turns polonium plus energy from a supercharged coil
+into antimatter. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
+meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
 glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
@@ -73,6 +74,9 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   A formed fission reactor in that client is the 18×18×18 shell from `/mek build fission`: reactor glass shows the
   casing frame and a checkerboard of fuel assemblies and control rods. It was not fueled, so the burn glow and
   coolant body were not drawn, and the reactor screen was not opened.
+  A formed supercritical phase shifter in that client is the 7×7×7 shell from `/mek build sps`: structural glass
+  shows the casing frame and the empty corner cells of each face. It had no port and no coil, so the orb and the
+  coil bolts were not drawn.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -81,9 +85,9 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, server chunk data and recipe reload, a Generators registry smoke test, the simple generators, the dynamic
-  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
-  fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,
-  crafting, block behaviour, baby mobs and balloons) pass on both loaders.
+  tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical phase shifter,
+  the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and
+  Additions registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 

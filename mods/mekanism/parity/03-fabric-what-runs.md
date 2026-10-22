@@ -64,12 +64,15 @@ upstream passive heat source; these tests heat the valve directly and do not pla
 client a formed plant shows its lit controller, and the input fluid renders through the structural glass. In the
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
 checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
-were not drawn, and the reactor screen was not opened. The shared GameTests (core machines, factories, chemical
+were not drawn, and the reactor screen was not opened. In the development client `/mek build sps` built a 7×7×7
+shell. Structural glass shows the casing frame and the empty corner cells of each face. The build has no port and
+no coil, so the orb and the coil bolts were not drawn. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
 chunk loading, render bounds, the player and living events, server chunk data and recipe reload, a Generators
 registry smoke test, the simple generators,
-the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
-turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
+phase shifter, the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield
+blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
