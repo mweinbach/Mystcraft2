@@ -29,7 +29,7 @@ public final class MachineObjModelTest {
     public static void main(String[] args) throws Exception {
         Path models = Path.of("mods/jurassicraft/src/main/resources/assets/jurassicraft/models/block");
         Map<String, Integer> counts = Map.of("dna_extractor", 90, "dna_sequencer", 66,
-                "dna_combinator_hybridizer", 42, "dna_synthesizer", 102,
+                "dna_combinator_hybridizer", 30, "dna_synthesizer", 102,
                 "embryonic_machine", 98, "embryo_calcification_machine", 104,
                 "incubator", 60, "cleaning_station", 88, "feeder", 66);
         MachineObjMesh extractor = null;

@@ -181,12 +181,14 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
 
     /** Display samples are sent on change, not on every processing tick. */
     private void syncVisuals() {
-        if (level != null && !level.isClientSide && (kind == DnaMachineKind.EXTRACTOR || kind == DnaMachineKind.SEQUENCER))
+        if (level != null && !level.isClientSide && (kind == DnaMachineKind.EXTRACTOR || kind == DnaMachineKind.SEQUENCER
+                || kind == DnaMachineKind.COMBINATOR))
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
     }
     @Override public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("VisualSync", true);
+        if (kind == DnaMachineKind.COMBINATOR) tag.putBoolean("HybridizerMode", hybridizerMode);
         for (int slot = 0; slot < kind.inputs; slot++)
             if (visualSlot(slot)) tag.put("Visual" + slot, items.get(slot).save(new CompoundTag()));
         return tag;
@@ -216,6 +218,7 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         hybridizerMode = mode;
         progress[0] = 0;
         setChanged();
+        syncVisuals();
     }
     @Override public Component getDisplayName() { return customName != null ? customName : Component.translatable("container.jurassicraft." + kind.id); }
     public void setCustomName(Component name) { customName = name; setChanged(); }
@@ -232,6 +235,7 @@ public final class DnaMachineBlockEntity extends BlockEntity implements WorldlyC
         if (tag.getBoolean("VisualSync")) {
             for (int slot = 0; slot < kind.inputs; slot++)
                 if (visualSlot(slot)) items.set(slot, ItemStack.of(tag.getCompound("Visual" + slot)));
+            if (kind == DnaMachineKind.COMBINATOR) hybridizerMode = tag.getBoolean("HybridizerMode");
             return;
         }
         super.load(tag);

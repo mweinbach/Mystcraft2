@@ -24,6 +24,8 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
     private final HatcheryRegistry.Machine machine;
     private NonNullList<ItemStack> items;
     private final ItemStack[] visualEggs = {ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY};
+    private boolean visualDish;
+    private boolean visualTubes;
     private final int[] progress = new int[5];
     private final int[] temperature = new int[5];
     private final ItemStack[] active = {ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY};
@@ -124,8 +126,12 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
     }
     @Override public void clearContent() { items.clear(); setChanged(); syncVisuals(); }
     public ItemStack visualEgg(int slot) { return visualEggs[slot]; }
+    /** Upstream names slot 0's petri-dish cubes {@code dish} and slot 1's rack {@code tubes}. */
+    public boolean visualDish() { return visualDish; }
+    public boolean visualTubes() { return visualTubes; }
     private void syncVisuals() {
-        if (machine == HatcheryRegistry.Machine.INCUBATOR && level != null && !level.isClientSide)
+        if (level != null && !level.isClientSide
+                && (machine == HatcheryRegistry.Machine.INCUBATOR || machine == HatcheryRegistry.Machine.EMBRYONIC))
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
     }
     @Override public CompoundTag getUpdateTag() {
@@ -133,6 +139,10 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
         tag.putBoolean("VisualSync", true);
         if (machine == HatcheryRegistry.Machine.INCUBATOR)
             for (int slot = 0; slot < 5; slot++) tag.put("Visual" + slot, items.get(slot).save(new CompoundTag()));
+        else if (machine == HatcheryRegistry.Machine.EMBRYONIC) {
+            tag.putBoolean("VisualDish", !items.get(0).isEmpty());
+            tag.putBoolean("VisualTubes", !items.get(1).isEmpty());
+        }
         return tag;
     }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
@@ -164,6 +174,10 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
         if (tag.getBoolean("VisualSync")) {
             if (machine == HatcheryRegistry.Machine.INCUBATOR)
                 for (int slot = 0; slot < 5; slot++) visualEggs[slot] = ItemStack.of(tag.getCompound("Visual" + slot));
+            else if (machine == HatcheryRegistry.Machine.EMBRYONIC) {
+                visualDish = tag.getBoolean("VisualDish");
+                visualTubes = tag.getBoolean("VisualTubes");
+            }
             return;
         }
         super.load(tag); items=NonNullList.withSize(machine.slots,ItemStack.EMPTY); ContainerHelper.loadAllItems(tag,items);
@@ -174,5 +188,9 @@ public final class HatcheryBlockEntity extends BlockEntity implements WorldlyCon
             active[i] = tag.contains("Active" + i, 10) ? ItemStack.of(tag.getCompound("Active" + i)) : ItemStack.EMPTY;
         }
         customName=tag.contains("CustomName",8) ? Component.Serializer.fromJson(tag.getString("CustomName")) : null;
+        if (machine == HatcheryRegistry.Machine.EMBRYONIC) {
+            visualDish = !items.get(0).isEmpty();
+            visualTubes = !items.get(1).isEmpty();
+        }
     }
 }
