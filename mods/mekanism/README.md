@@ -24,7 +24,8 @@ and outputs steam. The fission reactor forms, burns fissile fuel into waste, boi
 meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
-glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
+glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie are in both loaders. The voice server
+stays off unless `voiceServerEnabled` is set. Microphone capture and speaker playback were not run.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -76,7 +77,7 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the industrial turbine, the fission reactor, Tools
   registration, crafting, tool actions and shield blocking, and Additions registration, crafting, block behaviour,
-  baby mobs and balloons) pass on both loaders.
+  baby mobs, balloons, walkie-talkie channel selection and the voice server's on/off config) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -87,7 +88,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs and balloons, plus each loader's descriptor. Its own jars |
+| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

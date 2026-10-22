@@ -1,5 +1,6 @@
 package mekanism.additions.common;
 
+import mekanism.additions.client.AdditionsClient;
 import mekanism.additions.common.block.BlockObsidianTNT;
 import mekanism.additions.common.config.MekanismAdditionsConfig;
 import mekanism.additions.common.entity.baby.EntityBabyStray;
@@ -9,6 +10,7 @@ import mekanism.additions.common.registries.AdditionsEntityTypes;
 import mekanism.additions.common.registries.AdditionsItems;
 import mekanism.additions.common.registries.AdditionsSounds;
 import mekanism.additions.common.registries.AdditionsStructureModifierSerializers;
+import mekanism.additions.common.voice.VoiceServerManager;
 import mekanism.common.Mekanism;
 import mekanism.common.base.IModModule;
 import mekanism.common.config.MekanismModConfig;
@@ -26,6 +28,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -47,9 +52,16 @@ public class MekanismAdditions implements IModModule {
      */
     public final Version versionNumber;
 
+    /**
+     * The VoiceServer manager for walkie-talkies
+     */
+    public static VoiceServerManager voiceManager;
+
     public MekanismAdditions() {
         Mekanism.addModule(instance = this);
         MekanismAdditionsConfig.registerConfigs(ModLoadingContext.get());
+        MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
@@ -81,6 +93,12 @@ public class MekanismAdditions implements IModModule {
 
     @Override
     public void resetClient() {
+        AdditionsClient.reset();
+    }
+
+    @Override
+    public void launchClient() {
+        AdditionsClient.launch();
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -123,6 +141,22 @@ public class MekanismAdditions implements IModModule {
         for (EntityTypeRegistryObject<? extends Monster> entityTypeRO : entityTypeROs) {
             SpawnPlacements.register(entityTypeRO.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                   Monster::checkMonsterSpawnRules);
+        }
+    }
+
+    private void serverStarting(ServerStartingEvent event) {
+        if (MekanismAdditionsConfig.additions.voiceServerEnabled.get()) {
+            if (voiceManager == null) {
+                voiceManager = new VoiceServerManager();
+            }
+            voiceManager.start();
+        }
+    }
+
+    private void serverStopping(ServerStoppingEvent event) {
+        if (voiceManager != null) {
+            voiceManager.stop();
+            voiceManager = null;
         }
     }
 
