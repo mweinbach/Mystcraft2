@@ -26,6 +26,18 @@ Click areas are the progress bars and inner screens GUIs already tag with `Mekan
 repair anvil area. Opening JEI from a Mekanism screen sets `switchingToJEI` so the container stays open. On Fabric
 that is `ScreenEvent.Opening`, posted from `setScreen`.
 
-Not in this slice: recipe transfer. The formulaic assemblicator, the robit's crafting grid, both QIO dashboards, and
-dragging ingredients onto filter ghost slots do not fill from JEI. Upstream's handlers for those are
-`FormulaicRecipeTransferInfo`, `QIOCraftingTransferHandler` and `GhostIngredientHandler`.
+Recipe transfer uses the vanilla crafting category. The Robit's crafting grid is a `CraftingMenu`, so JEI's
+standard slot transfer fills slots 1–9 from the player inventory. The formulaic assemblicator uses
+`FormulaicRecipeTransferInfo`: the nine `FormulaicCraftingSlot`s are the recipe slots, and the input inventory
+plus the player's inventory are the sources. Both QIO dashboards (the block and the portable item) use
+`QIOCraftingTransferHandler`, which matches ingredients against the selected crafting window, the player's
+inventory and the synchronized QIO contents, then sends `PacketQIOFillCraftingWindow`. Whether leftover crafting
+grid items can spill into the QIO uses that same client cache (`getCountCapacity`, `getTypeCapacity`,
+`getTotalItems`, `getTotalTypes`). `getFrequency()` is server-only and is null on the client for the portable
+dashboard, so it is not used for this check. `JeiTransferRegistrationTest` checks those four registrations and
+that the shuffle check reads the cache, without loading JEI.
+
+Dragging an ingredient onto a filter or config slot uses `GhostIngredientHandler`. Slots and the dictionary
+target already implement `IJEIGhostTarget`; the handler exposes the ones that accept the dragged ingredient and
+skips the area covered by a window in front of them. That includes item, material and mod-id filters, the digital
+miner's filters and replace target, and the QIO redstone adapter.
