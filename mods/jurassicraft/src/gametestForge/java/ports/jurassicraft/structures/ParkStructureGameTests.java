@@ -160,4 +160,9 @@ public final class ParkStructureGameTests {
         nearby.forEach(MuralEntity::discard);
         helper.succeed();
     }
+
+    @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
+    public static void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
+    }
 }
