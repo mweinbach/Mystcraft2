@@ -45,5 +45,5 @@ player onto a targeted block at least sqrt(5) blocks away when the two blocks ab
 1,000 J per 10 blocks of distance squared.
 
 On a Fabric development client at noon, with the HUD, debug screen, chat and toasts hidden, a survival player in close
-third person is airborne above a smooth-stone pad in a plains biome. The jetpack model is on the player's back and
-orange flame particles trail from it. The sky is clear.
+third person is airborne above a smooth-stone pad on a flat grass world. The jetpack model is on the player's back and
+orange flame particles trail from the thrusters. The sky is clear.
