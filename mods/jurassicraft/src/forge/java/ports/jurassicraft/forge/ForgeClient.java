@@ -72,7 +72,8 @@ final class ForgeClient implements ClientPlatform.Backend {
         forgeBus.addListener((ViewportEvent.ComputeCameraAngles event) ->
                 JurassicClient.camera(event.getCamera(), (float) event.getPartialTick()));
         forgeBus.addListener((TickEvent.ClientTickEvent event) -> {
-            if (event.phase == TickEvent.Phase.END) JurassicClient.tick(Minecraft.getInstance());
+            if (event.phase == TickEvent.Phase.START) JurassicClient.beforeTick(Minecraft.getInstance());
+            else if (event.phase == TickEvent.Phase.END) JurassicClient.tick(Minecraft.getInstance());
         });
     }
 

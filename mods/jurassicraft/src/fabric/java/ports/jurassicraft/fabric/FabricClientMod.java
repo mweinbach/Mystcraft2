@@ -52,6 +52,7 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
         });
         MachineModels.init();
 
+        ClientTickEvents.START_CLIENT_TICK.register(JurassicClient::beforeTick);
         ClientTickEvents.END_CLIENT_TICK.register(JurassicClient::tick);
         HudRenderCallback.EVENT.register(JurassicClient::hud);
         for (ResourceLocation id : Network.clientIds()) {

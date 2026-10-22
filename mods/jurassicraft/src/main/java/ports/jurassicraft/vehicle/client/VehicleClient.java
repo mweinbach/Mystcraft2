@@ -14,7 +14,7 @@ import ports.jurassicraft.vehicle.VehicleRegistry;
 public final class VehicleClient {
     private static final BooleanSupplier IN_VEHICLE = () -> riding(VehicleEntity.class);
     private static final BooleanSupplier IN_HELICOPTER = () -> riding(HelicopterEntity.class);
-    private static KeyMapping radio, rotateLeft, rotateRight, autopilot, rotationLock;
+    private static KeyMapping radio, rotateLeft, rotateRight, ascend, descend, autopilot, rotationLock;
     private static final KeyMapping[] SEATS = new KeyMapping[9];
     private static int previousId = -1, previousState = -1, ticks;
     private VehicleClient() {}
@@ -27,6 +27,8 @@ public final class VehicleClient {
         radio = ClientPlatform.keyMapping(Key.of("key.jurassicraft.vehicle_radio", GLFW.GLFW_KEY_R));
         rotateLeft = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_rotate_left", GLFW.GLFW_KEY_LEFT).when(IN_VEHICLE));
         rotateRight = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_rotate_right", GLFW.GLFW_KEY_RIGHT).when(IN_VEHICLE));
+        ascend = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_ascend", GLFW.GLFW_KEY_SPACE).when(IN_HELICOPTER));
+        descend = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_descend", GLFW.GLFW_KEY_LEFT_CONTROL).when(IN_HELICOPTER));
         autopilot = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_autopilot", GLFW.GLFW_KEY_A)
                 .control(GLFW.GLFW_KEY_HOME).when(IN_HELICOPTER));
         rotationLock = ClientPlatform.keyMapping(Key.of("key.jurassicraft.helicopter_rotation_lock", GLFW.GLFW_KEY_D)
@@ -43,6 +45,22 @@ public final class VehicleClient {
         renderers.entity(VehicleRegistry.HELICOPTER.get(), context -> new VehicleRenderer<>(context, "helicopter"));
     }
     public static void setup() { VehicleClientNetwork.register(); }
+    /**
+     * Space and Left Ctrl are also jump and sprint. While they are held to fly, clear the vanilla
+     * mapping before the player reads input so the same press does not jump or sprint.
+     */
+    public static void beforeTick(Minecraft client) {
+        if (ascend == null || client.player == null || client.screen != null
+                || !(client.player.getVehicle() instanceof HelicopterEntity helicopter)
+                || helicopter.getControllingPassenger() != client.player) return;
+        releaseVanilla(ascend, client.options.keyJump);
+        releaseVanilla(descend, client.options.keySprint);
+    }
+    private static void releaseVanilla(KeyMapping flight, KeyMapping vanilla) {
+        if (!flight.isDown() || !flight.same(vanilla)) return;
+        for (int i = 0; i < 16 && vanilla.consumeClick(); i++) {}
+        vanilla.setDown(false);
+    }
     public static void tick(Minecraft client) {
         VehicleRadioClient.tick(client);
         VehicleVisuals.tick(client);
@@ -79,8 +97,10 @@ public final class VehicleClient {
             if (client.options.keyDown.isDown()) state |= VehicleEntity.BACK;
             if (client.options.keyLeft.isDown() && !chord) state |= VehicleEntity.LEFT;
             if (client.options.keyRight.isDown() && !chord) state |= VehicleEntity.RIGHT;
-            if (client.options.keyJump.isDown()) state |= VehicleEntity.UP;
-            if (client.options.keySprint.isDown() && !chord) state |= VehicleEntity.DOWN;
+            if (vehicle instanceof HelicopterEntity) {
+                if (ascend.isDown()) state |= VehicleEntity.UP;
+                if (descend.isDown()) state |= VehicleEntity.DOWN;
+            }
             if (rotateLeft.isDown()) state |= VehicleEntity.ROTATE_LEFT;
             if (rotateRight.isDown()) state |= VehicleEntity.ROTATE_RIGHT;
         }

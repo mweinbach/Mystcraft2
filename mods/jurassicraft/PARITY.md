@@ -123,6 +123,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. |
 | Record player key | Union: R | Upstream used only interaction; both ports added a key, now the same one. |
 | Zoom and rotation keys | Both | Page Down/Page Up and Left/Right, as upstream. |
+| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. |
 | Journal | Forge: opens on the client | As upstream; Fabric used a server round trip. |
 | Field guide | Union | Using it on a dinosaur sends the upstream inspection packet; empty-hand use opens the manual (port addition). |
 | Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric keeps its first release's `jurassicraft-fabric.json` and key/value vehicle files with the same keys. |
@@ -132,8 +133,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 205 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 127 on Fabric
+Both loaders run in-world GameTests from development-only mods: 207 on Forge
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 131 on Fabric
 (`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
 
@@ -155,13 +156,13 @@ Tests changed while merging:
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
+- The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
 
 ## Known gaps against 1.12.2
 
 - Fossil ore attempts are independent per species instead of sharing 32 attempts per chunk.
 - Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
 - Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
 - Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
 - Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
