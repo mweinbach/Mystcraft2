@@ -5,17 +5,21 @@
 package ports.mekanism.fabric.mixin;
 
 import com.google.gson.JsonElement;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.mekanism.lib.common.crafting.CraftingHelper;
 import ports.mekanism.lib.common.extensions.IForgeIngredient;
 
 /**
- * Reads Forge's ingredient types wherever vanilla reads an ingredient, as Forge's patched {@code fromJson} does.
+ * Reads and writes Forge's ingredient types wherever vanilla reads an ingredient. A leading varint of {@code -1} marks
+ * a custom type on the network; anything else is rewound so vanilla's item list reader runs.
  */
 @Mixin(Ingredient.class)
 public abstract class IngredientMixin implements IForgeIngredient {
@@ -25,6 +29,25 @@ public abstract class IngredientMixin implements IForgeIngredient {
         Ingredient custom = CraftingHelper.getCustomIngredient(json);
         if (custom != null) {
             cir.setReturnValue(custom);
+        }
+    }
+
+    @Inject(method = "fromNetwork", at = @At("HEAD"), cancellable = true)
+    private static void mekanism$readForgeIngredient(FriendlyByteBuf buffer, CallbackInfoReturnable<Ingredient> cir) {
+        buffer.markReaderIndex();
+        if (buffer.readVarInt() == -1) {
+            ResourceLocation type = buffer.readResourceLocation();
+            cir.setReturnValue(CraftingHelper.getIngredient(type, buffer));
+        } else {
+            buffer.resetReaderIndex();
+        }
+    }
+
+    @Inject(method = "toNetwork", at = @At("HEAD"), cancellable = true)
+    private void mekanism$writeForgeIngredient(FriendlyByteBuf buffer, CallbackInfo ci) {
+        if (!isVanilla()) {
+            CraftingHelper.write(buffer, (Ingredient) (Object) this);
+            ci.cancel();
         }
     }
 }

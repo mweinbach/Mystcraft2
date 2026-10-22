@@ -5,6 +5,8 @@
 package ports.mekanism.lib.common.extensions;
 
 import net.minecraft.world.item.crafting.Ingredient;
+import ports.mekanism.lib.common.crafting.IIngredientSerializer;
+import ports.mekanism.lib.common.crafting.VanillaIngredientSerializer;
 
 /**
  * Methods Forge adds to {@link Ingredient}, injected into it on Fabric. A simple ingredient matches on item alone, so
@@ -18,5 +20,12 @@ public interface IForgeIngredient {
 
     default boolean isVanilla() {
         return getClass() == Ingredient.class;
+    }
+
+    default IIngredientSerializer<? extends Ingredient> getSerializer() {
+        if (isVanilla()) {
+            return VanillaIngredientSerializer.INSTANCE;
+        }
+        throw new IllegalStateException("Modders must implement Ingredient.getSerializer in their custom Ingredients: " + this);
     }
 }

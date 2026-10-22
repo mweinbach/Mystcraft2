@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Base of the ingredient types Forge adds. Vanilla's network format only carries the matching stacks, so on a Fabric
- * client these arrive as plain item ingredients; matching always runs on the server.
+ * Base of the ingredient types Forge adds. {@link Ingredient#toNetwork} writes the serializer id before the payload,
+ * so a Fabric client rebuilds the same type instead of a plain item list.
  */
 public abstract class AbstractIngredient extends Ingredient {
 
@@ -57,6 +57,10 @@ public abstract class AbstractIngredient extends Ingredient {
     public boolean isSimple() {
         return false;
     }
+
+    @NotNull
+    @Override
+    public abstract IIngredientSerializer<? extends Ingredient> getSerializer();
 
     @NotNull
     @Override
