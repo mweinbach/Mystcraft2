@@ -21,6 +21,9 @@
   "entrypoints": {
     "main": [
       "ports.mekanism.tools.fabric.ToolsFabricMod"
+    ],
+    "client": [
+      "ports.mekanism.tools.fabric.ToolsFabricClient"
     ]
   },
   "depends": {
