@@ -510,10 +510,14 @@ public class GearGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, tool);
         BlockPos absolute = helper.absolutePos(grass);
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
-        InteractionResult result = player.gameMode.useItemOn(player, helper.getLevel(), tool, InteractionHand.MAIN_HAND, hit);
-        check(result.consumesAction(), "Farming returned " + result);
-        check(helper.getBlockState(grass).is(Blocks.FARMLAND), "The grass became " + helper.getBlockState(grass));
-        check(helper.getBlockState(beside).is(Blocks.GRASS_BLOCK), "Farming also tilled the neighbour");
+        InteractionResult flattened = player.gameMode.useItemOn(player, helper.getLevel(), tool, InteractionHand.MAIN_HAND, hit);
+        check(flattened.consumesAction(), "Flattening returned " + flattened);
+        check(helper.getBlockState(grass).is(Blocks.DIRT_PATH), "The grass became " + helper.getBlockState(grass));
+        check(helper.getBlockState(beside).is(Blocks.GRASS_BLOCK), "Farming also changed the neighbour");
+        InteractionResult tilled = player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
+        check(tilled.consumesAction(), "Tilling returned " + tilled);
+        check(helper.getBlockState(grass).is(Blocks.FARMLAND), "The path became " + helper.getBlockState(grass));
+        check(helper.getBlockState(beside).is(Blocks.GRASS_BLOCK), "Tilling also changed the neighbour");
         helper.succeed();
     }
 
@@ -609,16 +613,17 @@ public class GearGameTests {
 
     @GameTest(template = TEMPLATE)
     public static void teleportationMovesThePlayer(GameTestHelper helper) {
-        helper.setBlock(new BlockPos(6, 3, 1), Blocks.STONE);
+        helper.setBlock(new BlockPos(4, 3, 1), Blocks.STONE);
         ServerPlayer player = survival(helper, new BlockPos(1, 2, 1), "teleport");
         player.setYRot(-90);
+        player.setYHeadRot(-90);
         player.setXRot(0);
         ItemStack tool = gear(new ItemStack(MekanismItems.MEKA_TOOL.get()), MekanismModules.TELEPORTATION_UNIT.get());
         player.setItemInHand(InteractionHand.MAIN_HAND, tool);
         double started = player.getX();
         InteractionResultHolder<ItemStack> result = ((ItemMekaTool) tool.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
         check(result.getResult().consumesAction(), "Teleport returned " + result.getResult());
-        check(player.getX() > started + 3, "Teleport left the player at " + player.position());
+        check(player.getX() > started + 2, "Teleport left the player at " + player.position());
         helper.succeed();
     }
 

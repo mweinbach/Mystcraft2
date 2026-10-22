@@ -37,7 +37,7 @@ distribution equalizes energy across the worn MekaSuit and, with charge inventor
 the chest at the 10,000 J inventory rate.
 
 Attack amplification's default medium mode adds 8 to the Meka-Tool's base damage of 4 when the tool has the energy.
-Farming's low radius tills the clicked grass and leaves the neighbour. The shearing module shears a sheep, a mooshroom
+Farming's low radius flattens the clicked grass into a path, because the shovel is tried before the hoe, and a second use tills that path into farmland. The neighbour stays grass. The shearing module shears a sheep, a mooshroom
 and a snow golem and carves a pumpkin; on Fabric, sheep, mooshrooms and snow golems implement the shearable interface
 and pumpkin carving accepts the shears carve action. Vein mining breaks a connected iron-ore vein and leaves stone
 beside it. Blasting's low radius breaks the 3×3 plane of the face the player is looking at. Teleportation moves the
