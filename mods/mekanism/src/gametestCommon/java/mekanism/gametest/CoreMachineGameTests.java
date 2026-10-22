@@ -5,6 +5,7 @@
 package mekanism.gametest;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import mekanism.api.Action;
 import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.api.inventory.IInventorySlot;
@@ -119,5 +120,25 @@ public class CoreMachineGameTests {
         if (!condition) {
             throw new GameTestAssertException(message);
         }
+    }
+
+    /**
+     * The structure scan merges a shell, and the formation attempt runs on a later tick. {@code scanned} is true once
+     * that merge has the shape under test. The assertion runs on the following tick, after the attempt, so an
+     * unformed check is not looking at a shell that has not been tested yet.
+     */
+    static void succeedAfterScan(GameTestHelper helper, BooleanSupplier scanned, Runnable assertion) {
+        boolean[] sawScan = {false};
+        helper.succeedWhen(() -> {
+            if (!scanned.getAsBoolean()) {
+                sawScan[0] = false;
+                throw new GameTestAssertException("Waiting for the structure to be scanned");
+            }
+            if (!sawScan[0]) {
+                sawScan[0] = true;
+                throw new GameTestAssertException("Waiting for the structure formation attempt");
+            }
+            assertion.run();
+        });
     }
 }

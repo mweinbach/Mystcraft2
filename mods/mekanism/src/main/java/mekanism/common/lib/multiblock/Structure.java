@@ -35,6 +35,8 @@ public class Structure {
 
     private long updateTimestamp;
     private boolean didUpdate;
+    /** Set by {@link #markForUpdate} and {@link #doImmediateUpdate}. A fresh structure has nothing queued. */
+    private boolean pendingUpdate;
 
     private MultiblockData multiblockData;
     private IMultiblock<?> controller;
@@ -96,6 +98,7 @@ public class Structure {
     public void markForUpdate(Level world, boolean invalidate) {
         updateTimestamp = world.getGameTime();
         didUpdate = false;
+        pendingUpdate = true;
         if (invalidate) {
             invalidate(world);
         } else {
@@ -104,15 +107,21 @@ public class Structure {
     }
 
     public <TILE extends BlockEntity & IMultiblockBase> void doImmediateUpdate(TILE tile, boolean tryValidate) {
-        //Pretend it got marked for update last tick so that when we call tick it will update
+        // Mark it as requested on the previous tick so tick() runs the update now.
         updateTimestamp = tile.getLevel().getGameTime() - 1;
         didUpdate = false;
+        pendingUpdate = true;
         invalidate(tile.getLevel());
         tick(tile, tryValidate);
     }
 
     public <TILE extends BlockEntity & IMultiblockBase> void tick(TILE tile, boolean tryValidate) {
-        if (!didUpdate && updateTimestamp == tile.getLevel().getGameTime() - 1) {
+        // Formation is queued for a later tick. Matching only gameTime - 1 drops that
+        // update when the block does not tick on that exact tick, and a valid structure
+        // does not scan again. Run the queued update once on whatever later tick does.
+        long gameTime = tile.getLevel().getGameTime();
+        if (pendingUpdate && !didUpdate && gameTime > updateTimestamp) {
+            pendingUpdate = false;
             didUpdate = true;
             runUpdate(tile);
         }
