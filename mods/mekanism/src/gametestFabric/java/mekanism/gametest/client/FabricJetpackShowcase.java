@@ -45,7 +45,8 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
     private static final BlockPos PAD = new BlockPos(0, 80, 0);
 
     private boolean started;
-    private boolean equipped;
+    private boolean layoutScheduled;
+    private boolean layoutDone;
     private int flying;
 
     @Override
@@ -76,22 +77,35 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
         if (minecraft.screen != null) {
             minecraft.setScreen(null);
         }
+        if (minecraft.getSingleplayerServer() == null || minecraft.level == null) {
+            return;
+        }
+        if (!layoutDone) {
+            if (!layoutScheduled) {
+                layoutScheduled = true;
+                minecraft.getSingleplayerServer().execute(() -> {
+                    layout(minecraft.getSingleplayerServer().overworld());
+                    layoutDone = true;
+                });
+            }
+            return;
+        }
+        if (!minecraft.level.getBlockState(PAD).is(Blocks.SMOOTH_STONE)) {
+            return;
+        }
+        double padX = PAD.getX() + 0.5D;
+        double padZ = PAD.getZ() + 0.5D;
+        if (minecraft.player.distanceToSqr(padX, minecraft.player.getY(), padZ) > 9.0D) {
+            return;
+        }
         minecraft.options.keyJump.setDown(true);
-        if (minecraft.getSingleplayerServer() == null) {
-            return;
-        }
-        if (!equipped) {
-            equipped = true;
-            minecraft.getSingleplayerServer().execute(() -> equip(minecraft.getSingleplayerServer().overworld()));
-            return;
-        }
         ItemStack chest = minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
         boolean rising = chest.getItem() instanceof ItemJetpack && !minecraft.player.isOnGround() && minecraft.player.getDeltaMovement().y > 0.05D;
         if (!rising) {
             return;
         }
         flying++;
-        if (flying < 30) {
+        if (flying < 40) {
             return;
         }
         try {
@@ -114,23 +128,27 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
         minecraft.options.save();
     }
 
-    private static void equip(ServerLevel level) {
-        BlockPos floorMin = PAD.offset(-6, 0, -6);
-        BlockPos floorMax = PAD.offset(6, 0, 6);
+    private static void layout(ServerLevel level) {
+        level.getChunk(PAD);
+        BlockPos floorMin = PAD.offset(-8, 0, -8);
+        BlockPos floorMax = PAD.offset(8, 0, 8);
         for (int x = floorMin.getX(); x <= floorMax.getX(); x++) {
             for (int z = floorMin.getZ(); z <= floorMax.getZ(); z++) {
                 level.setBlockAndUpdate(new BlockPos(x, PAD.getY(), z), Blocks.SMOOTH_STONE.defaultBlockState());
-                for (int y = 1; y <= 8; y++) {
+                for (int y = 1; y <= 12; y++) {
                     level.setBlockAndUpdate(new BlockPos(x, PAD.getY() + y, z), Blocks.AIR.defaultBlockState());
                 }
             }
         }
+        level.setDefaultSpawnPos(PAD.above(), 0.0F);
         level.setDayTime(6000);
         level.setWeatherParameters(0, 0, false, false);
         ServerPlayer player = level.getServer().getPlayerList().getPlayers().get(0);
         player.setGameMode(GameType.SURVIVAL);
         ItemStack jetpack = ChemicalUtil.getFilledVariant(new ItemStack(MekanismItems.JETPACK.get()), MekanismConfig.gear.jetpackMaxGas, MekanismGases.HYDROGEN);
         player.setItemSlot(EquipmentSlot.CHEST, jetpack);
-        player.teleportTo(level, PAD.getX() + 0.5D, PAD.getY() + 1.0D, PAD.getZ() + 0.5D, 210.0F, 12.0F);
+        // Third person back, about four blocks out. Face south so noon sun lights the back and jetpack.
+        player.teleportTo(level, PAD.getX() + 0.5D, PAD.getY() + 1.0D, PAD.getZ() + 0.5D, 180.0F, 8.0F);
+        player.setYHeadRot(180.0F);
     }
 }
