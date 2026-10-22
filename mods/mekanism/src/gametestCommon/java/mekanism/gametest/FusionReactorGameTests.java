@@ -398,6 +398,11 @@ public class FusionReactorGameTests {
         return helper.getLevel().getSignal(helper.absolutePos(logic), Direction.UP);
     }
 
+    /** A complete shell. The laser focus matrix is the bottom centre, one block above where a laser can stand. */
+    static Reactor placeValid(GameTestHelper helper, BlockPos origin) {
+        return place(helper, origin, Shape.VALID);
+    }
+
     /**
      * Holes stay air. The controller is the top centre, the laser focus matrix the bottom centre, the port the north
      * centre and the logic adapter the west centre.
@@ -550,7 +555,7 @@ public class FusionReactorGameTests {
         GLASS_CASING
     }
 
-    private record Reactor(BlockPos origin, List<BlockPos> blocks, BlockPos controller, BlockPos matrix, BlockPos port, Direction portSide,
+    record Reactor(BlockPos origin, List<BlockPos> blocks, BlockPos controller, BlockPos matrix, BlockPos port, Direction portSide,
                            BlockPos logic, BlockPos casing) {
     }
 
