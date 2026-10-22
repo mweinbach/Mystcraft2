@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -40,12 +38,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.lighting.DataLayerStorageMap;
-import net.minecraft.world.level.lighting.LayerLightEngine;
-import net.minecraft.world.level.lighting.LayerLightSectionStorage;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -139,12 +132,12 @@ public final class PaddockStructureAudit {
     public static List<String> walls(ServerLevel level) {
         List<String> failures = new ArrayList<>();
         // Local (7, 3, 10) is the reported paddock wall, and it lands on a chunk boundary.
-        // Footprints sit above the terrain so both placements read the same skylight. The one-shot
+        // Footprints sit above the terrain so both placements read full skylight. The one-shot
         // copy uses its own footprint so the first placement's light is not reused.
-        BlockPos edge = new BlockPos(3608, 240, 3208);
+        BlockPos edge = new BlockPos(3608, 272, 3208);
         failures.addAll(compare(level, "raptor_paddock", edge, edge.offset(0, 0, 120), Rotation.NONE, Mirror.NONE));
         failures.addAll(compare(level, "raptor_paddock", edge.offset(0, 0, 400), edge.offset(0, 0, 520), Rotation.CLOCKWISE_90, Mirror.FRONT_BACK));
-        BlockPos visitor = new BlockPos(3208, 240, 6000);
+        BlockPos visitor = new BlockPos(3208, 272, 6000);
         failures.addAll(compare(level, "visitor_centre", visitor, visitor.offset(0, 0, 300), Rotation.NONE, Mirror.NONE));
         failures.addAll(compare(level, "visitor_centre", visitor.offset(0, 0, 900), visitor.offset(0, 0, 1200), Rotation.CLOCKWISE_90, Mirror.LEFT_RIGHT));
         return failures;
@@ -249,50 +242,5 @@ public final class PaddockStructureAudit {
             for (int y = box.minY(); y <= box.maxY(); y++)
                 chunk.setBlockState(cursor.set(x, y, z), Blocks.AIR.defaultBlockState(), false);
         }
-        // Clearing blocks does not relight, and the game-test light engine cannot be pumped here.
-        // Both footprints get full skylight so mushrooms and the vines beside them settle alike.
-        fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, box.maxY(), maxZ));
-    }
-
-    static void fullSky(ServerLevel level, BoundingBox box) {
-        DataLayerStorageMap visible;
-        DataLayerStorageMap updating;
-        try {
-            Field skyField = LevelLightEngine.class.getDeclaredField("skyEngine");
-            skyField.setAccessible(true);
-            Object sky = skyField.get(level.getLightEngine());
-            if (sky == null) return;
-            Field storageField = LayerLightEngine.class.getDeclaredField("storage");
-            storageField.setAccessible(true);
-            Object storage = storageField.get(sky);
-            Field visibleField = LayerLightSectionStorage.class.getDeclaredField("visibleSectionData");
-            Field updatingField = LayerLightSectionStorage.class.getDeclaredField("updatingSectionData");
-            visibleField.setAccessible(true);
-            updatingField.setAccessible(true);
-            visible = (DataLayerStorageMap) visibleField.get(storage);
-            updating = (DataLayerStorageMap) updatingField.get(storage);
-        } catch (ReflectiveOperationException failure) {
-            throw new IllegalStateException(failure);
-        }
-        for (int cx = box.minX() >> 4; cx <= box.maxX() >> 4; cx++)
-            for (int cz = box.minZ() >> 4; cz <= box.maxZ() >> 4; cz++)
-                for (int sy = box.minY() >> 4; sy <= box.maxY() >> 4; sy++) {
-                    long section = SectionPos.asLong(cx, sy, cz);
-                    // A missing layer is read from the section above, which can still be buried terrain.
-                    // These footprints sit at y=240, after the chunk has finished lighting.
-                    visible.setLayer(section, fullSection());
-                    updating.setLayer(section, fullSection());
-                }
-        visible.clearCache();
-        updating.clearCache();
-    }
-
-    private static DataLayer fullSection() {
-        DataLayer layer = new DataLayer();
-        for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 16; y++)
-                for (int z = 0; z < 16; z++)
-                    layer.set(x, y, z, 15);
-        return layer;
     }
 }

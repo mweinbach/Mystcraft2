@@ -47,8 +47,8 @@ import ports.jurassicraft.village.VillageProcessor;
  */
 public final class StructureWalkAudit {
     private static final BlockPos CONTROLLED = new BlockPos(3208, 90, 3208);
-    /** Above ordinary terrain, where replacing a sky layer does not trip the light task. */
-    private static final int PARK_Y = 240;
+    /** Above the overworld's terrain, so both copies read full skylight without editing light storage. */
+    private static final int PARK_Y = 272;
     /** Counts taken from visitor_centre.nbt, not from an earlier guess. */
     private static final Map<String, Integer> VISITOR_BLOCKS = Map.ofEntries(
             Map.entry("jurassicraft:cleaning_station", 2),
@@ -126,8 +126,8 @@ public final class StructureWalkAudit {
         // Beside the chunk walk, not above it: the visitor centre plus 48 blocks does not fit under the build limit.
         BlockPos referenceOrigin = origin.offset(220, 0, 0);
         BoundingBox referenceBox = template.getBoundingBox(settings, referenceOrigin);
-        prepare(level, footprint, true);
-        prepare(level, referenceBox, true);
+        prepare(level, footprint);
+        prepare(level, referenceBox);
         RandomSource random = RandomSource.create(1234);
         boolean placed = template.placeInWorld(level, referenceOrigin, referenceOrigin, settings, random, ParkEdges.SHAPED);
         if (!placed) issues.add(name + " reference placement failed");
@@ -156,10 +156,6 @@ public final class StructureWalkAudit {
     }
 
     private static void prepare(ServerLevel level, BoundingBox box) {
-        prepare(level, box, false);
-    }
-
-    private static void prepare(ServerLevel level, BoundingBox box, boolean bright) {
         // One block outside the template, including above it, so both footprints see the same neighbours.
         int minX = box.minX() - 1, maxX = box.maxX() + 1, minZ = box.minZ() - 1, maxZ = box.maxZ() + 1;
         int maxY = Math.min(box.maxY() + 1, level.getMaxBuildHeight() - 1);
@@ -175,7 +171,6 @@ public final class StructureWalkAudit {
         }
         AABB area = new AABB(minX, box.minY(), minZ, maxX + 1, maxY + 1, maxZ + 1);
         level.getEntitiesOfClass(Entity.class, area, entity -> !(entity instanceof Player)).forEach(Entity::discard);
-        if (bright) PaddockStructureAudit.fullSky(level, new BoundingBox(minX, box.minY(), minZ, maxX, maxY, maxZ));
     }
 
     private static List<String> compare(ServerLevel level, String label, BoundingBox walked, BoundingBox reference) {
