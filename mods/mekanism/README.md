@@ -101,6 +101,8 @@ Do not install either JAR in a world you care about.
 | `scripts` | The Fabric tag bridge generator, the loader-parity check and its Forge tag baseline |
 | `emc` | EMC policy and the generated ProjectE and Item Alchemy values |
 
+A new shared GameTest is a class in `src/gametestCommon/java/mekanism/gametest` (both loaders discover it), and a new parity entry is a file in [`parity/`](parity/).
+
 ## Build and test
 
 ```sh
