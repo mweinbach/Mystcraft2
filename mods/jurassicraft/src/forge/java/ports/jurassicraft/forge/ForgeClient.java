@@ -83,20 +83,46 @@ final class ForgeClient implements ClientPlatform.Backend {
     @Override public KeyMapping keyMapping(ClientPlatform.Key key) {
         if (keyEvent == null) throw new IllegalStateException("Key mappings must be created while key mappings register: " + key.name());
         IKeyConflictContext context = key.activeWhen() == null ? KeyConflictContext.IN_GAME : context(key.activeWhen());
+        InputConstants.Key code = InputConstants.Type.KEYSYM.getOrCreate(key.key());
+        // Left Ctrl is a modifier. Forge treats an unmodified binding as inactive while Ctrl is
+        // held when the context does not overlap in-game play, which would swallow descend.
+        boolean unmodifiedModifier = !key.control() && key.activeWhen() != null && KeyModifier.isKeyCodeModifier(code);
         KeyMapping mapping = key.control()
-                ? new KeyMapping(key.name(), context, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, key.key(), key.category())
-                : new KeyMapping(key.name(), context, InputConstants.Type.KEYSYM, key.key(), key.category());
+                ? new KeyMapping(key.name(), context, KeyModifier.CONTROL, code, key.category())
+                : unmodifiedModifier
+                ? new HeldModifierKey(key.name(), context, code, key.category())
+                : new KeyMapping(key.name(), context, code, key.category());
         keyEvent.register(mapping);
         return mapping;
     }
 
-    /** Vehicle contexts are narrower than in-game play, so they conflict with it and with each other. */
+    /**
+     * Active only while riding. A context overlaps only itself, not in-game play and not the other
+     * vehicle context, so a seat chord is not a warning against the hotbar or against Left Ctrl.
+     * Forge's {@code same} still compares the physical key when contexts do not overlap, so Space,
+     * Left Ctrl, Ctrl+A and Ctrl+D stay red next to jump, sprint and strafe.
+     */
     private IKeyConflictContext context(BooleanSupplier active) {
         return contexts.computeIfAbsent(active, supplier -> new IKeyConflictContext() {
             @Override public boolean isActive() { return supplier.getAsBoolean(); }
-            @Override public boolean conflicts(IKeyConflictContext other) {
-                return other == KeyConflictContext.IN_GAME || contexts.containsValue(other);
-            }
+            @Override public boolean conflicts(IKeyConflictContext other) { return other == this; }
         });
+    }
+
+    /**
+     * A vehicle binding whose key is itself Ctrl, Shift or Alt. Forge's unmodified-binding check
+     * returns inactive while that modifier is held, because this context does not overlap in-game
+     * play. The key is still held.
+     */
+    private static final class HeldModifierKey extends KeyMapping {
+        private HeldModifierKey(String name, IKeyConflictContext context, InputConstants.Key key, String category) {
+            super(name, context, key, category);
+        }
+
+        @Override public boolean isConflictContextAndModifierActive() {
+            if (getKeyConflictContext().isActive() && getKeyModifier() == KeyModifier.NONE
+                    && KeyModifier.isKeyCodeModifier(getKey())) return true;
+            return super.isConflictContextAndModifierActive();
+        }
     }
 }

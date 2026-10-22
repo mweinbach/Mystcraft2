@@ -54,7 +54,11 @@ rules.
 Fabric's key mappings cannot require a modifier key, so its defaults avoid the
 upstream Ctrl chords. All keys can be changed in the controls menu. Helicopters
 ascend and descend with their own keys, Space and Left Ctrl by default. While
-you are piloting, those presses do not also jump or sprint. The rotor needs time
+you are piloting, those presses do not also jump or sprint. Forge's controls list
+still shows Space, Left Ctrl, Ctrl+A and Ctrl+D in red, because a binding counts as
+a conflict with another on the same physical key even when it is only active while
+riding. The seat chords are not marked that way. Fabric does not show the warning
+for vehicle-only keys. The rotor needs time
 to reach flying speed. Use the record player key with a music disc in your main hand to
 insert or swap it, or with an empty hand to eject it.
 
