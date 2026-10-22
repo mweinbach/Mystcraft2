@@ -143,8 +143,9 @@ public class ThermalEvaporationGameTests {
                 long offered = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, false);
                 check(offered == WATER, "A simulated fill offered " + offered + " of " + WATER);
                 check(data.inputTank.isEmpty(), "A simulated fill stored water");
-                filled[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
-                check(filled[0] == WATER, "The valve accepted " + filled[0] + " of " + WATER);
+                long accepted = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, WATER, true);
+                check(accepted == WATER, "The valve accepted " + accepted + " of " + WATER);
+                filled[0] = accepted;
                 check(TestPlatform.blockFluid(valve, side) == WATER, "The fluid lookup reports " + TestPlatform.blockFluid(valve, side));
                 check(data.inputTank.getFluid().getFluid() == Fluids.WATER, "The input tank holds " + data.inputTank.getFluid());
                 double temperature = data.getTemperature();
@@ -184,8 +185,9 @@ public class ThermalEvaporationGameTests {
             EvaporationMultiblockData data = formed(valve);
             Direction side = plant.valveSide();
             if (filled[0] == 0) {
-                filled[0] = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
-                check(filled[0] == BRINE, "The valve accepted " + filled[0] + " of " + BRINE + " brine");
+                long accepted = TestPlatform.insertBlockFluid(valve, side, MekanismFluids.BRINE.getFluid(), BRINE, true);
+                check(accepted == BRINE, "The valve accepted " + accepted + " of " + BRINE + " brine");
+                filled[0] = accepted;
                 check(data.inputTank.getFluid().getFluid() == MekanismFluids.BRINE.getFluid(), "The input tank holds " + data.inputTank.getFluid());
                 double temperature = data.getTemperature();
                 TestPlatform.handleBlockHeat(valve, side, (TARGET_TEMPERATURE - temperature) * data.heatCapacitor.getHeatCapacity());

@@ -152,8 +152,9 @@ public class ThermoelectricBoilerGameTests {
                 check(TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, false) == HEATED_SODIUM,
                       "A simulated fill offered less than the heated coolant tank");
                 check(data.superheatedCoolantTank.isEmpty(), "A simulated fill stored heated coolant");
-                water[0] = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
-                check(water[0] == room, "The valve accepted " + water[0] + " of " + room + " mB");
+                long accepted = TestPlatform.insertBlockFluid(valve, side, Fluids.WATER, room, true);
+                check(accepted == room, "The valve accepted " + accepted + " of " + room + " mB");
+                water[0] = accepted;
                 long sodium = TestPlatform.insertBlockGas(valve, side, MekanismGases.SUPERHEATED_SODIUM.get(), HEATED_SODIUM, true);
                 check(sodium == HEATED_SODIUM, "The valve accepted " + sodium + " of " + HEATED_SODIUM + " heated sodium");
                 check(data.superheatedCoolantTank.getStack().getType() == MekanismGases.SUPERHEATED_SODIUM.get(),

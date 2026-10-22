@@ -110,8 +110,9 @@ public class IndustrialTurbineGameTests {
                 long offered = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, false);
                 check(offered == capacity, "A simulated fill offered " + offered + " of " + capacity);
                 check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == 0, "A simulated fill stored steam");
-                filled[0] = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
-                check(filled[0] == capacity, "The valve accepted " + filled[0] + " of " + capacity);
+                long accepted = TestPlatform.insertBlockGas(valve, turbine.shell().valveSide(), MekanismGases.STEAM.get(), capacity, true);
+                check(accepted == capacity, "The valve accepted " + accepted + " of " + capacity);
+                filled[0] = accepted;
                 check(TestPlatform.blockGas(valve, turbine.shell().valveSide()) == capacity,
                       "The gas lookup reports " + TestPlatform.blockGas(valve, turbine.shell().valveSide()));
                 check(data.gasTank.getStack().getType() == MekanismGases.STEAM.get(), "The tank holds " + data.gasTank.getStack().getType());
