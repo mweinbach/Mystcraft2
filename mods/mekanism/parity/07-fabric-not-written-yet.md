@@ -2,7 +2,7 @@
 
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, the digital miner, Robit, gear,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers. The
   fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is
@@ -17,7 +17,9 @@
   `/mek build fission` made an 18×18×18 shell, and reactor glass shows the casing frame and a checkerboard of fuel
   assemblies and control rods. A formed supercritical phase shifter was checked: `/mek build sps` made a 7×7×7
   shell, and structural glass shows the casing frame and the empty corner cells of each face. That build has no
-  port and no coil, so the orb and the coil bolts were not drawn. A formed fusion reactor was checked:
+  port and no coil, so the orb and the coil bolts were not drawn. A placed digital miner was checked: its screen opens and shows
+  Idle, the search state, the blocks left to mine, the eject, pull and silk switches, and the config, start and
+  stop buttons. The area-preview cuboid was not toggled in that client. A formed fusion reactor was checked:
   `/mek build fusion` made a 5×5×5 shell. The frame and its holes are visible, and the controller is the top centre.
   The plasma renderer draws only while the reactor is burning; this reactor was not fueled, so the plasma was not
   drawn, and the controller screen was not opened. A red basic logistical transporter was checked.
