@@ -4,10 +4,13 @@
  */
 package mekanism.gametest.client;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -15,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import mekanism.api.Action;
 import mekanism.api.energy.IStrictEnergyHandler;
@@ -78,12 +82,16 @@ public final class FabricComputerCraftShowcase implements ClientModInitializer {
           """;
 
     private final AtomicBoolean opened = new AtomicBoolean();
+    private final AtomicBoolean clientHasText = new AtomicBoolean();
+    private final AtomicInteger instanceId = new AtomicInteger(-1);
     private final AtomicReference<String> terminal = new AtomicReference<>("");
+    private final AtomicReference<String> clientTerminal = new AtomicReference<>("");
     private final AtomicReference<String> failure = new AtomicReference<>();
     private boolean started;
     private boolean placed;
     private int waiting;
     private int shown;
+    private int resend;
 
     @Override
     public void onInitializeClient() {
@@ -126,14 +134,21 @@ public final class FabricComputerCraftShowcase implements ClientModInitializer {
             return;
         }
         minecraft.getSingleplayerServer().execute(() -> poll(minecraft.getSingleplayerServer().overworld()));
-        if (!opened.get() || minecraft.screen == null) {
+        // openMenu alone never sends the terminal. The client screen stays a black empty terminal until
+        // ComputerTerminalClientMessage arrives, which a normal right-click sends before opening the menu.
+        if (!clientHasText.get()) {
+            rememberClientTerminal();
+        }
+        if (!opened.get() || minecraft.screen == null || !clientHasText.get()) {
             waiting++;
             if (waiting > 1200) {
-                throw new IllegalStateException("Computer never printed the pump energy. Terminal: " + terminal.get());
+                throw new IllegalStateException("Computer never showed the pump energy. Server terminal: " + terminal.get()
+                      + " Client terminal: " + clientTerminal.get());
             }
             return;
         }
         shown++;
+        // The screenshot reads the framebuffer from the previous render. Wait until that render included the text.
         if (shown < 40) {
             return;
         }
@@ -160,11 +175,41 @@ public final class FabricComputerCraftShowcase implements ClientModInitializer {
             failure.compareAndSet(null, "peripheral.wrap missed the pump. Terminal:\n" + text);
             return;
         }
-        if (!opened.get() && text.contains("energy")) {
-            ServerPlayer player = level.getServer().getPlayerList().getPlayers().get(0);
+        if (!text.contains("energy")) {
+            return;
+        }
+        ServerPlayer player = level.getServer().getPlayerList().getPlayers().get(0);
+        if (!opened.get()) {
             player.teleportTo(level, 0.5D, 81.0D, 0.2D, 0.0F, 0.0F);
-            player.openMenu(tile);
+            // Same order as TileComputerBase.onActivate: the full terminal, then the screen.
+            computer.sendTerminalState(player);
+            new ComputerContainerData(computer).open(player, tile);
+            instanceId.set(computer.getInstanceID());
             opened.set(true);
+            return;
+        }
+        if (!clientHasText.get() && ++resend % 20 == 0) {
+            computer.sendTerminalState(player);
+        }
+    }
+
+    private void rememberClientTerminal() {
+        int id = instanceId.get();
+        if (id < 0) {
+            return;
+        }
+        ClientComputer computer = ComputerCraft.clientComputerRegistry.get(id);
+        if (computer == null) {
+            return;
+        }
+        Terminal shownTerminal = computer.getTerminal();
+        if (shownTerminal == null) {
+            return;
+        }
+        String text = read(shownTerminal);
+        clientTerminal.set(text);
+        if (text.contains("energy")) {
+            clientHasText.set(true);
         }
     }
 
