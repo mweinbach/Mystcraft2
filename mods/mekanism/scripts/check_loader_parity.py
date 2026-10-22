@@ -99,15 +99,17 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
                 require('gametest' not in name.lower(), f'GameTest class shipped: {name}')
             require('/gametest/' not in name and not name.endswith('.snbt'), f'GameTest fixture shipped: {name}')
 
-    # Jade and the ComputerCraft peripheral are shared. The One Probe and the Curios adapter are Forge-only.
-    # WTHIT, the Fabric peripheral provider and the Trinkets adapter are Fabric-only, so those packages are not in
-    # both JARs. GenderArmorCapability is the same name in both JARs and stays in the shared set.
+    # Jade and the ComputerCraft peripheral are shared. The One Probe, the Curios adapter and the ProjectE
+    # mappers are Forge-only. WTHIT, the Fabric peripheral provider and the Trinkets adapter are Fabric-only, so
+    # those packages are not in both JARs. GenderArmorCapability is the same name in both JARs and stays in the
+    # shared set.
     forge_only = (
         'mekanism/common/integration/lookingat/theoneprobe/',
         'mekanism/common/integration/curios/ForgeCurios',
         'mekanism/client/render/MekanismCurioRenderer',
         # Forge's capability token is an anonymous class. Fabric's adapter has no inner class.
         'mekanism/common/integration/gender/GenderArmorCapability$',
+        'mekanism/common/integration/projecte/',
     )
     fabric_only = (
         'mekanism/common/integration/lookingat/wthit/',
@@ -121,8 +123,16 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     fabric_classes = shared_classes(fabric_names, fabric_only)
     require(forge_classes == fabric_classes,
             'shared class set differs: ' + ', '.join(sorted(forge_classes ^ fabric_classes)[:8]))
-    require(any(name.startswith(forge_only) for name in forge_names), 'Forge JAR is missing The One Probe providers')
-    require(not any(name.startswith(forge_only) for name in fabric_names), 'The One Probe provider leaked into Fabric')
+    require(any(name.startswith('mekanism/common/integration/lookingat/theoneprobe/') for name in forge_names),
+            'Forge JAR is missing The One Probe providers')
+    require(not any(name.startswith('mekanism/common/integration/lookingat/theoneprobe/') for name in fabric_names),
+            'The One Probe provider leaked into Fabric')
+    require(any(name.startswith('mekanism/common/integration/projecte/') for name in forge_names),
+            'Forge JAR is missing the ProjectE mappers')
+    require(not any(name.startswith('mekanism/common/integration/projecte/') for name in fabric_names),
+            'ProjectE mappers leaked into Fabric')
+    require(not any(name.startswith(forge_only) for name in fabric_names),
+            'a Forge-only integration leaked into Fabric')
     require(any(name.startswith(fabric_only) for name in fabric_names), 'Fabric JAR is missing the WTHIT providers')
     require(not any(name.startswith(fabric_only) for name in forge_names), 'WTHIT provider leaked into Forge')
     require(any(name.startswith('mekanism/common/integration/lookingat/jade/') for name in forge_classes),

@@ -39,8 +39,10 @@ Copied unchanged, then edited as listed below:
   viewer's synchronized counts and capacities instead of `getFrequency()`, which is null on the client for the
   portable dashboard.
 
-Not imported: CraftTweaker, OpenComputers 2, ProjectE and Flux
-Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. Curios is
+Not imported: CraftTweaker, OpenComputers 2 and Flux
+Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. ProjectE's
+recipe mappers, NSS serializers and contents processor are in `src/forge` and load only when ProjectE is present.
+Curios is
 ported as an optional Forge adapter and Trinkets as the Fabric adapter. Wildfire's Gender Mod is optional on both
 loaders; both have a 1.19.2 build. The look-at
 providers are imported: Jade and the shared tooltip data are in `src/main`, The One Probe is in `src/forge`, and
@@ -71,7 +73,7 @@ Every edit beyond the scripted import rewrite:
 | --- | --- | --- |
 | `mekanism/api/MekanismAPI.java` | `getJeiHelper()` looks up `MekanismJEIHelper` only after `ModList` reports JEI. The helper interface references JEI's ingredient API | JEI is optional; the API class must not load JEI until something asks for the helper |
 | `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. OC2, ProjectE, Flux Networks and Recipe Stages stay undetected and those flags stay `false`. ComputerCraft and The One Probe are unchanged | Curios and Trinkets types stay in the loader source sets. The Gender Mod types stay in `GenderArmorCapability` |
+| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. `ProjectELoaded` is set when `projecte` is loaded, and `NSSHelper.init` is called by name. OC2, Flux Networks and Recipe Stages stay undetected and those flags stay `false`. ComputerCraft and The One Probe are unchanged | Curios, Trinkets, Gender Mod and ProjectE types stay in the loader source sets. The shared hook cannot mention them |
 | `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
 | `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` attaches the ComputerCraft capability and skips the OpenComputers 2 branch | OC2 is not ported. The ComputerCraft helper is the upstream class |
 | `mekanism/common/integration/computer/ComputerMethodMapper.java` | `isEnabled` is also true when `mekanism.gametest.computer` is set | GameTests check method lists without CC: Tweaked installed. The capability is still attached only when that mod is loaded |
@@ -96,3 +98,4 @@ Every edit beyond the scripted import rewrite:
 | `mekanism/common/network/to_server/PacketPortableTeleporterTeleport.java` | `handle` calls `teleport(ServerPlayer)`, which returns whether the player moved. The frequency check, energy cost and teleport are unchanged | GameTests run that server path without a packet context |
 | `mekanism/common/util/MekanismUtils.java` | `getLastKnownUsername` skips the profile lookup when the server or its profile cache is missing | The GameTest server has no profile cache, and a security owner sync would otherwise crash while writing the update tag |
 | `mekanism/common/lib/multiblock/Structure.java` | A queued formation runs on the next tick that ticks the block, instead of only when `gameTime` is exactly one past the queue timestamp | A skipped tick used to drop the update, and a structure that is already valid does not scan again |
+| `mekanism/common/integration/projecte/IngredientHelper.java` | `addAsConversion` adds the conversion only when `ProjectEMapperGuard.permits` accepts the ingredient map | Upstream maps every machine recipe. Ore multipliers, the sawmill, coal gasification and chemical recipes would undercut the static EMC table. The guard uses integer division against `data/mekanism/projecte_mapper_guard.json` and refuses anything that is not a plain item already in that table |

@@ -1,7 +1,8 @@
 ## Not ported from upstream
 
-CraftTweaker, OpenComputers 2, ProjectE, Flux Networks and Recipe Stages integrations, and the Defense
+CraftTweaker, OpenComputers 2, Flux Networks and Recipe Stages integrations, and the Defense
 module. See [UPSTREAM.md](../UPSTREAM.md). Jade, WTHIT and The One Probe are in
 [12-looking-at.md](12-looking-at.md). ComputerCraft is in [13-computercraft.md](13-computercraft.md). JEI categories
 and recipe transfer are in [12-jei.md](12-jei.md). Curios, Trinkets and Wildfire's Gender Mod are in
-[14-curios-and-gender.md](14-curios-and-gender.md).
+[14-curios-and-gender.md](14-curios-and-gender.md). ProjectE recipe mappers are in
+[15-projecte.md](15-projecte.md).

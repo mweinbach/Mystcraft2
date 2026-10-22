@@ -3498,7 +3498,9 @@
       "source": "recipe"
     },
     "mekanismgenerators:bioethanol_bucket": {
-      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+      "projecte": 769,
+      "itemalchemy": 769,
+      "source": "conversion fill_bioethanol_bucket"
     },
     "mekanismgenerators:control_rod_assembly": {
       "projecte": 7604,
@@ -3506,7 +3508,9 @@
       "source": "recipe"
     },
     "mekanismgenerators:deuterium_bucket": {
-      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_deuterium_bucket"
     },
     "mekanismgenerators:electromagnetic_coil": {
       "projecte": 16164,
@@ -3534,7 +3538,9 @@
       "source": "recipe"
     },
     "mekanismgenerators:fusion_fuel_bucket": {
-      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_fusion_fuel_bucket"
     },
     "mekanismgenerators:fusion_reactor_controller": {
       "projecte": 41427,
@@ -3612,7 +3618,9 @@
       "source": "recipe"
     },
     "mekanismgenerators:tritium_bucket": {
-      "excluded": "Filled by a generator process (the bio generator, the separator, the solar neutron activator or the chemical infuser) and has no item recipe. Those processes are priced in later slices."
+      "projecte": 768,
+      "itemalchemy": 768,
+      "source": "conversion fill_tritium_bucket"
     },
     "mekanismgenerators:turbine_blade": {
       "projecte": 1308,

@@ -44,6 +44,26 @@ class MapperTests(unittest.TestCase):
     def test_unknown_recipe_types_are_not_mapped(self):
         self.assertIsNone(emc.recipe_ingredients({"type": "mod:machine", "input": {"item": "a:b"}}))
 
+    def test_mapper_permits_equal_cost_and_refuses_undercuts(self):
+        values = {"a:in": 10, "a:out": 10, "a:dear": 40}
+        self.assertTrue(emc.mapper_permits({"a:in": 1}, "a:out", 1, values))
+        self.assertTrue(emc.mapper_permits({"a:in": 2}, "a:out", 2, values))
+        self.assertTrue(emc.mapper_permits({"a:in": 3}, "a:out", 2, {"a:in": 10, "a:out": 15}))
+        self.assertFalse(emc.mapper_permits({"a:in": 3}, "a:out", 4, {"a:in": 10, "a:out": 8}))
+        self.assertFalse(emc.mapper_permits({"a:in": 1}, "a:dear", 1, values))
+        self.assertFalse(emc.mapper_permits({"GAS|mekanism:oxygen": 1, "a:in": 1}, "a:out", 1, values))
+        self.assertFalse(emc.mapper_permits({"a:in": 1}, "a:missing", 1, values))
+        self.assertFalse(emc.mapper_permits({"a:in": -1}, "a:out", 1, values))
+        self.assertFalse(emc.mapper_permits({"a:below": 1}, "a:out", 1, {"a:below": Fraction(1, 5), "a:out": 1}))
+        self.assertFalse(emc.mapper_permits({}, "a:out", 1, values))
+        saw = {"type": "mekanism:sawing", "input": {"ingredient": {"item": "minecraft:oak_log"}},
+               "mainOutput": {"item": "minecraft:oak_planks", "count": 6},
+               "secondaryOutput": {"item": "mekanism:sawdust"}}
+        self.assertIsNone(emc.item_only_machine_recipe(saw))
+        crushing = {"type": "mekanism:crushing", "input": {"ingredient": {"item": "a:in"}},
+                    "output": {"item": "a:out"}}
+        self.assertEqual(emc.item_only_machine_recipe(crushing), ("a:out", 1, [({"item": "a:in"}, 1)]))
+
     def test_resolution_takes_the_cheapest_recipe_and_group_member(self):
         group = frozenset({"a:cheap", "a:dear"})
         conversions = [("r1", "a:out", 1, {group: 2}), ("r2", "a:out", 1, {"a:dear": 1})]
@@ -133,9 +153,12 @@ class PolicyTests(unittest.TestCase):
                     {"processes": [{"name": "p", "why": "w", "in": {"t:a": 1}, "out": {"t:b": 1}, "systems": ["x"]}]},
                     {"vanilla": {"t:a": {"systems": ["projecte"], "emc": 1, "why": "w"}}},
                     {"vanilla": {"minecraft:dirt": {"emc": 1, "why": "w"}}},
+                    {"projecte_mappers": {"why": "w"}},
+                    {"projecte_mappers": {"guard": "/tmp/guard.json", "why": "w"}},
                     {"surprise": 1}):
             with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
                 emc.validate_policy({**base, **bad})
+        emc.validate_policy({**base, "projecte_mappers": {"guard": "data/guard.json", "why": "w"}})
 
     def test_projecte_grammar_rejects_unknown_items_and_zero_amounts(self):
         known = {"minecraft:dirt"}

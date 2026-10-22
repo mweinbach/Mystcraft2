@@ -6,7 +6,8 @@ GameTest (``emc/registry.txt``). This tool resolves every item the way ProjectE'
 would (recipes, tags, fixed values, minimum-cost propagation) against vanilla baselines from
 both mods, then writes ``emc/values.json``, ``emc/README.md`` and the shipped data:
 ``data/<ns>/pe_custom_conversions/<ns>.json`` and ``data/<ns>/default_emcs/<ns>.json``.
-See docs/emc.md.
+A policy may also set ``projecte_mappers`` so Forge ProjectE's recipe mappers are checked against a
+generated guard file. See docs/emc.md.
 """
 import argparse
 import fnmatch
@@ -52,6 +53,83 @@ def dumps(data):
 def floor_value(value):
     """ProjectE's HiddenBigFractionArithmetic: keep fractions below one, floor anything larger."""
     return value if value < 1 else Fraction(int(value))
+
+
+def _guard_value(values, item):
+    """Static EMC of at least one for a plain item id, or None when a mapper must refuse it."""
+    if not isinstance(item, str) or "|" in item or "{" in item or item.startswith("#"):
+        return None
+    value = values.get(item)
+    if isinstance(value, bool) or not isinstance(value, (int, Fraction)) or value < 1:
+        return None
+    return int(value)
+
+
+def mapper_permits(ingredients, output, count, values):
+    """Whether a ProjectE mapper may add this conversion without undercutting the static table.
+
+    Every ingredient and the output must be a plain item whose static EMC is at least one.
+    Chemical and fluid stacks (a ``|`` in the id), tags, NBT variants and nonpositive amounts are
+    refused. ``cost // count`` matches the Forge guard and must be at least the output's value.
+    """
+    if isinstance(count, bool) or not isinstance(count, int) or count < 1:
+        return False
+    output_value = _guard_value(values, output)
+    if output_value is None or not isinstance(ingredients, dict) or not ingredients:
+        return False
+    cost = 0
+    for item, amount in ingredients.items():
+        if isinstance(amount, bool) or not isinstance(amount, int) or amount < 1:
+            return False
+        value = _guard_value(values, item)
+        if value is None:
+            return False
+        cost += amount * value
+    return cost // count >= output_value
+
+
+def _item_spec(spec):
+    if not isinstance(spec, dict) or "ingredient" not in spec:
+        return None
+    amount = spec.get("amount", 1)
+    if isinstance(amount, bool) or not isinstance(amount, int) or amount < 1:
+        return None
+    return spec["ingredient"], amount
+
+
+def _stack_output(output):
+    if not isinstance(output, dict) or not isinstance(output.get("item"), str):
+        return None
+    count = output.get("count", 1)
+    if isinstance(count, bool) or not isinstance(count, int) or count < 1:
+        return None
+    return output["item"], count
+
+
+def item_only_machine_recipe(recipe):
+    """``(output, count, [(ingredient, amount), ...])`` for a machine recipe whose inputs are items.
+
+    Sawmill recipes that also return a byproduct are not included: the mapper subtracts that
+    byproduct, and a negative amount is refused. Chemical and fluid recipes return None.
+    """
+    kind = recipe.get("type")
+    if kind in ("mekanism:crushing", "mekanism:enriching"):
+        parsed = _stack_output(recipe.get("output"))
+        spec = _item_spec(recipe.get("input"))
+        if parsed and spec:
+            return (*parsed, [spec])
+    elif kind == "mekanism:combining":
+        parsed = _stack_output(recipe.get("output"))
+        main = _item_spec(recipe.get("mainInput"))
+        extra = _item_spec(recipe.get("extraInput"))
+        if parsed and main and extra:
+            return (*parsed, [main, extra])
+    elif kind == "mekanism:sawing" and not recipe.get("secondaryOutput"):
+        parsed = _stack_output(recipe.get("mainOutput"))
+        spec = _item_spec(recipe.get("input"))
+        if parsed and spec:
+            return (*parsed, [spec])
+    return None
 
 
 # ----------------------------------------------------------------------------- tags
@@ -362,7 +440,8 @@ def policy_namespaces(policy):
 
 def validate_policy(policy):
     allowed = {"namespace", "namespaces", "loaders", "resources", "output", "outputs", "ignored", "values",
-               "vanilla", "exclude", "conversions", "processes", "remainders", "conditions", "notes"}
+               "vanilla", "exclude", "conversions", "processes", "remainders", "conditions", "notes",
+               "projecte_mappers"}
     unknown = set(policy) - allowed
     if unknown:
         raise PolicyError(f"unknown policy keys: {', '.join(sorted(unknown))}")
@@ -403,6 +482,12 @@ def validate_policy(policy):
         if (not isinstance(entry, dict) or set(entry) != {"holds", "why"} or not isinstance(entry["holds"], bool)
                 or not entry["why"] or not any(kind.startswith(namespace + ":") for namespace in namespaces)):
             raise PolicyError(f"conditions.{kind}: the port's own condition type, with a boolean holds and a why")
+    mappers = policy.get("projecte_mappers")
+    if mappers is not None:
+        guard = mappers.get("guard") if isinstance(mappers, dict) else None
+        if (not isinstance(mappers, dict) or set(mappers) != {"guard", "why"} or not mappers.get("why")
+                or not _relative_root(guard) or not str(guard).endswith(".json")):
+            raise PolicyError("projecte_mappers needs a why and a relative guard json path")
     names = set()
     for conversion in policy.get("conversions", []):
         name = conversion.get("name")
@@ -516,6 +601,7 @@ class Port:
             self.sources[system] = source
             self._check_system(system)
         self._check_processes()
+        self._check_projecte_mappers()
 
     def _check_system(self, system):
         problems = self.problems
@@ -638,6 +724,128 @@ class Port:
                         self.problems.append(f"{system}: process {process['name']!r} turns {float(cost):g} EMC of "
                                              f"input into {float(best):g} EMC ({names})")
             self.process_counts[process["name"]] = checked
+
+    def _loaded_recipes(self, system):
+        loader = self.policy["loaders"][system]
+        tags = self.inputs[system][0]
+        mods = {"minecraft", loader, *self.namespaces} | ({"fabric-api"} if loader == "fabric" else set())
+        custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
+        key = "fabric:load_conditions" if loader == "fabric" else "conditions"
+        for relative in self.policy["resources"][system]:
+            data = self.dir / relative / "data"
+            if not data.is_dir():
+                continue
+            for namespace in sorted(path for path in data.iterdir() if path.is_dir()):
+                folder = namespace / "recipes"
+                if not folder.is_dir():
+                    continue
+                for file in sorted(folder.rglob("*.json")):
+                    recipe = read_json(file)
+                    if not all(condition_holds(c, loader, tags, mods, custom) for c in recipe.get(key, [])):
+                        continue
+                    rid = f"{namespace.name}:{file.relative_to(folder).with_suffix('').as_posix()}"
+                    yield rid, recipe
+
+    def _projecte_guard_values(self):
+        guard = {}
+        for item, value in self.inputs["projecte"][3].items():
+            number = _guard_value({item: value}, item)
+            if number is not None:
+                guard[item] = number
+        for item, value in self.vanilla["projecte"].items():
+            guard[item] = int(value)
+        for item in self.items:
+            number = self.final("projecte", item)
+            if number is not None:
+                guard[item] = number
+        return dict(sorted(guard.items()))
+
+    @staticmethod
+    def _cheapest_priced(specs, tags, values):
+        cost = 0
+        amounts = 0
+        ingredients = {}
+        for ingredient, amount in specs:
+            items = ingredient_items(ingredient, tags)
+            if not items:
+                return None
+            priced = [(item, number) for item in items if (number := _guard_value(values, item)) is not None]
+            if not priced:
+                return None
+            item, value = min(priced, key=lambda pair: (pair[1], pair[0]))
+            cost += amount * value
+            amounts += amount
+            ingredients[item] = ingredients.get(item, 0) + amount
+        return cost, amounts, ingredients
+
+    def _check_projecte_mappers(self):
+        self.mapper_stats = None
+        if "projecte_mappers" not in self.policy:
+            return
+        self.mapper_guard = self._projecte_guard_values()
+        permitted = refused = 0
+        tags = self.inputs["projecte"][0]
+        guard = self.mapper_guard
+        for rid, recipe in self._loaded_recipes("projecte"):
+            if not str(recipe.get("type", "")).startswith("mekanism"):
+                continue
+            parsed = item_only_machine_recipe(recipe)
+            if parsed is None:
+                continue
+            output, count, specs = parsed
+            priced = self._cheapest_priced(specs, tags, guard)
+            if output not in guard or priced is None:
+                refused += 1
+                continue
+            cost, _amounts, ingredients = priced
+            if mapper_permits(ingredients, output, count, guard):
+                permitted += 1
+                if cost // count < guard[output]:
+                    self.problems.append(f"ProjectE mapper guard would undercut {output}: recipe {rid} "
+                                         f"costs {cost // count} against {guard[output]}")
+            else:
+                refused += 1
+        self.mapper_stats = {"guard": len(guard), "permitted": permitted, "refused": refused}
+        for system in SYSTEMS:
+            self._check_machine_gains(system)
+
+    def _check_machine_gains(self, system):
+        """A one-for-one item recipe must not make a derived port item worth more than its inputs.
+
+        Stack-multiplying recipes (ore factories, the sawmill's extra planks) and explicit values
+        (sawdust, sulfur) are the cases the mapper guard refuses instead of repricing.
+        """
+        label = "ProjectE" if system == "projecte" else "Item Alchemy"
+        tags = self.inputs[system][0]
+        values = self.results[system]
+        for rid, recipe in self._loaded_recipes(system):
+            if not str(recipe.get("type", "")).startswith("mekanism"):
+                continue
+            parsed = item_only_machine_recipe(recipe)
+            if parsed is None:
+                continue
+            output, count, specs = parsed
+            if output not in self.items or output in self.explicit_by or output in self.excluded_by:
+                continue
+            priced = self._cheapest_priced(specs, tags, values)
+            if priced is None:
+                continue
+            cost, amounts, _ingredients = priced
+            if count > amounts:
+                continue
+            output_value = _guard_value(values, output)
+            if output_value is None:
+                continue
+            if output_value * count > cost:
+                self.problems.append(f"{label}: {rid} makes {count} {output} worth {output_value * count} "
+                                     f"from {cost} EMC without producing extra items")
+
+    def mapper_guard_document(self):
+        return {"comment": "Generated by scripts/emc.py from emc/policy.json. A Forge ProjectE mapper may add a "
+                           "machine recipe only when every ingredient and the output are items in this table and "
+                           "the integer cost per output is at least the output's value. Excluded items and items "
+                           "worth less than one EMC are absent, so a mapper cannot price them.",
+                "values": self.mapper_guard}
 
     # ------------------------------------------------------------------------- outputs
 
@@ -807,6 +1015,13 @@ class Port:
                 if set(process.get("systems", SYSTEMS)) != set(SYSTEMS):
                     name += " (" + ", ".join(labels[s] for s in process["systems"]) + " only)"
                 lines.append(f"| {name} | {self.process_counts.get(process['name'], 0)} | {process['why']} |")
+        if self.mapper_stats is not None:
+            stats = self.mapper_stats
+            lines += ["", "## ProjectE recipe mappers", "", self.policy["projecte_mappers"]["why"], "",
+                      f"The guard lists {stats['guard']} items. Of the item-only machine recipes, "
+                      f"{stats['permitted']} cost at least as much as the static value and may be mapped, and "
+                      f"{stats['refused']} are refused. Chemical, fluid and sawmill byproduct recipes are refused "
+                      "because an ingredient is not an item in the table.", ""]
         if self.ignored:
             lines += ["", "## Ignored registry entries", "", "| Item | Why |", "| --- | --- |"]
             for key, why in self.policy["ignored"].items():
@@ -834,6 +1049,8 @@ class Port:
             data = self.output_root(namespace) / "data" / namespace
             written[data / "pe_custom_conversions" / f"{namespace}.json"] = dumps(self.projecte_document(namespace))
             written[data / "default_emcs" / f"{namespace}.json"] = dumps(self.itemalchemy_document(namespace))
+        if self.policy.get("projecte_mappers"):
+            written[self.dir / self.policy["projecte_mappers"]["guard"]] = dumps(self.mapper_guard_document())
         return written
 
 
