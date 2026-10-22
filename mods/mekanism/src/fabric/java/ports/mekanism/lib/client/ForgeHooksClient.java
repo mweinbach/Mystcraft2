@@ -11,11 +11,13 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.client.event.InputEvent;
+import ports.mekanism.lib.client.event.RecipesUpdatedEvent;
 import ports.mekanism.lib.client.event.RenderHighlightEvent;
 import ports.mekanism.lib.client.event.sound.PlaySoundEvent;
 import ports.mekanism.lib.common.MinecraftForge;
@@ -48,6 +50,13 @@ public final class ForgeHooksClient {
     public static boolean onMouseScroll(MouseHandler mouse, double scrollDelta) {
         return MinecraftForge.EVENT_BUS.post(new InputEvent.MouseScrollingEvent(scrollDelta, mouse.isLeftPressed(), mouse.isMiddlePressed(),
               mouse.isRightPressed(), mouse.xpos(), mouse.ypos()));
+    }
+
+    /**
+     * Posts the recipe update after the client has replaced its recipe book. Mekanism clears its recipe cache here.
+     */
+    public static void onRecipesUpdated(RecipeManager recipeManager) {
+        MinecraftForge.EVENT_BUS.post(new RecipesUpdatedEvent(recipeManager));
     }
 
     /**
