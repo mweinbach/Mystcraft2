@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import ports.jurassicraft.client.JurassicClient;
 import ports.jurassicraft.fabric.client.MachineModels;
+import ports.jurassicraft.fabric.client.VehicleKeyScopes;
 import ports.jurassicraft.platform.Network;
 import ports.jurassicraft.platform.client.ClientPlatform;
 
@@ -52,6 +53,7 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
         });
         MachineModels.init();
 
+        ClientTickEvents.START_CLIENT_TICK.register(JurassicClient::beforeTick);
         ClientTickEvents.END_CLIENT_TICK.register(JurassicClient::tick);
         HudRenderCallback.EVENT.register(JurassicClient::hud);
         for (ResourceLocation id : Network.clientIds()) {
@@ -66,7 +68,9 @@ public final class FabricClientMod implements ClientModInitializer, ClientPlatfo
 
     /** Vanilla gives each physical key to one mapping, so control chords bind their fallback key. */
     @Override public KeyMapping keyMapping(ClientPlatform.Key key) {
-        return KeyBindingHelper.registerKeyBinding(new KeyMapping(key.name(), InputConstants.Type.KEYSYM,
+        KeyMapping mapping = KeyBindingHelper.registerKeyBinding(new KeyMapping(key.name(), InputConstants.Type.KEYSYM,
                 key.control() ? key.fallback() : key.key(), key.category()));
+        if (key.activeWhen() != null) VehicleKeyScopes.mark(mapping);
+        return mapping;
     }
 }

@@ -9,6 +9,13 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   those attributes, players also have reach distance, collision steps up by the step-height attribute, and swimming
   scales by swim speed. The client publishes the ascend key from `ClientTickEvent` start, which the client tick
   wiring posts, so a normal-mode jetpack follows the jump key.
+- Living special spawn, from the start of every `Mob.finalizeSpawn`, before that method's own body and before the
+  subclass adds vanilla equipment. Forge fires this on the callers that are about to finalize a mob and skips the
+  call when it is cancelled. Cancelling here returns from `Mob.finalizeSpawn` only, so a subclass that continues
+  after `super.finalizeSpawn` still runs. The tools module listens and may fill empty armor slots on a zombie,
+  skeleton or piglin, and a zombie's main hand. The event carries no mob spawner. A reinforcement or village-siege
+  zombie also rolls, because those paths call `finalizeSpawn` without Forge's event. A spawner entity whose NBT is
+  more than an id never reaches `finalizeSpawn`, so it does not roll.
 - Living tick, attack, hurt, damage, fall, jump and death. A non-player posts living attack from `LivingEntity.hurt`.
   A player posts it from `Player.hurt` and skips the living-entity copy, matching Forge. Death is posted from
   `LivingEntity.die`, `Player.die` and `ServerPlayer.die`, so an uncancelled player death posts three times.
@@ -17,13 +24,18 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
   following absorption update use. Cancelling the event skips that bookkeeping. The attacker's absorbed-damage
   statistic stays the absorption applied before the event. When armor and absorption already reduced the damage to
   zero, vanilla never changes health, so that zero-damage event is not posted.
-- Break speed, including the position `getDestroyProgress` is measuring. Direct `getDestroySpeed` calls pass an empty
-  position. A cancelled break speed returns -1, which stops the break. This is the hook the Meka-Tool, atomic
-  disassembler and MekaSuit gyroscopic stabilization use.
-- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, and the crafting player is set around the
-  remainder lookup. Bin insert recipes consume the rest of the grid through this event.
-- Entity join, cancellable, from `PersistentEntitySectionManager.addEntity` before the entity is added. A cardboard
-  box uses it to swallow dropped items and experience. Players are included once, after a duplicate UUID is removed.
-  Forge posts a player's join slightly earlier, from `ServerLevel.addPlayer`, and then skips this second post.
+- Break speed, from `Player.getDestroySpeed`. `getDestroyProgress` passes the position it is measuring; a direct
+  `getDestroySpeed` call passes an empty position. Cancelling the event makes that speed -1, so destroy progress goes
+  negative and the break does not finish. Mekanism's handler then scales a Meka-Tool by the hardest block in its blast
+  when a position is present, and multiplies by five for MekaSuit gyroscopic stabilization when the player is airborne
+  or has their eyes in water without aqua affinity. An atomic disassembler's efficiency is the speed those adjustments
+  apply to, so the same suit module cancels the disassembler's air and water penalties.
+- Item crafted, after `ItemStack.onCraftedBy` in the crafting result slot, with the crafting grid still intact. The
+  crafting player is set around the remainder lookup and cleared when that lookup returns. Bin insert recipes consume
+  the rest of the grid through this event.
+- Entity join, cancellable, before the entity is added. A fresh or loaded entity is posted from
+  `PersistentEntitySectionManager.addEntity`, and a cancelled join is not added. A cardboard box uses it to swallow
+  dropped items and experience. A player is posted once from `ServerLevel.addPlayer`, before a duplicate UUID is
+  removed, with `loadedFromDisk` false. The section manager then adds that player without posting again.
 - Entity leave, from Fabric's server entity unload, after the entity stops being tracked. Forge also posts it on the
   client; the client copy is unwired.

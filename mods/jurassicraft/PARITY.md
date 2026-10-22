@@ -10,7 +10,7 @@ imported 1.12.2 baseline (revision `f7b194e`, see [UPSTREAM.md](UPSTREAM.md)).
 | Path | Contents |
 | --- | --- |
 | `src/main` | All gameplay, registry definitions, recipes, loot, worldgen, assets, lang and NBT formats. |
-| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, `mods.toml` and the access transformer. |
+| `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeClient`, `ForgeConfigBackend`, the biome modifier, JEI, the client key-bind mixin, `mods.toml` and the access transformer. |
 | `src/fabric` | `FabricMod`, `FabricClientMod`, `FabricPlatform`, `FabricConfigBackend`, mixins, the OBJ model loader, EMI, `fabric.mod.json` and the access widener. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Development-only GameTest mods and fixtures; never packaged. |
 | `fabric/` | The isolated Loom build; the root Gradle build produces the Forge JAR. |
@@ -26,8 +26,8 @@ one `jurassicraft:biome_additions` biome modifier and Fabric through
 
 `scripts/check_loader_parity.py` checks both built JARs: descriptor isolation, mod
 ID and version, no references to the other loader, byte-identical shared
-resources, no GameTest classes or structures, the Fabric mixin refmap, and
-matching access-transformer and access-widener entries.
+resources, no GameTest classes or structures, the Fabric and Forge mixin refmaps,
+and matching access-transformer and access-widener entries.
 
 ## Reconciliations
 
@@ -38,11 +38,11 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Dinosaur fossil ore density | Fabric: `jurassicraft:binomial_count` with 32 trials and trapezoid period heights | Upstream makes 32 attempts per chunk; Forge used one placement with a flat height. |
+| Dinosaur fossil ore density | Shared `jurassicraft:fossil_deposits` | One 32-attempt loop per overworld chunk, in upstream's order: a column in the chunk, Y in 0–63, the first strict time-period match, then a Y offset of −4..+3 (periods with no species still consume that offset). One registered species is chosen in `EntityHandler`'s HashMap order. The vein is the 1.12 `WorldGenMinable` of size 5 and replaces stone only. |
 | Amber, ice shard, gypsum, nest, trackway, peat and plant decorations | Both (already identical) | Counts, vein sizes, heights and rarities match upstream. |
 | Biome attachment | New shared `WorldgenPlacements` table | Replaces Forge's per-feature biome-modifier JSONs and Fabric's separate registration; the generation config is applied once in shared code. |
 | Fossil-nest favored biomes | Union in `#jurassicraft:nest_favored` | Upstream favors MOUNTAIN, HILLS, MESA and SANDY. The tag lists mountains, hills, badlands, desert and beach, plus optional `#forge:is_sandy` and `#c:desert`. Forge's hard-coded `forge:is_sandy` check never matched on Fabric; listing desert and beach directly keeps upstream's SANDY scope on both loaders. |
-| Plant fossils in coal | Both (equivalent) | 1 in 10 coal ores, as upstream's coal generator wrapper; the coal tag unions vanilla, `forge` and `c` coal ores. |
+| Plant fossils in coal | Shared late chunk scan | One in ten blocks in `jurassicraft:coal_ores` (vanilla coal ores plus optional `#forge:ores/coal` and `#c:coal_ores`) becomes a plant fossil. The feature runs in `top_layer_modification`, added on Forge's `AFTER_EVERYTHING` phase and Fabric's `POST_PROCESSING` phase, so coal from later decoration steps is included. Untagged ores are not replaced and do not consume this random. Upstream rolled that chance inside the coal vein generator; 1.19.2 has no single coal generator to wrap, so the roll is this scan. Coal added in that same final phase after JurassiCraft, or after biome decoration, is not scanned. |
 | Peat biomes | New `#jurassicraft:swamps` | Swamp and mangrove swamp plus optional `#forge:is_swamp` and `#c:swamp`, matching upstream SWAMP on both loaders. |
 | Moss and lilac biomes | Fabric tags | Built from vanilla biome tags and `#jurassicraft:swamps`, so they no longer depend on Forge-only tags. |
 
@@ -67,7 +67,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Melee attack pose | Fabric's synced attack timer, alongside the shared leap and spit animations | Closest to upstream's `ATTACKING` pose animation; Forge only used the arm swing. |
+| Melee attack pose | Shared species `ATTACKING` keyframes for the full imported duration | Upstream plays that pose from the attack timer. Vanilla `swingTime` is only the hit cue and no longer drives the model. |
 | Juveniles follow food | Fabric's `TemptJuvenileDinosaurGoal` | Upstream `TemptNonAdultEntityAI` (under 50% grown); Forge lacked it. |
 | Carcass on lethal damage | Both (equivalent) | Matches upstream when `allowCarcass` is on. |
 | Birth near a forced pose or tranquilizer | Fabric | Same pause rules; the mother's eggs are found around her. |
@@ -104,14 +104,20 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Iron nuggets, iron ingots, redstone, blue dyes | New `#jurassicraft:` tags | Successors of upstream ore-dictionary inputs: the vanilla item plus optional `#forge:` and `#c:` tags. Literal `minecraft:iron_ingot` stays where upstream used the item. |
 | Fossil-nest replaceable blocks | Union | Both ports' stone, dirt and sand groups plus optional `forge` and `c` ore tags. |
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
-| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. |
+| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. Fabric also substitutes item models that parent those blocks, because a vanilla block model cannot parent that custom model. Both still use the block display transforms from `minecraft:block/block`. |
+
+Machine motion follows the 1.12.2 renderers that were actually registered. The cleaning station uses the same spin-up and spin-down and sprays the original wash particles while it is cleaning. The DNA extractor and sequencer show the raw item model, and the sequencer bob uses the local player's age. Feeder lids and incubator eggs were already on the upstream timings. The embryonic machine adds the petri-dish cubes for slot 0 and the test-tube rack for slot 1, which is how the upstream properties were named. Combinator screens are drawn by the block entity because their texture offsets change in hybridizer mode. A placed calcification machine always shows the egg cubes: upstream treated an empty slot as present (`!= null`). The cultivator spin renderer exists upstream but its registration is commented out, so this port does not run it. The fossil grinder, synthesizer, and the remaining machine cubes have no motion in the snapshot; their Tabula files contain no animations.
 
 ### Structures and villages
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
-| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. |
+| `#jurassicraft:park_structures` | Optional structure ids | Forge's create-world screen binds tags against the builtin registries while mod datapacks are already visible, before `visitor_centre` and `raptor_paddock` exist. Optional entries skip that pass and still resolve once the structures load. |
+| Structure edge shapes | One-shot neighbour cascade, shape blocks only | Slices are placed without a neighbour update, because the next slice is not there yet. Vanilla `markPosForPostprocessing` updates each marked block once when the chunk is about to tick; that one update still sees the template shape of the wall above, and repeating it until it stops changing raises both arms and drops the post. The one-shot result is the placement cascade instead. When a chunk is post-processed during worldgen, or first loaded with no inhabited time, and every chunk of the piece is in memory, that cascade is replayed once. Template blocks are placed in order so a wall and a vine see the same neighbours, then every block that is not a fence, wall, vine, mushroom or lever is set back, and a chest's saved tag is loaded again. The loot table is cleared before the chest is removed, so it is not rolled and its items are not dropped. Entities are not placed. A broken fence stays air. The piece saves `EdgesSettled`, so a later load does not run it again. A chunk whose inhabited time is already above zero does not start the cascade and is not written. |
+| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. Each village rolls upstream's 0-or-1 limit for the geneticist house and one shared 0-or-1 limit for every digsite. The digsite variant weights are 5:3:2 for types 3, 1 and 2, matching upstream's 50/30/20 roll. |
+| Raptor paddock rarity | Shared `PaddockPlacement` | An eligible chunk succeeds when `nextInt(rarity) == 0`, with no minimum spacing. Upstream drew that roll from the chunk random shared with every other world generator; this port uses the vanilla salted structure random, so the same chunk can differ while the chance stays 1/N. |
+| Visitor-centre search | Shared `VisitorPlacement` | Vanilla structure search only visits concentric rings and random-spread placements. The visitor centre is a random-spread placement whose every cell names its single seed-derived chunk, and world generation still accepts only that chunk. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
 | Visitor-centre maps | Forge's `maps` package | Cartographers sell the map on both loaders. |
 | Villager digsite memory | Shared logic, loader storage | Forge persistent data; Fabric stores the same tag under `JurassiCraftData` via a mixin. |
@@ -120,9 +126,10 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. |
+| Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. Seat chords are active only while riding and are not shown as conflicts; they were red before, because the vehicle context overlapped in-game play. Autopilot and rotation lock share the strafe keys. The controls screen hides that warning on both loaders when exactly one of the two bindings is vehicle-only. On Forge the three Ctrl bindings still share one riding context, so descend, autopilot and rotation lock stay gold against each other. |
 | Record player key | Union: R | Upstream used only interaction; both ports added a key, now the same one. |
 | Zoom and rotation keys | Both | Page Down/Page Up and Left/Right, as upstream. |
+| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. `KeyMapping.same` still compares the physical key, so that suppression stays in effect. The controls screen hides the red warning when exactly one of the two bindings is vehicle-only. Ascend is white. Descend stays gold next to autopilot and rotation lock, because Forge counts the Ctrl modifier as the Left Ctrl key and both bindings are vehicle-only. Left Ctrl is itself a modifier, so the Forge binding still counts as held while riding; Forge would otherwise ignore an unmodified key whose context does not overlap in-game play. |
 | Journal | Forge: opens on the client | As upstream; Fabric used a server round trip. |
 | Field guide | Union | Using it on a dinosaur sends the upstream inspection packet; empty-hand use opens the manual (port addition). |
 | Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric keeps its first release's `jurassicraft-fabric.json` and key/value vehicle files with the same keys. |
@@ -132,10 +139,13 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 205 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 127 on Fabric
-(`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
+Both loaders run in-world GameTests from development-only mods, and all required GameTests pass on both loaders
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer` and
+`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
+The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
+passed again with `-PwithItemAlchemy`. Each EMC audit compared 626 items with
+the live mod.
 
 The vehicle record test and the dinosaur birth test failed intermittently. Vanilla
 starts a test one tick after placing its structure, while newly forced chunks
@@ -150,25 +160,32 @@ Tests changed while merging:
 - Bonus-loot tests read the server loot tables, since the bonus pools now live in the JSON.
 - Park structure tests expect entity-free template placement followed by `ParkHangingEntities`.
 - The plant-fossil test also covers modded coal ores through the shared coal tag.
+- Fossil tests replay the shared 32-attempt loop, including empty periods and the stone-only minable vein, and check that a chunk stays inside that budget.
+- Plant-fossil tests replace tagged coal in chunk-scan order at one in ten, leave other ores, and require the feature after vanilla coal and `freeze_top_layer`.
 - The combinator test checks the stable slot set and per-mode face filtering.
 - The birth test searches for eggs around the mother, who may move while recovering.
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
+- The structure walk places the visitor centre in two rotations and the raptor paddock chunk by chunk, replays the neighbour cascade, and compares fences, walls, vines, mushrooms and levers with a one-shot placement. A mismatch in those blocks, or in visitor-centre loot, murals or paintings, fails the test. A broken boundary fence must stay broken when the neighbouring slice is post-processed, and a chest's loot table must be unchanged. The generated visitor centre's entrance must sit on the same ocean-floor column used at generation. Village differences are written out as notes.
+- Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there. Anchors already placed are saved on the structure piece, so reloading it does not spawn those murals again.
+- Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
+- Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
+- The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
 
 ## Known gaps against 1.12.2
 
-- Fossil ore attempts are independent per species instead of sharing 32 attempts per chunk.
-- Plant fossils replace tagged coal ores from the usual ore stage only; untagged and later ores are unchanged.
-- Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Helicopter ascent and descent use the vanilla jump and sprint keys instead of dedicated Space and Left Ctrl bindings.
-- Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
-- Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
+- The goat's neck sway is not the 1.12.2 procedural chain.
+- Dinosaur feet do not plant on slopes; the 1.12.2 leg solver is not ported. Tail and neck sway, breathing, walk cycles, head look, and species attack poses follow the original animators.
+- Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
+- When a digsite variant can't fit, a different variant is placed, whereas upstream placed nothing.
+- The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
-- Third-party structure search may skip the visitor centre; `/locate structure jurassicraft:visitor_centre` works.
 - The dart gun has a new survival recipe.
 - Genetic item variants use separate IDs instead of damage values; 1.12 worlds and items are not migrated.
 - A surviving lone dinosaur parent does not form a new family, as upstream.
+- Opening the Forge development world to LAN advertised an IPv6 link-local address. A second development client listed the world and failed to connect to that address (`Invalid argument`).
+- The Fabric client's reload loop, `BlockModel parent has to be a block model`, was fixed by the merged machine-model parent change. This pass did not boot that client again.
 
 ## Loader limits
 

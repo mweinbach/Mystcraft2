@@ -15,18 +15,21 @@ fluid is registered with Fabric's fluid render handler (still texture, flowing t
 translucent block render layer, and those textures are stitched into the block atlas that bucket models and fluid
 gauges sample. `shouldDisplayFluidOverlay` is called for each Mekanism block's default state, and blocks that return
 true (structural glass) are marked transparent so the overlay sprite is drawn against them. Client ticks, the HUD,
-fog, living-entity and arm rendering, armor layers, block highlighting and in-game key and scroll input are wired
-(see below). An anchor upgrade keeps that machine's chunk loaded, and the same tickets come back when the level loads.
+fog, living-entity and arm rendering, armor layers, block highlighting, in-game key and scroll input, client level
+load and unload, and the client recipe-cache refresh are wired (see below). An anchor upgrade keeps that machine's chunk loaded,
+and the same tickets come back when the level loads.
 Factories for all nine recipe types and four tiers place their tiles. A basic smelting factory smelts one item in
 each of its three slots in the same operation, auto-sort spreads one input stack across those slots, and an advanced
 tier installer replaces the block while keeping the items, stored energy and auto-sort flag. The chemical infuser,
 oxidizer, dissolution chamber, washer, crystallizer, purification chamber, chemical injection chamber, rotary
 condensentrator, pressurized reaction chamber, isotopic centrifuge and solar neutron activator each run one recipe.
-Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen
-opened in the development client. The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
+Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen,
+with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
+The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
 the pigment extractor pulls red pigment from red wool, the pigment mixer combines red and yellow into orange, the
 painting machine paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and
-antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen opened in
+antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen, with its input slot,
+progress bar, pigment gauge, drain slot, energy bar and configuration tabs, opened in
 the development client; the other chemical machine screens were not opened. A dynamic tank shell of
 casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
@@ -75,11 +78,34 @@ ore block instead of raw iron. An anchor upgrade keeps the miner's chunk loaded.
 loading the saved one brings it back, and removing the miner drops the ticket. The area preview's render box is the
 mining volume while the preview is on, and the block's own box while it is off. In the Fabric development
 client, right-clicking a placed digital miner opens its screen. The screen shows Idle, the search state and the
-blocks left to mine, with the eject, pull and silk switches and the config, start and stop buttons. The shared
-GameTests (core machines, factories, chemical machines, pigment machines, loader interop, chemical lookups, ore generation, item and
-block hooks, fluid placement, chunk loading, render bounds, the digital miner, the player and living events, a Generators registry
-smoke test, the simple generators, the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
-phase shifter, the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+blocks left to mine, with the eject, pull and silk switches and the config, start and stop buttons. In that client `/mek build fusion` built a 5×5×5 reactor.
+The frame and its holes are visible, and the controller is the top centre. The reactor was not fueled, so the plasma
+was not drawn, and the controller screen was not opened. A basic logistical transporter pulls items from a chest
+and pushes them into a second chest (`TransporterGameTests`). Those chests are the loader item inventory: Forge's
+item handler, and on Fabric `ItemStorage.SIDED`. A logistical sorter facing the line applies an item filter that
+colours iron red and a tag filter for `forge:ingots/gold` that colours gold dark blue, the blue entry in the
+transporter colour list. Iron reaches the chest beyond the red transporter and gold the chest beyond the dark-blue
+one. Dirt matches neither filter. Auto-eject is off, so the dirt stays in the source. A diversion transporter in
+high mode leaves its output side closed while unpowered, and the item stays in the source; a redstone block beside
+it powers that side and the item is delivered. A restrictive transporter is taken once the chest on the basic path
+is full. A basic mechanical pipe pulls 500 mB of water from one fluid tank and pushes it into another. A basic
+pressurized tube pulls 1,000 hydrogen from a chemical tank with eject off and pushes it into a second tank. The
+transporter renderer is registered for the restrictive transporter, the diversion transporter and every logistical
+tier. In the Fabric development client a red basic logistical transporter draws the iron, gold, diamonds, emeralds
+and redstone it is carrying inside the pipe. A teleporter frame is the upstream 3×4 portal. Two
+teleporters on one public frequency move an entity in the same dimension and into the nether, at the destination
+portal's position. A private frequency stays with its owner. Trusted is the block's security mode and does not share
+that private frequency. A portable teleporter moves its holder onto a frequency it is allowed to use. Quantum
+entangloporters on one public inventory frequency share energy, water, hydrogen and items. Fabric moves the entity
+with `FabricDimensions.teleport` when `placeEntity` asks to move, and does not build a nether portal. In the Fabric
+development client a formed teleporter draws its purple portal inside the frame, and the quantum entangloporter
+screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. The shared GameTests (core machines, factories, chemical
+machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+chunk loading, render bounds, the digital miner, the player and living events, server chunk data and recipe reload, mode-change packets,
+a Generators registry smoke test, the simple generators,
+the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
+phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, Tools registration, crafting, tool
+actions, shield blocking and mob armor spawns, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)

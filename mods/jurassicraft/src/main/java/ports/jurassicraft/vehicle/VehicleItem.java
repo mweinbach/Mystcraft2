@@ -27,7 +27,9 @@ public final class VehicleItem extends Item {
         tooltip.add(Component.translatable("tooltip.jurassicraft.vehicle_radio", Component.keybind("key.jurassicraft.vehicle_radio")).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.jurassicraft.vehicle_seats", Component.keybind("key.jurassicraft.vehicle_seat_1")).withStyle(ChatFormatting.GRAY));
         if (type.get() == VehicleRegistry.HELICOPTER.get()) {
-            tooltip.add(Component.translatable("tooltip.jurassicraft.helicopter_altitude").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.jurassicraft.helicopter_altitude",
+                    Component.keybind("key.jurassicraft.helicopter_ascend"),
+                    Component.keybind("key.jurassicraft.helicopter_descend")).withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.translatable("tooltip.jurassicraft.helicopter_steering",
                     Component.keybind("key.jurassicraft.helicopter_rotate_left"),
                     Component.keybind("key.jurassicraft.helicopter_rotate_right")).withStyle(ChatFormatting.GRAY));

@@ -11,7 +11,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import ports.jurassicraft.config.JurassicConfig;
-import ports.jurassicraft.content.Species;
 import ports.jurassicraft.platform.Reg;
 
 /** Every placed feature JurassiCraft adds to biomes; both loaders apply exactly this table. */
@@ -20,6 +19,9 @@ public final class WorldgenPlacements {
                             @Nullable WorldgenCategory category) {
         /** Reads the common config, so call this only once configuration has loaded. */
         public boolean enabled() { return category == null || JurassicConfig.worldgenEnabled(category); }
+
+        /** Coal scanned after ordinary feature additions, so ores added in later steps are included. */
+        public boolean afterOtherFeatures() { return category == WorldgenCategory.PLANT_FOSSILS; }
     }
     private static final List<Placement> ALL = create();
     private WorldgenPlacements() {}
@@ -33,12 +35,12 @@ public final class WorldgenPlacements {
         add(list, "amber_ore", BiomeTags.IS_OVERWORLD, ores);
         add(list, "ice_shard", BiomeTags.IS_OVERWORLD, ores);
         add(list, "gypsum_stone", BiomeTags.IS_OVERWORLD, ores);
-        for (Species species : Species.values()) add(list, species.id() + "_fossil_block", BiomeTags.IS_OVERWORLD, ores);
+        add(list, "fossil_deposits", BiomeTags.IS_OVERWORLD, ores);
         add(list, "fossil_nest", BiomeTags.IS_OVERWORLD, ores);
         add(list, "fossil_trackway", BiomeTags.IS_OVERWORLD, ores);
         add(list, "petrified_tree", BiomeTags.IS_OVERWORLD, ores);
         add(list, "peat", tag("swamps"), ores);
-        add(list, "coal_plant_fossils", BiomeTags.IS_OVERWORLD, GenerationStep.Decoration.UNDERGROUND_DECORATION);
+        add(list, "coal_plant_fossils", BiomeTags.IS_OVERWORLD, GenerationStep.Decoration.TOP_LAYER_MODIFICATION);
         add(list, "gracilaria", BiomeTags.IS_OCEAN, plants);
         add(list, "moss", tag("moss_biomes"), plants);
         add(list, "heliconia", BiomeTags.IS_JUNGLE, plants);

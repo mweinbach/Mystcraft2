@@ -14,6 +14,10 @@ public class EntityJoinLevelEvent extends EntityEvent {
     private final Level level;
     private final boolean loadedFromDisk;
 
+    public EntityJoinLevelEvent(Entity entity, Level level) {
+        this(entity, level, false);
+    }
+
     public EntityJoinLevelEvent(Entity entity, Level level, boolean loadedFromDisk) {
         super(entity);
         this.level = level;

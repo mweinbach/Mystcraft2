@@ -78,10 +78,37 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
             require(outer_class(name) in declared, f'Non-mixin class in the mixin package: {name}')
     mappings = json.loads(b.read(mixin['refmap']))['mappings']
     for name, side in (('EntityPersistentDataMixin', 'mixins'), ('FenceClimbMixin', 'mixins'),
-                       ('client.VehicleCameraMixin', 'client')):
+                       ('VillageAssemblyMixin', 'mixins'), ('ParkEdgePostProcessMixin', 'mixins'),
+                       ('client.VehicleCameraMixin', 'client'), ('client.KeyBindConflictMixin', 'client')):
         require(name in mixin.get(side, []), f'Missing Fabric {side} hook: {name}')
         require('method_' in json.dumps(mappings.get('ports/jurassicraft/fabric/mixin/' + name.replace('.', '/'), {})),
                 f'Missing production mixin mapping: {name}')
+
+    forge_mixin = json.loads(a.read('jurassicraft.forge.mixins.json'))
+    require(forge_mixin.get('required') is True, 'Forge mixins must be required')
+    # Village assembly runs while a dedicated server generates chunks, so that mixin is not client-only.
+    require(forge_mixin.get('mixins') == ['VillageAssemblyMixin', 'ParkEdgePostProcessMixin'],
+            'Unexpected Forge server mixin set')
+    require(forge_mixin.get('client') == ['client.KeyBindConflictMixin'], 'Unexpected Forge client mixin set')
+    forge_package = forge_mixin['package'].replace('.', '/') + '/'
+    forge_declared = {forge_package + name.replace('.', '/')
+                      for name in forge_mixin.get('mixins', []) + forge_mixin.get('client', [])}
+    for name in a.namelist():
+        if name.startswith(forge_package) and name.endswith('.class'):
+            require(outer_class(name) in forge_declared, f'Non-mixin class in the Forge mixin package: {name}')
+    require(all(name + '.class' in a.namelist() for name in forge_declared), 'Declared Forge mixin missing')
+    forge_mapped = json.dumps(json.loads(a.read(forge_mixin['refmap']))['mappings'].get(
+        'ports/jurassicraft/forge/mixin/client/KeyBindConflictMixin', {}))
+    require('m_' in forge_mapped and 'm_6311_' in forge_mapped and 'm_90850_' in forge_mapped,
+            'Missing production Forge mixin mapping: client.KeyBindConflictMixin')
+    village_mapped = json.dumps(json.loads(a.read(forge_mixin['refmap']))['mappings'].get(
+        'ports/jurassicraft/forge/mixin/VillageAssemblyMixin', {}))
+    require('m_227264_' in village_mapped, 'Missing production Forge mixin mapping: VillageAssemblyMixin')
+    edge_mapped = json.dumps(json.loads(a.read(forge_mixin['refmap']))['mappings'].get(
+        'ports/jurassicraft/forge/mixin/ParkEdgePostProcessMixin', {}))
+    require('m_62812_' in edge_mapped, 'Missing production Forge mixin mapping: ParkEdgePostProcessMixin')
+    require('MixinConfigs: jurassicraft.forge.mixins.json' in a.read('META-INF/MANIFEST.MF').decode(),
+            'Forge JAR does not load its mixin config')
 
     transformer = [line for line in a.read('META-INF/accesstransformer.cfg').decode().splitlines()
                    if line.strip() and not line.startswith('#')]
@@ -90,6 +117,6 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
                if line.strip() and not line.startswith('#')}
     require(len(transformer) == len(widener), f'Access transformer ({len(transformer)}) and widener ({len(widener)}) diverge')
     print(f'PASS: {len(fabric_paths) - len(LOADER_SPECIFIC)} identical gameplay resources, {len(LOADER_SPECIFIC)} loader-specific; '
-          'loader isolation, metadata, GameTest exclusion, access entries and Fabric refmap valid.')
+          'loader isolation, metadata, GameTest exclusion, access entries and mixin refmaps valid.')
 for path in (forge, fabric):
     print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')

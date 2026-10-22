@@ -24,7 +24,7 @@ public final class JurassicConfig {
     public static final ConfigOption<Boolean> GENERATE_RAPTOR_PADDOCK = ConfigOption.bool(FILE, "structureGeneration", "raptorPaddockGeneration", true, true,
             "Generate raptor paddocks; restart required.");
     public static final ConfigOption<Integer> RAPTOR_PADDOCK_RARITY = ConfigOption.range(FILE, "structureGeneration", "paddockRarity", 4000, 1, 16777216, true,
-            "Approximate chance of a paddock per eligible chunk, as one in this number; restart required.");
+            "Chance of a paddock in an eligible chunk, as one in this number. Upstream tested 1/50 through never; the default is 1/4000. Restart required.");
     private static final EnumMap<WorldgenCategory, ConfigOption<Boolean>> WORLDGEN = new EnumMap<>(WorldgenCategory.class);
     static {
         for (WorldgenCategory category : WorldgenCategory.values()) {

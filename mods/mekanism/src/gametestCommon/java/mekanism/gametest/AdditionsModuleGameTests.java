@@ -5,12 +5,24 @@
 package mekanism.gametest;
 
 import com.mojang.authlib.GameProfile;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import mekanism.additions.common.MekanismAdditions;
 import mekanism.additions.common.block.BlockObsidianTNT;
 import mekanism.additions.common.block.ExtendedFluidLogType;
@@ -25,11 +37,16 @@ import mekanism.additions.common.entity.baby.EntityBabyCreeper;
 import mekanism.additions.common.entity.baby.EntityBabySkeleton;
 import mekanism.additions.common.registries.AdditionsBlocks;
 import mekanism.additions.common.registries.AdditionsEntityTypes;
+import mekanism.additions.common.item.ItemWalkieTalkie;
 import mekanism.additions.common.registries.AdditionsItems;
+import mekanism.additions.common.voice.VoiceConnection;
+import mekanism.additions.common.voice.VoiceServerManager;
 import mekanism.additions.common.world.modifier.BabyEntitySpawnBiomeModifier;
 import mekanism.api.text.EnumColor;
 import mekanism.common.config.value.CachedIntValue;
 import mekanism.common.registries.MekanismItems;
+import mekanism.common.resource.PrimaryResource;
+import mekanism.common.resource.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -37,10 +54,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandomList;
@@ -48,6 +67,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -63,6 +83,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
@@ -87,13 +108,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.common.world.MobSpawnSettingsBuilder;
 import net.minecraftforge.common.world.ModifiableBiomeInfo;
 
 /**
- * Mekanism Additions registers its plastic blocks, obsidian TNT, baby mobs and balloons, crafts them, and runs the
- * block and entity behaviour: extended fluid logging, glow panels, slick friction, reinforced blast resistance, roads,
- * the obsidian TNT entity, baby spawns and drops, and balloons that latch and pop.
+ * Mekanism Additions registers its plastic blocks, obsidian TNT, baby mobs, balloons and the walkie-talkie, crafts
+ * them, and runs the block and entity behaviour: extended fluid logging, glow panels, slick friction, reinforced blast
+ * resistance, roads, the obsidian TNT entity, baby spawns and drops, balloons that latch and pop, walkie channel
+ * selection, and the voice server starting only when its config is on. A voice socket claims a one-time session
+ * token, and one recipient's audio frames are written whole.
  */
 public class AdditionsModuleGameTests {
 
@@ -102,7 +127,8 @@ public class AdditionsModuleGameTests {
     private static final int PLASTIC_BLOCK_COUNT = 271;
     private static final int BALLOON_COUNT = 18;
     private static final int BABY_SPAWN_EGG_COUNT = 5;
-    private static final int ADDITIONS_ITEM_COUNT = PLASTIC_BLOCK_COUNT + BALLOON_COUNT + BABY_SPAWN_EGG_COUNT;
+    private static final int WALKIE_COUNT = 1;
+    private static final int ADDITIONS_ITEM_COUNT = PLASTIC_BLOCK_COUNT + BALLOON_COUNT + BABY_SPAWN_EGG_COUNT + WALKIE_COUNT;
 
     @GameTest(template = TEMPLATE)
     public static void additionsRegistersBlocksAndObsidianTnt(GameTestHelper helper) {
@@ -274,15 +300,34 @@ public class AdditionsModuleGameTests {
         check(blastedEntity.getFuse() < delay, "Exploded obsidian TNT kept a full fuse of " + blastedEntity.getFuse());
         blastedEntity.discard();
 
-        // A delay of 0–3 used to call nextInt(0). The caller restores the shared delay.
-        configuredDelay.set(0);
+        // A delay of 0–3 used to call nextInt(0). set() writes the config file, and the
+        // watcher can reload the previous value on another thread, so spawn immediately
+        // and try again until the entity is created from a delay of 0. The caller restores it.
         BlockPos shortFuse = new BlockPos(6, 1, 4);
         helper.setBlock(shortFuse, AdditionsBlocks.OBSIDIAN_TNT.getBlock().defaultBlockState());
         BlockPos shortAbsolute = helper.absolutePos(shortFuse);
-        AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), shortAbsolute,
-              new Explosion(helper.getLevel(), null, shortAbsolute.getX(), shortAbsolute.getY(), shortAbsolute.getZ(), 1));
-        EntityObsidianTNT shortEntity = onlyObsidian(helper, shortAbsolute);
-        check(shortEntity.getFuse() == 0, "Zero delay fuse is " + shortEntity.getFuse());
+        EntityObsidianTNT shortEntity = null;
+        int observedFuse = -1;
+        for (int attempt = 0; attempt < 8 && shortEntity == null; attempt++) {
+            configuredDelay.set(0);
+            pinDelay(configuredDelay, 0);
+            for (EntityObsidianTNT existing : helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class, new AABB(shortAbsolute).inflate(1))) {
+                existing.discard();
+            }
+            AdditionsBlocks.OBSIDIAN_TNT.getBlock().wasExploded(helper.getLevel(), shortAbsolute,
+                  new Explosion(helper.getLevel(), null, shortAbsolute.getX(), shortAbsolute.getY(), shortAbsolute.getZ(), 1));
+            List<EntityObsidianTNT> spawned = helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class,
+                  new AABB(shortAbsolute).inflate(1), Entity::isAlive);
+            if (spawned.size() == 1 && spawned.get(0).getFuse() == 0) {
+                shortEntity = spawned.get(0);
+                observedFuse = 0;
+            } else {
+                observedFuse = spawned.isEmpty() ? observedFuse : spawned.get(0).getFuse();
+                spawned.forEach(Entity::discard);
+            }
+        }
+        check(shortEntity != null && shortEntity.getFuse() == 0,
+              "Zero delay fuse is " + observedFuse + " with delay " + configuredDelay.get());
         shortEntity.discard();
         configuredDelay.set(delay);
 
@@ -623,6 +668,19 @@ public class AdditionsModuleGameTests {
         return weight;
     }
 
+    private static void pinDelay(CachedIntValue value, int delay) {
+        try {
+            Field cached = CachedIntValue.class.getDeclaredField("cachedValue");
+            cached.setAccessible(true);
+            cached.setInt(value, delay);
+            Field resolved = CachedIntValue.class.getDeclaredField("resolved");
+            resolved.setAccessible(true);
+            resolved.setBoolean(value, true);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static EntityObsidianTNT onlyObsidian(GameTestHelper helper, BlockPos absolute) {
         List<EntityObsidianTNT> found = helper.getLevel().getEntitiesOfClass(EntityObsidianTNT.class, new AABB(absolute).inflate(1));
         check(found.size() == 1, "Expected one obsidian TNT entity, found " + found.size());
@@ -638,6 +696,353 @@ public class AdditionsModuleGameTests {
             menu.getSlot(i + 1).set(grid[i]);
         }
         return menu.getSlot(0).getItem().copy();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void additionsWalkieSelectsChannelAndCrafts(GameTestHelper helper) throws Exception {
+        ServerPlayer player = survival(helper, new BlockPos(1, 2, 1));
+        ItemWalkieTalkie walkie = AdditionsItems.WALKIE_TALKIE.get();
+        ItemStack stack = new ItemStack(walkie);
+        check(!walkie.getOn(stack), "A new walkie is on");
+        check(walkie.getChannel(stack) == 1, "An empty channel stayed " + walkie.getChannel(stack));
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        player.setShiftKeyDown(false);
+        InteractionResultHolder<ItemStack> passed = walkie.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        check(passed.getResult() == InteractionResult.PASS, "Using a walkie without sneaking consumed it");
+        check(!walkie.getOn(stack), "Using a walkie without sneaking turned it on");
+        player.setShiftKeyDown(true);
+        walkie.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
+        check(walkie.getOn(held), "Sneaking did not turn the walkie on");
+        walkie.setOn(held, false);
+        walkie.setChannel(held, 3);
+        walkie.changeMode(player, held, 1, false);
+        check(walkie.getChannel(held) == 3, "An off walkie changed channel to " + walkie.getChannel(held));
+        walkie.setOn(held, true);
+        walkie.setChannel(held, 1);
+        int channel = 1;
+        for (int step = 0; step < 8; step++) {
+            walkie.changeMode(player, held, 1, false);
+            channel = channel == 8 ? 1 : channel + 1;
+            check(walkie.getChannel(held) == channel, "Channel after step " + step + " is " + walkie.getChannel(held));
+        }
+        walkie.changeMode(player, held, -1, false);
+        check(walkie.getChannel(held) == 8, "A backward step landed on " + walkie.getChannel(held));
+        walkie.setChannel(held, 7);
+        walkie.changeMode(player, held, 3, false);
+        check(walkie.getChannel(held) == 2, "A shift of three from 7 landed on " + walkie.getChannel(held));
+        String text = walkie.getScrollTextComponent(held).getString();
+        check(text.contains("2"), "Scroll text is " + text);
+
+        boolean wasEnabled = MekanismAdditionsConfig.additions.voiceServerEnabled.get();
+        try {
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(false);
+            String disabled = tooltip(walkie, held, helper.getLevel());
+            check(disabled.contains("Voice server disabled.") || disabled.contains("walkie.mekanismadditions.disabled"),
+                  "Disabled tooltip is " + disabled);
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(true);
+            String enabled = tooltip(walkie, held, helper.getLevel());
+            check(!enabled.contains("Voice server disabled.") && !enabled.contains("walkie.mekanismadditions.disabled"),
+                  "Enabled tooltip is " + enabled);
+            check(enabled.toLowerCase(Locale.ROOT).contains("channel"), "Channel tooltip is " + enabled);
+        } finally {
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(wasEnabled);
+        }
+
+        ItemStack empty = ItemStack.EMPTY;
+        ItemStack osmium = new ItemStack(MekanismItems.PROCESSED_RESOURCES.get(ResourceType.INGOT, PrimaryResource.OSMIUM).get());
+        ItemStack steel = new ItemStack(MekanismItems.STEEL_INGOT.get());
+        ItemStack circuit = new ItemStack(MekanismItems.BASIC_CONTROL_CIRCUIT.get());
+        ItemStack crafted = craft(helper, player, new BlockPos(1, 1, 1),
+              empty, empty, osmium,
+              steel, circuit, steel.copy(),
+              empty, steel.copy(), empty);
+        check(crafted.is(walkie) && crafted.getCount() == 1, "Walkie recipe made " + name(crafted) + " x" + crafted.getCount());
+        voiceServer(helper);
+        helper.succeed();
+    }
+
+    private static void voiceServer(GameTestHelper helper) throws Exception {
+        boolean wasEnabled = MekanismAdditionsConfig.additions.voiceServerEnabled.get();
+        int wasPort = MekanismAdditionsConfig.additions.voicePort.get();
+        List<ServerPlayer> tracked = new ArrayList<>();
+        try {
+            if (MekanismAdditions.voiceManager != null) {
+                MekanismAdditions.voiceManager.stop();
+                MekanismAdditions.voiceManager = null;
+            }
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(false);
+            voiceEvent(helper, "serverStarting", ServerStartingEvent.class);
+            check(MekanismAdditions.voiceManager == null, "The voice server started while disabled");
+
+            int port = freePort();
+            MekanismAdditionsConfig.additions.voicePort.set(port);
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(true);
+            voiceEvent(helper, "serverStarting", ServerStartingEvent.class);
+            VoiceServerManager manager = MekanismAdditions.voiceManager;
+            check(manager != null, "The voice server did not start");
+            ServerSocket socket = (ServerSocket) field(manager, "serverSocket");
+            check(socket != null && socket.isBound() && !socket.isClosed() && socket.getLocalPort() == port,
+                  "Voice server socket is " + (socket == null ? "missing" : socket.getLocalPort()));
+            relay(helper, manager, tracked);
+            sessions(helper, manager);
+            frames(helper);
+
+            voiceEvent(helper, "serverStopping", ServerStoppingEvent.class);
+            check(MekanismAdditions.voiceManager == null, "Stopping left the voice server running");
+            check(socket.isClosed(), "Stopping left the voice socket open");
+
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(false);
+            voiceEvent(helper, "serverStarting", ServerStartingEvent.class);
+            check(MekanismAdditions.voiceManager == null, "The voice server started again while disabled");
+        } finally {
+            untrack(helper, tracked);
+            if (MekanismAdditions.voiceManager != null) {
+                MekanismAdditions.voiceManager.stop();
+                MekanismAdditions.voiceManager = null;
+            }
+            MekanismAdditionsConfig.additions.voiceServerEnabled.set(wasEnabled);
+            MekanismAdditionsConfig.additions.voicePort.set(wasPort);
+        }
+    }
+
+    private static void relay(GameTestHelper helper, VoiceServerManager manager, List<ServerPlayer> tracked) throws Exception {
+        ServerPlayer sender = survival(helper, new BlockPos(2, 2, 1));
+        ServerPlayer same = survival(helper, new BlockPos(3, 2, 1));
+        ServerPlayer other = survival(helper, new BlockPos(4, 2, 1));
+        track(helper, tracked, sender, same, other);
+        ItemWalkieTalkie walkie = AdditionsItems.WALKIE_TALKIE.get();
+        arm(sender, walkie, 4, true, true);
+        arm(same, walkie, 4, true, false);
+        arm(other, walkie, 5, true, true);
+        ByteArrayOutputStream sameBytes = new ByteArrayOutputStream();
+        ByteArrayOutputStream otherBytes = new ByteArrayOutputStream();
+        ByteArrayOutputStream senderBytes = new ByteArrayOutputStream();
+        VoiceConnection senderConn = connection(sender, senderBytes);
+        VoiceConnection sameConn = connection(same, sameBytes);
+        VoiceConnection otherConn = connection(other, otherBytes);
+        @SuppressWarnings("unchecked")
+        Set<VoiceConnection> connections = (Set<VoiceConnection>) field(manager, "connections");
+        connections.add(senderConn);
+        connections.add(sameConn);
+        connections.add(otherConn);
+        byte[] audio = new byte[]{1, 2, 3, 4};
+        manager.sendToPlayers((short) audio.length, audio, senderConn);
+        check(heard(sameBytes, audio), "A walkie on the same channel heard " + sameBytes.size() + " bytes");
+        check(sameBytes.size() > 0 && otherBytes.size() == 0, "A walkie on another channel heard " + otherBytes.size() + " bytes");
+        check(senderBytes.size() == 0, "The sender heard its own audio");
+
+        sameBytes.reset();
+        walkie.setOn(same.getInventory().getItem(1), false);
+        manager.sendToPlayers((short) audio.length, audio, senderConn);
+        check(sameBytes.size() == 0, "An off walkie heard audio");
+
+        ItemStack offhand = new ItemStack(walkie);
+        walkie.setOn(offhand, true);
+        walkie.setChannel(offhand, 4);
+        same.getInventory().offhand.set(0, offhand);
+        manager.sendToPlayers((short) audio.length, audio, senderConn);
+        check(heard(sameBytes, audio), "An offhand walkie on the channel heard " + sameBytes.size() + " bytes");
+
+        sameBytes.reset();
+        walkie.setOn(sender.getInventory().getSelected(), false);
+        manager.sendToPlayers((short) audio.length, audio, senderConn);
+        check(sameBytes.size() == 0, "An off sender still relayed audio");
+        connections.remove(senderConn);
+        connections.remove(sameConn);
+        connections.remove(otherConn);
+    }
+
+    private static void arm(ServerPlayer player, ItemWalkieTalkie walkie, int channel, boolean on, boolean selected) {
+        ItemStack stack = new ItemStack(walkie);
+        walkie.setOn(stack, on);
+        walkie.setChannel(stack, channel);
+        player.getInventory().selected = 0;
+        player.getInventory().setItem(selected ? 0 : 1, stack);
+    }
+
+    private static void sessions(GameTestHelper helper, VoiceServerManager manager) throws Exception {
+        ServerPlayer first = survival(helper, new BlockPos(2, 2, 2));
+        ServerPlayer second = survival(helper, new BlockPos(3, 2, 2));
+        UUID firstToken = manager.issueToken(first.getUUID());
+        UUID secondToken = manager.issueToken(second.getUUID());
+        check(first.getUUID().equals(manager.claimToken(firstToken)), "The first voice token bound the wrong player");
+        check(manager.claimToken(firstToken) == null, "A voice token was accepted twice");
+        check(second.getUUID().equals(manager.claimToken(secondToken)), "The second voice token bound the wrong player");
+
+        UUID live = manager.issueToken(first.getUUID());
+        try (ServerSocket opened = new ServerSocket(0); Socket client = new Socket()) {
+            opened.setSoTimeout(2_000);
+            Thread connector = new Thread(() -> {
+                try {
+                    client.connect(new InetSocketAddress("127.0.0.1", opened.getLocalPort()), 2_000);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "walkie-session-client");
+            connector.start();
+            try (Socket accepted = opened.accept()) {
+                connector.join(2_000L);
+                check(client.isConnected(), "Voice test client did not connect");
+                VoiceConnection connection = new VoiceConnection(accepted);
+                connection.start();
+                DataOutputStream handshake = new DataOutputStream(client.getOutputStream());
+                handshake.writeLong(live.getMostSignificantBits());
+                handshake.writeLong(live.getLeastSignificantBits());
+                handshake.flush();
+                UUID bound = null;
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+                while (System.nanoTime() < deadline && bound == null) {
+                    bound = (UUID) field(connection, "uuid");
+                    if (bound == null) {
+                        Thread.sleep(10L);
+                    }
+                }
+                check(first.getUUID().equals(bound), "Voice socket bound " + bound);
+                check(manager.claimToken(live) == null, "The socket left the voice token reusable");
+                connection.interrupt();
+            }
+        }
+    }
+
+    private static void frames(GameTestHelper helper) throws Exception {
+        ServerPlayer listener = survival(helper, new BlockPos(4, 2, 2));
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        HoldFirstByte held = new HoldFirstByte(entered, release);
+        VoiceConnection recipient = connection(listener, held);
+        byte[] first = {1, 2, 3, 4};
+        byte[] second = {5, 6, 7, 8};
+        Thread leading = new Thread(() -> recipient.sendToPlayer((short) first.length, first, recipient), "walkie-frame-a");
+        Thread following = new Thread(() -> recipient.sendToPlayer((short) second.length, second, recipient), "walkie-frame-b");
+        leading.start();
+        check(entered.await(2, TimeUnit.SECONDS), "The first voice frame never started writing");
+        following.start();
+        Thread.sleep(100L);
+        release.countDown();
+        leading.join(2_000L);
+        following.join(2_000L);
+        check(!leading.isAlive() && !following.isAlive(), "Voice frame writers did not finish");
+        byte[] bytes = held.toByteArray();
+        byte[] expected = {0, 4, 1, 2, 3, 4, 0, 4, 5, 6, 7, 8};
+        check(bytes.length == expected.length, "Combined voice frames are " + bytes.length + " bytes");
+        for (int i = 0; i < expected.length; i++) {
+            check(bytes[i] == expected[i], "Voice frame byte " + i + " is " + bytes[i]);
+        }
+    }
+
+    private static VoiceConnection connection(ServerPlayer player, OutputStream captured) throws Exception {
+        VoiceConnection connection = new VoiceConnection(new Socket());
+        Field uuid = VoiceConnection.class.getDeclaredField("uuid");
+        uuid.setAccessible(true);
+        uuid.set(connection, player.getUUID());
+        Field output = VoiceConnection.class.getDeclaredField("output");
+        output.setAccessible(true);
+        output.set(connection, new DataOutputStream(captured));
+        return connection;
+    }
+
+    private static final class HoldFirstByte extends OutputStream {
+        private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        private final CountDownLatch entered;
+        private final CountDownLatch release;
+        private boolean holding = true;
+
+        private HoldFirstByte(CountDownLatch entered, CountDownLatch release) {
+            this.entered = entered;
+            this.release = release;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (holding) {
+                holding = false;
+                entered.countDown();
+                try {
+                    if (!release.await(2, TimeUnit.SECONDS)) {
+                        throw new IOException("Voice frame hold was not released");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException(e);
+                }
+            }
+            bytes.write(b);
+        }
+
+        private byte[] toByteArray() {
+            return bytes.toByteArray();
+        }
+    }
+
+    private static boolean heard(ByteArrayOutputStream captured, byte[] audio) {
+        byte[] bytes = captured.toByteArray();
+        if (bytes.length != audio.length + 2 || bytes[0] != 0 || bytes[1] != audio.length) {
+            return false;
+        }
+        for (int i = 0; i < audio.length; i++) {
+            if (bytes[i + 2] != audio[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void track(GameTestHelper helper, List<ServerPlayer> tracked, ServerPlayer... players) throws Exception {
+        @SuppressWarnings("unchecked")
+        Map<UUID, ServerPlayer> byId = (Map<UUID, ServerPlayer>) field(helper.getLevel().getServer().getPlayerList(), "playersByUUID");
+        for (ServerPlayer player : players) {
+            byId.put(player.getUUID(), player);
+            tracked.add(player);
+        }
+    }
+
+    private static void untrack(GameTestHelper helper, List<ServerPlayer> tracked) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<UUID, ServerPlayer> byId = (Map<UUID, ServerPlayer>) field(helper.getLevel().getServer().getPlayerList(), "playersByUUID");
+            for (ServerPlayer player : tracked) {
+                byId.remove(player.getUUID(), player);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void voiceEvent(GameTestHelper helper, String name, Class<?> eventType) throws Exception {
+        Method method = MekanismAdditions.class.getDeclaredMethod(name, eventType);
+        method.setAccessible(true);
+        Object event = eventType.getConstructor(MinecraftServer.class).newInstance(helper.getLevel().getServer());
+        method.invoke(MekanismAdditions.instance, event);
+    }
+
+    private static int freePort() throws Exception {
+        try (ServerSocket probe = new ServerSocket(0)) {
+            return probe.getLocalPort();
+        }
+    }
+
+    private static Object field(Object target, String name) throws Exception {
+        Class<?> type = target.getClass();
+        while (type != null) {
+            try {
+                Field found = type.getDeclaredField(name);
+                found.setAccessible(true);
+                return found.get(target);
+            } catch (NoSuchFieldException ignored) {
+                type = type.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(name);
+    }
+
+    private static String tooltip(ItemWalkieTalkie walkie, ItemStack stack, Level level) {
+        List<Component> lines = new ArrayList<>();
+        walkie.appendHoverText(stack, level, lines, TooltipFlag.Default.NORMAL);
+        StringBuilder text = new StringBuilder();
+        for (Component line : lines) {
+            text.append(line.getString()).append('\n');
+        }
+        return text.toString();
     }
 
     private static ServerPlayer survival(GameTestHelper helper, BlockPos relative) {

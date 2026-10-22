@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,8 @@ public final class DinosaurModel extends EntityModel<DinosaurEntity> {
     private final List<ModelPart> lookParts = new ArrayList<>();
     private float lookDivisor = 1;
     private final float[] modelScale;
+    private final DinosaurProceduralPose procedural;
+    private float glidePitch;
 
     public DinosaurModel(Species species) { this(species, (String)null); }
     /** Static skeleton models can be rendered directly without calling setupAnim. */
@@ -64,7 +67,10 @@ public final class DinosaurModel extends EntityModel<DinosaurEntity> {
                 }
                 animations.put(anim.getKey(), frames);
             }
-            if (skeletonPose == null && !egg) loadLookParts(species);
+            if (skeletonPose == null && !egg) {
+                loadLookParts(species);
+                procedural = DinosaurProceduralPose.load(species, parts);
+            } else procedural = null;
             poseEngine = new DinosaurPoseEngine(animations.get("IDLE").get(0).parts(), animations, species == Species.COELACANTH);
         } catch (IOException | RuntimeException e) {
             throw new IllegalStateException("Could not load original dinosaur model " + path, e);
@@ -117,52 +123,10 @@ public final class DinosaurModel extends EntityModel<DinosaurEntity> {
         return result;
     }
     @Override public void setupAnim(DinosaurEntity entity, float limbSwing, float amount, float age, float yaw, float pitch) {
-        String combat = switch (entity.combatAnimation()) {
-            case SPIT -> "DILOPHOSAURUS_SPIT";
-            case PREPARE_LEAP -> "PREPARE_LEAP";
-            case LEAP -> "LEAP";
-            case LEAP_LAND -> "LEAP_LAND";
-            default -> null;
-        };
-        if (entity.isCombatPoseInterrupted()) combat = null;
-        String pose = entity.poseAnimation().isEmpty() ? null : entity.poseAnimation();
-        String action;
-        int actionStart;
-        float actionElapsed;
-        if (entity.isCarcass() || entity.deathTime > 0) {
-            action = "DYING";
-            actionStart = entity.isCarcass() ? entity.carcassAnimationStart() : entity.tickCount - entity.deathTime;
-            actionElapsed = entity.isCarcass() ? Math.max(0, age - actionStart) : entity.deathTime;
-        } else if (entity.isDinosaurSleeping() || entity.isOrderedToSit() || entity.isNaturallyResting()) {
-            action = entity.isDinosaurSleeping() ? "SLEEPING" : "RESTING";
-            actionStart = 0;
-            actionElapsed = 0;
-        } else if (entity.isInjuryAnimating()) {
-            action = "INJURED";
-            actionStart = entity.injuryAnimationStart();
-            actionElapsed = entity.injuryAnimationTime(age);
-        } else if (entity.isForcedPose() || (combat == null && pose != null)) {
-            action = pose;
-            actionStart = entity.poseAnimationStart();
-            actionElapsed = entity.isBirthing() && !entity.isForcedPose()
-                    ? entity.birthAnimationTime(age) : Math.max(0, age - actionStart);
-        } else if (combat != null) {
-            action = combat;
-            actionStart = entity.combatAnimationStart();
-            actionElapsed = Math.max(0, age - actionStart);
-        } else if (entity.isGliding()) {
-            action = "GLIDING";
-            actionStart = 0;
-            actionElapsed = 0;
-        } else if (entity.swingTime > 0) {
-            action = "ATTACKING";
-            actionStart = entity.tickCount - entity.swingTime;
-            actionElapsed = entity.swingTime;
-        } else {
-            action = "IDLE";
-            actionStart = 0;
-            actionElapsed = 0;
-        }
+        var cue = DinosaurPoseSelection.select(entity, age);
+        String action = cue.action();
+        int actionStart = cue.start();
+        float actionElapsed = cue.elapsed();
         double dx = entity.getX() - entity.xo, dz = entity.getZ() - entity.zo;
         boolean moving = dx * dx + dz * dz > .001;
         boolean fluid = entity.isInWater() || entity.isInLava();
@@ -182,6 +146,14 @@ public final class DinosaurModel extends EntityModel<DinosaurEntity> {
                     (float)Math.toRadians(value.rotation()[1]), (float)Math.toRadians(value.rotation()[2]));
             part.xScale = value.scale()[0]; part.yScale = value.scale()[1]; part.zScale = value.scale()[2];
         }
+        if (procedural != null) {
+            float partial = Mth.clamp(age - entity.tickCount, 0, 1);
+            procedural.apply(limbSwing, amount, age, entity.isInWater(),
+                    DinosaurChainMath.movementScale(entity.isCarcass(), entity.isDinosaurSleeping()),
+                    entity.tailSway(), partial, Minecraft.getInstance().isPaused(),
+                    entity.getTarget() != null && !entity.isCarcass());
+        }
+        glidePitch = procedural != null && procedural.glides() && entity.isGliding() ? (float) Math.toRadians(pitch) : 0;
         float yawAmount = DinosaurLookTracking.yaw(yaw, lookDivisor, lookParts.size());
         float pitchAmount = DinosaurLookTracking.pitch(pitch, lookDivisor, lookParts.size());
         for (ModelPart part : lookParts) {
@@ -192,6 +164,7 @@ public final class DinosaurModel extends EntityModel<DinosaurEntity> {
     @Override public void renderToBuffer(PoseStack pose, VertexConsumer buffer, int light, int overlay,
             float red, float green, float blue, float alpha) {
         pose.pushPose();
+        if (glidePitch != 0) pose.mulPose(Vector3f.XP.rotation(glidePitch));
         pose.scale(modelScale[0], modelScale[1], modelScale[2]);
         for (ModelPart root : roots) root.render(pose, buffer, light, overlay, red, green, blue, alpha);
         pose.popPose();

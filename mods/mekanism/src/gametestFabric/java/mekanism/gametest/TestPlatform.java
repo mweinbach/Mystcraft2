@@ -102,6 +102,21 @@ public final class TestPlatform {
         }
     }
 
+    public static long extractItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), side);
+        if (storage == null) {
+            return 0;
+        }
+        try (Transaction transaction = Transaction.openOuter()) {
+            long extracted = storage.extract(ItemVariant.of(stack), stack.getCount(), transaction);
+            transaction.commit();
+            return extracted;
+        }
+    }
+
     public static int insertThroughItemCapability(BlockEntity blockEntity, Direction side, ItemStack stack) {
         return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
               .map(handler -> stack.getCount() - ItemHandlerHelper.insertItem(handler, stack.copy(), false).getCount())
@@ -113,13 +128,13 @@ public final class TestPlatform {
         if (storage == null) {
             return 0;
         }
-        long total = 0;
+        long count = 0;
         for (StorageView<ItemVariant> view : storage) {
-            if (view.getResource().getItem() == item) {
-                total += view.getAmount();
+            if (view.getResource().isOf(item)) {
+                count += view.getAmount();
             }
         }
-        return total > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) total;
+        return (int) Math.min(count, Integer.MAX_VALUE);
     }
 
     public static long insertItemEnergy(ItemStack stack, long amount, boolean commit) {

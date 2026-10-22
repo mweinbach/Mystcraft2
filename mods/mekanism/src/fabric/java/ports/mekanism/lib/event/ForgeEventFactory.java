@@ -9,15 +9,20 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import ports.mekanism.lib.common.MinecraftForge;
 import ports.mekanism.lib.common.util.BlockSnapshot;
+import ports.mekanism.lib.event.entity.living.LivingSpawnEvent;
 import ports.mekanism.lib.event.entity.player.PlayerEvent;
 import ports.mekanism.lib.event.level.BlockEvent;
 
@@ -78,5 +83,15 @@ public final class ForgeEventFactory {
      */
     public static boolean getMobGriefingEvent(Level level, Entity entity) {
         return level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+    }
+
+    /**
+     * Posts the special-spawn event Forge fires just before {@code Mob.finalizeSpawn}.
+     *
+     * @return {@code true} when a listener canceled the event and the mob should skip finalize
+     */
+    public static boolean doSpecialSpawn(Mob entity, LevelAccessor level, float x, float y, float z, @Nullable BaseSpawner spawner,
+          MobSpawnType spawnReason) {
+        return MinecraftForge.EVENT_BUS.post(new LivingSpawnEvent.SpecialSpawn(entity, level, x, y, z, spawner, spawnReason));
     }
 }
