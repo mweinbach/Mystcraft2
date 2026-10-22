@@ -11,7 +11,8 @@
       "mekanism.gametest.SharedGameTests"
     ],
     "client": [
-      "mekanism.gametest.client.FabricBlockShowcase"
+      "mekanism.gametest.client.FabricBlockShowcase",
+      "mekanism.gametest.client.FabricJadeShowcase"
     ]
   },
   "depends": {

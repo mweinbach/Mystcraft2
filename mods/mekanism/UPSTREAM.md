@@ -23,10 +23,9 @@ Copied unchanged, then edited as listed below:
   output `src/datagen/generated/mekanism` (merged into `src/main/resources`) and the JUnit tests in `src/test`.
 - `src/generators/java`, `src/generators/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismgenerators` (merged into `src/generators/resources`), via
-  `scripts/import_upstream.py`. Files that import the JEI API were not copied.
+  `scripts/import_upstream.py`.
 - `src/tools/java`, `src/tools/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismtools` (merged into `src/tools/resources`), via the same importer.
-  `mekanism/tools/client/jei/ToolsJEI.java` was not copied.
 - `src/additions/java`, `src/additions/resources` and the checked-in datagen output
   `src/datagen/generated/mekanismadditions` (merged into `src/additions/resources`), via the same importer.
   Baby mobs, balloons, the walkie-talkie, the voice server and the biome and structure modifiers are registered.
@@ -39,8 +38,9 @@ Copied unchanged, then edited as listed below:
   `GhostIngredientHandler`, `QIOCraftingTransferHandler`) is not imported.
 
 Not imported: CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod,
-The One Probe/Jade/WTHIT, ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the
-Blockbench/Blender model sources.
+ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model
+sources. The look-at providers are imported: Jade and the shared tooltip data are in `src/main`, The One Probe is in
+`src/forge`, and WTHIT is in `src/fabric`. Upstream's Forge WTHIT plugin is not built into the Forge JAR.
 
 ## The Forge API mirror
 
@@ -66,7 +66,8 @@ Every edit beyond the scripted import rewrite:
 | --- | --- | --- |
 | `mekanism/api/MekanismAPI.java` | `getJeiHelper()` looks up `MekanismJEIHelper` only after `ModList` reports JEI. The helper interface references JEI's ingredient API | JEI is optional; the API class must not load JEI until something asks for the helper |
 | `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, ComputerCraft, OC2, ProjectE, TOP, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; their `*Loaded` flags stay `false` | Integrations not ported |
+| `mekanism/common/integration/MekanismHooks.java` | Removed Curios, ComputerCraft, OC2, ProjectE, Flux Networks, Wildfire Gender and Recipe Stages detection and hooks; those `*Loaded` flags stay `false`. The One Probe is detected, and its IMC supplier loads `TOPProvider` by name | Those integrations are not ported. The provider class is Forge-only, so the shared hook cannot mention its types |
+| `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
 | `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` adds nothing | ComputerCraft and OC2 not ported |
 | `mekanism/common/integration/energy/EnergyCompatUtils.java` | Removed the Flux Networks energy compat | Flux Networks not ported |
 | `mekanism/client/key/MekanismKeyHandler.java`, `client/render/hud/MekanismHUD.java`, `common/content/gear/mekasuit/ModuleChargeDistributionUnit.java`, `common/tile/TileEntityChargepad.java`, `common/item/interfaces/IJetpackItem.java` | Removed the Curios slot branches | Curios not ported |
