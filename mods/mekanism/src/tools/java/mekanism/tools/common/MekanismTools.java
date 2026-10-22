@@ -12,6 +12,7 @@ import mekanism.common.lib.Version;
 import mekanism.tools.common.config.MekanismToolsConfig;
 import mekanism.tools.common.config.ToolsConfig.ArmorSpawnChanceConfig;
 import mekanism.tools.common.material.BaseMekanismMaterial;
+import mekanism.tools.common.integration.gender.ToolsGenderCapabilityHelper;
 import mekanism.tools.common.registries.ToolsItems;
 import mekanism.tools.common.registries.ToolsRecipeSerializers;
 import net.minecraft.resources.ResourceLocation;
@@ -83,6 +84,9 @@ public class MekanismTools implements IModModule {
         });
         registerTiers(MekanismToolsConfig.tools.bronze, MekanismToolsConfig.tools.lapisLazuli, MekanismToolsConfig.tools.osmium, MekanismToolsConfig.tools.steel,
               MekanismToolsConfig.tools.refinedGlowstone, MekanismToolsConfig.tools.refinedObsidian);
+        if (Mekanism.hooks.WildfireGenderModLoaded) {
+            ToolsGenderCapabilityHelper.register();
+        }
         Mekanism.logger.info("Loaded 'Mekanism: Tools' module.");
     }
 

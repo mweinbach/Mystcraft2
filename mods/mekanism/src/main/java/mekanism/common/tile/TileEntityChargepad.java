@@ -14,6 +14,7 @@ import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.entity.EntityRobit;
+import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.integration.energy.EnergyCompatUtils;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.tile.base.TileEntityMekanism;
@@ -67,7 +68,10 @@ public class TileEntityChargepad extends TileEntityMekanism {
                 provideEnergy(robit);
             } else if (entity instanceof Player) {
                 Optional<IItemHandler> itemHandlerCap = entity.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
-                chargeHandler(itemHandlerCap);
+                if (!chargeHandler(itemHandlerCap) && Mekanism.hooks.CuriosLoaded) {
+                    // Curios only when the player inventory charged nothing, one item per check.
+                    chargeHandler(CuriosIntegration.getCuriosInventory(entity));
+                }
             }
         }
         if (active != getActive()) {

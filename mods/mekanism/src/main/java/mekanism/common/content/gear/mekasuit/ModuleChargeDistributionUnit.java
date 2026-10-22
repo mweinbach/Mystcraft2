@@ -13,6 +13,7 @@ import mekanism.api.gear.config.ModuleConfigItemCreator;
 import mekanism.api.math.FloatingLong;
 import mekanism.common.Mekanism;
 import mekanism.common.MekanismLang;
+import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.config.MekanismConfig;
 import mekanism.common.content.network.distribution.EnergySaveTarget;
 import mekanism.common.integration.energy.EnergyCompatUtils;
@@ -71,6 +72,18 @@ public class ModuleChargeDistributionUnit implements ICustomModule<ModuleChargeD
                     toCharge = charge(module, player, stack, toCharge);
                     if (toCharge.isZero()) {
                         break;
+                    }
+                }
+            }
+            if (!toCharge.isZero() && Mekanism.hooks.CuriosLoaded) {
+                Optional<? extends IItemHandler> curiosInventory = CuriosIntegration.getCuriosInventory(player);
+                if (curiosInventory.isPresent()) {
+                    IItemHandler handler = curiosInventory.get();
+                    for (int slot = 0, slots = handler.getSlots(); slot < slots; slot++) {
+                        toCharge = charge(module, player, handler.getStackInSlot(slot), toCharge);
+                        if (toCharge.isZero()) {
+                            break;
+                        }
                     }
                 }
             }

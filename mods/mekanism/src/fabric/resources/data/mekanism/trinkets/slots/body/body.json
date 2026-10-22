@@ -1,0 +1,7 @@
+{
+  "icon": "trinkets:gui/slots/back",
+  "order": 0,
+  "amount": 1,
+  "drop_rule": "default",
+  "validator_predicates": ["trinkets:tag"]
+}

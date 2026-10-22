@@ -7,10 +7,12 @@ import mekanism.common.Mekanism;
 import mekanism.common.MekanismLang;
 import mekanism.common.base.KeySync;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.inventory.container.ModuleTweakerContainer;
 import mekanism.common.item.interfaces.IGasItem;
 import mekanism.common.item.interfaces.IModeItem;
 import mekanism.common.network.to_server.PacketModeChange;
+import mekanism.common.network.to_server.PacketModeChangeCurios;
 import mekanism.common.network.to_server.PacketOpenGui;
 import mekanism.common.network.to_server.PacketOpenGui.GuiType;
 import mekanism.common.registries.MekanismSounds;
@@ -74,6 +76,16 @@ public class MekanismKeyHandler {
             if (IModeItem.isModeItem(player, slot)) {
                 Mekanism.packetHandler().sendToServer(new PacketModeChange(slot, player.isShiftKeyDown()));
                 SoundHandler.playSound(MekanismSounds.HYDRAULIC);
+            } else if (Mekanism.hooks.CuriosLoaded) {
+                CuriosIntegration.findFirstCurioAsResult(player, stack -> {
+                    if (stack.canEquip(slot, player) && IModeItem.isModeItem(stack, slot)) {
+                        return !(stack.getItem() instanceof IGasItem item) || item.hasGas(stack);
+                    }
+                    return false;
+                }).ifPresent(result -> {
+                    Mekanism.packetHandler().sendToServer(new PacketModeChangeCurios(result.slotType(), result.index(), player.isShiftKeyDown()));
+                    SoundHandler.playSound(MekanismSounds.HYDRAULIC);
+                });
             }
         }
     }

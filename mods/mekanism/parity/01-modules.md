@@ -89,7 +89,7 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   on Fabric those zombies roll for Mekanism gear too. Cancelling the event returns before `Mob.finalizeSpawn`'s own
   body; a subclass that continues after `super.finalizeSpawn` still runs. The mob spawner Forge passes from a spawner
   block is absent, and a spawner whose entity NBT is more than an id skips `finalizeSpawn`, so that mob is not
-  rolled. The Wildfire's Gender capability is not attached.
+  rolled. Wildfire's Gender Mod chest settings are in [14-curios-and-gender.md](14-curios-and-gender.md).
 - **Additions** plastic, glow panels, obsidian TNT, baby mobs and balloons are imported. Both loaders register the
   271 blocks (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel
   support, slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic

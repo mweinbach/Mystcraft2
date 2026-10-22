@@ -42,7 +42,9 @@
     "jade": ">=8.7.3",
     "wthit": ">=5.36.1",
     "computercraft": ">=1.101.2",
-    "jei": "*"
+    "jei": "*",
+    "trinkets": ">=3.4.2",
+    "wildfire_gender": "*"
   },
   "accessWidener": "mekanism.accesswidener",
   "depends": {
