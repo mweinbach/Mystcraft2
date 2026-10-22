@@ -254,8 +254,10 @@ public class FusionReactorGameTests {
                 caseTemperature[0] = data.getLastCaseTemp();
                 waterBefore[0] = data.waterTank.getFluidAmount();
                 energyBefore[0] = data.energyContainer.getEnergy().copy();
+                // The block entity's own tick can fall on either side of this callback, so one world tick of
+                // waiting is sometimes two heating passes. Run the pass here and read it before that tick.
+                data.tick(helper.getLevel());
                 phase[0] = 1;
-                check(false, "Waiting for one heating pass");
             }
             double ambient = HeatAPI.getAmbientTemp(helper.getLevel(), helper.absolutePos(reactor.controller()));
             int expectedSteam = expectedSteam(caseTemperature[0], ambient, waterBefore[0]);
