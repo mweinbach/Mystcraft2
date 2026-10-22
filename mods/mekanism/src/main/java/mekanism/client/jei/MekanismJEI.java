@@ -56,7 +56,11 @@ import mekanism.common.Mekanism;
 import mekanism.common.MekanismLang;
 import mekanism.common.capabilities.Capabilities;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.inventory.container.entity.robit.CraftingRobitContainer;
+import mekanism.common.inventory.container.item.PortableQIODashboardContainer;
+import mekanism.common.inventory.container.tile.QIODashboardContainer;
 import mekanism.common.registries.MekanismBlocks;
+import mekanism.common.registries.MekanismContainerTypes;
 import mekanism.common.registries.MekanismFluids;
 import mekanism.common.registries.MekanismItems;
 import mekanism.common.util.ChemicalUtil;
@@ -67,15 +71,18 @@ import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
+import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IModIngredientRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -292,6 +299,7 @@ public class MekanismJEI implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registry) {
         registry.addRecipeClickArea(GuiRobitRepair.class, 102, 48, 22, 15, RecipeTypes.ANVIL);
         registry.addGenericGuiContainerHandler(GuiMekanism.class, new GuiElementHandler());
+        registry.addGhostIngredientHandler(GuiMekanism.class, new GhostIngredientHandler<>());
     }
 
     @Override
@@ -367,5 +375,15 @@ public class MekanismJEI implements IModPlugin {
         //TODO: Decide if we want to make it so all mekanism energy supporting blocks that have gui's are added as catalysts?
         CatalystRegistryHelper.register(registry, MekanismJEIRecipeType.ENERGY_CONVERSION, MekanismBlocks.BASIC_ENERGY_CUBE, MekanismBlocks.ADVANCED_ENERGY_CUBE,
               MekanismBlocks.ELITE_ENERGY_CUBE, MekanismBlocks.ULTIMATE_ENERGY_CUBE);
+    }
+
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registry) {
+        IRecipeTransferHandlerHelper transferHelper = registry.getTransferHelper();
+        IStackHelper stackHelper = registry.getJeiHelpers().getStackHelper();
+        registry.addRecipeTransferHandler(CraftingRobitContainer.class, MekanismContainerTypes.CRAFTING_ROBIT.get(), RecipeTypes.CRAFTING, 1, 9, 10, 36);
+        registry.addRecipeTransferHandler(new FormulaicRecipeTransferInfo());
+        registry.addRecipeTransferHandler(new QIOCraftingTransferHandler<>(transferHelper, stackHelper, QIODashboardContainer.class), RecipeTypes.CRAFTING);
+        registry.addRecipeTransferHandler(new QIOCraftingTransferHandler<>(transferHelper, stackHelper, PortableQIODashboardContainer.class), RecipeTypes.CRAFTING);
     }
 }
