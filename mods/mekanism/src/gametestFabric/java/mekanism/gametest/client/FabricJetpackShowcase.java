@@ -60,10 +60,6 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
         minecraft.getToasts().clear();
         minecraft.gui.getChat().clearMessages(false);
         minecraft.options.pauseOnLostFocus = false;
-        minecraft.options.keyJump.setDown(true);
-        if (minecraft.screen != null) {
-            minecraft.setScreen(null);
-        }
         if (minecraft.player == null) {
             if (!started && minecraft.getOverlay() == null && minecraft.screen instanceof TitleScreen) {
                 started = true;
@@ -75,6 +71,12 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
             }
             return;
         }
+        // The title screen has to stay up until world creation starts. After the player joins,
+        // close the progress screen or pause menu so the flight frame can be taken.
+        if (minecraft.screen != null) {
+            minecraft.setScreen(null);
+        }
+        minecraft.options.keyJump.setDown(true);
         if (minecraft.getSingleplayerServer() == null) {
             return;
         }
