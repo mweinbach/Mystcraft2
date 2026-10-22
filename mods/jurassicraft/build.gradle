@@ -80,6 +80,21 @@ minecraft.runs {
     }
 }
 // Like the Fabric suite and CI, start from a fresh world so entities saved by an earlier run cannot reload into new tests.
+// Forge 43.5.0 ships a default fml.toml that omits defaultConfigPath, so every fresh server
+// calls ConfigSpec.correct. Correction autosaves while NightConfig's autoreload watcher
+// reloads that same HashMap and intermittently throws ConcurrentModificationException
+// (or tears maxThreads into a duplicate key) before any test runs. A complete file skips it.
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
-    doFirst { delete file('run/gameTestServer/world') }
+    doFirst {
+        delete file('run/gameTestServer/world')
+        def configDir = file('run/gameTestServer/config')
+        configDir.mkdirs()
+        new File(configDir, 'fml.toml').text = '''\
+splashscreen = true
+maxThreads = -1
+versionCheck = true
+defaultConfigPath = "defaultconfigs"
+disableOptimizedDFU = true
+'''
+    }
 }
