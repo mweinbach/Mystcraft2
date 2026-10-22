@@ -53,6 +53,7 @@ public final class TestPlatform {
 
     public static final long DROPLETS_PER_MB = 81;
     private static final String ANCHOR_TICKET = "forge:block";
+    private static final String TICKING_TICKET = "forge:block_ticking";
 
     private TestPlatform() {
     }
@@ -195,6 +196,14 @@ public final class TestPlatform {
     }
 
     /**
+     * The dimensional stabilizer has a saved ticking block ticket, and the chunk source is holding that ticket.
+     */
+    public static boolean tickingChunkLoaded(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        return savedTickingTicket(level, owner, chunk)
+              && ChunkLoadingGameTests.namesTicket(ChunkLoadingGameTests.chunkTicketDebug(level, chunk), TICKING_TICKET);
+    }
+
+    /**
      * Drops the vanilla tickets, then asks Forge to load the saved ones again. Null when the anchor ticket is back and
      * was gone in between.
      */
@@ -224,6 +233,20 @@ public final class TestPlatform {
         }
         long id = chunk.toLong();
         for (Map.Entry<ForgeChunkManager.TicketOwner<BlockPos>, LongSet> entry : data.getBlockForcedChunks().getChunks().entrySet()) {
+            if (entry.getValue().contains(id) && ownedBy(entry.getKey(), owner)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean savedTickingTicket(ServerLevel level, BlockPos owner, ChunkPos chunk) {
+        ForcedChunksSavedData data = level.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+        if (data == null) {
+            return false;
+        }
+        long id = chunk.toLong();
+        for (Map.Entry<ForgeChunkManager.TicketOwner<BlockPos>, LongSet> entry : data.getBlockForcedChunks().getTickingChunks().entrySet()) {
             if (entry.getValue().contains(id) && ownedBy(entry.getKey(), owner)) {
                 return true;
             }
