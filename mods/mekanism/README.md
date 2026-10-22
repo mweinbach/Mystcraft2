@@ -21,12 +21,15 @@ depends on the core jar. Generators' code, assets and generated data are importe
 gas-burning, bio and wind generators produce energy on both loaders. The industrial turbine forms, takes steam
 through the gas handler and outputs energy. The thermoelectric boiler forms, takes water and heated coolant or heat,
 and outputs steam. The thermal evaporation plant forms, takes water or brine and heat through its valve, and
-outputs brine and lithium. The supercritical phase shifter forms and turns polonium plus energy from a supercharged coil
-into antimatter. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses the
-meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
+outputs brine and lithium. The supercritical phase shifter forms and turns polonium plus energy from a supercharged
+coil into antimatter. The fission reactor forms, burns fissile fuel into waste, boils water or sodium, and crosses
+the meltdown threshold. The fusion reactor forms, ignites from a full hohlraum and a laser on the focus matrix,
+takes deuterium, tritium and D-T fuel through the gas handler, boils water into steam and outputs energy. Tools'
+paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
-glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
+glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie are in both loaders. The voice server
+stays off unless `voiceServerEnabled` is set. Microphone capture and speaker playback were not run.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -56,7 +59,8 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
-  modules run on a server. The client tick publishes the jump key those jetpacks read.
+  modules run on a server. The client tick publishes the jump key those jetpacks read. Chunk save and load carry
+  Mekanism's world-gen version, so retrogen sees an old chunk, and `/reload` refreshes the recipe cache.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass.
@@ -76,6 +80,9 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   A formed supercritical phase shifter in that client is the 7×7×7 shell from `/mek build sps`: structural glass
   shows the casing frame and the empty corner cells of each face. It had no port and no coil, so the orb and the
   coil bolts were not drawn.
+  A formed fusion reactor in that client is the 5×5×5 shell from `/mek build fusion`: the frame and its holes are
+  visible, and the controller is the top centre. It was not fueled, so the plasma was not drawn, and the controller
+  screen was not opened.
   Osmium, tin, lead, uranium, fluorite and salt generate in overworld biomes with the same placed features Forge uses.
   Client ticks, the render tick, HUD overlays, fog, living-entity and first-person arm rendering, the MekaSuit armor
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
@@ -83,10 +90,11 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
+  render bounds, the player and living events, server chunk data and recipe reload, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical phase shifter,
-  the industrial turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and
-  Additions registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
+  the industrial turbine, the fission reactor, the fusion reactor, Tools registration, crafting, tool actions and
+  shield blocking, and Additions registration, crafting, block behaviour, baby mobs, balloons, walkie-talkie channel
+  selection and the voice server's on/off config) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -97,7 +105,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs and balloons, plus each loader's descriptor. Its own jars |
+| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs, balloons and the walkie-talkie, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |

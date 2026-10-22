@@ -66,6 +66,16 @@ public final class PlantWorldgenGameTests {
     }
 
     @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void plantFossilsReplaceTaggedCoalInChunk(GameTestHelper helper) {
+        PlantFossilChecks.replaceTaggedCoal(helper);
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
+    public static void plantFossilsRunAfterOrdinaryOres(GameTestHelper helper) {
+        PlantFossilChecks.scheduledAfterOrdinaryOres(helper);
+    }
+
+    @GameTest(template = "plant_culture_test", templateNamespace = PortMod.MOD_ID)
     public static void fossilsReplaceOnlyCoal(GameTestHelper helper) {
         var level = helper.getLevel();
         BlockPos pos = new BlockPos(1, 1, 1);

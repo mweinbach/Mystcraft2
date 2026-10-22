@@ -46,7 +46,9 @@ import ports.mekanism.lib.event.entity.player.PlayerInteractEvent;
 import ports.mekanism.lib.event.level.BlockEvent;
 import ports.mekanism.lib.event.level.ChunkEvent;
 import ports.mekanism.lib.event.level.LevelEvent;
+import ports.mekanism.lib.event.server.ServerStartingEvent;
 import ports.mekanism.lib.event.server.ServerStoppedEvent;
+import ports.mekanism.lib.event.server.ServerStoppingEvent;
 import ports.mekanism.lib.eventbus.api.Event;
 import ports.mekanism.lib.fml.LogicalSide;
 import ports.mekanism.lib.fml.config.ConfigTracker;
@@ -67,6 +69,7 @@ public final class FabricGameEvents {
 
     static void register() {
         ServerLifecycleEvents.SERVER_STARTING.register(FabricGameEvents::serverStarting);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> post(new ServerStoppingEvent(server)));
         ServerLifecycleEvents.SERVER_STOPPED.register(FabricGameEvents::serverStopped);
         ServerTickEvents.START_SERVER_TICK.register(server -> post(new TickEvent.ServerTickEvent(TickEvent.Phase.START, () -> true, server)));
         ServerTickEvents.END_SERVER_TICK.register(server -> post(new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, server)));
@@ -115,6 +118,7 @@ public final class FabricGameEvents {
         copyDefaultServerConfigs(serverConfigs);
         ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.SERVER, serverConfigs);
         PermissionAPI.initializePermissionAPI();
+        post(new ServerStartingEvent(server));
     }
 
     private static void serverStopped(MinecraftServer server) {

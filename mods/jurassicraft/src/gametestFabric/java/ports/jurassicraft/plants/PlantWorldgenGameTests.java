@@ -60,6 +60,16 @@ public final class PlantWorldgenGameTests {
     }
 
     @GameTest(template = "jurassicraft:plant_culture_test")
+    public static void plantFossilsReplaceTaggedCoalInChunk(GameTestHelper helper) {
+        PlantFossilChecks.replaceTaggedCoal(helper);
+    }
+
+    @GameTest(template = "jurassicraft:plant_culture_test")
+    public static void plantFossilsRunAfterOrdinaryOres(GameTestHelper helper) {
+        PlantFossilChecks.scheduledAfterOrdinaryOres(helper);
+    }
+
+    @GameTest(template = "jurassicraft:plant_culture_test")
     public static void fossilsReplaceOnlyCoal(GameTestHelper helper) {
         var level = helper.getLevel();
         BlockPos pos = new BlockPos(1, 1, 1);
