@@ -1,7 +1,7 @@
 ## Fabric: not written yet
 
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, Robit,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, Robit,
   the simple generators' block-entity renderers. The energy cube core, the industrial alarm, the seismic vibrator and the
   pigment mixer were checked in `11-block-entity-renderers.md`.
   The fission burn glow and coolant body were checked on a fueled reactor: see the generators note below.
@@ -32,4 +32,5 @@
   and restrictive screens were not opened, and mechanical
   pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
-  heat tab and the inventory.
+  heat tab and the inventory. A QIO dashboard on a public frequency was checked: the item viewer shows the
+  frequency name and the diamond, emerald, gold and lapis stored on the drive.

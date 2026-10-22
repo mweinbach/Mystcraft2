@@ -101,8 +101,11 @@ that private frequency. A portable teleporter moves its holder onto a frequency 
 entangloporters on one public inventory frequency share energy, water, hydrogen and items. Fabric moves the entity
 with `FabricDimensions.teleport` when `placeEntity` asks to move, and does not build a nether portal. In the Fabric
 development client a formed teleporter draws its purple portal inside the frame, and the quantum entangloporter
-screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. The shared GameTests (core machines, factories, chemical
-machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. A QIO drive array,
+importer and exporter on one public frequency store chest items on a drive and return them
+(`QIOGameTests`). An item filter selects which stacks move. A private frequency stays with its owner, and a
+portable dashboard and a redstone adapter follow that frequency. The shared GameTests (core machines, factories, chemical
+machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, QIO, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
 chunk loading, render bounds, the digital miner, the player and living events, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
