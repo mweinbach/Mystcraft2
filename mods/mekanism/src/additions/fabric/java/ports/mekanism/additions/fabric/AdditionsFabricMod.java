@@ -14,5 +14,6 @@ public final class AdditionsFabricMod implements ModInitializer {
     public void onInitialize() {
         FabricLifecycle.addMod(MekanismAdditions.MODID, MekanismAdditions::new);
         FabricLifecycle.tryStart();
+        FabricAdditionsSpawns.register();
     }
 }

@@ -49,12 +49,15 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   the existing item-renderer hook, and blocking with them consumes durability on both loaders. The refined-glowstone armor model is not drawn fullbright: nothing calls
   `getGenericArmorModel`. Naturally spawned mobs do not wear the armor, because the living-spawn event is not
   posted. The Wildfire's Gender capability is not attached.
-- **Additions** plastic, glow panels and obsidian TNT are imported. Both loaders register the 271 blocks
-  (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel support,
-  slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic tints a
-  beacon. Flint, redstone, explosions, projectiles and fire spread prime obsidian TNT into its own entity. Baby
-  mobs, balloons, the walkie-talkie and voice chat are not ported. Balloon and baby-mob assets are still in the jar
-  and nothing registers them. The balloon pop sound event is still registered.
+- **Additions** plastic, glow panels, obsidian TNT, baby mobs and balloons are imported. Both loaders register the
+  271 blocks (`AdditionsModuleGameTests`), craft red plastic, slabs and fences, and run fluid logging, glow-panel
+  support, slick friction, reinforced blast resistance, plastic roads and obsidian TNT priming. Transparent plastic
+  tints a beacon. Flint, redstone, explosions, projectiles and fire spread prime obsidian TNT into its own entity.
+  Baby creepers, endermen, skeletons, strays and wither skeletons register with their models and renderers, spawn
+  where the parent mob spawns (Forge biome and structure modifiers; Fabric biome modifications and a structure-spawn
+  mixin) at half the parent's weight, and drop the parent's loot. Balloons craft from leather, string and a dye,
+  latch onto a mob and pop without dropping the item. The walkie-talkie and voice chat are not ported. Walkie-talkie
+  assets are still in the jar and nothing registers them.
 - Generator `forge:` fluid tags (bioethanol, deuterium, tritium, fusion fuel) ship in the Generators jar. They do
   not yet have Fabric `c:` bridges.
 
@@ -88,8 +91,11 @@ tier installer replaces the block while keeping the items, stored energy and aut
 oxidizer, dissolution chamber, washer, crystallizer, purification chamber, chemical injection chamber, rotary
 condensentrator, pressurized reaction chamber, isotopic centrifuge and solar neutron activator each run one recipe.
 Gases and slurries move through the Forge capabilities and the Fabric lookups. The chemical infuser screen
-opened in the development client; the other chemical machine screens were not opened. The nutritional liquifier, pigment
-extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. A dynamic tank shell of
+opened in the development client. The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste,
+the pigment extractor pulls red pigment from red wool, the pigment mixer combines red and yellow into orange, the
+painting machine paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and
+antimatter into an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen opened in
+the development client; the other chemical machine screens were not opened. A dynamic tank shell of
 casing, structural glass and one valve forms at 3×3×3, rejects a missing block or a 2×2×2, and moves fluid through
 the valve's loader fluid API. Breaking the blocks and loading their saved cache brings the fluid and the container
 edit mode back. The master's render box is that structure. In the development client that formed tank draws the fluid
@@ -127,11 +133,11 @@ client a formed plant shows its lit controller, and the input fluid renders thro
 development client `/mek build fission` built an 18×18×18 reactor. Reactor glass shows the casing frame and a
 checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
 were not drawn, and the reactor screen was not opened. The shared GameTests (core machines, factories, chemical
-machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
-tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
-fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,
-crafting and block behaviour) pass on both loaders.
+machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
+chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
+the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
+turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
+registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 - Energy, items and fluids cross block boundaries as Team Reborn Energy (1 E per FE, so Mekanism's FE rate applies)
   and Transfer API storages, in both directions: every block entity the port registers is exposed through
@@ -256,7 +262,7 @@ modules. `onArmorTick` already ran; the modules that only needed a player tick n
 - Forge events that are not fired yet: chunk data load and save, `AddReloadListenerEvent`, client level load and
   unload, and recipes updated. Entity leave is posted on the server; the client copy Forge also posts is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser, the other multiblocks (SPS), QIO, the digital miner, Robit, gear,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, the other multiblocks (SPS), QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers, and the fusion renderer. The
   fission burn glow and coolant body were not seen: the client reactor was not fueled, and its screen was not opened.
   Factory screens other than the basic smelting factory were not opened. The wind generator item is

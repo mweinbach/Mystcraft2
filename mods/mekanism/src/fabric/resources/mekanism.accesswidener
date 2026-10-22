@@ -163,3 +163,9 @@ accessible class net/minecraft/client/renderer/FogRenderer$FogData
 accessible field net/minecraft/client/renderer/FogRenderer$FogData start F
 accessible field net/minecraft/client/renderer/FogRenderer$FogData end F
 accessible field net/minecraft/client/renderer/FogRenderer$FogData shape Lcom/mojang/blaze3d/shaders/FogShape;
+# Baby creepers and parrot imitations. The additions jar ships the same Forge access transformer.
+accessible field net/minecraft/world/entity/animal/Parrot MOB_SOUND_MAP Ljava/util/Map;
+accessible field net/minecraft/world/entity/monster/Creeper explosionRadius I
+accessible method net/minecraft/world/level/biome/MobSpawnSettings$MobSpawnCost <init> (DD)V
+extendable method net/minecraft/world/entity/monster/Creeper explodeCreeper ()V
+accessible method net/minecraft/world/entity/monster/Creeper spawnLingeringCloud ()V

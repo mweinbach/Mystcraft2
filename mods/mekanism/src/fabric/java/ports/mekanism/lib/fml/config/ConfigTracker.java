@@ -49,10 +49,21 @@ public final class ConfigTracker {
 
     public void loadConfigs(ModConfig.Type type, Path configBasePath) {
         for (ModConfig config : configSets.get(type)) {
-            CommentedFileConfig configData = config.getHandler().reader(configBasePath).apply(config);
-            config.setConfigData(configData);
-            config.fireEvent(new ModConfigEvent.Loading(config));
+            loadConfig(config, configBasePath);
         }
+    }
+
+    /**
+     * Opens one config file. A second call leaves the already loaded file in place, so biome modifications can read
+     * server values during {@code MinecraftServer} construction and the later server-starting load does not reopen it.
+     */
+    public void loadConfig(ModConfig config, Path configBasePath) {
+        if (config.getConfigData() != null) {
+            return;
+        }
+        CommentedFileConfig configData = config.getHandler().reader(configBasePath).apply(config);
+        config.setConfigData(configData);
+        config.fireEvent(new ModConfigEvent.Loading(config));
     }
 
     public void unloadConfigs(ModConfig.Type type, Path configBasePath) {

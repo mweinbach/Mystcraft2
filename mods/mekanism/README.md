@@ -25,7 +25,7 @@ outputs brine and lithium. The fission reactor forms, burns fissile fuel into wa
 crosses the meltdown threshold. Fusion is not verified yet. Tools' paxels, tools, armor
 and shields are imported, and both loaders register them, craft them and run their strip, flatten and till actions.
 Additions' plastic blocks (every color, including slabs, stairs, fences, roads, transparent and glow variants),
-glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the walkie-talkie are not.
+glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walkie-talkie is not.
 
 - **Forge.** The upstream core sources build against Forge 43.5.0 unchanged except for the removed integrations
   listed in [UPSTREAM.md](UPSTREAM.md). The shared GameTests pass on a dedicated GameTest server. The Forge client
@@ -43,8 +43,12 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
   ethene, the isotopic centrifuge separates fissile fuel, and the solar neutron activator makes polonium when it can
   see the sun. Those gases and slurries move through the chemical lookups. The chemical infuser screen,
   with its input gauges, output gauge, energy bar and configuration tabs, opened in the development client.
-  The other chemical machine screens were not opened. The nutritional liquifier, pigment
-  extractor, pigment mixer, painting machine and nucleosynthesizer are not exercised yet. Energy, items and fluids reach
+  The nutritional liquifier turns one dried kelp into 50 mB of nutritional paste, the pigment extractor pulls
+  red pigment from red wool, the pigment mixer combines red and yellow into orange, the painting machine
+  paints dye base into red dye, and the antiprotonic nucleosynthesizer turns a tin ingot and antimatter into
+  an iron ingot. Pigments move through the pigment lookup. The pigment extractor screen, with its input slot,
+  progress bar, pigment gauge, drain slot, energy bar and configuration tabs, opened in the development client.
+  The other chemical machine screens were not opened. Energy, items and fluids reach
   other mods through Team Reborn Energy and the Transfer API, and other mods can charge Mekanism's energy items and
   fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
@@ -74,11 +78,11 @@ glow panels and obsidian TNT are in both loaders. Baby mobs, balloons and the wa
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
-  machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
+  machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
   render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
   fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,
-  crafting and block behaviour) pass on both loaders.
+  crafting, block behaviour, baby mobs and balloons) pass on both loaders.
 
 Do not install either JAR in a world you care about.
 
@@ -89,7 +93,7 @@ Do not install either JAR in a world you care about.
 | `src/main` | Upstream Mekanism API, core code, assets and generated data, shared by both loaders |
 | `src/generators` | Upstream Generators code, assets and generated data, plus each loader's descriptor. Its own jars |
 | `src/tools` | Upstream Tools code, assets and generated data, plus each loader's descriptor. Its own jars |
-| `src/additions` | Additions plastic, glow panels and obsidian TNT, plus each loader's descriptor. Its own jars |
+| `src/additions` | Additions plastic, glow panels, obsidian TNT, baby mobs and balloons, plus each loader's descriptor. Its own jars |
 | `src/forge` | Forge `mods.toml` and upstream's access transformer |
 | `src/fabric` | Fabric metadata, access widener, mixins and the Forge API mirror (`ports.mekanism.lib`) |
 | `fabric/` | The isolated Loom build of the Fabric variant |
