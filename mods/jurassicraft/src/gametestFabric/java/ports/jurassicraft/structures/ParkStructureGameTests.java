@@ -17,9 +17,9 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import ports.jurassicraft.PortMod;
-import ports.jurassicraft.config.JurassicConfig;
 import ports.jurassicraft.mural.MuralRegistry;
 import ports.jurassicraft.mural.MuralEntity;
 import ports.jurassicraft.mural.MuralType;
@@ -68,22 +68,8 @@ public final class ParkStructureGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
-    public void paddockRarityControlsVanillaSearchGrid(GameTestHelper helper) {
-        var common = new PaddockPlacement(50);
-        var normal = new PaddockPlacement(4000);
-        var rare = new PaddockPlacement(160000);
-        check(helper, common.spacing() == 7 && normal.spacing() == 63 && rare.spacing() == 400,
-                "paddock rarity must determine the approximate one-in-N placement grid");
-        check(helper, common.separation() < common.spacing() && normal.separation() < normal.spacing(),
-                "random spread must retain a valid separation");
-        var first = normal.getPotentialStructureChunk(1234, -100, 200);
-        var again = normal.getPotentialStructureChunk(1234, -100, 200);
-        check(helper, first.equals(again), "structure candidates must remain deterministic across reloads");
-        var set = helper.getLevel().registryAccess().registryOrThrow(Registry.STRUCTURE_SET_REGISTRY)
-                .get(new ResourceLocation(PortMod.MOD_ID, "raptor_paddock"));
-        check(helper, set != null && set.placement() instanceof PaddockPlacement placement
-                        && placement.spacing() == PaddockPlacement.spacingFor(JurassicConfig.RAPTOR_PADDOCK_RARITY.get()),
-                "the loaded structure set must use the configured rarity");
+    public void paddockRarityMatchesUpstreamChunkRoll(GameTestHelper helper) {
+        StructureParityChecks.paddockRollsPerChunk(helper);
         helper.succeed();
     }
 
@@ -158,6 +144,11 @@ public final class ParkStructureGameTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    @GameTest(template = "jurassicraft:park_structure_test")
+    public void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
+    }
     @GameTest(template = "jurassicraft:park_structure_test")
     public void visitorPaintingKeepsTransformedAnchor(GameTestHelper helper) {
         BlockPos root = helper.absolutePos(BlockPos.ZERO);
@@ -195,8 +186,9 @@ public final class ParkStructureGameTests implements FabricGameTest {
                 .add(origin.getX(), origin.getY(), origin.getZ());
         BlockPos anchor = new BlockPos(transformed);
         var bounds = new BoundingBox(anchor.getX(), anchor.getY(), anchor.getZ(), anchor.getX(), anchor.getY(), anchor.getZ());
-        ParkHangingEntities.place(template, origin, settings, bounds, level);
-        ParkHangingEntities.place(template, origin, settings, new BoundingBox(anchor.offset(4, 0, 0)), level);
+        var placed = new HashSet<BlockPos>();
+        ParkHangingEntities.place(template, origin, settings, bounds, level, placed);
+        ParkHangingEntities.place(template, origin, settings, new BoundingBox(anchor.offset(4, 0, 0)), level, placed);
         helper.runAfterDelay(2, () -> {
             var matches = level.getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class,
                     new AABB(anchor).inflate(2), entity -> entity.hasCustomName() && entity.getName().getString().equals("Park fixture"));

@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -17,20 +17,39 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.config.JurassicConfig;
 
-/** One seed-derived candidate for each world, selected in jungle or savanna. */
-public final class VisitorPlacement extends StructurePlacement {
+/**
+ * One seed-derived candidate in jungle or savanna. Extending random spread lets
+ * {@code findNearestMapStructure} see it; every search cell still names that one chunk.
+ */
+public final class VisitorPlacement extends RandomSpreadStructurePlacement {
     public static final Codec<VisitorPlacement> CODEC = Codec.unit(VisitorPlacement::new);
+    private static final int SEARCH_SPACING = 32;
     private static final TagKey<Biome> TROPICAL = TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(PortMod.MOD_ID,"has_structure/raptor_paddock"));
     private static final Map<ChunkGenerator, Map<Long, Optional<ChunkPos>>> CACHE = new WeakHashMap<>();
-    public VisitorPlacement() { super(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1, 0, Optional.empty()); }
-    @Override protected boolean isPlacementChunk(ChunkGenerator generator, RandomState state, long seed, int x, int z) {
+    /** Present candidates only, so a dimension without the biome does not hide the overworld start. */
+    private static final Map<Long, ChunkPos> FOUND = new ConcurrentHashMap<>();
+
+    public VisitorPlacement() {
+        super(SEARCH_SPACING, SEARCH_SPACING - 1, RandomSpreadType.LINEAR, 0);
+    }
+
+    @Override
+    protected boolean isPlacementChunk(ChunkGenerator generator, RandomState state, long seed, int x, int z) {
         return candidate(generator, state, seed).filter(pos -> pos.x == x && pos.z == z).isPresent();
     }
+
+    @Override
+    public ChunkPos getPotentialStructureChunk(long seed, int chunkX, int chunkZ) {
+        ChunkPos found = FOUND.get(seed);
+        return found != null ? found : ChunkPos.ZERO;
+    }
+
     /** Candidate only; callers must still verify that a valid structure start was generated. */
     public static Optional<ChunkPos> candidate(ServerLevel level) {
         return candidate(level, JurassicConfig.GENERATE_VISITOR_CENTRE.get());
@@ -51,8 +70,10 @@ public final class VisitorPlacement extends StructurePlacement {
     }
     private static Optional<ChunkPos> candidate(ChunkGenerator generator, RandomState state, long seed) {
         synchronized (CACHE) {
-            return CACHE.computeIfAbsent(generator, ignored -> new HashMap<>())
+            Optional<ChunkPos> chosen = CACHE.computeIfAbsent(generator, ignored -> new HashMap<>())
                     .computeIfAbsent(seed, ignored -> choose(generator, state, seed));
+            chosen.ifPresent(pos -> FOUND.put(seed, pos));
+            return chosen;
         }
     }
     private static Optional<ChunkPos> choose(ChunkGenerator generator, RandomState state, long seed) {

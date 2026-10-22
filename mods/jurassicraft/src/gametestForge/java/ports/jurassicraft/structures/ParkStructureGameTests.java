@@ -2,7 +2,6 @@ package ports.jurassicraft.structures;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +20,6 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.concurrent.atomic.AtomicInteger;
 import ports.jurassicraft.PortMod;
-import ports.jurassicraft.config.JurassicConfig;
 import ports.jurassicraft.mural.MuralRegistry;
 import ports.jurassicraft.mural.MuralEntity;
 import ports.jurassicraft.mural.MuralType;
@@ -72,22 +70,8 @@ public final class ParkStructureGameTests {
     }
 
     @GameTest(template = "cleaning_station_test", templateNamespace = PortMod.MOD_ID)
-    public static void paddockRarityControlsVanillaSearchGrid(GameTestHelper helper) {
-        var common = new PaddockPlacement(50);
-        var normal = new PaddockPlacement(4000);
-        var rare = new PaddockPlacement(160000);
-        check(helper, common.spacing() == 7 && normal.spacing() == 63 && rare.spacing() == 400,
-                "paddock rarity must determine the approximate one-in-N placement grid");
-        check(helper, common.separation() < common.spacing() && normal.separation() < normal.spacing(),
-                "random spread must retain a valid separation");
-        var first = normal.getPotentialStructureChunk(1234, -100, 200);
-        var again = normal.getPotentialStructureChunk(1234, -100, 200);
-        check(helper, first.equals(again), "structure candidates must remain deterministic across reloads");
-        var set = helper.getLevel().registryAccess().registryOrThrow(Registry.STRUCTURE_SET_REGISTRY)
-                .get(new ResourceLocation(PortMod.MOD_ID, "raptor_paddock"));
-        check(helper, set != null && set.placement() instanceof PaddockPlacement placement
-                        && placement.spacing() == PaddockPlacement.spacingFor(JurassicConfig.RAPTOR_PADDOCK_RARITY.get()),
-                "the loaded structure set must use the configured rarity");
+    public static void paddockRarityMatchesUpstreamChunkRoll(GameTestHelper helper) {
+        StructureParityChecks.paddockRollsPerChunk(helper);
         helper.succeed();
     }
 
@@ -159,5 +143,10 @@ public final class ParkStructureGameTests {
         check(helper, mural.survives(), "mural must remain attached to the placed wall");
         nearby.forEach(MuralEntity::discard);
         helper.succeed();
+    }
+
+    @GameTest(template = "park_structure_test", templateNamespace = PortMod.MOD_ID)
+    public static void reloadedVisitorPieceDoesNotDuplicateMural(GameTestHelper helper) {
+        ParkHangingPersistence.reloadedVisitorPieceDoesNotDuplicateMural(helper);
     }
 }

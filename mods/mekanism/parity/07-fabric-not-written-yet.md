@@ -1,7 +1,6 @@
 ## Fabric: not written yet
 
-- Forge events that are not fired yet: client level load and unload, and recipes updated. Entity leave is posted on
-  the server; the client copy Forge also posts is unwired.
+- Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
 - One key mapping bound to more than one key, and custom ingredient types. Modifiers on a mapping are not saved.
 - Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, QIO, the digital miner, Robit, gear,
   the energy cube's core renderer, the simple generators' block-entity renderers. The
@@ -23,4 +22,6 @@
   The plasma renderer draws only while the reactor is burning; this reactor was not fueled, so the plasma was not
   drawn, and the controller screen was not opened. A red basic logistical transporter was checked: items riding
   inside it are drawn in the pipe. The sorter, diversion and restrictive screens were not opened, and mechanical
-  pipes and pressurized tubes were not watched in a client.
+  pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
+  are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
+  heat tab and the inventory.

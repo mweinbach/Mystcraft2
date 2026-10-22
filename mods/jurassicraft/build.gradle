@@ -87,6 +87,9 @@ minecraft.runs {
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     doFirst {
         delete file('run/gameTestServer/world')
+        def serverProperties = file('run/gameTestServer/server.properties')
+        serverProperties.parentFile.mkdirs()
+        serverProperties.text = 'max-tick-time=-1\ngenerate-structures=true\n'
         def configDir = file('run/gameTestServer/config')
         configDir.mkdirs()
         new File(configDir, 'fml.toml').text = '''\
@@ -99,7 +102,7 @@ disableOptimizedDFU = true
     }
 }
 
-// Official-name -> SRG mappings for the client-only controls mixin in the packaged JAR.
+// Official-name -> SRG mappings for the village-assembly and controls mixins in the packaged JAR.
 dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
 def forgeMixinRefmap = layout.buildDirectory.file('generated/mixin/jurassicraft.forge.refmap.json')
 tasks.named('compileJava', JavaCompile) {

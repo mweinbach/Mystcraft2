@@ -67,7 +67,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
-| Melee attack pose | Fabric's synced attack timer, alongside the shared leap and spit animations | Closest to upstream's `ATTACKING` pose animation; Forge only used the arm swing. |
+| Melee attack pose | Shared species `ATTACKING` keyframes for the full imported duration | Upstream plays that pose from the attack timer. Vanilla `swingTime` is only the hit cue and no longer drives the model. |
 | Juveniles follow food | Fabric's `TemptJuvenileDinosaurGoal` | Upstream `TemptNonAdultEntityAI` (under 50% grown); Forge lacked it. |
 | Carcass on lethal damage | Both (equivalent) | Matches upstream when `allowCarcass` is on. |
 | Birth near a forced pose or tranquilizer | Fabric | Same pause rules; the mother's eggs are found around her. |
@@ -104,14 +104,18 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Iron nuggets, iron ingots, redstone, blue dyes | New `#jurassicraft:` tags | Successors of upstream ore-dictionary inputs: the vanilla item plus optional `#forge:` and `#c:` tags. Literal `minecraft:iron_ingot` stays where upstream used the item. |
 | Fossil-nest replaceable blocks | Union | Both ports' stone, dirt and sand groups plus optional `forge` and `c` ore tags. |
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
-| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. |
+| DNA machine block models | Per loader | Forge's `forge:obj` loader and Fabric's `jurassicraft_obj` loader read the same OBJ and MTL files. Fabric also substitutes item models that parent those blocks, because a vanilla block model cannot parent that custom model. Both still use the block display transforms from `minecraft:block/block`. |
+
+Machine motion follows the 1.12.2 renderers that were actually registered. The cleaning station uses the same spin-up and spin-down and sprays the original wash particles while it is cleaning. The DNA extractor and sequencer show the raw item model, and the sequencer bob uses the local player's age. Feeder lids and incubator eggs were already on the upstream timings. The embryonic machine adds the petri-dish cubes for slot 0 and the test-tube rack for slot 1, which is how the upstream properties were named. Combinator screens are drawn by the block entity because their texture offsets change in hybridizer mode. A placed calcification machine always shows the egg cubes: upstream treated an empty slot as present (`!= null`). The cultivator spin renderer exists upstream but its registration is commented out, so this port does not run it. The fossil grinder, synthesizer, and the remaining machine cubes have no motion in the snapshot; their Tabula files contain no animations.
 
 ### Structures and villages
 
 | Topic | Kept | Reason |
 | --- | --- | --- |
 | Park murals and paintings | Fabric's `ParkHangingEntities` | Places hanging and other template entities in the anchor chunk after the walls. Forge's `HangingProcessor` relied on a Forge-only hook. |
-| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. |
+| Village pools and trades | Shared `VillagePools` and `VillageTrades` | Same digsites, geneticist and paleontologist trades on both loaders. Each village rolls upstream's 0-or-1 limit for the geneticist house and one shared 0-or-1 limit for every digsite. The digsite variant weights are 5:3:2 for types 3, 1 and 2, matching upstream's 50/30/20 roll. |
+| Raptor paddock rarity | Shared `PaddockPlacement` | An eligible chunk succeeds when `nextInt(rarity) == 0`, with no minimum spacing. Upstream drew that roll from the chunk random shared with every other world generator; this port uses the vanilla salted structure random, so the same chunk can differ while the chance stays 1/N. |
+| Visitor-centre search | Shared `VisitorPlacement` | Vanilla structure search only visits concentric rings and random-spread placements. The visitor centre is a random-spread placement whose every cell names its single seed-derived chunk, and world generation still accepts only that chunk. |
 | Workstation POIs | Shared definitions | Fabric registers them through `PointOfInterestHelper`, which also maps the block states villagers look for. |
 | Visitor-centre maps | Forge's `maps` package | Cartographers sell the map on both loaders. |
 | Villager digsite memory | Shared logic, loader storage | Forge persistent data; Fabric stores the same tag under `JurassiCraftData` via a mixin. |
@@ -133,10 +137,13 @@ The rule: where the two ports differed, keep the variant that matches upstream
 
 ## GameTests
 
-Both loaders run in-world GameTests from development-only mods: 211 on Forge
-(`./scripts/gradle.sh :jurassicraft:runGameTestServer`) and 133 on Fabric
-(`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
+Both loaders run in-world GameTests from development-only mods, and all required GameTests pass on both loaders
+(`./scripts/gradle.sh :jurassicraft:runGameTestServer` and
+`./scripts/gradle.sh -p mods/jurassicraft/fabric runGametest -PwithJade -PwithEmi`).
 Their classes, structures and test-only data are excluded from the production JARs.
+The same Forge suite passed again with `-PwithProjectE`, and the Fabric suite
+passed again with `-PwithItemAlchemy`. Each EMC audit compared 626 items with
+the live mod.
 
 The vehicle record test and the dinosaur birth test failed intermittently. Vanilla
 starts a test one tick after placing its structure, while newly forced chunks
@@ -158,18 +165,28 @@ Tests changed while merging:
 - The goat, natural-spawn, village and loot tests call the real loader sinks and config.
 - The Fabric coal test tags a stand-in block as `c:coal_ores` from the GameTest mod, since Fabric API 0.77 ships no such block tag, and checks that the shared coal tag picks it up.
 - The ancient-tree layout reference moved to `src/gametestCommon` so both suites read it.
+- The structure walk places the visitor centre in two rotations, the raptor paddock, and every village building chunk by chunk, then compares that with a one-shot placement. A mismatch in visitor-centre blocks, loot, murals or paintings fails the test. Paddock and village differences are written out as notes.
+- Wide murals are spawned only after their supporting wall is present on the worldgen region. `HangingEntity.survives()` reads the server level and deadlocks chunk generation, so it is not used there. Anchors already placed are saved on the structure piece, so reloading it does not spawn those murals again.
+- Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
+- Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
 - The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
 
 ## Known gaps against 1.12.2
 
-- Some machine and animal animations are simplified; species-specific procedural motion and the exact attack pose differ.
-- Village buildings use weighted jigsaw pools without upstream's per-village limits; custom villages that replace vanilla house pools need their own entries.
-- Paddock rarity is approximate, and the missing upstream cryonics loot table uses laboratory loot.
+- The goat's neck sway is not the 1.12.2 procedural chain.
+- Dinosaur feet do not plant on slopes; the 1.12.2 leg solver is not ported. Tail and neck sway, breathing, walk cycles, head look, and species attack poses follow the original animators.
+- Village buildings are injected into the vanilla house pools. A datapack that replaces those pools does not inherit them.
+- When a digsite variant can't fit, a different variant is placed, whereas upstream placed nothing.
+- The cryonics chest uses the laboratory loot table. Upstream names `jurassicraft:structure/visitor_centre/cryonics` and the visitor-centre structure has a Cryonics marker, but revision f7b194e and its parent commit never define a pool: `Loot.handleTable` has no cryonics branch, the loot directory has no `cryonics.json`, and the structure NBT stores no loot table. An undefined 1.12 table leaves the chest empty; the laboratory fallback is what this port can recover.
 - The hybridizer has no recipes because the imported version registers no hybrid species.
-- Third-party structure search may skip the visitor centre; `/locate structure jurassicraft:visitor_centre` works.
 - The dart gun has a new survival recipe.
 - Genetic item variants use separate IDs instead of damage values; 1.12 worlds and items are not migrated.
 - A surviving lone dinosaur parent does not form a new family, as upstream.
+- Chunk-by-chunk generation of the visitor centre and raptor paddock still leaves vines, mushrooms, levers, and fence or wall connections different from one `placeInWorld` call (about 123–170 visitor blocks, 37 paddock blocks, plus connection flags such as a spruce fence's `south` link). Keeping the template states instead leaves hundreds of plants that a full neighbor update removes. Settling them needs neighboring chunks to be writable during worldgen.
+- A raptor-paddock mossy cobblestone wall can be tall on the chunk walk and low after a full placement. That stays with the paddock work.
+- The Forge client logged that `#jurassicraft:park_structures` could not load its own structure ids while creating a world. `/spawnjc` and the structure sets still placed the buildings.
+- Opening the Forge development world to LAN advertised an IPv6 link-local address. A second development client listed the world and failed to connect to that address (`Invalid argument`).
+- The Fabric client's reload loop, `BlockModel parent has to be a block model`, was fixed by the merged machine-model parent change. This pass did not boot that client again.
 
 ## Loader limits
 
