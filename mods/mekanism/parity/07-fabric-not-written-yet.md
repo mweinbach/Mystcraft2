@@ -29,4 +29,5 @@
   and restrictive screens were not opened, and mechanical
   pipes and pressurized tubes were not watched in a client. A formed teleporter was checked: the frame and the purple portal
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
-  heat tab and the inventory.
+  heat tab and the inventory. A survival player flying with a hydrogen jetpack was checked: close third person, HUD
+  hidden, and flame particles visible behind the jetpack.

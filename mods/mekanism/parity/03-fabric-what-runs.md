@@ -101,7 +101,7 @@ with `FabricDimensions.teleport` when `placeEntity` asks to move, and does not b
 development client a formed teleporter draws its purple portal inside the frame, and the quantum entangloporter
 screen opens beside it with the frequency selector, the energy and heat tabs, and the inventory. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, transporters, the sorter, mechanical pipes and pressurized tubes, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
-chunk loading, render bounds, the digital miner, the player and living events, server chunk data and recipe reload, mode-change packets,
+chunk loading, render bounds, the digital miner, the player and living events, gear modules, server chunk data and recipe reload, mode-change packets,
 a Generators registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the supercritical
 phase shifter, the industrial turbine, the fission reactor, the fusion reactor, lasers, the teleporter and the quantum entangloporter, the dimensional stabilizer, seismic vibrator, industrial alarm, fuelwood heater, resistive heater, chargepad, electric pump, fluidic plenisher, formulaic assemblicator, modification station and personal storage, Tools registration, crafting, tool

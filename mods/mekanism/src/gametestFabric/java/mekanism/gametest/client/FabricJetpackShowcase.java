@@ -59,7 +59,11 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
     private void tick(Minecraft minecraft) {
         minecraft.getToasts().clear();
         minecraft.gui.getChat().clearMessages(false);
+        minecraft.options.pauseOnLostFocus = false;
         minecraft.options.keyJump.setDown(true);
+        if (minecraft.screen != null) {
+            minecraft.setScreen(null);
+        }
         if (minecraft.player == null) {
             if (!started && minecraft.getOverlay() == null && minecraft.screen instanceof TitleScreen) {
                 started = true;
@@ -71,7 +75,7 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
             }
             return;
         }
-        if (minecraft.screen != null || minecraft.getSingleplayerServer() == null) {
+        if (minecraft.getSingleplayerServer() == null) {
             return;
         }
         if (!equipped) {
@@ -100,6 +104,7 @@ public final class FabricJetpackShowcase implements ClientModInitializer {
     private static void prepare(Minecraft minecraft) {
         minecraft.options.hideGui = true;
         minecraft.options.renderDebug = false;
+        minecraft.options.pauseOnLostFocus = false;
         minecraft.options.tutorialStep = TutorialSteps.NONE;
         minecraft.options.gamma().set(1.0D);
         minecraft.options.narrator().set(NarratorStatus.OFF);
