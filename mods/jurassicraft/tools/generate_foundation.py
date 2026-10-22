@@ -222,22 +222,7 @@ for name, period, bones in species:
               "textures": {"layer0": f"jurassicraft:items/bones/{texture}"}})
         translations[f"item.jurassicraft.{item_name}"] = f"{display} Fossil {bone.replace('_', ' ').title()}"
 
-    count, low, high = {"cretaceous": (1, 44, 60), "jurassic": (1, 38, 50),
-                        "triassic": (3, 32, 44), "devonian": (3, 12, 25)}[period]
-    features[fossil] = (5, count, low, high)
-    feature = f"jurassicraft:{fossil}"
-    write(DATA / f"worldgen/configured_feature/{fossil}.json", {
-        "type": "minecraft:ore", "config": {"size": 5, "discard_chance_on_air_exposure": 0.0,
-            "targets": [{"target": {"predicate_type": "minecraft:tag_match", "tag": tag},
-                         "state": {"Name": feature}} for tag in (
-                             "minecraft:stone_ore_replaceables", "minecraft:deepslate_ore_replaceables")]},
-    })
-    write(DATA / f"worldgen/placed_feature/{fossil}.json", {"feature": feature, "placement": [
-        {"type": "minecraft:count", "count": count}, {"type": "minecraft:in_square"},
-        {"type": "minecraft:height_range", "height": {"type": "minecraft:uniform",
-            "min_inclusive": {"absolute": low}, "max_inclusive": {"absolute": high}}},
-        {"type": "minecraft:biome"},
-    ]})
+# Dinosaur fossils share one 32-attempt feature; per-species ore features are not regenerated.
 
 mineable.extend(f"jurassicraft:{name}" for name in (
     "cleaning_station", "fossil_grinder", "feeder", "dna_extractor", "dna_sequencer",
@@ -272,5 +257,7 @@ for fragment in fragments:
             raise ValueError(f"Conflicting translation {key} in {fragment}")
         translations[key] = value
 write(ASSETS / "lang/en_us.json", translations)
+write(DATA / "worldgen/configured_feature/fossil_deposits.json", {"type": "jurassicraft:fossil_deposits", "config": {}})
+write(DATA / "worldgen/placed_feature/fossil_deposits.json", {"feature": "jurassicraft:fossil_deposits", "placement": []})
 write(DATA / "forge/biome_modifier/ores.json", {"type": "forge:add_features", "biomes": "#minecraft:is_overworld",
     "features": [f"jurassicraft:{name}" for name in features], "step": "underground_ores"})
