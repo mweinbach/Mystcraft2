@@ -23,11 +23,15 @@ public record JurassicBiomeModifier(Registry<PlacedFeature> features) implements
     ).apply(instance, JurassicBiomeModifier::new));
 
     @Override public void modify(Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
-        if (phase != Phase.ADD) return;
-        for (var placement : WorldgenPlacements.all()) {
-            if (placement.enabled() && biome.is(placement.biomes()))
-                builder.getGenerationSettings().addFeature(placement.step(), features.getHolderOrThrow(placement.feature()));
+        if (phase == Phase.ADD || phase == Phase.AFTER_EVERYTHING) {
+            for (var placement : WorldgenPlacements.all()) {
+                // Plant fossils scan coal, so they are added after ordinary feature additions.
+                if (placement.afterOtherFeatures() != (phase == Phase.AFTER_EVERYTHING)) continue;
+                if (placement.enabled() && biome.is(placement.biomes()))
+                    builder.getGenerationSettings().addFeature(placement.step(), features.getHolderOrThrow(placement.feature()));
+            }
         }
+        if (phase != Phase.ADD) return;
         var spawns = builder.getMobSpawnSettings();
         NaturalSpawns.BiomeView view = new NaturalSpawns.BiomeView() {
             @Override public boolean is(TagKey<Biome> tag) { return biome.is(tag); }
