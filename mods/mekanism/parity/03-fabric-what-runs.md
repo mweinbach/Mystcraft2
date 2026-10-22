@@ -66,7 +66,8 @@ development client `/mek build fission` built an 18×18×18 reactor. Reactor gla
 checkerboard of fuel assemblies and control rods. The reactor was not fueled, so the burn glow and the coolant body
 were not drawn, and the reactor screen was not opened. The shared GameTests (core machines, factories, chemical
 machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement,
-chunk loading, render bounds, the player and living events, a Generators registry smoke test, the simple generators,
+chunk loading, render bounds, the player and living events, server chunk data and recipe reload, a Generators
+registry smoke test, the simple generators,
 the dynamic tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial
 turbine, the fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions
 registration, crafting, block behaviour, baby mobs and balloons) pass on both loaders.

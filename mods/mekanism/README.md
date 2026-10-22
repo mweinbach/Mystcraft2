@@ -55,7 +55,8 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
   Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
-  modules run on a server. The client tick publishes the jump key those jetpacks read.
+  modules run on a server. The client tick publishes the jump key those jetpacks read. Chunk save and load carry
+  Mekanism's world-gen version, so retrogen sees an old chunk, and `/reload` refreshes the recipe cache.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.
   A dynamic tank forms from casing, structural glass and a valve, the valve moves fluid through the Transfer API, and
   the development client draws that stored fluid through the glass.
@@ -79,7 +80,7 @@ glow panels, obsidian TNT, baby mobs and balloons are in both loaders. The walki
   [PARITY.md](PARITY.md) lists every remaining gap.
 - Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests (core machines, factories, chemical
   machines, pigment machines, loader interop, chemical lookups, ore generation, item and block hooks, fluid placement, chunk loading,
-  render bounds, the player and living events, a Generators registry smoke test, the simple generators, the dynamic
+  render bounds, the player and living events, server chunk data and recipe reload, a Generators registry smoke test, the simple generators, the dynamic
   tank, the induction matrix, the thermoelectric boiler, the thermal evaporation plant, the industrial turbine, the
   fission reactor, Tools registration, crafting, tool actions and shield blocking, and Additions registration,
   crafting, block behaviour, baby mobs and balloons) pass on both loaders.
