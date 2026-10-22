@@ -48,7 +48,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * One recipe for each gas-processing machine. Gases and slurries move through the loader's chemical lookups: Forge
  * capabilities on Forge and the Fabric API lookups on Fabric. The nutritional liquifier, pigment machines and
- * nucleosynthesizer are a separate recipe group and are not covered here. The electrolytic separator already is.
+ * nucleosynthesizer are covered by {@link PigmentMachineGameTests}. The electrolytic separator already is.
  */
 public class ChemicalMachineGameTests {
 

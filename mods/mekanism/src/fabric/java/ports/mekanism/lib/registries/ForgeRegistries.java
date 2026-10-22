@@ -5,6 +5,7 @@
 package ports.mekanism.lib.registries;
 
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -49,6 +51,7 @@ public final class ForgeRegistries {
     public static final IForgeRegistry<RecipeSerializer<?>> RECIPE_SERIALIZERS = vanilla(Registry.RECIPE_SERIALIZER);
     public static final IForgeRegistry<Attribute> ATTRIBUTES = vanilla(Registry.ATTRIBUTE);
     public static final IForgeRegistry<Feature<?>> FEATURES = vanilla(Registry.FEATURE);
+    public static final IForgeRegistry<Biome> BIOMES = vanilla(BuiltinRegistries.BIOME);
 
     private ForgeRegistries() {
     }

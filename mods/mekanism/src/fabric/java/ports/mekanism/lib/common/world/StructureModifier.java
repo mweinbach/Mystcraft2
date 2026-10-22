@@ -5,11 +5,24 @@
 package ports.mekanism.lib.common.world;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.levelgen.structure.Structure;
 
 /**
- * A data-driven change to structures. Mekanism registers the serializer registry but no modifiers.
+ * A data-driven change to structures, read from {@code data/<namespace>/forge/structure_modifier}. Forge applies the
+ * files itself. Fabric calls the same modifier when a structure overrides mob spawns.
  */
 public interface StructureModifier {
 
+    void modify(Holder<Structure> structure, Phase phase, ModifiableStructureInfo.StructureInfo.Builder builder);
+
     Codec<? extends StructureModifier> codec();
+
+    enum Phase {
+        BEFORE_EVERYTHING,
+        ADD,
+        REMOVE,
+        MODIFY,
+        AFTER_EVERYTHING
+    }
 }
