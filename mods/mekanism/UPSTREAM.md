@@ -34,8 +34,8 @@ Copied unchanged, then edited as listed below:
   They do not use the JEI API; GUIs use them for recipe-viewer click areas and ghost slots.
 - The JEI plugin (`mekanism.client.jei`, `mekanism.generators.client.jei`, `mekanism.tools.client.jei`) and
   `mekanism.api.integration.jei.IMekanismJEIHelper`. Fluid ingredients go through JEI's `IPlatformFluidHelper` so the
-  same categories compile on Forge and Fabric. Recipe transfer (`FormulaicRecipeTransferInfo`,
-  `GhostIngredientHandler`, `QIOCraftingTransferHandler`) is not imported.
+  same categories compile on Forge and Fabric. Recipe transfer is `FormulaicRecipeTransferInfo`,
+  `GhostIngredientHandler` and `QIOCraftingTransferHandler`.
 
 Not imported: CraftTweaker, ComputerCraft, OpenComputers 2, Curios, Wildfire's Gender Mod,
 ProjectE and Flux Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model
