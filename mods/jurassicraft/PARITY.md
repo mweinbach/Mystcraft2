@@ -176,7 +176,7 @@ Tests changed while merging:
 - The dart gun has a new survival recipe.
 - Genetic item variants use separate IDs instead of damage values; 1.12 worlds and items are not migrated.
 - A surviving lone dinosaur parent does not form a new family, as upstream.
-- Chunk-by-chunk generation of the visitor centre and raptor paddock still leaves vines, mushrooms and levers different from one `placeInWorld` call (about 123–170 visitor blocks, 37 paddock blocks). Keeping the template states instead leaves hundreds of plants that a full neighbor update removes. Settling them needs neighboring chunks to be writable during worldgen.
+- Chunk-by-chunk generation of the visitor centre and raptor paddock still leaves vines, mushrooms, levers, and fence or wall connections different from one `placeInWorld` call (about 123–170 visitor blocks, 37 paddock blocks, plus connection flags such as a spruce fence's `south` link). Keeping the template states instead leaves hundreds of plants that a full neighbor update removes. Settling them needs neighboring chunks to be writable during worldgen.
 - A raptor-paddock mossy cobblestone wall can be tall on the chunk walk and low after a full placement. That stays with the paddock work.
 - The Forge client logged that `#jurassicraft:park_structures` could not load its own structure ids while creating a world. `/spawnjc` and the structure sets still placed the buildings.
 - Opening the Forge development world to LAN advertised an IPv6 link-local address. A second development client listed the world and failed to connect to that address (`Invalid argument`).

@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -88,6 +89,19 @@ public final class StructureWalkAudit {
 
     private static boolean attachment(BlockState state) {
         return state.is(Blocks.VINE) || state.is(Blocks.BROWN_MUSHROOM) || state.is(Blocks.RED_MUSHROOM) || state.is(Blocks.LEVER);
+    }
+
+    /** Fence, wall and pane links depend on neighbors that a chunk-sized post-process cannot see. */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static boolean connectsOnly(BlockState walk, BlockState full) {
+        if (walk.getBlock() != full.getBlock()) return false;
+        for (Property property : walk.getProperties()) {
+            if (walk.getValue(property).equals(full.getValue(property))) continue;
+            String name = property.getName();
+            if (!"north".equals(name) && !"south".equals(name) && !"east".equals(name) && !"west".equals(name) && !"up".equals(name))
+                return false;
+        }
+        return true;
     }
 
     private static List<String> prefix(String name, List<String> issues) {
@@ -183,7 +197,7 @@ public final class StructureWalkAudit {
                     BlockState walk = level.getBlockState(walkedPos.set(x, y, z));
                     BlockState full = level.getBlockState(referencePos.set(x + dx, y + dy, z + dz));
                     if (walk.equals(full)) continue;
-                    if (attachment(walk) || attachment(full)) {
+                    if (attachment(walk) || attachment(full) || connectsOnly(walk, full)) {
                         attachments++;
                         continue;
                     }
@@ -200,7 +214,7 @@ public final class StructureWalkAudit {
             issues.add(label + " chunk walk differs from full placement: missing " + missing + " " + top(missingNames)
                     + ", different " + different + ", extra " + extra + " " + top(extraNames) + " (" + example + ")");
         if (attachments > 0)
-            issues.add("note: " + label + " chunk-edge vines, mushrooms or levers differ in " + attachments + " blocks");
+            issues.add("note: " + label + " chunk-edge vines, mushrooms, levers or fence links differ in " + attachments + " blocks");
         return issues;
     }
 
