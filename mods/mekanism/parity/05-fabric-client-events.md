@@ -32,7 +32,8 @@ These fire at the same points Forge 43.5.0 does. Fabric API is used where it has
   waited on. Unload drops oredictionificator invalidation listeners that belong to that level.
 - `RecipesUpdatedEvent` at the end of `ClientPacketListener.handleUpdateRecipes`, after the client recipe book is
   rebuilt. `ClientTickHandler` clears the recipe cache there.
-- A key press is delivered to every mapping bound to that key, so an unmodified binding and a modified one both see it.
+- A key press is delivered to every mapping bound to that key whose conflict context and modifier are active. A release
+  clears every mapping on that physical key, including one whose modifier is no longer held, so a chord cannot stay down.
   The mapping still has to be in an active conflict context with its modifier held before it counts as down.
 
 Fog color and distance, `EntityRenderersEvent.AddLayers` and the mouse wheel already fired from the mixins above.

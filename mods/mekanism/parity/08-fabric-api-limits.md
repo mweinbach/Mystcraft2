@@ -17,7 +17,6 @@
   random ticks still happen only near a player. The dimensional stabilizer asks Forge for fully ticking chunks; on
   Fabric that flag is saved so validation can tell it from an anchor upgrade, and it does not enable random ticks.
 - The ender dragon's part entities are not exposed through Forge's `PartEntity` API.
-- Key mapping modifiers are not saved.
 - Modded HUD overlays anchored inside vanilla's health, armor, food and air group are drawn after that whole group.
   Vanilla draws the group in one call, so they cannot sit between armor and food the way Forge's separate overlays do.
   Their screen position still comes from the same left and right bar heights.

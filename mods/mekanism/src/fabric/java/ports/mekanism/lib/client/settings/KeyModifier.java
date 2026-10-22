@@ -6,39 +6,73 @@ package ports.mekanism.lib.client.settings;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.function.Supplier;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * A modifier key that must be held for a key mapping to trigger.
+ * A modifier key that must be held for a key mapping to trigger. {@link #NONE} stays active in game even while another
+ * modifier is held, so sneak plus the hand-mode key still fires. In a screen, a held modifier blocks an unmodified key.
  */
 public enum KeyModifier {
-    CONTROL("Ctrl", GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL) {
+    CONTROL {
         @Override
-        protected boolean isHeld() {
-            return Screen.hasControlDown();
-        }
-    },
-    SHIFT("Shift", GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT) {
-        @Override
-        protected boolean isHeld() {
-            return Screen.hasShiftDown();
-        }
-    },
-    ALT("Alt", GLFW.GLFW_KEY_LEFT_ALT, GLFW.GLFW_KEY_RIGHT_ALT) {
-        @Override
-        protected boolean isHeld() {
-            return Screen.hasAltDown();
-        }
-    },
-    NONE(null) {
-        @Override
-        protected boolean isHeld() {
-            return false;
+        public boolean matches(InputConstants.Key key) {
+            int keyCode = key.getValue();
+            if (Minecraft.ON_OSX) {
+                return keyCode == GLFW.GLFW_KEY_LEFT_SUPER || keyCode == GLFW.GLFW_KEY_RIGHT_SUPER;
+            }
+            return keyCode == GLFW.GLFW_KEY_LEFT_CONTROL || keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL;
         }
 
+        @Override
+        public boolean isActive(@Nullable IKeyConflictContext conflictContext) {
+            return Screen.hasControlDown();
+        }
+
+        @Override
+        public Component getCombinedName(InputConstants.Key key, Supplier<Component> defaultLogic) {
+            String format = Minecraft.ON_OSX ? "forge.controlsgui.control.mac" : "forge.controlsgui.control";
+            return Component.translatable(format, defaultLogic.get());
+        }
+    },
+    SHIFT {
+        @Override
+        public boolean matches(InputConstants.Key key) {
+            int keyCode = key.getValue();
+            return keyCode == GLFW.GLFW_KEY_LEFT_SHIFT || keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT;
+        }
+
+        @Override
+        public boolean isActive(@Nullable IKeyConflictContext conflictContext) {
+            return Screen.hasShiftDown();
+        }
+
+        @Override
+        public Component getCombinedName(InputConstants.Key key, Supplier<Component> defaultLogic) {
+            return Component.translatable("forge.controlsgui.shift", defaultLogic.get());
+        }
+    },
+    ALT {
+        @Override
+        public boolean matches(InputConstants.Key key) {
+            int keyCode = key.getValue();
+            return keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT;
+        }
+
+        @Override
+        public boolean isActive(@Nullable IKeyConflictContext conflictContext) {
+            return Screen.hasAltDown();
+        }
+
+        @Override
+        public Component getCombinedName(InputConstants.Key key, Supplier<Component> defaultLogic) {
+            return Component.translatable("forge.controlsgui.alt", defaultLogic.get());
+        }
+    },
+    NONE {
         @Override
         public boolean matches(InputConstants.Key key) {
             return false;
@@ -47,12 +81,10 @@ public enum KeyModifier {
         @Override
         public boolean isActive(@Nullable IKeyConflictContext conflictContext) {
             if (conflictContext != null && !conflictContext.conflicts(KeyConflictContext.IN_GAME)) {
-                //Outside the game context a held modifier must not block the key
-                return true;
-            }
-            for (KeyModifier modifier : MODIFIER_VALUES) {
-                if (modifier.isActive(conflictContext)) {
-                    return false;
+                for (KeyModifier modifier : MODIFIER_VALUES) {
+                    if (modifier.isActive(conflictContext)) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -65,36 +97,6 @@ public enum KeyModifier {
     };
 
     public static final KeyModifier[] MODIFIER_VALUES = {SHIFT, CONTROL, ALT};
-
-    @Nullable
-    private final String displayName;
-    private final int[] keyCodes;
-
-    KeyModifier(@Nullable String displayName, int... keyCodes) {
-        this.displayName = displayName;
-        this.keyCodes = keyCodes;
-    }
-
-    protected abstract boolean isHeld();
-
-    public boolean matches(InputConstants.Key key) {
-        if (key.getType() == InputConstants.Type.KEYSYM) {
-            for (int keyCode : keyCodes) {
-                if (key.getValue() == keyCode) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean isActive(@Nullable IKeyConflictContext conflictContext) {
-        return isHeld();
-    }
-
-    public Component getCombinedName(InputConstants.Key key, Supplier<Component> defaultLogic) {
-        return Component.literal(displayName + " + ").append(defaultLogic.get());
-    }
 
     public static KeyModifier getActiveModifier() {
         for (KeyModifier modifier : MODIFIER_VALUES) {
@@ -117,8 +119,14 @@ public enum KeyModifier {
     public static KeyModifier valueFromString(String stringValue) {
         try {
             return valueOf(stringValue);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (NullPointerException | IllegalArgumentException ignored) {
             return NONE;
         }
     }
+
+    public abstract boolean matches(InputConstants.Key key);
+
+    public abstract boolean isActive(@Nullable IKeyConflictContext conflictContext);
+
+    public abstract Component getCombinedName(InputConstants.Key key, Supplier<Component> defaultLogic);
 }
