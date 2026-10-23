@@ -1,6 +1,7 @@
 package ports.buildcraft.robotics.board;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -46,6 +47,16 @@ public class BreakerBoard extends RobotBoard {
     private boolean unloading;
     /** Blocks the robot failed to break (protected, or its tool cannot harvest them), skipped until a scan finds nothing else. */
     private final Set<BlockPos> skipped = new HashSet<>();
+    /** Positions checked per tick while looking for a target: a 64-block cube takes 32 ticks, the default area 5. */
+    public static final int SCAN_BUDGET = 8192;
+    /** The sweep in progress over {@link #scanArea}, and the nearest target it has found so far. */
+    @Nullable
+    private Iterator<BlockPos> scan;
+    @Nullable
+    private WorkArea scanArea;
+    @Nullable
+    private BlockPos scanBest;
+    private double scanBestDistance;
 
     protected BreakerBoard(RobotEntity robot, Predicate<BlockState> blocks, Predicate<ItemStack> tools, boolean mustBeExposed) {
         super(robot);
@@ -107,8 +118,11 @@ public class BreakerBoard extends RobotBoard {
         WorkArea area = robot.workArea();
         if (target == null || !isTarget(target, area)) {
             release();
-            target = find(area);
-            if (target == null) {
+            if (!scanStep(area)) return;
+            BlockPos found = scanBest;
+            scanBest = null;
+            if (found != null && !isTarget(found, area)) return; // changed during the sweep: look again
+            if (found == null) {
                 if (!robot.isInventoryEmpty()) {
                     unloading = true;
                     return;
@@ -116,6 +130,7 @@ public class BreakerBoard extends RobotBoard {
                 if (idleAtHome(IDLE_TICKS)) skipped.clear();
                 return;
             }
+            target = found;
             world().claim(robot, target);
         }
         if (!robot.flyTowards(workPosition(target))) return;
@@ -159,18 +174,29 @@ public class BreakerBoard extends RobotBoard {
         return blocks.test(state) && (!mustBeExposed || openSide(level, pos) != null);
     }
 
-    @Nullable
-    private BlockPos find(WorkArea area) {
-        BlockPos best = null;
-        double bestDistance = Double.MAX_VALUE;
-        Vec3 from = robot.position();
-        for (BlockPos pos : BlockPos.betweenClosed(area.min(), area.max())) {
-            double distance = pos.distToCenterSqr(from);
-            if (distance >= bestDistance || !isTarget(pos, area)) continue;
-            best = pos.immutable();
-            bestDistance = distance;
+    /**
+     * Looks for the nearest target over several ticks, checking at most {@link #SCAN_BUDGET} positions a tick so a
+     * large area (or one full of blocks protection refuses) never costs a whole sweep in one tick. Returns true once
+     * the sweep is done, leaving its nearest find (or null) in {@link #scanBest}.
+     */
+    private boolean scanStep(WorkArea area) {
+        if (scan == null || !area.equals(scanArea)) {
+            scan = BlockPos.betweenClosed(area.min(), area.max()).iterator();
+            scanArea = area;
+            scanBest = null;
+            scanBestDistance = Double.MAX_VALUE;
         }
-        return best;
+        Vec3 from = robot.position();
+        for (int checked = 0; checked < SCAN_BUDGET && scan.hasNext(); checked++) {
+            BlockPos pos = scan.next();
+            double distance = pos.distToCenterSqr(from);
+            if (distance >= scanBestDistance || !isTarget(pos, area)) continue;
+            scanBest = pos.immutable();
+            scanBestDistance = distance;
+        }
+        if (scan.hasNext()) return false;
+        scan = null;
+        return true;
     }
 
     @Nullable
@@ -199,5 +225,7 @@ public class BreakerBoard extends RobotBoard {
     public void reset() {
         release();
         unloading = false;
+        scan = null;
+        scanBest = null;
     }
 }

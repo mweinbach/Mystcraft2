@@ -105,6 +105,7 @@ Deliberate differences and gaps:
 - Boards are programmed in the assembly table and installed by hand or in the crafting grid; there is no programming or integration table step. Boards are separate items rather than one item with NBT.
 - A board's current job is not saved: a reloaded robot looks for work again. Claims on targets and the station registry are rebuilt as robots and stations tick.
 - The work area is a 33-block cube around the home station unless a Work in Area gate gives one; boxes are capped at 64 blocks a side.
+- Lumberjacks and miners search for their next block over several ticks, 8,192 positions a tick, so a full 64-block box takes up to 32 ticks (the default area 5) and a protected area cannot stall the server.
 - Phase 2 boards are not yet ported: farmer, planter, harvester, leaf cutter, shovelman, fluid carrier and pump, knight, butcher, shear, stripes, builder, crafter, delivery (requests), breaker and bomber; also the requester, robot goggles, Load/Unload in Area, Goto Station, Request Items, the fluid station actions and the robot filter actions.
 
 ## Deliberate differences
