@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import mekanism.api.NBTConstants;
+import mekanism.common.block.attribute.Attribute;
+import mekanism.common.block.attribute.AttributeMultiblock;
+import mekanism.common.lib.multiblock.MultiblockData;
 import mekanism.common.util.WorldUtils;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -92,8 +95,24 @@ public class Meltdown {
         return ticksExisted >= DURATION;
     }
 
+    /** Releases the reactor's waste while the shell is still formed. */
+    private void releaseRadiation(Level world) {
+        for (BlockPos pos : BlockPos.betweenClosed(minPos, maxPos)) {
+            AttributeMultiblock attribute = Attribute.get(world.getBlockState(pos), AttributeMultiblock.class);
+            if (attribute == null) {
+                continue;
+            }
+            MultiblockData data = attribute.getMultiblock(world, pos.immutable(), multiblockID);
+            if (data != null && data.isFormed()) {
+                data.meltdownHappened(world);
+                return;
+            }
+        }
+    }
+
     /**
-     * Creates an explosion and ensures all blocks that are inside our meltdown radius actually get destroyed
+     * Creates an explosion and ensures all blocks that are inside our meltdown radius actually get destroyed.
+     * Radiation is released before any of those blocks are removed.
      */
     private void createExplosion(Level world, double x, double y, double z, float radius, boolean causesFire, Explosion.BlockInteraction mode) {
         Explosion explosion = new MeltdownExplosion(world, x, y, z, radius, causesFire, mode, multiblockID);
@@ -138,6 +157,10 @@ public class Meltdown {
         }
         //Try to make the explosion actually happen
         if (!ForgeEventFactory.onExplosionStart(world, explosion)) {
+            // Reactor glass is not BlockMekanism. Removing it invalidates the structure from setRemoved,
+            // and a casing destroyed later in this explosion can no longer find the formed reactor.
+            // Release the waste while the shell is still intact. A later onBlockExploded sees empty tanks.
+            releaseRadiation(world);
             explosion.explode();
             explosion.finalizeExplosion(true);
         }
