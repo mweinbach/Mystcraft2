@@ -1,0 +1,73 @@
+[
+  {
+    "output": "forge:ingots/gold",
+    "ingredients": {
+      "forge:ingots/iron": 8
+    }
+  },
+  {
+    "output": "forge:ingots/copper",
+    "count": 2,
+    "ingredients": {
+      "forge:ingots/iron": 1
+    }
+  },
+  {
+    "output": "forge:ingots/tin",
+    "ingredients": {
+      "forge:ingots/iron": 1
+    }
+  },
+  {
+    "output": "forge:ingots/bronze",
+    "count": 4,
+    "ingredients": {
+      "forge:ingots/copper": 3,
+      "forge:ingots/tin": 1
+    }
+  },
+  {
+    "output": "forge:ingots/silver",
+    "ingredients": {
+      "forge:ingots/iron": 2
+    }
+  },
+  {
+    "output": "forge:ingots/lead",
+    "ingredients": {
+      "forge:ingots/iron": 2
+    }
+  },
+  {
+    "output": "forge:ingots/osmium",
+    "ingredients": {
+      "forge:ingots/iron": 2
+    }
+  },
+  {
+    "output": "forge:ingots/nickel",
+    "ingredients": {
+      "forge:ingots/iron": 4
+    }
+  },
+  {
+    "output": "forge:ingots/aluminum",
+    "count": 2,
+    "ingredients": {
+      "forge:ingots/iron": 1
+    }
+  },
+  {
+    "output": "forge:ingots/platinum",
+    "ingredients": {
+      "forge:ingots/iron": 16
+    }
+  },
+  {
+    "output": "forge:ingots/cyanite",
+    "count": 4,
+    "ingredients": {
+      "forge:ingots/uranium": 1
+    }
+  }
+]

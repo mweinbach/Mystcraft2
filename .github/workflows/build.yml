@@ -127,8 +127,8 @@ jobs:
               mods/jurassicraft/fabric/build/gametest/logs/latest.log
           - id: mekanism
             kind: dual
-            forge_props: ""
-            fabric_props: ""
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
             jars: |
               mods/mekanism/build/libs/*.jar
               mods/mekanism/fabric/build/libs/*.jar

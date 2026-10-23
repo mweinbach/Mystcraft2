@@ -390,6 +390,155 @@ class MultiNamespaceTests(unittest.TestCase):
                 emc.validate_policy({**base, **bad})
 
 
+class ProjectEModelTests(unittest.TestCase):
+    """A Forge-loader port exercising the ProjectE mappers emc.py reproduces."""
+
+    def setUp(self):
+        sandbox = tempfile.TemporaryDirectory()
+        self.addCleanup(sandbox.cleanup)
+        self.dir = Path(sandbox.name) / "pe"
+        self.res = self.dir / "res"
+        recipes = self.res / "data" / "pe" / "recipes"
+        shapeless = lambda items, result, count=1: {  # noqa: E731
+            "type": "minecraft:crafting_shapeless", "ingredients": [{"item": i} for i in items],
+            "result": {"item": result, "count": count}}
+        write(recipes / "raw_block.json", shapeless(["pe:raw_tin"] * 9, "pe:raw_tin_block"))
+        write(recipes / "smelt_tin.json", {"type": "minecraft:smelting", "ingredient": {"item": "pe:raw_tin"},
+                                           "result": "pe:tin_ingot"})
+        write(recipes / "pigment.json", shapeless(["minecraft:red_dye"] * 2, "pe:red_pigment"))
+        write(recipes / "frost.json", shapeless(["pe:goo_bucket", "minecraft:stick"], "pe:frost"))
+        write(recipes / "barrel.json", shapeless(["minecraft:iron_ingot"], "pe:barrel"))
+        write(recipes / "chest.json", shapeless(["minecraft:iron_ingot", "minecraft:stick"], "pe:chest"))
+        tags = self.res / "data"
+        write(tags / "forge" / "tags" / "items" / "ores.json", {"values": ["pe:tin_ore"]})
+        write(tags / "forge" / "tags" / "items" / "raw_materials.json", {"values": ["pe:raw_tin"]})
+        write(tags / "forge" / "tags" / "items" / "ingots" / "tin.json", {"values": ["pe:tin_ingot"]})
+        write(tags / "forge" / "tags" / "items" / "dyes" / "red.json", {"values": ["pe:red_pigment"]})
+        write(tags / "pe" / "tags" / "items" / "storage.json", {"values": ["pe:barrel", "pe:chest"]})
+        write(tags / "pe" / "tags" / "items" / "same.json", {"values": ["pe:barrel", "pe:barrel_copy"]})
+        write(recipes / "barrel_copy.json", shapeless(["minecraft:iron_ingot"], "pe:barrel_copy"))
+        registry = ["pe:tin_ore", "pe:raw_tin", "pe:raw_tin_block", "pe:tin_ingot", "pe:red_pigment",
+                    "pe:goo_bucket", "pe:frost", "pe:barrel", "pe:barrel_copy", "pe:chest", "pe:safe",
+                    "pe:vault", "pe:plate"]
+        write(self.dir / "emc" / "registry.txt", "\n".join(registry) + "\n")
+        self.policy = {
+            "namespace": "pe",
+            "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+            "resources": {"projecte": ["res"], "itemalchemy": ["res"]},
+            "output": "res",
+            "values": {
+                "pe:tin_ore": {"emc": 100, "why": "w"},
+                "pe:raw_tin": {"emc": 50, "why": "w"},
+                "pe:goo_bucket": {"emc": 800, "why": "w"},
+            },
+            "conversions": [
+                {"name": "press", "why": "w", "output": "pe:plate", "ingredients": {"#forge:ingots/tin": 1}},
+                {"name": "lock", "why": "w", "output": "pe:safe", "ingredients": {"#pe:storage": 1}},
+                {"name": "vault", "why": "w", "output": "pe:vault", "ingredients": {"#pe:same": 2}},
+            ],
+            "remainders": {"pe:*_bucket": {"item": "minecraft:bucket", "systems": ["projecte"], "why": "w"}},
+        }
+
+    def build(self):
+        write(self.dir / "emc" / "policy.json", self.policy)
+        port, outputs = emc.build(self.dir)
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
+        projecte = json.loads(outputs[self.res / "data" / "pe" / "pe_custom_conversions" / "pe.json"])
+        return port, values, projecte
+
+    def test_ore_blacklists_zero_ores_and_what_only_they_make(self):
+        port, values, projecte = self.build()
+        self.assertEqual(port.problems, [])
+        self.assertEqual(values["pe:tin_ore"]["projecte"], 0)
+        self.assertEqual(values["pe:tin_ore"]["itemalchemy"], 100)
+        self.assertEqual(values["pe:tin_ore"]["no_value"]["projecte"], "#forge:ores (OresBlacklistMapper)")
+        self.assertEqual(values["pe:raw_tin"]["no_value"]["projecte"], "#forge:raw_materials (RawOresBlacklistMapper)")
+        self.assertEqual(values["pe:raw_tin_block"]["projecte"], 0)
+        self.assertEqual(values["pe:raw_tin_block"]["itemalchemy"], 450)
+        self.assertEqual(values["pe:raw_tin_block"]["no_value"]["projecte"],
+                         "made only from items ProjectE's ore blacklists zero")
+        self.assertNotIn("pe:tin_ore", projecte["values"]["before"])
+        self.assertNotIn("pe:raw_tin", projecte["values"]["before"])
+
+    def test_metals_json_prices_tagged_ingots_and_policy_tags_name_the_item(self):
+        port, values, projecte = self.build()
+        self.assertEqual(values["pe:tin_ingot"]["projecte"], 256)
+        self.assertEqual(values["pe:tin_ingot"]["source"], "tag #forge:ingots/tin (ProjectE metals.json)")
+        self.assertEqual(values["pe:plate"]["projecte"], 256)
+        press = projecte["groups"]["pe_press"]["conversions"]
+        self.assertEqual(press, [{"output": "pe:plate", "ingredients": {"pe:tin_ingot": 1}}])
+
+    def test_a_cheaper_recipe_for_a_metals_priced_item_is_a_problem(self):
+        write(self.res / "data" / "pe" / "recipes" / "cheap_tin.json",
+              {"type": "minecraft:crafting_shapeless", "ingredients": [{"item": "minecraft:iron_nugget"}],
+               "result": {"item": "pe:tin_ingot"}})
+        port, _values, _projecte = self.build()
+        self.assertTrue(any("metals.json prices pe:tin_ingot at 256" in p for p in port.problems), port.problems)
+        self.policy["values"]["pe:tin_ingot"] = {"emc": 28, "why": "w"}
+        port, values, _projecte = self.build()
+        self.assertEqual(port.problems, [])
+        self.assertEqual(values["pe:tin_ingot"]["projecte"], 28)
+
+    def test_a_metals_tag_with_several_members_cannot_stand_for_an_item(self):
+        write(self.res / "data" / "forge" / "tags" / "items" / "ingots" / "tin.json",
+              {"values": ["pe:tin_ingot", "pe:chest"]})
+        port, _values, _projecte = self.build()
+        self.assertTrue(any("conversion press: ProjectE prices #forge:ingots/tin through metals.json" in p
+                            for p in port.problems), port.problems)
+
+    def test_tag_mapper_lowers_members_of_tags_projecte_creates(self):
+        port, values, _projecte = self.build()
+        self.assertEqual(values["pe:red_pigment"]["projecte"], 16)
+        self.assertEqual(values["pe:red_pigment"]["itemalchemy"], 32)
+        self.policy["exclude"] = {"pe:red_pigment": "w"}
+        port, _values, _projecte = self.build()
+        self.assertIn("pe:red_pigment is excluded, but ProjectE's TagMapper values it through #forge:dyes/red",
+                      port.problems)
+
+    def test_port_tags_with_unequal_members_are_written_as_the_cheapest_item(self):
+        port, values, projecte = self.build()
+        self.assertEqual(values["pe:safe"]["projecte"], 256)
+        self.assertEqual(values["pe:chest"]["projecte"], 260)
+        lock = projecte["groups"]["pe_lock"]["conversions"]
+        self.assertEqual(lock, [{"output": "pe:safe", "ingredients": {"pe:barrel": 1}}])
+        vault = projecte["groups"]["pe_vault"]["conversions"]
+        self.assertEqual(vault, [{"output": "pe:vault", "ingredients": {"#pe:same": 2}}])
+        self.assertIn("pe:storage", port.projecte_tag_reasons)
+
+    def test_policy_remainders_can_apply_to_projecte_only(self):
+        port, values, _projecte = self.build()
+        self.assertEqual(values["pe:frost"]["projecte"], 800 - 768 + 4)
+        self.assertEqual(values["pe:frost"]["itemalchemy"], 800 + 4)
+        base = {"namespace": "t", "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+                "resources": {"projecte": ["r"], "itemalchemy": ["r"]}, "output": "r"}
+        emc.validate_policy({**base, "remainders": {"t:a": "minecraft:bucket"}})
+        for bad in ({"t:a": {"item": "minecraft:bucket", "systems": ["projecte"]}},
+                    {"t:a": {"item": "minecraft:bucket", "systems": ["x"], "why": "w"}},
+                    {"t:a": "not an id"}):
+            with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
+                emc.validate_policy({**base, "remainders": bad})
+
+    def test_unmanaged_projecte_files_are_problems(self):
+        write(self.res / "data" / "pe" / "pe_custom_conversions" / "defaults.json", {"values": {"before": {}}})
+        port, _values, _projecte = self.build()
+        self.assertTrue(any("pe_custom_conversions/defaults.json is a ProjectE custom conversion file" in p
+                            for p in port.problems), port.problems)
+
+    def test_metals_conversions_are_read_from_projecte_defaults(self):
+        document = {"values": {"conversion": [
+            {"output": "#forge:ingots/bronze", "count": 4, "propagateTags": True,
+             "ingredients": ["#forge:ingots/copper", "#forge:ingots/copper", "#forge:ingots/copper",
+                             "#forge:ingots/tin"]},
+            {"output": "#forge:ingots/lead", "propagateTags": True, "ingredients": {"#forge:ingots/iron": 2}}]}}
+        self.assertEqual(emc.projecte_tag_conversions(document), [
+            {"output": "forge:ingots/bronze", "count": 4,
+             "ingredients": {"forge:ingots/copper": 3, "forge:ingots/tin": 1}},
+            {"output": "forge:ingots/lead", "ingredients": {"forge:ingots/iron": 2}}])
+        with self.assertRaises(emc.PolicyError):
+            emc.projecte_tag_conversions({"values": {"conversion": [
+                {"output": "minecraft:dirt", "ingredients": {"#forge:ingots/iron": 1}}]}})
+
+
 class RepositoryTests(unittest.TestCase):
     def test_every_port_with_a_policy_is_complete_and_current(self):
         out, err = io.StringIO(), io.StringIO()

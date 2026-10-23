@@ -283,22 +283,34 @@
       "source": "recipe"
     },
     "mekanism:block_raw_lead": {
-      "projecte": 2304,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "made only from items ProjectE's ore blacklists zero"
+      },
       "itemalchemy": 2304,
       "source": "recipe"
     },
     "mekanism:block_raw_osmium": {
-      "projecte": 3456,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "made only from items ProjectE's ore blacklists zero"
+      },
       "itemalchemy": 3456,
       "source": "recipe"
     },
     "mekanism:block_raw_tin": {
-      "projecte": 1728,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "made only from items ProjectE's ore blacklists zero"
+      },
       "itemalchemy": 1728,
       "source": "recipe"
     },
     "mekanism:block_raw_uranium": {
-      "projecte": 36864,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "made only from items ProjectE's ore blacklists zero"
+      },
       "itemalchemy": 36864,
       "source": "recipe"
     },
@@ -509,7 +521,10 @@
       "excluded": "Drops a Fortune-boosted number of fluorite gems. Only the gems are valued."
     },
     "mekanism:deepslate_lead_ore": {
-      "projecte": 256,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:ores (OresBlacklistMapper)"
+      },
       "itemalchemy": 256,
       "source": "explicit"
     },
@@ -517,7 +532,10 @@
       "excluded": "Drops a Fortune-boosted number of raw osmium. Only the raw ore is valued."
     },
     "mekanism:deepslate_tin_ore": {
-      "projecte": 192,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:ores (OresBlacklistMapper)"
+      },
       "itemalchemy": 192,
       "source": "explicit"
     },
@@ -1027,12 +1045,12 @@
     "mekanism:ingot_bronze": {
       "projecte": 99,
       "itemalchemy": 99,
-      "source": "conversion mek_processing_bronze_ingot_from_infusing"
+      "source": "explicit"
     },
     "mekanism:ingot_lead": {
       "projecte": 252,
       "itemalchemy": 252,
-      "source": "recipe"
+      "source": "explicit"
     },
     "mekanism:ingot_osmium": {
       "projecte": 384,
@@ -1057,7 +1075,7 @@
     "mekanism:ingot_tin": {
       "projecte": 189,
       "itemalchemy": 189,
-      "source": "recipe"
+      "source": "explicit"
     },
     "mekanism:ingot_uranium": {
       "projecte": 4096,
@@ -1095,7 +1113,10 @@
       "source": "conversion mek_laser_tractor_beam"
     },
     "mekanism:lead_ore": {
-      "projecte": 256,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:ores (OresBlacklistMapper)"
+      },
       "itemalchemy": 256,
       "source": "explicit"
     },
@@ -1205,7 +1226,7 @@
       "source": "recipe"
     },
     "mekanism:module_frost_walker_unit": {
-      "projecte": 11696,
+      "projecte": 10160,
       "itemalchemy": 5536,
       "source": "recipe"
     },
@@ -1494,22 +1515,34 @@
       "source": "recipe"
     },
     "mekanism:raw_lead": {
-      "projecte": 256,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:raw_materials (RawOresBlacklistMapper)"
+      },
       "itemalchemy": 256,
       "source": "explicit"
     },
     "mekanism:raw_osmium": {
-      "projecte": 384,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:raw_materials (RawOresBlacklistMapper)"
+      },
       "itemalchemy": 384,
       "source": "explicit"
     },
     "mekanism:raw_tin": {
-      "projecte": 192,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:raw_materials (RawOresBlacklistMapper)"
+      },
       "itemalchemy": 192,
       "source": "explicit"
     },
     "mekanism:raw_uranium": {
-      "projecte": 4096,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:raw_materials (RawOresBlacklistMapper)"
+      },
       "itemalchemy": 4096,
       "source": "explicit"
     },
@@ -1711,7 +1744,10 @@
       "source": "recipe"
     },
     "mekanism:tin_ore": {
-      "projecte": 192,
+      "projecte": 0,
+      "no_value": {
+        "projecte": "#forge:ores (OresBlacklistMapper)"
+      },
       "itemalchemy": 192,
       "source": "explicit"
     },

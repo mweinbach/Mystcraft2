@@ -48,9 +48,9 @@
     "",
     "Osmium ingots cost one and a half iron ingots. The osmium rail recipe yields twenty-four rails from six ingots, and a cheaper osmium ingot would make vanilla rails cheaper to transmute than to craft. Osmium nuggets are excluded because 384 does not divide by nine.",
     "",
-    "Uranium ingots follow ProjectE's uranium ingot tag (4096). Raw uranium matches the ingot, and uranium nuggets are excluded because 4096 does not divide by nine.",
+    "Uranium ingots follow ProjectE's uranium ingot tag (4096). Raw uranium matches the ingot in Item Alchemy (ProjectE's raw-ore blacklist gives every raw ore 0), and uranium nuggets are excluded because 4096 does not divide by nine.",
     "",
-    "Tin and lead ores and raw ores are fixed at Item Alchemy's tag values. Tin and lead nuggets then settle slightly under the raw ore; the ingot is not fixed, so that split does not fight a tag.",
+    "Tin and lead ores and raw ores are fixed at Item Alchemy's tag values; ProjectE's ore blacklists give them no ProjectE value. Tin, lead and bronze ingots keep the values Item Alchemy derives (189, 252, 99) in ProjectE too, because ProjectE's metals.json would price them above the nuggets and dusts that craft into them.",
     "Hydrogen, oxygen, chlorine, brine, lithium, sodium, superheated sodium, steam, ethene, heavy water and hydrogen chloride are made from water, so a bucket of each costs an empty bucket. Nutritional paste is not: a bucket is twenty food points of dried kelp plus the bucket. Sulfur dioxide, sulfur trioxide and sulfuric acid are ten sulfur dust per bucket, because the infuser preserves that volume; hydrofluoric acid, uranium oxide and uranium hexafluoride are priced from the items that produce them.",
     "Sawdust is fixed at 64 because three sawdust craft six paper. The sawmill's plank and log recipes turn vanilla logs into more planks than crafting does; both ends of that recipe are vanilla, so it is not a conversion.",
     "",
@@ -114,6 +114,18 @@
     "mekanism:raw_lead": {
       "emc": 256,
       "why": "Item Alchemy's c:raw_lead_ores tag values raw lead at 256, and one raw lead smelts into one ingot."
+    },
+    "mekanism:ingot_tin": {
+      "emc": 189,
+      "why": "ProjectE's metals.json would price every #forge:ingots/tin at one iron ingot (256), and nine tin nuggets (28 each) would then craft an ingot worth 4 EMC more than they cost. Nine nuggets of 21 make 189, the value Item Alchemy derives, so both systems use it."
+    },
+    "mekanism:ingot_lead": {
+      "emc": 252,
+      "why": "ProjectE's metals.json would price every #forge:ingots/lead at two iron ingots (512), and nine lead nuggets (56 each) would then craft an ingot worth 8 EMC more than they cost. Nine nuggets of 28 make 252, the value Item Alchemy derives, so both systems use it."
+    },
+    "mekanism:ingot_bronze": {
+      "emc": 99,
+      "why": "ProjectE's metals.json would price every #forge:ingots/bronze at 160, but bronze dust (99) smelts into an ingot and the metallurgic infuser makes one from the same dusts. Nine nuggets of 11 make 99, the value Item Alchemy derives, so both systems use it."
     },
     "mekanism:sawdust": {
       "emc": 64,
@@ -5838,6 +5850,15 @@
       ],
       "emc": 16463,
       "why": "ProjectE 1.1.0 does not value an elytra. Item Alchemy does, at 16463, and the HDPE elytra is crafted from one, so ProjectE uses the same figure."
+    }
+  },
+  "remainders": {
+    "mekanism*:*_bucket": {
+      "item": "minecraft:bucket",
+      "systems": [
+        "projecte"
+      ],
+      "why": "FluidDeferredRegister gives every Mekanism fluid bucket craftRemainder(Items.BUCKET), and ProjectE's crafting mapper subtracts the empty bucket from a recipe's cost (the frost walker unit uses two hydrogen buckets). Item Alchemy only reads the shipped values, which keep their earlier figures."
     }
   }
 }

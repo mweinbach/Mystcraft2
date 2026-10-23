@@ -120,8 +120,8 @@ After Mekanism changes, run:
 - `./scripts/gradle.sh -p mods/mekanism/fabric build`
 - `python3 mods/mekanism/scripts/check_loader_parity.py`
 - `python3 scripts/emc.py check`
-- `./scripts/gradle.sh :mekanism:runGameTestServer`
-- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest`
+- `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy`
 
 ## Extreme Reactors loader support
 

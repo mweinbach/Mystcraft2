@@ -6,15 +6,15 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Port | Loaders | Items | Explicit | Excluded | Details |
 | --- | --- | ---: | ---: | ---: | --- |
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
-| BuildCraft | Forge, Fabric | 201 | 1 | 40 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
+| BuildCraft | Forge, Fabric | 212 | 1 | 40 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
-| Mekanism | Forge, Fabric | 779 | 12 | 21 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
+| Mekanism | Forge, Fabric | 779 | 15 | 21 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
 Each port's `emc/README.md` is generated. It lists every explicit value and exclusion with its reason, the
-machine conversions, and the processes checked for EMC gain.
+values ProjectE's own mappers decide, the machine conversions, and the processes checked for EMC gain.
 
 ## Which EMC mod reads the data
 
@@ -31,7 +31,8 @@ Each port therefore ships two files in its shared `src/main/resources`, which bo
 
 - `data/<ns>/pe_custom_conversions/<ns>.json` is a ProjectE 1.1.0 custom-conversion file, used by Forge builds
   and by any future Fabric ProjectE port that keeps the same data format. It has three parts:
-  - `values.before` holds the explicit values.
+  - `values.before` holds the explicit values, except for items ProjectE's ore blacklists zero (a `before` value
+    would race those mappers, which run at the same priority).
   - `groups` holds the machine conversions ProjectE cannot see.
   - Each excluded item gets a conversion from the never-valued `FAKE|no_emc`, ProjectE's own idiom for "no
     EMC". Everything else is left to ProjectE's recipe mapper.
@@ -92,10 +93,30 @@ hand-written `emc/policy.json`:
 - **Machine conversions** (`conversions`) describe machine steps ProjectE cannot see, using its own conversion
   format, including negative amounts for returned containers. Placeholders such as `{species}` expand over the
   registry.
+- **ProjectE's own mappers.** The ProjectE analysis also reproduces the mappers ProjectE 1.1.0 always runs, so the
+  predicted value of every item is what ProjectE computes:
+  - `OresBlacklistMapper` and `RawOresBlacklistMapper` set every member of `#forge:ores` and
+    `#forge:raw_materials` to 0. Those items, and anything made only from them (raw-ore storage blocks), have no
+    ProjectE value; `values.json` records `projecte: 0` with the reason under `no_value`. Their Item Alchemy values
+    are unchanged.
+  - ProjectE's `metals.json` prices `#forge:ingots/<metal>` tags with `propagateTags` conversions (tin as one iron
+    ingot, lead and osmium as two, bronze from copper and tin, ...). A member without an explicit value takes only
+    that price. `emc.py check` fails when a recipe makes such an item for less (nuggets, dusts), because ProjectE
+    would only log it; the port then pins an explicit value (Mekanism's tin, lead and bronze ingots).
+  - `TagMapper` adds `tag = member` and `member = tag` for every tag a custom conversion names, so each member of
+    such a tag is worth at most its cheapest member. ProjectE's own files name the tags in
+    `scripts/emc/projecte-tags.json`. A policy conversion that names a tag is written to the ProjectE file as the
+    cheapest member when the tag's members are not all worth the same, or when ProjectE prices the tag through
+    `metals.json`; otherwise naming it would devalue vanilla members (stained glass, coal) or give excluded members
+    EMC. The README lists each such tag.
+  - `remainders` may be limited to one system. Mekanism's fluid buckets return an empty bucket, which ProjectE's
+    crafting mapper subtracts; Item Alchemy reads only the shipped values, which are left as they were.
 
 Vanilla baselines (`scripts/emc/*-vanilla.json`) come from ProjectE's pregenerated values with its default
 configuration, and from Tekxit's Item Alchemy config, falling back to a fresh one.
-`python3 scripts/emc.py refresh-baselines` rebuilds them from the jars.
+`python3 scripts/emc.py refresh-baselines` rebuilds them from the jars. With `--projecte-jar` it also records
+ProjectE's tag values, its `metals.json` tag conversions and the tags its own conversion files name
+(`projecte-tag-values.json`, `projecte-tag-conversions.json`, `projecte-tags.json`).
 
 ### Exploit rules
 
@@ -111,7 +132,8 @@ configuration, and from Tekxit's Item Alchemy config, falling back to a fresh on
   booster packs and the ink mixer.
 - **No devaluing vanilla.** A port recipe that would make a vanilla item cheaper than its fixed value fails the
   check; ICBM's sulfur is three gunpowder for this reason. So does a port item that would become the cheapest
-  member of a tag vanilla recipes use.
+  member of a tag vanilla recipes use or of a tag ProjectE's `TagMapper` equalises, and the ProjectE file never
+  names a tag whose members are worth different amounts.
 - **Explosives** keep their recipe cost, so they are never cheaper to transmute than to craft, and crafting then
   burning one never gains. This includes ICBM's nuclear, antimatter and red matter tiers, which cost a few
   hundred thousand to a few million EMC because of their wither skeleton skulls and nether stars.
@@ -132,6 +154,10 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
   - A process gains EMC, or a recipe devalues vanilla.
   - A shipped file breaks the ProjectE or Item Alchemy grammar.
   - A generated file is stale.
+  - A port ships a `pe_custom_conversions` file the policy does not generate (Mekanism's upstream `defaults.json`
+    priced fluorite, HDPE pellets and salt behind the generator's back and was removed).
+  - A recipe undercuts a `metals.json` price, an excluded item sits in a tag ProjectE's `TagMapper` values, or a
+    `metals.json`-priced tag with several members is named in a conversion.
 - **GameTests.** Each port's GameTest server runs `EmcAudit`, which checks that:
   - Every item in the live registry has a decision in `emc/values.json`.
   - `values.json` names no unregistered item.
@@ -151,17 +177,21 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | BuildCraft | `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy` |
 | ICBM | `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` |
 | Advanced Genetics | `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy` |
-| Mekanism | `./scripts/gradle.sh :mekanism:runGameTestServer`, `./scripts/gradle.sh -p mods/mekanism/fabric runGametest` |
+| Mekanism | `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy` |
 
-CI runs every audit in the table against its real EMC mod, except Mekanism, whose matrix entry and audit are static.
-That catches stale values, changed dependency coordinates and data-format regressions. Mekanism ships those two data
-files for the core module and again for Generators, Tools and Additions; `scripts/emc.py check` covers them. Its
-GameTests run a four-namespace `EmcAudit` that checks the static coverage and both files per namespace. The audit
-does not compare live values: ProjectE blacklists the ores the static table prices and its recipe mappers may raise
-mapped values, so equality does not hold; see
-[`mods/mekanism/parity/15-projecte.md`](../mods/mekanism/parity/15-projecte.md). On Forge, ProjectE's recipe mappers
-are an optional compile-only dependency and add a machine recipe only when it does not undercut the static table
-(`projecte_mapper_guard.json`). Item Alchemy has no mapper API, so the Fabric build uses the static values alone.
+CI runs every audit in the table against its real EMC mod: each port's matrix entry passes `-PwithProjectE` to the
+Forge GameTest run and `-PwithItemAlchemy` to the Fabric one, so there is no separate EMC job, and
+`scripts/tests/test_ci_workflow.py` keeps every port with EMC data on those flags. ProjectE comes from CurseMaven
+and Item Alchemy, mcpitanlibarch and Architectury API from Modrinth's Maven, both declared in each port's build
+script, so a clean runner downloads them. That catches stale values, changed dependency coordinates and
+data-format regressions; no live value is exempt.
+
+Mekanism ships those two data files for the core module and again for Generators, Tools and Additions;
+`scripts/emc.py check` covers them, and its four-namespace `EmcAudit` compares all 779 live values. On Forge,
+Mekanism's own ProjectE recipe mappers are an optional compile-only dependency and add a machine recipe only when it
+does not undercut the static table (`projecte_mapper_guard.json`), so they never change a value once the table
+matches ProjectE; see [`mods/mekanism/parity/15-projecte.md`](../mods/mekanism/parity/15-projecte.md). Item Alchemy
+has no mapper API, so the Fabric build uses the static values alone.
 
 ## Adding EMC to a port
 
