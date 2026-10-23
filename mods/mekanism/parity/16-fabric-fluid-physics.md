@@ -1,8 +1,8 @@
 ## Fabric: entity physics in Mekanism fluids
 
 Forge applies each fluid's `FluidType` to entities: swimming, drowning, current pushing, the fall distance modifier,
-boating and the path type. Vanilla Fabric only does this for water and lava. The Fabric build's `FluidType` mirror
-(`ports.mekanism.lib.fluids`) carries the same values, but no mixin in `ports.mekanism.fabric.mixin` applies them to
+extinguishing, boating and the path types. Vanilla Fabric only does this for water and lava. The Fabric build's
+`FluidType` mirror (`ports.mekanism.lib.fluids`) carries the same values, but no mixin in `ports.mekanism.fabric.mixin` applies them to
 swimming, drowning, pushing, falling, boats or path types, and `IForgeEntity`'s `isInFluidType`, `isEyeInFluidType`
 and `getMaxHeightFluidType` used to answer only for water and lava. On its own, an entity walked through brine, heavy
 water or any other Mekanism fluid as if it were air.
@@ -20,8 +20,10 @@ core fluids and Generators' bioethanol, deuterium, fusion fuel and tritium; Tool
 | `canPushEntity` | true |
 | `motionScale` | 0.014 |
 | `fallDistanceModifier` | 0.5 |
+| `canExtinguish` | false |
 | `supportsBoating` | false |
 | `pathType` | `WATER` |
+| `adjacentPathType` | `WATER_BORDER` |
 
 The mirror's `FluidType.Properties` defaulted `canDrown` to false. Forge 1.19.2 defaults it to true, so the mirror now
 does too; lava and the empty type still set it to false. `IForgeEntity`'s per-type queries measure non-vanilla fluids
@@ -33,5 +35,6 @@ the fall distance by 0.5; and brine has the `WATER` path type. `FabricFluidPhysi
 core and Generators fluid, still and flowing, is registered with its type's values, and a development-only fluid whose
 type turns swimming, drowning and pushing off does not drown, swim or push and has the path type its type gives.
 
-Limits, from the library: Forge's `adjacentPathType`, `canExtinguish`, `canHydrate` and item bobbing are not
-applied on Fabric, and the path type does not depend on whether the block can be fluid-logged.
+Limits, from the library: Forge's `canHydrate`, `canConvertToSource`, fluid sounds and item bobbing are not applied by
+it on Fabric, `canExtinguish` only puts out entities, and the path types do not depend on the entity or on whether the
+block can be fluid-logged. See the library's README for the full list.

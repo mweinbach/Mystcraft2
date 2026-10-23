@@ -11,7 +11,10 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -341,6 +344,234 @@ public final class FluidPhysicsGameTests implements FabricGameTest {
                             "the plain fluid's fall distance modifier gave " + plain.fallDistance);
                 })
                 .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void registeredFluidsUseWaterTravel(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 4, 1, 5, 1, 5);
+        floodPool(helper, FluidPhysicsTestFluids.PLAIN_BLOCK, 1, 4, 6, 10, 1, 5);
+
+        // Gravity off and off the ground, so only the travel friction changes the horizontal speed.
+        final LivingEntity swimmable = floatingZombie(helper, new BlockPos(3, 2, 3));
+        final LivingEntity plain = floatingZombie(helper, new BlockPos(8, 2, 3));
+        final LivingEntity air = floatingZombie(helper, new BlockPos(13, 2, 3));
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    swimmable.setDeltaMovement(0.3D, 0.0D, 0.0D);
+                    plain.setDeltaMovement(0.3D, 0.0D, 0.0D);
+                    air.setDeltaMovement(0.3D, 0.0D, 0.0D);
+                })
+                .thenIdle(1)
+                .thenExecute(() -> {
+
+                    final double inSwimmable = swimmable.getDeltaMovement().x;
+                    final double inPlain = plain.getDeltaMovement().x;
+                    final double inAir = air.getDeltaMovement().x;
+
+                    // Water travel keeps 0.8 of the speed per tick; travel in air keeps 0.91.
+                    check(inAir > 0.0D && inSwimmable > 0.0D && inPlain > 0.0D,
+                            "an entity stopped: " + inSwimmable + ", " + inPlain + ", " + inAir);
+                    check(inSwimmable < inAir - 0.01D,
+                            "the swimmable fluid did not slow the entity as water: " + inSwimmable + " vs " + inAir);
+                    check(inPlain < inAir - 0.01D,
+                            "the plain fluid did not slow the entity as water: " + inPlain + " vs " + inAir);
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void registeredFluidsLetJumpingEntitiesSwimUp(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 4, 1, 5, 1, 5);
+        floodPool(helper, FluidPhysicsTestFluids.PLAIN_BLOCK, 1, 4, 6, 10, 1, 5);
+
+        final Mob swimmable = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 1, 3));
+        final Mob plain = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(8, 1, 3));
+        final double floor = helper.absolutePos(new BlockPos(0, 1, 0)).getY();
+
+        helper.startSequence()
+                .thenExecuteFor(40, () -> {
+                    swimmable.getJumpControl().jump();
+                    plain.getJumpControl().jump();
+                })
+                .thenExecute(() -> {
+
+                    // A jump from the ground peaks near 1.25 blocks; swimming up reaches the surface, 3.9 blocks up.
+                    check(swimmable.getY() > floor + 2.0D,
+                            "a jumping entity did not swim up the swimmable fluid: " + (swimmable.getY() - floor));
+                    check(plain.getY() > floor + 2.0D,
+                            "a jumping entity did not swim up the plain fluid: " + (plain.getY() - floor));
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void submergedBoatRefusesPassengersOnlyInBoatingFluid(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 4, 1, 5, 1, 5);
+        floodPool(helper, FluidPhysicsTestFluids.PLAIN_BLOCK, 1, 4, 6, 10, 1, 5);
+
+        // Both boats start on the pool floor, with their eyes in the fluid.
+        final Boat inSwimmable = helper.spawn(EntityType.BOAT, new BlockPos(3, 1, 3));
+        final Boat inPlain = helper.spawn(EntityType.BOAT, new BlockPos(8, 1, 3));
+        final LivingEntity first = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(13, 1, 3));
+        final LivingEntity second = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(13, 1, 8));
+
+        check(!first.startRiding(inSwimmable), "a boat submerged in a boating fluid accepted a passenger");
+        check(second.startRiding(inPlain), "a boat in a fluid that does not support boating refused a passenger");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void floatingBoatCarriesPassengersOnBoatingFluid(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 2, 1, 7, 1, 7);
+
+        helper.setBlock(new BlockPos(12, 0, 12), Blocks.STONE);
+
+        final Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(4, 4, 4));
+        final LivingEntity passenger = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(12, 1, 12));
+        final double surface = helper.absolutePos(new BlockPos(0, 2, 0)).getY();
+
+        passenger.setAirSupply(100);
+
+        helper.startSequence()
+                .thenIdle(30)
+                .thenExecute(() -> check(passenger.startRiding(boat),
+                        "a boat floating on a boating fluid refused a passenger"))
+                .thenIdle(30)
+                .thenExecute(() -> {
+
+                    check(passenger.getVehicle() == boat, "the passenger left the boat");
+                    check(boat.getY() > surface + 0.25D,
+                            "the boat sank with a passenger: " + (boat.getY() - surface));
+                    check(passenger.getAirSupply() >= 100,
+                            "the passenger of a floating boat lost air: " + passenger.getAirSupply());
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void swimmableFluidPushesItemEntities(final GameTestHelper helper) {
+
+        flowingChannel(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK);
+
+        final ItemEntity[] item = new ItemEntity[1];
+        final double[] startX = new double[1];
+
+        helper.startSequence()
+                .thenIdle(40)
+                .thenExecute(() -> {
+
+                    check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(5, 1, 2))).isEmpty(),
+                            "the test fluid did not flow down the channel");
+
+                    item[0] = helper.spawnItem(Items.STONE, 5.5F, 1.05F, 2.5F);
+                    startX[0] = item[0].getX();
+                })
+                .thenIdle(20)
+                .thenExecute(() -> check(item[0].getX() > startX[0] + 0.05D,
+                        "a swimmable fluid's flow did not push the item: " + startX[0] + " -> " + item[0].getX()))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void nonSwimmableFluidDoesNotPushItemEntities(final GameTestHelper helper) {
+
+        flowingChannel(helper, FluidPhysicsTestFluids.PLAIN_BLOCK);
+
+        final ItemEntity[] item = new ItemEntity[1];
+        final double[] startX = new double[1];
+
+        helper.startSequence()
+                .thenIdle(40)
+                .thenExecute(() -> {
+
+                    check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(5, 1, 2))).isEmpty(),
+                            "the test fluid did not flow down the channel");
+
+                    item[0] = helper.spawnItem(Items.STONE, 5.5F, 1.05F, 2.5F);
+                    startX[0] = item[0].getX();
+                })
+                .thenIdle(20)
+                .thenExecute(() -> check(Math.abs(item[0].getX() - startX[0]) < 0.05D,
+                        "a non-pushing fluid moved the item: " + startX[0] + " -> " + item[0].getX()))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void extinguishingFluidPutsOutBurningEntities(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 4, 1, 5, 1, 5);
+        floodPool(helper, FluidPhysicsTestFluids.PLAIN_BLOCK, 1, 4, 6, 10, 1, 5);
+
+        // Cows are not fire immune and, under the fluid surface, are out of any rain.
+        final LivingEntity inSwimmable = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 1, 3));
+        final LivingEntity inPlain = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(8, 1, 3));
+
+        inSwimmable.setSecondsOnFire(10);
+        inPlain.setSecondsOnFire(10);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+
+                    check(inSwimmable.getRemainingFireTicks() <= 0,
+                            "an extinguishing fluid left the entity burning: " + inSwimmable.getRemainingFireTicks());
+                    check(inPlain.getRemainingFireTicks() > 0,
+                            "a non-extinguishing fluid put the entity out: " + inPlain.getRemainingFireTicks());
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void adjacentPathTypesMatchTheirProperties(final GameTestHelper helper) {
+
+        for (int x = 1; x <= 8; ++x) {
+            helper.setBlock(new BlockPos(x, 0, 2), Blocks.STONE);
+        }
+
+        helper.setBlock(new BlockPos(2, 1, 2), FluidPhysicsTestFluids.SWIMMABLE_BLOCK);
+        helper.setBlock(new BlockPos(6, 1, 2), FluidPhysicsTestFluids.PLAIN_BLOCK);
+
+        // Walkable air on stone, beside each fluid; the fluids have not spread yet.
+        final BlockPathTypes besideSwimmable = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(3, 1, 2)));
+        final BlockPathTypes besidePlain = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(7, 1, 2)));
+
+        check(BlockPathTypes.WATER_BORDER == besideSwimmable,
+                "a block beside the default-adjacent fluid has path type " + besideSwimmable);
+        check(BlockPathTypes.WALKABLE == besidePlain,
+                "a block beside a fluid with no adjacent path type has path type " + besidePlain);
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void vanillaWaterStillBordersPaths(final GameTestHelper helper) {
+
+        for (int x = 1; x <= 4; ++x) {
+            helper.setBlock(new BlockPos(x, 0, 2), Blocks.STONE);
+        }
+
+        helper.setBlock(new BlockPos(2, 1, 2), Blocks.WATER);
+
+        final BlockPathTypes beside = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(3, 1, 2)));
+
+        check(BlockPathTypes.WATER_BORDER == beside, "a block beside vanilla water has path type " + beside);
+        helper.succeed();
+    }
+
+    private static Mob floatingZombie(final GameTestHelper helper, final BlockPos position) {
+
+        final Mob zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, position);
+
+        zombie.setNoGravity(true);
+        return zombie;
     }
 
     private static void floodPool(final GameTestHelper helper, final Block fluid, final int fromY, final int toY,

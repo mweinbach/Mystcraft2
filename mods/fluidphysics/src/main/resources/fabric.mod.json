@@ -7,6 +7,10 @@
   "authors": [
     "1.19.2 port contributors"
   ],
+  "contact": {
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/fluidphysics",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "mixins": [
@@ -14,8 +18,15 @@
   ],
   "depends": {
     "fabricloader": ">=0.16.14",
-    "fabric-api": "*",
+    "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
   }
 }

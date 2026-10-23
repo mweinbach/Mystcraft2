@@ -23,8 +23,11 @@ public final class FluidProperties {
     private boolean canDrown = true;
     private float fallDistanceModifier = 0.5F;
     private boolean supportsBoating;
+    private boolean canExtinguish;
     @Nullable
     private BlockPathTypes pathType = BlockPathTypes.WATER;
+    @Nullable
+    private BlockPathTypes adjacentPathType = BlockPathTypes.WATER_BORDER;
 
     private FluidProperties() {
     }
@@ -73,8 +76,20 @@ public final class FluidProperties {
         return this;
     }
 
+    /** Whether an entity touching the fluid is extinguished, as water does. */
+    public FluidProperties canExtinguish(final boolean canExtinguish) {
+        this.canExtinguish = canExtinguish;
+        return this;
+    }
+
     public FluidProperties pathType(@Nullable final BlockPathTypes pathType) {
         this.pathType = pathType;
+        return this;
+    }
+
+    /** The path type of walkable blocks next to the fluid, or null to leave them to vanilla. */
+    public FluidProperties adjacentPathType(@Nullable final BlockPathTypes adjacentPathType) {
+        this.adjacentPathType = adjacentPathType;
         return this;
     }
 
@@ -102,9 +117,18 @@ public final class FluidProperties {
         return this.supportsBoating;
     }
 
+    public boolean canExtinguish() {
+        return this.canExtinguish;
+    }
+
     @Nullable
     public BlockPathTypes pathType() {
         return this.pathType;
+    }
+
+    @Nullable
+    public BlockPathTypes adjacentPathType() {
+        return this.adjacentPathType;
     }
 
     FluidProperties snapshot() {
@@ -117,7 +141,9 @@ public final class FluidProperties {
         copy.canDrown = this.canDrown;
         copy.fallDistanceModifier = this.fallDistanceModifier;
         copy.supportsBoating = this.supportsBoating;
+        copy.canExtinguish = this.canExtinguish;
         copy.pathType = this.pathType;
+        copy.adjacentPathType = this.adjacentPathType;
         return copy;
     }
 }

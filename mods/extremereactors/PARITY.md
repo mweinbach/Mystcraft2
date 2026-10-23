@@ -111,9 +111,11 @@ with the values `ReactorFluidType.of` uses on Forge: swimmable fluids get
 water-like travel and jumping, the swimming pose, drowning, current pushing, the
 0.4 fall distance modifier, boat support and the `WATER` path type; steam gets
 the 0.1 fall distance modifier and the `WALKABLE` path type and does not drown,
-push or support boats. As on Forge, `canDrown` ignores `canBreatheUnderwater`, so
-undead and water mobs also lose air in a swimmable fluid; water breathing still
-protects them. The Forge build and `src/main` are unchanged.
+push or support boats. Walkable blocks next to any of them get the `WATER_BORDER`
+path type, Forge's default `adjacentPathType`, and, as with `canExtinguish(false)`
+on Forge, none of them puts out burning entities. As on Forge, `canDrown` ignores
+`canBreatheUnderwater`, so undead and water mobs also lose air in a swimmable
+fluid; water breathing still protects them. The Forge build and `src/main` are unchanged.
 
 The shared GameTests pin the behaviour on both loaders:
 `swimmableFluidDrowns`, `nonSwimmableFluidDoesNotDrown`,

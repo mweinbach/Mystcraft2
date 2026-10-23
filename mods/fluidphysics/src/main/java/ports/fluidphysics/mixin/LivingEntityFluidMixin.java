@@ -4,41 +4,47 @@
  */
 package ports.fluidphysics.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import ports.fluidphysics.FluidPhysicsSupport;
 
 /**
  * Makes registered fluids act as Forge's do for living entities: water-like travel, jumping and drowning. Forge routes
  * these through {@code FluidType.canSwim} and {@code FluidType.canDrown}; vanilla only tests the water tag.
+ *
+ * <p>Each handler keeps vanilla's call and combines the registered-fluid result with it, through MixinExtras so other
+ * mods can wrap the same calls.</p>
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityFluidMixin {
 
     /** Forge's {@code isInWater() || isInFluidType(non-lava)} condition in travel and in the jump logic. */
-    @Redirect(method = "travel", at = @At(value = "INVOKE",
+    @ModifyExpressionValue(method = "travel", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;isInWater()Z"))
-    private boolean fluidphysics$travelInFluid(final LivingEntity entity) {
-        return entity.isInWater() || FluidPhysicsSupport.isInFluidAtFeet(entity);
+    private boolean fluidphysics$travelInFluid(final boolean inWater) {
+        return inWater || FluidPhysicsSupport.isInFluidAtFeet((LivingEntity) (Object) this);
     }
 
-    @Redirect(method = "aiStep", at = @At(value = "INVOKE",
+    @ModifyExpressionValue(method = "aiStep", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;isInWater()Z"))
-    private boolean fluidphysics$jumpInFluid(final LivingEntity entity) {
-        return entity.isInWater() || FluidPhysicsSupport.isInFluidAtFeet(entity);
+    private boolean fluidphysics$jumpInFluid(final boolean inWater) {
+        return inWater || FluidPhysicsSupport.isInFluidAtFeet((LivingEntity) (Object) this);
     }
 
     /** Forge replaces the water height with the tallest fluid type the entity is in. */
-    @Redirect(method = "aiStep", at = @At(value = "INVOKE",
+    @WrapOperation(method = "aiStep", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;getFluidHeight(Lnet/minecraft/tags/TagKey;)D"))
-    private double fluidphysics$fluidHeight(final LivingEntity entity, final TagKey<Fluid> tag) {
+    private double fluidphysics$fluidHeight(final LivingEntity entity, final TagKey<Fluid> tag,
+                                            final Operation<Double> original) {
 
-        final double height = entity.getFluidHeight(tag);
+        final double height = original.call(entity, tag);
 
         if (!FluidTags.WATER.equals(tag)) {
             return height;
@@ -51,16 +57,17 @@ abstract class LivingEntityFluidMixin {
      * Vanilla's drowning branch only runs for water. Forge runs it for every fluid with a non-air type and then checks
      * {@code FluidType.canDrownIn}, and that check ignores {@code canBreatheUnderwater}.
      */
-    @Redirect(method = "baseTick", at = @At(value = "INVOKE",
+    @WrapOperation(method = "baseTick", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z"))
-    private boolean fluidphysics$eyeInFluid(final LivingEntity entity, final TagKey<Fluid> tag) {
-        return entity.isEyeInFluid(tag)
+    private boolean fluidphysics$eyeInFluid(final LivingEntity entity, final TagKey<Fluid> tag,
+                                            final Operation<Boolean> original) {
+        return original.call(entity, tag)
                 || (FluidTags.WATER.equals(tag) && FluidPhysicsSupport.isEyeInDrownableFluid(entity));
     }
 
-    @Redirect(method = "baseTick", at = @At(value = "INVOKE",
+    @ModifyExpressionValue(method = "baseTick", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;canBreatheUnderwater()Z"))
-    private boolean fluidphysics$canDrownInFluid(final LivingEntity entity) {
-        return entity.canBreatheUnderwater() && !FluidPhysicsSupport.isEyeInDrownableFluid(entity);
+    private boolean fluidphysics$canDrownInFluid(final boolean canBreatheUnderwater) {
+        return canBreatheUnderwater && !FluidPhysicsSupport.isEyeInDrownableFluid((LivingEntity) (Object) this);
     }
 }

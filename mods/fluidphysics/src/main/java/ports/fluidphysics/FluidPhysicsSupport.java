@@ -5,13 +5,11 @@
 package ports.fluidphysics;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -23,8 +21,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * The Forge {@code FluidType} behavior the mixins apply: fluid heights, current pushing, fall distance, drowning,
- * swimming, boating and path types.
+ * The Forge {@code FluidType} behavior the mixins apply: fluid heights, current pushing, fall distance, extinguishing,
+ * drowning, swimming, boating and path types.
+ *
+ * <p>Every query returns at once when no fluid is registered, and the area scans skip entities whose bounding box
+ * touches an unloaded chunk, as vanilla's {@code updateFluidHeightAndDoFluidPushing} does.</p>
  */
 public final class FluidPhysicsSupport {
 
@@ -36,6 +37,10 @@ public final class FluidPhysicsSupport {
      * above the eye. A boat the entity rides and is not under also hides it from the fluid.
      */
     public static boolean isEyeInFluid(final Entity entity, final Predicate<FluidProperties> predicate) {
+
+        if (FluidPhysics.isEmpty()) {
+            return false;
+        }
 
         final Level level = entity.level;
         final double eyeLevel = entity.getEyeY() - 0.1111111119389534D;
@@ -72,6 +77,10 @@ public final class FluidPhysicsSupport {
     /** Forge's {@code isInFluidType(state)} at the entity's feet, for any registered fluid. */
     public static boolean isInFluidAtFeet(final Entity entity) {
 
+        if (FluidPhysics.isEmpty()) {
+            return false;
+        }
+
         final BlockPos position = entity.blockPosition();
         final FluidState state = entity.level.getFluidState(position);
 
@@ -97,6 +106,10 @@ public final class FluidPhysicsSupport {
     /** Whether the fluid in the entity's feet block allows swimming. */
     public static boolean isSwimmableFluidAtFeet(final Entity entity) {
 
+        if (FluidPhysics.isEmpty()) {
+            return false;
+        }
+
         final FluidState state = entity.level.getFluidState(entity.blockPosition());
         final FluidProperties properties = FluidPhysics.propertiesOf(state);
 
@@ -119,49 +132,22 @@ public final class FluidPhysicsSupport {
     }
 
     /**
-     * Forge's per-fluid pass over an entity: it records the fluid heights, applies the fall distance modifier and
-     * pushes entities with the fluid's flow. Runs after vanilla has handled water and lava.
+     * Forge's per-fluid pass over an entity: it records the fluid heights, applies the fall distance modifier,
+     * extinguishes the entity and pushes it with the fluid's flow. Runs after vanilla has handled water and lava.
      */
     public static void updateEntity(final Entity entity) {
 
-        final Level level = entity.level;
-        final AABB box = entity.getBoundingBox().inflate(0.001D);
-        final Map<FluidProperties, Push> pushes = new IdentityHashMap<>();
-        // Forge does not push a rider in a boat that is not under water when the fluid supports boating.
-        final boolean ridingBoat = entity.getVehicle() instanceof Boat boat && !boat.isUnderWater();
+        if (FluidPhysics.isEmpty()) {
+            return;
+        }
 
-        scan(level, box, (position, state, properties) -> {
+        final EntityPass pass = new EntityPass(entity);
 
-            final double height = position.getY() + state.getHeight(level, position) - box.minY;
+        scan(pass.level, pass.box, pass);
 
-            if (height < 0.0D) {
-                return;
-            }
+        final Map<FluidProperties, Push> pushes = pass.pushes;
 
-            // Forge skips fluids that support boating while riding a boat that is not under water.
-            if (ridingBoat && properties.supportsBoating()) {
-                return;
-            }
-
-            final Push push = pushes.computeIfAbsent(properties, ignored -> new Push());
-
-            push.height = Math.max(push.height, height);
-
-            // Forge's Entity#isPushedByFluid(FluidType) is isPushedByFluid() && fluidType.canPushEntity().
-            if (properties.canPushEntity() && entity.isPushedByFluid()) {
-
-                Vec3 flow = state.getFlow(level, position);
-
-                if (push.height < 0.4D) {
-                    flow = flow.scale(push.height);
-                }
-
-                push.flow = push.flow.add(flow);
-                ++push.flowBlocks;
-            }
-        });
-
-        if (pushes.isEmpty()) {
+        if (null == pushes) {
             return;
         }
 
@@ -169,12 +155,19 @@ public final class FluidPhysicsSupport {
         if (!(entity.getVehicle() instanceof Boat)) {
 
             float modifier = 1.0f;
+            boolean extinguish = false;
 
             for (final FluidProperties properties : pushes.keySet()) {
                 modifier = Math.min(modifier, properties.fallDistanceModifier());
+                extinguish |= properties.canExtinguish();
             }
 
             entity.fallDistance *= modifier;
+
+            // Forge clears fire in the same branch when any of the fluids can extinguish the entity.
+            if (extinguish) {
+                entity.clearFire();
+            }
         }
 
         for (final Map.Entry<FluidProperties, Push> entry : pushes.entrySet()) {
@@ -211,32 +204,66 @@ public final class FluidPhysicsSupport {
     @Nullable
     public static BlockPathTypes pathType(final FluidState state) {
 
+        if (FluidPhysics.isEmpty()) {
+            return null;
+        }
+
         final FluidProperties properties = FluidPhysics.propertiesOf(state);
 
         return null == properties ? null : properties.pathType();
     }
 
-    public static boolean isWaterForBoating(final FluidState state, final TagKey<Fluid> tag) {
+    /**
+     * The path type Forge's {@code FluidType.adjacentPathType} gives a walkable block next to this fluid, or null when
+     * the fluid is not registered or leaves its neighbours to vanilla.
+     */
+    @Nullable
+    public static BlockPathTypes adjacentPathType(final FluidState state) {
 
-        final boolean vanilla = state.is(tag);
-
-        if (!tag.equals(FluidTags.WATER)) {
-            return vanilla;
+        if (FluidPhysics.isEmpty()) {
+            return null;
         }
 
-        // Vanilla water is not registered, so a registered-fluid-only answer would break ordinary boats.
         final FluidProperties properties = FluidPhysics.propertiesOf(state);
 
-        return vanilla || (null != properties && properties.supportsBoating());
+        return null == properties ? null : properties.adjacentPathType();
     }
 
+    /** Whether boats float on this fluid as on water. Vanilla water is not registered and keeps its own check. */
+    public static boolean isBoatingFluid(final FluidState state) {
+
+        final FluidProperties properties = FluidPhysics.propertiesOf(state);
+
+        return null != properties && properties.supportsBoating();
+    }
+
+    /**
+     * Calls the consumer for every registered fluid block in the box. Nothing is scanned when no fluid is registered
+     * or the box reaches into a chunk that is not loaded, so a query never loads chunks.
+     */
+    @SuppressWarnings("deprecation") // hasChunksAt is the check vanilla's updateFluidHeightAndDoFluidPushing uses.
     private static void scan(final Level level, final AABB box, final FluidConsumer consumer) {
+
+        if (FluidPhysics.isEmpty()) {
+            return;
+        }
+
+        final int minX = Mth.floor(box.minX);
+        final int maxX = Mth.ceil(box.maxX);
+        final int minY = Mth.floor(box.minY);
+        final int maxY = Mth.ceil(box.maxY);
+        final int minZ = Mth.floor(box.minZ);
+        final int maxZ = Mth.ceil(box.maxZ);
+
+        if (!level.hasChunksAt(minX, minY, minZ, maxX, maxY, maxZ)) {
+            return;
+        }
 
         final BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 
-        for (int x = (int) Math.floor(box.minX); x < (int) Math.ceil(box.maxX); ++x) {
-            for (int y = (int) Math.floor(box.minY); y < (int) Math.ceil(box.maxY); ++y) {
-                for (int z = (int) Math.floor(box.minZ); z < (int) Math.ceil(box.maxZ); ++z) {
+        for (int x = minX; x < maxX; ++x) {
+            for (int y = minY; y < maxY; ++y) {
+                for (int z = minZ; z < maxZ; ++z) {
 
                     position.set(x, y, z);
 
@@ -256,6 +283,60 @@ public final class FluidPhysicsSupport {
         void accept(BlockPos position, FluidState state, FluidProperties properties);
     }
 
+    /** The fluids one entity touches this tick. The map is only allocated once a registered fluid is found. */
+    private static final class EntityPass implements FluidConsumer {
+
+        final Entity entity;
+        final Level level;
+        final AABB box;
+        // Forge does not push a rider in a boat that is not under water when the fluid supports boating.
+        final boolean ridingBoat;
+        @Nullable
+        Map<FluidProperties, Push> pushes;
+
+        EntityPass(final Entity entity) {
+            this.entity = entity;
+            this.level = entity.level;
+            this.box = entity.getBoundingBox().inflate(0.001D);
+            this.ridingBoat = entity.getVehicle() instanceof Boat boat && !boat.isUnderWater();
+        }
+
+        @Override
+        public void accept(final BlockPos position, final FluidState state, final FluidProperties properties) {
+
+            final double height = position.getY() + state.getHeight(this.level, position) - this.box.minY;
+
+            if (height < 0.0D) {
+                return;
+            }
+
+            // Forge skips fluids that support boating while riding a boat that is not under water.
+            if (this.ridingBoat && properties.supportsBoating()) {
+                return;
+            }
+
+            if (null == this.pushes) {
+                this.pushes = new IdentityHashMap<>();
+            }
+
+            final Push push = this.pushes.computeIfAbsent(properties, ignored -> new Push());
+
+            push.height = Math.max(push.height, height);
+
+            // Forge's Entity#isPushedByFluid(FluidType) is isPushedByFluid() && fluidType.canPushEntity().
+            if (properties.canPushEntity() && this.entity.isPushedByFluid()) {
+
+                Vec3 flow = state.getFlow(this.level, position);
+
+                if (push.height < 0.4D) {
+                    flow = flow.scale(push.height);
+                }
+
+                push.flow = push.flow.add(flow);
+                ++push.flowBlocks;
+            }
+        }
+    }
     private static final class Push {
         double height;
         Vec3 flow = Vec3.ZERO;
