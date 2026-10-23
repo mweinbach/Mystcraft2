@@ -20,6 +20,10 @@ public class PipeItem extends BlockItem {
         this.definition = definition;
     }
 
+    public PipeDefinition definition() {
+        return definition;
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         String tip = "tip." + getDescriptionId();

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -99,6 +101,40 @@ public final class FluidFlow extends PipeFlow {
 
     /** @return the fluid pulled from the tank on {@code from}, in mB. */
     public FluidAmount tryExtractFluid(int millibuckets, Direction from, boolean simulate) {
+        return tryExtractFluid(millibuckets, from, null, simulate);
+    }
+
+    /**
+     * Upstream {@code tryExtractFluid(millibuckets, from, filter, simulate)}: as above, but only {@code filter}
+     * when it is not null (and nothing if the pipe already holds another fluid).
+     */
+    public FluidAmount tryExtractFluid(int millibuckets, Direction from, @Nullable Fluid filter, boolean simulate) {
+        return extract(millibuckets, from, simulate, (port, max) -> {
+            Fluid wanted = currentFluid != Fluids.EMPTY ? currentFluid : filter;
+            if (filter != null && wanted != null && !Fluids2.still(filter).isSame(wanted)) return FluidAmount.EMPTY;
+            return port.drain(wanted, max, simulate);
+        });
+    }
+
+    /**
+     * Upstream {@code tryExtractFluidAdv}: drains the pipe's current fluid if {@code filter} accepts it, or else the
+     * first fluid visible in the tank that it accepts.
+     */
+    public FluidAmount tryExtractFluidAdv(int millibuckets, Direction from, Predicate<Fluid> filter, boolean simulate) {
+        return extract(millibuckets, from, simulate, (port, max) -> {
+            if (currentFluid != Fluids.EMPTY) {
+                return filter.test(currentFluid) ? port.drain(currentFluid, max, simulate) : FluidAmount.EMPTY;
+            }
+            for (FluidAmount contents : port.contents()) {
+                if (contents.isEmpty() || !filter.test(Fluids2.still(contents.fluid()))) continue;
+                FluidAmount drained = port.drain(contents.fluid(), max, simulate);
+                if (!drained.isEmpty()) return drained;
+            }
+            return FluidAmount.EMPTY;
+        });
+    }
+
+    private FluidAmount extract(int millibuckets, Direction from, boolean simulate, BiFunction<FluidPort, Integer, FluidAmount> drainer) {
         if (from == null || millibuckets <= 0) return FluidAmount.EMPTY;
         FluidPort port = Ports.fluids(pipe.getLevel(), pipe.getBlockPos().relative(from), from.getOpposite());
         if (port == null) return FluidAmount.EMPTY;
@@ -106,7 +142,7 @@ public final class FluidFlow extends PipeFlow {
         Section middle = section(null);
         millibuckets = Math.min(millibuckets, capacity * 2 - section.amount - middle.amount);
         if (millibuckets <= 0) return FluidAmount.EMPTY;
-        FluidAmount toAdd = port.drain(currentFluid == Fluids.EMPTY ? null : currentFluid, millibuckets, simulate);
+        FluidAmount toAdd = drainer.apply(port, millibuckets);
         if (toAdd.isEmpty()) return FluidAmount.EMPTY;
         Fluid fluid = Fluids2.still(toAdd.fluid());
         if (currentFluid != Fluids.EMPTY && fluid != currentFluid) return FluidAmount.EMPTY;

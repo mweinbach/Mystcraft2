@@ -1677,7 +1677,31 @@ public final class BCTests {
         requirePipeRow(helper, BCTransport.OBSIDIAN_ITEM, Items.OBSIDIAN, Items.OBSIDIAN, "obsidian, glass and obsidian");
         requirePipeRow(helper, BCTransport.LAPIS_ITEM, Items.LAPIS_BLOCK, Items.LAPIS_BLOCK, "two lapis blocks either side of glass");
         requirePipeRow(helper, BCTransport.DAIZULI_ITEM, Items.LAPIS_BLOCK, Items.DIAMOND, "a lapis block, glass and a diamond");
+        requirePipeRow(helper, BCTransport.DIAMOND_WOOD_ITEM, Items.OAK_PLANKS, Items.DIAMOND, "planks, glass and a diamond");
+        requirePipeRow(helper, BCTransport.STRIPES_ITEM, BCCore.GEAR_GOLD.get(), BCCore.GEAR_GOLD.get(), "two gold gears either side of glass");
+        requireUpgrade(helper, BCTransport.DIAMOND_WOOD_ITEM, Items.LAPIS_BLOCK, BCTransport.EMZULI_ITEM);
+        requireUpgrade(helper, BCTransport.DIAMOND_WOOD_ITEM, BCTransport.WATERPROOF.get(), BCTransport.DIAMOND_WOOD_FLUID);
+        requireUpgrade(helper, BCTransport.DIAMOND_WOOD_ITEM, Items.REDSTONE, BCTransport.DIAMOND_WOOD_POWER);
         helper.succeed();
+    }
+
+    /**
+     * Upstream addPipeUpgradeRecipe: {@code from} and {@code extra} make {@code to}, and {@code to} alone turns back
+     * into {@code from} ("_undo").
+     */
+    private static void requireUpgrade(GameTestHelper helper, PipeDefinition from, Item extra, PipeDefinition to) {
+        var recipes = helper.getLevel().getRecipeManager();
+        CraftingContainer upgrade = grid();
+        upgrade.setItem(0, new ItemStack(from.item()));
+        upgrade.setItem(1, new ItemStack(extra));
+        CraftingRecipe recipe = (CraftingRecipe) recipes.byKey(BuildCraft.id(to.registryName())).orElseThrow();
+        require(helper, recipe.matches(upgrade, helper.getLevel()) && recipe.assemble(upgrade).is(to.item()),
+                "a " + from.registryName() + " and " + Registry.ITEM.getKey(extra) + " must make a " + to.registryName());
+        CraftingContainer undo = grid();
+        undo.setItem(0, new ItemStack(to.item()));
+        CraftingRecipe back = (CraftingRecipe) recipes.byKey(BuildCraft.id(to.registryName() + "_undo")).orElseThrow();
+        require(helper, back.matches(undo, helper.getLevel()) && back.assemble(undo).is(from.item()),
+                "a " + to.registryName() + " alone must turn back into a " + from.registryName());
     }
 
     /** {@code left}, glass and {@code right} in a row must craft eight of {@code pipe}, as upstream's pipe recipes do. */

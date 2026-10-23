@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_center_down",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/emzuli_item_clear"
+  }
+}

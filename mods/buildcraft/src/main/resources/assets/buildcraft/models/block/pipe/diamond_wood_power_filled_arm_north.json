@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_arm_north",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/diamond_wood_power_filled"
+  }
+}

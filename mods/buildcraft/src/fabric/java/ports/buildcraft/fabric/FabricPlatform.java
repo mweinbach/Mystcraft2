@@ -1,5 +1,6 @@
 package ports.buildcraft.fabric;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -35,6 +37,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -51,6 +54,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.BuildCraft;
@@ -285,5 +289,23 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public Item createFacadeItem(Item.Properties properties) {
         return new FacadeItem(properties);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return FabricFakePlayer.get(level, profile);
+    }
+
+    /** Fires {@code BEFORE} only, as for a player; the shared caller breaks the block itself. */
+    @Override
+    public boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, level.getBlockEntity(pos));
+    }
+
+    /** Fabric API has no place event: placing into air is allowed, and a block it replaces must be breakable. */
+    @Override
+    public boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player) {
+        BlockState replaced = level.getBlockState(pos);
+        return replaced.isAir() || fireBlockBreak(level, pos, replaced, player);
     }
 }

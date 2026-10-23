@@ -1,0 +1,76 @@
+{
+  "textures": {
+    "particle": "minecraft:block/gold_block",
+    "rod": "minecraft:block/gold_block"
+  },
+  "elements": [
+    {
+      "from": [
+        7.5,
+        7.5,
+        0
+      ],
+      "to": [
+        8.5,
+        8.5,
+        4
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        },
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#rod"
+        }
+      }
+    }
+  ]
+}

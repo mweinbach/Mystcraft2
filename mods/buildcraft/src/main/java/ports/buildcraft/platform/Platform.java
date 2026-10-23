@@ -1,5 +1,6 @@
 package ports.buildcraft.platform;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -29,6 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.energy.BCFluid;
@@ -85,6 +88,30 @@ public final class Platform {
          * the shared item and registers that renderer from its client entrypoint.
          */
         Item createFacadeItem(Item.Properties properties);
+
+        /**
+         * Upstream {@code IFakePlayerProvider}: a server player that is not connected, for machines that use items
+         * and interact with the world as a player would. Forge returns its {@code FakePlayer}; Fabric API for 1.19.2
+         * has none, so Fabric returns its own disconnected player.
+         */
+        ServerPlayer fakePlayer(ServerLevel level, GameProfile profile);
+
+        /**
+         * The loader's block break protection check, as upstream's {@code BlockUtil.breakBlock} posted Forge's
+         * {@code BlockEvent.BreakEvent} for a machine's owner: false if a handler refused {@code player} breaking
+         * {@code state} at {@code pos}. Forge posts {@code BreakEvent}; Fabric fires
+         * {@code PlayerBlockBreakEvents.BEFORE}. Callers use {@link ports.buildcraft.lib.BlockProtection}, which also
+         * makes vanilla's checks.
+         */
+        boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player);
+
+        /**
+         * The loader's block place protection check, made before the block at {@code pos} is replaced: false if a
+         * handler refused {@code player} placing a block there against {@code placedAgainst}. Forge posts
+         * {@code BlockEvent.EntityPlaceEvent}; Fabric API has no place event, so Fabric fires
+         * {@code PlayerBlockBreakEvents.BEFORE} for a block that placing would replace and allows placing into air.
+         */
+        boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player);
     }
 
     /** A client-to-server message, handled on the server thread. */

@@ -6,9 +6,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import ports.buildcraft.core.marker.volume.VolumeBox;
 import ports.buildcraft.core.marker.volume.VolumeBoxes;
+import ports.buildcraft.transport.stripes.PipeExtensionManager;
 import ports.buildcraft.transport.wire.WireSystems;
 
-/** Upstream {@code BCCoreEventDist} and the wire tick of {@code BCTransportEventDist}; each loader forwards its level tick and entity join events here. */
+/**
+ * Upstream {@code BCCoreEventDist}, the wire tick of {@code BCTransportEventDist} and the end-of-tick pipe extensions of
+ * {@code PipeExtensionManager}; each loader forwards its level tick and entity join events here. */
 public final class BCCoreEvents {
     private BCCoreEvents() {}
 
@@ -16,6 +19,7 @@ public final class BCCoreEvents {
     public static void onLevelTick(ServerLevel level) {
         VolumeBoxes.get(level).tick();
         WireSystems.get(level).tick();
+        PipeExtensionManager.tick(level);
     }
 
     /**

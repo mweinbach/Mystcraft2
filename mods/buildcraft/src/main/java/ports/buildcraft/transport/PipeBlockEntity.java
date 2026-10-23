@@ -1,11 +1,14 @@
 package ports.buildcraft.transport;
 
+import com.mojang.authlib.GameProfile;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
@@ -18,6 +21,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.Injectable;
 import ports.buildcraft.lib.SyncedBlockEntity;
 import ports.buildcraft.platform.EnergyPort;
@@ -59,6 +63,9 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
     private boolean updateMarked = true;
     private int[] redstoneOutput = new int[6];
     private int[] oldRedstoneOutput = {-1, -1, -1, -1, -1, -1};
+    /** Upstream {@code TileBC_Neptune.owner}: the player who placed the pipe, if known. */
+    @Nullable
+    private GameProfile owner;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(BCTransport.PIPE_TYPE.get(), pos, state);
@@ -86,6 +93,20 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
 
     public PipeWires wires() {
         return wires;
+    }
+
+    /**
+     * Upstream {@code TileBC_Neptune.getOwner}: whom the pipe acts for when it changes the world, the player who
+     * placed it or, failing that, {@link BlockProtection#NULL_PROFILE}.
+     */
+    public GameProfile getOwner() {
+        return owner == null ? BlockProtection.NULL_PROFILE : owner;
+    }
+
+    /** Set when a player places the pipe (upstream {@code onPlacedBy}); the machine profile counts as no owner. */
+    public void setOwner(@Nullable GameProfile profile) {
+        owner = profile == null || profile.getId() == null || profile.getId().equals(BlockProtection.NULL_PROFILE.getId()) ? null : profile;
+        setChanged();
     }
 
     @Override
@@ -364,6 +385,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         tag.put("plugs", writePluggables(false));
         tag.putIntArray("redstone", redstoneOutput);
         tag.put("wireManager", wires.save());
+        if (owner != null) tag.put("owner", NbtUtils.writeGameProfile(new CompoundTag(), owner));
     }
 
     @Override
@@ -374,6 +396,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
         int[] redstone = tag.getIntArray("redstone");
         if (redstone.length == 6) redstoneOutput = redstone;
         wires.load(tag.getCompound("wireManager"));
+        owner = tag.contains("owner", Tag.TAG_COMPOUND) ? NbtUtils.readGameProfile(tag.getCompound("owner")) : null;
         updateExtraShape();
         updateMarked = true;
     }

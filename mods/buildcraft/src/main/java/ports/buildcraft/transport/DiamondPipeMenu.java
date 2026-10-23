@@ -6,6 +6,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -34,23 +35,27 @@ public class DiamondPipeMenu extends BCMenu {
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        if (slotId >= 0 && slotId < slots.size() && slots.get(slotId) instanceof PhantomSlot phantom) {
-            ItemStack carried = getCarried();
-            ItemStack current = phantom.getItem();
-            if (carried.isEmpty()) {
-                phantom.set(ItemStack.EMPTY);
-            } else if (!ItemStack.isSameItemSameTags(carried, current)) {
-                ItemStack copy = carried.copy();
-                copy.setCount(1);
-                phantom.set(copy);
-            } else if (current.getCount() < current.getMaxStackSize()) {
-                ItemStack grown = current.copy();
-                grown.grow(1);
-                phantom.set(grown);
-            }
-            return;
-        }
+        if (clickPhantom(this, slotId)) return;
         super.clicked(slotId, button, clickType, player);
+    }
+
+    /** Applies a click on a {@link PhantomSlot} of {@code menu}; false if {@code slotId} is not one. */
+    static boolean clickPhantom(AbstractContainerMenu menu, int slotId) {
+        if (slotId < 0 || slotId >= menu.slots.size() || !(menu.slots.get(slotId) instanceof PhantomSlot phantom)) return false;
+        ItemStack carried = menu.getCarried();
+        ItemStack current = phantom.getItem();
+        if (carried.isEmpty()) {
+            phantom.set(ItemStack.EMPTY);
+        } else if (!ItemStack.isSameItemSameTags(carried, current)) {
+            ItemStack copy = carried.copy();
+            copy.setCount(1);
+            phantom.set(copy);
+        } else if (current.getCount() < current.getMaxStackSize()) {
+            ItemStack grown = current.copy();
+            grown.grow(1);
+            phantom.set(grown);
+        }
+        return true;
     }
 
     @Override

@@ -22,6 +22,7 @@ import ports.buildcraft.platform.Reg;
 import ports.buildcraft.transport.behaviour.DaizuliBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
+import ports.buildcraft.transport.behaviour.EmzuliBehaviour;
 import ports.buildcraft.transport.behaviour.IronBehaviour;
 import ports.buildcraft.transport.behaviour.LimiterBehaviour;
 import ports.buildcraft.transport.behaviour.LapisBehaviour;
@@ -29,12 +30,15 @@ import ports.buildcraft.transport.behaviour.ObsidianBehaviour;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours.Separate.Kind;
+import ports.buildcraft.transport.behaviour.StripesBehaviour;
 import ports.buildcraft.transport.behaviour.WoodBehaviour;
+import ports.buildcraft.transport.behaviour.WoodDiamondBehaviour;
 import ports.buildcraft.transport.pluggable.BlockerPluggable;
 import ports.buildcraft.transport.pluggable.PluggableDefinition;
 import ports.buildcraft.transport.pluggable.PowerAdaptorPluggable;
 import ports.buildcraft.transport.pluggable.SimplePluggableItem;
 import ports.buildcraft.transport.statements.BCTransportStatements;
+import ports.buildcraft.transport.stripes.PipeExtensionManager;
 import ports.buildcraft.transport.wire.WireItem;
 
 /**
@@ -66,6 +70,11 @@ public final class BCTransport {
     public static final PipeDefinition LAPIS_ITEM = item("lapis_item", LapisBehaviour::new).texture("lapis_item_white").block(ColouredPipeBlock::new).build();
     public static final PipeDefinition DAIZULI_ITEM = item("daizuli_item", DaizuliBehaviour::new).texture("daizuli_item_filled")
             .special("daizuli_item_white").block(ColouredPipeBlock::new).build();
+    public static final PipeDefinition DIAMOND_WOOD_ITEM = item("diamond_wood_item", WoodDiamondBehaviour::new)
+            .texture("diamond_wood_item_clear").special("diamond_wood_item_filled").menu().build();
+    public static final PipeDefinition EMZULI_ITEM = item("emzuli_item", EmzuliBehaviour::new)
+            .texture("emzuli_item_clear").special("emzuli_item_filled").menu().build();
+    public static final PipeDefinition STRIPES_ITEM = item("stripes_item", StripesBehaviour::new).block(StripesPipeBlock::new).build();
 
     public static final PipeDefinition WOOD_FLUID = fluid("wood_fluid", WoodBehaviour::new, 1, 10).texture("wood_fluid_clear").special("wood_fluid_filled").build();
     public static final PipeDefinition COBBLESTONE_FLUID = fluid("cobblestone_fluid", separate(Kind.COBBLESTONE), 1, 10).build();
@@ -78,6 +87,8 @@ public final class BCTransport {
             .faceTextures(diamondTextures("diamond_fluid"), "diamond_fluid_itemstack").menu().build();
     public static final PipeDefinition CLAY_FLUID = fluid("clay_fluid", SimpleBehaviours.Clay::new, 4, 10).build();
     public static final PipeDefinition VOID_FLUID = fluid("void_fluid", SimpleBehaviours.Void::new, 8, 10).build();
+    public static final PipeDefinition DIAMOND_WOOD_FLUID = fluid("diamond_wood_fluid", WoodDiamondBehaviour::new, 8, 10)
+            .texture("diamond_wood_fluid_clear").special("diamond_wood_fluid_filled").menu().build();
 
     public static final PipeDefinition WOOD_POWER = power("wood_power", SimpleBehaviours.WoodPower::new, 4, true).texture("wood_power_clear").special("wood_power_filled").build();
     public static final PipeDefinition COBBLESTONE_POWER = power("cobblestone_power", separate(Kind.COBBLESTONE), 1, false).build();
@@ -89,6 +100,8 @@ public final class BCTransport {
             .texture("iron_power_m128").block(LimiterPipeBlock::new).build();
     public static final PipeDefinition DIAMOND_POWER = power("diamond_power", LimiterBehaviour::new, 64, false)
             .texture("diamond_power_m128").block(LimiterPipeBlock::new).build();
+    public static final PipeDefinition DIAMOND_WOOD_POWER = power("diamond_wood_power", SimpleBehaviours.WoodPower::new, 64, true)
+            .texture("diamond_wood_power_clear").special("diamond_wood_power_filled").build();
 
     public static final PipeDefinition STRUCTURE = PipeDefinition.builder("structure", PipeDefinition.Flow.STRUCTURE,
             SimpleBehaviours.Structure::new, PIPES).build();
@@ -97,6 +110,8 @@ public final class BCTransport {
             () -> BlockEntityType.Builder.of(PipeBlockEntity::new, PIPES.stream().map(PipeDefinition::block).toArray(Block[]::new)).build(null));
 
     public static final Supplier<MenuType<DiamondPipeMenu>> DIAMOND_PIPE_MENU = Platform.menu("diamond_pipe", DiamondPipeMenu::new);
+    public static final Supplier<MenuType<DiamondWoodPipeMenu>> DIAMOND_WOOD_PIPE_MENU = Platform.menu("diamond_wood_pipe", DiamondWoodPipeMenu::new);
+    public static final Supplier<MenuType<EmzuliPipeMenu>> EMZULI_PIPE_MENU = Platform.menu("emzuli_pipe", EmzuliPipeMenu::new);
 
     static {
         for (PipeDefinition definition : PIPES) {
@@ -131,6 +146,7 @@ public final class BCTransport {
 
     public static void init() {
         BCTransportStatements.init();
+        PipeExtensionManager.registerRetractionPipe(VOID_ITEM);
     }
 
     private static BlockBehaviour.Properties pipeProperties() {

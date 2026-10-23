@@ -662,6 +662,26 @@
       "itemalchemy": 576,
       "source": "recipe"
     },
+    "buildcraft:pipe_diamond_wood_fluid": {
+      "projecte": 1033,
+      "itemalchemy": 273,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_diamond_wood_item": {
+      "projecte": 1025,
+      "itemalchemy": 257,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_diamond_wood_power": {
+      "projecte": 1089,
+      "itemalchemy": 321,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_emzuli_item": {
+      "projecte": 8801,
+      "itemalchemy": 8033,
+      "source": "recipe"
+    },
     "buildcraft:pipe_gold_fluid": {
       "projecte": 520,
       "itemalchemy": 526,
@@ -749,6 +769,11 @@
     "buildcraft:pipe_stone_power": {
       "projecte": 64,
       "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_stripes_item": {
+      "projecte": 2309,
+      "itemalchemy": 2300,
       "source": "recipe"
     },
     "buildcraft:pipe_structure": {

@@ -1,5 +1,6 @@
 package ports.buildcraft.forge;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -32,10 +34,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidStack;
@@ -47,6 +53,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -223,5 +230,22 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public Item createFacadeItem(Item.Properties properties) {
         return new ForgeFacadeItem(properties);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return FakePlayerFactory.get(level, profile);
+    }
+
+    @Override
+    public boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player));
+    }
+
+    /** Posted before the block changes, so the snapshot holds the block being replaced. */
+    @Override
+    public boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player) {
+        BlockSnapshot snapshot = BlockSnapshot.create(level.dimension(), level, pos);
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(snapshot, placedAgainst, player));
     }
 }

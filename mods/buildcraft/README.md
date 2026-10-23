@@ -17,16 +17,20 @@ worlds do not migrate between them or from 1.12.
 
 - Engines: redstone, Stirling and combustion, with upstream heat and power stages.
 - Pipes: item (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void,
-  obsidian, lapis, daizuli),
-  fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void) and kinesis (wood,
-  cobblestone, stone, quartz, gold, sandstone, iron, diamond), and the structure pipe, which only joins other
-  structure pipes. The diamond item and fluid pipes hold nine phantom filters per face; the fluid
+  obsidian, lapis, daizuli, diamond-wood, emzuli, stripes),
+  fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void, diamond-wood) and kinesis
+  (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, diamond-wood), and the structure pipe, which
+  only joins other structure pipes. The diamond item and fluid pipes hold nine phantom filters per face; the fluid
   pipe reads fluid containers placed in them. The iron and diamond kinesis pipes limit the power
   they pass on to a level set with the wrench or a gate. The obsidian pipe sucks dropped items in front of its
   open face, further with engine power; the lapis pipe paints the items passing through it, and the
   daizuli pipe sends items of its colour out of its selected face and the rest elsewhere (a wrench
-  steps either pipe's colour, and gates can paint). Pipe plugs close a pipe's face, and power adapters let
-  an engine drive a wooden pipe through a closed face.
+  steps either pipe's colour, and gates can paint). The diamond-wood pipes extract like wooden pipes through
+  nine filters (whitelist, blacklist, or round robin for items); the emzuli pipe extracts and paints the items
+  of whichever of its four preset slots a gate selects; the stripes pipe places, plants, uses or dispenses the
+  items that reach its open end, lays item pipes to extend itself, and with engine power breaks the block in
+  front. Pipe plugs close a pipe's face, and power adapters let an engine drive a wooden pipe through a closed
+  face.
 - Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
   fills the land mark area or volume box behind it with one of upstream's 18 patterns from the
   block items it holds and clears what the pattern leaves empty.
@@ -48,7 +52,8 @@ worlds do not migrate between them or from 1.12.
 - Gates: the 25 gate variants (clay brick, iron, nether brick and gold, AND or OR, with lapis, quartz
   or diamond modifiers) go on a pipe face like plugs. Each pairs triggers (always on, redstone,
   inventories, tanks, machines at work, engine heat, items or fluid in the pipe, power requested)
-  with actions (a redstone signal from the pipe, and turning an iron pipe), grouped by the gate's
+  with actions (a redstone signal from the pipe, turning an iron, wooden or stripes pipe, painting, and
+  selecting an emzuli preset), grouped by the gate's
   logic, through upstream's gate GUI. The gate copier copies one gate's setup onto others.
 - Pipe wire: sixteen colours of wire laid along pipe edges, made in the assembly table. Wires of
   one colour that touch form a network; a gate's pipe signal action powers it, and gates on the
