@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jurassicraft:ginkgo_fence_gate",
+    "jurassicraft:calamites_fence_gate",
+    "jurassicraft:psaronius_fence_gate",
+    "jurassicraft:phoenix_fence_gate",
+    "jurassicraft:araucaria_fence_gate"
+  ]
+}

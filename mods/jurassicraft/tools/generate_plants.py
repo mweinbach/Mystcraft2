@@ -239,8 +239,10 @@ for kind in ('blocks', 'items'):
         tags['mineable/axe'] = ['jurassicraft:' + t + '_' + s for t in TREES
                                 for s in ('log', 'planks', 'stairs', 'slab', 'fence', 'fence_gate', 'door')]
     for tag, values in tags.items(): write(DATA / 'minecraft/tags' / kind / (tag + '.json'), {'replace': False, 'values': values})
-    # Forge lists its wooden gates explicitly rather than using minecraft:fence_gates.
+    # Forge and Fabric list their wooden gates explicitly rather than using minecraft:fence_gates.
     write(DATA / 'forge/tags' / kind / 'fence_gates/wooden.json',
+          {'replace': False, 'values': tags['fence_gates']})
+    write(DATA / 'c/tags' / kind / 'wooden_fence_gates.json',
           {'replace': False, 'values': tags['fence_gates']})
     for t in TREES: write(DATA / 'jurassicraft/tags' / kind / (t + '_logs.json'), {'replace': False, 'values': ['jurassicraft:' + t + '_log']})
 

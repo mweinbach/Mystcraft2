@@ -26,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Loader services used by shared gameplay. Each loader entrypoint installs its backend before any
@@ -46,6 +47,8 @@ public final class Platform {
         boolean allowTreeGrowth(LevelAccessor level, RandomSource random, BlockPos pos);
         boolean mobGriefing(Level level, Entity entity);
         boolean restoringBlockSnapshots(Level level);
+        /** Fire odds for a block, registered where the loader's fire lookup reads them. */
+        void flammable(Block block, int burnChance, int spreadChance);
         @Nullable FoodProperties foodProperties(ItemStack stack, @Nullable LivingEntity entity);
         /** Data that persists with the entity and is never synchronized to clients. */
         CompoundTag persistentData(Entity entity);
@@ -101,6 +104,7 @@ public final class Platform {
     public static boolean allowTreeGrowth(LevelAccessor level, RandomSource random, BlockPos pos) { return backend().allowTreeGrowth(level, random, pos); }
     public static boolean mobGriefing(Level level, Entity entity) { return backend().mobGriefing(level, entity); }
     public static boolean restoringBlockSnapshots(Level level) { return backend().restoringBlockSnapshots(level); }
+    public static void flammable(Block block, int burnChance, int spreadChance) { backend().flammable(block, burnChance, spreadChance); }
     @Nullable public static FoodProperties foodProperties(ItemStack stack, @Nullable LivingEntity entity) { return backend().foodProperties(stack, entity); }
     public static CompoundTag persistentData(Entity entity) { return backend().persistentData(entity); }
 }

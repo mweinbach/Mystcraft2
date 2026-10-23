@@ -52,6 +52,11 @@ class BuiltJarTests(unittest.TestCase):
             self.assertIn("fabric-api", metadata["depends"])
             self.assertIn("1.19.2", str(metadata["depends"]["minecraft"]))
             self.assertNotIn("fabric-gametest", metadata.get("entrypoints", {}))
+            self.assertIn(metadata["icon"], names, "mod icon must ship in the jar")
+            self.assertTrue({"homepage", "sources", "issues"} <= set(metadata["contact"]))
+            self.assertEqual({"jade", "emi"}, set(metadata["suggests"]))
+            # The upstream license is unresolved; the descriptor must keep saying so.
+            self.assertEqual("LicenseRef-Unknown", metadata["license"])
 
 
 if __name__ == "__main__":

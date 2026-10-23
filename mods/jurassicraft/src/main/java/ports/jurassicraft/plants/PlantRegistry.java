@@ -4,7 +4,6 @@ import net.minecraft.core.Registry;
 import ports.jurassicraft.platform.Platform;
 import java.util.EnumMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.FireBlock;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.world.item.BlockItem;
@@ -107,14 +106,13 @@ public final class PlantRegistry {
 
     private PlantRegistry() {}
     public static void init() { PlantGameRules.init(); }
-    /** Vanilla's fire table only knows vanilla wood; register the original wood values after registration. */
+    /** Fire only knows vanilla wood; register the original wood values after registration. */
     public static void setup() {
-        FireBlock fire = (FireBlock) Blocks.FIRE;
         for (PlantSpecies species : PlantSpecies.values()) if (species.isTree()) {
-            fire.setFlammable(log(species).get(), 5, 5);
-            fire.setFlammable(leaves(species).get(), 30, 60);
+            Platform.flammable(log(species).get(), 5, 5);
+            Platform.flammable(leaves(species).get(), 30, 60);
             for (String suffix : new String[]{"planks", "stairs", "slab", "fence", "fence_gate"}) {
-                fire.setFlammable(Registry.BLOCK.get(new ResourceLocation(PortMod.MOD_ID, species.id() + "_" + suffix)), 5, 20);
+                Platform.flammable(Registry.BLOCK.get(new ResourceLocation(PortMod.MOD_ID, species.id() + "_" + suffix)), 5, 20);
             }
         }
     }

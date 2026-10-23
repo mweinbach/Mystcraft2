@@ -9,9 +9,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
@@ -26,6 +29,31 @@ import ports.jurassicraft.PortMod;
 public final class AncientTreeGameTests {
     public AncientTreeGameTests() {}
     private static void require(GameTestHelper helper, boolean condition, String message) { if (!condition) helper.fail(message); }
+
+    /** Other Fabric mods read fire odds through Fabric's registry, so the original wood values must be there. */
+    @GameTest(template = "jurassicraft:plant_culture_test")
+    public static void woodIsFlammableThroughFabricRegistry(GameTestHelper helper) {
+        var registry = FlammableBlockRegistry.getDefaultInstance();
+        int trees = 0;
+        for (PlantSpecies species : PlantSpecies.values()) if (species.isTree()) {
+            trees++;
+            requireOdds(helper, registry.get(PlantRegistry.log(species).get()), 5, 5, species + " log");
+            requireOdds(helper, registry.get(PlantRegistry.leaves(species).get()), 30, 60, species + " leaves");
+            for (String suffix : new String[]{"planks", "stairs", "slab", "fence", "fence_gate"}) {
+                var block = Registry.BLOCK.get(new ResourceLocation(PortMod.MOD_ID, species.id() + "_" + suffix));
+                require(helper, block != Blocks.AIR, "missing " + species.id() + "_" + suffix);
+                requireOdds(helper, registry.get(block), 5, 20, species.id() + "_" + suffix);
+            }
+        }
+        require(helper, trees == 5, "expected the five original trees, found " + trees);
+        helper.succeed();
+    }
+
+    private static void requireOdds(GameTestHelper helper, FlammableBlockRegistry.Entry entry, int burn, int spread, String what) {
+        require(helper, entry != null && entry.getBurnChance() == burn && entry.getSpreadChance() == spread,
+                what + " is not flammable through FlammableBlockRegistry (" + burn + "/" + spread + "): "
+                        + (entry == null ? "no entry" : entry.getBurnChance() + "/" + entry.getSpreadChance()));
+    }
 
     /** Reference hashes are from running the five unmodified upstream generators in an empty world. */
     @GameTest(template = "jurassicraft:plant_culture_test")

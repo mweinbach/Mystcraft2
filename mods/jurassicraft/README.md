@@ -31,8 +31,17 @@ same options exist on both loaders, in each loader's native format:
 | Setting | Forge | Fabric |
 | --- | --- | --- |
 | Spawning, fossil, plant and structure generation | `config/jurassicraft-common.toml` | `config/jurassicraft-fabric.json` |
-| Vehicle foliage destruction (`destroyBlocks`) | `config/jurassicraft-vehicles.toml` | `config/jurassicraft-vehicles.toml` |
-| Vehicle camera | `config/jurassicraft-vehicle-client.toml` | `config/jurassicraft-vehicle-client.toml` |
+| Vehicle foliage destruction (`destroyBlocks`) | `config/jurassicraft-vehicles.toml` | `config/jurassicraft-vehicles.properties` |
+| Vehicle camera | `config/jurassicraft-vehicle-client.toml` | `config/jurassicraft-vehicle-client.properties` |
+
+Forge's files are TOML. Fabric's common file is flat JSON and its vehicle files
+are Java properties (`key=value`). Fabric releases up to 0.1.0-alpha.1 wrote
+those properties files under the `.toml` names; Fabric reads such a file once,
+writes the `.properties` file and keeps the old one as `.toml.migrated`. On both
+loaders, options added by a newer version are written into an existing file with
+their defaults, and missing, invalid or out-of-range values use the default.
+Forge re-reads an edited file on its own; Fabric re-reads its files after
+`/reload`.
 
 Restart after changing the generation settings; existing chunks and structures
 are unaffected. Dinosaur metabolism, growth, and herd behavior also have game
@@ -58,7 +67,11 @@ you are piloting, those presses do not also jump or sprint. A vehicle-only bindi
 shares its physical key with an ordinary control without a red conflict warning.
 Forge applies that only on the controls screen, through a client mixin; the
 binding comparison used while flying is unchanged. Fabric does the same on its
-controls list. Seat chords are unmarked as well. Descend, autopilot and rotation
+controls list. Vanilla Fabric gives each physical key to a single binding, so
+JurassiCraft also delivers a shared key's presses to its vehicle-only bindings,
+and to the ordinary binding vanilla would otherwise have chosen if a vehicle
+binding took the key. Conflicts between other bindings keep vanilla's behaviour.
+Seat chords are unmarked as well. Descend, autopilot and rotation
 lock still show Forge's gold modifier color against each other, because Left Ctrl
 is the modifier for those chords and all three are active while flying. The rotor needs time
 to reach flying speed. Use the record player key with a music disc in your main hand to
@@ -77,7 +90,15 @@ in the air, or examines a dinosaur when used on one.
 
 Jade shows dinosaur and machine information on both loaders. JEI (Forge) and
 EMI (Fabric) show machine recipe previews and support transfer into machine
-input slots. The JARs do not bundle these optional mods.
+input slots. The JARs do not bundle these optional mods; the Fabric descriptor
+lists Jade and EMI as suggestions.
+
+Fossil blocks and the wooden fence gates carry both the Forge (`forge:fossils`,
+`forge:fence_gates/wooden`) and the Fabric convention tags (`c:fossils`,
+`c:wooden_fence_gates`). On Fabric the wood's fire odds are registered through
+Fabric API's `FlammableBlockRegistry`, so other Fabric mods see them. Bonus chest
+and fishing loot is added only to loot tables a datapack has not replaced, as on
+Forge.
 
 Every item has an EMC value or a documented exclusion for ProjectE 1.1.0
 (Forge) and Item Alchemy 1.1.3 (Fabric), shipped as data in both JARs. See

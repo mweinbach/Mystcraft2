@@ -179,11 +179,12 @@ for line in species_file.read_text(encoding="utf-8").splitlines():
 if len(species) != 10 or any(not bones for _, _, bones in species):
     raise ValueError("Could not read all registered species and bones")
 
-# Upstream exposed all dinosaur fossil blocks through the fossil ore dictionary.
+# Upstream exposed all dinosaur fossil blocks through the fossil ore dictionary: forge: and Fabric's c: tags.
 for kind in ("blocks", "items"):
-    write(RES / f"data/forge/tags/{kind}/fossils.json", {
-        "replace": False, "values": [f"jurassicraft:{name}_fossil_block" for name, _, _ in species],
-    })
+    for tag in ("forge", "c"):
+        write(RES / f"data/{tag}/tags/{kind}/fossils.json", {
+            "replace": False, "values": [f"jurassicraft:{name}_fossil_block" for name, _, _ in species],
+        })
 
 for index in range(4):
     copy_texture("blocks", f"fossil_block_{index}")
