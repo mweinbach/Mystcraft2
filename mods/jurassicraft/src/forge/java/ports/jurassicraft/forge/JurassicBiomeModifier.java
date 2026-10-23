@@ -40,7 +40,7 @@ public record JurassicBiomeModifier(Registry<PlacedFeature> features) implements
             }
         };
         for (var entry : NaturalSpawns.entries()) {
-            if (!entry.rule().accepts(view) || view.spawns(entry.category(), entry.type())) continue;
+            if (!NaturalSpawns.adds(entry, view)) continue;
             spawns.getSpawner(entry.category()).add(new MobSpawnSettings.SpawnerData(entry.type(), entry.weight(), entry.minCount(), entry.maxCount()));
         }
     }

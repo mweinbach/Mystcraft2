@@ -37,6 +37,7 @@ public final class FabricMod implements ModInitializer {
         PortMod.init();
         platform.flush();
         PortMod.setup();
+        FabricItemStorage.register();
 
         JurassicEvents.attributes(FabricDefaultAttributeRegistry::register);
         JurassicEvents.spawnPlacements(new JurassicEvents.SpawnPlacementSink() {
@@ -95,6 +96,6 @@ public final class FabricMod implements ModInitializer {
                 return context.getBiome().getMobSettings().getMobs(category).unwrap().stream().anyMatch(spawn -> spawn.type == type);
             }
         };
-        return entry.rule().accepts(view) && !view.spawns(entry.category(), entry.type());
+        return NaturalSpawns.adds(entry, view);
     }
 }

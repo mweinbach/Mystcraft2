@@ -174,8 +174,26 @@ Tests changed while merging:
 - Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
 - Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
 - The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
-- Fabric GameTests check that every JurassiCraft log, leaf, plank, stair, slab, fence and gate has the upstream fire odds in `FlammableBlockRegistry`, and that the loot adapter adds bonus pools for each built-in `LootTableSource` and none for datapack tables.
+- Every JurassiCraft log, leaf, plank, stair, slab, fence and gate must have the upstream fire odds as the loader reports them (Forge `IForgeBlock`, Fabric `FlammableBlockRegistry`), and the loot adapter must add bonus pools for each built-in `LootTableSource`.
 - Client mixins do not run in a server GameTest, so the Fabric build runs two standalone checks: `VehicleKeyDispatchTest` covers which bindings receive a shared key, and `FabricConfigBackendTest` covers adding missing keys to existing files, reloading edits, the `.toml` to `.properties` migration and leaving an unreadable file untouched.
+
+### Shared suite
+
+Gameplay tests live in `src/gametestCommon`. `SharedGameTests` registers every common test class through one
+generator per loader (`JurassiCraftForgeGameTests`, `JurassiCraftFabricGameTests`), so both loaders run the same
+`<Class>.<method>` set. Loader APIs a test needs sit behind `TestPlatform`: item access (Forge capabilities vs
+the Fabric Transfer API, sided and unsided), death and mob-griefing hooks, natural spawns, fire odds, the loot and
+trade sinks, loader-only data folders and the record sound index. `ForgeTestPlatform` and `FabricTestPlatform`
+implement it.
+
+Only tests that exercise a single loader's API stay loader-only; each is listed with its reason in
+`gametest-loader-only.txt` (9 entries: Forge named loot pools, Forge biome-modifier dedupe, the Forge
+`LivingDeathEvent` carcass fixture, the Forge placement-event skull fixture, the Fabric datapack-replacement loot
+guard, and the EMI recipe-transfer and click-area tests).
+
+Moving the suite to Fabric found one gameplay bug, now fixed: Fabric gave unsided item storage (`side == null`)
+every slot of a sided machine, so pipes and hoppers without a face could pull inputs or hidden hybrid-mode slots.
+`FabricItemStorage` now exposes the up and down faces combined, as Forge's unsided handler does.
 
 ## Known gaps against 1.12.2
 

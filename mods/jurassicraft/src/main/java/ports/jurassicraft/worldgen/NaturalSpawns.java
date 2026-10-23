@@ -24,6 +24,11 @@ public final class NaturalSpawns {
 
     private NaturalSpawns() {}
 
+    /** Whether a loader adds {@code entry} to {@code biome}: its rule accepts the biome, which does not spawn the type yet. */
+    public static boolean adds(Entry entry, BiomeView biome) {
+        return entry.rule().accepts(biome) && !biome.spawns(entry.category(), entry.type());
+    }
+
     /** Reads the common config and registries; call once both are ready. */
     public static List<Entry> entries() {
         List<Entry> entries = new ArrayList<>();
