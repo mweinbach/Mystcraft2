@@ -22,6 +22,23 @@ def shaped(pattern, key, result, count=1, **extra):
             "result": {"item": result, "count": count}, **extra}
 
 
+SKULL_OVERRIDE = {"replaces": 16, "like": "minecraft:nether_star", "times": "1/3", "round": "up",
+                  "ports": ["testmod"], "why": "w"}
+
+
+def use_pack_data(test, overrides=None, processes=None):
+    """Point emc.py's pack-wide override and process files at temporary ones for one test."""
+    sandbox = tempfile.TemporaryDirectory()
+    test.addCleanup(sandbox.cleanup)
+    for name, data, key in (("OVERRIDES", overrides, "overrides"), ("PACK_PROCESSES", processes, "processes")):
+        if data is None:
+            continue
+        path = Path(sandbox.name) / f"{name}.json"
+        write(path, {key: data})
+        test.addCleanup(setattr, emc, name, getattr(emc, name))
+        setattr(emc, name, path)
+
+
 class MapperTests(unittest.TestCase):
     def test_hidden_fraction_keeps_values_below_one_and_floors_the_rest(self):
         self.assertEqual(emc.floor_value(Fraction(3, 8)), Fraction(3, 8))
@@ -258,6 +275,7 @@ class PortTests(unittest.TestCase):
               (self.dir / "emc" / "registry.txt").read_text() + "testmod:bomb\n")
 
     def test_vanilla_values_fill_gaps_in_one_system(self):
+        use_pack_data(self, overrides={}, processes=[])
         self.add_skull_recipe()
         self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {
             "systems": ["projecte"], "like": "minecraft:nether_star", "times": "1/3", "why": "w"}}
@@ -334,6 +352,201 @@ class PortTests(unittest.TestCase):
         merged = json.loads(config.read_text())
         self.assertEqual(merged["minecraft:petrified_oak_slab"], 4)
         self.assertEqual(merged["minecraft:written_book"], 250)
+
+    def use_this_port_only(self):
+        original = emc.discover
+        emc.discover = lambda names: [self.dir]
+        self.addCleanup(setattr, emc, "discover", original)
+
+    def test_the_pack_wither_summon_is_a_gain_at_the_pack_skull_value(self):
+        use_pack_data(self, overrides={})
+        port, _outputs = self.build()
+        gains = [p for p in port.problems if "process 'summon_wither'" in p]
+        self.assertTrue(gains and all(p.startswith("itemalchemy:") for p in gains), port.problems)
+
+    def test_an_override_prices_the_analysis_and_ships_a_late_default_emcs_file(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": SKULL_OVERRIDE})
+        self.add_skull_recipe()
+        self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {
+            "systems": ["projecte"], "like": "minecraft:nether_star", "times": "1/3", "round": "up", "why": "w"}}
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])
+        self.assertEqual(values["items"]["testmod:bomb"]["itemalchemy"], 46422)
+        self.assertEqual(values["itemalchemy_overrides"], {"minecraft:wither_skeleton_skull": 46422})
+        data = self.dir / "res" / "data" / "testmod" / "default_emcs"
+        shipped = json.loads(outputs[data / f"{emc.override_file_name('testmod')}.json"])
+        self.assertEqual(shipped, {"minecraft:wither_skeleton_skull": 46422})
+        self.assertNotIn("minecraft:wither_skeleton_skull", json.loads(outputs[data / "testmod.json"]))
+        self.assertIn("(pack override)", outputs[self.dir / "emc" / "README.md"])
+
+    def test_an_override_for_other_ports_is_used_but_not_shipped(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": {**SKULL_OVERRIDE, "ports": ["other"]}})
+        self.add_skull_recipe()
+        port, outputs = self.build()
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])
+        self.assertEqual(values["items"]["testmod:bomb"]["itemalchemy"], 46422)
+        self.assertNotIn("itemalchemy_overrides", values)
+        self.assertFalse(any(p.name.startswith("pack_overrides_") for p in outputs))
+
+    def test_a_stale_override_is_reported_and_not_applied(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": {**SKULL_OVERRIDE, "replaces": 17}})
+        self.use_this_port_only()
+        port, _outputs = self.build()
+        self.assertEqual(emc.read_baseline("itemalchemy")["minecraft:wither_skeleton_skull"], 16)
+        problems, _notes = emc.check_pack([port])
+        self.assertTrue(any("not the 17 it replaces" in p for p in problems), problems)
+
+    def test_a_vanilla_fill_must_scale_like_its_override(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": SKULL_OVERRIDE})
+        self.use_this_port_only()
+        self.policy["vanilla"] = {"minecraft:wither_skeleton_skull": {
+            "systems": ["projecte"], "like": "minecraft:nether_star", "times": "1/3", "why": "w"}}
+        port, _outputs = self.build()
+        problems, _notes = emc.check_pack([port])
+        self.assertTrue(any("differently from its Item Alchemy override" in p for p in problems), problems)
+        self.policy["vanilla"]["minecraft:wither_skeleton_skull"]["round"] = "up"
+        port, outputs = self.build()
+        self.assertEqual(emc.check_pack([port])[0], [])
+        before = json.loads(outputs[self.dir / "res" / "data" / "testmod" / "pe_custom_conversions" /
+                                    "testmod.json"])["values"]["before"]
+        self.assertEqual(before["minecraft:wither_skeleton_skull"], 46422)
+
+    def test_the_pack_check_runs_port_processes_with_merged_values(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": SKULL_OVERRIDE}, processes=[])
+        self.use_this_port_only()
+        self.add_skull_recipe()
+        port, _outputs = self.build()
+        self.assertEqual(emc.check_pack([port])[0], [])
+        # A second port pricing the bomb's output cheaply would open a loop through this port's skull recipe.
+        port.vanilla["itemalchemy"]["minecraft:wither_skeleton_skull"] = 1
+        problems, _notes = emc.check_pack([port])
+        self.assertTrue(any("testmod:bomb" in p and "(with every port's values)" in p for p in problems), problems)
+
+    def merge(self, config_values):
+        config = self.dir / "emc_config.json"
+        write(config, config_values)
+        err = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(err):
+            status = emc.main(["merge-itemalchemy", str(config)])
+        return status, json.loads(config.read_text()), err.getvalue()
+
+    def test_merge_applies_overrides_only_over_the_value_they_replace(self):
+        use_pack_data(self, overrides={"minecraft:wither_skeleton_skull": SKULL_OVERRIDE})
+        self.use_this_port_only()
+        _port, outputs = self.build()
+        for path, text in outputs.items():
+            write(path, text)
+        status, merged, _err = self.merge({"minecraft:wither_skeleton_skull": 16, "minecraft:nether_star": 139264})
+        self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (0, 46422))
+        status, again, _err = self.merge(merged)
+        self.assertEqual((status, again), (0, merged))
+        status, merged, err = self.merge({"minecraft:wither_skeleton_skull": 999})
+        self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (1, 999))
+        self.assertIn("not the 16 the override replaces", err)
+        status, merged, err = self.merge({"minecraft:nether_star": 3000})
+        self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (0, 1000))
+        self.assertIn("warning", err)
+
+    def add_fuse_recipe(self, gas="testmod:plasma"):
+        write(self.dir / "res" / "data" / "testmod" / "recipes" / "fuse.json",
+              {"type": "testmod:fuse", "itemInput": {"ingredient": {"item": "minecraft:dirt"}, "amount": 1},
+               "gasInput": {"gas": gas, "amount": 500}, "output": {"item": "minecraft:diamond", "count": 1}})
+
+    def fuse_process(self, item):
+        return [{"name": "fusing", "why": "w", "type": "testmod:fuse", "items": ["itemInput"],
+                 "chemicals": {"gasInput": {"testmod:plasma": {"item": item, "per": 1000}}}, "outputs": ["output"]}]
+
+    def test_recipe_processes_flag_machine_recipes_that_gain(self):
+        self.add_fuse_recipe()
+        self.policy["recipe_processes"] = self.fuse_process("testmod:dust")
+        port, _outputs = self.build()
+        gains = [p for p in port.problems if "testmod:fuse recipe testmod:fuse" in p]
+        self.assertEqual(len(gains), 2, port.problems)
+        self.assertIn("turns 3.5 EMC of input into 8192 EMC", gains[0])
+
+    def test_recipe_processes_whose_inputs_have_no_emc_are_closed(self):
+        self.add_fuse_recipe()
+        self.policy["recipe_processes"] = self.fuse_process("testmod:ore")
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        self.assertEqual(port.recipe_process_stats["fusing"]["closed"], {"testmod:ore": set(emc.SYSTEMS)})
+        self.add_fuse_recipe("testmod:unknown")
+        port, _outputs = self.build()
+        self.assertTrue(any("uses gasInput testmod:unknown" in p for p in port.problems), port.problems)
+
+    def test_recipe_process_grammar(self):
+        self.policy["recipe_processes"] = self.fuse_process("testmod:dust")
+        self.policy["recipe_processes"][0]["chemicals"]["gasInput"]["testmod:plasma"]["per"] = 0
+        with self.assertRaises(emc.PolicyError):
+            self.build()
+
+    def test_unmanaged_default_emcs_files_are_problems(self):
+        write(self.dir / "res" / "data" / "testmod" / "default_emcs" / "extra.json", {"minecraft:dirt": 5})
+        port, _outputs = self.build()
+        self.assertTrue(any("extra.json is an Item Alchemy default_emcs file" in p for p in port.problems),
+                        port.problems)
+
+
+class PackOverrideTests(unittest.TestCase):
+    def test_java_hash_matches_string_hash_code(self):
+        self.assertEqual(emc.java_hash(""), 0)
+        self.assertEqual(emc.java_hash("hello"), 99162322)
+        self.assertEqual(emc.java_hash("polygenelubricants"), 2**31)  # Integer.MIN_VALUE, unsigned
+
+    def test_override_files_sort_after_item_alchemys_own_defaults(self):
+        for namespace, expected in (("icbm_port", "pack_overrides_28177"), ("mekanism", "pack_overrides_33284")):
+            name = emc.override_file_name(namespace)
+            self.assertEqual(name, expected)
+            self.assertEqual(emc.hashmap_spread(namespace, f"default_emcs/{name}.json") & 0xFFFF, 0xFFFF)
+        for path in ("default_emcs/minecraft.json", "default_emcs/tags.json"):
+            self.assertNotEqual(emc.hashmap_spread("itemalchemy", path) & 0xF, 0xF)
+
+    def test_override_values_scale_the_raw_anchor_and_report_stale_entries(self):
+        overrides = {"minecraft:wither_skeleton_skull": SKULL_OVERRIDE}
+        raw = {"minecraft:wither_skeleton_skull": Fraction(16), "minecraft:nether_star": Fraction(139264)}
+        self.assertEqual(emc.override_values(raw, overrides), ({"minecraft:wither_skeleton_skull": 46422}, []))
+        values, problems = emc.override_values({**raw, "minecraft:wither_skeleton_skull": Fraction(10246)}, overrides)
+        self.assertEqual(values, {})
+        self.assertEqual(len(problems), 1)
+
+    def test_round_takes_the_ceiling_or_floor_of_a_like_value(self):
+        baseline = {"minecraft:nether_star": Fraction(139264)}
+        spec = {"like": "minecraft:nether_star", "times": "1/3", "why": "w"}
+        self.assertEqual(emc.explicit_value(spec, "itemalchemy", baseline, "k"), 46421)
+        self.assertEqual(emc.explicit_value({**spec, "round": "down"}, "itemalchemy", baseline, "k"), 46421)
+        self.assertEqual(emc.explicit_value({**spec, "round": "up"}, "itemalchemy", baseline, "k"), 46422)
+        base = {"namespace": "t", "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+                "resources": {"projecte": ["r"], "itemalchemy": ["r"]}}
+        for bad in ({"emc": 5, "round": "up", "why": "w"}, {**spec, "round": "sideways"}):
+            with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
+                emc.validate_policy({**base, "vanilla": {"minecraft:wither_skeleton_skull": bad}})
+
+    def test_override_grammar(self):
+        emc.validate_overrides({"comment": "c", "overrides": {"minecraft:wither_skeleton_skull": SKULL_OVERRIDE}})
+        for item, entry in (("testmod:bomb", SKULL_OVERRIDE),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "why": ""}),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "emc": 5}),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "replaces": True}),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "ports": []}),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "round": "sideways"}),
+                            ("minecraft:wither_skeleton_skull", {**SKULL_OVERRIDE, "surprise": 1}),
+                            ("minecraft:nether_star", {**SKULL_OVERRIDE, "like": "minecraft:wither_skeleton_skull"})):
+            document = {"overrides": {item: entry}}
+            if item == "minecraft:nether_star":
+                document["overrides"]["minecraft:wither_skeleton_skull"] = SKULL_OVERRIDE
+            with self.subTest(item=item, entry=entry), self.assertRaises(emc.PolicyError):
+                emc.validate_overrides(document)
+
+    def test_the_shipped_wither_override_closes_the_summon_loop(self):
+        overrides = emc.load_overrides()
+        self.assertEqual(overrides["minecraft:wither_skeleton_skull"]["replaces"], 16)
+        star = emc.raw_baseline("itemalchemy")["minecraft:nether_star"]
+        skull = emc.read_baseline("itemalchemy")["minecraft:wither_skeleton_skull"]
+        self.assertEqual(skull, -(-star // 3))
+        self.assertGreaterEqual(3 * skull, star)
+        names = {process["name"] for process in emc.load_pack_processes()}
+        self.assertIn("summon_wither", names)
 
 
 class MultiNamespaceTests(unittest.TestCase):

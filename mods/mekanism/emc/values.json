@@ -129,9 +129,7 @@
       "source": "conversion mek_metallurgic_infusing_alloy_reinforced"
     },
     "mekanism:antiprotonic_nucleosynthesizer": {
-      "projecte": 547168,
-      "itemalchemy": 525580,
-      "source": "recipe"
+      "excluded": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
     },
     "mekanism:atomic_disassembler": {
       "projecte": 11848,
@@ -1201,9 +1199,7 @@
       "source": "recipe"
     },
     "mekanism:module_elytra_unit": {
-      "projecte": 288286,
-      "itemalchemy": 278282,
-      "source": "recipe"
+      "excluded": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
     },
     "mekanism:module_energy_unit": {
       "projecte": 45227,
@@ -1236,9 +1232,7 @@
       "source": "recipe"
     },
     "mekanism:module_gravitational_modulating_unit": {
-      "projecte": 5247442,
-      "itemalchemy": 4968194,
-      "source": "recipe"
+      "excluded": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
     },
     "mekanism:module_gyroscopic_stabilization_unit": {
       "projecte": 5792,
@@ -1306,9 +1300,7 @@
       "source": "recipe"
     },
     "mekanism:module_teleportation_unit": {
-      "projecte": 801118,
-      "itemalchemy": 783432,
-      "source": "recipe"
+      "excluded": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
     },
     "mekanism:module_vein_mining_unit": {
       "projecte": 63160,
@@ -1395,9 +1387,7 @@
       "source": "recipe"
     },
     "mekanism:pellet_antimatter": {
-      "projecte": 256000,
-      "itemalchemy": 256000,
-      "source": "conversion pellet_antimatter_from_polonium"
+      "excluded": "Oxidizing a pellet returns 1,000 mB of antimatter, and the nucleosynthesizer turns a few millibuckets of it and a cheap item into a dear one: coal into a diamond, an egg into a dragon egg (10,000,000 in Tekxit's Item Alchemy), a skeleton skull into a wither skeleton skull. At the old 256,000 (a thousand polonium pellets) thirteen of its twenty recipes gained EMC, and no pellet value closes every recipe, so pellets have no EMC and the nucleosynthesizer cannot be fed from EMC."
     },
     "mekanism:pellet_plutonium": {
       "projecte": 256,
@@ -1480,9 +1470,7 @@
       "source": "conversion mek_qio_drive_hyper_dense"
     },
     "mekanism:qio_drive_supermassive": {
-      "projecte": 3424432,
-      "itemalchemy": 1488048,
-      "source": "conversion mek_qio_drive_supermassive"
+      "excluded": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
     },
     "mekanism:qio_drive_time_dilating": {
       "projecte": 791856,
@@ -4053,5 +4041,8 @@
     "minecraft:elytra": {
       "projecte": 16463
     }
+  },
+  "itemalchemy_overrides": {
+    "minecraft:wither_skeleton_skull": 46422
   }
 }

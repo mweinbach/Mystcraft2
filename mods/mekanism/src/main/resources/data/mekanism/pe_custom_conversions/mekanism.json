@@ -358,17 +358,6 @@
         }
       ]
     },
-    "mekanism_pellet_antimatter_from_polonium": {
-      "comment": "Crystallizing 1,000 mB of antimatter yields one pellet. The SPS makes each millibucket from 1,000 mB of polonium, and the polonium pellet reaction is the item recipe that consumes 1,000 mB of polonium, so one antimatter pellet costs a thousand polonium pellets. This port has no fission-reactor block, so the fuel that produces the gas is not an extra item cost.",
-      "conversions": [
-        {
-          "output": "mekanism:pellet_antimatter",
-          "ingredients": {
-            "mekanism:pellet_polonium": 1000
-          }
-        }
-      ]
-    },
     "mekanism_sulfur_dioxide_bucket": {
       "comment": "Oxidizing one sulfur dust yields 100 mB of sulfur dioxide, so a bucket is ten dust and the bucket.",
       "conversions": [
@@ -3638,6 +3627,12 @@
     },
     "conversion": [
       {
+        "output": "mekanism:antiprotonic_nucleosynthesizer",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
         "output": "mekanism:block_salt",
         "ingredients": [
           "FAKE|no_emc"
@@ -3704,6 +3699,24 @@
         ]
       },
       {
+        "output": "mekanism:module_elytra_unit",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanism:module_gravitational_modulating_unit",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanism:module_teleportation_unit",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
         "output": "mekanism:nugget_osmium",
         "ingredients": [
           "FAKE|no_emc"
@@ -3717,6 +3730,18 @@
       },
       {
         "output": "mekanism:osmium_ore",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanism:pellet_antimatter",
+        "ingredients": [
+          "FAKE|no_emc"
+        ]
+      },
+      {
+        "output": "mekanism:qio_drive_supermassive",
         "ingredients": [
           "FAKE|no_emc"
         ]

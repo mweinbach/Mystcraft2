@@ -31,7 +31,8 @@ import org.slf4j.Logger;
  * emc/values.json and both shipped data files must load for each namespace. Entries listed as ignored in values.json
  * (test fixtures) are skipped.
  * When ProjectE (Forge, {@code -PwithProjectE}) or Item Alchemy (Fabric, {@code -PwithItemAlchemy}) is installed,
- * every live value must equal the expected one in values.json, as in the other ports.
+ * every live value must equal the expected one in values.json, as in the other ports. With Item Alchemy, the vanilla
+ * pack overrides listed under itemalchemy_overrides must hold too.
  * The registry and live values are also written to the run directory for scripts/emc.py.
  */
 public final class EmcAudit {
@@ -73,9 +74,11 @@ public final class EmcAudit {
             return report(failures);
         }
         JsonObject items;
+        JsonObject overrides;
         try {
             JsonObject values = JsonParser.parseString(Files.readString(Path.of(path))).getAsJsonObject();
             items = values.getAsJsonObject("items");
+            overrides = values.has("itemalchemy_overrides") ? values.getAsJsonObject("itemalchemy_overrides") : new JsonObject();
             values.getAsJsonArray("ignored").forEach(id -> registered.remove(id.getAsString()));
         } catch (IOException | RuntimeException e) {
             failures.add("cannot read " + path + ": " + e);
@@ -83,8 +86,29 @@ public final class EmcAudit {
         }
         failures.addAll(coverage(registered, items));
         compareLive(failures, items, registered, "projecte", projectE());
-        compareLive(failures, items, registered, "itemalchemy", itemAlchemy());
+        Function<String, Long> alchemy = itemAlchemy();
+        compareLive(failures, items, registered, "itemalchemy", alchemy);
+        if (alchemy != null) {
+            failures.addAll(compareOverrides(overrides, alchemy));
+        }
         return report(failures);
+    }
+
+    /**
+     * The vanilla pack overrides (values.json {@code itemalchemy_overrides}) against live Item Alchemy values. They
+     * ship in a default_emcs file Item Alchemy must read after its own minecraft.json, so a wrong value means the
+     * file lost that race.
+     */
+    static List<String> compareOverrides(JsonObject overrides, Function<String, Long> live) {
+        List<String> failures = new ArrayList<>();
+        for (String id : overrides.keySet()) {
+            Long value = live.apply(id);
+            long want = overrides.get(id).getAsLong();
+            if (value == null || value != want) {
+                failures.add("itemalchemy override for " + id + " is " + (value == null ? "unset" : value) + ", expected " + want);
+            }
+        }
+        return failures;
     }
 
     /**

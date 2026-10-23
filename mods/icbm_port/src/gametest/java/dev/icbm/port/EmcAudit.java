@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 /**
  * EMC coverage check (see docs/emc.md). Every registered item must have a decision in
  * emc/values.json and the shipped data must load. With Item Alchemy installed, its live values
- * must equal the expected ones. ProjectE has no Fabric build, so it is not consulted here.
+ * must equal the expected ones, including the vanilla pack overrides listed under itemalchemy_overrides.
+ * ProjectE has no Fabric build, so it is not consulted here.
  */
 public final class EmcAudit {
   private static final Logger LOGGER = LoggerFactory.getLogger("icbm_port/emc");
@@ -46,9 +47,11 @@ public final class EmcAudit {
       return report(failures);
     }
     JsonObject items;
+    JsonObject overrides;
     try {
       JsonObject values = JsonParser.parseString(Files.readString(Path.of(path))).getAsJsonObject();
       items = values.getAsJsonObject("items");
+      overrides = values.has("itemalchemy_overrides") ? values.getAsJsonObject("itemalchemy_overrides") : new JsonObject();
       values.getAsJsonArray("ignored").forEach(id -> registered.remove(id.getAsString()));
     } catch (IOException | RuntimeException e) {
       failures.add("cannot read " + path + ": " + e);
@@ -69,6 +72,13 @@ public final class EmcAudit {
         long want = expected.has("itemalchemy") ? expected.get("itemalchemy").getAsLong() : 0L;
         if (value == null || value != want)
           failures.add("itemalchemy value for " + id + " is " + (value == null ? "unset" : value) + ", expected " + want);
+      }
+      // Pack overrides ship in a default_emcs file Item Alchemy must read after its own minecraft.json.
+      for (String id : overrides.keySet()) {
+        Object live = itemAlchemy.get(id);
+        long want = overrides.get(id).getAsLong();
+        if (!(live instanceof Number) || ((Number) live).longValue() != want)
+          failures.add("itemalchemy override for " + id + " is " + live + ", expected " + want);
       }
       write("emc-actual-itemalchemy.json", new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(actual) + "\n");
       LOGGER.info("EMC audit compared {} items with itemalchemy", actual.size());

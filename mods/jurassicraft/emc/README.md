@@ -108,6 +108,16 @@ ProjectE cannot see these machine or world processes, so `emc.py check` verifies
 | bug_crate_mealworms_6 | 2 | Bug crate: bread breeds 6 mealworms; the parent is kept. |
 | bug_crate_mealworms_16 | 2 | Bug crate: hay block breeds 16 mealworms; the parent is kept. |
 
+## Vanilla processes checked for EMC gain
+
+From `scripts/emc/pack-processes.json`, checked with this port's values and again with every port's values merged.
+
+| Process | Checks | Why |
+| --- | ---: | --- |
+| summon_wither | 2 | Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star. |
+| summon_iron_golem | 2 | Four iron blocks and a carved pumpkin build an iron golem, which drops at most five iron ingots and two poppies. |
+| summon_snow_golem | 2 | Two snow blocks and a carved pumpkin build a snow golem, which drops at most fifteen snowballs. |
+
 ## Ignored registry entries
 
 | Item | Why |

@@ -87,4 +87,14 @@ ProjectE cannot see these machine or world processes, so `emc.py check` verifies
 | assemble_facades_do_not_gain | 6 | Six facades are one item id, valued from dirt. Crafting them from dirt, glass or a diamond block and transmuting the six must not return more than that block. |
 | refine_light_fuel_through_mixed_light_fuels | 2 | Upstream's documented route: lava heats 4 oil, which distils into 5 hot mixed light fuels (and 1 dense oil); water cools them and they distil into 2 light fuel (and 8 gaseous fuel). The unvalued by-products are left out. |
 
+## Vanilla processes checked for EMC gain
+
+From `scripts/emc/pack-processes.json`, checked with this port's values and again with every port's values merged.
+
+| Process | Checks | Why |
+| --- | ---: | --- |
+| summon_wither | 2 | Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star. |
+| summon_iron_golem | 2 | Four iron blocks and a carved pumpkin build an iron golem, which drops at most five iron ingots and two poppies. |
+| summon_snow_golem | 2 | Two snow blocks and a carved pumpkin build a snow golem, which drops at most fifteen snowballs. |
+
 Recipe types ProjectE does not map, so items made only by them need a conversion, value or exclusion: `buildcraft:assembly`, `buildcraft:facade_assembly`, `buildcraft:facade_swap`.
