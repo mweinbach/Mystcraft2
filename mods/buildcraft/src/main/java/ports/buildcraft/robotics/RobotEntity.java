@@ -518,6 +518,7 @@ public class RobotEntity extends Entity {
             cancelBreak();
             releaseClaims();
             if (reason.shouldDestroy()) {
+                if (reason == RemovalReason.KILLED) dropContents();
                 undock();
                 setHome(null);
             }

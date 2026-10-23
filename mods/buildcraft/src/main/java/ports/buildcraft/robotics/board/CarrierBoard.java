@@ -10,7 +10,6 @@ import ports.buildcraft.robotics.DockingStationPluggable;
 import ports.buildcraft.robotics.Progress;
 import ports.buildcraft.robotics.RobotEntity;
 import ports.buildcraft.robotics.StationRef;
-import ports.buildcraft.robotics.WorkArea;
 
 /**
  * The carrier, written for this port: moves items between docking stations in its work area. It loads at stations
@@ -109,9 +108,8 @@ public class CarrierBoard extends RobotBoard {
 
     @Nullable
     private StationRef nearest(Predicate<DockingStationPluggable> filter) {
-        WorkArea area = robot.workArea();
-        List<DockingStationPluggable> stations = world().stationsNear(level(), robot.position(), area.radius() * 2 + 1,
-                station -> area.contains(station.ref().pos()) && station.isFreeFor(robot) && filter.test(station));
+        List<DockingStationPluggable> stations = world().stationsIn(level(), robot.workArea(), robot.position(),
+                station -> station.isFreeFor(robot) && filter.test(station));
         return stations.isEmpty() ? null : stations.get(0).ref();
     }
 

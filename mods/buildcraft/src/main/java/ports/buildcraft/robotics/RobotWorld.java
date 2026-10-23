@@ -40,8 +40,17 @@ public final class RobotWorld {
 
     /** Loaded stations within {@code range} blocks of {@code from} that pass {@code filter}, nearest first. */
     public List<DockingStationPluggable> stationsNear(Level level, Vec3 from, double range, Predicate<DockingStationPluggable> filter) {
-        List<DockingStationPluggable> found = new ArrayList<>();
         double rangeSqr = range * range;
+        return stations(level, from, station -> station.ref().distanceToSqr(from) <= rangeSqr && filter.test(station));
+    }
+
+    /** Loaded stations inside {@code area} that pass {@code filter}, nearest to {@code from} first. */
+    public List<DockingStationPluggable> stationsIn(Level level, WorkArea area, Vec3 from, Predicate<DockingStationPluggable> filter) {
+        return stations(level, from, station -> area.contains(station.ref().pos()) && filter.test(station));
+    }
+
+    private List<DockingStationPluggable> stations(Level level, Vec3 from, Predicate<DockingStationPluggable> filter) {
+        List<DockingStationPluggable> found = new ArrayList<>();
         for (StationRef ref : List.copyOf(stations)) {
             if (!level.isLoaded(ref.pos())) continue;
             DockingStationPluggable station = ref.resolve(level);
@@ -49,7 +58,7 @@ public final class RobotWorld {
                 stations.remove(ref);
                 continue;
             }
-            if (ref.distanceToSqr(from) <= rangeSqr && filter.test(station)) found.add(station);
+            if (filter.test(station)) found.add(station);
         }
         found.sort((a, b) -> Double.compare(a.ref().distanceToSqr(from), b.ref().distanceToSqr(from)));
         return Collections.unmodifiableList(found);

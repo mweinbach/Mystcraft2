@@ -104,9 +104,10 @@ public class BreakerBoard extends RobotBoard {
             fetchTool();
             return;
         }
-        if (target == null || !isTarget(target)) {
+        WorkArea area = robot.workArea();
+        if (target == null || !isTarget(target, area)) {
             release();
-            target = find();
+            target = find(area);
             if (target == null) {
                 if (!robot.isInventoryEmpty()) {
                     unloading = true;
@@ -150,23 +151,22 @@ public class BreakerBoard extends RobotBoard {
         }
     }
 
-    private boolean isTarget(BlockPos pos) {
+    private boolean isTarget(BlockPos pos, WorkArea area) {
         Level level = level();
-        if (!level.isLoaded(pos) || skipped.contains(pos) || !robot.workArea().contains(pos)) return false;
+        if (!level.isLoaded(pos) || skipped.contains(pos) || !area.contains(pos)) return false;
         if (world().isClaimedByOther(robot, pos)) return false;
         BlockState state = level.getBlockState(pos);
         return blocks.test(state) && (!mustBeExposed || openSide(level, pos) != null);
     }
 
     @Nullable
-    private BlockPos find() {
-        WorkArea area = robot.workArea();
+    private BlockPos find(WorkArea area) {
         BlockPos best = null;
         double bestDistance = Double.MAX_VALUE;
         Vec3 from = robot.position();
         for (BlockPos pos : BlockPos.betweenClosed(area.min(), area.max())) {
             double distance = pos.distToCenterSqr(from);
-            if (distance >= bestDistance || !isTarget(pos)) continue;
+            if (distance >= bestDistance || !isTarget(pos, area)) continue;
             best = pos.immutable();
             bestDistance = distance;
         }

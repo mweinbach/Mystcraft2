@@ -35,9 +35,10 @@ public class PickerBoard extends RobotBoard {
             if (progress == Progress.FAILED) robot.sleep(IDLE_TICKS);
             return;
         }
-        if (!isValid(target)) {
+        WorkArea area = robot.workArea();
+        if (!isValid(target, area)) {
             drop();
-            target = find();
+            target = find(area);
             if (target == null) {
                 if (robot.isInventoryEmpty()) idleAtHome(IDLE_TICKS);
                 else unloading = true;
@@ -55,15 +56,14 @@ public class PickerBoard extends RobotBoard {
         if (!left.isEmpty() || robot.isInventoryFull()) unloading = true;
     }
 
-    private boolean isValid(@Nullable ItemEntity item) {
-        return item != null && item.isAlive() && robot.workArea().contains(item.position()) && robot.canHold(item.getItem())
+    private boolean isValid(@Nullable ItemEntity item, WorkArea area) {
+        return item != null && item.isAlive() && area.contains(item.position()) && robot.canHold(item.getItem())
                 && !world().isClaimedByOther(robot, item.getUUID());
     }
 
     @Nullable
-    private ItemEntity find() {
-        WorkArea area = robot.workArea();
-        List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area.bounds(), this::isValid);
+    private ItemEntity find(WorkArea area) {
+        List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area.bounds(), item -> isValid(item, area));
         return items.stream().min(Comparator.comparingDouble(item -> item.distanceToSqr(robot))).orElse(null);
     }
 

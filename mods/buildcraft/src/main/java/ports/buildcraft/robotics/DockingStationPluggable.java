@@ -59,6 +59,9 @@ public class DockingStationPluggable extends PipePluggable {
     private long forbidTick = NEVER, areaTick = NEVER, wakeTick = NEVER;
     private final List<ItemStack> provideFilters = new ArrayList<>(), acceptFilters = new ArrayList<>();
     private ItemStack areaMap = ItemStack.EMPTY;
+    /** {@link #areaMap} decoded, so robots asking every tick do not rebuild a zone. */
+    @Nullable
+    private WorkArea area;
 
     public DockingStationPluggable(PluggableDefinition definition, PipeBlockEntity holder, Direction side) {
         super(definition, holder, side);
@@ -237,7 +240,9 @@ public class DockingStationPluggable extends PipePluggable {
 
     public void actionWorkInArea(ItemStack map) {
         areaTick = now();
-        areaMap = map;
+        if (ItemStack.matches(map, areaMap)) return;
+        areaMap = map.copy();
+        area = WorkArea.fromMap(areaMap, holder.getBlockPos());
     }
 
     public void actionWakeUp() {
@@ -264,7 +269,7 @@ public class DockingStationPluggable extends PipePluggable {
     /** The area a gate gives the robots that live here, or null for their default area. */
     @Nullable
     public WorkArea gateArea() {
-        return held(areaTick) ? WorkArea.fromMap(areaMap, holder.getBlockPos()) : null;
+        return held(areaTick) ? area : null;
     }
 
     private static boolean passes(List<ItemStack> filters, ItemStack stack) {
