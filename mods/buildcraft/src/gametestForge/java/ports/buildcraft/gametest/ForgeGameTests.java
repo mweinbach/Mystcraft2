@@ -367,6 +367,15 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void paintbrushAndZonePlannerRecipes(GameTestHelper helper) { ZonePlannerTests.paintbrushAndZonePlannerRecipes(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void lapisPipePaintsItemsAndWrenchCyclesColour(GameTestHelper helper) { SortingPipeTests.lapisPipePaintsItemsAndWrenchCyclesColour(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void daizuliPipeRoutesItsColourToItsFace(GameTestHelper helper) { SortingPipeTests.daizuliPipeRoutesItsColourToItsFace(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void obsidianPipeSucksItemsInRange(GameTestHelper helper) { SortingPipeTests.obsidianPipeSucksItemsInRange(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

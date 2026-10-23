@@ -1673,7 +1673,22 @@ public final class BCTests {
             require(helper, recipe.matches(kinesis, helper.getLevel()) && recipe.assemble(kinesis).is(pair[1].item()),
                     "a " + pair[0].registryName() + " and redstone must make a " + pair[1].registryName());
         }
+
+        requirePipeRow(helper, BCTransport.OBSIDIAN_ITEM, Items.OBSIDIAN, Items.OBSIDIAN, "obsidian, glass and obsidian");
+        requirePipeRow(helper, BCTransport.LAPIS_ITEM, Items.LAPIS_BLOCK, Items.LAPIS_BLOCK, "two lapis blocks either side of glass");
+        requirePipeRow(helper, BCTransport.DAIZULI_ITEM, Items.LAPIS_BLOCK, Items.DIAMOND, "a lapis block, glass and a diamond");
         helper.succeed();
+    }
+
+    /** {@code left}, glass and {@code right} in a row must craft eight of {@code pipe}, as upstream's pipe recipes do. */
+    private static void requirePipeRow(GameTestHelper helper, PipeDefinition pipe, Item left, Item right, String description) {
+        CraftingContainer row = grid();
+        row.setItem(0, new ItemStack(left));
+        row.setItem(1, new ItemStack(Items.GLASS));
+        row.setItem(2, new ItemStack(right));
+        CraftingRecipe recipe = (CraftingRecipe) helper.getLevel().getRecipeManager().byKey(BuildCraft.id(pipe.registryName())).orElseThrow();
+        ItemStack made = recipe.matches(row, helper.getLevel()) ? recipe.assemble(row) : ItemStack.EMPTY;
+        require(helper, made.is(pipe.item()) && made.getCount() == 8, description + " must make eight " + pipe.registryName() + ", made " + made);
     }
 
     private static void requireRecipe(GameTestHelper helper, Recipe<?> recipe, String id, String result) {

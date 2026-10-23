@@ -7,14 +7,16 @@ import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.behaviour.LimiterBehaviour;
 
 /**
- * Upstream {@code BCTransportStatements}, for the ported pipes and wires: paint and extraction presets belong to
- * pipes that are not ported yet, and the RF power limits to RF pipes, which the port does not have.
+ * Upstream {@code BCTransportStatements}, for the ported pipes and wires: extraction presets belong to pipes that
+ * are not ported yet, and the RF power limits to RF pipes, which the port does not have.
  */
 public final class BCTransportStatements {
     public static final TriggerPowerRequested TRIGGER_POWER_REQUESTED = new TriggerPowerRequested();
     public static final TriggerItemsTraversing TRIGGER_ITEMS_TRAVERSING = new TriggerItemsTraversing();
     public static final TriggerFluidsTraversing TRIGGER_FLUIDS_TRAVERSING = new TriggerFluidsTraversing();
     public static final ActionPipeDirection[] ACTION_PIPE_DIRECTION = new ActionPipeDirection[6];
+    /** By colour id: the lapis and daizuli pipes' paint actions. */
+    public static final ActionPipeColor[] ACTION_PIPE_COLOUR = new ActionPipeColor[16];
     /** On then off for each colour, in colour order. */
     public static final TriggerPipeSignal[] TRIGGER_PIPE_SIGNAL = new TriggerPipeSignal[2 * 16];
     public static final ActionPipeSignal[] ACTION_PIPE_SIGNAL = new ActionPipeSignal[16];
@@ -25,6 +27,7 @@ public final class BCTransportStatements {
     static {
         for (Direction face : Direction.values()) ACTION_PIPE_DIRECTION[face.ordinal()] = new ActionPipeDirection(face);
         for (DyeColor colour : DyeColor.values()) {
+            ACTION_PIPE_COLOUR[colour.getId()] = new ActionPipeColor(colour);
             TRIGGER_PIPE_SIGNAL[colour.getId() * 2] = new TriggerPipeSignal(true, colour);
             TRIGGER_PIPE_SIGNAL[colour.getId() * 2 + 1] = new TriggerPipeSignal(false, colour);
             ACTION_PIPE_SIGNAL[colour.getId()] = new ActionPipeSignal(colour);

@@ -365,6 +365,15 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void paintbrushAndZonePlannerRecipes(GameTestHelper helper) { ZonePlannerTests.paintbrushAndZonePlannerRecipes(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void lapisPipePaintsItemsAndWrenchCyclesColour(GameTestHelper helper) { SortingPipeTests.lapisPipePaintsItemsAndWrenchCyclesColour(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void daizuliPipeRoutesItsColourToItsFace(GameTestHelper helper) { SortingPipeTests.daizuliPipeRoutesItsColourToItsFace(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void obsidianPipeSucksItemsInRange(GameTestHelper helper) { SortingPipeTests.obsidianPipeSucksItemsInRange(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

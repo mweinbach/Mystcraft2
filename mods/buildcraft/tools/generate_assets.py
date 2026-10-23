@@ -68,13 +68,19 @@ FLOW_NAMES = {"item": "Transport", "fluid": "Fluid", "power": "Kinesis"}
 
 
 def pipe(name: str, texture: str | None = None, special: str | None = None, faces: dict[str, str] | None = None,
-         item_texture: str | None = None, title: str | None = None, limits: list[str] | None = None) -> dict:
+         item_texture: str | None = None, title: str | None = None, limits: list[str] | None = None,
+         coloured: str | None = None, colour_mode: str | None = None) -> dict:
+    """
+    ``coloured`` is an upstream texture name with ``{colour}`` for a ColouredPipeBlock; ``colour_mode`` is "all" when
+    every face shows it (lapis) or "special" when only the selected face does (daizuli).
+    """
     texture = texture or name
     if title is None:
         material, flow = name.rsplit("_", 1)
         title = f"{MATERIAL_NAMES[material]} {FLOW_NAMES[flow]} Pipe"
     return {"name": name, "faces": faces or {d: texture for d in DIRECTIONS}, "special": special,
-            "item": item_texture or texture, "title": title, "limits": limits}
+            "item": item_texture or texture, "title": title, "limits": limits,
+            "coloured": coloured, "colour_mode": colour_mode}
 
 
 # Upstream BCTransportPipes' limiter texture suffixes; PipeBehaviourLimiter.getTextureIndex is MAX_SHIFT - limitShift.
@@ -94,6 +100,12 @@ PIPES = [
     pipe("iron_item", "iron_item_filled", "iron_item_clear"),
     pipe("diamond_item", faces={d: "diamond_item_" + d for d in DIRECTIONS}, item_texture="diamond_item_itemstack"),
     pipe("clay_item"), pipe("void_item"),
+    # Upstream BCTransportPipes: the lapis pipe's 16 colour textures; the daizuli pipe's colour on its selected face
+    # and "_filled" elsewhere, with the white texture as its item (upstream itemTex(0, 0, 16)).
+    pipe("obsidian_item", title="Obsidian Transport Pipe"),
+    pipe("lapis_item", "lapis_item_white", title="Lazuli Transport Pipe", coloured="lapis_item_{colour}", colour_mode="all"),
+    pipe("daizuli_item", "daizuli_item_filled", item_texture="daizuli_item_white", title="Daizuli Transport Pipe",
+         coloured="daizuli_item_{colour}", colour_mode="special"),
     pipe("wood_fluid", "wood_fluid_clear", "wood_fluid_filled"),
     pipe("cobblestone_fluid"), pipe("stone_fluid"), pipe("quartz_fluid"), pipe("gold_fluid"), pipe("sandstone_fluid"),
     pipe("iron_fluid", "iron_fluid_filled", "iron_fluid_clear"),
@@ -137,6 +149,9 @@ PIPE_MATERIALS = {
     "sandstone": (tags("sandstone", "sandstone"), tags("sandstone", "sandstone")),
     "void": (tags("black_dyes", "dyes/black"), REDSTONE),
     "diamond": (DIAMOND, DIAMOND),
+    "obsidian": ({"item": "minecraft:obsidian"}, {"item": "minecraft:obsidian"}),
+    "lapis": ({"item": "minecraft:lapis_block"}, {"item": "minecraft:lapis_block"}),
+    "daizuli": ({"item": "minecraft:lapis_block"}, DIAMOND),
 }
 
 # Vanilla members of every tag the recipes use, defined under both namespaces so that recipes
@@ -248,6 +263,8 @@ class Generator:
             if definition["special"]:
                 pipe_textures.add(definition["special"])
             pipe_textures.update(definition["limits"] or [])
+            if definition["coloured"]:
+                pipe_textures.update(definition["coloured"].format(colour=upstream) for _, upstream, _ in WIRE_COLOURS)
         for texture in sorted(pipe_textures):
             self.copy(f"buildcrafttransport/textures/pipes/{texture}.png", f"block/pipe/{texture}.png")
 
@@ -444,9 +461,23 @@ class Generator:
                 for direction in DIRECTIONS:
                     texture = faces[direction]
                     special = special_texture or definition["special"] or texture
+                    if definition["colour_mode"] == "all":
+                        for colour, upstream, _ in WIRE_COLOURS:
+                            coloured = definition["coloured"].format(colour=upstream)
+                            multipart.append({"when": {"colour": colour, direction: "none", **extra},
+                                              "apply": {"model": self.pipe_part(coloured, "center", direction, made)}})
+                            multipart.append({"when": {"colour": colour, direction: "connected|special", **extra},
+                                              "apply": {"model": self.pipe_part(coloured, "arm", direction, made)}})
+                        continue
                     multipart.append({"when": {direction: "none", **extra}, "apply": {"model": self.pipe_part(texture, "center", direction, made)}})
                     multipart.append({"when": {direction: "connected", **extra}, "apply": {"model": self.pipe_part(texture, "arm", direction, made)}})
-                    multipart.append({"when": {direction: "special", **extra}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
+                    if definition["colour_mode"] == "special":
+                        for colour, upstream, _ in WIRE_COLOURS:
+                            coloured = definition["coloured"].format(colour=upstream)
+                            multipart.append({"when": {"colour": colour, direction: "special", **extra},
+                                              "apply": {"model": self.pipe_part(coloured, "arm", direction, made)}})
+                    else:
+                        multipart.append({"when": {direction: "special", **extra}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
             self.blockstate(name, {"multipart": multipart})
             self.model(f"item/{name}", {"parent": rl("item/pipe_base"), "textures": {"pipe": rl("block/pipe/" + definition["item"])}})
             self.lang[f"block.{MOD}.{name}"] = definition["title"]
@@ -976,6 +1007,7 @@ class Generator:
             "gate.action.pipe.direction": "Face the %s side",
             "gate.action.pipe.power_limit": "Switch to %s MJ/t limit",
             "chat.pipe.power.iron.mode": "Switched to %s MJ/t limit",
+            "gate.action.pipe.item.color": "Paint Items %s",
             "chat.gateCopier.gateCopied": "Copied gate information to copier.",
             "chat.gateCopier.gatePasted": "Pasted copied data to gate.",
             "chat.gateCopier.noInformation": "No gate information stored!",

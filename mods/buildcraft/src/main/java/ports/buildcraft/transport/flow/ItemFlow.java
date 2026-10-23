@@ -113,7 +113,8 @@ public final class ItemFlow extends PipeFlow implements Injectable {
         PipeBehaviour behaviour = pipe.behaviour();
         ItemStack stack = behaviour.onItemReachCenter(item.stack, item.side);
         if (stack.isEmpty()) return;
-        SideCheck sideCheck = new SideCheck(stack, item.colour, item.side);
+        DyeColor colour = behaviour.colourAtCenter(item.colour);
+        SideCheck sideCheck = new SideCheck(stack, colour, item.side);
         sideCheck.disallow(item.side);
         for (Direction face : Direction.values()) {
             if (item.tried.contains(face) || !pipe.isConnected(face)) sideCheck.disallow(face);
@@ -147,7 +148,7 @@ public final class ItemFlow extends PipeFlow implements Injectable {
                 continue;
             }
             TravellingItem newItem = new TravellingItem(entry.stack);
-            newItem.colour = item.colour;
+            newItem.colour = colour;
             newItem.tried.addAll(item.tried);
             newItem.toCenter = false;
             newItem.side = destinations.get(0);
@@ -229,7 +230,8 @@ public final class ItemFlow extends PipeFlow implements Injectable {
         speed = (speed + 0.01) * 2;
         ItemEntity entity = new ItemEntity(level(), x, y, z, stack);
         entity.setDeltaMovement(motion.getStepX() * speed, motion.getStepY() * speed, motion.getStepZ() * speed);
-        level().addFreshEntity(entity);
+        pipe.behaviour().onDrop(entity);
+        if (!entity.getItem().isEmpty() && !entity.isRemoved()) level().addFreshEntity(entity);
         onItemsChanged();
     }
 
@@ -264,6 +266,34 @@ public final class ItemFlow extends PipeFlow implements Injectable {
                 }
             }
         }
+        items.add(item.timeToDest, item);
+        onItemsChanged();
+    }
+
+    /**
+     * Upstream {@code insertItemsForce}: the stack appears at the centre as if it had come in through {@code from},
+     * without insertion checks or merging. A null {@code from} picks the first unconnected face, or up.
+     */
+    public void insertItemsForce(ItemStack stack, @Nullable Direction from, @Nullable DyeColor colour, double speed) {
+        if (level().isClientSide) throw new IllegalStateException("Cannot inject items on the client side!");
+        if (stack.isEmpty()) return;
+        TravellingItem item = new TravellingItem(stack);
+        Direction side = from;
+        if (side == null) {
+            for (Direction face : Direction.values()) {
+                if (!pipe.isConnected(face)) {
+                    side = face;
+                    break;
+                }
+            }
+            if (side == null) side = Direction.UP;
+        }
+        item.side = side;
+        item.toCenter = true;
+        item.speed = Math.max(0.01, speed);
+        item.colour = colour;
+        item.genTimings(now(), 0);
+        if (from != null) item.tried.add(from);
         items.add(item.timeToDest, item);
         onItemsChanged();
     }

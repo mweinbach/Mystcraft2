@@ -19,10 +19,13 @@ import ports.buildcraft.BuildCraft;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.platform.Reg;
+import ports.buildcraft.transport.behaviour.DaizuliBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.behaviour.IronBehaviour;
 import ports.buildcraft.transport.behaviour.LimiterBehaviour;
+import ports.buildcraft.transport.behaviour.LapisBehaviour;
+import ports.buildcraft.transport.behaviour.ObsidianBehaviour;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours.Separate.Kind;
@@ -59,6 +62,10 @@ public final class BCTransport {
             .faceTextures(diamondTextures("diamond_item"), "diamond_item_itemstack").menu().build();
     public static final PipeDefinition CLAY_ITEM = item("clay_item", SimpleBehaviours.Clay::new).build();
     public static final PipeDefinition VOID_ITEM = item("void_item", SimpleBehaviours.Void::new).build();
+    public static final PipeDefinition OBSIDIAN_ITEM = item("obsidian_item", ObsidianBehaviour::new).build();
+    public static final PipeDefinition LAPIS_ITEM = item("lapis_item", LapisBehaviour::new).texture("lapis_item_white").block(ColouredPipeBlock::new).build();
+    public static final PipeDefinition DAIZULI_ITEM = item("daizuli_item", DaizuliBehaviour::new).texture("daizuli_item_filled")
+            .special("daizuli_item_white").block(ColouredPipeBlock::new).build();
 
     public static final PipeDefinition WOOD_FLUID = fluid("wood_fluid", WoodBehaviour::new, 1, 10).texture("wood_fluid_clear").special("wood_fluid_filled").build();
     public static final PipeDefinition COBBLESTONE_FLUID = fluid("cobblestone_fluid", separate(Kind.COBBLESTONE), 1, 10).build();
