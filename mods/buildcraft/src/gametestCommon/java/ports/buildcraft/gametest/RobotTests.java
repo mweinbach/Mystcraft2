@@ -268,6 +268,13 @@ public final class RobotTests {
         notChunks.add(IntTag.valueOf(7));
         badZone.getOrCreateTag().put("chunkMapping", notChunks);
         require(helper, WorkArea.fromMap(badZone, helper.absolutePos(pos)) == null, "a malformed zone map gives no work area");
+
+        ItemStack farMap = new ItemStack(BCCore.MAP_LOCATION.get());
+        MapLocationItem.Type.AREA.set(farMap);
+        for (String key : List.of("xMin", "yMin", "zMin", "xMax", "yMax", "zMax")) farMap.getOrCreateTag().putInt(key, Integer.MAX_VALUE);
+        WorkArea far = WorkArea.fromMap(farMap, helper.absolutePos(pos));
+        require(helper, far != null && far.bounds().getXsize() <= WorkArea.MAX_SIZE && far.bounds().getYsize() <= WorkArea.MAX_SIZE
+                && far.bounds().getZsize() <= WorkArea.MAX_SIZE, "an area at the integer limit stays a small box, got " + (far == null ? null : far.bounds()));
         helper.succeed();
     }
 

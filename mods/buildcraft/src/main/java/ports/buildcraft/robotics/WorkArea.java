@@ -3,8 +3,10 @@ package ports.buildcraft.robotics;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.core.MapLocationItem;
@@ -24,12 +26,22 @@ public record WorkArea(BlockPos min, BlockPos max, @Nullable ZonePlan zone) {
     public static final int MAX_SIZE = 64;
 
     public WorkArea {
+        // Gate parameters come from clients, so clamp to the world's limits first: capping a box near
+        // Integer.MAX_VALUE would otherwise overflow into one spanning the whole integer range.
+        min = inWorld(min);
+        max = inWorld(max);
         BlockPos lo = new BlockPos(Math.min(min.getX(), max.getX()), Math.min(min.getY(), max.getY()), Math.min(min.getZ(), max.getZ()));
         BlockPos hi = new BlockPos(Math.max(min.getX(), max.getX()), Math.max(min.getY(), max.getY()), Math.max(min.getZ(), max.getZ()));
         hi = new BlockPos(Math.min(hi.getX(), lo.getX() + MAX_SIZE - 1), Math.min(hi.getY(), lo.getY() + MAX_SIZE - 1),
                 Math.min(hi.getZ(), lo.getZ() + MAX_SIZE - 1));
         min = lo;
         max = hi;
+    }
+
+    private static BlockPos inWorld(BlockPos pos) {
+        return new BlockPos(Mth.clamp(pos.getX(), -Level.MAX_LEVEL_SIZE, Level.MAX_LEVEL_SIZE),
+                Mth.clamp(pos.getY(), -Level.MAX_LEVEL_SIZE, Level.MAX_LEVEL_SIZE),
+                Mth.clamp(pos.getZ(), -Level.MAX_LEVEL_SIZE, Level.MAX_LEVEL_SIZE));
     }
 
     public static WorkArea around(BlockPos centre, int radius) {
