@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +40,19 @@ public abstract sealed class RequiredExtractor {
     /** Items this extractor names directly, for checking rule files. */
     public List<ResourceLocation> literalItems() {
         return List.of();
+    }
+
+    /**
+     * Not upstream: the top-level keys of the saved data whose contents this extractor costs. Block entity data
+     * from a snapshot keeps these and little else (see {@code SchematicSafety#sanitizeTileNbt}).
+     */
+    public Set<String> costedKeys() {
+        return Set.of();
+    }
+
+    static Set<String> keysOf(NbtPath path) {
+        String first = path.first();
+        return first == null ? Set.of() : Set.of(first);
     }
 
     public static RequiredExtractor fromJson(JsonObject json) {
@@ -106,6 +120,11 @@ public abstract sealed class RequiredExtractor {
         }
 
         @Override
+        public Set<String> costedKeys() {
+            return keysOf(path);
+        }
+
+        @Override
         public List<ItemStack> extractItemsFromBlock(BlockState blockState, @Nullable CompoundTag tileNbt) {
             return read(path.get(tileNbt));
         }
@@ -126,6 +145,11 @@ public abstract sealed class RequiredExtractor {
 
         ItemsList(NbtPath path) {
             this.path = path;
+        }
+
+        @Override
+        public Set<String> costedKeys() {
+            return keysOf(path);
         }
 
         @Override
@@ -152,6 +176,11 @@ public abstract sealed class RequiredExtractor {
 
         Tank(NbtPath path) {
             this.path = path;
+        }
+
+        @Override
+        public Set<String> costedKeys() {
+            return keysOf(path);
         }
 
         @Override

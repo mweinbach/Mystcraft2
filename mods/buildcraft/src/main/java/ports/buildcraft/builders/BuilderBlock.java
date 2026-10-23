@@ -48,7 +48,10 @@ public class BuilderBlock extends BaseEntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof BuilderBlockEntity builder) builder.onPlaced();
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof BuilderBlockEntity builder) {
+            if (placer instanceof Player player) builder.setOwner(player.getGameProfile());
+            builder.onPlaced();
+        }
     }
 
     /** Upstream {@code IBlockWithFacing}: a wrench turns the builder clockwise, but not while it has something to build. */

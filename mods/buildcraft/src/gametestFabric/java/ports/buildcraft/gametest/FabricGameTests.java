@@ -119,6 +119,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 600)
     public void fillerKeepsToItsPowerAndCountsQueuedWork(GameTestHelper helper) { FillerTests.fillerKeepsToItsPowerAndCountsQueuedWork(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void fillerRespectsRefusedBreaks(GameTestHelper helper) { FillerTests.fillerRespectsRefusedBreaks(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void architectScansTemplate(GameTestHelper helper) { ArchitectTests.architectScansTemplate(helper); }
 
@@ -171,6 +174,9 @@ public final class FabricGameTests implements FabricGameTest {
     public void libraryRefusesForgedUploads(GameTestHelper helper) { LibraryTests.libraryRefusesForgedUploads(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void libraryTakesOnlyAskedForUploadsWithinQuota(GameTestHelper helper) { LibraryTests.libraryTakesOnlyAskedForUploadsWithinQuota(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void forgedBlocksAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedBlocksAreRefused(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
@@ -178,6 +184,9 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void forgedEntitiesAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedEntitiesAreRefused(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void schematicDataIsBounded(GameTestHelper helper) { SchematicSafetyTests.schematicDataIsBounded(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }

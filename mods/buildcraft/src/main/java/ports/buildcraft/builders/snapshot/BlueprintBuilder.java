@@ -227,11 +227,13 @@ public final class BlueprintBuilder extends SnapshotBuilder<BlueprintBuilder.Hos
         }
         remainingDisplayRequired.clear();
         remainingDisplayRequired.addAll(mergeSameItems(required));
+        // Not upstream: removing an entity counts as breaking at its block, for the owner.
         List<Entity> toKill = entitiesWithinBox.stream()
                 .filter(entity -> info.entities.stream()
                         .map(schematicEntity -> schematicEntity.getPos().add(offset))
                         .noneMatch(target -> entity.position().distanceTo(target) < MAX_ENTITY_DISTANCE)
-                        && SchematicEntityManager.getSchematicEntity(new SchematicEntityContext(level, BlockPos.ZERO, entity)) != null)
+                        && SchematicEntityManager.getSchematicEntity(new SchematicEntityContext(level, BlockPos.ZERO, entity)) != null
+                        && mayBreak(entity.blockPosition()))
                 .toList();
         if (!toKill.isEmpty()) {
             if (!host.battery().isFull()) return false;
@@ -241,6 +243,7 @@ public final class BlueprintBuilder extends SnapshotBuilder<BlueprintBuilder.Hos
         if (!toSpawn.isEmpty()) {
             if (!host.battery().isFull()) return false;
             for (SchematicEntity schematicEntity : toSpawn) {
+                if (!mayPlace(new BlockPos(schematicEntity.getPos().add(offset)))) continue;
                 List<ItemStack> items = info.entityRequiredItems(schematicEntity);
                 List<FluidAmount> fluids = info.entityRequiredFluids(schematicEntity);
                 if (tryExtractRequired(items, fluids, true).isPresent() && schematicEntity.build(level, info.info.offsetPos) != null) {

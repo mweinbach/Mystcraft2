@@ -2,6 +2,8 @@ package ports.buildcraft.gametest;
 
 import static ports.buildcraft.gametest.BCTests.require;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +33,7 @@ import ports.buildcraft.builders.snapshot.InvalidSnapshotException;
 import ports.buildcraft.builders.snapshot.SchematicBlock;
 import ports.buildcraft.builders.snapshot.SchematicBlockContext;
 import ports.buildcraft.builders.snapshot.SchematicBlockManager;
+import ports.buildcraft.builders.snapshot.SchematicEntity;
 import ports.buildcraft.builders.snapshot.SchematicEntityManager;
 import ports.buildcraft.builders.snapshot.SchematicSafety;
 import ports.buildcraft.builders.snapshot.Snapshot;
@@ -197,6 +200,24 @@ public final class SchematicSafetyTests {
         CompoundTag hiveNbt = SchematicBlockManager.readFromNBT(hive).getPreviewTileNbt();
         require(helper, hiveNbt != null && hiveNbt.getList("Bees", Tag.TAG_COMPOUND).isEmpty(), "a beehive's stored bees must be dropped, got " + hiveNbt);
 
+        helper.setBlock(AT, Blocks.FURNACE);
+        ((net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity) helper.getBlockEntity(AT)).setItem(0, new ItemStack(Items.IRON_ORE, 2));
+        CompoundTag furnace = SchematicBlockManager.writeToNBT(SchematicBlockManager.getSchematicBlock(new SchematicBlockContext(helper.getLevel(), absolute, absolute)));
+        CompoundTag furnaceTile = furnace.getCompound("data").getCompound("tileNbt");
+        CompoundTag recipesUsed = new CompoundTag();
+        recipesUsed.putInt("minecraft:iron_ingot_from_smelting_iron_ore", 1_000_000);
+        furnaceTile.put("RecipesUsed", recipesUsed);
+        furnaceTile.putShort("BurnTime", (short) 20000);
+        furnaceTile.putShort("CookTime", (short) 199);
+        furnaceTile.putShort("CookTimeTotal", (short) 200);
+        SchematicBlock furnaceRead = SchematicBlockManager.readFromNBT(furnace);
+        CompoundTag furnaceNbt = furnaceRead.getPreviewTileNbt();
+        require(helper, furnaceNbt != null && !furnaceNbt.contains("RecipesUsed") && !furnaceNbt.contains("BurnTime") && !furnaceNbt.contains("CookTime")
+                && !furnaceNbt.contains("CookTimeTotal") && furnaceNbt.contains("Items"),
+                "a furnace's stored experience and operating state must be dropped while its costed items stay, got " + furnaceNbt);
+        require(helper, furnaceRead.computeRequiredItems().stream().anyMatch(stack -> stack.is(Items.IRON_ORE) && stack.getCount() == 2),
+                "the furnace's kept items must still be costed");
+
         CompoundTag sign = scanned(helper, Blocks.OAK_SIGN.defaultBlockState());
         CompoundTag signNbt = sign.getCompound("data").getCompound("tileNbt");
         signNbt.putString("Text1", "{\"text\":\"hi\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/op @a\"}}");
@@ -258,6 +279,68 @@ public final class SchematicSafetyTests {
             farRefused = true;
         }
         require(helper, farRefused, "an entity far outside its blueprint must be refused");
+        helper.succeed();
+    }
+
+    /** {@code depth} nested JSON arrays around one string: valid text component JSON that recurses that deep. */
+    private static String nested(int depth) {
+        return "[".repeat(depth) + "\"x\"" + "]".repeat(depth);
+    }
+
+    private static SchematicEntity readInLevel(GameTestHelper helper, CompoundTag tag) throws InvalidSnapshotException {
+        try {
+            return SchematicSafety.readInLevel(helper.getLevel(), () -> SchematicEntityManager.readFromNBT(tag));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Data that would cost the server to read is bounded. Sign text and an armour stand's name nested thousands
+     * deep are emptied before anything parses them (parsing them would overflow the stack). An armour stand read
+     * in a level, as uploads are, keeps only what an armour stand reads back, so arbitrary extra data is dropped.
+     * A block entity or entity still carrying more than {@link SchematicSafety#MAX_SCHEMATIC_NBT_BYTES} is refused.
+     */
+    public static void schematicDataIsBounded(GameTestHelper helper) {
+        run(helper, SchematicSafetyTests::schematicDataIsBoundedBody);
+    }
+
+    private static void schematicDataIsBoundedBody(GameTestHelper helper) throws InvalidSnapshotException {
+        String deep = nested(5000);
+        require(helper, !SchematicSafety.isBoundedComponent(deep) && SchematicSafety.isBoundedComponent("{\"text\":\"hi\"}"),
+                "deeply nested text must count as unbounded and plain text as bounded");
+        CompoundTag sign = scanned(helper, Blocks.OAK_SIGN.defaultBlockState());
+        sign.getCompound("data").getCompound("tileNbt").putString("Text1", deep);
+        CompoundTag cleanSign = SchematicBlockManager.readFromNBT(sign).getPreviewTileNbt();
+        require(helper, cleanSign != null && cleanSign.getString("Text1").length() < 64, "deeply nested sign text must be emptied, got "
+                + (cleanSign == null ? null : cleanSign.getString("Text1").length() + " characters"));
+
+        CompoundTag stand = entity("minecraft:armor_stand", 0.5, 0, 0.5);
+        CompoundTag standNbt = stand.getCompound("data").getCompound("entityNbt");
+        standNbt.putString("CustomName", deep);
+        standNbt.putByteArray("padding", new byte[4096]);
+        CompoundTag read = SchematicEntityManager.readFromNBT(stand.copy()).serializeNBT().getCompound("entityNbt");
+        require(helper, read.getString("CustomName").length() < 64, "a deeply nested entity name must be emptied, got "
+                + read.getString("CustomName").length() + " characters");
+        CompoundTag rebuilt = readInLevel(helper, stand.copy()).serializeNBT().getCompound("entityNbt");
+        require(helper, "minecraft:armor_stand".equals(rebuilt.getString("id")) && !rebuilt.contains("padding")
+                && rebuilt.contains("ShowArms") && rebuilt.getString("CustomName").length() < 64,
+                "an armour stand read in a level must keep only what an armour stand saves, got " + rebuilt.getAllKeys());
+
+        CompoundTag huge = entity("minecraft:armor_stand", 0.5, 0, 0.5);
+        huge.getCompound("data").getCompound("entityNbt").putByteArray("padding", new byte[SchematicSafety.MAX_SCHEMATIC_NBT_BYTES + 1]);
+        require(helper, refusedEntity(huge.copy()), "an entity carrying more than the limit must be refused");
+        require(helper, !readInLevel(helper, huge).serializeNBT().getCompound("entityNbt").contains("padding"),
+                "read in a level, the oversized padding is dropped with the rest of what an armour stand does not read");
+
+        helper.setBlock(AT, Blocks.CHEST);
+        ItemStack padded = new ItemStack(Items.STONE);
+        padded.getOrCreateTag().putByteArray("padding", new byte[SchematicSafety.MAX_SCHEMATIC_NBT_BYTES + 1]);
+        ((ChestBlockEntity) helper.getBlockEntity(AT)).setItem(0, padded);
+        BlockPos absolute = helper.absolutePos(AT);
+        CompoundTag chest = SchematicBlockManager.writeToNBT(SchematicBlockManager.getSchematicBlock(new SchematicBlockContext(helper.getLevel(), absolute, absolute)));
+        require(helper, refused(chest), "a block entity carrying more than the limit must be refused");
+        helper.setBlock(AT, Blocks.AIR);
         helper.succeed();
     }
 

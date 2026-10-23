@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ import ports.buildcraft.builders.snapshot.SchematicBlockManager;
  * Upstream {@code ItemSchematicSingle}: a blank one used on a block records that block's schematic, and a
  * recorded one builds it again from the items in the player's inventory. Used while sneaking, it is wiped.
  * Upstream's metadata 0 and 1 are two items, {@code schematic_single_clean} and {@code schematic_single_used}.
- * Upstream commented out its recipe, so it is creative-only.
+ * Upstream commented out its recipe; this port gives it one ({@code recipes/schematic_single.json}).
  */
 public class SchematicSingleItem extends Item {
     public static final String NBT_KEY = "schematic";
@@ -83,7 +84,7 @@ public class SchematicSingleItem extends Item {
             return InteractionResult.SUCCESS;
         }
         return item.used ? place(player, level, hand, stack, hit.getBlockPos(), hit.getDirection())
-                : record(player, level, hand, stack, hit.getBlockPos());
+                : record(player, level, hand, stack, hit.getBlockPos(), hit.getDirection());
     }
 
     private static ItemStack clear(ItemStack stack) {
@@ -97,8 +98,16 @@ public class SchematicSingleItem extends Item {
         return clean;
     }
 
-    /** Upstream recorded the whole held stack into one unstackable item; here one blank of the stack is recorded. */
-    private static InteractionResult record(Player player, Level level, InteractionHand hand, ItemStack stack, BlockPos pos) {
+    /**
+     * Upstream recorded the whole held stack into one unstackable item; here one blank of the stack is recorded.
+     * Not upstream: recording reads the block entity (a container's contents), so the player must be allowed to
+     * use the block there, as for placing, and to open it if it is a locked container.
+     */
+    private static InteractionResult record(Player player, Level level, InteractionHand hand, ItemStack stack, BlockPos pos, Direction side) {
+        if (!level.mayInteract(player, pos) || !player.mayUseItemAt(pos, side, stack)
+                || level.getBlockEntity(pos) instanceof BaseContainerBlockEntity container && !container.canOpen(player)) {
+            return InteractionResult.FAIL;
+        }
         SchematicBlock schematic = SchematicBlockManager.getSchematicBlock(new SchematicBlockContext(level, pos, pos));
         if (schematic.isAir()) return InteractionResult.FAIL;
         ItemStack recorded = getUsed(schematic);

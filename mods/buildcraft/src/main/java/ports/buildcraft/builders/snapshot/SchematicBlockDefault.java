@@ -316,7 +316,8 @@ public class SchematicBlockDefault implements SchematicBlock {
      * Only the recorded state and block entity data are taken from saved data; everything else, including the
      * block that is placed and what it costs, is derived from them by the rules, exactly as a scan does. A
      * saved placed block that differs from the derived one is refused rather than corrected, as is a block
-     * the builder may not place or a scan would not record. Blocks that no longer exist load as air.
+     * the builder may not place or a scan would not record, or block entity data over
+     * {@link SchematicSafety#MAX_SCHEMATIC_NBT_BYTES}. Blocks that no longer exist load as air.
      */
     @Override
     public SchematicBlock canonicalize() throws InvalidSnapshotException {
@@ -333,6 +334,7 @@ public class SchematicBlockDefault implements SchematicBlock {
             throw new InvalidSnapshotException("The rules place " + Registry.BLOCK.getKey(schematicBlock.placeBlock) + " for " + blockState
                     + ", not " + Registry.BLOCK.getKey(placeBlock));
         }
+        SchematicSafety.requireBounded(schematicBlock.tileNbt, "block entity data of " + blockState);
         return schematicBlock;
     }
 

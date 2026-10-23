@@ -1,5 +1,6 @@
 package ports.buildcraft.builders;
 
+import com.mojang.authlib.GameProfile;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
@@ -7,6 +8,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
@@ -26,6 +29,7 @@ import ports.buildcraft.builders.filler.FillerParameter;
 import ports.buildcraft.builders.filler.FillerPatterns;
 import ports.buildcraft.builders.filler.Pattern;
 import ports.buildcraft.builders.filler.PatternStatement;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.builders.snapshot.BuildingInfo;
 import ports.buildcraft.builders.snapshot.TemplateBuilder;
@@ -60,6 +64,8 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
     private final MjBattery battery = new MjBattery(16_000 * Power.MJ);
     private final EnergyPort energyPort = battery.receiver(false, this::setChanged);
     private boolean canExcavate = true;
+    /** The player who placed the machine, if known; see {@link #owner()}. */
+    @Nullable private GameProfile owner;
     private boolean inverted;
     private boolean finished;
     private byte lockedTicks;
@@ -281,6 +287,18 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
 
     // TemplateBuilder.Host
 
+    /** Upstream {@code TileBC_Neptune.getOwner}: the player who placed the machine, or the machine profile. */
+    @Override
+    public GameProfile owner() {
+        return owner == null ? BlockProtection.NULL_PROFILE : owner;
+    }
+
+    /** Set when a player places the machine (upstream {@code onPlacedBy}); the machine profile counts as no owner. */
+    public void setOwner(@Nullable GameProfile profile) {
+        owner = profile == null || profile.getId() == null || profile.getId().equals(BlockProtection.NULL_PROFILE.getId()) ? null : profile;
+        setChanged();
+    }
+
     @Override
     public Level hostLevel() {
         return level;
@@ -443,6 +461,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("battery", battery.save());
+        if (owner != null) tag.put("owner", NbtUtils.writeGameProfile(new CompoundTag(), owner));
         tag.putBoolean("canExcavate", canExcavate);
         tag.putBoolean("inverted", inverted);
         tag.putBoolean("finished", finished);
@@ -458,6 +477,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
     @Override
     protected void loadServer(CompoundTag tag) {
         battery.load(tag.getCompound("battery"));
+        owner = tag.contains("owner", Tag.TAG_COMPOUND) ? NbtUtils.readGameProfile(tag.getCompound("owner")) : null;
         canExcavate = !tag.contains("canExcavate") || tag.getBoolean("canExcavate");
         inverted = tag.getBoolean("inverted");
         finished = tag.getBoolean("finished");

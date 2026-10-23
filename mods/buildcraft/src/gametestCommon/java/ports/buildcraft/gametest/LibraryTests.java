@@ -46,6 +46,7 @@ import ports.buildcraft.builders.ReplacerBlockEntity;
 import ports.buildcraft.builders.ReplacerMenu;
 import ports.buildcraft.builders.SchematicSingleItem;
 import ports.buildcraft.builders.SnapshotItem;
+import ports.buildcraft.builders.UploadQuota;
 import ports.buildcraft.builders.SnapshotTooltip;
 import ports.buildcraft.builders.snapshot.Blueprint;
 import ports.buildcraft.builders.snapshot.EnumSnapshotType;
@@ -115,6 +116,14 @@ public final class LibraryTests {
         part.writeBoolean(true);
         part.writeByteArray(bytes.toByteArray());
         ElectronicLibraryBlockEntity.receiveUp(player, part);
+    }
+
+    /** Selects {@code key} in the open library and has it ask for an upload, as its tick does after 50 ticks. */
+    private static void ask(GameTestHelper helper, ServerPlayer player, ElectronicLibraryBlockEntity library, Snapshot.Key key) {
+        FriendlyByteBuf select = buffer();
+        ElectronicLibraryBlockEntity.writeSelect(select, helper.absolutePos(LIBRARY), key);
+        ElectronicLibraryBlockEntity.receiveSelect(player, select);
+        library.askForUpload();
     }
 
     /** As upstream, a local library keeps one file per snapshot contents, so an earlier run's copy would shadow this one's header. */
@@ -198,6 +207,7 @@ public final class LibraryTests {
 
         SnapshotStorage server = SnapshotStorage.get(SnapshotStorage.Side.SERVER);
         Snapshot.Key stored = new Snapshot.Key(uploaded, (Snapshot.Header) null);
+        library.askForUpload();
         int parts = upload(helper, player, uploaded, 16);
         require(helper, parts > 1, "a snapshot larger than a part must be uploaded in several parts, got " + parts);
         require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty() && server.getSnapshot(stored) == null,
@@ -214,11 +224,15 @@ public final class LibraryTests {
         for (BlockPos size : List.of(new BlockPos(512, 256, 256), new BlockPos(65536, 65536, 1), new BlockPos(-4, 4, 4))) {
             CompoundTag resized = uploadedTag.copy();
             resized.put("size", NbtUtils.writeBlockPos(size));
+            library.askForUpload();
             uploadWhole(helper, player, uploaded, resized);
             require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(),
                     "an upload spanning " + size.toShortString() + " must be refused");
         }
 
+        upload(helper, player, uploaded, 16);
+        require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "an upload the library has not asked for must be ignored");
+        library.askForUpload();
         upload(helper, player, uploaded, 16);
         ItemStack out = library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT);
         Snapshot.Header outHeader = SnapshotItem.getHeader(out);
@@ -269,6 +283,7 @@ public final class LibraryTests {
         commandData.putString("placeBlock", "minecraft:command_block");
         for (CompoundTag forged : List.of(bedrock, commandBlock)) {
             library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+            ask(helper, player, library, stone.key);
             uploadWhole(helper, player, stone.key, forged);
             require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty()
                     && !library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_IN).isEmpty(), "a forged upload must be refused: " + forged);
@@ -279,6 +294,7 @@ public final class LibraryTests {
         CompoundTag looted = Snapshot.writeToNBT(chest);
         looted.getList("palette", Tag.TAG_COMPOUND).getCompound(0).getCompound("data").getCompound("tileNbt")
                 .putString("LootTable", "minecraft:chests/end_city_treasure");
+        ask(helper, player, library, chest.key);
         uploadWhole(helper, player, chest.key, looted);
         Snapshot.Header header = SnapshotItem.getHeader(library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT));
         Snapshot stored = header == null ? null : server.getSnapshot(header.key);
@@ -292,10 +308,58 @@ public final class LibraryTests {
         library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
         helper.setBlock(at, Blocks.STONE);
         Blueprint honest = oneBlockBlueprint(helper, at, "Honest stone " + UUID.randomUUID());
+        ask(helper, player, library, honest.key);
         uploadWhole(helper, player, honest.key, Snapshot.writeToNBT(honest));
         Snapshot.Header honestHeader = SnapshotItem.getHeader(library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT));
         require(helper, honest.key.header.equals(honestHeader) && server.getSnapshot(honestHeader.key) instanceof Blueprint,
                 "an honest upload must keep the client's header, got " + honestHeader);
+        player.containerMenu = player.inventoryMenu;
+        helper.succeed();
+    }
+
+    /**
+     * Not upstream. Survival players can craft the library, so the server only takes upload parts it asked for:
+     * an upload before the library asks, of another snapshot than the one asked for, or after the asked-for one
+     * has been read, is ignored. Each player may have {@link UploadQuota#MAX_READS} uploads read in a window,
+     * over every library; past that, even an asked-for upload is refused and {@code upIn} keeps its item.
+     */
+    public static void libraryTakesOnlyAskedForUploadsWithinQuota(GameTestHelper helper) {
+        helper.setBlock(LIBRARY, BCBuilders.ELECTRONIC_LIBRARY.get().defaultBlockState());
+        ElectronicLibraryBlockEntity library = tile(helper, LIBRARY, ElectronicLibraryBlockEntity.class);
+        ServerPlayer player = player(helper, LIBRARY, "uploader");
+        player.containerMenu = new ElectronicLibraryMenu(0, player.getInventory(), library);
+        BlockPos at = new BlockPos(7, 2, 7);
+        helper.setBlock(at, Blocks.STONE);
+        Blueprint honest = oneBlockBlueprint(helper, at, "Quota " + UUID.randomUUID());
+        CompoundTag honestTag = Snapshot.writeToNBT(honest);
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+
+        uploadWhole(helper, player, honest.key, honestTag);
+        require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "an upload the library has not asked for must be ignored");
+        Blueprint other = oneBlockBlueprint(helper, at, "Other " + UUID.randomUUID());
+        ask(helper, player, library, other.key);
+        uploadWhole(helper, player, honest.key, honestTag);
+        require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "an upload of a snapshot not asked for must be ignored");
+
+        for (int i = 0; i < UploadQuota.MAX_READS; i++) {
+            library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT, ItemStack.EMPTY);
+            library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+            ask(helper, player, library, honest.key);
+            uploadWhole(helper, player, honest.key, honestTag);
+            require(helper, !library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "asked-for upload " + (i + 1) + " must be stored");
+            if (i == 0) {
+                library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT, ItemStack.EMPTY);
+                library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+                uploadWhole(helper, player, honest.key, honestTag);
+                require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "a second upload for one request must be ignored");
+            }
+        }
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT, ItemStack.EMPTY);
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+        ask(helper, player, library, honest.key);
+        uploadWhole(helper, player, honest.key, honestTag);
+        require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty() && !library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_IN).isEmpty(),
+                "an upload past the player's quota must be refused");
         player.containerMenu = player.inventoryMenu;
         helper.succeed();
     }
@@ -511,6 +575,18 @@ public final class LibraryTests {
         require(helper, clicked.consumesAction() && chest != null && chest.getPreviewState().is(Blocks.CHEST),
                 "the loader's block click hook records the chest, got " + clicked);
         require(helper, clicker.containerMenu == clicker.inventoryMenu, "recording a chest must not open it");
+
+        BlockPos lockedPos = new BlockPos(6, 2, 4);
+        helper.setBlock(lockedPos, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.NORTH));
+        net.minecraft.world.level.block.entity.BlockEntity lockedChest = helper.getBlockEntity(lockedPos);
+        CompoundTag lockedNbt = lockedChest.saveWithoutMetadata();
+        lockedNbt.putString("Lock", "secret");
+        lockedChest.load(lockedNbt);
+        ((net.minecraft.world.level.block.entity.ChestBlockEntity) lockedChest).setItem(0, new ItemStack(Items.DIAMOND));
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(BCBuilders.SCHEMATIC_SINGLE_CLEAN.get()));
+        require(helper, SchematicSingleItem.useFirst(player, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, lockedPos, Direction.UP)) == InteractionResult.FAIL
+                && player.getMainHandItem().is(BCBuilders.SCHEMATIC_SINGLE_CLEAN.get()) && !player.getInventory().contains(new ItemStack(BCBuilders.SCHEMATIC_SINGLE_USED.get())),
+                "a locked chest the player cannot open must not be recorded");
 
         Snapshot snapshot = SnapshotStorage.get(SnapshotStorage.Side.SERVER).getSnapshot(header.key);
         FriendlyByteBuf encoded = buffer();

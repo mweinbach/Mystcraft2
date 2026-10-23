@@ -202,9 +202,26 @@ public class SchematicEntityDefault implements SchematicEntity {
     }
 
     /**
+     * What a scan records for an entity made from {@code nbt}: a new entity of its type reads the data and is
+     * saved again, so only what that entity reads survives.
+     */
+    private static CompoundTag rebuilt(CompoundTag nbt, Level level) throws InvalidSnapshotException {
+        try {
+            Optional<Entity> entity = EntityType.create(nbt, level);
+            CompoundTag rebuilt = entity.map(SchematicEntityDefault::entityNbt).orElse(null);
+            if (rebuilt == null) throw new InvalidSnapshotException("The entity " + nbt.get("id") + " cannot be made from its data");
+            return rebuilt;
+        } catch (RuntimeException | StackOverflowError e) {
+            throw new InvalidSnapshotException("The entity " + nbt.get("id") + " cannot be made from its data: " + e);
+        }
+    }
+
+    /**
      * Not upstream: the entity must be of a saveable type from a recorded namespace that a capturing rule
      * accepts (so what it costs comes from that rule), at a finite position, and its data loses whatever
-     * {@link SchematicSafety#sanitizeEntityNbt} removes.
+     * {@link SchematicSafety#sanitizeEntityNbt} removes. Read {@linkplain SchematicSafety#readInLevel in a level}, as
+     * uploads are, the data is {@linkplain #rebuilt rebuilt} through a new entity; either way it must be within
+     * {@link SchematicSafety#MAX_SCHEMATIC_NBT_BYTES}.
      */
     @Override
     public SchematicEntity canonicalize() throws InvalidSnapshotException {
@@ -221,9 +238,12 @@ public class SchematicEntityDefault implements SchematicEntity {
         }
         CompoundTag nbt = SchematicSafety.sanitizeEntityNbt(entityNbt);
         nbt.putString("id", id.toString());
+        Level level = SchematicSafety.readLevel();
+        if (level != null) nbt = rebuilt(nbt, level);
         if (RulesLoader.getRules(id, nbt).stream().noneMatch(rule -> rule.capture)) {
             throw new InvalidSnapshotException("No rule captures the entity " + id);
         }
+        SchematicSafety.requireBounded(nbt, "data of the entity " + id);
         SchematicEntityDefault schematicEntity = SchematicEntityManager.createCleanCopy(this);
         schematicEntity.entityNbt = nbt;
         schematicEntity.pos = pos;

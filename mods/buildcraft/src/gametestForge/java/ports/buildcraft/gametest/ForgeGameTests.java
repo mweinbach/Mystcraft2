@@ -129,6 +129,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
     public static void fillerKeepsToItsPowerAndCountsQueuedWork(GameTestHelper helper) { FillerTests.fillerKeepsToItsPowerAndCountsQueuedWork(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void fillerRespectsRefusedBreaks(GameTestHelper helper) { FillerTests.fillerRespectsRefusedBreaks(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void architectScansTemplate(GameTestHelper helper) { ArchitectTests.architectScansTemplate(helper); }
 
@@ -181,6 +184,9 @@ public final class ForgeGameTests {
     public static void libraryRefusesForgedUploads(GameTestHelper helper) { LibraryTests.libraryRefusesForgedUploads(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void libraryTakesOnlyAskedForUploadsWithinQuota(GameTestHelper helper) { LibraryTests.libraryTakesOnlyAskedForUploadsWithinQuota(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void forgedBlocksAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedBlocksAreRefused(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
@@ -188,6 +194,9 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void forgedEntitiesAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedEntitiesAreRefused(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void schematicDataIsBounded(GameTestHelper helper) { SchematicSafetyTests.schematicDataIsBounded(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }

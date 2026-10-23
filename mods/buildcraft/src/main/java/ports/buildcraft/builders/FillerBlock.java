@@ -45,7 +45,10 @@ public class FillerBlock extends BaseEntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof FillerBlockEntity filler) filler.onPlaced();
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof FillerBlockEntity filler) {
+            if (placer instanceof Player player) filler.setOwner(player.getGameProfile());
+            filler.onPlaced();
+        }
     }
 
     @Override
