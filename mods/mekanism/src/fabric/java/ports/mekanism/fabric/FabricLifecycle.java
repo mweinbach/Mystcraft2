@@ -116,6 +116,7 @@ public final class FabricLifecycle {
         registerAutomaticSubscribers();
         postToMods(new NewRegistryEvent(builder -> Platform.backend().createRegistry(builder)));
         registerContent();
+        FabricFluidPhysics.registerAll(MODS.stream().map(OwnMod::modId).collect(Collectors.toSet()));
         FabricTransfer.registerBlockEntityLookups(MODS.stream().map(OwnMod::modId).collect(Collectors.toSet()));
         postToMods(new EntityAttributeCreationEvent());
         if (Platform.dist() == Dist.CLIENT) {

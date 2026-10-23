@@ -52,7 +52,8 @@
     "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17",
-    "team_reborn_energy": "*"
+    "team_reborn_energy": "*",
+    "fluidphysics": ">=0.1.0"
   },
   "mixins": [
     "mekanism.mixins.json"
