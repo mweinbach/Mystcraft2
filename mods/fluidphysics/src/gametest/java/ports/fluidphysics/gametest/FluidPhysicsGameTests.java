@@ -112,6 +112,77 @@ public final class FluidPhysicsGameTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void vanillaWaterStillFloatsBoats(final GameTestHelper helper) {
+
+        floodPool(helper, Blocks.WATER, 1, 2, 1, 5, 1, 5);
+
+        final Boat onWater = helper.spawn(EntityType.BOAT, new BlockPos(3, 4, 3));
+
+        helper.startSequence()
+                .thenIdle(30)
+                .thenExecute(() -> check(onWater.getY() > helper.absolutePos(new BlockPos(0, 2, 0)).getY() + 0.25D,
+                        "a boat did not float on vanilla water: " + onWater.getY()))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void vanillaWaterStillDrownsAndSwims(final GameTestHelper helper) {
+
+        floodPool(helper, Blocks.WATER, 1, 4, 1, 5, 1, 5);
+
+        // Cows do not have the undead/water-mob canBreatheUnderwater exceptions, so vanilla water drowns them.
+        final LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 1, 3));
+
+        cow.setAirSupply(100);
+        cow.setSprinting(true);
+        cow.setSwimming(false);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> check(cow.isSwimming(), "a sprinting entity in vanilla water is not swimming"))
+                .thenIdle(18)
+                .thenExecute(() -> check(cow.getAirSupply() < 100,
+                        "an entity in vanilla water kept its air: " + cow.getAirSupply()))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void vanillaWaterStillPushesEntities(final GameTestHelper helper) {
+
+        flowingChannel(helper, Blocks.WATER);
+
+        final LivingEntity[] zombie = new LivingEntity[1];
+        final double[] startX = new double[1];
+
+        helper.startSequence()
+                .thenIdle(40)
+                .thenExecute(() -> {
+
+                    check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(5, 1, 2))).isEmpty(),
+                            "vanilla water did not flow down the channel");
+
+                    zombie[0] = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(5, 1, 2));
+                    startX[0] = zombie[0].getX();
+                })
+                .thenIdle(20)
+                .thenExecute(() -> check(zombie[0].getX() > startX[0] + 0.05D,
+                        "vanilla water did not push the entity: " + startX[0] + " -> " + zombie[0].getX()))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void vanillaWaterStillPathsAsWater(final GameTestHelper helper) {
+
+        helper.setBlock(new BlockPos(2, 1, 2), Blocks.WATER);
+
+        final BlockPathTypes water = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(2, 1, 2)));
+
+        check(BlockPathTypes.WATER == water, "vanilla water has path type " + water);
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
     public void fluidPathTypesMatchTheirProperties(final GameTestHelper helper) {
 
         helper.setBlock(new BlockPos(2, 1, 2), FluidPhysicsTestFluids.SWIMMABLE_BLOCK);

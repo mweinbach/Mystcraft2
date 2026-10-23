@@ -11,6 +11,14 @@ def mekanismVersion = mekanismMetadata.getProperty('mod_version')
 def fluidPhysicsMetadata = new Properties()
 file('../../fluidphysics/port.properties').withInputStream { fluidPhysicsMetadata.load(it) }
 def fluidPhysicsVersion = fluidPhysicsMetadata.getProperty('mod_version')
+// Loom reads the included library's JAR while this build configures. A clean checkout has not produced it yet.
+def fluidPhysicsJar = file("../../fluidphysics/build/libs/fluidphysics-fabric-1.19.2-${fluidPhysicsVersion}.jar")
+if (!fluidPhysicsJar.isFile()) {
+    exec {
+        workingDir file('../../..')
+        commandLine file('../../../gradlew').absolutePath, '--no-daemon', '-p', 'mods/fluidphysics', 'remapJar'
+    }
+}
 group = metadata.mod_group
 base.archivesName = 'extremereactors-fabric-1.19.2'
 

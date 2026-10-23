@@ -209,13 +209,16 @@ public final class FluidPhysicsSupport {
 
     public static boolean isWaterForBoating(final FluidState state, final TagKey<Fluid> tag) {
 
+        final boolean vanilla = state.is(tag);
+
         if (!tag.equals(FluidTags.WATER)) {
-            return state.is(tag);
+            return vanilla;
         }
 
+        // Vanilla water is not registered, so a registered-fluid-only answer would break ordinary boats.
         final FluidProperties properties = FluidPhysics.propertiesOf(state);
 
-        return null != properties && properties.supportsBoating();
+        return vanilla || (null != properties && properties.supportsBoating());
     }
 
     private static void scan(final Level level, final AABB box, final FluidConsumer consumer) {
