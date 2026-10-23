@@ -1,0 +1,26 @@
+{
+  "comment": "Hand-written, see docs/emc.md. Vanilla summons that turn items into other items. emc.py check prices each one with every port's values, and again with all ports' values merged, in both ProjectE and Item Alchemy; no output may be worth more than its inputs. An input with no EMC in a system cannot be bought there, so that case is skipped.",
+  "processes": [
+    {
+      "name": "summon_wither",
+      "why": "Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star.",
+      "in": [
+        {"minecraft:wither_skeleton_skull": 3, "minecraft:soul_sand": 4},
+        {"minecraft:wither_skeleton_skull": 3, "minecraft:soul_soil": 4}
+      ],
+      "out": {"minecraft:nether_star": 1}
+    },
+    {
+      "name": "summon_iron_golem",
+      "why": "Four iron blocks and a carved pumpkin build an iron golem, which drops at most five iron ingots and two poppies.",
+      "in": {"minecraft:iron_block": 4, "minecraft:carved_pumpkin": 1},
+      "out": {"minecraft:iron_ingot": 5, "minecraft:poppy": 2}
+    },
+    {
+      "name": "summon_snow_golem",
+      "why": "Two snow blocks and a carved pumpkin build a snow golem, which drops at most fifteen snowballs.",
+      "in": {"minecraft:snow_block": 2, "minecraft:carved_pumpkin": 1},
+      "out": {"minecraft:snowball": 15}
+    }
+  ]
+}

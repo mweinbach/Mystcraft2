@@ -24,7 +24,7 @@ These vanilla items have no value in one EMC mod's defaults. The port ships one 
 
 | Item | ProjectE | Item Alchemy | Why |
 | --- | ---: | ---: | --- |
-| `minecraft:wither_skeleton_skull` | 46421 | 16 (default) | ProjectE 1.1.0 values other mob heads but not this one, so the nuclear tier could not resolve. Three skulls (with four soul sand) summon a Wither that drops one nether star, so a skull is worth a third of a nether star; anything cheaper would let transmuted skulls farm nether stars. Item Alchemy already has a value (16 in Tekxit's config), which is left alone. |
+| `minecraft:wither_skeleton_skull` | 46422 | 46422 (pack override) | ProjectE 1.1.0 values other mob heads but not this one, so the nuclear tier could not resolve. Three skulls (with four soul sand) summon a Wither that drops one nether star, so a skull is worth a third of a nether star, rounded up so three skulls never cost less than the star. Item Alchemy gets the same value from the pack override in scripts/emc/itemalchemy-overrides.json, which replaces Tekxit's 16; pack-processes.json checks the summon in both systems. |
 
 ## Excluded (no EMC)
 
@@ -41,7 +41,7 @@ These recipes load only alongside another mod, or accept more items there becaus
 | Recipe | Output | Changes | ProjectE | Item Alchemy |
 | --- | --- | --- | ---: | ---: |
 | `icbm_port:advanced_circuit` | `icbm_port:advanced_circuit` | wider tags with mekanism | 702 | 702 |
-| `icbm_port:antimatter_explosive_mekanism` | `icbm_port:antimatter_explosive` | loads with mekanism | 124249 | 94424 |
+| `icbm_port:antimatter_explosive_mekanism` | `icbm_port:antimatter_explosive` | loads with mekanism | 124249 | 98879 |
 | `icbm_port:battery` | `icbm_port:battery` | wider tags with mekanism | 992 | 988 |
 | `icbm_port:cluster_missile` | `icbm_port:cluster_missile` | wider tags with mekanism | 1960 | 1911 |
 | `icbm_port:cruise_launcher` | `icbm_port:cruise_launcher` | wider tags with mekanism | 3371 | 3290 |
@@ -60,22 +60,32 @@ These recipes load only alongside another mod, or accept more items there becaus
 | `icbm_port:launcher_connector` | `icbm_port:launcher_connector` | wider tags with mekanism | 640 | 626 |
 | `icbm_port:launcher_screen` | `icbm_port:launcher_screen` | wider tags with mekanism | 443 | 434 |
 | `icbm_port:missile_module` | `icbm_port:missile_module` | wider tags with mekanism | 1703 | 1654 |
-| `icbm_port:nuclear_explosive_mekanism` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 87168 |
-| `icbm_port:nuclear_explosive_uranium` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 87168 |
+| `icbm_port:nuclear_explosive_mekanism` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 91623 |
+| `icbm_port:nuclear_explosive_uranium` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 91623 |
 | `icbm_port:radar_gun` | `icbm_port:radar_gun` | wider tags with mekanism | 409 | 401 |
 | `icbm_port:radar_station` | `icbm_port:radar_station` | wider tags with mekanism | 4417 | 4385 |
 | `icbm_port:radio_detonator` | `icbm_port:radio_detonator` | wider tags with mekanism | 2344 | 2284 |
-| `icbm_port:redmatter_explosive_mekanism` | `icbm_port:redmatter_explosive` | loads with mekanism | 146881 | 101680 |
+| `icbm_port:redmatter_explosive_mekanism` | `icbm_port:redmatter_explosive` | loads with mekanism | 146881 | 106135 |
 | `icbm_port:rocket_launcher` | `icbm_port:rocket_launcher` | wider tags with mekanism | 1389 | 1354 |
 | `icbm_port:sam_missile` | `icbm_port:sam_missile` | wider tags with mekanism | 3533 | 3484 |
 | `icbm_port:steel_plate` | `icbm_port:steel_plate` | wider tags with mekanism | 261 | 252 |
 
-## Processes checked for EMC gain
+## Item Alchemy pack overrides
 
-ProjectE cannot see these machine or world processes, so `emc.py check` verifies that no output is worth more than its input.
+Allowlisted in `scripts/emc/itemalchemy-overrides.json`: pack values that would loop EMC. `merge-itemalchemy` writes them into an existing config, and this port ships them in `default_emcs/pack_overrides_28177.json`, a name Item Alchemy reads after its own defaults.
+
+| Item | Pack value | Shipped | Why |
+| --- | ---: | ---: | --- |
+| `minecraft:wither_skeleton_skull` | 16 | 46422 | Three skulls on four soul sand or soul soil summon a Wither, which drops a nether star (139,264). At Tekxit's 16 (a fresh Item Alchemy config has 10,246) three transmuted skulls buy a nether star for 48 EMC plus the sand. A third of the star, rounded up, makes three skulls alone cost at least the star, and matches the ProjectE value ICBM fills in. ICBM's nuclear recipe and Mekanism's nucleosynthesizer use the skull. |
+
+## Vanilla processes checked for EMC gain
+
+From `scripts/emc/pack-processes.json`, checked with this port's values and again with every port's values merged.
 
 | Process | Checks | Why |
 | --- | ---: | --- |
-| summon_wither (ProjectE only) | 2 | Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star. Not checked for Item Alchemy: Tekxit's own config values the skull at 16, which makes this a loop in the pack whatever ICBM ships. |
+| summon_wither | 4 | Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star. |
+| summon_iron_golem | 2 | Four iron blocks and a carved pumpkin build an iron golem, which drops at most five iron ingots and two poppies. |
+| summon_snow_golem | 2 | Two snow blocks and a carved pumpkin build a snow golem, which drops at most fifteen snowballs. |
 
 Recipe types ProjectE does not map, so items made only by them need a conversion, value or exclusion: `icbm_port:carrier_loading`, `icbm_port:carrier_unloading`, `icbm_port:cluster_loading`, `icbm_port:held_item_loading`, `icbm_port:held_item_unloading`.

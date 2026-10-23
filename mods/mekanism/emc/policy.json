@@ -62,7 +62,7 @@
     "",
     "One substrate and ethene make eight substrate. That reaction is not a conversion, or substrate would be worth a fraction of itself. Substrate is priced at two bio fuel, which crushing plants produces.",
     "",
-    "Polonium and plutonium pellets are priced at the fluorite dust their reactions consume. The fission reactor's fuel cycle is not an EMC conversion yet. One antimatter pellet is a thousand polonium pellets, which is how many millibuckets of polonium the SPS spends.",
+    "Polonium and plutonium pellets are priced at the fluorite dust their reactions consume; the fission reactor's fuel cycle is not an EMC conversion yet, and no recipe turns a polonium pellet back into gas for the SPS. Antimatter pellets have no EMC. Oxidizing a pellet returns its 1,000 mB of antimatter, and the antiprotonic nucleosynthesizer turns a few millibuckets of it and a cheap item into a dear one (coal into a diamond, an egg into a dragon egg, a skeleton skull into a wither skeleton skull), so any pellet value would let transmuted pellets loop EMC through it. The nucleosynthesizer itself, the supermassive QIO drive and the elytra, teleportation and gravitational modulating units are crafted from antimatter pellets and are excluded too.",
     "",
     "Lithium dust, salt and salt blocks are evaporated from water and are excluded. Induction cells and providers are priced without that dust. ProjectE 1.1.0 does not value an elytra; the HDPE elytra uses Item Alchemy's elytra value (16463) on Forge so the craft resolves there too.",
     "",
@@ -153,7 +153,18 @@
     "mekanism:salt": "A thermal evaporation plant makes brine from water, and crystallizing that brine makes salt. Water has no EMC, so salt does not either.",
     "mekanism:block_salt": "Nine salt pack into a block, and salt is evaporated from water, which has no EMC.",
     "mekanism:dust_lithium": "Lithium dust is crystallized from lithium, which a thermal evaporation plant makes from brine, which is water. Water has no EMC, so the dust does not either.",
-    "mekanismadditions:*_spawn_egg": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC."
+    "mekanismadditions:*_spawn_egg": "ProjectE gives spawn eggs no EMC. A valued egg would let killing a baby mob, or the egg itself, cycle into EMC.",
+    "mekanism:pellet_antimatter": "Oxidizing a pellet returns 1,000 mB of antimatter, and the nucleosynthesizer turns a few millibuckets of it and a cheap item into a dear one: coal into a diamond, an egg into a dragon egg (10,000,000 in Tekxit's Item Alchemy), a skeleton skull into a wither skeleton skull. At the old 256,000 (a thousand polonium pellets) thirteen of its twenty recipes gained EMC, and no pellet value closes every recipe, so pellets have no EMC and the nucleosynthesizer cannot be fed from EMC.",
+    "crafted from antimatter pellets": {
+      "items": [
+        "mekanism:antiprotonic_nucleosynthesizer",
+        "mekanism:qio_drive_supermassive",
+        "mekanism:module_elytra_unit",
+        "mekanism:module_gravitational_modulating_unit",
+        "mekanism:module_teleportation_unit"
+      ],
+      "why": "Their recipes need antimatter pellets, which have no EMC (see mekanism:pellet_antimatter). A value would have to be guessed without the pellet."
+    }
   },
   "conversions": [
     {
@@ -310,14 +321,6 @@
       "output": "mekanism:crystal_{metal}",
       "ingredients": {
         "mekanism:shard_{metal}": 1
-      }
-    },
-    {
-      "name": "pellet_antimatter_from_polonium",
-      "why": "Crystallizing 1,000 mB of antimatter yields one pellet. The SPS makes each millibucket from 1,000 mB of polonium, and the polonium pellet reaction is the item recipe that consumes 1,000 mB of polonium, so one antimatter pellet costs a thousand polonium pellets. This port has no fission-reactor block, so the fuel that produces the gas is not an extra item cost.",
-      "output": "mekanism:pellet_antimatter",
-      "ingredients": {
-        "mekanism:pellet_polonium": 1000
       }
     },
     {
@@ -5841,6 +5844,27 @@
       "out": {
         "mekanismgenerators:fusion_fuel_bucket": 2
       }
+    }
+  ],
+  "recipe_processes": [
+    {
+      "name": "nucleosynthesizing",
+      "why": "The antiprotonic nucleosynthesizer spends antimatter gas, which a crystallized pellet holds 1,000 mB of and oxidizing returns. Every recipe must cost at least its output, so a priced pellet cannot loop EMC through cheap items and dear outputs; with pellets excluded each recipe is closed.",
+      "type": "mekanism:nucleosynthesizing",
+      "items": [
+        "itemInput"
+      ],
+      "chemicals": {
+        "gasInput": {
+          "mekanism:antimatter": {
+            "item": "mekanism:pellet_antimatter",
+            "per": 1000
+          }
+        }
+      },
+      "outputs": [
+        "output"
+      ]
     }
   ],
   "vanilla": {

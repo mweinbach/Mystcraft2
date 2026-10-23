@@ -30,17 +30,17 @@
     },
     "icbm_port:antimatter_bomb_cart": {
       "projecte": 125529,
-      "itemalchemy": 95684,
+      "itemalchemy": 100139,
       "source": "recipe"
     },
     "icbm_port:antimatter_explosive": {
       "projecte": 124249,
-      "itemalchemy": 94424,
+      "itemalchemy": 98879,
       "source": "recipe"
     },
     "icbm_port:antimatter_missile": {
       "projecte": 125952,
-      "itemalchemy": 96078,
+      "itemalchemy": 100533,
       "source": "recipe"
     },
     "icbm_port:anvil_bomb_cart": {
@@ -485,17 +485,17 @@
     },
     "icbm_port:nuclear_bomb_cart": {
       "projecte": 102897,
-      "itemalchemy": 88428,
+      "itemalchemy": 92883,
       "source": "recipe"
     },
     "icbm_port:nuclear_explosive": {
       "projecte": 101617,
-      "itemalchemy": 87168,
+      "itemalchemy": 91623,
       "source": "recipe"
     },
     "icbm_port:nuclear_missile": {
       "projecte": 103320,
-      "itemalchemy": 88822,
+      "itemalchemy": 93277,
       "source": "recipe"
     },
     "icbm_port:poison_powder": {
@@ -535,17 +535,17 @@
     },
     "icbm_port:redmatter_bomb_cart": {
       "projecte": 148161,
-      "itemalchemy": 102940,
+      "itemalchemy": 107395,
       "source": "recipe"
     },
     "icbm_port:redmatter_explosive": {
       "projecte": 146881,
-      "itemalchemy": 101680,
+      "itemalchemy": 106135,
       "source": "recipe"
     },
     "icbm_port:redmatter_missile": {
       "projecte": 148584,
-      "itemalchemy": 103334,
+      "itemalchemy": 107789,
       "source": "recipe"
     },
     "icbm_port:reinforced_concrete": {
@@ -716,7 +716,10 @@
   },
   "vanilla": {
     "minecraft:wither_skeleton_skull": {
-      "projecte": 46421
+      "projecte": 46422
     }
+  },
+  "itemalchemy_overrides": {
+    "minecraft:wither_skeleton_skull": 46422
   }
 }

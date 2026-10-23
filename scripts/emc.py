@@ -14,6 +14,7 @@ import argparse
 import fnmatch
 import itertools
 import json
+import math
 import re
 import sys
 import zipfile
@@ -457,8 +458,141 @@ def explicit_value(spec, system, baseline, key):
         anchor = baseline.get(spec["like"])
         if anchor is None:
             raise PolicyError(f"{key}: {spec['like']} has no {system} baseline value")
-        return Fraction(int(anchor * Fraction(str(spec.get("times", 1)))))
+        scaled = anchor * Fraction(str(spec.get("times", 1)))
+        # "round": "up" keeps a share of an anchor from undercutting it: three skulls at ceil(star / 3) never cost
+        # less than the nether star they summon. The default floors, as ProjectE does.
+        return Fraction(math.ceil(scaled) if spec.get("round") == "up" else math.floor(scaled))
     raise PolicyError(f"{key}: give emc, like, or per-system values")
+
+
+def _check_round(spec, key):
+    if "round" in spec and (spec["round"] not in ("up", "down") or "like" not in spec):
+        raise PolicyError(f"{key}: round must be \"up\" or \"down\" and goes with like")
+
+
+# ----------------------------------------------------------------------------- pack-wide data
+
+# The only vanilla values emc.py may change in a pack's existing Item Alchemy table, each with the value it replaces
+# and a reason. Everything else in the baseline is left alone.
+OVERRIDES = BASELINES / "itemalchemy-overrides.json"
+# Vanilla summons and world steps every port is checked against, in both systems, with the pack's merged values.
+PACK_PROCESSES = BASELINES / "pack-processes.json"
+# Item Alchemy 1.1.3 collects every data/*/default_emcs/*.json into a java.util.HashMap keyed by mcpitanlib's
+# CompatIdentifier (hash 31 * namespace.hashCode() + path.hashCode()) and lets the last file read win. Its own
+# itemalchemy:default_emcs/minecraft.json holds the fresh vanilla values, so an override file must be read after it.
+# HashMap iterates buckets in order, so a name whose spread hash ends in OVERRIDE_HASH_BITS one bits lands in the last
+# bucket of every table up to 2**OVERRIDE_HASH_BITS entries, and Item Alchemy's files (low bits 0000 and 0010) do not.
+OVERRIDE_HASH_BITS = 16
+
+
+def java_hash(text):
+    """java.lang.String#hashCode as an unsigned 32-bit int."""
+    value = 0
+    data = text.encode("utf-16-be")
+    for index in range(0, len(data), 2):
+        value = (31 * value + (data[index] << 8 | data[index + 1])) & 0xFFFFFFFF
+    return value
+
+
+def hashmap_spread(namespace, path):
+    """java.util.HashMap's spread of a CompatIdentifier (or Identifier) hash: h ^ (h >>> 16)."""
+    value = (31 * java_hash(namespace) + java_hash(path)) & 0xFFFFFFFF
+    return value ^ (value >> 16)
+
+
+def override_file_name(namespace):
+    """The default_emcs file name under which ``namespace`` ships pack overrides, read after Item Alchemy's own."""
+    mask = (1 << OVERRIDE_HASH_BITS) - 1
+    for number in itertools.count():
+        name = f"pack_overrides_{number}"
+        if hashmap_spread(namespace, f"default_emcs/{name}.json") & mask == mask:
+            return name
+
+
+def validate_overrides(document):
+    if not isinstance(document, dict) or set(document) - {"comment", "overrides"}:
+        raise PolicyError("itemalchemy-overrides.json: an object with comment and overrides")
+    overrides = document.get("overrides", {})
+    if not isinstance(overrides, dict):
+        raise PolicyError("itemalchemy-overrides.json: overrides must map items to entries")
+    for item, entry in overrides.items():
+        key = f"override {item}"
+        if not item.startswith("minecraft:") or not ITEM_ID.match(item):
+            raise PolicyError(f"{key}: only vanilla items in the pack baseline can be overridden")
+        if (not isinstance(entry, dict) or set(entry) - {"replaces", "emc", "like", "times", "round", "ports", "why"}
+                or not entry.get("why") or ("emc" in entry) == ("like" in entry)):
+            raise PolicyError(f"{key}: needs replaces, why, ports and emc or like (with optional times and round)")
+        if isinstance(entry.get("replaces"), bool) or not isinstance(entry.get("replaces"), int):
+            raise PolicyError(f"{key}: replaces must be the pack value being corrected")
+        ports = entry.get("ports")
+        if not isinstance(ports, list) or not ports or not all(isinstance(p, str) and p for p in ports):
+            raise PolicyError(f"{key}: ports must list the port directories that ship the override")
+        if entry.get("like") in overrides:
+            raise PolicyError(f"{key}: the anchor {entry['like']} is itself overridden")
+        _check_round(entry, key)
+    return overrides
+
+
+def load_overrides():
+    return validate_overrides(read_json(OVERRIDES)) if OVERRIDES.is_file() else {}
+
+
+def override_values(raw, overrides=None):
+    """``({item: value}, problems)`` for the Item Alchemy overrides, with anchors read from ``raw``.
+
+    An override whose ``replaces`` no longer matches the pack value is stale: the pack changed, so it is reported
+    and not applied.
+    """
+    overrides = load_overrides() if overrides is None else overrides
+    values, problems = {}, []
+    for item, entry in overrides.items():
+        current = raw.get(item)
+        if current is None or Fraction(current) != entry["replaces"]:
+            problems.append(f"override {item}: the Item Alchemy baseline has {current}, not the {entry['replaces']} "
+                            f"it replaces; check the pack and update or remove the override")
+            continue
+        values[item] = explicit_value(entry, "itemalchemy", raw, f"override {item}")
+    return values, problems
+
+
+def raw_baseline(system):
+    """A system's vanilla values as Fractions, exactly as refresh-baselines recorded them."""
+    return {k: Fraction(v) for k, v in read_json(BASELINES / f"{system}-vanilla.json").items()}
+
+
+def applied_overrides():
+    """``({item: value}, problems)`` for the overrides against the recorded Item Alchemy baseline."""
+    return override_values(raw_baseline("itemalchemy"))
+
+
+def read_baseline(system):
+    """A system's vanilla values as Fractions, with the Item Alchemy overrides applied."""
+    values = raw_baseline(system)
+    if system == "itemalchemy":
+        values.update(applied_overrides()[0])
+    return values
+
+
+def validate_processes(processes, where):
+    if not isinstance(processes, list):
+        raise PolicyError(f"{where}: processes must be a list")
+    for process in processes:
+        if (not isinstance(process, dict) or set(process) - {"name", "why", "in", "out", "systems"}
+                or not all(process.get(k) for k in ("name", "why", "in", "out"))):
+            raise PolicyError(f"{where}: process {process.get('name') if isinstance(process, dict) else process!r}: "
+                              f"needs name, why, in and out, and optional systems")
+        if set(process.get("systems", SYSTEMS)) - set(SYSTEMS) or not process.get("systems", SYSTEMS):
+            raise PolicyError(f"{where}: process {process['name']!r}: systems must list some of {', '.join(SYSTEMS)}")
+
+
+def load_pack_processes():
+    if not PACK_PROCESSES.is_file():
+        return []
+    document = read_json(PACK_PROCESSES)
+    if not isinstance(document, dict) or set(document) - {"comment", "processes"}:
+        raise PolicyError("pack-processes.json: an object with comment and processes")
+    validate_processes(document.get("processes", []), "pack-processes.json")
+    return document.get("processes", [])
 
 
 NAMESPACE_ID = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
@@ -495,8 +629,8 @@ def policy_namespaces(policy):
 
 def validate_policy(policy):
     allowed = {"namespace", "namespaces", "loaders", "resources", "output", "outputs", "ignored", "values",
-               "vanilla", "exclude", "conversions", "processes", "remainders", "conditions", "notes",
-               "projecte_mappers", "optional_mods"}
+               "vanilla", "exclude", "conversions", "processes", "recipe_processes", "remainders", "conditions",
+               "notes", "projecte_mappers", "optional_mods"}
     unknown = set(policy) - allowed
     if unknown:
         raise PolicyError(f"unknown policy keys: {', '.join(sorted(unknown))}")
@@ -508,9 +642,10 @@ def validate_policy(policy):
     for key, spec in policy.get("values", {}).items():
         if not isinstance(spec, dict) or not spec.get("why"):
             raise PolicyError(f"values.{key} needs a why")
-        extra = set(spec) - {"emc", "like", "times", "why", "items", *SYSTEMS}
+        extra = set(spec) - {"emc", "like", "times", "round", "why", "items", *SYSTEMS}
         if extra:
             raise PolicyError(f"values.{key}: unknown keys {', '.join(sorted(extra))}")
+        _check_round(spec, f"values.{key}")
         items = spec.get("items")
         if items is not None and (not isinstance(items, list) or not items
                                   or not all(isinstance(i, str) and i for i in items)):
@@ -518,8 +653,10 @@ def validate_policy(policy):
     for key, spec in policy.get("vanilla", {}).items():
         if not key.startswith("minecraft:") or not ITEM_ID.match(key):
             raise PolicyError(f"vanilla.{key}: only minecraft: items can be given a value here")
-        if not isinstance(spec, dict) or not spec.get("why") or set(spec) - {"emc", "like", "times", "why", "systems"}:
-            raise PolicyError(f"vanilla.{key}: needs why, systems and emc or like (with optional times) only")
+        if (not isinstance(spec, dict) or not spec.get("why")
+                or set(spec) - {"emc", "like", "times", "round", "why", "systems"}):
+            raise PolicyError(f"vanilla.{key}: needs why, systems and emc or like (with optional times and round) only")
+        _check_round(spec, f"vanilla.{key}")
         systems = spec.get("systems")
         if not isinstance(systems, list) or not systems or set(systems) - set(SYSTEMS):
             raise PolicyError(f"vanilla.{key}: systems must list some of {', '.join(SYSTEMS)}")
@@ -573,11 +710,24 @@ def validate_policy(policy):
             raise PolicyError(f"conversion {name}: count must be at least one and ingredients a non-empty object")
         if any(not isinstance(a, int) or isinstance(a, bool) or a == 0 for a in ingredients.values()):
             raise PolicyError(f"conversion {name}: ingredient amounts must be nonzero integers")
-    for process in policy.get("processes", []):
-        if set(process) - {"name", "why", "in", "out", "systems"} or not all(process.get(k) for k in ("name", "why", "in", "out")):
-            raise PolicyError(f"process {process.get('name')!r}: needs name, why, in and out, and optional systems")
-        if set(process.get("systems", SYSTEMS)) - set(SYSTEMS) or not process.get("systems", SYSTEMS):
-            raise PolicyError(f"process {process['name']!r}: systems must list some of {', '.join(SYSTEMS)}")
+    validate_processes(policy.get("processes", []), "policy")
+    names = set()
+    for entry in policy.get("recipe_processes", []):
+        name = entry.get("name") if isinstance(entry, dict) else None
+        if (not isinstance(name, str) or not re.fullmatch(r"[a-z0-9_]+", name) or name in names
+                or set(entry) - {"name", "why", "type", "items", "chemicals", "outputs"}
+                or not entry.get("why") or not ITEM_ID.match(str(entry.get("type", "")))
+                or not isinstance(entry.get("items", []), list) or not isinstance(entry.get("outputs"), list)
+                or not entry["outputs"] or not isinstance(entry.get("chemicals", {}), dict)):
+            raise PolicyError(f"recipe_processes {name!r}: needs a unique snake_case name, why, a recipe type, "
+                              f"outputs and optional items and chemicals")
+        names.add(name)
+        for field, chemicals in entry.get("chemicals", {}).items():
+            for chemical, price in (chemicals.items() if isinstance(chemicals, dict) else [(None, None)]):
+                if (not isinstance(price, dict) or set(price) != {"item", "per"} or not ITEM_ID.match(str(price["item"]))
+                        or isinstance(price["per"], bool) or not isinstance(price["per"], int) or price["per"] < 1):
+                    raise PolicyError(f"recipe_processes {name}: chemicals.{field}.{chemical} needs the item it is "
+                                      f"stored as and how many units (per) one item holds")
 
 
 # ----------------------------------------------------------------------------- the model
@@ -721,7 +871,7 @@ class Port:
         self.projecte_blacklisted, self.projecte_tag_reasons = {}, {}
         for system in SYSTEMS:
             tags, remainders, recipes, skipped = self.system_inputs(system)
-            baseline = {k: Fraction(v) for k, v in read_json(BASELINES / f"{system}-vanilla.json").items()}
+            baseline = read_baseline(system)
             tag_defaults = read_json(BASELINES / f"{system}-tag-values.json")
             fixed, source = dict(baseline), {}
             for tag, value in tag_defaults.items():
@@ -804,12 +954,19 @@ class Port:
             self.results[system] = values
             self.sources[system] = source
             self._check_system(system)
-            self._check_recipe_gains(system)
+            self.problems += self._check_recipe_gains(system)
             if system == "projecte":
                 self._check_overwritten(shadowed)
         self._check_processes()
         self._check_projecte_mappers()
         self._check_unmanaged_projecte_files()
+        self.overrides = self._shipped_overrides()
+
+    def _shipped_overrides(self):
+        """``{item: value}`` for the Item Alchemy overrides whose ``ports`` list this port, which it ships."""
+        applied, _stale = applied_overrides()
+        return {item: int(applied[item]) for item, entry in load_overrides().items()
+                if self.dir.name in entry["ports"] and item in applied}
 
     def _projecte_blacklist(self, tags, universe):
         """Port items ProjectE's ore blacklist mappers zero, with the reason, in registry order."""
@@ -915,21 +1072,22 @@ class Port:
                     self.problems.append(f"{file.relative_to(self.dir)} is a ProjectE custom conversion file the "
                                          f"policy does not generate; move its values into emc/policy.json")
 
-    def _check_recipe_gains(self, system):
+    def _check_recipe_gains(self, system, values=None):
         """No recipe, conditional or not, may make a port item worth more EMC than its ingredients.
 
         Recipes are read again in every set ``recipe_alternatives`` returns, including those gated on mods the
         policy does not declare, and priced with the shipped values (other ports' items at their own values).
         An alternative that needs an item with no known EMC fails too: its output would have to be excluded,
         or the item priced, because the mod could make that item outside EMC and craft it into a valued one.
-        Item Alchemy outputs priced by its own tag defaults are skipped, as in ``_check_system``.
+        Item Alchemy outputs priced by its own tag defaults are skipped, as in ``_check_system``. ``values`` replaces
+        the port's own table; the pack check passes every port's values merged. Returns the problems.
         """
         label = "ProjectE" if system == "projecte" else "Item Alchemy"
         loader = self.policy["loaders"][system]
         remainders = self.inputs[system][1]
-        values = self.results[system]
+        values = self.results[system] if values is None else values
         source = self.sources[system]
-        reported = set()
+        reported, problems = set(), []
         for set_label, recipes, tags, priced in self.alternatives[system]:
             for rid, recipe in sorted(recipes.items()):
                 for _rid, output, count, ingredients in conversions_from({rid: recipe}, tags, remainders):
@@ -950,15 +1108,16 @@ class Port:
                         if set_label != "standalone" and (rid, output) not in reported:
                             reported.add((rid, output))
                             fix = "price it in that mod's port" if priced else "declare the mod in optional_mods"
-                            self.problems.append(f"{label}: recipe {rid}{where} needs {unknown}, which has no EMC "
-                                                 f"here; {fix} or exclude {output}")
+                            problems.append(f"{label}: recipe {rid}{where} needs {unknown}, which has no EMC "
+                                            f"here; {fix} or exclude {output}")
                         continue
                     value = values.get(output)
                     if value is not None and value * count > cost and (rid, output) not in reported:
                         reported.add((rid, output))
                         fix = "" if priced else "; declare the mod in optional_mods so the value takes this recipe"
-                        self.problems.append(f"{label}: recipe {rid}{where} makes {count} {output} worth "
-                                             f"{float(value * count):g} from {float(cost):g} EMC of ingredients{fix}")
+                        problems.append(f"{label}: recipe {rid}{where} makes {count} {output} worth "
+                                        f"{float(value * count):g} from {float(cost):g} EMC of ingredients{fix}")
+        return problems
 
     def _check_system(self, system):
         problems = self.problems
@@ -1048,22 +1207,34 @@ class Port:
         return PLACEHOLDER.sub(lambda m: binding[m.group(1)], pattern)
 
     def _check_processes(self):
-        self.process_counts = {}
-        universe = set(self.items) | set(self.results["projecte"]) | set(self.results["itemalchemy"])
-        for process in self.policy.get("processes", []):
+        values = {system: self.results[system] for system in SYSTEMS}
+        problems, self.process_counts = self.run_processes(self.policy.get("processes", []), values)
+        pack_problems, self.pack_process_counts = self.run_processes(load_pack_processes(), values)
+        recipe_problems, self.recipe_process_stats = self.run_recipe_processes(values)
+        self.problems += problems + pack_problems + recipe_problems
+
+    def run_processes(self, processes, values_by_system):
+        """``(problems, {name: checks})`` for processes, priced with ``{system: {item: value}}``.
+
+        A case whose inputs include an item with no value in a system is not checked there: that input cannot be
+        bought with EMC, so the process cannot loop EMC.
+        """
+        problems, counts = [], {}
+        universe = set(self.items).union(*(set(v) for v in values_by_system.values()))
+        for process in processes:
             outputs = [p for out in self._outputs(process) for p in out]
             cases = [(inputs, binding) for inputs in self._alternatives(process["in"])
                      for binding in self._bindings(list(inputs) + outputs, list(inputs), universe)]
             if not cases:
-                self.problems.append(f"process {process['name']!r} matches no items")
+                problems.append(f"process {process['name']!r} matches no items")
             checked = 0
             for inputs, binding in cases:
                 for system in process.get("systems", SYSTEMS):
-                    values = self.results[system]
+                    values = values_by_system[system]
                     cost = Fraction(0)
                     for pattern, amount in inputs.items():
                         item = self._fill(pattern, binding)
-                        if item not in values:
+                        if not values.get(item):
                             cost = None
                             break
                         cost += amount * values[item]
@@ -1078,9 +1249,70 @@ class Port:
                     checked += 1
                     if best > cost:
                         names = ", ".join(self._fill(p, binding) for p in best_out)
-                        self.problems.append(f"{system}: process {process['name']!r} turns {float(cost):g} EMC of "
-                                             f"input into {float(best):g} EMC ({names})")
-            self.process_counts[process["name"]] = checked
+                        problems.append(f"{system}: process {process['name']!r} turns {float(cost):g} EMC of "
+                                        f"input into {float(best):g} EMC ({names})")
+            counts[process["name"]] = checked
+        return problems, counts
+
+    def run_recipe_processes(self, values_by_system):
+        """Check every loaded recipe of each ``recipe_processes`` type for EMC gain, in both systems.
+
+        Item inputs (``{"ingredient": ..., "amount": n}``) cost their cheapest member; a chemical input
+        (``{"gas": id, "amount": n}``) costs the item it is stored as, divided by ``per``. A recipe whose input has no
+        EMC is closed: nothing can buy that input, so it cannot loop. Returns ``(problems, {name: stats})``.
+        """
+        problems, stats = [], {}
+        for entry in self.policy.get("recipe_processes", []):
+            found = {"recipes": 0, "checked": 0, "closed": {}}
+            for system in SYSTEMS:
+                tags, values = self.inputs[system][0], values_by_system[system]
+                for rid, recipe in self._loaded_recipes(system):
+                    if recipe.get("type") != entry["type"]:
+                        continue
+                    if system == SYSTEMS[0]:
+                        found["recipes"] += 1
+                    cost, closed = Fraction(0), None
+                    for field in entry.get("items", []):
+                        spec = recipe.get(field)
+                        if not isinstance(spec, dict):
+                            problems.append(f"recipe_processes {entry['name']}: {rid} has no single item input {field}")
+                            closed = field
+                            break
+                        items = ingredient_items(spec.get("ingredient", spec), tags) or frozenset()
+                        priced = [values[i] for i in items if values.get(i)]
+                        if not priced:
+                            closed = ", ".join(sorted(items)) or field
+                            break
+                        cost += spec.get("amount", 1) * min(priced)
+                    for field, chemicals in entry.get("chemicals", {}).items():
+                        if closed:
+                            break
+                        spec = recipe.get(field) or {}
+                        chemical = next((spec[k] for k in ("gas", "infuse_type", "pigment", "slurry", "chemical")
+                                         if k in spec), None)
+                        if chemical not in chemicals:
+                            problems.append(f"recipe_processes {entry['name']}: {rid} uses {field} {chemical}, which "
+                                            f"has no item price")
+                            closed = str(chemical)
+                            break
+                        price = chemicals[chemical]
+                        if not values.get(price["item"]):
+                            closed = price["item"]
+                            break
+                        cost += Fraction(spec.get("amount", 1), price["per"]) * values[price["item"]]
+                    if closed:
+                        found["closed"].setdefault(closed, set()).add(system)
+                        continue
+                    found["checked"] += 1
+                    gain = Fraction(0)
+                    for field in entry["outputs"]:
+                        output = recipe.get(field) or {}
+                        gain += output.get("count", 1) * values.get(output.get("item"), 0)
+                    if gain > cost:
+                        problems.append(f"{system}: {entry['type']} recipe {rid} turns {float(cost):g} EMC of input "
+                                        f"into {float(gain):g} EMC")
+            stats[entry["name"]] = found
+        return problems, stats
 
     def _loaded_recipes(self, system):
         loader = self.policy["loaders"][system]
@@ -1239,6 +1471,8 @@ class Port:
                    for item in self.policy.get("vanilla", {})}
         if vanilla:
             document["vanilla"] = vanilla
+        if self.overrides:
+            document["itemalchemy_overrides"] = self.overrides
         return document
 
     def source_of(self, item):
@@ -1343,7 +1577,8 @@ class Port:
                         cells.append(str(self.vanilla[system][item]))
                     else:
                         default = self.inputs[system][3].get(item)
-                        cells.append(f"{int(default)} (default)" if default is not None else "none")
+                        kind = "pack override" if system == "itemalchemy" and item in load_overrides() else "default"
+                        cells.append(f"{int(default)} ({kind})" if default is not None else "none")
                 lines.append(f"| `{item}` | {cells[0]} | {cells[1]} | {spec['why']} |")
         if self.policy.get("exclude"):
             lines += ["", "## Excluded (no EMC)", "", "| Item | Why |", "| --- | --- |"]
@@ -1384,6 +1619,7 @@ class Port:
                 if set(process.get("systems", SYSTEMS)) != set(SYSTEMS):
                     name += " (" + ", ".join(labels[s] for s in process["systems"]) + " only)"
                 lines.append(f"| {name} | {self.process_counts.get(process['name'], 0)} | {process['why']} |")
+        lines += self._loops_readme()
         if self.mapper_stats is not None:
             stats = self.mapper_stats
             lines += ["", "## ProjectE recipe mappers", "", self.policy["projecte_mappers"]["why"], "",
@@ -1401,6 +1637,38 @@ class Port:
                       "exclusion: "
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
+
+    def _loops_readme(self):
+        """README rows for shipped overrides, the pack's vanilla processes and recipe-driven machine processes."""
+        lines = []
+        overrides = load_overrides()
+        if self.overrides:
+            lines += ["", "## Item Alchemy pack overrides", "",
+                      "Allowlisted in `scripts/emc/itemalchemy-overrides.json`: pack values that would loop EMC. "
+                      "`merge-itemalchemy` writes them into an existing config, and this port ships them in "
+                      f"`default_emcs/{override_file_name(self.namespace)}.json`, a name Item Alchemy reads after "
+                      "its own defaults.", "", "| Item | Pack value | Shipped | Why |", "| --- | ---: | ---: | --- |"]
+            for item, value in self.overrides.items():
+                lines.append(f"| `{item}` | {overrides[item]['replaces']} | {value} | {overrides[item]['why']} |")
+        pack = load_pack_processes()
+        if pack:
+            lines += ["", "## Vanilla processes checked for EMC gain", "",
+                      "From `scripts/emc/pack-processes.json`, checked with this port's values and again with every "
+                      "port's values merged.", "", "| Process | Checks | Why |", "| --- | ---: | --- |"]
+            for process in pack:
+                lines.append(f"| {process['name']} | {self.pack_process_counts.get(process['name'], 0)} | "
+                             f"{process['why']} |")
+        if self.policy.get("recipe_processes"):
+            lines += ["", "## Machine recipes checked for EMC gain", "",
+                      "Every loaded recipe of these types is priced in both systems. A recipe needing an input with no "
+                      "EMC is closed: nothing can buy that input, so it cannot loop.", "",
+                      "| Recipes | Loaded | Priced | Closed by | Why |", "| --- | ---: | ---: | --- | --- |"]
+            for entry in self.policy["recipe_processes"]:
+                stats = self.recipe_process_stats.get(entry["name"], {})
+                closed = ", ".join(f"`{item}`" for item in sorted(stats.get("closed", {}))) or "none"
+                lines.append(f"| `{entry['type']}` | {stats.get('recipes', 0)} | {stats.get('checked', 0)} | "
+                             f"{closed} | {entry['why']} |")
+        return lines
 
     def _optional_readme(self):
         """README rows for the optional mods and the recipe alternatives they enable."""
@@ -1482,9 +1750,25 @@ class Port:
             data = self.output_root(namespace) / "data" / namespace
             written[data / "pe_custom_conversions" / f"{namespace}.json"] = dumps(self.projecte_document(namespace))
             written[data / "default_emcs" / f"{namespace}.json"] = dumps(self.itemalchemy_document(namespace))
+        if self.overrides:
+            name = override_file_name(self.namespace)
+            data = self.output_root(self.namespace) / "data" / self.namespace
+            written[data / "default_emcs" / f"{name}.json"] = dumps(self.overrides)
         if self.policy.get("projecte_mappers"):
             written[self.dir / self.policy["projecte_mappers"]["guard"]] = dumps(self.mapper_guard_document())
+        self._check_unmanaged_itemalchemy_files(written)
         return written
+
+    def _check_unmanaged_itemalchemy_files(self, written):
+        """Every Item Alchemy default_emcs file the port ships must be generated, so nothing else sets values."""
+        managed = {path.resolve() for path in written}
+        roots = {self.dir / relative for relative in self.policy["resources"]["itemalchemy"]}
+        roots |= {self.output_root(namespace) for namespace in self.namespaces}
+        for root in sorted(roots):
+            for file in sorted((root / "data").glob("*/default_emcs/**/*.json")):
+                if file.resolve() not in managed:
+                    self.problems.append(f"{file.relative_to(self.dir)} is an Item Alchemy default_emcs file the "
+                                         f"policy does not generate; remove it or move its values into the policy")
 
 
 def entry_label(key, entry, matched):
@@ -1607,25 +1891,108 @@ def build(directory):
 
 
 def command_generate(args):
-    failed = False
+    failed, ports = False, []
     for directory in discover(args.ports):
         port, outputs = build(directory)
         for path, text in outputs.items():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
         failed |= report(port)
+        ports.append(port)
+    failed |= report_pack(*check_pack(ports))
     return 1 if failed else 0
 
 
 def command_check(args):
-    failed = False
+    failed, ports = False, []
     for directory in discover(args.ports):
         port, outputs = build(directory)
         for path, text in outputs.items():
             if not path.is_file() or path.read_text(encoding="utf-8") != text:
                 port.problems.append(f"{path.relative_to(ROOT)} is stale; run python3 scripts/emc.py generate {port.dir.name}")
         failed |= report(port)
+        ports.append(port)
+    failed |= report_pack(*check_pack(ports))
     return 1 if failed else 0
+
+
+def merged_values(ports, problems):
+    """``{system: {item: value}}``: the baseline with overrides, every port's vanilla fills and every port's items.
+
+    This is the table a pack with all these ports installed would have. Two ports filling the same vanilla item
+    differently is a problem.
+    """
+    merged = {}
+    for system in SYSTEMS:
+        values, fills = read_baseline(system), {}
+        for port in ports:
+            for item, value in port.vanilla[system].items():
+                if item in fills and fills[item][1] != value:
+                    problems.append(f"{system}: {fills[item][0]} and {port.dir.name} fill {item} with "
+                                    f"{fills[item][1]} and {value}")
+                fills[item] = (port.dir.name, value)
+                values[item] = Fraction(value)
+        for port in ports:
+            for item in port.items:
+                value = port.results[system].get(item)
+                if item not in port.excluded_by and value:
+                    values[item] = value
+        merged[system] = values
+    return merged
+
+
+def check_pack(ports):
+    """Checks across every built port: the overrides, and every loop with all the ports' values merged.
+
+    Returns ``(problems, notes)``. The vanilla processes in pack-processes.json, each port's own processes and
+    machine recipe processes, and each port's recipe gain check run again with the merged table, so a value one
+    port ships (ICBM's ProjectE wither skeleton skull) cannot open a loop through another port's machine.
+    """
+    problems, notes = [], []
+    if not ports:
+        return problems, notes
+    overrides = load_overrides()
+    applied, stale = applied_overrides()
+    problems += stale
+    known = {directory.name for directory in discover([])}
+    for item, entry in overrides.items():
+        problems += [f"override {item}: ports names {name}, which has no emc/policy.json"
+                     for name in entry["ports"] if name not in known]
+        if item in applied:
+            notes.append(f"override {item}: Item Alchemy {entry['replaces']} -> {int(applied[item])}, shipped by "
+                         f"{', '.join(entry['ports'])} ({entry['why']})")
+    for port in ports:
+        for item, spec in port.policy.get("vanilla", {}).items():
+            entry = overrides.get(item)
+            if (entry and spec.get("like") and spec.get("like") == entry.get("like")
+                    and (Fraction(str(spec.get("times", 1))), spec.get("round", "down"))
+                    != (Fraction(str(entry.get("times", 1))), entry.get("round", "down"))):
+                problems.append(f"{port.dir.name}: vanilla.{item} scales {spec['like']} differently from its Item "
+                                f"Alchemy override; use the same times and round so both systems agree")
+    merged = merged_values(ports, problems)
+    pack_processes = load_pack_processes()
+    found, counts = ports[0].run_processes(pack_processes, merged)
+    problems += found
+    for name, checks in counts.items():
+        notes.append(f"vanilla process {name}: {checks} checks with every port's values")
+    for port in ports:
+        found = port.run_processes(port.policy.get("processes", []), merged)[0]
+        found += port.run_recipe_processes(merged)[0]
+        for system in SYSTEMS:
+            found += port._check_recipe_gains(system, merged[system])
+        problems += [f"{port.dir.name}: {problem} (with every port's values)" for problem in found
+                     if problem not in port.problems]
+    return problems, notes
+
+
+def report_pack(problems, notes):
+    for note in notes:
+        print(f"pack: {note}")
+    for problem in problems:
+        print(f"pack: {problem}", file=sys.stderr)
+    print(f"pack: {len(load_overrides())} Item Alchemy overrides, {len(load_pack_processes())} vanilla processes: "
+          f"{'FAILED' if problems else 'ok'}")
+    return bool(problems)
 
 
 def report(port):
@@ -1637,11 +2004,50 @@ def report(port):
     return bool(port.problems)
 
 
+def merge_overrides(config):
+    """Apply the allowlisted overrides to an Item Alchemy config; return ``(changed, problems)``.
+
+    Port values were generated against the recorded baseline with the overrides applied, so the config must agree
+    with it: an override's anchor must hold the baseline value (a cheaper nether star would make the generated skull
+    recipes gain), and the overridden item must hold the value the override replaces, its new value, or none. Any
+    disagreement is a problem, and the caller writes nothing.
+    """
+    changed, problems = {}, []
+    raw = raw_baseline("itemalchemy")
+    applied, stale = applied_overrides()
+    problems += stale
+    for item, entry in load_overrides().items():
+        anchor = entry.get("like")
+        if anchor in config and Fraction(config[anchor]) != raw.get(anchor):
+            problems.append(f"override {item}: the config values {anchor} at {config[anchor]}, not the baseline's "
+                            f"{raw.get(anchor)}; port values were generated against the baseline, so refresh the "
+                            f"baselines from this config and regenerate first")
+            continue
+        if item not in applied:
+            continue
+        value, current = int(applied[item]), config.get(item)
+        if current is not None and current not in (value, entry["replaces"]):
+            problems.append(f"override {item}: the config has {current}, not the {entry['replaces']} the override "
+                            f"replaces; port values were generated with {value}")
+        elif current != value:
+            changed[item] = (current, value, entry["why"])
+    return changed, problems
+
+
 def command_merge(args):
     """Write every port's Item Alchemy values into an existing emc_config.json (Tekxit ships one)."""
     config_path = Path(args.config)
     config = read_json(config_path)
-    changed = 0
+    overrides, problems = merge_overrides(config)
+    if problems:
+        for problem in problems:
+            print(problem, file=sys.stderr)
+        print(f"{config_path}: not changed", file=sys.stderr)
+        return 1
+    for item, (current, value, why) in overrides.items():
+        config[item] = value
+        print(f"override {item}: {current} -> {value} ({why})")
+    changed = len(overrides)
     for directory in discover(args.ports):
         values = read_json(directory / "emc" / "values.json")
         for item, entry in values["items"].items():

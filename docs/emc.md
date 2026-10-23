@@ -10,7 +10,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
-| Mekanism | Forge, Fabric | 779 | 15 | 21 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
+| Mekanism | Forge, Fabric | 779 | 15 | 27 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
 | Mystcraft | Forge, Fabric | 24 | 1 | 8 | [`mods/mystcraft/emc`](../mods/mystcraft/emc/README.md) |
 
 Each port's `emc/README.md` is generated. It lists every explicit value and exclusion with its reason, the
@@ -40,6 +40,8 @@ Each port therefore ships two files in its shared `src/main/resources`, which bo
   means no EMC. It lists every item. Item Alchemy's own recipe generator is greedy: it takes the first
   recipe and first stack it finds, floors each ingredient, and counts unknown ingredients as 0. Its results
   would differ from ProjectE's minimum-cost values, so the table leaves nothing for the generator to guess.
+- `data/<ns>/default_emcs/pack_overrides_<n>.json`, only in ports an override lists (see below), holds the pack
+  overrides for a fresh Item Alchemy install.
 
 ### Item Alchemy in an existing pack
 
@@ -55,9 +57,48 @@ none. Then restart the server or run `/itemalchemy reloademc`. `/itemalchemy res
 but it discards every customisation in the pack's config.
 
 Tekxit's Item Alchemy config has some quirks of its own: a glass bottle is 48 but a water bottle is 1, coal is
-3904, a pumpkin is 9 against a melon's 144, and a wither skeleton skull is 16, so three transmuted skulls can
-summon a Wither for a nether star worth 139,264. The tool uses Tekxit's values as the vanilla baseline and does not
-change them, so our values stay consistent with the pack. The checks below are run against them.
+3904, and a pumpkin is 9 against a melon's 144. The tool uses Tekxit's values as the vanilla baseline and leaves
+them alone, so our values stay consistent with the pack. The checks below are run against them. The one exception
+is a short allowlist of pack values that open an EMC loop.
+
+### Pack overrides
+
+[`scripts/emc/itemalchemy-overrides.json`](../scripts/emc/itemalchemy-overrides.json) is the only place a pack's
+existing Item Alchemy value may be changed. Every other baseline or config value is still never overridden: a
+`vanilla` fill for an item the pack already values fails the check, and `merge-itemalchemy` adds fills only where
+the config has none. Each entry has:
+
+- `replaces`: the pack value being corrected, as recorded in `scripts/emc/itemalchemy-vanilla.json`.
+- `emc`, or `like` with optional `times` and `round` (`up` or `down`), as in a policy value.
+- `ports`: the port directories that ship it.
+- `why`: the loop it closes.
+
+How an override is applied:
+
+- **Analysis.** `emc.py` applies it to the Item Alchemy baseline before pricing any port, so every port's values and
+  checks see the corrected value. `emc.py check` and `generate` print each applied override as a `pack:` line.
+- **Stale entries.** If the recorded baseline no longer holds `replaces` (the pack changed), the check fails and the
+  override is not applied.
+- **Existing configs.** `merge-itemalchemy` writes it into the config where the config holds `replaces` or has no
+  value. Port values were generated against the recorded baseline with the overrides applied, so the config must
+  agree with that baseline. If the overridden item holds some other value, or a `like` anchor differs from the
+  baseline (a cheaper nether star would make ICBM's skull recipes gain), the command writes nothing and exits 1.
+  Refresh the baselines from that config and regenerate first.
+- **Fresh installs.** Each port in `ports` ships the values in `default_emcs/pack_overrides_<n>.json`. Item Alchemy
+  1.1.3 collects every `default_emcs` file into a `java.util.HashMap` and the last file read wins, and its own
+  `itemalchemy:default_emcs/minecraft.json` holds the fresh-config values (a skull of 10,246). `emc.py` picks `<n>`
+  so the file's identifier hashes into the last bucket of any table up to 65,536 files, which Item Alchemy's own
+  files never do, so the override is read last. `EmcAudit` checks the live value on the Fabric GameTest.
+- **Agreement with ProjectE.** A port's `vanilla` fill for the same item must scale the same anchor with the same
+  `times` and `round`, so both systems agree.
+
+**The wither skeleton skull** is the only entry. Three skulls on four soul sand or soul soil summon a Wither,
+which drops a nether star. Tekxit values the skull at 16 and the star at 139,264, so three transmuted skulls
+bought a star for 48 EMC plus the sand. The override sets the skull to a third of the star, rounded up:
+ceil(139,264 / 3) = 46,422. ICBM's ProjectE fill uses the same formula, and ProjectE's star is also 139,264, so
+the skull is 46,422 in both systems. Three skulls then cost 139,266, at least the star, before the sand. Soul sand
+(49 in both systems) and soul soil (1 in Tekxit, 49 in ProjectE) therefore cannot reopen the loop at any value.
+ICBM's nuclear-tier recipes and Mekanism's nucleosynthesizer use the skull, so both ship the override.
 
 Item Alchemy also hard-codes values for some vanilla tags (`VanillaEMCDef`, for example `minecraft:fences`), and
 those win over `default_emcs`. `emc.py` reports any port item in such a tag whose value would differ.
@@ -150,7 +191,19 @@ ProjectE's tag values, its `metals.json` tag conversions and the tags its own co
   Only what they drop is valued.
 - **No gain from processes** (`processes`): machine, mob and world steps are checked so that no output is
   worth more than its input, under both value tables. Examples are fossil grinding, bug crates, scalpel scraping,
-  booster packs and the ink mixer.
+  booster packs and the ink mixer. A case whose input has no EMC in a system cannot be bought there, so it is
+  skipped.
+- **No gain from vanilla summons.** [`scripts/emc/pack-processes.json`](../scripts/emc/pack-processes.json) lists
+  vanilla summons that turn items into items: the Wither (three skulls on four soul sand or soul soil, one nether
+  star) and the iron and snow golems. Every port checks them in both systems.
+- **No gain from machine recipes** (`recipe_processes`): every loaded recipe of a machine type is checked in both
+  systems. Item inputs cost their cheapest member, and a chemical input costs the item it is stored as, divided by
+  `per`. Mekanism checks every antiprotonic nucleosynthesizer recipe this way. At any price an antimatter pellet
+  can be bought, which oxidizing turns back into 1,000 mB of gas, most recipes made items worth more than their
+  input (13 of 20 at a 256,000 pellet). Antimatter pellets, and the five items crafted from them (the
+  nucleosynthesizer, the supermassive QIO drive, and the elytra, gravitational modulating and teleportation
+  modules), therefore have no EMC, which closes every recipe. Polonium pellets keep their value: no recipe turns
+  them back into gas, so they cannot feed the SPS.
 - **No devaluing vanilla.** A port recipe that would make a vanilla item cheaper than its fixed value fails the
   check; ICBM's sulfur is three gunpowder for this reason. So does a port item that would become the cheapest
   member of a tag vanilla recipes use or of a tag ProjectE's `TagMapper` equalises, and the ProjectE file never
@@ -166,10 +219,13 @@ ProjectE's tag values, its `metals.json` tag conversions and the tags its own co
   and sulfur dust one-to-one, so ICBM's dust gunpowder recipe (one sulfur dust makes three gunpowder) does not
   load with Mekanism.
 - **Vanilla gaps** (`vanilla`): when an EMC mod's defaults leave a vanilla ingredient unvalued, a port may ship a
-  value for that mod only. It applies pack-wide, and `emc.py` refuses to override an existing default. ICBM gives
-  ProjectE's wither skeleton skull a third of a nether star, because three skulls summon a Wither that drops one.
-  A cheaper skull would let transmuted skulls farm nether stars. A `process` limited with `systems` checks this
-  for ProjectE only, since Tekxit's own Item Alchemy skull value already makes it a loop there.
+  value for that mod only. It applies pack-wide, and `emc.py` refuses to override an existing default; only the
+  [pack overrides](#pack-overrides) may do that. ICBM gives ProjectE's wither skeleton skull a third of a nether
+  star, rounded up, matching the Item Alchemy override, so the Wither summon check passes in both systems.
+- **All ports together.** After every port is built, the vanilla summons, each port's processes and machine recipe
+  processes, and each port's recipe gain check run again with one merged table: the baseline, the overrides,
+  every port's vanilla fills and every port's values. A value one port ships, such as ICBM's ProjectE skull, cannot
+  open a loop through another port's recipe. Two ports filling the same vanilla item differently also fail.
 
 Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 
@@ -179,20 +235,25 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
   if any of these hold:
   - A registered item has neither a value nor an exclusion.
   - Two policy entries claim the same item.
-  - A process gains EMC, or a recipe devalues vanilla.
+  - A process, vanilla summon or machine recipe process gains EMC, or a recipe devalues vanilla, alone or with
+    every port's values merged.
+  - A pack override is stale, names an unknown port, or disagrees with a port's `vanilla` fill.
   - Any recipe makes a port item worth more than its ingredients at the shipped values. This covers recipes
     behind load conditions, alternatives an `optional_mods` mod enables, and recipes gated on undeclared mods. A
     conditional alternative that needs an ingredient with no known EMC also fails.
   - A shipped file breaks the ProjectE or Item Alchemy grammar.
   - A generated file is stale.
   - A port ships a `pe_custom_conversions` file the policy does not generate (Mekanism's upstream `defaults.json`
-    priced fluorite, HDPE pellets and salt behind the generator's back and was removed).
+    priced fluorite, HDPE pellets and salt behind the generator's back and was removed), or a `default_emcs` file
+    it does not generate.
   - A recipe undercuts a `metals.json` price, an excluded item sits in a tag ProjectE's `TagMapper` values, or a
     `metals.json`-priced tag with several members is named in a conversion.
 - **GameTests.** Each port's GameTest server runs `EmcAudit`, which checks that:
   - Every item in the live registry has a decision in `emc/values.json`.
   - `values.json` names no unregistered item.
   - Both shipped files load.
+  - With Item Alchemy, every pack override the port ships (`itemalchemy_overrides` in `values.json`) is the live
+    value.
 
   The run also writes the live registry to `emc-registry.txt`.
 
@@ -241,7 +302,11 @@ Use this for Extreme Reactors or any new port.
    - `resources`: the roots holding recipes and tags. Include loader-specific roots, such as `src/forge/resources`.
    - `output`: the shared resources root for `namespace`. After a restructure, point it at the new shared root.
      When `outputs` is set it must match `outputs` for the primary namespace.
-   - Then `values`, `exclude`, `conversions` and `processes`, each with a `why`.
+   - Then `values`, `exclude`, `conversions` and `processes`, each with a `why`. A `like` value may add
+     `"round": "up"` so a share of an anchor never undercuts it (the default floors, as ProjectE does).
+   - `recipe_processes` for machine recipe types that turn items, and chemicals stored in items, into items:
+     `type`, the recipe fields holding single item inputs (`items`), each chemical field's chemicals with the item
+     that stores them and how many units one holds (`chemicals`), and the output fields (`outputs`).
    - `vanilla` only for vanilla ingredients an EMC mod leaves unvalued (see the exploit rules).
    - `ignored` is only for test-only registrations.
    - `conditions` fixes the outcome of the port's own recipe condition types, such as Extreme Reactors'

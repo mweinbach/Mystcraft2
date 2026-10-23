@@ -1,0 +1,13 @@
+{
+  "comment": "Hand-written allowlist, see docs/emc.md. These are the only pack Item Alchemy values scripts/emc.py may change; every other baseline value is left as the pack ships it. Each entry names the value it replaces in Tekxit 4's config/itemalchemy/emc_config.json (the recorded itemalchemy-vanilla.json), how the new value is derived, the ports whose default_emcs ship it, and why. emc.py check fails when the baseline no longer holds the replaced value, and merge-itemalchemy changes a config only where it still holds that value.",
+  "overrides": {
+    "minecraft:wither_skeleton_skull": {
+      "replaces": 16,
+      "like": "minecraft:nether_star",
+      "times": "1/3",
+      "round": "up",
+      "ports": ["icbm_port", "mekanism"],
+      "why": "Three skulls on four soul sand or soul soil summon a Wither, which drops a nether star (139,264). At Tekxit's 16 (a fresh Item Alchemy config has 10,246) three transmuted skulls buy a nether star for 48 EMC plus the sand. A third of the star, rounded up, makes three skulls alone cost at least the star, and matches the ProjectE value ICBM fills in. ICBM's nuclear recipe and Mekanism's nucleosynthesizer use the skull."
+    }
+  }
+}

@@ -93,4 +93,20 @@ class EmcAuditTest {
         }
         throw new AssertionError("emc/values.json not found from " + Path.of("").toAbsolutePath());
     }
+
+    @Test
+    @DisplayName("Pack overrides must hold in the live Item Alchemy table")
+    void compareOverridesReportsAMissingOrWrongValue() {
+        JsonObject overrides = new JsonObject();
+        overrides.addProperty("minecraft:wither_skeleton_skull", 46422);
+        Map<String, Long> live = new TreeMap<>();
+        live.put("minecraft:wither_skeleton_skull", 10246L);
+
+        Assertions.assertEquals(List.of("itemalchemy override for minecraft:wither_skeleton_skull is 10246, expected 46422"),
+              EmcAudit.compareOverrides(overrides, live::get));
+        live.put("minecraft:wither_skeleton_skull", 46422L);
+        Assertions.assertEquals(List.of(), EmcAudit.compareOverrides(overrides, live::get));
+        Assertions.assertEquals(List.of("itemalchemy override for minecraft:wither_skeleton_skull is unset, expected 46422"),
+              EmcAudit.compareOverrides(overrides, id -> null));
+    }
 }
