@@ -37,12 +37,17 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import ports.extremereactors.corelib.capability.CapabilityHelper;
 import ports.extremereactors.corelib.compat.computer.IComputerPort;
 import ports.extremereactors.corelib.compat.computer.MultiblockComputerPeripheral;
@@ -608,6 +613,218 @@ public final class ExtremeReactorsGameTests {
         }
 
         throw new GameTestAssertException(what + " did not raise an error");
+    }
+
+    //endregion
+    //region fluid physics
+
+    /**
+     * Forge gives {@code canDrown=true} to every reactant and moderator fluid and {@code false} to steam. Its check
+     * ignores {@code canBreatheUnderwater}, so even an undead mob loses air in them.
+     */
+    public static void swimmableFluidDrowns(final GameTestHelper helper) {
+
+        floodPool(helper, Content.Blocks.YELLORIUM_FLUID.get(), 1, 4, 1, 3, 1, 3);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 1, 2));
+
+        zombie.setAirSupply(100);
+
+        helper.startSequence()
+                .thenIdle(20)
+                .thenExecute(() -> check(zombie.getAirSupply() < 100,
+                        "an entity in a swimmable fluid kept its air: " + zombie.getAirSupply()))
+                .thenSucceed();
+    }
+
+    public static void nonSwimmableFluidDoesNotDrown(final GameTestHelper helper) {
+
+        floodPool(helper, Content.Blocks.STEAM.get(), 1, 4, 1, 3, 1, 3);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 1, 2));
+
+        zombie.setAirSupply(100);
+
+        helper.startSequence()
+                .thenIdle(20)
+                .thenExecute(() -> check(zombie.getAirSupply() >= 100,
+                        "an entity in steam lost air: " + zombie.getAirSupply()))
+                .thenSucceed();
+    }
+
+    /** Forge's {@code canSwim=true} puts the entity in the swimming pose; steam's {@code canSwim=false} does not. */
+    public static void swimmableFluidSetsTheSwimmingPose(final GameTestHelper helper) {
+
+        floodPool(helper, Content.Blocks.YELLORIUM_FLUID.get(), 1, 4, 1, 3, 1, 3);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 1, 2));
+
+        zombie.setSprinting(true);
+        zombie.setSwimming(false);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> check(zombie.isSwimming(), "a sprinting entity in a swimmable fluid is not swimming"))
+                .thenSucceed();
+    }
+
+    public static void nonSwimmableFluidDoesNotSetTheSwimmingPose(final GameTestHelper helper) {
+
+        floodPool(helper, Content.Blocks.STEAM.get(), 1, 4, 1, 3, 1, 3);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 1, 2));
+
+        zombie.setSprinting(true);
+        zombie.setSwimming(false);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> check(!zombie.isSwimming(), "a sprinting entity in steam is swimming"))
+                .thenSucceed();
+    }
+
+    /** Forge's {@code supportsBoating}: a boat floats on our swimmable fluids and falls through steam. */
+    public static void swimmableFluidSupportsBoats(final GameTestHelper helper) {
+
+        floodPool(helper, Content.Blocks.YELLORIUM_FLUID.get(), 1, 2, 1, 5, 1, 5);
+        floodPool(helper, Content.Blocks.STEAM.get(), 1, 2, 6, 10, 1, 5);
+
+        check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(3, 2, 3))).isEmpty(),
+                "the swimmable pool has no fluid");
+        check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(8, 2, 3))).isEmpty(),
+                "the steam pool has no fluid");
+
+        // Spawned one block above the surface, so a supporting fluid catches the falling boat.
+        final Boat onFluid = helper.spawn(EntityType.BOAT, new BlockPos(3, 4, 3));
+        final Boat onSteam = helper.spawn(EntityType.BOAT, new BlockPos(8, 4, 3));
+
+        helper.startSequence()
+                .thenIdle(30)
+                .thenExecute(() -> {
+
+                    check(onFluid.getY() > onSteam.getY() + 1.0D, "the boat did not float on the swimmable fluid: "
+                            + onFluid.getY() + " vs " + onSteam.getY() + " in steam");
+                    check(onSteam.getY() < helper.absolutePos(new BlockPos(0, 2, 0)).getY() + 0.5D,
+                            "the boat did not sink through steam: " + onSteam.getY());
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * Forge's {@code FluidType.pathType}: swimmable fluids are {@code WATER} and steam is {@code WALKABLE}. The
+     * shared test calls vanilla's path type helper, which Forge patches through the fluid type.
+     */
+    public static void fluidPathTypesMatchForge(final GameTestHelper helper) {
+
+        helper.setBlock(new BlockPos(2, 1, 2), Content.Blocks.YELLORIUM_FLUID.get());
+        helper.setBlock(new BlockPos(6, 1, 2), Content.Blocks.STEAM.get());
+
+        final BlockPathTypes swimmable = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(2, 1, 2)));
+        final BlockPathTypes steam = WalkNodeEvaluator.getBlockPathTypeStatic(helper.getLevel(),
+                mutablePos(helper, new BlockPos(6, 1, 2)));
+
+        check(BlockPathTypes.WATER == swimmable, "a swimmable fluid has path type " + swimmable);
+        check(BlockPathTypes.WALKABLE == steam, "steam has path type " + steam);
+        helper.succeed();
+    }
+
+    /** Forge's {@code canPushEntity}: the flow of a swimmable fluid moves an entity, steam's flow does not. */
+    public static void swimmableFluidPushesEntities(final GameTestHelper helper) {
+
+        flowingChannel(helper, Content.Blocks.YELLORIUM_FLUID.get());
+
+        final LivingEntity[] zombie = new LivingEntity[1];
+        final double[] startX = new double[1];
+
+        helper.startSequence()
+                .thenIdle(40)
+                .thenExecute(() -> {
+
+                    check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(5, 1, 2))).isEmpty(),
+                            "the test fluid did not flow down the channel");
+
+                    zombie[0] = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(5, 1, 2));
+                    startX[0] = zombie[0].getX();
+                })
+                .thenIdle(20)
+                .thenExecute(() -> check(zombie[0].getX() > startX[0] + 0.05D,
+                        "a swimmable fluid's flow did not push the entity: " + startX[0] + " -> " + zombie[0].getX()))
+                .thenSucceed();
+    }
+
+    public static void nonSwimmableFluidDoesNotPushEntities(final GameTestHelper helper) {
+
+        flowingChannel(helper, Content.Blocks.STEAM.get());
+
+        final LivingEntity[] zombie = new LivingEntity[1];
+        final double[] startX = new double[1];
+
+        helper.startSequence()
+                .thenIdle(40)
+                .thenExecute(() -> {
+
+                    check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(5, 1, 2))).isEmpty(),
+                            "the test fluid did not flow down the channel");
+
+                    zombie[0] = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(5, 1, 2));
+                    startX[0] = zombie[0].getX();
+                })
+                .thenIdle(20)
+                .thenExecute(() -> check(Math.abs(zombie[0].getX() - startX[0]) < 0.05D,
+                        "steam pushed the entity: " + startX[0] + " -> " + zombie[0].getX()))
+                .thenSucceed();
+    }
+
+    /** A stone-lined pool of the fluid, open at the top and with a stone floor. */
+    private static void floodPool(final GameTestHelper helper, final Block fluid, final int fromY, final int toY,
+                                  final int fromX, final int toX, final int fromZ, final int toZ) {
+
+        for (int x = fromX - 1; x <= toX + 1; ++x) {
+            for (int z = fromZ - 1; z <= toZ + 1; ++z) {
+                helper.setBlock(new BlockPos(x, fromY - 1, z), Blocks.STONE);
+            }
+        }
+
+        for (int y = fromY; y <= toY; ++y) {
+            for (int x = fromX; x <= toX; ++x) {
+                for (int z = fromZ; z <= toZ; ++z) {
+                    final boolean edge = x == fromX || x == toX || z == fromZ || z == toZ;
+
+                    helper.setBlock(new BlockPos(x, y, z), edge ? Blocks.STONE : fluid);
+                }
+            }
+        }
+    }
+
+    /** A one-wide, stone-walled channel with a source at its west end, so its fluid flows east. */
+    private static void flowingChannel(final GameTestHelper helper, final Block fluid) {
+
+        for (int x = 0; x <= 9; ++x) {
+            for (int z = 0; z <= 4; ++z) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+            }
+
+            for (int y = 1; y <= 2; ++y) {
+                helper.setBlock(new BlockPos(x, y, 0), Blocks.STONE);
+                helper.setBlock(new BlockPos(x, y, 4), Blocks.STONE);
+            }
+        }
+
+        for (int z = 1; z <= 3; ++z) {
+            for (int y = 1; y <= 2; ++y) {
+                helper.setBlock(new BlockPos(0, y, z), Blocks.STONE);
+            }
+        }
+
+        helper.setBlock(new BlockPos(1, 1, 2), fluid);
+    }
+
+    private static BlockPos.MutableBlockPos mutablePos(final GameTestHelper helper, final BlockPos relative) {
+
+        final BlockPos absolute = helper.absolutePos(relative);
+
+        return new BlockPos.MutableBlockPos(absolute.getX(), absolute.getY(), absolute.getZ());
     }
 
     //endregion

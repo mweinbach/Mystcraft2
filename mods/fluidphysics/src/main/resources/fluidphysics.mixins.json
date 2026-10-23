@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.fluidphysics.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BoatFluidMixin",
+    "EntityFluidMixin",
+    "LivingEntityFluidMixin",
+    "WalkNodeEvaluatorFluidMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

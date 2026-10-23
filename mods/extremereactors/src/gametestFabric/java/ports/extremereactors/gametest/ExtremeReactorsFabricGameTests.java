@@ -113,6 +113,46 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
         ExtremeReactorsGameTests.oreGenerationFollowsConfig(helper);
     }
 
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void swimmableFluidDrowns(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidDrowns(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void nonSwimmableFluidDoesNotDrown(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotDrown(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void swimmableFluidSetsTheSwimmingPose(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidSetsTheSwimmingPose(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void nonSwimmableFluidDoesNotSetTheSwimmingPose(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotSetTheSwimmingPose(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void swimmableFluidSupportsBoats(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidSupportsBoats(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void fluidPathTypesMatchForge(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.fluidPathTypesMatchForge(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void swimmableFluidPushesEntities(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidPushesEntities(helper);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public void nonSwimmableFluidDoesNotPushEntities(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotPushEntities(helper);
+    }
+
     @GameTest(template = EMPTY)
     public void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 

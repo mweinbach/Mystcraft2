@@ -8,6 +8,9 @@ version = metadata.mod_version
 def mekanismMetadata = new Properties()
 file('../../mekanism/port.properties').withInputStream { mekanismMetadata.load(it) }
 def mekanismVersion = mekanismMetadata.getProperty('mod_version')
+def fluidPhysicsMetadata = new Properties()
+file('../../fluidphysics/port.properties').withInputStream { fluidPhysicsMetadata.load(it) }
+def fluidPhysicsVersion = fluidPhysicsMetadata.getProperty('mod_version')
 group = metadata.mod_group
 base.archivesName = 'extremereactors-fabric-1.19.2'
 
@@ -42,6 +45,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Team Reborn Energy is the Fabric energy standard; it is bundled so the mod has no extra install step.
     include(modImplementation('teamreborn:energy:2.3.0'))
+    // Forge's FluidType behavior for our fluids; the library is bundled for clients and servers.
+    include(modImplementation("ports.fluidphysics:fluidphysics-fabric:${fluidPhysicsVersion}"))
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'

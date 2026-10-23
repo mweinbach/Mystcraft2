@@ -6,6 +6,13 @@ pluginManagement {
 }
 rootProject.name = 'extremereactors-fabric'
 
+// The Fluid Physics library is bundled into this JAR and provides Forge FluidType behavior on Fabric.
+includeBuild('../../fluidphysics') {
+    dependencySubstitution {
+        substitute module('ports.fluidphysics:fluidphysics-fabric') using project(':')
+    }
+}
+
 // The Mekanism Fabric port is a compile dependency of the gas-port adapter. It is not shipped inside this JAR.
 includeBuild('../../mekanism/fabric') {
     dependencySubstitution {

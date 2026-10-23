@@ -104,9 +104,31 @@ the handbook text, which comes from upstream unchanged.
 `reactorItemsAndEnergyThroughLoaderApis` checks the label on each loader.
 
 **Fabric fluid physics.** Fabric has no equivalent of Forge's `FluidType`
-motion hooks. Extreme Reactors' fluids flow, render and transfer the same, but
-entities do not swim in or get pushed by them on Fabric, because vanilla only
-applies that to fluids tagged as water or lava.
+hooks. The Fabric variant instead depends on the separate Fabric-only
+[Fluid Physics](../fluidphysics/README.md) library, which is bundled
+jar-in-jar. Extreme Reactors registers each reactant and moderator fluid there
+with the values `ReactorFluidType.of` uses on Forge: swimmable fluids get
+water-like travel and jumping, the swimming pose, drowning, current pushing, the
+0.4 fall distance modifier, boat support and the `WATER` path type; steam gets
+the 0.1 fall distance modifier and the `WALKABLE` path type and does not drown,
+push or support boats. As on Forge, `canDrown` ignores `canBreatheUnderwater`, so
+undead and water mobs also lose air in a swimmable fluid; water breathing still
+protects them. The Forge build and `src/main` are unchanged.
+
+The shared GameTests pin the behaviour on both loaders:
+`swimmableFluidDrowns`, `nonSwimmableFluidDoesNotDrown`,
+`swimmableFluidSetsTheSwimmingPose`, `nonSwimmableFluidDoesNotSetTheSwimmingPose`,
+`swimmableFluidSupportsBoats`, `fluidPathTypesMatchForge`,
+`swimmableFluidPushesEntities` and `nonSwimmableFluidDoesNotPushEntities`. The
+library has its own GameTests for a swimmable and a non-swimming test fluid,
+including the fall distance modifiers.
+
+Limits: Forge's `FluidType` remains a Forge API; the Fabric library exposes its
+own registration API, so other mods cannot query Forge's type name. Forge also
+gives item entities their `FluidType#setItemMovement` bobbing in these fluids;
+the library pushes item entities and applies the fall distance modifier, but
+they do not bob. Fog, underwater overlays and other visual water effects are not
+reproduced, and none of this claims pixel parity with Forge.
 
 **Fabric bucket models.** The shared bucket item models use
 `forge:item/bucket_drip` as their parent. Fabric gets a stand-in with that id:

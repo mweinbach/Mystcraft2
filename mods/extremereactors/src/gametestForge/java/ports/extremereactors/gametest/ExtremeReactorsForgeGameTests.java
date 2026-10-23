@@ -130,6 +130,54 @@ public final class ExtremeReactorsForgeGameTests {
         ExtremeReactorsGameTests.oreGenerationFollowsConfig(helper);
     }
 
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void swimmableFluidDrowns(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidDrowns(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void nonSwimmableFluidDoesNotDrown(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotDrown(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void swimmableFluidSetsTheSwimmingPose(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidSetsTheSwimmingPose(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void nonSwimmableFluidDoesNotSetTheSwimmingPose(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotSetTheSwimmingPose(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void swimmableFluidSupportsBoats(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidSupportsBoats(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void fluidPathTypesMatchForge(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.fluidPathTypesMatchForge(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void swimmableFluidPushesEntities(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.swimmableFluidPushesEntities(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
+            timeoutTicks = ExtremeReactorsGameTests.SHORT_TIMEOUT)
+    public static void nonSwimmableFluidDoesNotPushEntities(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.nonSwimmableFluidDoesNotPushEntities(helper);
+    }
+
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
     public static void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
