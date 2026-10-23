@@ -2007,31 +2007,30 @@ def report(port):
 def merge_overrides(config):
     """Apply the allowlisted overrides to an Item Alchemy config; return ``(changed, problems)``.
 
-    An override's anchor is read from the config itself (the skull follows the config's nether star). It replaces
-    only the value it was written for, or fills a missing one; a config that already holds some other value was
-    customised on purpose and is left alone.
+    Port values were generated against the recorded baseline with the overrides applied, so the config must agree
+    with it: an override's anchor must hold the baseline value (a cheaper nether star would make the generated skull
+    recipes gain), and the overridden item must hold the value the override replaces, its new value, or none. Any
+    disagreement is a problem, and the caller writes nothing.
     """
-    changed, problems = 0, []
+    changed, problems = {}, []
     raw = raw_baseline("itemalchemy")
+    applied, stale = applied_overrides()
+    problems += stale
     for item, entry in load_overrides().items():
-        anchors = dict(raw)
-        if entry.get("like") in config:
-            anchors[entry["like"]] = Fraction(config[entry["like"]])
-            if raw.get(entry["like"]) != anchors[entry["like"]]:
-                print(f"warning: override {item}: the config values {entry['like']} at {config[entry['like']]}, "
-                      f"not the baseline's {raw.get(entry['like'])}; port values were generated against the baseline",
-                      file=sys.stderr)
-        value = int(explicit_value(entry, "itemalchemy", anchors, f"override {item}"))
-        current = config.get(item)
-        if current == value:
+        anchor = entry.get("like")
+        if anchor in config and Fraction(config[anchor]) != raw.get(anchor):
+            problems.append(f"override {item}: the config values {anchor} at {config[anchor]}, not the baseline's "
+                            f"{raw.get(anchor)}; port values were generated against the baseline, so refresh the "
+                            f"baselines from this config and regenerate first")
             continue
-        if current is not None and current != entry["replaces"]:
+        if item not in applied:
+            continue
+        value, current = int(applied[item]), config.get(item)
+        if current is not None and current not in (value, entry["replaces"]):
             problems.append(f"override {item}: the config has {current}, not the {entry['replaces']} the override "
-                            f"replaces; left unchanged")
-            continue
-        config[item] = value
-        changed += 1
-        print(f"override {item}: {current} -> {value} ({entry['why']})")
+                            f"replaces; port values were generated with {value}")
+        elif current != value:
+            changed[item] = (current, value, entry["why"])
     return changed, problems
 
 
@@ -2039,7 +2038,16 @@ def command_merge(args):
     """Write every port's Item Alchemy values into an existing emc_config.json (Tekxit ships one)."""
     config_path = Path(args.config)
     config = read_json(config_path)
-    changed, problems = merge_overrides(config)
+    overrides, problems = merge_overrides(config)
+    if problems:
+        for problem in problems:
+            print(problem, file=sys.stderr)
+        print(f"{config_path}: not changed", file=sys.stderr)
+        return 1
+    for item, (current, value, why) in overrides.items():
+        config[item] = value
+        print(f"override {item}: {current} -> {value} ({why})")
+    changed = len(overrides)
     for directory in discover(args.ports):
         values = read_json(directory / "emc" / "values.json")
         for item, entry in values["items"].items():
@@ -2053,9 +2061,7 @@ def command_merge(args):
                 changed += 1
     config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     print(f"{config_path}: {changed} entries updated; restart the server or run /itemalchemy reloademc")
-    for problem in problems:
-        print(problem, file=sys.stderr)
-    return 1 if problems else 0
+    return 0
 
 
 def projecte_tag_conversions(document):

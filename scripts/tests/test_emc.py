@@ -441,12 +441,13 @@ class PortTests(unittest.TestCase):
         self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (0, 46422))
         status, again, _err = self.merge(merged)
         self.assertEqual((status, again), (0, merged))
+        # Port values were generated against the baseline, so a config that disagrees is left untouched.
         status, merged, err = self.merge({"minecraft:wither_skeleton_skull": 999})
-        self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (1, 999))
+        self.assertEqual((status, merged), (1, {"minecraft:wither_skeleton_skull": 999}))
         self.assertIn("not the 16 the override replaces", err)
-        status, merged, err = self.merge({"minecraft:nether_star": 3000})
-        self.assertEqual((status, merged["minecraft:wither_skeleton_skull"]), (0, 1000))
-        self.assertIn("warning", err)
+        status, merged, err = self.merge({"minecraft:nether_star": 2700})
+        self.assertEqual((status, merged), (1, {"minecraft:nether_star": 2700}))
+        self.assertIn("not the baseline's 139264", err)
 
     def add_fuse_recipe(self, gas="testmod:plasma"):
         write(self.dir / "res" / "data" / "testmod" / "recipes" / "fuse.json",

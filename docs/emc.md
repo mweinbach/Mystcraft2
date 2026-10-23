@@ -79,9 +79,11 @@ How an override is applied:
   checks see the corrected value. `emc.py check` and `generate` print each applied override as a `pack:` line.
 - **Stale entries.** If the recorded baseline no longer holds `replaces` (the pack changed), the check fails and the
   override is not applied.
-- **Existing configs.** `merge-itemalchemy` writes it into the config only where the config still holds `replaces`
-  or has no value. A `like` anchor is read from the config itself. A config holding any other value was customised
-  on purpose: it is left unchanged and the command exits 1.
+- **Existing configs.** `merge-itemalchemy` writes it into the config where the config holds `replaces` or has no
+  value. Port values were generated against the recorded baseline with the overrides applied, so the config must
+  agree with that baseline. If the overridden item holds some other value, or a `like` anchor differs from the
+  baseline (a cheaper nether star would make ICBM's skull recipes gain), the command writes nothing and exits 1.
+  Refresh the baselines from that config and regenerate first.
 - **Fresh installs.** Each port in `ports` ships the values in `default_emcs/pack_overrides_<n>.json`. Item Alchemy
   1.1.3 collects every `default_emcs` file into a `java.util.HashMap` and the last file read wins, and its own
   `itemalchemy:default_emcs/minecraft.json` holds the fresh-config values (a skull of 10,246). `emc.py` picks `<n>`
