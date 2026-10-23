@@ -35,7 +35,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.core.statements.StatementParamGateSideOnly;
@@ -238,6 +240,34 @@ public final class GateTests {
             require(helper, !logic.isOn && !logic.triggerOn[0], "without power the trigger and gate turn off");
             for (Direction face : Direction.values()) require(helper, pipe.getRedstoneOutput(face) == 0, "the pipe stops emitting from its " + face + " face");
             require(helper, !helper.getBlockState(piston).getValue(PistonBaseBlock.EXTENDED), "the piston stays retracted");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * Redstone wire joins a pipe only through a face whose pluggable redstone connects to, as upstream's Forge
+     * {@code canConnectRedstone}: Forge asks the pipe itself, Fabric through the redstone wire mixin. A gate on the
+     * north face makes the pipe a signal source, yet only the wire north of it turns towards it.
+     */
+    public static void redstoneWireJoinsOnlyTheGateFace(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(4, 2, 4);
+        PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
+        gate(pipe, Direction.NORTH, NETHER_QUARTZ);
+        for (Direction face : Direction.Plane.HORIZONTAL) {
+            helper.setBlock(pos.relative(face).below(), Blocks.STONE);
+            helper.setBlock(pos.relative(face), Blocks.REDSTONE_WIRE);
+        }
+        helper.runAfterDelay(2, () -> {
+            require(helper, helper.getBlockState(pos).getValue(PipeBlock.REDSTONE), "a pipe carrying a gate is a signal source");
+            for (Direction face : Direction.Plane.HORIZONTAL) {
+                BlockPos wire = helper.absolutePos(pos.relative(face));
+                // The wire works out its sides again when the block above it changes.
+                BlockState shaped = Blocks.REDSTONE_WIRE.defaultBlockState().updateShape(Direction.UP,
+                        helper.getLevel().getBlockState(wire.above()), helper.getLevel(), wire, wire.above());
+                boolean joined = shaped.getValue(RedStoneWireBlock.PROPERTY_BY_DIRECTION.get(face.getOpposite())).isConnected();
+                require(helper, joined == (face == Direction.NORTH), "the wire " + face.getName() + " of the pipe must "
+                        + (face == Direction.NORTH ? "" : "not ") + "join it, got " + shaped);
+            }
             helper.succeed();
         });
     }

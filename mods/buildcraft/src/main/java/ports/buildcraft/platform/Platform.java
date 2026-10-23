@@ -112,6 +112,23 @@ public final class Platform {
          * {@code PlayerBlockBreakEvents.BEFORE} for a block that placing would replace and allows placing into air.
          */
         boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player);
+
+        /**
+         * The loader's events for a player breaking part of the block at {@code pos} (a pipe's pluggable, wire or
+         * facade) without breaking the block, made as the loader's own block breaking makes them: false if
+         * {@code player} may not. Forge runs {@code ForgeHooks.onBlockBreakEvent}, which posts
+         * {@code BlockEvent.BreakEvent} after vanilla's held item and adventure mode checks and sends the block
+         * again when it is cancelled; Fabric makes vanilla's held item check, then fires
+         * {@code PlayerBlockBreakEvents.BEFORE} and, when a handler refuses, {@code PlayerBlockBreakEvents.CANCELED}.
+         * Callers use {@link ports.buildcraft.lib.BlockProtection#breakPart}.
+         */
+        boolean firePlayerBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player);
+
+        /**
+         * Called once a part {@link #firePlayerBreak} allowed is gone, with the block state and block entity it was
+         * asked for: Fabric fires {@code PlayerBlockBreakEvents.AFTER}; Forge has no such event.
+         */
+        void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player);
     }
 
     /** A client-to-server message, handled on the server thread. */

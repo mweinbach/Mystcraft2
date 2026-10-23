@@ -188,7 +188,7 @@ public final class WireTests {
         BlockPos a = new BlockPos(2, 2, 2), b = new BlockPos(3, 2, 2), lone = new BlockPos(5, 2, 5);
         PipeBlockEntity first = pipe(helper, a, BCTransport.STONE_ITEM);
         PipeBlockEntity second = pipe(helper, b, BCTransport.STONE_ITEM);
-        Player player = helper.makeMockPlayer();
+        ServerPlayer player = BCTests.connectedPlayer(helper, "wire_breaker");
         BlockPos absolute = helper.absolutePos(a);
 
         helper.runAfterDelay(2, () -> {

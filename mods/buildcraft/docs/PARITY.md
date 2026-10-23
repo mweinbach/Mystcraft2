@@ -119,7 +119,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   as upstream's did. Deserts and oceans are matched by the `buildcraft:oil_desert_replaceable` and
   `buildcraft:oil_ocean_replaceable` biome tags instead of upstream's biome dictionary: its hot, dry
   and sandy types become vanilla's desert plus `forge:is_desert` and `c:desert`, and its ocean type
-  every `minecraft:is_ocean` biome. The oil biomes carry the matching Forge and `c:` tags. The biomes copy their
+  every `minecraft:is_ocean` biome. The oil biomes carry the matching Forge and `c:` tags: the oil desert
+  `forge:is_desert`, `forge:is_sandy`, `forge:is_hot/overworld`, `forge:is_dry/overworld`, `c:desert`,
+  `c:climate_hot`, `c:climate_dry` and `c:vegetation_sparse`, the oil ocean `c:ocean`, `c:aquatic` and
+  `c:shallow_ocean`, and both `c:in_overworld`. The biomes copy their
   parent's 1.19.2 climate, features, spawns and colours, and keep the parent's surface: surface rules
   that name the desert or ocean also match their oil field. They join the parent's mineshaft, ruined
   portal, ocean ruin, rabbit, frog and music tags but not its village, pyramid, temple or monument
@@ -252,9 +255,10 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   one loader message for the GUI's changes; the server takes a statement only when the gate could use it, as the GUI
   offers. That includes grouping: a gate with two columns has no link between the last pair of its left column and the
   first of its right, and the server refuses that link where upstream's container checked only the index. The pipe is a signal source while it carries a pluggable redstone connects to, a `redstone` block state set on
-  the pipe's next tick, where upstream's pipe was always one. On Forge, wire connects only through a face with such a
-  pluggable, as upstream; vanilla wire on Fabric connects to any signal source, so there it connects to every face of
-  such a pipe. Upstream's copier check for an empty gate counted saved tags that are always present, so it never fired;
+  the pipe's next tick, where upstream's pipe was always one. Wire connects only through a face with such a
+  pluggable, as upstream: Forge asks the pipe through `IForgeBlock.canConnectRedstone`, and on Fabric, where vanilla
+  wire connects to any signal source, a Fabric-only MixinExtras `@WrapOperation` on the wire's side check
+  (`RedStoneWireBlockMixin` in `buildcraft.fabric.mixins.json`) asks the same method. Upstream's copier check for an empty gate counted saved tags that are always present, so it never fired;
   here an empty gate with nothing copied says there is nothing to copy. A gate item's tooltip counts actions on its
   action line, where upstream repeated the trigger count. Upstream's tank Empty trigger asked whether anything could be
   drained, so a fill-only tank holding fluid (the distiller's input, an engine's fuel and coolant) read as both Empty
@@ -315,7 +319,14 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   here the pipe's block entity renderer draws upstream's plug and power adapter cuboids and textures, and the
   items use the same cuboids as their models. Breaking a pluggable goes through mixins on both sides' player game
   mode (`destroyBlock`) in place of Forge 1.12's `removedByPlayer`, and the client keeps the pipe instead of
-  predicting it away. Pick-block on a pluggable gives the pipe; upstream gave the pluggable. The power adapter
+  predicting it away. The server's mixin runs before the loaders' own break events, so taking off a pluggable,
+  facade or wire first passes `BlockProtection.breakPart` for the breaking player: vanilla's checks, then on Forge
+  `ForgeHooks.onBlockBreakEvent` (the `BlockEvent.BreakEvent` upstream's `removedByPlayer` ran after) and on Fabric
+  `PlayerBlockBreakEvents.BEFORE`, with `CANCELED` when refused and `AFTER` once the part is gone, all naming the
+  pipe's block state and block entity. A refusal leaves the part and the pipe in place and sends the player the
+  block again. A creative player breaking the pipe itself clears its pluggables and wires in `playerWillDestroy`,
+  after the loader's events, so a refused creative break keeps them. Pick-block on a pluggable gives the pipe;
+  upstream gave the pluggable. The power adapter
   passes loader energy straight through the pipe's own port, which already converts at 1 MJ = 10 units, so it
   keeps none of upstream's `storedMJ` RF remainder.
 - **Zone planner:** upstream stored the paintbrush and the map location as one item each, with metadata. This port uses a clean paintbrush, one item per dye colour, and one map location whose `mapType` tag drives the `buildcraft:type` model. A mixin keeps a clean map stacking to 16 and a recorded one to 1. Using a stack records one map and leaves the rest clean, so the recorded copy is not lost. A clean paintbrush is not a colour. Copying a zone chunk keeps a completely filled chunk, and reading a plan replaces what was stored. A plan packet applies only while that planner's GUI is open and still valid, and a plan refuses more than 4096 chunks. Map colours are read at world positions. The face texture is cached per facing, so a wrench updates the picture. The highlight is a line box. The scroll wheel uses the 1.19 notch (`delta * 4` in place of `dWheel / 30`). Painting and panning start on the map, so the slots stay usable. The recipe is the commented `BCRoboticsRecipes` pattern with a diamond item pipe in the centre of the top row, which upstream left as a TODO. The map location has no recipe. Block painting and the paintbrush's 64 uses are not part of the planner. Display lists are vertex buffers, and the three vanilla dimensions keep upstream's ids. The planner is not a container, so hoppers cannot see it. The downward map scan stops at the bottom of the 1.19 world rather than y 0, so a slice below sea level still has a colour. The map packet writes a presence flag before each column's height and colour, so a column at or below y 0 stays aligned; upstream treated a height of 0 or less as an empty column. Kept from upstream: clearing a full chunk with `BitSet.flip(0, 255)` also clears column (15, 15); `distanceToSquared` uses `x << 4 + 8`; `columns()` lists a column in chunk 0 twice; the ground search stops at y 255; import and export progress, including resuming from -1; the painted rectangle is half-open; a map request is scanned only while that planner's GUI is open and still valid, for a slice inside the world's build height and a loaded chunk within 32 chunks of the planner, at most four times a tick (upstream scanned any key in the sender's world and loaded the chunk); and an input tick returns before the output runs.
@@ -342,8 +353,8 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   the replaced block. Fabric API has no place event, so on Fabric placing into air takes vanilla's checks only and
   replacing a block (grass, water) fires the break event for it. Item uses (placing, planting, tilling, dispensing,
   entity interaction) take vanilla's checks, and on Forge `ItemStack.useOn` posts the place events itself, as it did
-  upstream. `BlockProtection` is meant for other machines too; the quarry, mining well, builder and pluggable removal
-  do not use it yet.
+  upstream. `BlockProtection` is meant for other machines too; pluggable removal uses it (above), and the quarry,
+  mining well and builder do not use it yet.
   **Extension:** pipe extension moves the pipes without block snapshots. Upstream handled every pipe extension or
   retraction at the position the stripes pipe had when the item arrived, so a second pipe item reaching it in the
   same tick found it gone and was lost; here later requests follow the stripes pipe to where earlier ones moved it,
