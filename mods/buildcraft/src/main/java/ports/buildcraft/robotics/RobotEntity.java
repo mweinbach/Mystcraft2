@@ -3,6 +3,7 @@ package ports.buildcraft.robotics;
 import com.mojang.authlib.GameProfile;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -471,6 +472,7 @@ public class RobotEntity extends Entity {
         boolean pickUp = player.isShiftKeyDown() && (held.isEmpty() || Wrenches.isWrench(held));
         if (!board && !pickUp) return InteractionResult.PASS;
         if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (!mayControl(player)) return InteractionResult.FAIL;
         if (board) {
             RobotBoardType old = boardType;
             setBoard(((RedstoneBoardItem) held.getItem()).type);
@@ -488,6 +490,16 @@ public class RobotEntity extends Entity {
 
     private static void give(Player player, ItemStack stack) {
         if (!player.getInventory().add(stack)) player.drop(stack, false);
+    }
+
+    /**
+     * Whether {@code player} may reprogram or pick up this robot: its owner, an operator, or anyone if nobody owns
+     * it. The robot breaks blocks with its owner's permissions, so nobody else may change what it does.
+     */
+    public boolean mayControl(Player player) {
+        UUID id = owner.getId();
+        if (id == null || id.equals(BlockProtection.NULL_PROFILE.getId()) || player.hasPermissions(2)) return true;
+        return id.equals(player.getGameProfile().getId());
     }
 
     /** Drops the robot's cargo and tool where it is. */

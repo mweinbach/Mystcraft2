@@ -240,6 +240,15 @@ public final class RobotTests {
                 "saving a robot keeps its board, energy, home and owner");
 
         ItemStack miner = new ItemStack(BCRobotics.BOARDS.get(RobotBoardType.MINER).get());
+        Player stranger = helper.makeMockPlayer();
+        stranger.setItemInHand(InteractionHand.MAIN_HAND, miner.copy());
+        require(helper, robot.interact(stranger, InteractionHand.MAIN_HAND) == InteractionResult.FAIL
+                && robot.boardType() == RobotBoardType.PICKER && stranger.getMainHandItem().getCount() == 1,
+                "another player cannot reprogram someone else's robot");
+        stranger.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        stranger.setShiftKeyDown(true);
+        require(helper, robot.interact(stranger, InteractionHand.MAIN_HAND) == InteractionResult.FAIL && !robot.isRemoved(),
+                "another player cannot pick up someone else's robot");
         player.setItemInHand(InteractionHand.MAIN_HAND, miner);
         require(helper, robot.interact(player, InteractionHand.MAIN_HAND) == InteractionResult.CONSUME && miner.isEmpty()
                 && robot.boardType() == RobotBoardType.MINER, "using a board on a robot installs it");
