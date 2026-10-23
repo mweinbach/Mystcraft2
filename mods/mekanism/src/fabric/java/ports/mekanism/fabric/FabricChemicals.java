@@ -20,7 +20,7 @@ import ports.mekanism.lib.common.capabilities.Capability;
  * blocks already uses those capabilities directly; this only lets other mods see them.
  * <p>
  * The item fallback answers only for the port's own items. A foreign stack is left to the provider that mod
- * registered. Looking it up here would recurse if a missing capability ever fell back to these lookups.
+ * registered: a foreign stack's missing capability falls back to these lookups, so asking it here would recurse.
  */
 final class FabricChemicals {
 

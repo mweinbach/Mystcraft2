@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.ToLongFunction;
 import mekanism.common.capabilities.Capabilities;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
+import ports.mekanism.fabric.api.ItemStorageLookup;
 import ports.mekanism.fabric.api.MekanismChemicalLookups;
 import ports.mekanism.lib.common.capabilities.Capability;
 import ports.mekanism.lib.common.capabilities.ForgeCapabilities;
@@ -156,24 +158,50 @@ public final class FabricTransfer {
     }
 
     /**
-     * The fluid or energy storage another mod's item, or a vanilla bucket, offers through the Fabric APIs. The port's own
-     * items are exposed through {@code EnergyStorage.ITEM} and {@code FluidStorage.ITEM} instead, so they are never
+     * The item, fluid, energy, chemical or heat storage another mod's item, or a vanilla bucket, offers through the
+     * Fabric APIs: {@link ItemStorageLookup#ITEM}, {@code FluidStorage.ITEM}, Team Reborn Energy and the item lookups of
+     * {@link MekanismChemicalLookups}. The port's own items answer through their attached capabilities, so they are never
      * looked up here. Changes to the stack happen in place, as with Forge's item capabilities;
      * {@link IFluidHandlerItem#getContainer} holds the replacement when the item itself changes, such as a bucket being emptied.
+     * A foreign chemical provider must not ask {@code getCapability} for the same handler, because this fallback calls
+     * the lookup.
      */
     @SuppressWarnings("unchecked")
     static <T> LazyOptional<T> foreignCapability(ItemStack stack, Capability<T> capability) {
         if (ownNamespaces.contains(Registry.ITEM.getKey(stack.getItem()).getNamespace())) {
             return LazyOptional.empty();
         }
-        if (capability == ForgeCapabilities.FLUID_HANDLER_ITEM || capability == ForgeCapabilities.FLUID_HANDLER) {
+        if (capability == ForgeCapabilities.ITEM_HANDLER) {
+            ContainerItemContext context = ContainerItemContext.ofSingleSlot(new StackSlot(stack));
+            return context.find(ItemStorageLookup.ITEM) == null ? LazyOptional.empty()
+                  : (LazyOptional<T>) LazyOptional.of(() -> new StorageItemHandler(new ItemContextStorage(context)));
+        } else if (capability == ForgeCapabilities.FLUID_HANDLER_ITEM || capability == ForgeCapabilities.FLUID_HANDLER) {
             StackSlot slot = new StackSlot(stack);
             ContainerItemContext context = ContainerItemContext.ofSingleSlot(slot);
             return context.find(FluidStorage.ITEM) == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> new StorageFluidHandlerItem(slot, context));
         } else if (capability == ForgeCapabilities.ENERGY) {
             return (LazyOptional<T>) FabricEnergy.foreignEnergy(ContainerItemContext.ofSingleSlot(new StackSlot(stack)));
+        } else if (capability == Capabilities.GAS_HANDLER) {
+            return chemical(MekanismChemicalLookups.GAS_ITEM, stack);
+        } else if (capability == Capabilities.INFUSION_HANDLER) {
+            return chemical(MekanismChemicalLookups.INFUSION_ITEM, stack);
+        } else if (capability == Capabilities.PIGMENT_HANDLER) {
+            return chemical(MekanismChemicalLookups.PIGMENT_ITEM, stack);
+        } else if (capability == Capabilities.SLURRY_HANDLER) {
+            return chemical(MekanismChemicalLookups.SLURRY_ITEM, stack);
+        } else if (capability == Capabilities.HEAT_HANDLER) {
+            return chemical(MekanismChemicalLookups.HEAT_ITEM, stack);
         }
         return LazyOptional.empty();
+    }
+
+    /**
+     * The handler another mod registered for this stack on one of {@link MekanismChemicalLookups}' item lookups.
+     */
+    @SuppressWarnings("unchecked")
+    private static <T, H> LazyOptional<T> chemical(ItemApiLookup<H, Void> lookup, ItemStack stack) {
+        H handler = lookup.find(stack, null);
+        return handler == null ? LazyOptional.empty() : (LazyOptional<T>) LazyOptional.of(() -> handler);
     }
 
     /**
@@ -570,6 +598,43 @@ public final class FabricTransfer {
                 }
             }
             return null;
+        }
+    }
+
+    /**
+     * The item storage another mod's item holds, looked up again for every operation, since moving items in or out can
+     * turn it into an item with a different storage.
+     */
+    private record ItemContextStorage(ContainerItemContext context) implements Storage<ItemVariant> {
+
+        private Storage<ItemVariant> storage() {
+            Storage<ItemVariant> storage = context.find(ItemStorageLookup.ITEM);
+            return storage == null ? Storage.empty() : storage;
+        }
+
+        @Override
+        public boolean supportsInsertion() {
+            return storage().supportsInsertion();
+        }
+
+        @Override
+        public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            return storage().insert(resource, maxAmount, transaction);
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            return storage().supportsExtraction();
+        }
+
+        @Override
+        public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            return storage().extract(resource, maxAmount, transaction);
+        }
+
+        @Override
+        public Iterator<StorageView<ItemVariant>> iterator() {
+            return storage().iterator();
         }
     }
 

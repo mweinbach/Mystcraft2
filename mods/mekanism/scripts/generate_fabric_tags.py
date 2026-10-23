@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Generates the Fabric tag bridges in src/fabric/resources/data.
+"""Generates the Fabric tag bridges in each module's Fabric resources.
 
 Forge defines forge: tags for vanilla content in its own data and Mekanism's recipes rely on them. Fabric has no such
 tags, and Fabric mods tag their content with c: tags instead. For every forge: tag Forge defines, and every forge: tag
 Mekanism's shared data defines that has a c: equivalent, this writes a Fabric forge: tag holding Mekanism's shared
 values, Forge's values and the c: tag as an optional entry. Fabric resources replace shared resources at the same path,
 so the shared values are repeated. It also writes c: tags holding Mekanism's own content so Fabric mods see it.
+
+Every module is scanned: core (src/main), additions, generators and tools (src/<module>/resources). Forge's own tags
+are bridged once, in the core jar, which every module depends on. A module's c: tags go in its own Fabric resources
+(src/<module>/fabric/resources); its forge: tags that Forge does not define get a core bridge holding only the c:
+reference, since its own values are already in the module's shared file.
 
 c: tags never reference forge: tags, so the two namespaces cannot form a cycle.
 
@@ -21,10 +26,14 @@ import zipfile
 from pathlib import Path
 
 MOD = Path(__file__).resolve().parent.parent
-SHARED_TAGS = MOD / 'src/main/resources/data/forge/tags'
-FABRIC_DATA = MOD / 'src/fabric/resources/data'
+# Module: (its shared forge: tags, the Fabric data folder its bridges go to).
+MODULES = {
+    'main': (MOD / 'src/main/resources/data/forge/tags', MOD / 'src/fabric/resources/data'),
+    'additions': (MOD / 'src/additions/resources/data/forge/tags', MOD / 'src/additions/fabric/resources/data'),
+    'generators': (MOD / 'src/generators/resources/data/forge/tags', MOD / 'src/generators/fabric/resources/data'),
+    'tools': (MOD / 'src/tools/resources/data/forge/tags', MOD / 'src/tools/fabric/resources/data'),
+}
 TOOLS_DATA = MOD / 'src/tools/resources/data'
-OUTPUTS = (FABRIC_DATA / 'forge/tags', FABRIC_DATA / 'c/tags')
 FORGE_TAGS = MOD / 'scripts/forge-tags.json'
 # Tools forge: tags flattened into c: tags that ship in the tools jar. Paxels stay out of the tool tags.
 TOOLS_C_TAGS = {
@@ -43,7 +52,10 @@ TOOLS_C_TAGS = {
 
 # Kinds whose forge: tags have c: counterparts in Fabric's conventions.
 CONVENTION_KINDS = ('items', 'blocks', 'fluids')
-# Fabric convention names that do not follow the <material>_<form>s pattern.
+# Fabric convention names that do not follow the <material>_<form>s pattern. Fabric API 0.77's conventional tags
+# define only some of them (diamonds, emeralds, lapis, quartz, ores, shears, empty_buckets, glass_blocks, glass_panes,
+# and bookshelves as a block tag); the rest are the plural names Fabric mods use for 1.19.2. Every c: reference is
+# optional, so a name no installed mod fills is an empty tag.
 SPECIAL_NAMES = {
     'gems/diamond': 'diamonds',
     'gems/emerald': 'emeralds',
@@ -58,7 +70,28 @@ SPECIAL_NAMES = {
     'buckets/empty': 'empty_buckets',
     'shears': 'shears',
     'ores': 'ores',
+    # Mekanism's configurators tag holds both wrench tags, so Fabric wrenches work on Mekanism blocks.
+    'wrenches': 'wrenches',
+    'tools/wrench': 'wrenches',
+    # Vanilla materials Mekanism's recipes use.
+    'cobblestone/normal': 'cobblestone',
+    'cobblestone/deepslate': 'cobbled_deepslate',
+    'slimeballs': 'slime_balls',
+    'string': 'string',
+    'leather': 'leather',
+    'obsidian': 'obsidian',
+    'gravel': 'gravel',
+    'gunpowder': 'gunpowder',
+    'nether_stars': 'nether_stars',
+    'mushrooms': 'mushrooms',
+    'bookshelves': 'bookshelves',
+    'crops/wheat': 'wheat_crops',
+    'fences/wooden': 'wooden_fences',
 }
+COLORS = ('white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple',
+          'blue', 'brown', 'green', 'red', 'black')
+SPECIAL_NAMES.update({f'glass/{color}': f'{color}_glass_blocks' for color in COLORS})
+SPECIAL_NAMES.update({f'glass_panes/{color}': f'{color}_glass_panes' for color in COLORS})
 FORMS = ('ingots', 'nuggets', 'dusts', 'ores', 'gems', 'plates', 'gears', 'rods', 'dyes', 'pellets')
 TOOLS = ('swords', 'axes', 'pickaxes', 'shovels', 'hoes', 'bows', 'crossbows', 'tridents', 'shields', 'fishing_rods')
 
@@ -95,9 +128,12 @@ def read_forge_jar(jar):
     return tags
 
 
-def read_shared():
-    return {path.relative_to(SHARED_TAGS).with_suffix('').as_posix(): json.loads(path.read_text())['values']
-            for path in sorted(SHARED_TAGS.rglob('*.json'))}
+def read_shared(root):
+    """A module's shared forge: tags, keyed by <kind>/<path>."""
+    if not root.is_dir():
+        return {}
+    return {path.relative_to(root).with_suffix('').as_posix(): json.loads(path.read_text())['values']
+            for path in sorted(root.rglob('*.json'))}
 
 
 def entry_id(entry):
@@ -127,26 +163,56 @@ def to_convention(kind, entry):
     return optional(f'#c:{name}') if name else None
 
 
-def bridges(forge, shared):
+def bridges(forge, shared, core=True, reserved=()):
+    """The bridge values for one module: {'forge/tags/...' or 'c/tags/...': values}.
+
+    The core module bridges every tag Forge defines and every forge: tag of its own that has a c: name. Another module
+    bridges only its forge: tags that Forge does not define, and those bridges hold just the optional c: reference: the
+    module's own values stay in its shared file, and they go in the core jar (see module_bridges). Every module writes
+    c: tags for its own content. ``reserved`` are c: names the module already ships from its shared resources.
+    """
     files = {}
-    for key in sorted(set(forge) | set(shared)):
+    for key in sorted((set(forge) if core else set()) | set(shared)):
         kind, _, path = key.partition('/')
         name = convention_name(kind, path) if kind in CONVENTION_KINDS else None
         if key not in forge and name is None:
             continue
         convention = [optional(f'#c:{name}')] if name else []
-        files[f'forge/tags/{key}.json'] = merge(shared.get(key, []), forge.get(key, []), convention)
-        if name and key in shared:
+        if core:
+            files[f'forge/tags/{key}.json'] = merge(shared.get(key, []), forge.get(key, []), convention)
+        elif key not in forge:
+            files[f'forge/tags/{key}.json'] = convention
+        if name and key in shared and name not in reserved:
             own = [value for value in (to_convention(kind, entry) for entry in shared[key]) if value is not None]
             if own:
                 target = f'c/tags/{kind}/{name}.json'
                 files[target] = merge(files.get(target, []), own)
+    return files
+
+
+def module_bridges(forge):
+    """Every module's bridge files, keyed by path relative to the mod folder.
+
+    c: tags go in the module's own Fabric resources. A module's forge: bridges go in core's: Loom fails on a resource
+    path a module's Fabric and shared folders both have, and core reaches the c: tag for every module that depends on it.
+    """
+    files = {}
+    core_data = MODULES['main'][1]
+    for module, (shared_root, fabric_data) in MODULES.items():
+        reserved = set(TOOLS_C_TAGS.values()) if module == 'tools' else ()
+        for path, values in bridges(forge, read_shared(shared_root), module == 'main', reserved).items():
+            folder = fabric_data if path.startswith('c/') else core_data
+            target = (folder / path).relative_to(MOD).as_posix()
+            files[target] = merge(files.get(target, []), values)
     return {path: json.dumps({'replace': False, 'values': values}, indent=2) + '\n' for path, values in files.items()}
 
 
 def existing():
-    return {path.relative_to(FABRIC_DATA).as_posix(): path.read_text()
-            for output in OUTPUTS if output.exists() for path in sorted(output.rglob('*.json'))}
+    """The checked-in bridge files of every module, keyed by path relative to the mod folder."""
+    return {path.relative_to(MOD).as_posix(): path.read_text()
+            for _, fabric_data in MODULES.values()
+            for output in (fabric_data / 'forge/tags', fabric_data / 'c/tags') if output.exists()
+            for path in sorted(output.rglob('*.json'))}
 
 
 def flatten_tag(tags, key, seen):
@@ -178,7 +244,8 @@ def tools_c_tags():
             if item not in seen:
                 seen.add(item)
                 values.append(item)
-        files[f'c/tags/items/{name}.json'] = json.dumps({'replace': False, 'values': values}, indent=2) + '\n'
+        files[(TOOLS_DATA / f'c/tags/items/{name}.json').relative_to(MOD).as_posix()] = \
+            json.dumps({'replace': False, 'values': values}, indent=2) + '\n'
     return files
 
 
@@ -186,7 +253,7 @@ def existing_tools_c():
     folder = TOOLS_DATA / 'c'
     if not folder.exists():
         return {}
-    return {path.relative_to(TOOLS_DATA).as_posix(): path.read_text() for path in sorted(folder.rglob('*.json'))}
+    return {path.relative_to(MOD).as_posix(): path.read_text() for path in sorted(folder.rglob('*.json'))}
 
 
 def main():
@@ -196,34 +263,26 @@ def main():
     args = parser.parse_args()
     if args.forge_jar:
         FORGE_TAGS.write_text(json.dumps(read_forge_jar(args.forge_jar), indent=2) + '\n')
-    wanted = bridges(json.loads(FORGE_TAGS.read_text()), read_shared())
-    current = existing()
+    wanted_bridges = module_bridges(json.loads(FORGE_TAGS.read_text()))
     wanted_tools = tools_c_tags()
-    current_tools = existing_tools_c()
+    wanted = {**wanted_bridges, **wanted_tools}
+    current = {**existing(), **existing_tools_c()}
+    summary = f'{len(wanted_bridges)} Fabric tag bridges across {len(MODULES)} modules and {len(wanted_tools)} tools c: tags'
     if args.check:
         stale = sorted(path for path in set(wanted) | set(current) if wanted.get(path) != current.get(path))
         for path in stale:
-            print(f'out of date: src/fabric/resources/data/{path}', file=sys.stderr)
-        stale_tools = sorted(path for path in set(wanted_tools) | set(current_tools) if wanted_tools.get(path) != current_tools.get(path))
-        for path in stale_tools:
-            print(f'out of date: src/tools/resources/data/{path}', file=sys.stderr)
-        if stale or stale_tools:
-            sys.exit(f'{len(stale) + len(stale_tools)} Fabric tag bridges are out of date; run {Path(__file__).name}')
-        print(f'{len(wanted)} Fabric tag bridges and {len(wanted_tools)} tools c: tags are up to date.')
+            print(f'out of date: {path}', file=sys.stderr)
+        if stale:
+            sys.exit(f'{len(stale)} Fabric tag bridges are out of date; run {Path(__file__).name}')
+        print(f'{summary} are up to date.')
         return
     for path in set(current) - set(wanted):
-        (FABRIC_DATA / path).unlink()
+        (MOD / path).unlink()
     for path, text in wanted.items():
-        target = FABRIC_DATA / path
+        target = MOD / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text)
-    for path in set(current_tools) - set(wanted_tools):
-        (TOOLS_DATA / path).unlink()
-    for path, text in wanted_tools.items():
-        target = TOOLS_DATA / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
-    print(f'Wrote {len(wanted)} Fabric tag bridges and {len(wanted_tools)} tools c: tags.')
+    print(f'Wrote {summary}.')
 
 
 if __name__ == '__main__':

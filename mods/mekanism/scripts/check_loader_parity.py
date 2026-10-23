@@ -275,8 +275,19 @@ def check_module(name, mod_id, expect_emc):
         forge_paths = gameplay(forge_jar)
         fabric_paths = gameplay(fabric_jar)
         expected = gameplay(shared) | {'logo.png'}
-        require(forge_paths == fabric_paths == expected,
-                f'{mod_id}: gameplay paths differ: ' + ', '.join(sorted((forge_paths ^ expected) | (fabric_paths ^ expected))[:8]))
+        # generate_fabric_tags.py writes the module's c: tags into its Fabric resources. They are new paths, never
+        # replacements: Loom fails on a path the module's Fabric and shared folders both have.
+        bridges = files_under(MOD / 'src' / name / 'fabric/resources')
+        bridge_paths = gameplay(bridges)
+        outside = sorted(path for path in bridge_paths if not path.startswith(('data/c/tags/', 'data/forge/tags/')))
+        require(not outside, f'{mod_id}: Fabric-only resources outside the tag bridges: ' + ', '.join(outside[:8]))
+        require(not bridge_paths & expected, f'{mod_id}: Fabric tag bridge replaces a shared file: '
+                + ', '.join(sorted(bridge_paths & expected)[:8]))
+        require(forge_paths == expected and fabric_paths == expected | bridge_paths,
+                f'{mod_id}: gameplay paths differ: '
+                + ', '.join(sorted((forge_paths ^ expected) | (fabric_paths ^ (expected | bridge_paths)))[:8]))
+        for entry_name in sorted(bridge_paths):
+            require(fabric_jar.read(entry_name) == bridges[entry_name], f'{mod_id}: Fabric tag bridge differs: {entry_name}')
         for entry_name in sorted(expected - {'logo.png'}):
             require(forge_jar.read(entry_name) == fabric_jar.read(entry_name) == shared[entry_name],
                     f'{mod_id}: shared resource differs: {entry_name}')
@@ -290,7 +301,8 @@ def check_module(name, mod_id, expect_emc):
             require(jar.read(ATTRIBUTION) == (MOD / 'UPSTREAM.md').read_bytes(), f'{mod_id}: UPSTREAM.md mismatch')
             require('LICENSE' in jar.namelist() and jar.read('LICENSE') == (MOD / 'LICENSE').read_bytes(),
                     f'{mod_id}: LICENSE mismatch')
-    print(f'PASS: {mod_id} {len(forge_classes)} shared classes, {len(expected)} gameplay resources.')
+    print(f'PASS: {mod_id} {len(forge_classes)} shared classes, {len(expected)} gameplay resources, '
+          f'{len(bridge_paths)} Fabric tag bridges.')
     parity.print_hashes(forge_path, fabric_path)
 
 

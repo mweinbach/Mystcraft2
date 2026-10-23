@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "minecraft:brown_stained_glass_pane"
+    "minecraft:brown_stained_glass_pane",
+    {
+      "id": "#c:brown_glass_panes",
+      "required": false
+    }
   ]
 }

@@ -26,8 +26,9 @@ import net.minecraft.resources.ResourceLocation;
  * {@code BlockApiLookup.get} and {@code ItemApiLookup.get} return these same instances when called with the id, the
  * handler class and the context class below, so a mod can depend on this class or rebuild the lookup from the id.
  * Query again when you need the handler; do not keep it after the block is removed or the stack is replaced.
- * Mekanism registers its own blocks and items. Other mods register theirs on the same lookups. Asking a Mekanism
- * capability of a foreign block does not consult these lookups.
+ * Mekanism registers its own blocks and items. Other mods register theirs on the same lookups. When Mekanism asks a
+ * foreign block entity or stack for a chemical or heat capability, it consults these lookups, so a provider must not
+ * answer by asking that block entity or stack for the same Mekanism capability.
  */
 public final class MekanismChemicalLookups {
 

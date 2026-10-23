@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "minecraft:red_stained_glass"
+    "minecraft:red_stained_glass",
+    {
+      "id": "#c:red_glass_blocks",
+      "required": false
+    }
   ]
 }
