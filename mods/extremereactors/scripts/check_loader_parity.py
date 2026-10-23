@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """Check that the Forge and Fabric variants of Extreme Reactors ship the same mod.
 
-Run after both builds. Checks the two jars (descriptors, metadata, bundled libraries, the access widener, loader
-isolation, identical shared resources and the Fabric refmap) and the sources (same-name platform classes, forwarded
-game tests, ore generation, the forge: tags the shared code and recipes rely on, and c:steel_ingots in the Fabric
-steel gates).
+Run after both builds. Checks the two jars (descriptors, metadata, the shared loader_parity artifact checks - mixin
+refmaps, entrypoints, dependency floors, bundled libraries, no access widener - loader isolation, identical shared
+resources and the Fabric refmap) and the sources (same-name platform classes, forwarded game tests, ore generation,
+the forge: tags the shared code and recipes rely on, and c:steel_ingots in the Fabric steel gates).
 """
 from pathlib import Path
 import json
 import re
 import sys
-import tomllib
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
@@ -19,7 +18,6 @@ import loader_parity as parity
 MOD = Path(__file__).resolve().parents[1]
 SRC = MOD / 'src'
 MOD_ID = 'bigreactors'
-WIDENER = 'extremereactors.accesswidener'
 GAMETEST_ROOTS = tuple(SRC / name / 'java' for name in ('gametestCommon', 'gametestForge', 'gametestFabric'))
 
 metadata = parity.read_properties(MOD / 'port.properties')
@@ -28,30 +26,7 @@ forge = MOD / 'build/libs' / f'extremereactors-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'extremereactors-fabric-1.19.2-{version}.jar'
 
 
-def bundled_libraries():
-    """The names Loom gives the include(...) dependencies of fabric/build.gradle under META-INF/jars.
-
-    A plain Maven dependency keeps its artifact file name (energy-2.3.0.jar). Fluid Physics comes from the included
-    build, so its version comes from that build's port.properties and its archivesName already carries the Minecraft
-    version. Both are resolved rather than restated so a version bump cannot skip the check.
-    """
-    included_builds = {'ports.fluidphysics:fluidphysics-fabric': MOD.parent / 'fluidphysics'}
-    libraries = []
-    for coordinate in re.findall(r"include\(modImplementation\(['\"]([^'\"]+)['\"]",
-                                 (MOD / 'fabric/build.gradle').read_text()):
-        module, artifact, declared = coordinate.split(':')
-        if declared.startswith('${'):
-            project = included_builds[f'{module}:{artifact}']
-            declared = parity.read_properties(project / 'port.properties')['mod_version']
-            archive = re.search(r"base\.archivesName\s*=\s*['\"]([^'\"]+)['\"]",
-                                (project / 'build.gradle').read_text()).group(1)
-            libraries.append(f'{archive}-{declared}.jar')
-        else:
-            libraries.append(f'{artifact}-{declared}.jar')
-    return tuple(f'META-INF/jars/{name}' for name in libraries)
-
-
-NESTED = bundled_libraries()
+NESTED = parity.included_libraries(MOD / 'fabric')
 
 # Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod), the bridges
 # between the two loaders' steel tags (one per loader, as both would form a cycle), the Fabric bridges that give forge:
@@ -72,22 +47,16 @@ def require(condition, message):
 
 
 def check_artifacts():
+    parity.assert_built(forge, fabric)
     with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
         require(a.testzip() is None and b.testzip() is None, 'corrupt artifact')
         _forge_mod, fabric_mod = parity.check_descriptors(
             a, b, mod_id=MOD_ID, version=version, license_id=metadata['mod_license'], fail=require)
-        # check_descriptors covers fabric.mod.json; the Forge descriptor also carries a top-level license.
-        forge_toml = tomllib.loads(a.read('META-INF/mods.toml').decode())
-        require(forge_toml.get('license') == metadata['mod_license'], 'license mismatch')
-
         require(NESTED, 'fabric/build.gradle bundles no include(...) libraries')
-        bundled = parity.check_nested_libraries(a, b, fabric_mod, NESTED, fail=require)
-
-        require(fabric_mod.get('accessWidener') == WIDENER, 'fabric.mod.json does not declare the access widener')
-        require(WIDENER in b.namelist(), f'the Fabric jar does not contain {WIDENER}')
-        if WIDENER in b.namelist():
-            require(b.read(WIDENER).strip(), f'the Fabric access widener {WIDENER} is empty')
-        require(WIDENER not in a.namelist(), 'the access widener leaked into the Forge jar')
+        # Extreme Reactors needs no access widening; check_access_widener rejects a widener that widens nothing.
+        shared = parity.check_artifact_pair(a, b, fabric_mod, build_dir=MOD / 'fabric', src=SRC, nested=NESTED,
+                                            label='extremereactors', fail=require)
+        require(not fabric_mod.get('accessWidener'), 'Extreme Reactors declares an access widener again')
 
         parity.check_cross_loader(a, b, forge_forbidden=(b'net/fabricmc/', b'team/reborn/'), fail=require)
         parity.check_gametests((a, b), *GAMETEST_ROOTS,
@@ -109,7 +78,7 @@ def check_artifacts():
             mapping = json.dumps(refmap.get('ports/extremereactors/fabric/mixin/' + name, {}))
             require('method_' in mapping or 'field_' in mapping, f'missing production mapping for mixin {name}')
 
-        return len(common), bundled
+        return len(common), shared
 
 
 def java_sources(directory):
@@ -150,7 +119,8 @@ def check_game_tests():
             f'Fabric-only {sorted(set(fabric_tests.items()) - set(forge_tests.items()))}')
     for name in sorted(shared - set(forge_tests)):
         require(False, f'shared game test {name} is not run by the loaders')
-    return len(forge_tests)
+    symmetric, loader_only = parity.check_loader_gametests(MOD, fail=require)
+    return symmetric, loader_only
 
 
 def check_ore_generation():
@@ -238,9 +208,9 @@ def check_steel_recipes():
     return gated
 
 
-resources, bundled = check_artifacts()
+resources, shared = check_artifacts()
 platform = check_platform_classes()
-tests = check_game_tests()
+tests, loader_only = check_game_tests()
 ores = check_ore_generation()
 tags = check_forge_tags_on_fabric()
 steel = check_steel_recipes()
@@ -249,7 +219,7 @@ if failures:
     raise SystemExit('FAIL:\n  ' + '\n  '.join(failures))
 
 print(f'PASS: {resources} identical shared resources, {platform} platform classes on both loaders, '
-      f'{tests} game tests forwarded by both, {ores} ore features on both, '
-      f'{bundled} bundled libraries and the access widener on Fabric, '
+      f'{tests} game tests forwarded by both ({loader_only} allowlisted to one), {ores} ore features on both, '
+      f'{parity.summary(shared)}, '
       f'{tags} forge: tags resolvable on Fabric, {steel} steel-gated recipes testing c:steel_ingots on Fabric.')
 parity.print_hashes(forge, fabric)

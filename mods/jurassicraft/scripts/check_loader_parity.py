@@ -24,16 +24,23 @@ FORGE_ONLY_PREFIX = 'data/jurassicraft/forge/'
 FORGE_ONLY_TRANSFORMER = 'net.minecraft.world.level.block.FireBlock m_53444_'
 
 GAMETEST_SOURCES = [MOD / 'src' / name / 'java' for name in ('gametestCommon', 'gametestForge', 'gametestFabric')]
+# Upstream JurassiCraft has no license (recorded in UPSTREAM.md); fabric.mod.json needs an SPDX-style id.
+FABRIC_LICENSE = 'LicenseRef-Unknown'
 
 
+parity.assert_built(forge, fabric)
 with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(a.testzip() is None and b.testzip() is None, 'Corrupt artifact')
     fm, bm = parity.check_descriptors(a, b, mod_id='jurassicraft', version=version,
-                                     description=metadata['mod_description'])
+                                     description=metadata['mod_description'],
+                                     license_id=metadata['mod_license'], fabric_license_id=FABRIC_LICENSE)
+    shared = parity.check_artifact_pair(a, b, bm, build_dir=MOD / 'fabric', src=MOD / 'src',
+                                        nested=parity.included_libraries(MOD / 'fabric'), label='jurassicraft')
     parity.check_cross_loader(a, b)
     parity.check_gametests((a, b), *GAMETEST_SOURCES,
                            entry_suffixes=('_test.nbt', '_test.snbt'),
                            entry_prefixes=('data/jurassicraft_gametest/', 'assets/jurassicraft/test/'))
+    tests, loader_only = parity.check_loader_gametests(MOD)
 
     forge_paths, fabric_paths = parity.gameplay_paths(a), parity.gameplay_paths(b)
     forge_only = {n for n in forge_paths if n.startswith(FORGE_ONLY_PREFIX)}
@@ -100,5 +107,6 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
                if line.strip() and not line.startswith('#')}
     parity.require(len(transformer) == len(widener), f'Access transformer ({len(transformer)}) and widener ({len(widener)}) diverge')
     print(f'PASS: {len(fabric_paths) - len(LOADER_SPECIFIC)} identical gameplay resources, {len(LOADER_SPECIFIC)} loader-specific; '
+          f'{parity.summary(shared)}; {tests} GameTests on both loaders, {loader_only} allowlisted to one; '
           'loader isolation, metadata, GameTest exclusion, access entries and mixin refmaps valid.')
 parity.print_hashes(forge, fabric)

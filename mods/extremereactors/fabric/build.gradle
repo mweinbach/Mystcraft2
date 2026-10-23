@@ -156,7 +156,6 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 loom {
-    accessWidenerPath = file('../src/fabric/resources/extremereactors.accesswidener')
     mods {
         bigreactors { sourceSet sourceSets.main }
         bigreactors_gametest { sourceSet sourceSets.gametest }

@@ -1,0 +1,20 @@
+# GameTests that only one loader registers. `scripts/loader_parity.py` discovers the
+# tests each loader runs from its GameTest sources (Forge: @GameTestHolder classes;
+# Fabric: the fabric-gametest entrypoints; generators expanded) and matches them by
+# runtime name, <class>.<method>, with loader-named forwarding classes normalised
+# (ExtremeReactorsForgeGameTests and ExtremeReactorsFabricGameTests are one class).
+# Any test on only one loader must be listed here, and a listed test that now runs on
+# both must be removed, so this file only shrinks.
+#
+# Format: <forge|fabric> <Class>.<method>  # reason (required); Class is the declaring
+# class on that loader.
+forge ForgeAdapterGameTests.forgeEnergyCapability  # Forge Energy capability adapter; Fabric covers it with teamRebornEnergyStorage
+forge ForgeAdapterGameTests.forgeFluidHandler  # Forge fluid capability adapter; Fabric covers it with transferApiFluidStorage
+forge ForgeAdapterGameTests.forgeItemHandler  # Forge item capability adapter; Fabric covers it with transferApiItemStorage
+forge ForgeAdapterGameTests.forgeShardFluidHandler  # Forge fluid-shard capability adapter; Fabric covers it with transferApiShardStorage
+forge ForgeAdapterGameTests.keptCapabilitiesFollowPlugs  # Forge capability invalidation on plugs; Fabric covers it with keptStoragesFollowPlugs
+fabric FabricAdapterGameTests.keptStoragesFollowPlugs  # Transfer API storage caching on plugs; Forge covers it with keptCapabilitiesFollowPlugs
+fabric FabricAdapterGameTests.teamRebornEnergyStorage  # Team Reborn Energy adapter; Forge covers it with forgeEnergyCapability
+fabric FabricAdapterGameTests.transferApiFluidStorage  # Transfer API fluid adapter; Forge covers it with forgeFluidHandler
+fabric FabricAdapterGameTests.transferApiItemStorage  # Transfer API item adapter; Forge covers it with forgeItemHandler
+fabric FabricAdapterGameTests.transferApiShardStorage  # Transfer API fluid-shard adapter; Forge covers it with forgeShardFluidHandler

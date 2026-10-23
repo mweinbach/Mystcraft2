@@ -1,0 +1,21 @@
+# GameTests that only one loader registers. `scripts/loader_parity.py` discovers the
+# tests each loader runs from its GameTest sources (Forge: @GameTestHolder classes;
+# Fabric: the fabric-gametest entrypoints; generators expanded) and matches them by
+# runtime name, <class>.<method>, with loader-named forwarding classes normalised
+# (ExtremeReactorsForgeGameTests and ExtremeReactorsFabricGameTests are one class).
+# Any test on only one loader must be listed here, and a listed test that now runs on
+# both must be removed, so this file only shrinks.
+#
+# Format: <forge|fabric> <Class>.<method>  # reason (required); Class is the declaring
+# class on that loader.
+fabric FabricFluidPhysicsGameTests.everyModuleFluidIsRegisteredFromItsType  # Fluid Physics bridge; Forge FluidType does this natively
+fabric FabricFluidPhysicsGameTests.inertFluidDoesNotDrown  # Fluid Physics bridge; Forge FluidType does this natively
+fabric FabricFluidPhysicsGameTests.inertFluidDoesNotPushEntities  # Fluid Physics bridge; Forge FluidType does this natively
+fabric FabricFluidPhysicsGameTests.inertFluidDoesNotSetSwimPose  # Fluid Physics bridge; Forge FluidType does this natively
+fabric FabricFluidPhysicsGameTests.inertFluidPathsAsItsTypeSays  # Fluid Physics bridge; Forge FluidType does this natively
+fabric FabricForeignInteropGameTests.chemicalTankFillsAForeignGasItem  # Fabric foreign-item interop; Forge reaches other mods through capabilities
+fabric FabricForeignInteropGameTests.fabricWrenchesWorkOnMekanismBlocks  # c:wrenches interop; Forge uses its own forge: tags and capabilities
+fabric FabricForeignInteropGameTests.foreignGasItemAnswersTheGasCapability  # Fabric foreign-item interop; Forge reaches other mods through capabilities
+fabric FabricForeignInteropGameTests.foreignItemStorageAnswersTheItemCapability  # Fabric Transfer API interop; Forge reaches other mods through capabilities
+fabric FabricForeignInteropGameTests.recipeTagsReachFabricConventionTags  # c: convention tag bridges; Forge recipes use forge: tags directly
+fabric FabricPermissionGameTests.permissionModDecidesMekanismNodes  # fabric-permissions-api bridge for Forge PermissionAPI

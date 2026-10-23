@@ -1,0 +1,11 @@
+# GameTests that only one loader registers. `scripts/loader_parity.py` discovers the
+# tests each loader runs from its GameTest sources (Forge: @GameTestHolder classes;
+# Fabric: the fabric-gametest entrypoints; generators expanded) and matches them by
+# runtime name, <class>.<method>, with loader-named forwarding classes normalised
+# (ExtremeReactorsForgeGameTests and ExtremeReactorsFabricGameTests are one class).
+# Any test on only one loader must be listed here, and a listed test that now runs on
+# both must be removed, so this file only shrinks.
+#
+# Format: <forge|fabric> <Class>.<method>  # reason (required); Class is the declaring
+# class on that loader.
+fabric FabricApiEntrypointGameTest.apiEntrypointMessagesApplyLikeImc  # Fabric bigreactors:api entrypoint stands in for Forge InterModComms
