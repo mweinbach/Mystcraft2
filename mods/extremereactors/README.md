@@ -133,7 +133,16 @@ on Forge Mekanism; add `-PwithEmi` as well to load EMI instead of JEI.
 `-PwithMekanism` adds Mekanism to a GameTest server or development client. On
 Forge that is Mekanism 10.3.9. On Fabric it is this repository's Mekanism port,
 which the Fabric build compiles against and does not ship inside its JAR.
-`reactorMekanismPortFollowsMekanism` then checks the gas port. The Fabric
+`reactorMekanismPortFollowsMekanism` then checks the gas port through Mekanism's
+own gas capability and has a Mekanism pressurized tube pull its steam into a
+Mekanism chemical tank:
+
+```sh
+./scripts/gradle.sh :extremereactors:runGameTestServer -PwithMekanism
+./scripts/gradle.sh -p mods/extremereactors/fabric runGametest -PwithMekanism
+```
+
+Without the flag the test checks that the port exposes nothing. The Fabric
 showcase client also gains `/ershowcase gas`, which builds a running reactor
 whose Mekanism port feeds steam into a pressurized tube and a chemical tank.
 Run `-PwithMekanism` apart from `-PwithProjectE` and `-PwithItemAlchemy`:

@@ -13,14 +13,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.extremereactors.forge.compat.ForgeMekanism;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
  * Mekanism's view of a block, kept apart from {@link ForgeLoaderApis} so Mekanism's classes only load with Mekanism.
+ * The handler comes from Mekanism's gas capability on the block entity, as Mekanism's tubes and machines ask for it.
  */
 final class ForgeMekanismGas {
 
-    static Optional<LoaderApis.GasTank> find(final ServerLevel level, final BlockPos position, final Direction side) {
+    static Optional<LoaderApis.GasTank> find(final ServerLevel level, final BlockPos position, @Nullable final Direction side) {
         return handler(level, position, side).map(gas -> {
 
             final GasStack stored = gas.getChemicalInTank(0);
@@ -36,7 +38,8 @@ final class ForgeMekanismGas {
                 .orElse(0L);
     }
 
-    private static Optional<IGasHandler> handler(final ServerLevel level, final BlockPos position, final Direction side) {
+    private static Optional<IGasHandler> handler(final ServerLevel level, final BlockPos position,
+                                                 @Nullable final Direction side) {
 
         final BlockEntity blockEntity = level.getBlockEntity(position);
 

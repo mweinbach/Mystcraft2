@@ -31,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -45,6 +46,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
@@ -61,6 +63,7 @@ import ports.extremereactors.multiblock.AbstractMultiblockController;
 import ports.extremereactors.multiblock.AbstractMultiblockPart;
 import ports.extremereactors.platform.Platform;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -459,13 +462,17 @@ public final class ExtremeReactorsGameTests {
 
     /**
      * With Mekanism, the Mekanism port offers the reactor's vapor tank as a gas handler, converting through Mekanism's
-     * rotary recipes: steam becomes {@code mekanism:steam}. Without Mekanism the port exposes nothing.
+     * rotary recipes: steam becomes {@code mekanism:steam}. Mekanism reads and drains it through its own gas
+     * capability, and a Mekanism pressurized tube whose side facing the port pulls carries the steam into a Mekanism
+     * chemical tank, as in a player's build. Without Mekanism the port exposes nothing.
      */
     public static void reactorMekanismPortFollowsMekanism(final GameTestHelper helper, final LoaderApis apis) {
 
         final BlockPos origin = new BlockPos(1, 1, 1);
         final BlockPos controller = origin.offset(0, 1, 1);
         final BlockPos mekanismPort = origin.offset(2, 1, 1);
+        final BlockPos tube = mekanismPort.east();
+        final BlockPos tank = tube.east();
         final boolean mekanism = Platform.isModLoaded(MekanismGas.MOD_ID);
 
         reinforcedActiveReactor(origin)
@@ -498,17 +505,17 @@ public final class ExtremeReactorsGameTests {
                     check(mekanism == gas.isPresent(), "Mekanism " + (mekanism ? "does not see" : "sees")
                             + " a gas handler on the Mekanism port");
 
-                    gas.ifPresent(tank -> {
+                    gas.ifPresent(port -> {
 
                         final int vaporCapacity = reactor.getFluidHandler(IoDirection.Output)
                                 .orElseThrow(() -> new GameTestAssertException("the active reactor has no vapor output"))
                                 .getTankCapacity(0);
                         final int steam = reactor.getVaporAmount();
 
-                        check(vaporCapacity == tank.capacity(), "the gas tank holds " + tank.capacity()
+                        check(vaporCapacity == port.capacity(), "the gas tank holds " + port.capacity()
                                 + " instead of the vapor tank's " + vaporCapacity);
-                        check(MEKANISM_STEAM.equals(tank.gas()) && steam == tank.stored(), "the reactor's "
-                                + steam + " mB of steam is offered as " + tank.stored() + " of " + tank.gas());
+                        check(MEKANISM_STEAM.equals(port.gas()) && steam == port.stored(), "the reactor's "
+                                + steam + " mB of steam is offered as " + port.stored() + " of " + port.gas());
 
                         final long extracted = apis.extractMekanismGas(helper.getLevel(),
                                 helper.absolutePos(mekanismPort), Direction.EAST, steam);
@@ -518,9 +525,112 @@ public final class ExtremeReactorsGameTests {
                                 + " and left " + left + " mB in the reactor");
                     });
                 })
+                .thenExecute(() -> {
+
+                    if (mekanism) {
+                        MekanismConsumers.placeTubeAndTank(helper, tube, tank);
+                    }
+                })
+                // Let the tube join its network before configuring it, as a player places it before configuring it.
+                .thenIdle(2)
+                .thenExecute(() -> {
+
+                    if (mekanism) {
+                        MekanismConsumers.pullThrough(helper, tube, Direction.WEST);
+                    }
+                })
+                .thenWaitUntil(() -> {
+
+                    if (!mekanism) {
+                        return;
+                    }
+
+                    final LoaderApis.GasTank stored = apis.mekanismGas(helper.getLevel(), helper.absolutePos(tank), null)
+                            .orElseThrow(() -> new GameTestAssertException("Mekanism sees no gas handler on its own "
+                                    + "chemical tank"));
+
+                    check(MEKANISM_STEAM.equals(stored.gas()) && stored.stored() > 0, "the chemical tank holds "
+                            + stored.stored() + " of " + stored.gas() + " instead of steam pulled from the reactor");
+                })
                 .thenSucceed();
     }
 
+    /**
+     * Every Extreme Reactors bucket offers its fluid through the loader's item fluid API, and an empty bucket filled
+     * with one of our fluids becomes our bucket, as tanks and pipes of other mods use them. Like vanilla buckets,
+     * they move whole buckets only.
+     */
+    public static void fluidBucketsThroughLoaderApis(final GameTestHelper helper, final LoaderApis apis) {
+
+        final Map<Supplier<? extends Item>, Supplier<? extends Fluid>> buckets = new LinkedHashMap<>();
+
+        buckets.put(Content.Items.STEAM_BUCKET, Content.Fluids.STEAM_SOURCE);
+        buckets.put(Content.Items.YELLORIUM_BUCKET, Content.Fluids.YELLORIUM_SOURCE);
+        buckets.put(Content.Items.CYANITE_BUCKET, Content.Fluids.CYANITE_SOURCE);
+        buckets.put(Content.Items.BLUTONIUM_BUCKET, Content.Fluids.BLUTONIUM_SOURCE);
+        buckets.put(Content.Items.MAGENTITE_BUCKET, Content.Fluids.MAGENTITE_SOURCE);
+        buckets.put(Content.Items.VERDERIUM_BUCKET, Content.Fluids.VERDERIUM_SOURCE);
+        buckets.put(Content.Items.ROSSINITE_BUCKET, Content.Fluids.ROSSINITE_SOURCE);
+        buckets.put(Content.Items.CRYOMISI_BUCKET, Content.Fluids.CRYOMISI_SOURCE);
+        buckets.put(Content.Items.TANGERIUM_BUCKET, Content.Fluids.TANGERIUM_SOURCE);
+        buckets.put(Content.Items.REDFRIGIUM_BUCKET, Content.Fluids.REDFRIGIUM_SOURCE);
+
+        final List<Item> registered = Registry.ITEM.stream()
+                .filter(item -> item instanceof BucketItem
+                        && Platform.MOD_ID.equals(Registry.ITEM.getKey(item).getNamespace()))
+                .toList();
+
+        check(registered.size() == buckets.size() && registered.stream().allMatch(item ->
+                        buckets.keySet().stream().anyMatch(bucket -> bucket.get() == item)),
+                "the test covers " + buckets.size() + " buckets, but the mod registers " + registered);
+
+        buckets.forEach((bucketSupplier, fluidSupplier) -> {
+
+            final Item bucket = bucketSupplier.get();
+            final Fluid fluid = fluidSupplier.get();
+            final String name = Registry.ITEM.getKey(bucket).toString();
+            final ItemStack full = new ItemStack(bucket);
+            final ItemStack empty = new ItemStack(Items.BUCKET);
+
+            final LoaderApis.ItemFluidTransfer partialDrain = apis.drainItem(full, 500);
+
+            check(0 == partialDrain.millibuckets() && partialDrain.container().is(bucket),
+                    name + ": draining 500 mB took " + partialDrain.millibuckets() + " mB and left "
+                            + partialDrain.container());
+
+            final LoaderApis.ItemFluidTransfer drain = apis.drainItem(full, 1000);
+
+            check(fluid == drain.fluid() && 1000 == drain.millibuckets(), name + ": draining a bucket gave "
+                    + drain.millibuckets() + " mB of " + fluidName(drain.fluid()) + " instead of 1000 mB of "
+                    + fluidName(fluid));
+            check(drain.container().is(Items.BUCKET) && 1 == drain.container().getCount(),
+                    name + ": draining left " + drain.container() + " instead of an empty bucket");
+
+            final LoaderApis.ItemFluidTransfer overfill = apis.fillItem(full, fluid, 1000);
+
+            check(0 == overfill.millibuckets() && overfill.container().is(bucket),
+                    name + ": a full bucket took " + overfill.millibuckets() + " mB more");
+
+            final LoaderApis.ItemFluidTransfer partialFill = apis.fillItem(empty, fluid, 500);
+
+            check(0 == partialFill.millibuckets() && partialFill.container().is(Items.BUCKET),
+                    name + ": an empty bucket took " + partialFill.millibuckets() + " of 500 mB and became "
+                            + partialFill.container());
+
+            final LoaderApis.ItemFluidTransfer fill = apis.fillItem(empty, fluid, 1000);
+
+            check(fluid == fill.fluid() && 1000 == fill.millibuckets(), "an empty bucket took "
+                    + fill.millibuckets() + " of 1000 mB of " + fluidName(fluid));
+            check(fill.container().is(bucket) && 1 == fill.container().getCount(), "filling an empty bucket with "
+                    + fluidName(fluid) + " made " + fill.container() + " instead of " + name);
+        });
+
+        helper.succeed();
+    }
+
+    private static String fluidName(@Nullable final Fluid fluid) {
+        return null == fluid ? "nothing" : Registry.FLUID.getKey(fluid).toString();
+    }
 
     //endregion
     //region computer ports

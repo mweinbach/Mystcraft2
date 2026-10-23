@@ -109,6 +109,11 @@ public final class ExtremeReactorsForgeGameTests {
         ExtremeReactorsGameTests.reactorMekanismPortFollowsMekanism(helper, ForgeLoaderApis.INSTANCE);
     }
 
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
+    public static void fluidBucketsThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.fluidBucketsThroughLoaderApis(helper, ForgeLoaderApis.INSTANCE);
+    }
+
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID,
             timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
     public static void computerPortControlsTheReactor(final GameTestHelper helper) {

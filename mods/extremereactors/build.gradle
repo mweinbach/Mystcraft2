@@ -87,6 +87,11 @@ sourceSets {
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
 }
+dependencies {
+    // The Mekanism gas-port GameTest builds with Mekanism's own tube and tank, so the GameTests (only) compile
+    // against the whole mod, not just its API. Those classes load only when -PwithMekanism puts Mekanism on the server.
+    gametestCompileOnly(fg.deobf('mekanism:Mekanism:1.19.2-10.3.9.13')) { transitive = false }
+}
 // EMI's mixins carry SRG refmaps; the development runs use official names.
 minecraft.runs.configureEach {
     property 'mixin.env.remapRefMap', 'true'
