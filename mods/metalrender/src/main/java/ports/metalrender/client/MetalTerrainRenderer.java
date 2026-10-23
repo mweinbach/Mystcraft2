@@ -13,16 +13,19 @@ import com.mojang.math.Matrix4f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.system.MemoryUtil;
@@ -47,6 +50,8 @@ import ports.metalrender.terrain.TerrainLayer;
 public final class MetalTerrainRenderer {
 
     private static final Queue<Runnable> PENDING = new ConcurrentLinkedQueue<>();
+    /** Section store changes that arrived while the GPU was reading the store (render thread only). */
+    private static final ArrayDeque<Runnable> DEFERRED = new ArrayDeque<>();
     private static final ByteBuffer FRAME = direct(FrameUniformWriter.FRAME_BYTES);
     private static final ByteBuffer TEMPORAL = direct(FrameUniformWriter.TEMPORAL_BYTES);
     private static final TemporalState TEMPORAL_STATE = new TemporalState();
@@ -57,6 +62,11 @@ public final class MetalTerrainRenderer {
     private static GlCompositor compositor;
     private static boolean atlasDirty = true;
     private static long frames;
+
+    /** An opaque pass is committed and not yet waited for; the section store must not change. */
+    private static boolean inFlight;
+    private static int inFlightEdge;
+    private static long inFlightSince;
 
     private MetalTerrainRenderer() {
     }
@@ -72,7 +82,20 @@ public final class MetalTerrainRenderer {
         TEMPORAL_STATE.invalidate();
     }
 
+    /** Waits for an in-flight pass and applies the store changes it held back. */
+    static void settle() {
+        if (inFlight) {
+            inFlight = false;
+            MetalNative.finishOpaquePass(MetalRenderClient.context());
+        }
+        Runnable op;
+        while ((op = DEFERRED.poll()) != null) {
+            op.run();
+        }
+    }
+
     static void onContextDestroyed() {
+        settle();
         PENDING.clear();
         if (compositor != null) {
             compositor.close();
@@ -86,8 +109,21 @@ public final class MetalTerrainRenderer {
 
     // ------------------------------------------------------------------ chunk data (render thread)
 
+    /** Runs a section store change now, or after the in-flight pass while the GPU reads the store. */
+    private static void mutate(final Runnable op) {
+        if (inFlight) {
+            DEFERRED.add(op);
+        } else {
+            op.run();
+        }
+    }
+
     /** Called when vanilla resets a chunk (moved to a new origin or released). */
     public static void releaseSection(final RenderChunkExt chunk) {
+        mutate(() -> releaseSectionNow(chunk));
+    }
+
+    private static void releaseSectionNow(final RenderChunkExt chunk) {
         final SectionSlot slot = chunk.metalrender$slot();
         if (slot != null) {
             final SectionStore store = MetalRenderClient.store();
@@ -100,6 +136,17 @@ public final class MetalTerrainRenderer {
 
     static void applyUpload(final ChunkRenderDispatcher.RenderChunk chunk, final TerrainLayer layer,
                             final PackedLayer data, final int epoch, final int generation, final BlockPos origin) {
+        mutate(() -> {
+            final long start = System.nanoTime();
+            applyUploadNow(chunk, layer, data, epoch, generation, origin);
+            PerfStats.uploadNanos += System.nanoTime() - start;
+            PerfStats.uploads++;
+        });
+    }
+
+    private static void applyUploadNow(final ChunkRenderDispatcher.RenderChunk chunk, final TerrainLayer layer,
+                                       final PackedLayer data, final int epoch, final int generation,
+                                       final BlockPos origin) {
         final SectionStore store = MetalRenderClient.store();
         final RenderChunkExt ext = (RenderChunkExt) chunk;
         if (store == null || epoch != MetalRenderClient.epoch() || ext.metalrender$released()
@@ -157,7 +204,7 @@ public final class MetalTerrainRenderer {
     public static void drainPendingOps() {
         Runnable op;
         while ((op = PENDING.poll()) != null) {
-            op.run();
+            mutate(op);
         }
     }
 
@@ -234,6 +281,32 @@ public final class MetalTerrainRenderer {
     // ------------------------------------------------------------------ frame
 
     /**
+     * Called from {@code renderLevel} just before vanilla's terrain setup, once the sky, fog and
+     * camera for the frame are final. Commits the opaque pass so the GPU renders terrain while the
+     * CPU runs vanilla's visibility and chunk scheduling; {@link #renderLayer} waits for it. Store
+     * changes made in between (chunk uploads, releases) are held back until then and show from the
+     * next frame.
+     */
+    public static void beginFrame(final PoseStack poseStack, final Camera camera, final Matrix4f projection) {
+        settle();
+        if (!MetalRenderClient.isActive()) {
+            return;
+        }
+        final Vec3 pos = camera.getPosition();
+        try {
+            begin(poseStack, pos.x, pos.y, pos.z, projection);
+        } catch (final RuntimeException | LinkageError e) {
+            MetalRenderMod.LOGGER.error("MetalRender failed while rendering terrain; falling back to vanilla", e);
+            MetalRenderClient.fail("render error: " + e);
+        }
+    }
+
+    /** Called when {@code renderLevel} returns: never leave a pass in flight across frames. */
+    public static void endFrame() {
+        settle();
+    }
+
+    /**
      * Replaces {@code LevelRenderer.renderChunkLayer} for solid and cutout layers. Returns true when
      * the layer was handled (the vanilla draw is skipped).
      */
@@ -248,7 +321,12 @@ public final class MetalTerrainRenderer {
         }
         try {
             if (layer == TerrainLayer.SOLID) {
-                renderOpaque(type, poseStack, camX, camY, camZ, projection);
+                if (!inFlight) {
+                    begin(poseStack, camX, camY, camZ, projection); // beginFrame did not run this frame
+                }
+                if (inFlight) {
+                    finishAndComposite(type);
+                }
             }
             // cutout layers are drawn by the opaque pass
         } catch (final RuntimeException | LinkageError e) {
@@ -259,8 +337,9 @@ public final class MetalTerrainRenderer {
         return true;
     }
 
-    private static void renderOpaque(final RenderType type, final PoseStack poseStack, final double camX,
-                                     final double camY, final double camZ, final Matrix4f projection) {
+    private static void begin(final PoseStack poseStack, final double camX, final double camY, final double camZ,
+                              final Matrix4f projection) {
+        final long start = System.nanoTime();
         drainPendingOps();
         final long ctx = MetalRenderClient.context();
         final SectionStore store = MetalRenderClient.store();
@@ -304,22 +383,42 @@ public final class MetalTerrainRenderer {
         if (renderW != outWidth || renderH != outHeight || upscale == MetalNative.UPSCALE_TEMPORAL) {
             compositor.copyBackground(ctx, target, renderW, renderH);
         }
-        final int slot = MetalNative.renderOpaquePass(ctx, outWidth, outHeight, scale, config.meshShaders, upscale,
+        final int slot = MetalNative.beginOpaquePass(ctx, outWidth, outHeight, scale, config.meshShaders, upscale,
                 FRAME, temporal, sections, store.meshletHighWater());
         if (slot < 0) {
             return;
         }
         // Upscaled silhouettes extend up to one source pixel past the nearest-upscaled coverage.
-        final int edge = MetalNative.getLastBackgroundUsed(ctx) ? Math.max(1, (int) Math.ceil(1.0f / scale)) : 0;
-        type.setupRenderState();
-        final boolean composited = compositor.composite(ctx, slot, outHeight, edge);
-        type.clearRenderState();
-        if (!composited) {
-            throw new IllegalStateException("could not attach the Metal IOSurface to OpenGL");
+        inFlightEdge = MetalNative.getLastBackgroundUsed(ctx) ? Math.max(1, (int) Math.ceil(1.0f / scale)) : 0;
+        inFlight = true;
+        inFlightSince = System.nanoTime();
+        PerfStats.beginNanos += inFlightSince - start;
+        PerfStats.opaqueNanos += inFlightSince - start;
+    }
+
+    private static void finishAndComposite(final RenderType type) {
+        final long ctx = MetalRenderClient.context();
+        final long start = System.nanoTime();
+        PerfStats.overlapNanos += start - inFlightSince;
+        inFlight = false;
+        final int slot = MetalNative.finishOpaquePass(ctx);
+        final long waited = System.nanoTime();
+        PerfStats.waitNanos += waited - start;
+        settle(); // apply the store changes held back during the pass
+        if (slot >= 0) {
+            type.setupRenderState();
+            final boolean composited = compositor.composite(ctx, slot, Minecraft.getInstance().getMainRenderTarget().height,
+                    inFlightEdge);
+            type.clearRenderState();
+            if (!composited) {
+                throw new IllegalStateException("could not attach the Metal IOSurface to OpenGL");
+            }
         }
-        if (++frames % 10 == 0 && config.debugInfo) {
+        if (++frames % 10 == 0 && MetalRenderClient.config().debugInfo) {
             MetalNative.readTelemetry(ctx, COUNTERS, GPU_MS);
         }
+        PerfStats.opaqueNanos += System.nanoTime() - start;
+        PerfStats.opaqueFrames++;
     }
 
     private static float[] toArray(final Matrix4f matrix) {

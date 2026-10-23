@@ -45,6 +45,13 @@ void mrSetAtlasRgba(void* ctx, int width, int height, const void* rgbaPixels);
 int mrRenderOpaque(void* ctx, int outW, int outH, float resolutionScale, int useMeshShaders, int upscaleMode,
                    const struct FrameUniforms* uniforms, const struct TemporalUniforms* temporal,
                    int activeSectionCap, int totalMeshlets);
+// Split form of mrRenderOpaque: begin encodes and commits the pass and returns its ring slot (or -1);
+// finish waits for the GPU and returns the same slot (or -1 when nothing is in flight). Between the
+// two calls the arena, section and meshlet buffers must not change.
+int mrBeginOpaque(void* ctx, int outW, int outH, float resolutionScale, int useMeshShaders, int upscaleMode,
+                  const struct FrameUniforms* uniforms, const struct TemporalUniforms* temporal,
+                  int activeSectionCap, int totalMeshlets);
+int mrFinishOpaque(void* ctx);
 int mrRenderTranslucent(void* ctx, int slot, int outW, int outH, const struct FrameUniforms* uniforms,
                         const uint32_t* sortedSectionIndices, int count);
 

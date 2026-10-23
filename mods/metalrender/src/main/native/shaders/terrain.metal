@@ -19,23 +19,17 @@ constexpr sampler kAtlasSharpNoMipSampler(
     mip_filter::none
 );
 
-constexpr sampler kLightmapSampler(
-    coord::normalized,
-    address::clamp_to_edge,
-    filter::linear,
-    mip_filter::none
-);
-
 vertex TerrainRasterData terrainVertex(
     uint vertexId                          [[vertex_id]],
     uint baseInstance                      [[base_instance]],
     device const MetalTerrainVertex* arena [[buffer(0)]],
     constant SectionGpuMeta* sections      [[buffer(1)]],
-    constant FrameUniforms& uniforms       [[buffer(2)]]
+    constant FrameUniforms& uniforms       [[buffer(2)]],
+    constant TerrainTextures& textures     [[buffer(3)]]
 ) {
     constant SectionGpuMeta& sec = sections[baseInstance];
     float3 camRelOrigin = mr_cameraRelativeOrigin(sec, uniforms);
-    return mr_evalTerrainVertex(arena[vertexId], camRelOrigin, uniforms);
+    return mr_evalTerrainVertex(arena[vertexId], camRelOrigin, uniforms, textures.lightmap);
 }
 
 // Solid terrain fragment shader: NO discard_fragment() so Apple Silicon TBDR runs full hardware Early-Z / HSR!
@@ -45,11 +39,9 @@ fragment TerrainFragmentOut terrainFragmentSolid(
     constant TerrainTextures& textures     [[buffer(3)]]
 ) {
     texture2d<float, access::sample> atlas = textures.atlas;
-    texture2d<float, access::sample> lmap = textures.lightmap;
     float4 tex = atlas.sample(kAtlasNearestMipSampler, in.uv);
-    float4 light = lmap.sample(kLightmapSampler, in.lightUv);
-    float4 lit = float4(tex.rgb * in.color.rgb * light.rgb, 1.0f);
-    float4 fogged = mr_applyVanillaFog(lit, in.sphericalDist, in.cylindricalDist, uniforms);
+    float4 lit = float4(tex.rgb * float3(in.color.rgb), 1.0f);
+    float4 fogged = mr_applyVanillaFog(lit, in.fogDist, uniforms);
 
     TerrainFragmentOut out;
     out.color = float4(fogged.rgb, 1.0f);
@@ -64,20 +56,18 @@ fragment TerrainFragmentOut terrainFragmentCutout(
     constant TerrainTextures& textures     [[buffer(3)]]
 ) {
     texture2d<float, access::sample> atlas = textures.atlas;
-    texture2d<float, access::sample> lmap = textures.lightmap;
     bool useMips = (in.mode == MR_MODE_CUTOUT_MIPPED);
     float4 tex = useMips
         ? atlas.sample(kAtlasNearestMipSampler, in.uv)
         : atlas.sample(kAtlasSharpNoMipSampler, in.uv, level(0.0f));
-    float alpha = tex.a * in.color.a;
+    float alpha = tex.a * float(in.color.a);
     float threshold = useMips ? 0.5f : 0.1f;
     if (alpha < threshold) {
         discard_fragment();
     }
 
-    float4 light = lmap.sample(kLightmapSampler, in.lightUv);
-    float4 lit = float4(tex.rgb * in.color.rgb * light.rgb, 1.0f);
-    float4 fogged = mr_applyVanillaFog(lit, in.sphericalDist, in.cylindricalDist, uniforms);
+    float4 lit = float4(tex.rgb * float3(in.color.rgb), 1.0f);
+    float4 fogged = mr_applyVanillaFog(lit, in.fogDist, uniforms);
 
     TerrainFragmentOut out;
     out.color = float4(fogged.rgb, 1.0f);
@@ -92,20 +82,18 @@ fragment TerrainFragmentOut terrainFragmentTranslucent(
     constant TerrainTextures& textures     [[buffer(3)]]
 ) {
     texture2d<float, access::sample> atlas = textures.atlas;
-    texture2d<float, access::sample> lmap = textures.lightmap;
     bool isTripwire = (in.mode == MR_MODE_TRIPWIRE);
     float4 tex = isTripwire
         ? atlas.sample(kAtlasSharpNoMipSampler, in.uv, level(0.0f))
         : atlas.sample(kAtlasNearestMipSampler, in.uv);
-    float alpha = tex.a * in.color.a;
+    float alpha = tex.a * float(in.color.a);
     float threshold = isTripwire ? 0.1f : (1.0f / 255.0f);
     if (alpha < threshold) {
         discard_fragment();
     }
 
-    float4 light = lmap.sample(kLightmapSampler, in.lightUv);
-    float4 lit = float4(tex.rgb * in.color.rgb * light.rgb, alpha);
-    float4 fogged = mr_applyVanillaFog(lit, in.sphericalDist, in.cylindricalDist, uniforms);
+    float4 lit = float4(tex.rgb * float3(in.color.rgb), alpha);
+    float4 fogged = mr_applyVanillaFog(lit, in.fogDist, uniforms);
 
     TerrainFragmentOut out;
     out.color = float4(fogged.rgb * fogged.a, fogged.a);

@@ -103,6 +103,7 @@ public final class MetalRenderClient implements ClientModInitializer {
     }
 
     private static void destroyContext() {
+        MetalTerrainRenderer.settle();
         epoch++;
         active = false;
         if (store != null) {

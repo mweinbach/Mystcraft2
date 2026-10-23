@@ -14,6 +14,10 @@ import javax.annotation.Nullable;
  * @param data   little-endian packed vertices ({@code quads * QUAD_BYTES})
  * @param quads  quad count
  * @param bounds local-space AABB {minX, minY, minZ, maxX, maxY, maxZ}, or null when empty
+ * @param meshlets {@code MeshletGpuMeta} templates with layer-relative base vertices
+ *                 ({@code meshletCount * MESHLET_BYTES})
+ * @param meshletCount number of meshlet templates
  */
-public record PackedLayer(ByteBuffer data, int quads, @Nullable float[] bounds) {
+public record PackedLayer(ByteBuffer data, int quads, @Nullable float[] bounds, ByteBuffer meshlets,
+                          int meshletCount) {
 }

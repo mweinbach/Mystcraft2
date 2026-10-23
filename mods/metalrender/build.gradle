@@ -131,5 +131,20 @@ loom {
             programArgs '--width', '1280', '--height', '720'
             vmArg '-Dmetalrender.autotest=true'
         }
+        // Frame-time and chunk-rebuild benchmark, vanilla against each Metal configuration (macOS only).
+        // Writes build/benchmark-client/benchmark/report.txt.
+        benchmarkClient {
+            client()
+            name 'MetalRender Benchmark Client'
+            source sourceSets.gametest
+            runDir 'build/benchmark-client'
+            programArgs '--width', '1280', '--height', '720'
+            vmArg '-Dmetalrender.benchmark=true'
+            // -PbenchmarkVariants=vanilla,metal4 runs a subset; -PbenchmarkJfr also records a JFR profile.
+            vmArg "-Dmetalrender.benchmark.variants=${project.findProperty('benchmarkVariants') ?: ''}"
+            if (project.hasProperty('benchmarkJfr')) {
+                vmArg "-XX:StartFlightRecording=filename=${layout.buildDirectory.file('benchmark-client/benchmark/profile.jfr').get().asFile},settings=profile"
+            }
+        }
     }
 }

@@ -22,8 +22,8 @@ import javax.annotation.Nullable;
 public final class SectionStore {
 
     public static final int SECTION_BYTES = 96;
-    public static final int MESHLET_BYTES = 32;
-    public static final int MESHLET_QUADS = 32;
+    public static final int MESHLET_BYTES = TerrainVertexPacker.MESHLET_BYTES;
+    public static final int MESHLET_QUADS = TerrainVertexPacker.MESHLET_QUADS;
     static final int FLAG_ACTIVE = 1;
     private static final int MAX_VERTICES = (Integer.MAX_VALUE / VERTEX_BYTES) & ~3;
     private static final ByteBuffer EMPTY = ByteBuffer.allocate(0);
@@ -109,6 +109,8 @@ public final class SectionStore {
         slot.groupQuads[g] = total;
         slot.quads[layer.ordinal()] = packed.quads();
         slot.bounds[layer.ordinal()] = packed.quads() > 0 ? packed.bounds() : null;
+        slot.meshletTemplates[layer.ordinal()] = packed.quads() > 0 ? packed.meshlets() : null;
+        slot.meshletTemplateCounts[layer.ordinal()] = packed.quads() > 0 ? packed.meshletCount() : 0;
         if (total > patternQuads) {
             arena.ensurePatternQuads(total);
             patternQuads = total;
@@ -120,7 +122,7 @@ public final class SectionStore {
 
     public void clearLayer(final SectionSlot slot, final TerrainLayer layer) {
         if (!slot.released && slot.quads[layer.ordinal()] > 0) {
-            applyLayer(slot, layer, new PackedLayer(EMPTY, 0, null));
+            applyLayer(slot, layer, new PackedLayer(EMPTY, 0, null, EMPTY, 0));
         }
     }
 
@@ -176,11 +178,13 @@ public final class SectionStore {
         return meshlets.used();
     }
 
+    /** Copies the packer's meshlet templates for every layer, patched with this slot's ranges. */
     private void rebuildMeshlets(final SectionSlot slot) {
         freeMeshlets(slot);
-        final int solid = slot.groupQuads[TerrainLayer.Group.SOLID.ordinal()];
-        final int cutout = slot.groupQuads[TerrainLayer.Group.CUTOUT.ordinal()];
-        final int count = ceilDiv(solid, MESHLET_QUADS) + ceilDiv(cutout, MESHLET_QUADS);
+        int count = 0;
+        for (final int c : slot.meshletTemplateCounts) {
+            count += c;
+        }
         if (count == 0) {
             return;
         }
@@ -190,52 +194,23 @@ public final class SectionStore {
         }
         slot.meshletStart = start;
         slot.meshletCount = count;
-        int next = start;
-        next = writeMeshlets(slot, next, slot.groupStart[TerrainLayer.Group.SOLID.ordinal()], solid, false);
-        writeMeshlets(slot, next, slot.groupStart[TerrainLayer.Group.CUTOUT.ordinal()], cutout, true);
-    }
-
-    private int writeMeshlets(final SectionSlot slot, int meshlet, final int firstVertex, final int quads,
-                              final boolean cutout) {
         final ByteBuffer out = arena.meshlets();
-        final ByteBuffer arenaVertices = arena.vertices();
-        for (int q = 0; q < quads; q += MESHLET_QUADS) {
-            final int n = Math.min(MESHLET_QUADS, quads - q);
-            final int baseVertex = firstVertex + q * 4;
-            float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
-            float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
-            for (int v = 0; v < n * 4; v++) {
-                final int at = (baseVertex + v) * VERTEX_BYTES;
-                final float x = TerrainVertexPacker.dequantize(arenaVertices.getShort(at));
-                final float y = TerrainVertexPacker.dequantize(arenaVertices.getShort(at + 2));
-                final float z = TerrainVertexPacker.dequantize(arenaVertices.getShort(at + 4));
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
-                minZ = Math.min(minZ, z);
-                maxX = Math.max(maxX, x);
-                maxY = Math.max(maxY, y);
-                maxZ = Math.max(maxZ, z);
+        int meshlet = start;
+        for (final TerrainLayer.Group group : TerrainLayer.Group.values()) {
+            int base = slot.groupStart[group.ordinal()];
+            for (final TerrainLayer layer : group.layers()) {
+                final int l = layer.ordinal();
+                final ByteBuffer templates = slot.meshletTemplates[l];
+                for (int i = 0; i < slot.meshletTemplateCounts[l]; i++) {
+                    final int b = meshlet * MESHLET_BYTES;
+                    out.put(b, templates, i * MESHLET_BYTES, MESHLET_BYTES);
+                    out.putInt(b + 16, slot.index);
+                    out.putInt(b + 20, base + out.getInt(b + 20));
+                    meshlet++;
+                }
+                base += slot.quads[l] * 4;
             }
-            final float hx = (maxX - minX) * 0.5f;
-            final float hy = (maxY - minY) * 0.5f;
-            final float hz = (maxZ - minZ) * 0.5f;
-            final int b = meshlet * MESHLET_BYTES;
-            out.putFloat(b, minX + hx);
-            out.putFloat(b + 4, minY + hy);
-            out.putFloat(b + 8, minZ + hz);
-            out.putFloat(b + 12, (float) Math.sqrt(hx * hx + hy * hy + hz * hz) + 0.01f);
-            out.putInt(b + 16, slot.index);
-            out.putInt(b + 20, baseVertex);
-            out.putShort(b + 24, (short) n);
-            out.put(b + 26, (byte) (cutout ? 1 : 0));
-            out.put(b + 27, (byte) 0);  // not LOD
-            out.put(b + 28, (byte) 0);  // cone axis unused
-            out.put(b + 29, (byte) 0);
-            out.put(b + 30, (byte) 0);
-            out.put(b + 31, (byte) -127); // cone culling disabled
-            meshlet++;
         }
-        return meshlet;
     }
 
     private void freeMeshlets(final SectionSlot slot) {
@@ -330,10 +305,6 @@ public final class SectionStore {
             at = meshlets.allocate(count);
         }
         return at;
-    }
-
-    private static int ceilDiv(final int a, final int b) {
-        return (a + b - 1) / b;
     }
 
     /** Heap-backed arena for tests and for running the bookkeeping without a GPU. */

@@ -85,7 +85,7 @@ public final class MetalNative {
     /**
      * Binds a render-resolution IOSurface to {@code glColorTexture} (a GL_TEXTURE_RECTANGLE) and
      * marks it as the background of the next opaque pass. Copy the OpenGL frame into that texture
-     * and {@code glFlush} before {@link #renderOpaquePass}; scaled frames fill pixels without
+     * and {@code glFlush} before {@link #beginOpaquePass}; scaled frames fill pixels without
      * terrain from it before upscaling.
      */
     public static native boolean prepareBackground(long ctx, int glColorTexture, int width, int height);
@@ -97,6 +97,17 @@ public final class MetalNative {
     public static native int renderOpaquePass(long ctx, int outWidth, int outHeight, float resolutionScale,
                                               boolean useMeshShaders, int upscaleMode, ByteBuffer frameUniforms,
                                               ByteBuffer temporalUniforms, int sectionCount, int meshletCount);
+
+    /**
+     * Encodes and commits the opaque pass without waiting; returns its slot or -1. Until
+     * {@link #finishOpaquePass} the arena, section and meshlet buffers must not change.
+     */
+    public static native int beginOpaquePass(long ctx, int outWidth, int outHeight, float resolutionScale,
+                                             boolean useMeshShaders, int upscaleMode, ByteBuffer frameUniforms,
+                                             ByteBuffer temporalUniforms, int sectionCount, int meshletCount);
+
+    /** Waits for the pass from {@link #beginOpaquePass}; returns its slot, or -1 if none is in flight. */
+    public static native int finishOpaquePass(long ctx);
 
     /** Attaches a slot's IOSurfaces to two GL_TEXTURE_RECTANGLE textures on the current CGL context. */
     public static native boolean bindIOSurfaceToGLTexture(long ctx, int slot, boolean translucent,

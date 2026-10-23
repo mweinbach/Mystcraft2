@@ -38,7 +38,9 @@ class SectionStoreTest {
         final int first = meta(arena, slot, 88) * SectionStore.MESHLET_BYTES;
         assertEquals(32, meshlets.getShort(first + 24));
         assertEquals(8, meshlets.getShort(first + SectionStore.MESHLET_BYTES + 24));
-        assertEquals(-127, meshlets.get(first + 31), "cone culling disabled");
+        assertEquals(-127, meshlets.get(first + 31), "normal-cone culling off");
+        assertEquals(meta(arena, slot, 48) + 32 * 4, meshlets.getInt(first + SectionStore.MESHLET_BYTES + 20),
+                "second meshlet starts 32 quads into the section's range");
         assertEquals(40, arena.patternQuads());
         assertEquals(1.0f, arena.sections().getFloat(slot.index() * 96 + 20), "aabb min y");
         assertEquals(40.0f, arena.sections().getFloat(slot.index() * 96 + 32), "aabb max x");

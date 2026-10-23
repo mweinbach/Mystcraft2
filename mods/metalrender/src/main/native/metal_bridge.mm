@@ -243,6 +243,16 @@ struct MetalContext {
     // Sign applied to jitter before handing it to MetalFX (verified by the native self-test).
     float jitterSign = 1.0f;
 
+    // Opaque pass committed by mrBeginOpaque and not yet waited for by mrFinishOpaque. While it is
+    // in flight the GPU reads the arena and meta buffers, so nothing may change them.
+    bool opaqueInFlight = false;
+    int inflightSlot = -1;
+    int inflightUpscale = MR_UPSCALE_NONE;
+    bool inflightMeshPath = false;
+    uint32_t inflightSecLimit = 0;
+    id<MTLCommandBuffer> inflightCmd = nil;    // classic queue
+    dispatch_semaphore_t inflightDone = nil;   // Metal 4 commit feedback
+
     // Triple-buffered IOSurface export rings
     SurfacePair opaqueSurfaces[kRingSlots];
     SurfacePair transSurfaces[kRingSlots];
@@ -890,6 +900,7 @@ void mrDestroyContext(void* handle) {
     @autoreleasepool {
         auto* ctx = static_cast<MetalContext*>(handle);
         if (!ctx) return;
+        mrFinishOpaque(ctx);
         if (@available(macOS 26.0, *)) {
             if (ctx->queue4 && ctx->frameEvent4) {
                 uint64_t v = ++ctx->frameEventValue4;
@@ -1077,6 +1088,7 @@ JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_resiz
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || newVertexCap <= (jint)ctx->vertexCap) return JNI_TRUE;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         size_t newLen = (size_t)newVertexCap * sizeof(MetalTerrainVertex);
         id<MTLBuffer> next = [ctx->device newBufferWithLength:newLen options:MTLResourceStorageModeShared];
         if (!next) return JNI_FALSE;
@@ -1106,6 +1118,7 @@ JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_resiz
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || newSectionCap <= (jint)ctx->sectionCap) return JNI_TRUE;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         size_t oldLen = [ctx->sectionMetaBuf length];
         size_t newLen = (size_t)newSectionCap * sizeof(SectionGpuMeta);
         id<MTLBuffer> next = [ctx->device newBufferWithLength:newLen options:MTLResourceStorageModeShared];
@@ -1140,6 +1153,7 @@ JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_resiz
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || newMeshletCap <= (jint)ctx->meshletCap) return JNI_TRUE;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         size_t oldLen = [ctx->meshletMetaBuf length];
         size_t newLen = (size_t)newMeshletCap * sizeof(MeshletGpuMeta);
         id<MTLBuffer> next = [ctx->device newBufferWithLength:newLen options:MTLResourceStorageModeShared];
@@ -1161,6 +1175,7 @@ JNIEXPORT void JNICALL Java_ports_metalrender_nativebridge_MetalNative_ensurePat
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || minQuads <= 0) return;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         ctx->ensurePatternIndices((uint32_t)minQuads);
     }
 }
@@ -1176,6 +1191,7 @@ JNIEXPORT void JNICALL Java_ports_metalrender_nativebridge_MetalNative_initAtlas
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || width <= 0 || height <= 0) return;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         int mips = std::max(1, (int)mipLevels);
         int maxPossible = 1 + (int)std::floor(std::log2((double)std::max(width, height)));
         mips = std::min(mips, maxPossible);
@@ -1212,6 +1228,7 @@ JNIEXPORT void JNICALL Java_ports_metalrender_nativebridge_MetalNative_uploadAtl
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || !ctx->atlasTex || nativePixelsPtr == 0 || width <= 0 || height <= 0) return;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         if (mipLevel < 0 || (NSUInteger)mipLevel >= ctx->atlasTex.mipmapLevelCount) return;
 
         NSUInteger mipW = std::max<NSUInteger>(1, ctx->atlasTex.width >> mipLevel);
@@ -1241,6 +1258,7 @@ JNIEXPORT void JNICALL Java_ports_metalrender_nativebridge_MetalNative_uploadLig
     @autoreleasepool {
         auto* ctx = reinterpret_cast<MetalContext*>(ctxPtr);
         if (!ctx || !ctx->lightmapTex || nativePixelsPtr == 0) return;
+        mrFinishOpaque(ctx); // never rewrite what an in-flight pass reads
         const void* src = reinterpret_cast<const void*>(nativePixelsPtr);
         [ctx->lightmapTex replaceRegion:MTLRegionMake2D(0, 0, 16, 16)
                             mipmapLevel:0
@@ -1398,7 +1416,7 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
     [rEnc setFragmentBytes:&u length:sizeof(FrameUniforms) atIndex:2];
     [rEnc setFragmentBuffer:ctx->textureTableBuf offset:0 atIndex:3];
     [rEnc useResource:ctx->atlasTex usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
-    [rEnc useResource:ctx->lightmapTex usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
+    [rEnc useResource:ctx->lightmapTex usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
 
     if (f.meshPath) {
         if (@available(macOS 13.0, *)) {
@@ -1407,6 +1425,8 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
                 [rEnc setMeshBuffer:ctx->meshletMetaBuf offset:0 atIndex:1];
                 [rEnc setMeshBuffer:ctx->sectionMetaBuf offset:0 atIndex:2];
                 [rEnc setMeshBytes:&u length:sizeof(FrameUniforms) atIndex:3];
+                [rEnc setMeshBuffer:ctx->textureTableBuf offset:0 atIndex:4];
+                [rEnc useResource:ctx->lightmapTex usage:MTLResourceUsageRead stages:MTLRenderStageMesh];
                 [rEnc setObjectBuffer:ctx->meshletMetaBuf offset:0 atIndex:1];
                 [rEnc setObjectBuffer:ctx->sectionMetaBuf offset:0 atIndex:2];
                 [rEnc setObjectBytes:&u length:sizeof(FrameUniforms) atIndex:3];
@@ -1428,6 +1448,7 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
         [rEnc setVertexBuffer:ctx->vertexArenaBuf offset:0 atIndex:0];
         [rEnc setVertexBuffer:ctx->sectionMetaBuf offset:0 atIndex:1];
         [rEnc setVertexBytes:&u length:sizeof(FrameUniforms) atIndex:2];
+        [rEnc setVertexBuffer:ctx->textureTableBuf offset:0 atIndex:3];
         if (f.icbPath) {
             [rEnc useResource:ctx->vertexArenaBuf usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
             [rEnc useResource:ctx->sectionMetaBuf usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
@@ -1518,6 +1539,15 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
     }
 
     [cmdBuf commit];
+    ctx->inflightCmd = cmdBuf;
+}
+
+static void waitOpaqueClassic(MetalContext* ctx) {
+    id<MTLCommandBuffer> cmdBuf = ctx->inflightCmd;
+    ctx->inflightCmd = nil;
+    if (!cmdBuf) {
+        return;
+    }
     [cmdBuf waitUntilCompleted];
     if (cmdBuf.error) {
         fprintf(stderr, "[MetalRender] opaque pass failed: %s\n", [[cmdBuf.error localizedDescription] UTF8String]);
@@ -1526,18 +1556,18 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
     ctx->lastOpaqueGpuMs = gpuSec > 0.0 ? (float)(gpuSec * 1000.0) : 0.0f;
 }
 
-// Offsets inside constBuf4 (passes are synchronous, so one staging buffer is enough).
+// Offsets inside constBuf4 (at most one pass is in flight, so one staging buffer is enough).
 constexpr NSUInteger kC4OpaqueUniforms = 0;
 constexpr NSUInteger kC4Temporal = 512;
 constexpr NSUInteger kC4CutoutFlags = 1024;
 constexpr NSUInteger kC4TransUniforms = 2048;
 
-static bool submitMetal4(MetalContext* ctx, id cbObj, std::shared_ptr<std::atomic<float>> gpuMs) API_AVAILABLE(macos(26.0)) {
+// Commits without waiting. Commit feedback fires once the GPU finishes, so the returned semaphore is
+// the completion signal and the handler stores the GPU time (MTL4 has no waitUntilCompleted).
+static dispatch_semaphore_t commitMetal4(MetalContext* ctx, id cbObj, std::shared_ptr<std::atomic<float>> gpuMs) API_AVAILABLE(macos(26.0)) {
     id<MTL4CommandQueue> q = (id<MTL4CommandQueue>)ctx->queue4;
     id<MTL4CommandBuffer> cb = (id<MTL4CommandBuffer>)cbObj;
     [cb endCommandBuffer];
-    // Commit feedback fires once the GPU finishes, so it doubles as the completion wait and carries
-    // the GPU timestamps (MTL4 command buffers have no waitUntilCompleted).
     dispatch_semaphore_t done = dispatch_semaphore_create(0);
     MTL4CommitOptions* opts = [[MTL4CommitOptions alloc] init];
     [opts addFeedbackHandler:^(id<MTL4CommitFeedback> fb) {
@@ -1550,7 +1580,15 @@ static bool submitMetal4(MetalContext* ctx, id cbObj, std::shared_ptr<std::atomi
     }];
     id<MTL4CommandBuffer> list[1] = {cb};
     [q commit:list count:1 options:opts];
-    return dispatch_semaphore_wait(done, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) == 0;
+    return done;
+}
+
+static bool waitMetal4(dispatch_semaphore_t done) {
+    return !done || dispatch_semaphore_wait(done, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) == 0;
+}
+
+static bool submitMetal4(MetalContext* ctx, id cbObj, std::shared_ptr<std::atomic<float>> gpuMs) API_AVAILABLE(macos(26.0)) {
+    return waitMetal4(commitMetal4(ctx, cbObj, gpuMs));
 }
 
 static void encodeOpaqueMetal4(MetalContext* ctx, OpaqueFrame& f) {
@@ -1590,6 +1628,7 @@ static void encodeOpaqueMetal4(MetalContext* ctx, OpaqueFrame& f) {
             [tMesh setAddress:ctx->meshletMetaBuf.gpuAddress atIndex:1];
             [tMesh setAddress:ctx->sectionMetaBuf.gpuAddress atIndex:2];
             [tMesh setAddress:cAddr + kC4OpaqueUniforms atIndex:3];
+            [tMesh setAddress:ctx->textureTableBuf.gpuAddress atIndex:4];
             [tObj setAddress:ctx->meshletMetaBuf.gpuAddress atIndex:1];
             [tObj setAddress:ctx->sectionMetaBuf.gpuAddress atIndex:2];
             [tObj setAddress:cAddr + kC4OpaqueUniforms atIndex:3];
@@ -1611,6 +1650,7 @@ static void encodeOpaqueMetal4(MetalContext* ctx, OpaqueFrame& f) {
             [tVert setAddress:ctx->vertexArenaBuf.gpuAddress atIndex:0];
             [tVert setAddress:ctx->sectionMetaBuf.gpuAddress atIndex:1];
             [tVert setAddress:cAddr + kC4OpaqueUniforms atIndex:2];
+            [tVert setAddress:ctx->textureTableBuf.gpuAddress atIndex:3];
             [r setArgumentTable:tVert atStages:MTLRenderStageVertex];
             const auto* secs = static_cast<const SectionGpuMeta*>([ctx->sectionMetaBuf contents]);
             for (int pass = 0; pass < 2; ++pass) {
@@ -1698,21 +1738,27 @@ static void encodeOpaqueMetal4(MetalContext* ctx, OpaqueFrame& f) {
             [c2 endEncoding];
         }
 
-        if (!submitMetal4(ctx, cb, ctx->gpuMsOpaque4)) {
-            fprintf(stderr, "[MetalRender] Metal 4 opaque pass timed out\n");
-        }
-        ctx->lastOpaqueGpuMs = ctx->gpuMsOpaque4->load();
+        ctx->inflightDone = commitMetal4(ctx, cb, ctx->gpuMsOpaque4);
     }
 }
 
-static void finishOpaqueStats(MetalContext* ctx, const OpaqueFrame& f) {
+static void waitOpaqueMetal4(MetalContext* ctx) {
+    dispatch_semaphore_t done = ctx->inflightDone;
+    ctx->inflightDone = nil;
+    if (!waitMetal4(done)) {
+        fprintf(stderr, "[MetalRender] Metal 4 opaque pass timed out\n");
+    }
+    ctx->lastOpaqueGpuMs = ctx->gpuMsOpaque4->load();
+}
+
+static void finishOpaqueStats(MetalContext* ctx) {
     std::memcpy(&ctx->lastStats, [ctx->statsBuf contents], sizeof(GpuCullStats));
-    ctx->lastUpscaleUsed = f.upscale;
-    if (f.meshPath) {
+    ctx->lastUpscaleUsed = ctx->inflightUpscale;
+    if (ctx->inflightMeshPath) {
         // The mesh path culls per meshlet; report populated sections for the HUD.
         uint32_t populated = 0;
         const auto* secs = static_cast<const SectionGpuMeta*>([ctx->sectionMetaBuf contents]);
-        for (uint32_t i = 0; i < f.secLimit; ++i) {
+        for (uint32_t i = 0; i < ctx->inflightSecLimit; ++i) {
             if ((secs[i].flags & MR_SECTION_ACTIVE) && (secs[i].solidQuadCount + secs[i].cutoutQuadCount) > 0u) {
                 populated++;
             }
@@ -1721,14 +1767,32 @@ static void finishOpaqueStats(MetalContext* ctx, const OpaqueFrame& f) {
     }
 }
 
-int mrRenderOpaque(void* handle, int outW, int outH, float resolutionScale, int useMeshShaders, int upscaleMode,
-                   const FrameUniforms* uniforms, const TemporalUniforms* temporal,
-                   int activeSectionCap, int totalMeshlets) {
+int mrFinishOpaque(void* handle) {
+    @autoreleasepool {
+        auto* ctx = static_cast<MetalContext*>(handle);
+        if (!ctx || !ctx->opaqueInFlight) {
+            return -1;
+        }
+        if (ctx->activeTier == MR_TIER_METAL4) {
+            waitOpaqueMetal4(ctx);
+        } else {
+            waitOpaqueClassic(ctx);
+        }
+        ctx->opaqueInFlight = false;
+        finishOpaqueStats(ctx);
+        return ctx->inflightSlot;
+    }
+}
+
+int mrBeginOpaque(void* handle, int outW, int outH, float resolutionScale, int useMeshShaders, int upscaleMode,
+                  const FrameUniforms* uniforms, const TemporalUniforms* temporal,
+                  int activeSectionCap, int totalMeshlets) {
     @autoreleasepool {
         auto* ctx = static_cast<MetalContext*>(handle);
         if (!ctx || outW <= 0 || outH <= 0 || !uniforms) {
             return -1;
         }
+        mrFinishOpaque(ctx); // never two passes in flight
         OpaqueFrame f;
         if (!prepareOpaque(ctx, outW, outH, resolutionScale, useMeshShaders != 0, upscaleMode,
                            uniforms, temporal, activeSectionCap, totalMeshlets, f)) {
@@ -1739,15 +1803,30 @@ int mrRenderOpaque(void* handle, int outW, int outH, float resolutionScale, int 
         } else {
             encodeOpaqueClassic(ctx, f);
         }
-        finishOpaqueStats(ctx, f);
+        ctx->opaqueInFlight = true;
+        ctx->inflightSlot = f.slot;
+        ctx->inflightUpscale = f.upscale;
+        ctx->inflightMeshPath = f.meshPath;
+        ctx->inflightSecLimit = f.secLimit;
         return f.slot;
     }
+}
+
+int mrRenderOpaque(void* handle, int outW, int outH, float resolutionScale, int useMeshShaders, int upscaleMode,
+                   const FrameUniforms* uniforms, const TemporalUniforms* temporal,
+                   int activeSectionCap, int totalMeshlets) {
+    if (mrBeginOpaque(handle, outW, outH, resolutionScale, useMeshShaders, upscaleMode, uniforms, temporal,
+                      activeSectionCap, totalMeshlets) < 0) {
+        return -1;
+    }
+    return mrFinishOpaque(handle);
 }
 
 int mrRenderTranslucent(void* handle, int slot, int outW, int outH, const FrameUniforms* uIn,
                         const uint32_t* secIndices, int count) {
     @autoreleasepool {
         auto* ctx = static_cast<MetalContext*>(handle);
+        mrFinishOpaque(ctx);
         if (!ctx) {
             return 0;
         }
@@ -1826,6 +1905,7 @@ int mrRenderTranslucent(void* handle, int slot, int outW, int outH, const FrameU
                 [tVert setAddress:ctx->vertexArenaBuf.gpuAddress atIndex:0];
                 [tVert setAddress:ctx->sectionMetaBuf.gpuAddress atIndex:1];
                 [tVert setAddress:uAddr atIndex:2];
+                [tVert setAddress:ctx->textureTableBuf.gpuAddress atIndex:3];
                 [tFrag setAddress:uAddr atIndex:2];
                 [tFrag setAddress:ctx->textureTableBuf.gpuAddress atIndex:3];
                 [r setArgumentTable:tVert atStages:MTLRenderStageVertex];
@@ -1874,10 +1954,11 @@ int mrRenderTranslucent(void* handle, int slot, int outW, int outH, const FrameU
             [rEnc setVertexBuffer:ctx->vertexArenaBuf offset:0 atIndex:0];
             [rEnc setVertexBuffer:ctx->sectionMetaBuf offset:0 atIndex:1];
             [rEnc setVertexBytes:&u length:sizeof(FrameUniforms) atIndex:2];
+            [rEnc setVertexBuffer:ctx->textureTableBuf offset:0 atIndex:3];
             [rEnc setFragmentBytes:&u length:sizeof(FrameUniforms) atIndex:2];
             [rEnc setFragmentBuffer:ctx->textureTableBuf offset:0 atIndex:3];
             [rEnc useResource:ctx->atlasTex usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
-            [rEnc useResource:ctx->lightmapTex usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
+            [rEnc useResource:ctx->lightmapTex usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
             for (int i = 0; i < count; ++i) {
                 uint32_t s = secIndices[i];
                 if (s >= ctx->sectionCap || (secs[s].flags & MR_SECTION_ACTIVE) == 0u || secs[s].transQuadCount == 0u) continue;
@@ -1926,6 +2007,27 @@ JNIEXPORT jint JNICALL Java_ports_metalrender_nativebridge_MetalNative_renderOpa
     return (jint)mrRenderOpaque(reinterpret_cast<void*>(ctxPtr), outWidth, outHeight, resolutionScale,
                                 useMeshShaders == JNI_TRUE ? 1 : 0, upscaleMode, u, t,
                                 activeSectionCap, totalMeshlets);
+}
+
+JNIEXPORT jint JNICALL Java_ports_metalrender_nativebridge_MetalNative_beginOpaquePass(
+    JNIEnv* env, jclass, jlong ctxPtr, jint outWidth, jint outHeight, jfloat resolutionScale,
+    jboolean useMeshShaders, jint upscaleMode, jobject frameUniformsBuf, jobject temporalUniformsBuf,
+    jint activeSectionCap, jint totalMeshlets
+) {
+    if (!frameUniformsBuf) {
+        return -1;
+    }
+    auto* u = static_cast<const FrameUniforms*>(env->GetDirectBufferAddress(frameUniformsBuf));
+    const TemporalUniforms* t = temporalUniformsBuf
+        ? static_cast<const TemporalUniforms*>(env->GetDirectBufferAddress(temporalUniformsBuf))
+        : nullptr;
+    return (jint)mrBeginOpaque(reinterpret_cast<void*>(ctxPtr), outWidth, outHeight, resolutionScale,
+                               useMeshShaders == JNI_TRUE ? 1 : 0, upscaleMode, u, t,
+                               activeSectionCap, totalMeshlets);
+}
+
+JNIEXPORT jint JNICALL Java_ports_metalrender_nativebridge_MetalNative_finishOpaquePass(JNIEnv*, jclass, jlong ctxPtr) {
+    return (jint)mrFinishOpaque(reinterpret_cast<void*>(ctxPtr));
 }
 
 JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_bindIOSurfaceToGLTexture(

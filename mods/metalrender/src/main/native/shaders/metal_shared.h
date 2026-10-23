@@ -97,7 +97,7 @@ struct MeshletGpuMeta {
     mr_u32 sectionIndex; // 16..19
     mr_u32 baseVertex;   // 20..23: first vertex in arena
     mr_u16 quadCount;    // 24..25: 1..32 quads
-    mr_u8  isCutout;     // 26: 0 = solid, 1 = cutout
+    mr_u8  isCutout;     // 26: 1 = drawn with the alpha test (cutout quads on fully opaque sprites are 0)
     mr_u8  isLod;        // 27: 0 = full detail, 1 = LOD
     mr_i8  coneAxisX;    // 28
     mr_i8  coneAxisY;    // 29
@@ -157,15 +157,22 @@ struct TerrainTextures {
 };
 
 // Shared vertex-to-fragment interpolants for both ICB and Metal 3 Mesh pipelines.
+// Like vanilla's terrain shaders, the lightmap is sampled per vertex and folded into the colour,
+// and the fog distance (spherical or cylindrical) is picked per vertex.
 struct TerrainRasterData {
     float4 position [[position]];
-    float4 color;
+    half4  color;      // vertex colour * lightmap
     float2 uv;
-    float2 lightUv;
-    float  sphericalDist;
-    float  cylindricalDist;
+    float  fogDist;
     uint   mode [[flat]];
 };
+
+constexpr sampler kLightmapSampler(
+    coord::normalized,
+    address::clamp_to_edge,
+    filter::linear,
+    mip_filter::none
+);
 
 inline float3 mr_cameraRelativeOrigin(constant SectionGpuMeta& sec, constant FrameUniforms& u) {
     int3 blockDelta = int3(sec.originX, sec.originY, sec.originZ) - u.cameraBlockPos.xyz;
@@ -180,7 +187,8 @@ inline float4 mr_glClipToMetalClip(float4 glClip) {
 inline TerrainRasterData mr_evalTerrainVertex(
     device const MetalTerrainVertex& vtx,
     float3 sectionCamRelOrigin,
-    constant FrameUniforms& u
+    constant FrameUniforms& u,
+    texture2d<float, access::sample> lightmap
 ) {
     TerrainRasterData out;
     const float invScale = 1.0f / 1024.0f;
@@ -189,24 +197,24 @@ inline TerrainRasterData mr_evalTerrainVertex(
 
     float4 glClip = u.viewProjMatrix * float4(camRelPos, 1.0f);
     out.position = mr_glClipToMetalClip(glClip);
-    out.color = float4(vtx.r, vtx.g, vtx.b, vtx.a) * (1.0f / 255.0f);
     out.uv = float2(vtx.u, vtx.v);
     // Match vanilla 1.19.2 minecraft_sample_lightmap: clamp(uv2 / 256.0 + 0.5 / 16.0) = (uv2 + 8.0) / 256.0
-    out.lightUv = clamp((float2(float(vtx.blockLight), float(vtx.skyLight)) + 8.0f) * (1.0f / 256.0f),
-                        0.5f / 16.0f, 15.5f / 16.0f);
-    out.sphericalDist = length(camRelPos);
-    out.cylindricalDist = max(length(camRelPos.xz), abs(camRelPos.y));
+    float2 lightUv = clamp((float2(float(vtx.blockLight), float(vtx.skyLight)) + 8.0f) * (1.0f / 256.0f),
+                           0.5f / 16.0f, 15.5f / 16.0f);
+    float3 light = lightmap.sample(kLightmapSampler, lightUv, level(0.0f)).rgb;
+    float4 color = float4(vtx.r, vtx.g, vtx.b, vtx.a) * (1.0f / 255.0f);
+    out.color = half4(half3(color.rgb * light), half(color.a));
+    out.fogDist = (u.fogParams.z > 0.5f) ? max(length(camRelPos.xz), abs(camRelPos.y)) : length(camRelPos);
     out.mode = uint(vtx.mode);
     return out;
 }
 
-inline float4 mr_applyVanillaFog(float4 inColor, float sphericalDist, float cylindricalDist, constant FrameUniforms& u) {
+inline float4 mr_applyVanillaFog(float4 inColor, float dist, constant FrameUniforms& u) {
     float fogStart = u.fogParams.x;
     float fogEnd = u.fogParams.y;
     if (fogEnd <= fogStart) {
         return float4(u.fogColor.rgb, inColor.a);
     }
-    float dist = (u.fogParams.z > 0.5f) ? cylindricalDist : sphericalDist;
     if (dist <= fogStart) {
         return inColor;
     }

@@ -102,8 +102,10 @@ void terrainObjectStage(
     uint gid                                    [[thread_position_in_grid]]
 ) {
     threadgroup atomic_uint visibleCount;
+    threadgroup atomic_uint visibleQuads;
     if (tid == 0u) {
         atomic_store_explicit(&visibleCount, 0u, memory_order_relaxed);
+        atomic_store_explicit(&visibleQuads, 0u, memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
@@ -151,16 +153,18 @@ void terrainObjectStage(
     if (visible) {
         uint slot = atomic_fetch_add_explicit(&visibleCount, 1u, memory_order_relaxed);
         payload.meshletIndices[slot] = gid;
-        constant MeshletGpuMeta& m = meshlets[gid];
-        uint qCount = uint(m.quadCount);
-        atomic_fetch_add_explicit(&statsWords[targetCutoutFlag == 0u ? 4u : 5u], qCount, memory_order_relaxed);
-        atomic_fetch_add_explicit(&statsWords[7u], 1u, memory_order_relaxed);
+        atomic_fetch_add_explicit(&visibleQuads, uint(meshlets[gid].quadCount), memory_order_relaxed);
     }
 
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (tid == 0u) {
         uint count = atomic_load_explicit(&visibleCount, memory_order_relaxed);
         mgp.set_threadgroups_per_grid(uint3(count, 1u, 1u));
+        if (count > 0u) {
+            uint quads = atomic_load_explicit(&visibleQuads, memory_order_relaxed);
+            atomic_fetch_add_explicit(&statsWords[targetCutoutFlag == 0u ? 4u : 5u], quads, memory_order_relaxed);
+            atomic_fetch_add_explicit(&statsWords[7u], count, memory_order_relaxed);
+        }
     }
 }
 
@@ -172,6 +176,7 @@ void terrainMeshStage(
     constant MeshletGpuMeta* meshlets         [[buffer(1)]],
     constant SectionGpuMeta* sections         [[buffer(2)]],
     constant FrameUniforms& uniforms          [[buffer(3)]],
+    constant TerrainTextures& textures        [[buffer(4)]],
     uint tid                                  [[thread_index_in_threadgroup]],
     uint tgid                                 [[threadgroup_position_in_grid]]
 ) {
@@ -191,11 +196,11 @@ void terrainMeshStage(
     // 64 threads emit up to 128 vertices (2 vertices per thread).
     uint v0 = tid * 2u;
     if (v0 < vertCount) {
-        outMesh.set_vertex(v0, mr_evalTerrainVertex(arena[m.baseVertex + v0], camRelOrigin, uniforms));
+        outMesh.set_vertex(v0, mr_evalTerrainVertex(arena[m.baseVertex + v0], camRelOrigin, uniforms, textures.lightmap));
     }
     uint v1 = v0 + 1u;
     if (v1 < vertCount) {
-        outMesh.set_vertex(v1, mr_evalTerrainVertex(arena[m.baseVertex + v1], camRelOrigin, uniforms));
+        outMesh.set_vertex(v1, mr_evalTerrainVertex(arena[m.baseVertex + v1], camRelOrigin, uniforms, textures.lightmap));
     }
 
     // 64 threads emit up to 64 triangles (1 triangle per thread).

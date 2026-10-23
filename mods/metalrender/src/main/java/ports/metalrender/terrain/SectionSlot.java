@@ -4,6 +4,8 @@
  */
 package ports.metalrender.terrain;
 
+import java.nio.ByteBuffer;
+
 import javax.annotation.Nullable;
 
 /**
@@ -20,6 +22,9 @@ public final class SectionSlot {
     final int originZ;
     final int[] quads = new int[TerrainLayer.values().length];
     final float[][] bounds = new float[TerrainLayer.values().length][];
+    /** Each layer's meshlet templates from the packer (layer-relative base vertices). */
+    final ByteBuffer[] meshletTemplates = new ByteBuffer[TerrainLayer.values().length];
+    final int[] meshletTemplateCounts = new int[TerrainLayer.values().length];
     /** First vertex of each group's contiguous range, or -1. */
     final int[] groupStart = {-1, -1};
     /** Quads allocated for each group (sum of its layers). */

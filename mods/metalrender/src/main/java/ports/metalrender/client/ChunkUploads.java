@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import ports.metalrender.MetalRenderMod;
 import ports.metalrender.terrain.PackedLayer;
 import ports.metalrender.terrain.TerrainLayer;
+import ports.metalrender.terrain.OpaqueSprites;
 import ports.metalrender.terrain.TerrainVertexPacker;
 
 /**
@@ -61,8 +62,12 @@ public final class ChunkUploads {
         final int generation = ((RenderChunkExt) chunk).metalrender$generation();
         final BlockPos origin = chunk.getOrigin().immutable();
         final PackedLayer packed;
+        final long start = System.nanoTime();
         try {
-            packed = TerrainVertexPacker.pack(buffer.vertexBuffer(), state.vertexCount(), layer.mode);
+            packed = TerrainVertexPacker.pack(buffer.vertexBuffer(), state.vertexCount(), layer.mode,
+                    OpaqueSprites.current());
+            PerfStats.PACK_NANOS.add(System.nanoTime() - start);
+            PerfStats.PACKED_QUADS.add(packed.quads());
         } catch (final RuntimeException e) {
             MetalRenderMod.LOGGER.error("MetalRender could not convert a {} layer at {}", layer, origin, e);
             return CompletableFuture.completedFuture(null);

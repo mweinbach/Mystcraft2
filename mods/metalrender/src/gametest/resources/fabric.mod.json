@@ -9,9 +9,13 @@
       "ports.metalrender.gametest.MetalRenderGameTests"
     ],
     "client": [
-      "ports.metalrender.gametest.MetalRenderAutotest"
+      "ports.metalrender.gametest.MetalRenderAutotest",
+      "ports.metalrender.gametest.MetalRenderBenchmark"
     ]
   },
+  "mixins": [
+    "metalrender_gametest.mixins.json"
+  ],
   "depends": {
     "metalrender": "*",
     "fabric-gametest-api-v1": "*"
