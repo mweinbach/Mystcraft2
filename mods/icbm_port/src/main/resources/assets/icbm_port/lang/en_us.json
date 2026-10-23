@@ -189,5 +189,6 @@
   "container.icbm_port.launcher": "ICBM Launcher",
   "container.icbm_port.radar_station": "Radar Station",
   "container.icbm_port.emp_tower": "EMP Tower",
-  "container.icbm_port.sam_launcher": "SAM Launcher"
+  "container.icbm_port.sam_launcher": "SAM Launcher",
+  "tooltip.icbm_port.viewer_remainder": "Returns: %s"
 }

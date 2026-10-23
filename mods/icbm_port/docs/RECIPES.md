@@ -4,7 +4,7 @@ Baseline: ICBM Classic `prod/1.12`, revision
 `9c1d985a375adc2868ff47707b3a636452d0b63a`. Recipe data is translated into
 Minecraft 1.19.2 JSON. No upstream textures, models or language files are used.
 The exact input/output mapping and source-relative recipe path are retained in
-`tools/upstream_recipe_mapping.json` (132 entries). That file is authoritative
+`tools/upstream_recipe_mapping.json` (135 entries). That file is authoritative
 for reproducing this migration, and is applied last by the resource generator.
 
 ## Source-equivalent recipe shapes and quantities
@@ -55,8 +55,29 @@ are retained with native Fabric reload-time tag conditions. Their vanilla
 fallbacks use the inverse predicates, so datapack or mod-provided materials
 change the selected path on reload. Ordinary coal/charcoal items remain distinct
 from dust. Native conditions use `fabric:load_conditions`; no Forge condition
-serializer is installed. Official Mekanism is unavailable for Fabric 1.19.2, so
-its atomic-alloy alternatives remain unsupported rather than inventing that item.
+serializer is installed.
+
+The three upstream `explosives/mekanism/` atomic-alloy alternatives are now
+shipped for the repository's Fabric Mekanism port (mod ID `mekanism`), whose
+Mekanism 10.3 item is `mekanism:alloy_atomic` (1.12.2 `mekanism:atomicalloy`).
+Upstream gated them with `minecraft:item_exists`; the port uses
+`fabric:all_mods_loaded ["mekanism"]`:
+
+| Recipe | Loads when | Shape |
+| --- | --- | --- |
+| `nuclear_explosive_uranium` | a uranium ingot or U-235 pellet tag is populated | five uranium/pellets, four thermobaric |
+| `nuclear_explosive_mekanism` | no uranium **and** Mekanism loaded | five atomic alloys, four thermobaric |
+| `nuclear_explosive` | no uranium **and** Mekanism absent | five wither skeleton skulls, four thermobaric |
+| `antimatter_explosive_mekanism` / `redmatter_explosive_mekanism` | Mekanism loaded | eight atomic alloys around the prior tier |
+| `antimatter_explosive` / `redmatter_explosive` | Mekanism absent | eight nether stars around the prior tier |
+
+The vanilla antimatter/redmatter fallbacks previously loaded unconditionally;
+they now carry the inverse Mekanism gate, as upstream's did, so each tier has
+exactly one active recipe. Recipe-book unlock advancements share their recipe's
+conditions. `IntegrationGameTests.mekanismAlternativesFollowModPresence` checks
+on a real server that without Mekanism the gated recipes and unlocks are absent
+while the fallbacks load, and `tools/tests/test_resource_tags.py` checks both
+branches statically. A server with Mekanism installed has not been run.
 Source condition predicates and the one-component-missing module fallback gap
 are documented in the OreDictionary audit.
 

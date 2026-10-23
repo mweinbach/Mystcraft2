@@ -41,12 +41,7 @@ public final class IcbmEmiPlugin implements EmiPlugin {
 
   @Override
   public void register(EmiRegistry registry) {
-    for (Item item :
-        List.of(
-            DeliveryContent.CLUSTER_MISSILE,
-            DeliveryContent.HELD_ITEM_MISSILE,
-            DeliveryContent.CARGO_PARACHUTE,
-            DeliveryContent.CARGO_BALLOON)) {
+    for (Item item : JeiRecipeDisplays.payloadItems()) {
       registry.setDefaultComparison(item, PAYLOAD_COMPARISON);
     }
 
@@ -55,27 +50,8 @@ public final class IcbmEmiPlugin implements EmiPlugin {
     for (CraftingRecipe display : JeiRecipeDisplays.all()) {
       registry.addRecipe(craftingDisplay(display));
     }
-    info(
-        registry,
-        "cluster",
-        DeliveryContent.CLUSTER_MISSILE,
-        "Craft an empty cluster carrier with tier-one bomblets to load a mixed payload. Add more"
-            + " bomblets in later crafts, up to 64 total. An empty carrier cannot launch.");
-    info(
-        registry,
-        "held_item",
-        DeliveryContent.HELD_ITEM_MISSILE,
-        "Craft the empty casing with one permitted item. Craft a loaded casing alone to retrieve"
-            + " its item and keep the empty casing. Sneak-use cycles primary/secondary action"
-            + " order. Both handheld and block launchers accept loaded missiles.");
-    for (Item carrier : List.of(DeliveryContent.CARGO_PARACHUTE, DeliveryContent.CARGO_BALLOON)) {
-      info(
-          registry,
-          carrier == DeliveryContent.CARGO_PARACHUTE ? "parachute" : "balloon",
-          carrier,
-          "Craft with one permitted item to store cargo; craft the loaded carrier alone to retrieve"
-              + " it and retain the empty carrier. Sneak-use cycles ITEM/BLOCK/ENTITY/PROJECTILE"
-              + " mode. Use on an entity to attach a passenger. Server cargo restrictions apply.");
+    for (JeiRecipeDisplays.InfoPage page : JeiRecipeDisplays.infoPages()) {
+      info(registry, page.id(), page.item(), page.text());
     }
   }
 

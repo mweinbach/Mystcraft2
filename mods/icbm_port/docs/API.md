@@ -102,19 +102,37 @@ Commands do not create chunk tickets. Protection mods should cancel actions thro
 ## Optional compatibility availability
 
 Read-only Modrinth version queries on 2026-10-18 confirmed Fabric **1.19.2** releases:
-JEI `11.68.0.1087`, REI `9.2.784+fabric`, EMI `1.1.24+1.19.2+fabric`. Thus recipe
-viewers are available; the optional `IcbmJeiPlugin` now registers actual dynamic crafting displays for mixed
-clusters and every allowed registry-item held/cargo loading and unloading case,
-including container remainders and normalized NBT subtype identities. Standard
-JSON recipes use JEI's vanilla discovery. The plugin compiles against pinned
-Fabric JEI 11.8.1.1034 and is loaded only through `jei_mod_plugin`; JEI remains
-optional and is not bundled. Use the Gradle `withJei` property for runtime client
-checks. Server tests compare representative display outputs and remainders
-against real special serializers. A live client displayed normal and dynamic held-item loading recipes; see VALIDATION.md for the tested scope. REI/EMI-specific adapters are not implemented.
+JEI `11.68.0.1087`, REI `9.2.784+fabric`, EMI `1.1.24+1.19.2+fabric`. All three
+viewers have native ICBM adapters that share one display model,
+`JeiRecipeDisplays`: dynamic crafting displays for mixed clusters and every allowed
+registry-item held/cargo loading and unloading case, container remainders,
+normalized raw-NBT subtype identities and the same usage pages. Standard JSON
+recipes use each viewer's vanilla discovery. None of the viewers is bundled.
 
-The same query found no official Mekanism Fabric 1.19.2 release. The upstream
-Mekanism EMP-NBT/teleporter adapter is Forge-specific and remains unsupported;
-Fabric energy/material alternatives do not establish Mekanism compatibility.
+| Viewer | Entrypoint / class | Compiled against | Dev runtime flag | Notes |
+| --- | --- | --- | --- | --- |
+| EMI | `emi` / `IcbmEmiPlugin` | EMI 1.1.24+1.19.2 | `-PwithEmi` | Owns ICBM displays when EMI is installed; remainders are native EMI remainders. |
+| JEI | `jei_mod_plugin` / `IcbmJeiPlugin` | JEI 11.8.1.1034 | `-PwithJei` | Skips its displays/subtypes while EMI is loaded so JEMI does not duplicate them. |
+| REI | `rei_client` / `IcbmReiPlugin` | REI 9.2.784 API + default plugin | `-PwithRei` | Item comparators use the shared NBT identity; the loaded input of an unloading display carries a "Returns: …" tooltip. `IcbmReiDisplays` holds the common-API conversion. |
+
+Server GameTests compare representative display outputs and remainders against
+the real special serializers. `IntegrationGameTests` checks that the `rei_client`
+entrypoint class is packaged and, when REI is on the dedicated-server classpath
+(`-PwithRei`), that every shared display converts to an REI display with
+identical NBT-bearing inputs and outputs. Client entrypoints never run on a
+dedicated server; a live client displayed JEI's normal and dynamic held-item
+loading recipes and EMI's in Tekxit (see VALIDATION.md for the tested scope).
+REI has not been checked in a live client.
+
+Fabric Mekanism is now in this repository (`mods/mekanism`, mod ID `mekanism`).
+The upstream `explosives/mekanism/{nuclear,antimatter,redmatter}.json`
+atomic-alloy alternatives are shipped as `*_explosive_mekanism` recipes gated by
+`fabric:all_mods_loaded ["mekanism"]`; the matching vanilla fallbacks carry the
+inverse gate, as upstream's `minecraft:item_exists` conditions did. See
+[RECIPES.md](RECIPES.md). The upstream Mekanism teleporter adapter remains
+unsupported. EMP draining uses Fabric/Team Reborn energy (see ENERGY.md), not
+Mekanism's `electricityStored` NBT, and has not been tested against Mekanism
+machines.
 Queries used `https://api.modrinth.com/v2/project/{jei,rei,emi,mekanism}/version`
 with `game_versions=["1.19.2"]&loaders=["fabric"]` filters. Availability alone says
 nothing about inter-mod behavior until those combinations are installed and tested.

@@ -12,10 +12,18 @@ repositories {
     maven { url = 'https://maven.blamejared.com/' }
     maven { url = 'https://maven.terraformersmc.com/releases/' }
     maven {
+        url = 'https://maven.shedaniel.me/'
+        content {
+            includeGroup 'me.shedaniel'
+            includeGroup 'me.shedaniel.cloth'
+        }
+    }
+    maven {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
     }
 }
+def reiVersion = '9.2.784'
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -24,16 +32,28 @@ dependencies {
     include(modImplementation('teamreborn:energy:2.3.0'))
     modCompileOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
     modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
+    // REI 9.2.x is the 1.19-1.19.2 line; only its API and default plugin are needed to compile.
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${reiVersion}") { transitive = false }
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${reiVersion}") { transitive = false }
+    // REI's EntryStacks overloads name Architectury's FluidStack; javac needs it for resolution.
+    modCompileOnly('maven.modrinth:architectury-api:cde9Su0w') { transitive = false }
     if (providers.gradleProperty('withJei').isPresent()) {
         modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
     }
     if (providers.gradleProperty('withEmi').isPresent()) {
         modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
     }
+    if (providers.gradleProperty('withRei').isPresent()) {
+        modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${reiVersion}") { transitive = false }
+        modRuntimeOnly('me.shedaniel.cloth:cloth-config-fabric:8.3.134') { transitive = false }
+    }
     // Item Alchemy 1.1.3, the Fabric EMC mod, checks the shipped default_emcs data against real values.
     if (providers.gradleProperty('withItemAlchemy').isPresent()) {
         modRuntimeOnly 'maven.modrinth:item-alchemy:1AYUTFS2'
         modRuntimeOnly 'maven.modrinth:mcpitanlibarch:cTAftMK5'
+    }
+    // Architectury 6.6.92 for 1.19.2 is shared by Item Alchemy and REI; declare it once.
+    if (providers.gradleProperty('withItemAlchemy').isPresent() || providers.gradleProperty('withRei').isPresent()) {
         modRuntimeOnly 'maven.modrinth:architectury-api:cde9Su0w'
     }
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:antimatter_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "nnn",
+    "nrn",
+    "nnn"
+  ],
+  "key": {
+    "r": {
+      "item": "icbm_port:nuclear_explosive"
+    },
+    "n": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "mekanism"
+      ]
+    }
+  ]
+}

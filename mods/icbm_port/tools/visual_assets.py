@@ -246,4 +246,21 @@ def generate(root):
  lang=json.loads(lang_path.read_text())
  lang.update({'tooltip.icbm_port.payload.condensed': 'A compact terrain blast for straightforward demolition.', 'tooltip.icbm_port.payload.shrapnel': 'Scatters burning projectiles to strike exposed targets around the impact.', 'tooltip.icbm_port.payload.incendiary': 'Ignites nearby targets and scatters fire across exposed ground.', 'tooltip.icbm_port.payload.debilitation': 'Leaves poisonous gas that slows unprotected targets and causes mining fatigue.', 'tooltip.icbm_port.payload.chemical': 'Lingering toxic gas builds up damage through repeated unprotected exposure.', 'tooltip.icbm_port.payload.anvil': 'Showers the area with falling anvils that damage creatures below.', 'tooltip.icbm_port.payload.repulsive': 'Pushes nearby entities away; use it to shove a redmatter core off course.', 'tooltip.icbm_port.payload.attractive': 'Pulls nearby entities inward to bunch targets together for an area attack.', 'tooltip.icbm_port.payload.fragmentation': 'Scatters explosive fragments and projectiles across the surrounding area.', 'tooltip.icbm_port.payload.contagious': 'Spreads viral exposure between nearby creatures and can mutate pigs or villagers.', 'tooltip.icbm_port.payload.sonic': 'A force wave tears up terrain and throws loose blocks outward.', 'tooltip.icbm_port.payload.breaching': 'Cuts a narrow tunnel toward the most resistant wall beside the blast.', 'tooltip.icbm_port.payload.thermobaric': 'A large, destructive terrain blast for clearing a wide area.', 'tooltip.icbm_port.payload.nuclear': 'A massive blast leaves radioactive fallout and can mutate nearby creatures.', 'tooltip.icbm_port.payload.emp': 'Disrupts powered ICBM machines and disables nearby missiles without a terrain blast.', 'tooltip.icbm_port.payload.exothermic': 'Evaporates water and ice, turning common terrain into lava, magma or netherrack.', 'tooltip.icbm_port.payload.endothermic': 'Freezes water, solidifies lava and extinguishes fire across the affected terrain.', 'tooltip.icbm_port.payload.antigravitational': 'Lifts terrain and nearby entities into a sustained low-gravity field.', 'tooltip.icbm_port.payload.ender': 'Targeted missiles relocate terrain and entities; other forms scatter nearby entities.', 'tooltip.icbm_port.payload.antimatter': 'Erases a large area and annihilates redmatter cores caught in the blast.', 'tooltip.icbm_port.payload.redmatter': 'A hungry core pulls in terrain to grow and merges with other redmatter cores.', 'tooltip.icbm_port.payload.colors': 'Leaves a harmless colored particle cloud to mark an impact or celebrate.', 'tooltip.icbm_port.payload.smoke': 'A short-lived smoke plume marks the impact without a terrain blast.', 'tooltip.icbm_port.redmatter_counter': 'Use antimatter to collapse the core. Repulsive blasts can push it away.', 'death.attack.icbm_port.redmatter': '%1$s was consumed by a redmatter core', 'death.attack.icbm_port.redmatter.player': "%1$s was consumed by %2$s's redmatter core"})
  put('lang/en_us.json',lang)
+ icon(assets/'icon.png')
+def icon(path,size=128):
+ """Original mod icon: an upright missile over a hazard-striped casing plate, in this port's palette."""
+ edge,metal,light,accent=rgb('#18242d'),rgb('#34434d'),rgb('#a9bac0'),rgb('#e5ad41')
+ nose,flame,core=rgb('#c8452f'),rgb('#f39630'),rgb('#ffecaa')
+ def pixel(x,y):
+  cx=x-63.5
+  if 104<=y<=114 and abs(cx)<=6+(y-104)//3:return core if abs(cx)<=3 and y<=110 else flame
+  if 52<=y<=58 and abs(cx)<=9:return accent
+  if 30<=y<=96 and abs(cx)<=9:return light if cx<-4 else rgb('#8299a2') if cx>4 else rgb('#c9d6da')
+  if 12<=y<30 and abs(cx)<=(y-12)*9/18:return nose
+  if 78<=y<=102 and 9<abs(cx)<=9+(y-78)*0.75:return edge if abs(cx)>9+(y-78)*0.75-2 else rgb('#708691')
+  if 96<y<104 and abs(cx)<=6:return edge
+  if min(x,y,size-1-x,size-1-y)<10:return accent if ((x+y)//8)%2 else edge
+  if min(x,y,size-1-x,size-1-y)<12:return edge
+  return tuple(min(255,c+((x*11+y*7)%3)*2) for c in metal)
+ png(path,size,size,[pixel(x,y) for y in range(size) for x in range(size)])
 if __name__=='__main__':generate(Path(__file__).resolve().parents[1]/'src/main/resources')

@@ -14,6 +14,39 @@ import net.minecraft.util.registry.Registry;
 public final class JeiRecipeDisplays {
   private JeiRecipeDisplays() {}
 
+  /** Items whose viewer identity depends on serialized payload/cargo NBT. */
+  public static List<Item> payloadItems() {
+    return List.of(
+        DeliveryContent.CLUSTER_MISSILE,
+        DeliveryContent.HELD_ITEM_MISSILE,
+        DeliveryContent.CARGO_PARACHUTE,
+        DeliveryContent.CARGO_BALLOON);
+  }
+
+  /** One usage page shared by every recipe-viewer adapter. */
+  public record InfoPage(String id, Item item, String text) {}
+
+  public static List<InfoPage> infoPages() {
+    String carrier =
+        "Craft with one permitted item to store cargo; craft the loaded carrier alone to retrieve"
+            + " it and retain the empty carrier. Sneak-use cycles ITEM/BLOCK/ENTITY/PROJECTILE"
+            + " mode. Use on an entity to attach a passenger. Server cargo restrictions apply.";
+    return List.of(
+        new InfoPage(
+            "cluster",
+            DeliveryContent.CLUSTER_MISSILE,
+            "Craft an empty cluster carrier with tier-one bomblets to load a mixed payload. Add more"
+                + " bomblets in later crafts, up to 64 total. An empty carrier cannot launch."),
+        new InfoPage(
+            "held_item",
+            DeliveryContent.HELD_ITEM_MISSILE,
+            "Craft the empty casing with one permitted item. Craft a loaded casing alone to retrieve"
+                + " its item and keep the empty casing. Sneak-use cycles primary/secondary action"
+                + " order. Both handheld and block launchers accept loaded missiles."),
+        new InfoPage("parachute", DeliveryContent.CARGO_PARACHUTE, carrier),
+        new InfoPage("balloon", DeliveryContent.CARGO_BALLOON, carrier));
+  }
+
   public static String subtype(ItemStack stack) {
     return subtype(stack.getItem(), stack.getNbt());
   }

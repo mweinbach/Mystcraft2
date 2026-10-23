@@ -18,6 +18,9 @@ pixels on the same ordinary layers.
 New geometry covers the explosive casings, missiles, grenade/bomblet forms,
 launcher tiers and components, radar, SAM, EMP hardware and major handheld tools.
 Physical projectile models retain the renderer's +Y flight axis.
+The 128×128 mod icon `assets/icbm_port/icon.png` (referenced by `fabric.mod.json`)
+is drawn by `icon()` in the same script: an upright missile with a gold hazard
+band over a hazard-striped gunmetal plate, using only this palette.
 
 Radar and SAM block models intentionally provide only the static base and mount;
 the client block-entity renderer supplies their moving upper hardware. Separate

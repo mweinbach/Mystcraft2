@@ -1,0 +1,53 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "icbm_port:nuclear_explosive",
+    "count": 1
+  },
+  "pattern": [
+    "tit",
+    "iii",
+    "tit"
+  ],
+  "key": {
+    "t": {
+      "item": "icbm_port:thermobaric_explosive"
+    },
+    "i": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:or",
+            "values": [
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_ingots"
+                ]
+              },
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_235_pellets"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "condition": "fabric:all_mods_loaded",
+          "values": [
+            "mekanism"
+          ]
+        }
+      ]
+    }
+  ]
+}

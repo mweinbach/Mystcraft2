@@ -21,7 +21,8 @@
       "dev.icbm.port.exposure.ExposureGameTests",
       "dev.icbm.port.command.CommandApiGameTests",
       "dev.icbm.port.FlightGameTests",
-      "dev.icbm.port.EmcGameTests"
+      "dev.icbm.port.EmcGameTests",
+      "dev.icbm.port.integration.IntegrationGameTests"
     ]
   },
   "depends": {
