@@ -21,8 +21,7 @@
     "InkEntityPhysicsMixin",
     "InkBoatPhysicsMixin",
     "ArchivistCareerMixin",
-    "HopperBookPickupMixin",
-    "LegacyTreasureLootMixin"
+    "HopperBookPickupMixin"
   ],
   "injectors": {
     "defaultRequire": 1

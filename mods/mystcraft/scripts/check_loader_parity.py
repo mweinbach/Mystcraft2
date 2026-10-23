@@ -41,9 +41,16 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
         parity.require('BookAttackPacketMixin' in settings.get('mixins', []), f'Missing server book-attack hook: {config}')
         parity.require(mapped_prefix in json.dumps(mappings.get(namespace + 'BookAttackPacketMixin', {})),
                        f'Missing production book-attack mapping: {config}')
-        for name in ('AgePvpMixin', 'AgeChunkTickMixin', 'AgeWeatherTemperatureMixin', 'AgeWeatherChunkMixin', 'ServerPlayerDimensionIdentityMixin', 'VillageHousePoolMixin', 'DeferredCrystalChunkSaveMixin', 'ArchivistCareerMixin', 'HopperBookPickupMixin', 'LegacyTreasureLootMixin'):
+        for name in ('AgePvpMixin', 'AgeChunkTickMixin', 'AgeWeatherTemperatureMixin', 'AgeWeatherChunkMixin', 'ServerPlayerDimensionIdentityMixin', 'VillageHousePoolMixin', 'DeferredCrystalChunkSaveMixin', 'ArchivistCareerMixin', 'HopperBookPickupMixin'):
             parity.require(name in settings.get('mixins', []), f'Missing common hook: {name}')
             parity.require(mapped_prefix in json.dumps(mappings.get(namespace + name, {})), f'Missing production mapping: {name}')
+        # Forge edits the legacy treasure tables' JSON; Fabric uses LootTableEvents.MODIFY instead of a mixin.
+        if jar is a:
+            parity.require('LegacyTreasureLootMixin' in settings.get('mixins', []), 'Missing Forge legacy treasure hook')
+            parity.require(mapped_prefix in json.dumps(mappings.get(namespace + 'LegacyTreasureLootMixin', {})),
+                           'Missing production mapping: LegacyTreasureLootMixin')
+        else:
+            parity.require('LegacyTreasureLootMixin' not in settings.get('mixins', []), 'Fabric must use LootTableEvents, not a loot mixin')
         if jar is b:
             for name in ('InkEntityPhysicsMixin', 'InkBoatPhysicsMixin'):
                 parity.require(name in settings.get('mixins', []), f'Missing native ink physics hook: {name}')

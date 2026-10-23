@@ -10,10 +10,11 @@ import net.mystcraft.minecraft.client.PageCollectionScreen;
 import net.mystcraft.minecraft.client.render.BookReceptacleRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.FriendlyByteBuf;
 import net.mystcraft.integration.network.LinkingNetwork;
 import net.mystcraft.integration.registry.BookEntityRegistry;
@@ -48,25 +49,25 @@ public final class FabricMystcraftClient implements ClientModInitializer {
                     LinkingNetwork.OpenBook packet = LinkingNetwork.OpenBook.decode(data);
                     client.execute(() -> LinkingBookClient.open(packet));
                 });
-        net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry.register(
+        ItemProperties.register(
                 net.mystcraft.integration.registry.AgeRegistry.PAGE.get(), new net.minecraft.resources.ResourceLocation("mystcraft", "page"),
                 (stack, level, entity, seed) -> net.mystcraft.minecraft.client.PageItemModels.value(stack));
-        ScreenRegistry.register(BinderRegistry.BOOK_BINDER_MENU.get(), BookBinderScreen::new);
-            ScreenRegistry.register(net.mystcraft.integration.registry.ModifierRegistry.LINK_MODIFIER_MENU.get(), net.mystcraft.minecraft.client.LinkModifierScreen::new);
-        ScreenRegistry.register(WritingDeskRegistry.WRITING_DESK_MENU.get(), WritingDeskScreen::new);
-        ScreenRegistry.register(WritingDeskRegistry.PAGE_COLLECTION_MENU.get(), PageCollectionScreen::new);
-        BlockEntityRendererRegistry.register(PortalRegistry.RECEPTACLE_ENTITY.get(), BookReceptacleRenderer::new);
-        BlockEntityRendererRegistry.register(net.mystcraft.integration.registry.StarFissureRegistry.STAR_FISSURE_ENTITY.get(), net.mystcraft.minecraft.client.render.StarFissureRenderer::new);
-        BlockEntityRendererRegistry.register(net.mystcraft.integration.registry.ExplorationRegistry.LECTERN_ENTITY.get(), net.mystcraft.minecraft.client.render.MystLecternRenderer::new);
+        MenuScreens.register(BinderRegistry.BOOK_BINDER_MENU.get(), BookBinderScreen::new);
+        MenuScreens.register(net.mystcraft.integration.registry.ModifierRegistry.LINK_MODIFIER_MENU.get(), net.mystcraft.minecraft.client.LinkModifierScreen::new);
+        MenuScreens.register(WritingDeskRegistry.WRITING_DESK_MENU.get(), WritingDeskScreen::new);
+        MenuScreens.register(WritingDeskRegistry.PAGE_COLLECTION_MENU.get(), PageCollectionScreen::new);
+        BlockEntityRenderers.register(PortalRegistry.RECEPTACLE_ENTITY.get(), BookReceptacleRenderer::new);
+        BlockEntityRenderers.register(net.mystcraft.integration.registry.StarFissureRegistry.STAR_FISSURE_ENTITY.get(), net.mystcraft.minecraft.client.render.StarFissureRenderer::new);
+        BlockEntityRenderers.register(net.mystcraft.integration.registry.ExplorationRegistry.LECTERN_ENTITY.get(), net.mystcraft.minecraft.client.render.MystLecternRenderer::new);
         net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlocks(net.minecraft.client.renderer.RenderType.translucent(), PortalRegistry.CRYSTAL.get(), PortalRegistry.LINK_PORTAL.get());
-        ScreenRegistry.register(net.mystcraft.integration.registry.BookDisplayRegistry.DISPLAY_MENU.get(), net.mystcraft.minecraft.client.BookDisplayScreen::new);
-        ScreenRegistry.register(net.mystcraft.integration.registry.ExplorationRegistry.ARCHIVIST_MENU.get(), net.mystcraft.minecraft.client.ArchivistScreen::new);
-        ScreenRegistry.register(InkMixerRegistry.INK_MIXER_MENU.get(), InkMixerScreen::new);
+        MenuScreens.register(net.mystcraft.integration.registry.BookDisplayRegistry.DISPLAY_MENU.get(), net.mystcraft.minecraft.client.BookDisplayScreen::new);
+        MenuScreens.register(net.mystcraft.integration.registry.ExplorationRegistry.ARCHIVIST_MENU.get(), net.mystcraft.minecraft.client.ArchivistScreen::new);
+        MenuScreens.register(InkMixerRegistry.INK_MIXER_MENU.get(), InkMixerScreen::new);
         EntityRendererRegistry.register(BookEntityRegistry.LINK_BOOK.get(), LinkBookRenderer::new);
         EntityRendererRegistry.register(net.mystcraft.integration.registry.MeteorRegistry.METEOR.get(), net.mystcraft.minecraft.client.render.MeteorRenderer::new);
         EntityRendererRegistry.register(net.mystcraft.integration.registry.DecayFallingRegistry.FALLING.get(), net.mystcraft.minecraft.client.render.DecayFallingRenderer::new);
         EntityRendererRegistry.register(net.mystcraft.integration.registry.LightningRegistry.LIGHTNING.get(), net.mystcraft.minecraft.client.age.ClassicLightningRenderer::new);
-        BlockEntityRendererRegistry.register(BookstandRegistry.BOOKSTAND_ENTITY.get(), BookstandRenderer::new);
+        BlockEntityRenderers.register(BookstandRegistry.BOOKSTAND_ENTITY.get(), BookstandRenderer::new);
     }
     public static void sendRequest(UUID token) {
         FriendlyByteBuf data = PacketByteBufs.create();

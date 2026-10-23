@@ -6,9 +6,13 @@
   "environment": "*",
   "entrypoints": {
     "fabric-gametest": [
-      "net.mystcraft.gametest.EmcGameTests"
+      "net.mystcraft.gametest.EmcGameTests",
+      "net.mystcraft.gametest.MixinCompatibilityGameTests"
     ]
   },
+  "mixins": [
+    "mystcraft_gametest.mixins.json"
+  ],
   "depends": {
     "mystcraft": "*",
     "fabric-gametest-api-v1": "*"
