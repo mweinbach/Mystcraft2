@@ -77,6 +77,15 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Curios' mixins carry SRG refmaps; the development runs use official names.
+if (providers.gradleProperty('withCurios').isPresent()) {
+    minecraft.runs.configureEach {
+        property 'mixin.env.remapRefMap', 'true'
+        property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+    }
+    tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+}
+
 tasks.named('test', Test) { useJUnitPlatform() }
 
 // GameTests are merged into the mod only for the GameTest server run, never into the JAR.
