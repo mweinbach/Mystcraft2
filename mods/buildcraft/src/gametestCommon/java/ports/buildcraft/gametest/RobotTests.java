@@ -138,7 +138,7 @@ public final class RobotTests {
                 .append(" tool ").append(robot.tool()).append(" carrying");
         for (int slot = 0; slot < robot.inventory().getContainerSize(); slot++) text.append(' ').append(robot.inventory().getItem(slot));
         List<net.minecraft.world.entity.item.ItemEntity> items = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
-                new net.minecraft.world.phys.AABB(helper.absolutePos(BlockPos.ZERO), helper.absolutePos(new BlockPos(9, 8, 9))));
+                new net.minecraft.world.phys.AABB(helper.absolutePos(new BlockPos(0, -3, 0)), helper.absolutePos(new BlockPos(9, 8, 9))));
         text.append("; items lying:");
         for (var item : items) text.append(' ').append(item.getItem()).append('@').append(relative(helper, item.blockPosition()));
         return text.toString();
@@ -293,8 +293,11 @@ public final class RobotTests {
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
         confine(helper, pipe, Direction.NORTH);
-        helper.spawnItem(Items.COBBLESTONE, 1.5F, 1.2F, 1.5F).getItem().setCount(8);
-        helper.spawnItem(Items.DIAMOND, 7.5F, 1.2F, 6.5F);
+        // Placing neighbouring tests may clear this arena's edge floor; keep the items from falling out of the area.
+        helper.setBlock(new BlockPos(2, 0, 2), Blocks.STONE);
+        helper.setBlock(new BlockPos(6, 0, 6), Blocks.STONE);
+        helper.spawnItem(Items.COBBLESTONE, 2.5F, 1.2F, 2.5F).getItem().setCount(8);
+        helper.spawnItem(Items.DIAMOND, 6.5F, 1.2F, 6.5F);
         RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
         helper.succeedWhen(() -> {
             require(helper, count(chest, Items.COBBLESTONE) == 8 && count(chest, Items.DIAMOND) == 1,
