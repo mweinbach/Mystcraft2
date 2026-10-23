@@ -356,31 +356,36 @@ def main(argv=None) -> int:
     parser.add_argument('--minecraft', nargs='+', required=True, help="Loom's intermediary Minecraft jar(s)")
     parser.add_argument('--mappings', help='tiny v2 mappings with intermediary and named columns, for readable output')
     parser.add_argument('--ours', nargs='+', required=True)
-    parser.add_argument('--theirs', nargs='+', required=True)
+    parser.add_argument('--theirs', nargs='+', required=True,
+                        help='reference mod jars, each checked on its own with the mods it nests')
     args = parser.parse_args(argv)
-    sides = []
-    for label, jars in (('ours', args.ours), ('theirs', args.theirs)):
-        side = Side(label)
-        for jar in jars:
-            with open(jar, 'rb') as f:
-                side.load_jar(f.read(), jar)
-        sides.append(side)
-    ours, theirs = sides
+    ours = Side('ours')
+    for jar in args.ours:
+        with open(jar, 'rb') as f:
+            ours.load_jar(f.read(), jar)
     ancestors = read_ancestors(args.minecraft)
     names = load_names(args.mappings)
     show = lambda cls: names.get(cls, cls).replace('/', '.')
-    methods = method_clashes(ours.additions(), theirs.additions(), ancestors)
-    patches = patch_clashes(ours.patches(), theirs.patches())
-    print('checked against: ' + ', '.join(f'{k} {v}' for k, v in sorted(theirs.mods.items(), key=lambda kv: str(kv[0]))))
-    for c in methods:
-        print(f"method {show(c['ours'][0])}.{c['name']}{c['desc']}\n"
-              f"    ours:   {c['ours'][1]}\n    theirs: {show(c['theirs'][0])}: {c['theirs'][1]}")
-    for c in patches:
-        call = f" call {c['call']}" if c['call'] else ''
-        print(f"patch {show(c['target'])}.{c['method']}{call}\n"
-              f"    ours:   {c['ours'][0]} in {c['ours'][1]}\n    theirs: {c['theirs'][0]} in {c['theirs'][1]}")
-    print(f'{len(methods)} method clashes, {len(patches)} patch clashes')
-    return 1 if methods or patches else 0
+    total = 0
+    # Each reference jar is its own mod set: two of them may nest different versions of the same library, whose
+    # classes share names.
+    for jar in args.theirs:
+        theirs = Side('theirs')
+        with open(jar, 'rb') as f:
+            theirs.load_jar(f.read(), jar)
+        methods = method_clashes(ours.additions(), theirs.additions(), ancestors)
+        patches = patch_clashes(ours.patches(), theirs.patches())
+        print('checked against: ' + ', '.join(f'{k} {v}' for k, v in sorted(theirs.mods.items(), key=lambda kv: str(kv[0]))))
+        for c in methods:
+            print(f"method {show(c['ours'][0])}.{c['name']}{c['desc']}\n"
+                  f"    ours:   {c['ours'][1]}\n    theirs: {show(c['theirs'][0])}: {c['theirs'][1]}")
+        for c in patches:
+            call = f" call {c['call']}" if c['call'] else ''
+            print(f"patch {show(c['target'])}.{c['method']}{call}\n"
+                  f"    ours:   {c['ours'][0]} in {c['ours'][1]}\n    theirs: {c['theirs'][0]} in {c['theirs'][1]}")
+        print(f'{len(methods)} method clashes, {len(patches)} patch clashes')
+        total += len(methods) + len(patches)
+    return 1 if total else 0
 
 
 if __name__ == '__main__':

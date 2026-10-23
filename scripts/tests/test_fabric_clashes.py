@@ -1,10 +1,12 @@
 """Tests for scripts/fabric_clashes.py: method and mixin clashes between two sets of Fabric mods."""
 
+import contextlib
 import importlib.util
 import io
 import json
 import struct
 import sys
+import tempfile
 import unittest
 import zipfile
 from pathlib import Path
@@ -211,6 +213,26 @@ class PatchClashTests(unittest.TestCase):
         theirs = side('theirs', overwriting('theirs'))
         self.assertEqual(fc.patch_clashes(side('ours', head).patches(), theirs.patches()), [])
         self.assertEqual(len(fc.patch_clashes(side('ours', overwriting('ours')).patches(), theirs.patches())), 1)
+
+
+class MainTests(unittest.TestCase):
+    def test_each_reference_jar_is_checked_on_its_own(self):
+        """Two reference mods nesting different versions of one library: the second version's clash is still found."""
+        layer = MethodClashTests().layer
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = {}
+            for name, data in (('minecraft', jar('minecraft', {BLOCK_ENTITY: {}})), ('ours', layer('ours', 'onLoad')),
+                               ('old', layer('lib', 'somethingElse')), ('new', layer('lib', 'onLoad'))):
+                paths[name] = str(Path(tmp) / f'{name}.jar')
+                Path(paths[name]).write_bytes(data)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                status = fc.main(['--minecraft', paths['minecraft'], '--ours', paths['ours'],
+                                  '--theirs', paths['old'], paths['new']])
+        self.assertEqual(status, 1)
+        self.assertEqual(out.getvalue().count('checked against: lib 1.0'), 2)
+        self.assertIn('0 method clashes, 0 patch clashes\n', out.getvalue())
+        self.assertIn('1 method clashes, 0 patch clashes\n', out.getvalue())
 
 
 if __name__ == '__main__':
