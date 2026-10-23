@@ -16,6 +16,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +43,7 @@ import ports.buildcraft.robotics.WorkArea;
 import ports.buildcraft.robotics.board.BreakerBoard;
 import ports.buildcraft.robotics.board.RobotBoardType;
 import ports.buildcraft.robotics.statements.BCRoboticsStatements;
+import ports.buildcraft.robotics.zone.ZonePlan;
 import ports.buildcraft.silicon.AssemblyRecipe;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.EnumGateLogic;
@@ -268,6 +270,23 @@ public final class RobotTests {
         notChunks.add(IntTag.valueOf(7));
         badZone.getOrCreateTag().put("chunkMapping", notChunks);
         require(helper, WorkArea.fromMap(badZone, helper.absolutePos(pos)) == null, "a malformed zone map gives no work area");
+
+        BlockPos origin = helper.absolutePos(pos);
+        ZonePlan small = new ZonePlan();
+        small.paintRectangle(origin.getX(), origin.getZ(), origin.getX() + 3, origin.getZ() + 3, true);
+        ItemStack smallZone = new ItemStack(BCCore.MAP_LOCATION.get());
+        MapLocationItem.setZone(smallZone, small);
+        WorkArea zoned = WorkArea.fromMap(smallZone, origin);
+        require(helper, zoned != null && zoned.contains(origin) && !zoned.contains(origin.offset(5, 0, 5)),
+                "a painted zone gives its columns as the work area, got " + zoned);
+        ZonePlan huge = new ZonePlan();
+        for (int chunk = 0; chunk <= WorkArea.MAX_ZONE_CHUNKS; chunk++) huge.set(chunk * 16, 0, true);
+        ItemStack hugeZone = new ItemStack(BCCore.MAP_LOCATION.get());
+        MapLocationItem.setZone(hugeZone, huge);
+        require(helper, WorkArea.fromMap(hugeZone, origin) == null, "a zone over " + WorkArea.MAX_ZONE_CHUNKS + " chunks is refused");
+        ItemStack fatZone = smallZone.copy();
+        fatZone.getTag().getList("chunkMapping", Tag.TAG_COMPOUND).getCompound(0).putByteArray("bits", new byte[4096]);
+        require(helper, WorkArea.fromMap(fatZone, origin) == null, "a zone chunk with more bits than columns is refused");
 
         ItemStack farMap = new ItemStack(BCCore.MAP_LOCATION.get());
         MapLocationItem.Type.AREA.set(farMap);

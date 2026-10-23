@@ -59,6 +59,9 @@ public class DockingStationPluggable extends PipePluggable {
     private long forbidTick = NEVER, areaTick = NEVER, wakeTick = NEVER;
     private final List<ItemStack> provideFilters = new ArrayList<>(), acceptFilters = new ArrayList<>();
     private ItemStack areaMap = ItemStack.EMPTY;
+    /** The gate's own parameter stack last handed to {@link #actionWorkInArea}, compared by identity. */
+    @Nullable
+    private ItemStack areaSource;
     /** {@link #areaMap} decoded, so robots asking every tick do not rebuild a zone. */
     @Nullable
     private WorkArea area;
@@ -240,6 +243,9 @@ public class DockingStationPluggable extends PipePluggable {
 
     public void actionWorkInArea(ItemStack map) {
         areaTick = now();
+        // A gate hands over the same parameter stack every tick; only compare its NBT when that stack changes.
+        if (map == areaSource) return;
+        areaSource = map;
         if (ItemStack.matches(map, areaMap)) return;
         areaMap = map.copy();
         area = WorkArea.fromMap(areaMap, holder.getBlockPos());

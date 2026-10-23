@@ -3,6 +3,8 @@ package ports.buildcraft.robotics;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -24,6 +26,10 @@ public record WorkArea(BlockPos min, BlockPos max, @Nullable ZonePlan zone) {
     public static final int ZONE_HALF_HEIGHT = 16;
     /** The largest box a robot will scan along each axis. */
     public static final int MAX_SIZE = 64;
+    /** The most painted chunks a zone map may have for a robot to use it (a 256-block square). */
+    public static final int MAX_ZONE_CHUNKS = 256;
+    /** One chunk's 256 columns, one bit each. */
+    private static final int CHUNK_COLUMN_BYTES = 256 / 8;
 
     public WorkArea {
         // Gate parameters come from clients, so clamp to the world's limits first: capping a box near
@@ -44,6 +50,20 @@ public record WorkArea(BlockPos min, BlockPos max, @Nullable ZonePlan zone) {
                 Mth.clamp(pos.getZ(), -Level.MAX_LEVEL_SIZE, Level.MAX_LEVEL_SIZE));
     }
 
+    /**
+     * True when a zone map's chunk list is small enough to decode: at most {@link #MAX_ZONE_CHUNKS} chunks, each
+     * a compound whose column bits fit one chunk. Robots use at most a 64-block box of a zone, so a larger plan
+     * only costs the server time to read and scan.
+     */
+    private static boolean zoneWithinLimits(CompoundTag tag) {
+        if (!(tag.get("chunkMapping") instanceof ListTag list) || list.size() > MAX_ZONE_CHUNKS) return false;
+        for (Tag element : list) {
+            if (!(element instanceof CompoundTag chunk)) return false;
+            if (chunk.getByteArray("bits").length > CHUNK_COLUMN_BYTES) return false;
+        }
+        return true;
+    }
+
     public static WorkArea around(BlockPos centre, int radius) {
         return new WorkArea(centre.offset(-radius, -radius, -radius), centre.offset(radius, radius, radius), null);
     }
@@ -58,6 +78,7 @@ public record WorkArea(BlockPos min, BlockPos max, @Nullable ZonePlan zone) {
             case AREA -> new WorkArea(new BlockPos(tag.getInt("xMin"), tag.getInt("yMin"), tag.getInt("zMin")),
                     new BlockPos(tag.getInt("xMax"), tag.getInt("yMax"), tag.getInt("zMax")), null);
             case ZONE -> {
+                if (!zoneWithinLimits(tag)) yield null;
                 ZonePlan plan = MapLocationItem.zone(stack);
                 if (plan == null) yield null;
                 int minX = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
