@@ -141,10 +141,10 @@ forwarded by both loaders. After Extreme Reactors changes, run:
 `mods/fluidphysics` is a **Fabric-only library**, not a gameplay port. It gives
 modded fluids the part of Forge's `FluidType` behaviour vanilla applies only to
 water and lava: swimming, drowning, current pushing, the fall distance modifier,
-boat support and path types. Forge already has `FluidType`, so there is no Forge
-variant and no parity gate. Extreme Reactors' Fabric build consumes it through
-`include(...)`. Keep its limitations in `mods/fluidphysics/README.md` current and
-test it with:
+extinguishing, boat support and path types. Forge already has `FluidType`, so
+there is no Forge variant and no parity gate. The Extreme Reactors and Mekanism
+Fabric builds consume it through `include(...)`. Keep its limitations in
+`mods/fluidphysics/README.md` current and test it with:
 
 - `./scripts/gradle.sh -p mods/fluidphysics build`
 - `./scripts/gradle.sh -p mods/fluidphysics runGametest`

@@ -41,10 +41,12 @@ public class FabricFluidPhysicsGameTests {
                     check(actual.canSwim() == expected.canSwim() && actual.canDrown() == expected.canDrown()
                                 && actual.canPushEntity() == expected.canPushEntity() && actual.supportsBoating() == expected.supportsBoating()
                                 && actual.motionScale() == expected.motionScale() && actual.fallDistanceModifier() == expected.fallDistanceModifier()
-                                && actual.pathType() == expected.pathType(), instance + " was registered with other properties than its type");
+                                && actual.pathType() == expected.pathType() && actual.canExtinguish() == expected.canExtinguish()
+                                && actual.adjacentPathType() == expected.adjacentPathType(), instance + " was registered with other properties than its type");
                     // Forge's FluidType.Properties defaults, which no Mekanism fluid overrides.
                     check(actual.canSwim() && actual.canDrown() && actual.canPushEntity() && !actual.supportsBoating()
-                                && actual.motionScale() == 0.014D && actual.fallDistanceModifier() == 0.5F && actual.pathType() == BlockPathTypes.WATER,
+                                && actual.motionScale() == 0.014D && actual.fallDistanceModifier() == 0.5F && actual.pathType() == BlockPathTypes.WATER
+                                && !actual.canExtinguish() && actual.adjacentPathType() == BlockPathTypes.WATER_BORDER,
                           instance + " does not have Forge's default fluid type properties");
                 }
                 count++;

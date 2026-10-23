@@ -26,7 +26,9 @@ class FluidPropertiesTest {
         assertTrue(properties.canDrown());
         assertEquals(0.5F, properties.fallDistanceModifier());
         assertFalse(properties.supportsBoating());
+        assertFalse(properties.canExtinguish());
         assertEquals(BlockPathTypes.WATER, properties.pathType());
+        assertEquals(BlockPathTypes.WATER_BORDER, properties.adjacentPathType());
     }
 
     @Test
@@ -39,7 +41,9 @@ class FluidPropertiesTest {
                 .canDrown(false)
                 .fallDistanceModifier(0.1F)
                 .supportsBoating(true)
-                .pathType(null);
+                .canExtinguish(true)
+                .pathType(null)
+                .adjacentPathType(BlockPathTypes.DANGER_OTHER);
 
         assertEquals(0.02D, properties.motionScale());
         assertFalse(properties.canPushEntity());
@@ -47,7 +51,40 @@ class FluidPropertiesTest {
         assertFalse(properties.canDrown());
         assertEquals(0.1F, properties.fallDistanceModifier());
         assertTrue(properties.supportsBoating());
+        assertTrue(properties.canExtinguish());
         assertNull(properties.pathType());
+        assertEquals(BlockPathTypes.DANGER_OTHER, properties.adjacentPathType());
+        assertNull(FluidProperties.create().adjacentPathType(null).adjacentPathType());
+    }
+
+    @Test
+    void snapshotCopiesEveryProperty() {
+
+        final FluidProperties properties = FluidProperties.create()
+                .motionScale(0.02D)
+                .canPushEntity(false)
+                .canSwim(false)
+                .canDrown(false)
+                .fallDistanceModifier(0.1F)
+                .supportsBoating(true)
+                .canExtinguish(true)
+                .pathType(BlockPathTypes.LAVA)
+                .adjacentPathType(null);
+        final FluidProperties snapshot = properties.snapshot();
+
+        properties.motionScale(0.5D).canPushEntity(true).canSwim(true).canDrown(true).fallDistanceModifier(0.9F)
+                .supportsBoating(false).canExtinguish(false).pathType(BlockPathTypes.WATER)
+                .adjacentPathType(BlockPathTypes.WATER_BORDER);
+
+        assertEquals(0.02D, snapshot.motionScale());
+        assertFalse(snapshot.canPushEntity());
+        assertFalse(snapshot.canSwim());
+        assertFalse(snapshot.canDrown());
+        assertEquals(0.1F, snapshot.fallDistanceModifier());
+        assertTrue(snapshot.supportsBoating());
+        assertTrue(snapshot.canExtinguish());
+        assertEquals(BlockPathTypes.LAVA, snapshot.pathType());
+        assertNull(snapshot.adjacentPathType());
     }
 
     @Test

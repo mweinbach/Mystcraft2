@@ -87,6 +87,11 @@ public final class FluidPhysics {
         return s_registry.get(state.getType());
     }
 
+    /** Whether no fluid is registered, so the mixins can skip their work. */
+    static boolean isEmpty() {
+        return s_registry.isEmpty();
+    }
+
     private static void put(final Map<Fluid, FluidProperties> registry, final Fluid fluid,
                             final FluidProperties properties) {
 

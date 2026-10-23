@@ -29,8 +29,9 @@ import ports.fluidphysics.FluidProperties;
 import java.util.function.Supplier;
 
 /**
- * The development-only test mod. It registers one fully swimmable fluid and one fluid with every motion behavior off,
- * so the library's GameTests can check both sides of each property.
+ * The development-only test mod. It registers one fully swimmable fluid that also extinguishes and keeps Forge's default
+ * {@code WATER_BORDER} adjacent path type, and one fluid with every motion behavior and both of those off, so the
+ * library's GameTests can check both sides of each property.
  */
 public final class FluidPhysicsTestFluids implements ModInitializer {
 
@@ -89,6 +90,7 @@ public final class FluidPhysicsTestFluids implements ModInitializer {
                 .canDrown(true)
                 .canPushEntity(true)
                 .supportsBoating(true)
+                .canExtinguish(true)
                 .fallDistanceModifier(0.4F)
                 .pathType(BlockPathTypes.WATER);
     }
@@ -99,8 +101,10 @@ public final class FluidPhysicsTestFluids implements ModInitializer {
                 .canDrown(false)
                 .canPushEntity(false)
                 .supportsBoating(false)
+                .canExtinguish(false)
                 .fallDistanceModifier(0.1F)
-                .pathType(BlockPathTypes.WALKABLE);
+                .pathType(BlockPathTypes.WALKABLE)
+                .adjacentPathType(null);
     }
 
     private static ResourceLocation id(final String path) {
