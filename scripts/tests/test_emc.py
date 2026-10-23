@@ -181,7 +181,7 @@ class PortTests(unittest.TestCase):
         write(recipes / "widget.json", shaped(["ii", "s "], {"i": {"item": "minecraft:iron_ingot"},
                                                               "s": {"tag": "testmod:rods"}}, "testmod:widget"))
         write(recipes / "pane.json", shaped(["ggg"], {"g": {"item": "minecraft:glass"}}, "testmod:pane", 8))
-        write(recipes / "gated.json", shaped(["d"], {"d": {"item": "minecraft:dirt"}}, "testmod:widget",
+        write(recipes / "gated.json", shaped(["d"], {"d": {"item": "minecraft:diamond_block"}}, "testmod:widget",
                                              **{"fabric:load_conditions": [
                                                  {"condition": "fabric:all_mods_loaded", "values": ["absent"]}]}))
         write(recipes / "machine.json", {"type": "testmod:machine"})
@@ -388,6 +388,109 @@ class MultiNamespaceTests(unittest.TestCase):
                      "conditions": {"nope:config": {"holds": True, "why": "w"}}}):
             with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
                 emc.validate_policy({**base, **bad})
+
+
+class OptionalModTests(unittest.TestCase):
+    """A port whose recipes load only with another port's mod, like ICBM's Mekanism alloy recipes."""
+
+    def setUp(self):
+        sandbox = tempfile.TemporaryDirectory()
+        self.addCleanup(sandbox.cleanup)
+        root = Path(sandbox.name)
+        other = root / "othermod"
+        write(other / "emc" / "policy.json", {
+            "namespace": "othermod", "loaders": {"projecte": "fabric", "itemalchemy": "fabric"},
+            "resources": {"projecte": ["res"], "itemalchemy": ["res"]}, "output": "res"})
+        write(other / "emc" / "values.json", {"namespace": "othermod", "items": {
+            "othermod:alloy": {"projecte": 10, "itemalchemy": 7, "source": "explicit"},
+            "othermod:secret": {"excluded": "no EMC"}}})
+        write(other / "res" / "data" / "c" / "tags" / "items" / "fuel_dusts.json", {"values": ["othermod:alloy"]})
+        self.dir = root / "testmod"
+        self.recipes = self.dir / "res" / "data" / "testmod" / "recipes"
+        without = {"condition": "fabric:not", "value": {"condition": "fabric:all_mods_loaded", "values": ["othermod"]}}
+        loaded = {"condition": "fabric:all_mods_loaded", "values": ["othermod"]}
+        fuel = {"condition": "fabric:tags_populated", "values": ["c:fuel_dusts"]}
+        # The fallback, and an alloy recipe othermod's own fuel tag would switch off (ICBM's nuclear case).
+        write(self.recipes / "bomb.json", shaped(["d"], {"d": {"item": "minecraft:diamond"}}, "testmod:bomb",
+                                                 **{"fabric:load_conditions": [without]}))
+        write(self.recipes / "bomb_alloy.json", shaped(["aa"], {"a": {"item": "othermod:alloy"}}, "testmod:bomb",
+                                                       **{"fabric:load_conditions": [
+                                                           loaded, {"condition": "fabric:not", "value": fuel}]}))
+        # A recipe that loads when any mod fills a tag (ICBM's uranium recipe), and its unconditional fallback.
+        write(self.recipes / "charge.json", shaped(["g"], {"g": {"item": "minecraft:gold_ingot"}}, "testmod:charge"))
+        write(self.recipes / "charge_fuel.json", shaped(["f"], {"f": {"tag": "c:fuel_dusts"}}, "testmod:charge",
+                                                        **{"fabric:load_conditions": [fuel]}))
+        # Gated off with othermod, so its cheap yield never meets othermod's dust (ICBM's gunpowder case).
+        write(self.recipes / "charge_bulk.json", shaped(["f"], {"f": {"tag": "c:fuel_dusts"}}, "testmod:charge", 64,
+                                                        **{"fabric:load_conditions": [fuel, without]}))
+        write(self.dir / "emc" / "registry.txt", "testmod:bomb\ntestmod:charge\n")
+        self.policy = {
+            "namespace": "testmod", "loaders": {"projecte": "fabric", "itemalchemy": "fabric"},
+            "resources": {"projecte": ["res"], "itemalchemy": ["res"]}, "output": "res",
+            "optional_mods": {"othermod": {"port": "othermod", "why": "w"}},
+        }
+
+    def build(self):
+        write(self.dir / "emc" / "policy.json", self.policy)
+        return emc.build(self.dir)
+
+    def test_outputs_take_the_cheapest_recipe_any_optional_mod_enables(self):
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
+        self.assertEqual(values["testmod:bomb"], {"projecte": 20, "itemalchemy": 14, "source": "recipe"})
+        self.assertEqual(values["testmod:charge"], {"projecte": 10, "itemalchemy": 7, "source": "recipe"})
+        self.assertNotIn("othermod:alloy", json.loads(outputs[self.dir / "res" / "data" / "testmod" / "default_emcs"
+                                                              / "testmod.json"]))
+        readme = outputs[self.dir / "emc" / "README.md"]
+        self.assertIn("## Recipes other mods enable", readme)
+        self.assertIn("| `testmod:bomb_alloy` | `testmod:bomb` | with othermod | 20 | 14 |", readme)
+        self.assertNotIn("testmod:charge_bulk", readme)
+
+    def test_an_undeclared_mod_leaves_its_recipes_unpriced_and_fails_the_check(self):
+        del self.policy["optional_mods"]
+        port, outputs = self.build()
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
+        self.assertGreater(values["testmod:bomb"]["projecte"], 20)
+        self.assertIn("ProjectE: recipe testmod:bomb_alloy (loads only with othermod) needs othermod:alloy, which "
+                      "has no EMC here; declare the mod in optional_mods or exclude testmod:bomb", port.problems)
+
+    def test_a_conditional_recipe_cheaper_than_a_fixed_value_is_a_gain(self):
+        self.policy["values"] = {"testmod:charge": {"emc": 100, "why": "w"}}
+        port, _outputs = self.build()
+        self.assertIn("Item Alchemy: recipe testmod:charge_fuel (with othermod) makes 1 testmod:charge worth 100 "
+                      "from 7 EMC of ingredients", port.problems)
+
+    def test_an_alternative_needing_an_unpriced_item_is_a_problem(self):
+        write(self.recipes / "bomb_secret.json", shaped(["s"], {"s": {"item": "othermod:secret"}}, "testmod:bomb",
+                                                        **{"fabric:load_conditions": [
+                                                            {"condition": "fabric:all_mods_loaded",
+                                                             "values": ["othermod"]}]}))
+        port, _outputs = self.build()
+        self.assertTrue(any("testmod:bomb_secret" in p and "needs othermod:secret" in p
+                            and "price it in that mod's port" in p for p in port.problems), port.problems)
+
+    def test_tag_conditions_may_go_either_way_but_mod_conditions_are_fixed(self):
+        tag = {"condition": "fabric:tags_populated", "values": ["c:x"]}
+        mod = {"condition": "fabric:all_mods_loaded", "values": ["m"]}
+        self.assertEqual(emc.condition_possible(tag, "fabric", set()), (True, True))
+        self.assertEqual(emc.condition_possible({"condition": "fabric:and", "values": [tag, mod]}, "fabric", set()),
+                         (False, True))
+        self.assertEqual(emc.condition_possible({"condition": "fabric:not", "value": mod}, "fabric", {"m"}),
+                         (False, True))
+        self.assertEqual(emc.condition_mods([{"condition": "fabric:not", "value": mod}]), {"m"})
+
+    def test_optional_mod_grammar(self):
+        base = {"namespace": "t", "loaders": {"projecte": "fabric", "itemalchemy": "fabric"},
+                "resources": {"projecte": ["r"], "itemalchemy": ["r"]}, "output": "r"}
+        emc.validate_policy({**base, "optional_mods": {"m": {"port": "m", "why": "w"}}})
+        for bad in ({"m": {"port": "m"}}, {"t": {"port": "t", "why": "w"}}, {"m": {"port": "../m", "why": "w"}},
+                    {"m": "m"}):
+            with self.subTest(bad=bad), self.assertRaises(emc.PolicyError):
+                emc.validate_policy({**base, "optional_mods": bad})
+        self.policy["optional_mods"] = {"othermod": {"port": "missing", "why": "w"}}
+        with self.assertRaises(emc.PolicyError):
+            self.build()
 
 
 class ProjectEModelTests(unittest.TestCase):

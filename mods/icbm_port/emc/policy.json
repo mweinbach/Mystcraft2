@@ -17,10 +17,13 @@
   "processes": [
     {"name": "summon_wither", "systems": ["projecte"], "why": "Three wither skeleton skulls on four soul sand or soul soil summon a Wither, which drops one nether star. Not checked for Item Alchemy: Tekxit's own config values the skull at 16, which makes this a loop in the pack whatever ICBM ships.", "in": [{"minecraft:wither_skeleton_skull": 3, "minecraft:soul_sand": 4}, {"minecraft:wither_skeleton_skull": 3, "minecraft:soul_soil": 4}], "out": {"minecraft:nether_star": 1}}
   ],
+  "optional_mods": {
+    "mekanism": {"port": "mekanism", "why": "The atomic-alloy alternatives of the nuclear, antimatter and red matter explosives load only with Mekanism, and Mekanism fills the uranium tags the uranium nuclear recipe needs. Item Alchemy ships fixed values, so these tiers must already be worth no more than their cheapest Mekanism recipe; Mekanism's items are priced at the values mods/mekanism ships."}
+  },
   "notes": [
-    "The nuclear, antimatter and red matter tiers are valued at their crafting cost, derived from their recipes like every other explosive: crafting and burning one never gains EMC, and transmuting one costs as much as its ingredients, including nether stars and wither skeleton skulls.",
+    "The nuclear, antimatter and red matter tiers are valued at the cheapest of their recipes, derived like every other explosive: crafting and burning one never gains EMC under any recipe, and transmuting one costs as much as its cheapest ingredients.",
     "",
-    "The nuclear explosive also has a uranium recipe that loads only when another mod fills the uranium tags. ProjectE's live mapper then uses whichever recipe is cheaper. Item Alchemy keeps the skull-recipe value from this table, which stays loop-free unless the pack values uranium below a wither skeleton skull.",
+    "Their atomic-alloy recipes load only with Mekanism, and the uranium nuclear recipe only when a mod (Mekanism among them) fills the uranium tags. Item Alchemy uses the shipped values rather than recalculating them, so emc.py prices those alternatives with Mekanism's own shipped values (atomic alloy, uranium ingot) and takes the minimum over every recipe, including the alloy recipes a populated uranium tag switches off. Without Mekanism these tiers are therefore worth less than their nether-star and skull recipes cost to craft, which never gains EMC. A uranium provider other than Mekanism is not priced; ProjectE's live mapper still uses the cheaper recipe, and Item Alchemy stays loop-free unless the pack values that uranium below the alloy path.",
     "",
     "The carrier, held-item and cluster loading recipes only move one cargo item into NBT and back, or turn bomblets into a launch manifest, so they create nothing; transmuting a loaded carrier or missile gives an empty one."
   ]

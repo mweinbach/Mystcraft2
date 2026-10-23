@@ -8,12 +8,15 @@ import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tag.TagKey;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 /** Optional-mod gates: Mekanism recipe alternatives and the REI viewer entrypoint. */
 public final class IntegrationGameTests implements FabricGameTest {
@@ -24,26 +27,48 @@ public final class IntegrationGameTests implements FabricGameTest {
   public void mekanismAlternativesFollowModPresence(TestContext c) {
     MinecraftServer server = c.getWorld().getServer();
     boolean mekanism = FabricLoader.getInstance().isModLoaded("mekanism");
+    // Fabric Mekanism fills c:uranium_ingots, so with it the uranium recipe replaces the atomic-alloy nuclear one.
+    boolean uranium = populated("uranium_ingots") || populated("uranium_235_pellets");
+    String state = "mekanism=" + mekanism + ", uranium=" + uranium;
     for (String payload : MEKANISM_PAYLOADS) {
+      boolean nuclear = payload.equals("nuclear");
       Identifier gated = new Identifier("icbm_port", payload + "_explosive_mekanism");
       Identifier recipeFile = new Identifier("icbm_port", "recipes/" + gated.getPath() + ".json");
       // The data must ship; absence below must come from its load condition, not a missing file.
       JsonObject json = readJson(c, server, recipeFile);
       if (!json.toString().contains("mekanism:alloy_atomic"))
         c.throwGameTestException(gated + " must use Mekanism atomic alloy");
-      if (!payload.equals("nuclear") && ResourceConditions.objectMatchesConditions(json) != mekanism)
+      // tags_populated cannot be evaluated outside a reload, so only mod-only conditions are re-checked here.
+      if (!nuclear && ResourceConditions.objectMatchesConditions(json) != mekanism)
         c.throwGameTestException(gated + " condition must follow Mekanism presence");
-      if (server.getRecipeManager().get(gated).isPresent() != mekanism)
-        c.throwGameTestException(gated + (mekanism ? " missing with" : " loaded without") + " Mekanism");
-      Identifier unlock = new Identifier("icbm_port", "recipes/" + gated.getPath());
-      if ((server.getAdvancementLoader().get(unlock) != null) != mekanism)
-        c.throwGameTestException(unlock + " unlock must share the recipe's Mekanism gate");
-      // Upstream vanilla fallbacks load exactly when atomic alloy is unavailable.
-      Identifier base = new Identifier("icbm_port", payload + "_explosive");
-      if (server.getRecipeManager().get(base).isPresent() == mekanism)
-        c.throwGameTestException(base + " fallback must load only without Mekanism");
+      boolean uraniumWins = nuclear && uranium;
+      expectLoaded(c, server, gated.getPath(), mekanism && !uraniumWins, state);
+      // Upstream vanilla fallbacks load exactly when neither atomic alloy nor (for nuclear) uranium is available.
+      expectLoaded(c, server, payload + "_explosive", !mekanism && !uraniumWins, state);
     }
+    expectLoaded(c, server, "nuclear_explosive_uranium", uranium, state);
+    // One sulfur dust makes three gunpowder, and Mekanism turns gunpowder into sulfur dust one-to-one,
+    // so the dust recipe stays off with Mekanism (and its dust tags turn the coal fallback off).
+    boolean dusts = populated("carbon_dusts") || populated("charcoal_dusts") || populated("coal_dusts");
+    String dustState = "mekanism=" + mekanism + ", dusts=" + dusts;
+    expectLoaded(c, server, "gunpowder_from_dusts", dusts && !mekanism, dustState);
+    expectLoaded(c, server, "gunpowder_from_components", !dusts, dustState);
     c.complete();
+  }
+
+  /** The recipe and its recipe-book unlock share one load condition, so both follow {@code expected}. */
+  private static void expectLoaded(TestContext c, MinecraftServer server, String path, boolean expected, String state) {
+    Identifier id = new Identifier("icbm_port", path);
+    if (server.getRecipeManager().get(id).isPresent() != expected)
+      c.throwGameTestException(id + (expected ? " missing" : " loaded") + " with " + state);
+    Identifier unlock = new Identifier("icbm_port", "recipes/" + path);
+    if ((server.getAdvancementLoader().get(unlock) != null) != expected)
+      c.throwGameTestException(unlock + " unlock must share the recipe's load condition with " + state);
+  }
+
+  private static boolean populated(String material) {
+    TagKey<Item> tag = TagKey.of(Registry.ITEM_KEY, new Identifier("icbm_port", "materials/" + material));
+    return Registry.ITEM.iterateEntries(tag).iterator().hasNext();
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)

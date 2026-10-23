@@ -29,18 +29,18 @@
       "source": "recipe"
     },
     "icbm_port:antimatter_bomb_cart": {
-      "projecte": 1490265,
-      "itemalchemy": 1257836,
+      "projecte": 180825,
+      "itemalchemy": 150980,
       "source": "recipe"
     },
     "icbm_port:antimatter_explosive": {
-      "projecte": 1488985,
-      "itemalchemy": 1256576,
+      "projecte": 179545,
+      "itemalchemy": 149720,
       "source": "recipe"
     },
     "icbm_port:antimatter_missile": {
-      "projecte": 1491143,
-      "itemalchemy": 1258710,
+      "projecte": 181703,
+      "itemalchemy": 151854,
       "source": "recipe"
     },
     "icbm_port:anvil_bomb_cart": {
@@ -484,17 +484,17 @@
       "source": "recipe"
     },
     "icbm_port:nuclear_bomb_cart": {
-      "projecte": 376153,
+      "projecte": 158193,
       "itemalchemy": 143724,
       "source": "recipe"
     },
     "icbm_port:nuclear_explosive": {
-      "projecte": 374873,
+      "projecte": 156913,
       "itemalchemy": 142464,
       "source": "recipe"
     },
     "icbm_port:nuclear_missile": {
-      "projecte": 377031,
+      "projecte": 159071,
       "itemalchemy": 144598,
       "source": "recipe"
     },
@@ -534,18 +534,18 @@
       "source": "explicit"
     },
     "icbm_port:redmatter_bomb_cart": {
-      "projecte": 2604377,
-      "itemalchemy": 2371948,
+      "projecte": 203457,
+      "itemalchemy": 158236,
       "source": "recipe"
     },
     "icbm_port:redmatter_explosive": {
-      "projecte": 2603097,
-      "itemalchemy": 2370688,
+      "projecte": 202177,
+      "itemalchemy": 156976,
       "source": "recipe"
     },
     "icbm_port:redmatter_missile": {
-      "projecte": 2605255,
-      "itemalchemy": 2372822,
+      "projecte": 204335,
+      "itemalchemy": 159110,
       "source": "recipe"
     },
     "icbm_port:reinforced_concrete": {

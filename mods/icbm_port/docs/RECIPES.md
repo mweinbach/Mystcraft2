@@ -73,11 +73,30 @@ Upstream gated them with `minecraft:item_exists`; the port uses
 
 The vanilla antimatter/redmatter fallbacks previously loaded unconditionally;
 they now carry the inverse Mekanism gate, as upstream's did, so each tier has
-exactly one active recipe. Recipe-book unlock advancements share their recipe's
-conditions. `IntegrationGameTests.mekanismAlternativesFollowModPresence` checks
-on a real server that without Mekanism the gated recipes and unlocks are absent
-while the fallbacks load, and `tools/tests/test_resource_tags.py` checks both
-branches statically. A server with Mekanism installed has not been run.
+exactly one active recipe. Fabric Mekanism fills `c:uranium_ingots`, which
+`icbm_port:materials/uranium_ingots` includes. With Mekanism installed, the
+uranium recipe is therefore the active nuclear recipe and
+`nuclear_explosive_mekanism` stays off, as upstream's conditions intend; the
+atomic-alloy nuclear recipe applies only where Mekanism's uranium tag is empty.
+Recipe-book unlock advancements share their recipe's conditions.
+`IntegrationGameTests.mekanismAlternativesFollowModPresence` derives each
+recipe's expected state from Mekanism presence **and** the live uranium and
+dust tags, then checks it, and its unlock, on a real server. Without Mekanism,
+the gated recipes and unlocks are absent and the fallbacks load.
+`tools/tests/test_resource_tags.py` checks both branches statically. A server
+with Mekanism installed has not been run.
+
+`gunpowder_from_dusts` is also off when Mekanism is loaded (port addition, not
+upstream). Mekanism fills the carbon/charcoal/coal dust tags and converts
+gunpowder and sulfur dust one-to-one, so a recipe that turns one sulfur dust
+into three gunpowder would duplicate gunpowder and create EMC. With Mekanism,
+neither ICBM gunpowder recipe loads, because the coal fallback is already off
+once a dust tag is populated. Other mods' dusts still select the dust recipe.
+
+EMC: `scripts/emc.py` prices every one of these alternatives, with Mekanism's
+atomic alloy and uranium at the values `mods/mekanism` ships. Each tier then
+takes its cheapest recipe, so crafting and burning never gains EMC with or
+without Mekanism; see [emc/README.md](../emc/README.md).
 Source condition predicates and the one-component-missing module fallback gap
 are documented in the OreDictionary audit.
 

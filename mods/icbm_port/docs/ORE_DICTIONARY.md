@@ -134,6 +134,13 @@ conditions. Vanilla fallbacks must become unavailable after a datapack introduce
 the corresponding valid material, and become available again after its removal.
 Local circuit/steel exports normally keep their component recipe paths selected.
 
+One deliberate deviation: the port's `gunpowder_from_dusts`
+(`parts/mod/gunpowder.json`) also requires Mekanism to be absent. Mekanism fills
+the dust tags and converts gunpowder and sulfur dust one-to-one, so one sulfur
+dust making three gunpowder would duplicate gunpowder and break the repository's
+EMC exploit rule. With Mekanism neither gunpowder recipe loads. Other providers'
+dusts still select the dust recipe as in the source.
+
 Other unions and metadata distinctions:
 
 - `parts/vanilla/saltpeter.json` accepts leaves **or** saplings in each `P` slot.

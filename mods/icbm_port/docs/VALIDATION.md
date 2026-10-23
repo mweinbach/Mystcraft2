@@ -7,12 +7,13 @@ Dedicated-server checks only; no client was launched for this pass.
 | Check | Result |
 | --- | --- |
 | `./gradlew :icbm_port:build` | Passed; JUnit **18** passed |
-| `./gradlew :icbm_port:runGametest -PwithItemAlchemy` (CI command) | All **102** required GameTests passed, including `IntegrationGameTests` (Mekanism-gated recipes absent without Mekanism, fallbacks loaded; REI entrypoint packaged) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy` (CI command) | All **102** required GameTests passed. The Item Alchemy audit compared all 142 live values with no deviation. `IntegrationGameTests` passed: expected recipe and unlock presence is derived from Mekanism presence and the live uranium/dust tags, Mekanism-gated recipes are absent without Mekanism, fallbacks are loaded, and the REI entrypoint is packaged |
 | Same with `-PwithRei` | All 102 passed with REI 9.2.784, Cloth Config 8.3.134 and Architectury 6.6.92 loaded on the server; every shared viewer display converted to an REI display with identical NBT-bearing inputs/outputs |
 | Same with `-PwithEmi` / `-PwithJei` | All 102 passed; both viewer plugins are client entrypoints, so this proves only that the server starts with them present |
 | `./gradlew :icbm_port:runMaterialGametest` | Passed |
 | `python3 tools/validate_resources.py` | 672 JSON files, 2,101 references, 140 enabled fixed recipes; seven optional recipes (four material, three Mekanism) disabled in a standalone install |
-| `python3 -m unittest discover -s tools/tests` | 8 passed, including both branches of the Mekanism gate |
+| `python3 -m unittest discover -s tools/tests` | 9 passed, including both branches of the Mekanism gate and the dust gunpowder recipe staying off with Mekanism |
+| `python3 scripts/emc.py check` (repository root) | Passed. Every recipe, including the alternatives Mekanism enables (priced with `mods/mekanism`'s shipped values), costs at least what its output is worth |
 
 The REI plugin, Mekanism-present recipe loading and the new icon have not been
 checked in a live client or a Mekanism server.
