@@ -61,4 +61,14 @@ public interface SchematicBlock {
     CompoundTag serializeNBT();
 
     void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException;
+
+    /**
+     * Not upstream. The schematic a scan of the block this one describes would record, rebuilt from the rules
+     * (see {@link SchematicSafety}); saved data is not trusted, since clients upload snapshots. Throws when no
+     * scan could have recorded this one: a block that must not be built, or a placed block other than the one
+     * the rules derive from the recorded (and costed) state.
+     */
+    default SchematicBlock canonicalize() throws InvalidSnapshotException {
+        return this;
+    }
 }

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:command_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:structure_block",
+    "minecraft:structure_void",
+    "minecraft:jigsaw",
+    "minecraft:barrier",
+    "minecraft:light",
+    "minecraft:bedrock",
+    "minecraft:end_portal",
+    "minecraft:end_portal_frame",
+    "minecraft:end_gateway",
+    "minecraft:nether_portal",
+    "minecraft:spawner",
+    "minecraft:reinforced_deepslate",
+    "minecraft:budding_amethyst",
+    "minecraft:moving_piston",
+    "minecraft:petrified_oak_slab",
+    "minecraft:frosted_ice",
+    "minecraft:bubble_column"
+  ]
+}

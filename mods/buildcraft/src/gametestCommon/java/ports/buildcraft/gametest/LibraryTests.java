@@ -24,6 +24,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -228,6 +229,74 @@ public final class LibraryTests {
         player.containerMenu = player.inventoryMenu;
         client.removeSnapshot(uploaded);
         client.removeSnapshot(downloaded);
+        helper.succeed();
+    }
+
+    /** A one block blueprint of what is at {@code pos}, keyed with a header as a client store keeps it. */
+    private static Blueprint oneBlockBlueprint(GameTestHelper helper, BlockPos pos, String name) {
+        Blueprint blueprint = new Blueprint();
+        blueprint.size = new BlockPos(1, 1, 1);
+        blueprint.facing = Direction.NORTH;
+        blueprint.offset = BlockPos.ZERO;
+        blueprint.palette.add(schematicAt(helper, pos));
+        blueprint.data = new int[] {0};
+        blueprint.computeKey();
+        blueprint.key = new Snapshot.Key(blueprint.key, new Snapshot.Header(blueprint.key, new UUID(0, 0), new Date(), name));
+        return blueprint;
+    }
+
+    /**
+     * Not upstream. Survival players can craft the library, so uploads are not trusted: a blueprint costed as
+     * stone but placing bedrock, or holding a command block, is refused outright; a chest with a forged loot
+     * table is stored without it, and the recording names the stored (sanitized) contents rather than the hash
+     * the client claimed. An honest upload keeps the client's header.
+     */
+    public static void libraryRefusesForgedUploads(GameTestHelper helper) {
+        helper.setBlock(LIBRARY, BCBuilders.ELECTRONIC_LIBRARY.get().defaultBlockState());
+        ElectronicLibraryBlockEntity library = tile(helper, LIBRARY, ElectronicLibraryBlockEntity.class);
+        ServerPlayer player = player(helper, LIBRARY, "forger");
+        player.containerMenu = new ElectronicLibraryMenu(0, player.getInventory(), library);
+        SnapshotStorage server = SnapshotStorage.get(SnapshotStorage.Side.SERVER);
+        BlockPos at = new BlockPos(7, 2, 7);
+
+        helper.setBlock(at, Blocks.STONE);
+        Blueprint stone = oneBlockBlueprint(helper, at, "Forged stone");
+        CompoundTag bedrock = Snapshot.writeToNBT(stone);
+        bedrock.getList("palette", Tag.TAG_COMPOUND).getCompound(0).getCompound("data").putString("placeBlock", "minecraft:bedrock");
+        CompoundTag commandBlock = Snapshot.writeToNBT(stone);
+        CompoundTag commandData = commandBlock.getList("palette", Tag.TAG_COMPOUND).getCompound(0).getCompound("data");
+        commandData.put("blockState", NbtUtils.writeBlockState(Blocks.COMMAND_BLOCK.defaultBlockState()));
+        commandData.putString("placeBlock", "minecraft:command_block");
+        for (CompoundTag forged : List.of(bedrock, commandBlock)) {
+            library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+            uploadWhole(helper, player, stone.key, forged);
+            require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty()
+                    && !library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_IN).isEmpty(), "a forged upload must be refused: " + forged);
+        }
+
+        helper.setBlock(at, Blocks.CHEST);
+        Blueprint chest = oneBlockBlueprint(helper, at, "Looted chest " + UUID.randomUUID());
+        CompoundTag looted = Snapshot.writeToNBT(chest);
+        looted.getList("palette", Tag.TAG_COMPOUND).getCompound(0).getCompound("data").getCompound("tileNbt")
+                .putString("LootTable", "minecraft:chests/end_city_treasure");
+        uploadWhole(helper, player, chest.key, looted);
+        Snapshot.Header header = SnapshotItem.getHeader(library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT));
+        Snapshot stored = header == null ? null : server.getSnapshot(header.key);
+        require(helper, stored instanceof Blueprint blueprint && blueprint.palette.get(0).getPreviewTileNbt() != null
+                && !blueprint.palette.get(0).getPreviewTileNbt().contains("LootTable"),
+                "a chest uploaded with a loot table must be stored without it, got " + stored);
+        require(helper, Arrays.equals(header.key.hash, stored.key.hash) && header.name.equals(chest.key.header.name),
+                "the recording must name the stored contents and keep the client's name");
+
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT, ItemStack.EMPTY);
+        library.setItem(ElectronicLibraryBlockEntity.SLOT_UP_IN, new ItemStack(BCBuilders.BLUEPRINT_CLEAN.get()));
+        helper.setBlock(at, Blocks.STONE);
+        Blueprint honest = oneBlockBlueprint(helper, at, "Honest stone " + UUID.randomUUID());
+        uploadWhole(helper, player, honest.key, Snapshot.writeToNBT(honest));
+        Snapshot.Header honestHeader = SnapshotItem.getHeader(library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT));
+        require(helper, honest.key.header.equals(honestHeader) && server.getSnapshot(honestHeader.key) instanceof Blueprint,
+                "an honest upload must keep the client's header, got " + honestHeader);
+        player.containerMenu = player.inventoryMenu;
         helper.succeed();
     }
 

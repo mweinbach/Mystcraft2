@@ -38,14 +38,17 @@ public class SchematicEntityDefault implements SchematicEntity {
     private Direction hangingFacing;
     private Rotation entityRotation = Rotation.NONE;
 
-    /** Upstream {@code Entity.serializeNBT}: the saved data with the entity id, or null for entities that are never saved. */
+    /**
+     * Upstream {@code Entity.serializeNBT}: the saved data with the entity id, or null for entities that are
+     * never saved; {@linkplain SchematicSafety#sanitizeEntityNbt sanitized}, so riders and loot tables are not recorded.
+     */
     @Nullable
     static CompoundTag entityNbt(Entity entity) {
         EntityType<?> type = entity.getType();
         if (!type.canSerialize()) return null;
         CompoundTag tag = new CompoundTag();
         tag.putString("id", EntityType.getKey(type).toString());
-        return entity.saveWithoutId(tag);
+        return SchematicSafety.sanitizeEntityNbt(entity.saveWithoutId(tag));
     }
 
     public static boolean predicate(SchematicEntityContext context) {
@@ -196,6 +199,38 @@ public class SchematicEntityDefault implements SchematicEntity {
         } catch (IllegalArgumentException e) {
             throw new InvalidSnapshotException("Unknown facing or rotation in " + tag);
         }
+    }
+
+    /**
+     * Not upstream: the entity must be of a saveable type from a recorded namespace that a capturing rule
+     * accepts (so what it costs comes from that rule), at a finite position, and its data loses whatever
+     * {@link SchematicSafety#sanitizeEntityNbt} removes.
+     */
+    @Override
+    public SchematicEntity canonicalize() throws InvalidSnapshotException {
+        ResourceLocation id = SchematicSafety.entityId(entityNbt);
+        Optional<EntityType<?>> type = id == null ? Optional.empty() : Registry.ENTITY_TYPE.getOptional(id);
+        if (type.isEmpty() || !type.get().canSerialize() || !RulesLoader.readDomains().contains(id.getNamespace())) {
+            throw new InvalidSnapshotException("A scan does not record the entity " + entityNbt.get("id"));
+        }
+        if (!Double.isFinite(pos.x) || !Double.isFinite(pos.y) || !Double.isFinite(pos.z)) {
+            throw new InvalidSnapshotException("Entity position " + pos + " is not finite");
+        }
+        if (Vec3.atCenterOf(hangingPos).distanceTo(pos) > 4) {
+            throw new InvalidSnapshotException("Entity at " + pos + " cannot hang on " + hangingPos.toShortString());
+        }
+        CompoundTag nbt = SchematicSafety.sanitizeEntityNbt(entityNbt);
+        nbt.putString("id", id.toString());
+        if (RulesLoader.getRules(id, nbt).stream().noneMatch(rule -> rule.capture)) {
+            throw new InvalidSnapshotException("No rule captures the entity " + id);
+        }
+        SchematicEntityDefault schematicEntity = SchematicEntityManager.createCleanCopy(this);
+        schematicEntity.entityNbt = nbt;
+        schematicEntity.pos = pos;
+        schematicEntity.hangingPos = hangingPos;
+        schematicEntity.hangingFacing = hangingFacing;
+        schematicEntity.entityRotation = entityRotation;
+        return schematicEntity;
     }
 
     @Override

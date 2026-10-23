@@ -27,7 +27,8 @@ public class SchematicBlockFluid implements SchematicBlock {
     private boolean isFlowing;
 
     public static boolean predicate(SchematicBlockContext context) {
-        return context.block() instanceof LiquidBlock && !context.blockState().getFluidState().isEmpty();
+        return context.block() instanceof LiquidBlock && !context.blockState().getFluidState().isEmpty()
+                && !SchematicSafety.isForbidden(context.blockState());
     }
 
     @Override
@@ -101,6 +102,16 @@ public class SchematicBlockFluid implements SchematicBlock {
     public void deserializeNBT(CompoundTag tag) {
         blockState = NbtUtils.readBlockState(tag.getCompound("blockState"));
         isFlowing = tag.getBoolean("isFlowing");
+    }
+
+    /** Not upstream: a saved fluid schematic must name a fluid block a scan records, flowing exactly when that block is. */
+    @Override
+    public SchematicBlock canonicalize() throws InvalidSnapshotException {
+        if (blockState.isAir()) return SchematicBlockManager.canonical(blockState, null);
+        if (!(SchematicBlockManager.canonical(blockState, null) instanceof SchematicBlockFluid canonical) || canonical.isFlowing != isFlowing) {
+            throw new InvalidSnapshotException("A scan of " + blockState + " does not record " + (isFlowing ? "a flowing" : "a source") + " fluid");
+        }
+        return canonical;
     }
 
     @Override

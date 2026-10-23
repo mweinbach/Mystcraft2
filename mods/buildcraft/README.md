@@ -46,7 +46,10 @@ worlds do not migrate between them or from 1.12.
   The filler, builder, architect table and electronic library use BuildCraft 7.1's crafting recipes;
   the replacer and single block schematics, which 7.1 lacked, have recipes in the same style (see
   [docs/PARITY.md](docs/PARITY.md)). Every other item is craftable or listed, with its reason, in
-  [uncraftable.txt](uncraftable.txt), which a GameTest checks on both loaders.
+  [uncraftable.txt](uncraftable.txt), which a GameTest checks on both loaders. Snapshots read from
+  uploads, storage or items are rebuilt from the builder rules: blocks such as bedrock, command blocks and
+  spawners (`buildcraft:schematic_blacklist`) are never built, and block entity and entity data a scan
+  would not record is dropped.
 - Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
   area), path marks that connect into paths and loops, and the marker connector, with upstream's
   lasers; creative volume boxes that the connector resizes and removes.

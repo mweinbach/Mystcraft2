@@ -28,8 +28,10 @@ public final class BuildersSchematics {
         SchematicBlockManager.registerFactory(BuildCraft.id("air"), 0, SchematicBlockAir::predicate, SchematicBlockAir::new);
         SchematicBlockManager.registerFactory(BuildCraft.id("default"), 100, SchematicBlockDefault::predicate, SchematicBlockDefault::new);
         SchematicBlockManager.registerFactory(BuildCraft.id("fluid"), 200, SchematicBlockFluid::predicate, SchematicBlockFluid::new);
-        SchematicBlockManager.registerFactory(BuildCraft.id("banner"), 300, context -> context.block() instanceof AbstractBannerBlock, Banner::new);
-        SchematicBlockManager.registerFactory(BuildCraft.id("vine"), 300, context -> context.block() instanceof VineBlock, Vine::new);
+        SchematicBlockManager.registerFactory(BuildCraft.id("banner"), 300,
+                context -> context.block() instanceof AbstractBannerBlock && SchematicBlockDefault.predicate(context), Banner::new);
+        SchematicBlockManager.registerFactory(BuildCraft.id("vine"), 300,
+                context -> context.block() instanceof VineBlock && SchematicBlockDefault.predicate(context), Vine::new);
         SchematicEntityManager.registerFactory(BuildCraft.id("default"), 100, SchematicEntityDefault::predicate, SchematicEntityDefault::new);
     }
 

@@ -61,6 +61,10 @@ UPSTREAM_BUCKETS = {"oil": "bucketOil", "fuel_light": "bucketFuel"}
 ENGINES = [("redstone_engine", "wood", "Redstone Engine"), ("stirling_engine", "stone", "Stirling Engine"),
            ("combustion_engine", "iron", "Combustion Engine")]
 GEARS = [("wood", "Wood Gear"), ("stone", "Stone Gear"), ("iron", "Iron Gear"), ("gold", "Gold Gear"), ("diamond", "Diamond Gear")]
+# Operator, technical and survival-unobtainable blocks; must match SchematicSafety.BUILT_IN_BLACKLIST.
+SCHEMATIC_BLACKLIST = ["command_block", "chain_command_block", "repeating_command_block", "structure_block", "structure_void", "jigsaw",
+                       "barrier", "light", "bedrock", "end_portal", "end_portal_frame", "end_gateway", "nether_portal", "spawner",
+                       "reinforced_deepslate", "budding_amethyst", "moving_piston", "petrified_oak_slab", "frosted_ice", "bubble_column"]
 
 MATERIAL_NAMES = {"wood": "Wooden", "cobblestone": "Cobblestone", "stone": "Stone", "quartz": "Quartz", "gold": "Golden",
                   "sandstone": "Sandstone", "iron": "Iron", "diamond": "Diamond", "clay": "Clay", "void": "Void"}
@@ -1409,6 +1413,8 @@ class Generator:
             self.tag("items", "forge", forge, values)
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
+        # Not upstream: blocks no builder places, whatever a blueprint says (SchematicSafety also checks this list).
+        self.tag("blocks", MOD, "schematic_blacklist", [f"minecraft:{b}" for b in SCHEMATIC_BLACKLIST])
 
         machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder", "electronic_library", "replacer",
                                                     "laser"] + [t for t, _, _, _ in LASER_TABLES] + ["pipe_" + d["name"] for d in PIPES]

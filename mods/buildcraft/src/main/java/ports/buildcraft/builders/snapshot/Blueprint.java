@@ -7,12 +7,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Upstream {@code Blueprint}: a palette of block schematics, the palette index of every block in the box, and
  * the entities found in it.
  */
 public class Blueprint extends Snapshot {
+    /** A scan records entities whose bounds touch the box; the largest it captures, paintings, reach 2 blocks from their centre. */
+    private static final double ENTITY_MARGIN = 4;
     public final List<SchematicBlock> palette = new ArrayList<>();
     public int[] data = new int[0];
     public final List<SchematicEntity> entities = new ArrayList<>();
@@ -77,7 +80,15 @@ public class Blueprint extends Snapshot {
             data[i] = index;
         }
         entities.clear();
-        for (Tag schematicEntityTag : tag.getList("entities", Tag.TAG_COMPOUND)) entities.add(SchematicEntityManager.readFromNBT((CompoundTag) schematicEntityTag));
+        for (Tag schematicEntityTag : tag.getList("entities", Tag.TAG_COMPOUND)) {
+            SchematicEntity schematicEntity = SchematicEntityManager.readFromNBT((CompoundTag) schematicEntityTag);
+            Vec3 pos = schematicEntity.getPos();
+            if (pos.x < -ENTITY_MARGIN || pos.y < -ENTITY_MARGIN || pos.z < -ENTITY_MARGIN || pos.x > size.getX() + ENTITY_MARGIN
+                    || pos.y > size.getY() + ENTITY_MARGIN || pos.z > size.getZ() + ENTITY_MARGIN) {
+                throw new InvalidSnapshotException("Entity at " + pos + " is outside the blueprint of " + size.toShortString());
+            }
+            entities.add(schematicEntity);
+        }
     }
 
     @Override

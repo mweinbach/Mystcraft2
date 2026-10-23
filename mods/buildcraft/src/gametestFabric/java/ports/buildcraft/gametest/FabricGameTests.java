@@ -168,6 +168,18 @@ public final class FabricGameTests implements FabricGameTest {
     public void libraryCopiesSnapshotsDownAndUp(GameTestHelper helper) { LibraryTests.libraryCopiesSnapshotsDownAndUp(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void libraryRefusesForgedUploads(GameTestHelper helper) { LibraryTests.libraryRefusesForgedUploads(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedBlocksAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedBlocksAreRefused(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedBlockEntityDataIsSanitized(GameTestHelper helper) { SchematicSafetyTests.forgedBlockEntityDataIsSanitized(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedEntitiesAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedEntitiesAreRefused(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)

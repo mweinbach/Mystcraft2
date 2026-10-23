@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Upstream {@code SchematicBlockManager} with the API's {@code SchematicBlockFactoryRegistry}: the factory with
@@ -70,17 +71,31 @@ public final class SchematicBlockManager {
         return tag;
     }
 
+    /**
+     * Reads a schematic from untrusted data and returns its {@linkplain SchematicBlock#canonicalize canonical}
+     * form; throws when the data names an unknown factory or could not have come from a scan.
+     */
     public static SchematicBlock readFromNBT(CompoundTag tag) throws InvalidSnapshotException {
         ResourceLocation name = ResourceLocation.tryParse(tag.getString("name"));
         Factory<?> factory = name == null ? null : getFactoryByName(name);
         if (factory == null) throw new InvalidSnapshotException("Unknown schematic type " + tag.getString("name"));
         SchematicBlock schematicBlock = factory.supplier().get();
         CompoundTag data = tag.getCompound("data");
+        SchematicBlock canonical;
         try {
             schematicBlock.deserializeNBT(data);
+            canonical = schematicBlock.canonicalize();
         } catch (InvalidSnapshotException e) {
             throw new InvalidSnapshotException("Failed to load the schematic from " + data, e);
         }
-        return schematicBlock;
+        if (!canonical.isAir() && !getFactoryByInstance(canonical).name().equals(factory.name())) {
+            throw new InvalidSnapshotException("A scan records " + getFactoryByInstance(canonical).name() + ", not " + factory.name() + ", for " + data);
+        }
+        return canonical;
+    }
+
+    /** The schematic a scan of {@code blockState} with {@code tileNbt} records, from the rules alone. */
+    public static SchematicBlock canonical(BlockState blockState, @Nullable CompoundTag tileNbt) {
+        return getSchematicBlock(SchematicBlockContext.detached(blockState, tileNbt));
     }
 }

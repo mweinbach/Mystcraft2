@@ -178,6 +178,18 @@ public final class ForgeGameTests {
     public static void libraryCopiesSnapshotsDownAndUp(GameTestHelper helper) { LibraryTests.libraryCopiesSnapshotsDownAndUp(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void libraryRefusesForgedUploads(GameTestHelper helper) { LibraryTests.libraryRefusesForgedUploads(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void forgedBlocksAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedBlocksAreRefused(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void forgedBlockEntityDataIsSanitized(GameTestHelper helper) { SchematicSafetyTests.forgedBlockEntityDataIsSanitized(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void forgedEntitiesAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedEntitiesAreRefused(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)

@@ -245,6 +245,9 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
             Snapshot snapshot = uploaded.copy();
             snapshot.key = new Snapshot.Key(snapshot.key, (Snapshot.Header) null);
             snapshot.computeKey();
+            // Reading canonicalized the upload, and the client's header names whatever hash it liked: the
+            // recording must name what is stored.
+            if (!Arrays.equals(header.key.hash, snapshot.key.hash)) header = new Snapshot.Header(snapshot.key, header.owner, header.created, header.name);
             SnapshotStorage.get(SnapshotStorage.Side.SERVER).addSnapshot(snapshot);
             items.set(SLOT_UP_OUT, SnapshotItem.getUsed(snapshot.getType(), header));
             items.set(SLOT_UP_IN, ItemStack.EMPTY);
