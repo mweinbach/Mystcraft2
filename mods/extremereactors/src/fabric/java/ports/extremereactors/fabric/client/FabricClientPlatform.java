@@ -6,11 +6,14 @@ package ports.extremereactors.fabric.client;
 
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourceReloadListenerKeys;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.Minecraft;
@@ -22,18 +25,29 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
 import ports.extremereactors.corelib.fluid.FluidStack;
+import ports.extremereactors.fabric.client.model.ModelReplacements;
+import ports.extremereactors.fabric.client.model.ReplacingModelProvider;
 import ports.extremereactors.platform.ClientPlatform;
+import ports.extremereactors.platform.Platform;
 
+import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -43,13 +57,17 @@ import java.util.function.Consumer;
 public final class FabricClientPlatform implements ClientPlatform.Backend {
 
     /**
-     * Called by the model bakery mixin once every top-level model is baked.
+     * Called by {@code GameRendererMixin} once per frame, where Forge fires the end of its render tick.
      */
-    public static void fireModelBakingCompleted(final Map<ResourceLocation, BakedModel> models) {
+    public static void fireRenderFrameEnd() {
 
-        for (final Consumer<Map<ResourceLocation, BakedModel>> handler : BAKING_COMPLETED_HANDLERS) {
-            handler.accept(models);
+        for (final Runnable handler : FRAME_END_HANDLERS) {
+            handler.run();
         }
+    }
+
+    public FabricClientPlatform() {
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new ModelsReloadedListener());
     }
 
     @Override
@@ -68,8 +86,14 @@ public final class FabricClientPlatform implements ClientPlatform.Backend {
     }
 
     @Override
-    public void onRegisterAdditionalModels(final Consumer<Consumer<ResourceLocation>> handler) {
-        ModelLoadingRegistry.INSTANCE.registerModelProvider((resourceManager, out) -> handler.accept(out));
+    public void registerModelBuilders(final List<? extends ICustomModelBuilder> builders) {
+
+        final ModelReplacements replacements = new ModelReplacements(builders);
+
+        ModelLoadingRegistry.INSTANCE.registerModelProvider((resourceManager, out) ->
+                builders.forEach(builder -> builder.onRegisterModels(out)));
+        ModelLoadingRegistry.INSTANCE.registerVariantProvider(resourceManager ->
+                new ReplacingModelProvider(replacements, resourceManager));
     }
 
     @Override
@@ -84,7 +108,7 @@ public final class FabricClientPlatform implements ClientPlatform.Backend {
 
     @Override
     public void onRenderFrameEnd(final Runnable handler) {
-        WorldRenderEvents.END.register(context -> handler.run());
+        FRAME_END_HANDLERS.add(handler);
     }
 
     @Override
@@ -125,5 +149,65 @@ public final class FabricClientPlatform implements ClientPlatform.Backend {
         return FluidVariant.of(stack.getFluid(), stack.hasTag() ? stack.getTag() : null);
     }
 
+    /**
+     * Runs after Minecraft's model manager applied a reload, the moment Forge fires its baking completed event at,
+     * and hands the handlers a read-only view of the model manager's baked models.
+     */
+    private static final class ModelsReloadedListener
+            implements SimpleSynchronousResourceReloadListener {
+
+        @Override
+        public ResourceLocation getFabricId() {
+            return ID;
+        }
+
+        @Override
+        public Collection<ResourceLocation> getFabricDependencies() {
+            return List.of(ResourceReloadListenerKeys.MODELS);
+        }
+
+        @Override
+        public void onResourceManagerReload(final ResourceManager resourceManager) {
+
+            final Map<ResourceLocation, BakedModel> models = new BakedModelsView(Minecraft.getInstance().getModelManager());
+
+            for (final Consumer<Map<ResourceLocation, BakedModel>> handler : BAKING_COMPLETED_HANDLERS) {
+                handler.accept(models);
+            }
+        }
+
+        private static final ResourceLocation ID = new ResourceLocation(Platform.MOD_ID, "models_reloaded");
+    }
+
+    /**
+     * The baked models of the model manager, by model id. Only supports lookups.
+     */
+    private static final class BakedModelsView
+            extends AbstractMap<ResourceLocation, BakedModel> {
+
+        BakedModelsView(final ModelManager manager) {
+            this._manager = manager;
+        }
+
+        @Nullable
+        @Override
+        public BakedModel get(final Object key) {
+            return key instanceof ResourceLocation id ? BakedModelManagerHelper.getModel(this._manager, id) : null;
+        }
+
+        @Override
+        public boolean containsKey(final Object key) {
+            return null != this.get(key);
+        }
+
+        @Override
+        public Set<Entry<ResourceLocation, BakedModel>> entrySet() {
+            throw new UnsupportedOperationException("The baked models can only be looked up");
+        }
+
+        private final ModelManager _manager;
+    }
+
     private static final List<Consumer<Map<ResourceLocation, BakedModel>>> BAKING_COMPLETED_HANDLERS = new CopyOnWriteArrayList<>();
+    private static final List<Runnable> FRAME_END_HANDLERS = new CopyOnWriteArrayList<>();
 }

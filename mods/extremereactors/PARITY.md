@@ -15,7 +15,7 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | `src/main/java/ports/extremereactors/platform` | `Platform` and `ClientPlatform` services, plus four classes with the same name and API on both loaders: `PlatformBlockEntity`, `PlatformBakedModel`, `PlatformLiquidBlock`, `PlatformBucketItem`. |
 | `src/main/resources` | All assets, recipes, loot tables, tags, worldgen features and EMC data. |
 | `src/forge` | `ForgeMod`, `ForgePlatform`, `ForgeTransfer`, `ForgeNetwork`, `ForgeConfigCondition`, `ForgeComputerCraft`, `ForgeMekanism`, the ore biome modifier, the client entrypoint and `mods.toml`. |
-| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, `FabricComputerCraft`, `FabricMekanism`, mixins, the client entrypoint, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
+| `src/fabric` | `FabricMod`, `FabricPlatform`, `FabricTransfer`, `FabricEnergy`, `FabricFluid`, `FabricNetwork`, `FabricComputerCraft`, `FabricMekanism`, the `bigreactors:api` entrypoint, the `GameRendererMixin` frame hook, the client entrypoint and its model provider, the `forge:` tag bridges, the bucket model stand-in and `fabric.mod.json`. |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric`, `src/test` | GameTests and JUnit tests; never packaged. |
 | `fabric/` | The isolated Loom build. The root Gradle build produces the Forge JAR. |
 
@@ -36,6 +36,11 @@ gap against Extreme Reactors 2 at `127cb03` (see [UPSTREAM.md](UPSTREAM.md)).
 | Tags | Forge's own `forge:` tags plus the shared `c:` tags | The shared `c:` tags plus bridges that define the `forge:` tags Forge would |
 | Steel recipes | Load when `forge:ingots/steel` has items; a `c:steel_ingots` bridge to it | Load when `c:steel_ingots` has items, as Fabric steel mods tag it; the steel ingredients accept either tag |
 | Block entity hooks | Forge `onChunkUnloaded` and `getModelData` | Fabric's server and client block entity unload events; render attachments for model data |
+| Connected-casing, glass and fuel rod models | `ModelEvent.BakingCompleted` (at `HIGH` priority) runs the model builders on the baked model map | A Fabric model loading API variant provider claims the blockstates the builders replace and bakes the same models; see [Fabric models](#fabric-models) |
+| Frame end hook | `RenderTickEvent` at `END`, once per frame | `GameRendererMixin` at the end of `GameRenderer.render`, once per frame, also when no world is shown |
+| Bucket sounds | `FluidType` fill and empty sounds | `FabricFluid.getPickupSound` and the bucket item play `BUCKET_FILL` and `BUCKET_EMPTY` |
+| Other mods' item storages | `IItemHandler` capability | `StorageItemHandler` over `ItemStorage.SIDED`: `getSlots()` takes the storage's views once, slot calls read them in O(1) |
+| Add-on API calls | Forge IMC to `bigreactors` (see [API dispatcher](#api-dispatcher)) | `bigreactors:api` entrypoint (`ExtremeReactorsApiEntrypoint`), same methods and order |
 
 Passive power taps expose an extractable energy storage and never push; active
 taps push into the neighbor every tick, as upstream. The same holds for passive
@@ -80,7 +85,12 @@ pixel-identical to ZeroCore. With Patchouli installed, each screen's help
 button opens its handbook entry, as upstream; without it the button is hidden.
 
 **Integrations.** All are optional: the JARs only reference them when the mod
-is loaded.
+is loaded. The Fabric `fabric.mod.json` lists them under `suggests`
+(`computercraft`, `patchouli`, `jei`, `emi`, `mekanism`); there is no
+`breaks`, as no known mod is incompatible. The Fabric Mekanism adapter loads
+only when the `mekanism` mod also provides this repository's
+`ports.mekanism.fabric.api` classes and the Mekanism API classes it uses, so a
+different Mekanism Fabric port leaves the gas port inert instead of crashing.
 
 | Upstream | Forge | Fabric | Notes |
 | --- | --- | --- | --- |
@@ -135,10 +145,43 @@ reproduced, and none of this claims pixel parity with Forge.
 the vanilla bucket with a fluid overlay tinted per fluid. It matches Forge's
 look closely but not pixel for pixel.
 
-**API dispatcher.** Upstream ran its own registrations directly and other mods'
+<a id="api-dispatcher"></a>**API dispatcher.** Upstream ran its own registrations directly and other mods'
 calls through Forge IMC, dropping calls made after loading. The port queues
 other mods' calls until IMC processing and runs late calls directly. The order
 is the same on both loaders.
+
+Fabric has no IMC. Add-ons instead declare a `bigreactors:api` entrypoint
+implementing `ports.extremereactors.fabric.api.ExtremeReactorsApiEntrypoint`.
+Its `sendApiMessages(messages)` is called once, at the point Forge processes
+IMC, and each `messages.send(method, runnable)` stands for one
+`InterModComms.sendTo("bigreactors", method, () -> runnable)`. The methods are
+the ones Forge's IMC handling accepts (`ExtremeReactors.IMC_METHODS`: the
+reactant, reaction, mapping, moderator, coolant and coil material
+registrations and removals); a message with another method is logged and
+skipped, as Forge ignores it. Messages run per method in `IMC_METHODS` order,
+in the order they were sent, before the queued direct calls of that method, as
+on Forge.
+
+The port previously ran each IMC message outside the dispatcher's internal
+scope, so the API calls a message made were queued after that method's queue
+had already been drained and were then dropped. Messages now run inside
+`InternalDispatcher.runInternal`, on both loaders, so their calls apply.
+
+<a id="fabric-models"></a>**Fabric models.** Forge lets the model builders
+replace entries of the baked model map in `ModelEvent.BakingCompleted`. Fabric
+has no such event, and editing `ModelBakery`'s map breaks with mods that load
+models differently (ModernFix's dynamic resources, Continuity). The Fabric
+client instead registers a model loading API variant provider for the blocks
+whose models a builder replaces (each builder declares them in
+`ICustomModelBuilder.getReplacedModels()`). It claims every state of those
+blocks, loads the original variant from the blockstate files and, when the
+game bakes a replaced state, runs the builders in Forge's order against a view
+holding the original baked models and the earlier builders' replacements. The
+builder code and its output are the same as on Forge; other states bake their
+original models. Item models (`inventory`) are not claimed.
+`ModelReplacementsTest` and `BlockStateModelsTest` check the id mapping, the
+builder order and the variant matching without a client; the rendered result
+still needs a client check.
 
 **Worldgen options.** Upstream defines the worldgen options but never reads them,
 so its ores always generate. The port honors `enableWorldGen` and the per-ore
@@ -289,9 +332,18 @@ Gaps and risks:
 | `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
 | `everyItemHasAnEmcDecision` | EMC coverage; with `-PwithProjectE` or `-PwithItemAlchemy`, the live values. |
 | `computerPortControlsTheReactor` | The reactor computer port's methods, called the way ComputerCraft calls them: doubles, tables keyed by doubles, and errors for bad arguments. |
+| `ModelReplacementsTest`, `BlockStateModelsTest` (JUnit, Fabric build) | The Fabric model provider: which ids and blocks it claims, builders running once each in Forge's order and seeing originals and earlier replacements, and blockstate variant matching. |
+| `StorageItemHandlerTest` (JUnit, Fabric build) | Walking another mod's item storage slot by slot iterates it once, and each `getSlots()` sees its current size. |
+| `apiEntrypointMessagesApplyLikeImc` (Fabric only) | A test-only `bigreactors:api` entrypoint's coil material registrations and removals apply like Forge IMC messages; an unknown method is skipped. Forge has no entrypoint; its IMC path shares `onInterModProcess`. |
 | `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism`, Mekanism sees a gas handler holding the reactor's steam as `mekanism:steam` and can drain it. Forge uses Mekanism 10.3.9; Fabric uses this repository's Mekanism port. |
 
-A Fabric development client was also run: both machines assemble, the reactor
+Still to check on a Fabric client after the model loading API change: the
+assembled casings, glass, fuel rods and turbine rotor render as before, also
+with ModernFix and Continuity installed; the frame-end effects (lamps, glow,
+steam) run once per frame; filling a bucket from an Extreme Reactors fluid plays
+the bucket fill sound. These have no client-free test.
+
+Before that change, a Fabric development client was run: both machines assemble, the reactor
 fuel rods render their fill level, the turbine rotor spins, and the buckets
 render tinted. With `/ershowcase` (see the [README](README.md)), every screen
 was opened on a running machine on Fabric, and the reactor and turbine

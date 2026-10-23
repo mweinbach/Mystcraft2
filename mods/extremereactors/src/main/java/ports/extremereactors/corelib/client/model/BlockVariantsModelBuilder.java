@@ -25,6 +25,7 @@ import ports.extremereactors.platform.PlatformBakedModel;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -81,6 +82,18 @@ public class BlockVariantsModelBuilder
                 }
             }
         }
+    }
+
+    @Override
+    public Collection<ResourceLocation> getReplacedModels() {
+
+        final List<ResourceLocation> ids = new ArrayList<>(this._blocks.size());
+
+        for (final BlockEntry block : this._blocks.values()) {
+            ids.add(block.blockModelId);
+        }
+
+        return ids;
     }
 
     @Override

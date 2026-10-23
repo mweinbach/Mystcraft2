@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import ports.extremereactors.platform.FluidDefinition;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -74,6 +77,14 @@ abstract class FabricFluid extends FlowingFluid {
     @Override
     public boolean isSame(final Fluid fluid) {
         return fluid == this._source.get() || fluid == this._flowing.get();
+    }
+
+    /**
+     * Filling a bucket plays the sound the Forge variant's fluid type declares for {@code BUCKET_FILL}.
+     */
+    @Override
+    public Optional<SoundEvent> getPickupSound() {
+        return Optional.of(SoundEvents.BUCKET_FILL);
     }
 
     @Override

@@ -29,6 +29,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -48,6 +49,11 @@ public class ReactorFuelRodModelBuilder
 
     @Override
     public void onRegisterModels(final Consumer<ResourceLocation> additionalModels) {
+    }
+
+    @Override
+    public Collection<ResourceLocation> getReplacedModels() {
+        return this._ids.values();
     }
 
     @Override

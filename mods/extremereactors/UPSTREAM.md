@@ -87,7 +87,10 @@ import mapping, these upstream files were changed:
 
 - `ExtremeReactors`: no longer the Forge `@Mod` class. Each loader's entrypoint
   calls `initialize()`, `onCommonInit()` and `onInterModProcess(imc)`. The IMC
-  methods are unchanged.
+  methods are unchanged. `onInterModProcess` runs each method's IMC messages
+  inside `InternalDispatcher.runInternal`, so the API calls they make apply
+  instead of joining a queue that was already drained. On Fabric the messages
+  come from the `bigreactors:api` entrypoint.
 - `api/internal/InternalDispatcher`: upstream ran a call directly when made from
   its own mod container and sent other mods' calls through Forge IMC. The port
   cannot detect the caller. Extreme Reactors' own registrations run inside
@@ -152,10 +155,14 @@ import mapping, these upstream files were changed:
   takes its base quads through `ModRenderHelper.getQuads` and uses vanilla's
   identity rotation, and `ClientFuelRodsLayout` asks the platform whether a
   neighbor renders in the solid layer. `BlockVariantsModelBuilder.addBlock` lost
-  its fourth argument.
+  its fourth argument. `ReactorFuelRodModelBuilder` implements `corelib`'s
+  `ICustomModelBuilder.getReplacedModels()`, the fuel rod states it replaces,
+  which the Fabric model provider needs.
 - `proxy/ClientProxy`: installed by the client entrypoint through
   `ExtremeReactors.setProxy()`. Screens are registered through the platform
-  layer instead of `MenuScreens`. The Patchouli setup runs only when Patchouli
+  layer instead of `MenuScreens`. The model builders are handed to the
+  platform layer (`ClientPlatform.registerModelBuilders`) instead of being
+  called from `onRegisterModels` and `onModelBake`, which were removed. The Patchouli setup runs only when Patchouli
   is loaded.
   `onClientInit` also calls `MachineEffects.initialize()`, which loads the
   port's client-side machine effects (see [Machine effects](PARITY.md#machine-effects)).

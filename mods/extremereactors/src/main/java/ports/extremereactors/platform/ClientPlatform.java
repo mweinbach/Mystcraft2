@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
 import ports.extremereactors.corelib.fluid.FluidStack;
 
 import java.util.List;
@@ -42,15 +43,21 @@ public final class ClientPlatform {
         /** Stitch an extra sprite into an atlas each time it is built. */
         void addAtlasSprite(ResourceLocation atlas, ResourceLocation sprite);
 
-        /** Called while models load, to name the extra (non block state) models that must be loaded and baked. */
-        void onRegisterAdditionalModels(Consumer<Consumer<ResourceLocation>> handler);
+        /**
+         * Load the extra models of these builders and replace models with theirs on every model reload, running the
+         * builders in list order. Forge runs them on its model events; Fabric through its model loading API.
+         */
+        void registerModelBuilders(List<? extends ICustomModelBuilder> builders);
 
-        /** Called once all the top-level models are baked; entries of the map can be replaced. */
+        /**
+         * Called after each model reload with the final baked models, by model id, including the replacements of
+         * the {@link #registerModelBuilders model builders}. Look models up; do not change the map.
+         */
         void onModelBakingCompleted(Consumer<Map<ResourceLocation, BakedModel>> handler);
 
         void onItemTooltip(TooltipHandler handler);
 
-        /** Called after each rendered frame. */
+        /** Called once after each rendered frame, as Forge's render tick end. */
         void onRenderFrameEnd(Runnable handler);
 
         /** True if the block model draws (some of) its quads in the solid chunk layer. */

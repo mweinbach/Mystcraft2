@@ -4,7 +4,7 @@
   "package": "ports.extremereactors.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ModelBakeryMixin"
+    "GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

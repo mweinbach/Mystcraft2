@@ -439,18 +439,24 @@ public final class FabricTransfer {
     //endregion
     //region Fabric storages as corelib handlers
 
-    private record StorageItemHandler(Storage<ItemVariant> storage) implements IItemHandler {
+    /**
+     * Another mod's item storage as a corelib handler. Callers walk the slots by index, so the handler keeps the
+     * storage's views in a list: {@link #getSlots()} takes a fresh one in O(n), and the slot methods read it in O(1).
+     * The Transfer API lets a storage be changed while it is iterated and keeps the views it handed out working, so
+     * the list stays valid while the caller moves items; a slot past its end takes a new one, in case the storage
+     * grew.
+     */
+    static final class StorageItemHandler implements IItemHandler {
+
+        StorageItemHandler(final Storage<ItemVariant> storage) {
+            this._storage = storage;
+        }
 
         @Override
         public int getSlots() {
 
-            int count = 0;
-
-            for (final StorageView<ItemVariant> ignored : this.storage) {
-                ++count;
-            }
-
-            return Math.max(1, count);
+            this._views = null;
+            return Math.max(1, this.views().size());
         }
 
         @Override
@@ -465,12 +471,12 @@ public final class FabricTransfer {
         @Override
         public ItemStack insertItem(final int slot, final ItemStack stack, final boolean simulate) {
 
-            if (stack.isEmpty() || !this.storage.supportsInsertion()) {
+            if (stack.isEmpty() || !this._storage.supportsInsertion()) {
                 return stack;
             }
 
             final StorageView<ItemVariant> view = this.view(slot);
-            final Storage<ItemVariant> target = view instanceof SingleSlotStorage<ItemVariant> single ? single : this.storage;
+            final Storage<ItemVariant> target = view instanceof SingleSlotStorage<ItemVariant> single ? single : this._storage;
             final ItemVariant resource = ItemVariant.of(stack);
             final long inserted = transact(simulate, transaction -> target.insert(resource, stack.getCount(), transaction));
 
@@ -512,17 +518,43 @@ public final class FabricTransfer {
         @Nullable
         private StorageView<ItemVariant> view(final int slot) {
 
-            int index = 0;
-
-            for (final StorageView<ItemVariant> view : this.storage) {
-
-                if (index++ == slot) {
-                    return view;
-                }
+            if (slot < 0) {
+                return null;
             }
 
-            return null;
+            List<StorageView<ItemVariant>> views = this.views();
+
+            if (slot >= views.size()) {
+
+                // the storage may have grown since the list was taken
+                this._views = null;
+                views = this.views();
+            }
+
+            return slot < views.size() ? views.get(slot) : null;
         }
+
+        private List<StorageView<ItemVariant>> views() {
+
+            List<StorageView<ItemVariant>> views = this._views;
+
+            if (null == views) {
+
+                views = new ArrayList<>();
+
+                for (final StorageView<ItemVariant> view : this._storage) {
+                    views.add(view);
+                }
+
+                this._views = views;
+            }
+
+            return views;
+        }
+
+        private final Storage<ItemVariant> _storage;
+        @Nullable
+        private List<StorageView<ItemVariant>> _views;
     }
 
     private record StorageFluidHandler(Storage<FluidVariant> storage) implements IFluidHandler {
