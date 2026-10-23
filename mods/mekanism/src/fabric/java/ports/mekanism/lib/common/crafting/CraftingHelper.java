@@ -192,9 +192,10 @@ public final class CraftingHelper {
     }
 
     /**
-     * Reads an ingredient that vanilla cannot: a JSON object whose {@code type} is a Forge ingredient type, or an array
-     * containing one. Returns {@code null} for anything vanilla's reader handles, including {@code minecraft:item}.
-     * An unknown type throws, rather than being misread as an item.
+     * Reads an ingredient that vanilla cannot: a JSON object whose {@code type} is a Forge ingredient type registered
+     * here, or an array containing one. Returns {@code null} for everything else, including {@code minecraft:item} and
+     * types this port does not know, so that other mods' readers (IngredientExtensionAPI's, for one) get them. Once
+     * they have run, {@link #requireClaimedType} rejects a type nobody read.
      */
     @Nullable
     public static Ingredient getCustomIngredient(@Nullable JsonElement json) {
@@ -220,10 +221,38 @@ public final class CraftingHelper {
             return null;
         }
         IIngredientSerializer<?> serializer = INGREDIENTS.get(key);
-        if (serializer == null) {
-            throw new JsonSyntaxException("Unknown ingredient type: " + type);
+        return serializer == null ? null : serializer.parse(object);
+    }
+
+    /**
+     * Throws, as Forge does, when {@code json} names an ingredient type that neither this port nor another mod's
+     * reader turned into its own ingredient: vanilla's reader ignores {@code type} and would read the object as a
+     * plain item ingredient instead.
+     */
+    public static void requireClaimedType(@Nullable JsonElement json, Ingredient read) {
+        if (json != null && json.isJsonObject() && json.getAsJsonObject().has("type") && read.getClass() == Ingredient.class) {
+            String type = GsonHelper.getAsString(json.getAsJsonObject(), "type");
+            if (!VANILLA_ITEM.toString().equals(type) && !VANILLA_ITEM.equals(ResourceLocation.tryParse(type))) {
+                throw new JsonSyntaxException("Unknown ingredient type: " + type);
+            }
         }
-        return serializer.parse(object);
+    }
+
+    /**
+     * Whether this port writes {@code ingredient} to the network: one of the Forge ingredient types registered here.
+     * Vanilla ingredients and other mods' subclasses (IngredientExtensionAPI's, Fabric's custom ingredients) are left
+     * to vanilla's writer and the injections other mods make into it.
+     */
+    public static boolean writesIngredient(Ingredient ingredient) {
+        IForgeIngredient forge = (IForgeIngredient) ingredient;
+        if (forge.isVanilla()) {
+            return false;
+        }
+        try {
+            return INGREDIENT_IDS.containsKey(forge.getSerializer());
+        } catch (IllegalStateException notForge) {
+            return false;
+        }
     }
 
     @Nullable
@@ -233,13 +262,12 @@ public final class CraftingHelper {
         }
         List<Ingredient> custom = new ArrayList<>();
         List<Ingredient> vanilla = new ArrayList<>();
-        boolean anyCustom = false;
         for (JsonElement element : array) {
+            // Ingredient.fromJson runs this port's reader again and every other mod's, so an element another mod
+            // reads (IngredientExtensionAPI's, for one) comes back as that mod's own ingredient.
             Ingredient parsed = getCustomIngredient(element);
             if (parsed == null) {
                 parsed = Ingredient.fromJson(element);
-            } else {
-                anyCustom = true;
             }
             if (parsed.getClass() == Ingredient.class) {
                 vanilla.add(parsed);
@@ -247,7 +275,7 @@ public final class CraftingHelper {
                 custom.add(parsed);
             }
         }
-        if (!anyCustom) {
+        if (custom.isEmpty()) {
             return null;
         }
         custom.addAll(vanilla);

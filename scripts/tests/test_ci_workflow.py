@@ -91,6 +91,17 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertIn("-p mods/mystcraft/fabric runSmokeGametest -PenableSmokeTests", self.text)
         self.assertEqual(self.text.count("MYSTCRAFT_SMOKE_GAMETEST MYSTCRAFT_SMOKE_COMPLETE"), 2)
 
+    def test_crafttweaker_runs_on_its_own_on_both_loaders(self):
+        """Mekanism's CraftTweaker scripts change recipes, so -PwithCraftTweaker gets a separate run on each loader."""
+        mekanism = matrix_entry(self.text, "mekanism")
+        self.assertIn("crafttweaker_props: -PwithCraftTweaker\n", mekanism)
+        self.assertNotRegex(mekanism, r"_compat_props: [^\n]*-PwithCraftTweaker")
+        self.assertNotRegex(mekanism, r"(forge|fabric)_props: [^\n]*-PwithCraftTweaker")
+        self.assertIn("CRAFTTWEAKER_PROPS: ${{ matrix.crafttweaker_props }}\n", self.text)
+        self.assertIn("- name: Run GameTests with CraftTweaker\n        if: ${{ matrix.crafttweaker_props }}\n", self.text)
+        self.assertIn('./gradlew --no-daemon ":${PORT}:runGameTestServer" "${extra[@]}"', self.text)
+        self.assertIn('./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"', self.text)
+
     def test_every_emc_port_compares_live_values_with_both_emc_mods(self):
         """Each port's GameTest EmcAudit compares the shipped values with the live EMC mod when it is loaded."""
         dual = [path.parent.parent.name for path in (ROOT / "mods").glob("*/emc/policy.json")

@@ -77,14 +77,17 @@ python3 mods/mekanism/scripts/check_loader_parity.py
 python3 scripts/emc.py check
 ```
 
-Jade, WTHIT, The One Probe, CC: Tweaked, Curios, Trinkets, Wildfire's Gender Mod, ProjectE, Flux Networks and Recipe
-Stages are optional. The JARs load without them. A development client can include one with `-PwithJade`, `-PwithWthit`
-(Fabric), `-PwithTop` (Forge), `-PwithComputerCraft`, `-PwithCurios` (Forge), `-PwithTrinkets` (Fabric), `-PwithGender`,
-`-PwithProjectE` (Forge), `-PwithFluxNetworks` (Forge) or `-PwithRecipeStages` (Forge). Versions are in
+Jade, WTHIT, The One Probe, CC: Tweaked, Curios, Trinkets, Wildfire's Gender Mod, ProjectE, Flux Networks, Recipe
+Stages and CraftTweaker are optional. The JARs load without them. A development client can include one with
+`-PwithJade`, `-PwithWthit` (Fabric), `-PwithTop` (Forge), `-PwithComputerCraft`, `-PwithCurios` (Forge),
+`-PwithTrinkets` (Fabric), `-PwithGender`, `-PwithProjectE` (Forge), `-PwithFluxNetworks` (Forge),
+`-PwithRecipeStages` (Forge) or `-PwithCraftTweaker`. With `-PwithCraftTweaker` the GameTest runs also load the test
+scripts and expect their recipes. Versions are in
 [parity/13-computercraft.md](parity/13-computercraft.md),
 [parity/14-curios-and-gender.md](parity/14-curios-and-gender.md),
-[parity/15-projecte.md](parity/15-projecte.md) and
-[parity/18-flux-recipe-stages-oc2.md](parity/18-flux-recipe-stages-oc2.md).
+[parity/15-projecte.md](parity/15-projecte.md),
+[parity/18-flux-recipe-stages-oc2.md](parity/18-flux-recipe-stages-oc2.md) and
+[parity/19-crafttweaker.md](parity/19-crafttweaker.md).
 
 ## Chemical lookups (Fabric)
 

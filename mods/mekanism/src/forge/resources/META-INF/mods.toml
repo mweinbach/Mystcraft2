@@ -24,6 +24,12 @@ license="${mod_license}"
     versionRange="[43.5.0,44)"
     side="BOTH"
 [[dependencies.${mod_id}]]
+    modId="crafttweaker"
+    mandatory=false
+    versionRange="[10.0.6,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.${mod_id}]]
     modId="jei"
     mandatory=false
     versionRange="[11.2.0.241,)"
