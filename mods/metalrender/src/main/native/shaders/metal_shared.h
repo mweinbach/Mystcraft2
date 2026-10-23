@@ -69,7 +69,7 @@ struct SectionGpuMeta {
     float  aabbMinX;            // 16..19: local min X relative to origin
     float  aabbMinY;            // 20..23
     float  aabbMinZ;            // 24..27
-    float  pad0;                // 28..31
+    mr_u32 cutoutOpaqueQuads;   // 28..31: leading cutout quads with fully opaque texels (no alpha test)
     float  aabbMaxX;            // 32..35: local max X relative to origin
     float  aabbMaxY;            // 36..39
     float  aabbMaxZ;            // 40..43

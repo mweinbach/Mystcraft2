@@ -113,10 +113,12 @@ class TerrainVertexPackerTest {
         assertEquals((short) ((0 - 8) * 1024), mipped.data().getShort(0), "the opaque-sprite quad moved first");
         assertEquals(1, mipped.meshlets().get(32 + 26));
         assertEquals(4, mipped.meshlets().getInt(32 + 20));
+        assertEquals(1, mipped.opaqueQuads(), "the Compute+ICB tier draws this head without the alpha test");
 
         final PackedLayer cutout = TerrainVertexPacker.pack(b, 8, TerrainLayer.CUTOUT.mode, atlas);
         assertEquals(1, cutout.meshletCount(), "unmipped cutout keeps its sharp sampling and alpha test");
         assertEquals(1, cutout.meshlets().get(26));
+        assertEquals(0, cutout.opaqueQuads());
 
         final PackedLayer solid = TerrainVertexPacker.pack(b, 8, TerrainLayer.SOLID.mode, atlas);
         assertEquals(0, solid.meshlets().get(26));

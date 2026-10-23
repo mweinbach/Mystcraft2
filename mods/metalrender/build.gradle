@@ -142,6 +142,8 @@ loom {
             vmArg '-Dmetalrender.benchmark=true'
             // -PbenchmarkVariants=vanilla,metal4 runs a subset; -PbenchmarkJfr also records a JFR profile.
             vmArg "-Dmetalrender.benchmark.variants=${project.findProperty('benchmarkVariants') ?: ''}"
+            // -PbenchmarkHeight=2 stands the camera on the surface instead of 30 blocks above it; =cave builds the surface, then moves into a cave below it.
+            vmArg "-Dmetalrender.benchmark.height=${project.findProperty('benchmarkHeight') ?: '30'}"
             if (project.hasProperty('benchmarkJfr')) {
                 vmArg "-XX:StartFlightRecording=filename=${layout.buildDirectory.file('benchmark-client/benchmark/profile.jfr').get().asFile},settings=profile"
             }

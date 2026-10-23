@@ -112,7 +112,7 @@ public final class TerrainVertexPacker {
                 writeMeshlet(out, meshlets, m++, first + q, Math.min(MESHLET_QUADS, counts[run] - q), run == 1);
             }
         }
-        return new PackedLayer(out, quads, quads == 0 ? null : bounds, meshlets, meshletCount);
+        return new PackedLayer(out, quads, quads == 0 ? null : bounds, meshlets, meshletCount, counts[0]);
     }
 
     /** True when the quad's UV rectangle lies only in fully opaque parts of the atlas. */

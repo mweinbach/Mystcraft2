@@ -38,6 +38,7 @@ struct SurfacePair {
     IOSurfaceRef depthSurface = nullptr;
     id<MTLTexture> colorTex = nil;
     id<MTLTexture> depthTex = nil;
+    uint64_t generation = 0; // unique per allocation, so OpenGL bindings know when to re-attach
 
     void destroy() {
         colorTex = nil;
@@ -101,10 +102,20 @@ static bool ensureSurfacePair(id<MTLDevice> dev, SurfacePair& pair, int w, int h
         return false;
     }
 
+    static uint64_t nextGeneration = 0;
+    pair.generation = ++nextGeneration;
     pair.width = w;
     pair.height = h;
     return true;
 }
+
+// The surface pair an OpenGL texture pair was last attached to; attaching is skipped when unchanged,
+// since an IOSurface-backed texture shows the surface's current contents.
+struct GlAttachment {
+    uint64_t generation = 0;
+    GLuint color = 0, depth = 0;
+    CGLContextObj cgl = nullptr;
+};
 
 struct MetalContext {
     id<MTLDevice> device = nil;
@@ -256,6 +267,7 @@ struct MetalContext {
     // Triple-buffered IOSurface export rings
     SurfacePair opaqueSurfaces[kRingSlots];
     SurfacePair transSurfaces[kRingSlots];
+    GlAttachment glAttached[2][kRingSlots]; // [opaque, translucent][slot]
     uint64_t frameCounter = 0;
 
     bool rebuildIcb(uint32_t maxCommands) {
@@ -269,7 +281,8 @@ struct MetalContext {
         icbDesc.maxVertexBufferBindCount = 0;
         icbDesc.maxFragmentBufferBindCount = 0;
 
-        icbSolid = [device newIndirectCommandBufferWithDescriptor:icbDesc maxCommandCount:maxCommands options:0];
+        // Two solid-pipeline commands per section: its solid range and the opaque head of its cutout range.
+        icbSolid = [device newIndirectCommandBufferWithDescriptor:icbDesc maxCommandCount:maxCommands * 2u options:0];
         icbCutout = [device newIndirectCommandBufferWithDescriptor:icbDesc maxCommandCount:maxCommands options:0];
         if (!icbSolid || !icbCutout) {
             icbSolid = nil;
@@ -1293,6 +1306,28 @@ static MTLSize gridFor(int w, int h) {
     return MTLSizeMake(((NSUInteger)w + 15) / 16, ((NSUInteger)h + 15) / 16, 1);
 }
 
+// Vertex ranges drawn with the solid (pass 0) or cutout (pass 1) pipeline by the direct draw loops.
+// A section's cutout range starts with quads that need no alpha test; those go with the solid ones.
+struct DrawRanges {
+    uint32_t base[2] = {0u, 0u};
+    uint32_t quads[2] = {0u, 0u};
+};
+
+static DrawRanges opaqueRanges(const SectionGpuMeta& s, int pass) {
+    uint32_t head = std::min(s.cutoutOpaqueQuads, s.cutoutQuadCount);
+    DrawRanges r;
+    if (pass == 0) {
+        r.base[0] = s.solidBaseVertex;
+        r.quads[0] = s.solidQuadCount;
+        r.base[1] = s.cutoutBaseVertex;
+        r.quads[1] = head;
+    } else {
+        r.base[0] = s.cutoutBaseVertex + head * 4u;
+        r.quads[0] = s.cutoutQuadCount - head;
+    }
+    return r;
+}
+
 static bool prepareOpaque(MetalContext* ctx, int outW, int outH, float scale, bool useMesh, int upscaleMode,
                           const FrameUniforms* uIn, const TemporalUniforms* tuIn, int secCap, int meshlets,
                           OpaqueFrame& f) {
@@ -1454,7 +1489,7 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
             [rEnc useResource:ctx->sectionMetaBuf usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
             [rEnc useResource:ctx->patternIndexBuf usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
             [rEnc setRenderPipelineState:ctx->psoSolid];
-            [rEnc executeCommandsInBuffer:ctx->icbSolid withRange:NSMakeRange(0, (NSUInteger)f.secLimit)];
+            [rEnc executeCommandsInBuffer:ctx->icbSolid withRange:NSMakeRange(0, (NSUInteger)f.secLimit * 2u)];
             [rEnc setRenderPipelineState:ctx->psoCutout];
             [rEnc executeCommandsInBuffer:ctx->icbCutout withRange:NSMakeRange(0, (NSUInteger)f.secLimit)];
         } else {
@@ -1463,17 +1498,19 @@ static void encodeOpaqueClassic(MetalContext* ctx, OpaqueFrame& f) {
             for (int pass = 0; pass < 2; ++pass) {
                 [rEnc setRenderPipelineState:pass == 0 ? ctx->psoSolid : ctx->psoCutout];
                 for (uint32_t i = 0; i < f.secLimit; ++i) {
-                    uint32_t quads = pass == 0 ? secs[i].solidQuadCount : secs[i].cutoutQuadCount;
-                    uint32_t base = pass == 0 ? secs[i].solidBaseVertex : secs[i].cutoutBaseVertex;
-                    if ((secs[i].flags & MR_SECTION_ACTIVE) == 0u || quads == 0u) continue;
-                    [rEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-                                     indexCount:quads * 6u
-                                      indexType:MTLIndexTypeUInt32
-                                    indexBuffer:ctx->patternIndexBuf
-                              indexBufferOffset:0
-                                  instanceCount:1
-                                     baseVertex:(NSInteger)base
-                                   baseInstance:i];
+                    if ((secs[i].flags & MR_SECTION_ACTIVE) == 0u) continue;
+                    DrawRanges ranges = opaqueRanges(secs[i], pass);
+                    for (int k = 0; k < 2; ++k) {
+                        if (ranges.quads[k] == 0u) continue;
+                        [rEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                         indexCount:ranges.quads[k] * 6u
+                                          indexType:MTLIndexTypeUInt32
+                                        indexBuffer:ctx->patternIndexBuf
+                                  indexBufferOffset:0
+                                      instanceCount:1
+                                         baseVertex:(NSInteger)ranges.base[k]
+                                       baseInstance:i];
+                    }
                 }
             }
         }
@@ -1656,17 +1693,19 @@ static void encodeOpaqueMetal4(MetalContext* ctx, OpaqueFrame& f) {
             for (int pass = 0; pass < 2; ++pass) {
                 [r setRenderPipelineState:pass == 0 ? ctx->psoSolid : ctx->psoCutout];
                 for (uint32_t i = 0; i < f.secLimit; ++i) {
-                    uint32_t quads = pass == 0 ? secs[i].solidQuadCount : secs[i].cutoutQuadCount;
-                    uint32_t base = pass == 0 ? secs[i].solidBaseVertex : secs[i].cutoutBaseVertex;
-                    if ((secs[i].flags & MR_SECTION_ACTIVE) == 0u || quads == 0u) continue;
-                    [r drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-                                  indexCount:quads * 6u
-                                   indexType:MTLIndexTypeUInt32
-                                 indexBuffer:ctx->patternIndexBuf.gpuAddress
-                           indexBufferLength:[ctx->patternIndexBuf length]
-                               instanceCount:1
-                                  baseVertex:(NSInteger)base
-                                baseInstance:i];
+                    if ((secs[i].flags & MR_SECTION_ACTIVE) == 0u) continue;
+                    DrawRanges ranges = opaqueRanges(secs[i], pass);
+                    for (int k = 0; k < 2; ++k) {
+                        if (ranges.quads[k] == 0u) continue;
+                        [r drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                      indexCount:ranges.quads[k] * 6u
+                                       indexType:MTLIndexTypeUInt32
+                                     indexBuffer:ctx->patternIndexBuf.gpuAddress
+                               indexBufferLength:[ctx->patternIndexBuf length]
+                                   instanceCount:1
+                                      baseVertex:(NSInteger)ranges.base[k]
+                                    baseInstance:i];
+                    }
                 }
             }
         }
@@ -2048,6 +2087,12 @@ JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_bindI
     if (!pair.colorSurface || !pair.depthSurface || pair.width <= 0 || pair.height <= 0) {
         return JNI_FALSE;
     }
+    GlAttachment& attached = ctx->glAttached[translucent == JNI_TRUE ? 1 : 0][slot];
+    if (attached.generation == pair.generation && attached.color == (GLuint)glColorTexRect &&
+        attached.depth == (GLuint)glDepthTexRect && attached.cgl == cglCtx) {
+        return JNI_TRUE;
+    }
+    attached = GlAttachment{};
 
     glBindTexture(GL_TEXTURE_RECTANGLE, (GLuint)glColorTexRect);
     CGLError e1 = CGLTexImageIOSurface2D(
@@ -2076,7 +2121,9 @@ JNIEXPORT jboolean JNICALL Java_ports_metalrender_nativebridge_MetalNative_bindI
     );
 
     glBindTexture(GL_TEXTURE_RECTANGLE, 0);
-    return (e1 == kCGLNoError && e2 == kCGLNoError) ? JNI_TRUE : JNI_FALSE;
+    if (e1 != kCGLNoError || e2 != kCGLNoError) return JNI_FALSE;
+    attached = GlAttachment{pair.generation, (GLuint)glColorTexRect, (GLuint)glDepthTexRect, cglCtx};
+    return JNI_TRUE;
 }
 
 // Binds a render-resolution BGRA IOSurface to glColorTexRect (recreated on size change) and marks it

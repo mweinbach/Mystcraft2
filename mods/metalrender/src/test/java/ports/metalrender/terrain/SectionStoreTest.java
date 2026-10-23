@@ -51,14 +51,18 @@ class SectionStoreTest {
         final SectionStore.HeapArena arena = new SectionStore.HeapArena(4096, 4, 64);
         final SectionStore store = new SectionStore(arena);
         final SectionSlot slot = store.allocate(0, 0, 0, null);
-        store.applyLayer(slot, TerrainLayer.CUTOUT_MIPPED, layer(2, TerrainLayer.CUTOUT_MIPPED));
+        final PackedLayer mipped = layer(2, TerrainLayer.CUTOUT_MIPPED);
+        store.applyLayer(slot, TerrainLayer.CUTOUT_MIPPED, new PackedLayer(mipped.data(), mipped.quads(), mipped.bounds(),
+                mipped.meshlets(), mipped.meshletCount(), 1));
         store.applyLayer(slot, TerrainLayer.CUTOUT, layer(3, TerrainLayer.CUTOUT));
         assertEquals(5, meta(arena, slot, 60));
+        assertEquals(1, meta(arena, slot, 28), "the cutout range starts with one quad that needs no alpha test");
         final int base = meta(arena, slot, 56) * 24;
         assertEquals(TerrainLayer.CUTOUT_MIPPED.mode, arena.vertices().get(base + 23));
         assertEquals(TerrainLayer.CUTOUT.mode, arena.vertices().get(base + 2 * TerrainVertexPacker.QUAD_BYTES + 23));
         store.applyLayer(slot, TerrainLayer.CUTOUT_MIPPED, layer(1, TerrainLayer.CUTOUT_MIPPED));
         assertEquals(4, meta(arena, slot, 60));
+        assertEquals(0, meta(arena, slot, 28));
         assertEquals(4 * 4, store.usedVertices(), "the old range was freed");
         store.clearLayer(slot, TerrainLayer.CUTOUT_MIPPED);
         store.clearLayer(slot, TerrainLayer.CUTOUT);

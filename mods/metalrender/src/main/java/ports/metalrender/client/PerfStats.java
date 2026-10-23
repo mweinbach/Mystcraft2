@@ -33,6 +33,10 @@ public final class PerfStats {
     /** Render thread: vanilla solid and cutout {@code renderChunkLayer} calls (when Metal is off). */
     public static long vanillaTerrainNanos;
 
+    /** Render thread: mirroring animated sprite frames into the Metal atlas. */
+    public static long spriteUploadNanos;
+    public static long spriteUploads;
+
     private PerfStats() {
     }
 }

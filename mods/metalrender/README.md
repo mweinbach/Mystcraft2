@@ -65,10 +65,10 @@ fail the build, including unguarded API availability.
 - **Alpha test only where it can fail.** When the block atlas loads, MetalRender records which
   16x16 cells of it hold only fully opaque sprites (every pixel of every animation frame has alpha
   255). Cutout-mipped quads that sample only those cells, such as grass block sides and tops, are
-  grouped into their own meshlets, and the mesh-shader tiers draw them with the solid shader, which
-  has no `discard_fragment` and keeps the GPU's hidden-surface removal on. The image is unchanged:
-  those quads could never fail the alpha test. The Compute+ICB tier still alpha-tests the whole
-  cutout range.
+  placed first in each section's cutout range, and every tier draws them with the solid shader,
+  which has no `discard_fragment` and keeps the GPU's hidden-surface removal on: the mesh-shader
+  tiers through their own meshlets, the Compute+ICB tier through a second solid-pipeline command per
+  section. The image is unchanged: those quads could never fail the alpha test.
 - **Frames.** The opaque pass (solid and both cutout layers) is encoded and committed just before
   vanilla's `setupRender`, once the sky, fog and camera are final, so the GPU draws terrain while
   the CPU runs vanilla's visibility and chunk scheduling. `LevelRenderer.renderChunkLayer` for the
@@ -87,7 +87,10 @@ fail the build, including unguarded API availability.
   half-resolution steps.
 - **Textures.** The block atlas is read back from OpenGL (all mip levels) after a resource reload,
   and its opaque-cell map is rebuilt from the sprite images. Animated sprites are mirrored as they
-  upload, and the lightmap on every update.
+  upload (about 1.8 µs per sprite frame, measured), and the lightmap on every update.
+- **Compositing.** Each IOSurface pair is attached to its OpenGL textures once and re-attached only
+  when the surfaces are recreated (on resize), since an IOSurface-backed texture always shows the
+  surface's current contents.
 
 ## Settings and commands
 
@@ -142,8 +145,11 @@ variant.
 16 with vsync and the frame cap off, and for vanilla, each Metal tier and each MetalFX mode times a
 full chunk rebuild and a 360° turn. It reports frame time percentiles, `renderLevel` CPU time,
 OpenGL GPU time, buffer-swap time, the Metal pass (encode, wait, and how much vanilla work ran
-while the GPU drew) and Metal GPU time to `build/benchmark-client/benchmark/report.txt`.
-`-PbenchmarkVariants=vanilla,metal4` runs a subset, and `-PbenchmarkJfr` also records a JFR profile.
+while the GPU drew), Metal GPU time, opaque quads drawn and animated-sprite upload cost to
+`build/benchmark-client/benchmark/report.txt`. `-PbenchmarkVariants=vanilla,metal4` runs a subset,
+`-PbenchmarkJfr` also records a JFR profile, and `-PbenchmarkHeight=2` stands the camera on the
+surface. `-PbenchmarkHeight=cave` builds the chunks from 30 blocks up, then moves the camera into a
+cave below spawn, so the surface stays built but out of sight, as after walking into a cave.
 
 ## Verification
 
@@ -159,13 +165,16 @@ Verified on an Apple M5 Ultra (macOS 27, Metal 4 with MSL 4.1), October 2026:
 | --- | --- | --- | --- |
 | Metal 4 | 41.1 dB | 118 | per-meshlet culling |
 | Metal 3 mesh | 41.1 dB | 118 | per-meshlet culling |
-| Compute+ICB | 41.1 dB | 125 | per-section culling |
+| Compute+ICB | 41.1 dB | 125 | per-section culling (39.9 dB in the latest run, see below) |
 | MetalFX spatial, 50% | 29.2 dB | 68,345 | 28.2 dB before the sky-edge fix |
 | MetalFX temporal, 50% | 33.6 dB | 30,032 | 28.7 dB before the sky-edge fix |
 
   After turning around, the mesh path drew 1,793 of 13,882 meshlets and the ICB path culled 167
   sections and drew 117. The test world differs slightly from run to run (passive mobs wander), so
-  pixel counts move by a few hundred between runs.
+  pixel counts move by a few hundred between runs. In the latest run, a 120×15 px patch of sky
+  appeared where earlier frames had a grey surface, in the Compute+ICB frame and in both MetalFX
+  frames taken after it (those use the mesh path), so the scene changed between captures. That
+  lowered the Compute+ICB score to 39.9 dB with 1,001 pixels off.
 
   Measured on the band within 3 px of the vanilla sky line, the PSNR of the MetalFX frames rose
   from 14.2 to 15.8 dB (spatial) and from 13.4 to 20.4 dB (temporal). For comparison, the vanilla
@@ -199,6 +208,28 @@ Verified on an Apple M5 Ultra (macOS 27, Metal 4 with MSL 4.1), October 2026:
     reject meshlets facing away from the camera. It doubled the meshlet count and cost about 0.1 ms
     of GPU time, more than the culling saved, because the hardware already rejects back faces
     cheaply.
+
+- A second round, measured the same way (Metal 4, Metal 3 mesh and Compute+ICB, 30 blocks up):
+  - The IOSurfaces are attached to OpenGL once instead of every frame. The Metal pass on the render
+    thread went from 0.80–0.84 ms to 0.76–0.81 ms on the three native-resolution tiers.
+  - The Compute+ICB tier now draws the cutout quads on fully opaque sprites without the alpha test
+    too. Its GPU time stayed at 0.69–0.71 ms on the M5 Ultra, within run-to-run noise. The tier
+    exists for Intel and AMD Macs, where `discard_fragment` also turns off early depth testing, but
+    it has not been measured on one.
+  - Animated sprites cost about 1.7 µs per sprite frame to mirror, around 40 sprite frames per tick
+    in the benchmark world (about 0.07 ms per tick), so they were left as they are. A pack with
+    1,000 animated block textures would spend under 2 ms per tick on it.
+  - Tried and dropped: restricting the Metal pass to vanilla's visible-section list (its cave and
+    occlusion graph). Vanilla only builds the sections its graph reaches, so the resident set is
+    already close to that list, and the GPU frustum test removes most of the rest. In a cave
+    reached after building the surface (`-PbenchmarkHeight=cave`), it removed under 0.1% of the quads
+    drawn with no change in GPU time. Building the list cost about 0.1 ms of render-thread time
+    per frame, and the pass had to start after vanilla's visibility update, losing the overlap.
+  - Not attempted: meshing on the GPU. Modded block models are Java code (baked models and the
+    Fabric renderer API), so they can only be meshed by running them, and repacking vanilla's
+    output already takes about 55 ms of worker time per 960,000 quads.
+  - The buffer swap takes 2.3–3.1 ms per frame with vanilla and Metal terrain alike. It is
+    macOS OpenGL presentation, outside what the mod draws, and was not changed.
 
 The in-game runs found and fixed these problems, which the synthetic tests missed:
 

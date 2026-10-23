@@ -97,10 +97,13 @@ kernel void cullAndEncodeSections(
         return;
     }
 
-    // Reset both ICB commands for this slot first so culled slots become no-ops.
-    render_command solidCmd(icbs.solidIcb, gid);
+    // Reset this slot's commands first so culled slots become no-ops. The solid ICB holds two commands
+    // per section: its solid range, then the opaque head of its cutout range (same pipeline).
+    render_command solidCmd(icbs.solidIcb, gid * 2u);
+    render_command opaqueCutoutCmd(icbs.solidIcb, gid * 2u + 1u);
     render_command cutoutCmd(icbs.cutoutIcb, gid);
     solidCmd.reset();
+    opaqueCutoutCmd.reset();
     cutoutCmd.reset();
 
     constant SectionGpuMeta& sec = sections[gid];
@@ -161,6 +164,21 @@ kernel void cullAndEncodeSections(
             gid
         );
         atomic_fetch_add_explicit(&statsWords[4], solidQuads, memory_order_relaxed);
+    }
+
+    uint opaqueHead = useLod ? 0u : min(sec.cutoutOpaqueQuads, cutoutQuads);
+    if (opaqueHead > 0u) {
+        opaqueCutoutCmd.draw_indexed_primitives(
+            primitive_type::triangle,
+            opaqueHead * 6u,
+            patternIndices,
+            1u,
+            cutoutBase,
+            gid
+        );
+        atomic_fetch_add_explicit(&statsWords[4], opaqueHead, memory_order_relaxed);
+        cutoutBase += opaqueHead * 4u;
+        cutoutQuads -= opaqueHead;
     }
 
     if (cutoutQuads > 0u) {

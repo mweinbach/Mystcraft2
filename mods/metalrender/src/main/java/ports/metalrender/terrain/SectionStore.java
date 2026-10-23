@@ -108,6 +108,7 @@ public final class SectionStore {
         slot.groupStart[g] = newStart;
         slot.groupQuads[g] = total;
         slot.quads[layer.ordinal()] = packed.quads();
+        slot.opaqueQuads[layer.ordinal()] = packed.opaqueQuads();
         slot.bounds[layer.ordinal()] = packed.quads() > 0 ? packed.bounds() : null;
         slot.meshletTemplates[layer.ordinal()] = packed.quads() > 0 ? packed.meshlets() : null;
         slot.meshletTemplateCounts[layer.ordinal()] = packed.quads() > 0 ? packed.meshletCount() : 0;
@@ -122,7 +123,7 @@ public final class SectionStore {
 
     public void clearLayer(final SectionSlot slot, final TerrainLayer layer) {
         if (!slot.released && slot.quads[layer.ordinal()] > 0) {
-            applyLayer(slot, layer, new PackedLayer(EMPTY, 0, null, EMPTY, 0));
+            applyLayer(slot, layer, new PackedLayer(EMPTY, 0, null, EMPTY, 0, 0));
         }
     }
 
@@ -243,7 +244,8 @@ public final class SectionStore {
         meta.putFloat(b + 16, box[0]);
         meta.putFloat(b + 20, box[1]);
         meta.putFloat(b + 24, box[2]);
-        meta.putFloat(b + 28, 0.0f);
+        // The cutout range starts with cutout-mipped quads, opaque ones first: those skip the alpha test.
+        meta.putInt(b + 28, slot.opaqueQuads[TerrainLayer.CUTOUT_MIPPED.ordinal()]);
         meta.putFloat(b + 32, box[3]);
         meta.putFloat(b + 36, box[4]);
         meta.putFloat(b + 40, box[5]);

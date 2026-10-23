@@ -21,6 +21,8 @@ public final class SectionSlot {
     final int originY;
     final int originZ;
     final int[] quads = new int[TerrainLayer.values().length];
+    /** Leading quads of each layer that need no alpha test. */
+    final int[] opaqueQuads = new int[TerrainLayer.values().length];
     final float[][] bounds = new float[TerrainLayer.values().length][];
     /** Each layer's meshlet templates from the packer (layer-relative base vertices). */
     final ByteBuffer[] meshletTemplates = new ByteBuffer[TerrainLayer.values().length];

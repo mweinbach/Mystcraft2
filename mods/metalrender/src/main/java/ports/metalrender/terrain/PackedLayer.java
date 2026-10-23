@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
  * @param meshlets {@code MeshletGpuMeta} templates with layer-relative base vertices
  *                 ({@code meshletCount * MESHLET_BYTES})
  * @param meshletCount number of meshlet templates
+ * @param opaqueQuads leading quads that need no alpha test (fully opaque texels)
  */
 public record PackedLayer(ByteBuffer data, int quads, @Nullable float[] bounds, ByteBuffer meshlets,
-                          int meshletCount) {
+                          int meshletCount, int opaqueQuads) {
 }

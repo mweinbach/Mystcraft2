@@ -64,6 +64,15 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
     private static final int SETTLE_TICKS = 40;
     private static final int TIMEOUT_TICKS = 20 * 300;
     private static final float PITCH = 15.0f;
+    /**
+     * Camera height above the spawn surface; small values put caves out of sight, where culling helps.
+     * {@code cave} instead puts the camera in the first cave found below the spawn.
+     */
+    private static final String HEIGHT = System.getProperty("metalrender.benchmark.height", "30");
+    private static final boolean CAVE = "cave".equals(HEIGHT);
+    /** Where the camera hovers, and for the cave pose the cave it moves to after building the surface. */
+    private static volatile BlockPos surfacePos;
+    private static volatile BlockPos cavePos;
     /** Comma-separated variant names to run; empty runs them all. */
     private static final String ONLY = System.getProperty("metalrender.benchmark.variants", "");
     private static final int QUERIES = 4;
@@ -92,12 +101,12 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
     private record Counters(long time, long packNanos, long packedQuads, long uploadNanos, long uploads,
                             long opaqueNanos, long beginNanos, long waitNanos, long overlapNanos,
                             long opaqueFrames, long vanillaNanos,
-                            long workerCpu, long swapNanos) {
+                            long workerCpu, long swapNanos, long spriteNanos, long sprites) {
         static Counters now() {
             return new Counters(System.nanoTime(), PerfStats.PACK_NANOS.sum(), PerfStats.PACKED_QUADS.sum(),
                     PerfStats.uploadNanos, PerfStats.uploads, PerfStats.opaqueNanos, PerfStats.beginNanos,
                     PerfStats.waitNanos, PerfStats.overlapNanos, PerfStats.opaqueFrames, PerfStats.vanillaTerrainNanos, workerCpuNanos(),
-                    MetalRenderBenchmark.swapNanos);
+                    MetalRenderBenchmark.swapNanos, PerfStats.spriteUploadNanos, PerfStats.spriteUploads);
         }
     }
 
@@ -107,6 +116,7 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
     private int variant = -1;
     private int stageTicks;
     private int stableTicks;
+    private boolean inCave;
     private long idleSince;
     private Counters stageStart;
 
@@ -121,6 +131,9 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
     private long[] levelNanos = new long[0];
     private double gpuMsSum;
     private int gpuSamples;
+    private double quadsSum;
+    private double residentSum;
+    private final int[] telemetry = new int[8];
     private final int[] glQueries = new int[QUERIES];
     private int glQueryFrame;
     private double glGpuMsSum;
@@ -170,9 +183,11 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
             final long ctx = MetalRenderClient.context();
             if (MetalRenderClient.isActive() && ctx != 0) {
                 final float[] gpu = new float[2];
-                MetalNative.readTelemetry(ctx, new int[8], gpu);
+                MetalNative.readTelemetry(ctx, telemetry, gpu);
                 if (spinFrame > SKIP_FRAMES) {
                     gpuMsSum += gpu[0];
+                    quadsSum += telemetry[4] + telemetry[5];
+                    residentSum += MetalRenderClient.store().residentSections();
                     gpuSamples++;
                 }
             }
@@ -202,6 +217,8 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
         levelNanos = new long[frames];
         gpuMsSum = 0.0;
         gpuSamples = 0;
+        quadsSum = 0.0;
+        residentSum = 0.0;
         glGpuMsSum = 0.0;
         glGpuSamples = 0;
         yawStart = minecraft.player.getYRot();
@@ -235,9 +252,10 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
             case WORLD -> {
                 minecraft.getSingleplayerServer().execute(() -> placePlayer(minecraft.getSingleplayerServer().overworld()));
                 report.add("capabilities: " + MetalRenderClient.capabilities().summary());
-                report.add(String.format("setup: render distance %d, %dx%d framebuffer, %d-frame lap, %d CPUs",
+                report.add(String.format("setup: render distance %d, %dx%d framebuffer, %d-frame lap, %d CPUs, "
+                                + "camera height %s",
                         DISTANCE, minecraft.getMainRenderTarget().width, minecraft.getMainRenderTarget().height,
-                        LAP_FRAMES, Runtime.getRuntime().availableProcessors()));
+                        LAP_FRAMES, Runtime.getRuntime().availableProcessors(), HEIGHT));
                 enter(Stage.LOAD);
             }
             case LOAD -> {
@@ -249,8 +267,14 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
                 }
             }
             case APPLY -> {
+                // The cave pose rebuilds from the surface, then moves into the cave, so the surface
+                // stays built but hidden, as after walking into a cave.
+                if (stageTicks == 1 && cavePos != null) {
+                    teleport(minecraft, surfacePos);
+                    inCave = false;
+                }
                 // applyConfig may queue its own allChanged for the next tick; rebuild after that.
-                if (stageTicks >= 3) {
+                if (stageTicks >= (cavePos != null ? 20 : 3)) {
                     setRotation(minecraft, 180.0f);
                     minecraft.levelRenderer.allChanged();
                     stageStart = Counters.now();
@@ -260,7 +284,11 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
                 }
             }
             case REBUILD -> {
-                if (settled(minecraft, SETTLE_TICKS)) {
+                if (cavePos != null && !inCave && settled(minecraft, SETTLE_TICKS)) {
+                    teleport(minecraft, cavePos);
+                    inCave = true;
+                    stableTicks = 0;
+                } else if (settled(minecraft, SETTLE_TICKS)) {
                     final Counters end = Counters.now();
                     report.add(rebuildLine(stageStart, end, idleSince));
                     startSpin(minecraft, LAP_FRAMES / 2);
@@ -384,16 +412,23 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
         line.append(String.format(" | swap %.2f ms, frame minus swap %.2f ms", swapMs, meanFrame / 1e6 - swapMs));
         if (metal) {
             line.append(String.format(" | Metal pass CPU %.3f ms (begin %.3f, wait %.3f; %.3f ms of vanilla work "
-                            + "overlapped), GPU %.3f ms",
+                            + "overlapped), GPU %.3f ms, %.0f opaque quads drawn of %.0f resident sections",
                     (b.opaqueNanos() - a.opaqueNanos()) / 1e6 / opaqueFrames,
                     (b.beginNanos() - a.beginNanos()) / 1e6 / opaqueFrames,
                     (b.waitNanos() - a.waitNanos()) / 1e6 / opaqueFrames,
                     (b.overlapNanos() - a.overlapNanos()) / 1e6 / opaqueFrames,
-                    gpuSamples == 0 ? 0.0 : gpuMsSum / gpuSamples));
+                    gpuSamples == 0 ? 0.0 : gpuMsSum / gpuSamples, gpuSamples == 0 ? 0.0 : quadsSum / gpuSamples,
+                    gpuSamples == 0 ? 0.0 : residentSum / gpuSamples));
         } else {
-            line.append(String.format(" | vanilla solid+cutout CPU %.3f ms", (b.vanillaNanos() - a.vanillaNanos()) / 1e6 / n));
+            line.append(String.format(" | vanilla solid+cutout CPU %.3f ms, %d sections rendered",
+                    (b.vanillaNanos() - a.vanillaNanos()) / 1e6 / n, Minecraft.getInstance().levelRenderer.countRenderedChunks()));
         }
         line.append(String.format(" | uploads during lap %d", b.uploads() - a.uploads()));
+        if (metal) {
+            final long sprites = b.sprites() - a.sprites();
+            line.append(String.format(" | %d animated sprite uploads, %.1f us each", sprites,
+                    sprites == 0 ? 0.0 : (b.spriteNanos() - a.spriteNanos()) / 1e3 / sprites));
+        }
         return line.toString();
     }
 
@@ -463,7 +498,7 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
         minecraft.options.save();
     }
 
-    /** Hovers the player, flying, 30 blocks above the spawn surface at noon. */
+    /** Hovers the player, flying, {@link #HEIGHT} blocks above the spawn surface at noon. */
     private static void placePlayer(final ServerLevel level) {
         final GameRules rules = level.getGameRules();
         rules.getRule(GameRules.RULE_DAYLIGHT).set(false, level.getServer());
@@ -473,9 +508,41 @@ public final class MetalRenderBenchmark implements ClientModInitializer {
         level.setWeatherParameters(6000, 0, false, false);
         final BlockPos spawn = level.getSharedSpawnPos();
         final int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX(), spawn.getZ());
+        surfacePos = new BlockPos(spawn.getX(), ground + (CAVE ? 30 : Integer.parseInt(HEIGHT)), spawn.getZ());
+        cavePos = CAVE ? findCave(level, spawn) : null;
         final ServerPlayer player = level.getServer().getPlayerList().getPlayers().get(0);
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
-        player.teleportTo(level, spawn.getX() + 0.5, ground + 30.0, spawn.getZ() + 0.5, 180.0f, PITCH);
+        player.teleportTo(level, surfacePos.getX() + 0.5, surfacePos.getY(), surfacePos.getZ() + 0.5, 180.0f, PITCH);
+    }
+
+    private static void teleport(final Minecraft minecraft, final BlockPos at) {
+        final var server = minecraft.getSingleplayerServer();
+        server.execute(() -> server.getPlayerList().getPlayers().get(0).teleportTo(server.overworld(),
+                at.getX() + 0.5, at.getY(), at.getZ() + 0.5, 180.0f, PITCH));
+    }
+
+    /** First enclosed air pocket (two blocks tall, 12+ blocks underground) near the spawn, scanning outwards. */
+    private static BlockPos findCave(final ServerLevel level, final BlockPos spawn) {
+        for (int r = 0; r <= 48; r += 4) {
+            for (int dx = -r; dx <= r; dx += 4) {
+                for (int dz = -r; dz <= r; dz += 4) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                        continue;
+                    }
+                    final int x = spawn.getX() + dx;
+                    final int z = spawn.getZ() + dz;
+                    final int top = level.getHeight(Heightmap.Types.OCEAN_FLOOR, x, z) - 12;
+                    for (int y = top; y > level.getMinBuildHeight() + 8; y--) {
+                        final BlockPos pos = new BlockPos(x, y, z);
+                        if (level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir()
+                                && !level.getBlockState(pos.below()).isAir() && !level.canSeeSky(pos)) {
+                            return pos;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

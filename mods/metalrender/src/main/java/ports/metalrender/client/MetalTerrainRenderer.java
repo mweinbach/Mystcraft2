@@ -221,6 +221,7 @@ public final class MetalTerrainRenderer {
         if (ctx == 0 || atlasDirty || !TextureAtlas.LOCATION_BLOCKS.equals(atlas)) {
             return;
         }
+        final long start = System.nanoTime();
         for (int level = 0; level < frames.length; level++) {
             final int w = width >> level;
             final int h = height >> level;
@@ -233,6 +234,8 @@ public final class MetalTerrainRenderer {
                         w, h, frames[level].getWidth(), pixels);
             }
         }
+        PerfStats.spriteUploadNanos += System.nanoTime() - start;
+        PerfStats.spriteUploads++;
     }
 
     public static void onLightmapUpdated(final NativeImage lightPixels) {
