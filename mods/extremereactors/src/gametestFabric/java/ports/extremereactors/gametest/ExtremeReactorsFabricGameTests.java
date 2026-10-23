@@ -93,6 +93,11 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
         ExtremeReactorsGameTests.reactorMekanismPortFollowsMekanism(helper, FabricLoaderApis.INSTANCE);
     }
 
+    @GameTest(template = EMPTY)
+    public void fluidBucketsThroughLoaderApis(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.fluidBucketsThroughLoaderApis(helper, FabricLoaderApis.INSTANCE);
+    }
+
     @GameTest(template = EMPTY, timeoutTicks = ExtremeReactorsGameTests.SIMULATION_TIMEOUT)
     public void computerPortControlsTheReactor(final GameTestHelper helper) {
         ExtremeReactorsGameTests.computerPortControlsTheReactor(helper);

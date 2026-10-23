@@ -329,6 +329,7 @@ Gaps and risks:
 | `activeReactorBoilsWater`, `turbineSpinsOnSteam` | Coolant, vapor and the turbine. |
 | `dataPacketsUpdateAnAssembledTurbine` | Block entity packets update an already assembled client machine. |
 | `reactorItemsAndEnergyThroughLoaderApis`, `reactorCoolantThroughLoaderApis` | Forge capabilities on Forge; the Transfer API and Reborn Energy on Fabric. |
+| `fluidBucketsThroughLoaderApis` | Each of the ten fluid buckets drains a full bucket of its fluid into an empty bucket, and an empty bucket filled with that fluid becomes it, through `IFluidHandlerItem` on Forge and `FluidStorage.ITEM` on Fabric. Partial amounts and filling a full bucket move nothing, as with vanilla buckets. |
 | `recipeConditionsAndTags` | Config conditions, all 16 steel and steel-free recipe pairs, `c:` and `forge:` tags, reactant, coil and moderator lookups. The Fabric server puts netherite ingots in `c:steel_ingots` through the test-only `steel` data pack, so it covers the steel recipes; Forge covers the steel-free ones, and the steel ones with `-PwithMekanism`. |
 | `oreFeaturesPlaceAtUpstreamHeights` | The ore placed features decode to upstream's heights. |
 | `oreGenerationFollowsConfig` | The ores are in their biomes exactly when their worldgen switches are on, and not elsewhere. |
@@ -337,7 +338,7 @@ Gaps and risks:
 | `ModelReplacementsTest`, `BlockStateModelsTest` (JUnit, Fabric build) | The Fabric model provider: which ids and blocks it claims, builders running once each in Forge's order and seeing originals and earlier replacements, and blockstate variant matching. |
 | `StorageItemHandlerTest` (JUnit, Fabric build) | Walking another mod's item storage slot by slot iterates it once, and each `getSlots()` sees its current size. |
 | `apiEntrypointMessagesApplyLikeImc` (Fabric only) | A test-only `bigreactors:api` entrypoint's coil material registrations and removals apply like Forge IMC messages; an unknown method is skipped. Forge has no entrypoint; its IMC path shares `onInterModProcess`. |
-| `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism`, Mekanism sees a gas handler holding the reactor's steam as `mekanism:steam` and can drain it. Forge uses Mekanism 10.3.9; Fabric uses this repository's Mekanism port. |
+| `reactorMekanismPortFollowsMekanism` | Without Mekanism, the Mekanism port exposes nothing. With `-PwithMekanism`, Mekanism's own gas capability on the port (on Fabric the port's capability bridge, which falls back to the `mekanism:gas_handler` lookup) holds the reactor's steam as `mekanism:steam` and drains it; then a Mekanism pressurized tube, its port side set to pull as the configurator does, carries steam into a Mekanism chemical tank. Forge uses Mekanism 10.3.9; Fabric uses this repository's Mekanism port. The turbine has no Mekanism port (upstream leaves it as a TODO), so only the reactor is covered. |
 
 Still to check on a Fabric client after the model loading API change: the
 assembled casings, glass, fuel rods and turbine rotor render as before, also

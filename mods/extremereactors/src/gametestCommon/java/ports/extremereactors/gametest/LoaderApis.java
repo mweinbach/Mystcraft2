@@ -15,8 +15,9 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
- * What another mod sees of our blocks, through each loader's own item, fluid and energy APIs: Forge capabilities on
- * Forge, the Transfer API and Team Reborn Energy on Fabric. Amounts are in items, millibuckets and FE (1 E per FE).
+ * What another mod sees of our blocks and items, through each loader's own item, fluid and energy APIs: Forge
+ * capabilities on Forge, the Transfer API and Team Reborn Energy on Fabric. Amounts are in items, millibuckets and FE
+ * (1 E per FE).
  */
 public interface LoaderApis {
 
@@ -32,8 +33,28 @@ public interface LoaderApis {
     /** The label players know the loader's energy unit by. */
     String energyUnit();
 
-    /** The first tank of the Mekanism gas handler exposed at the position, or empty if there is none. */
-    Optional<GasTank> mekanismGas(ServerLevel level, BlockPos position, Direction side);
+    /**
+     * Drain up to the given millibuckets from a copy of the stack through the loader's item fluid API
+     * ({@code IFluidHandlerItem} on Forge, {@code FluidStorage.ITEM} on Fabric).
+     *
+     * @throws net.minecraft.gametest.framework.GameTestAssertException if the item offers no fluid handler
+     */
+    ItemFluidTransfer drainItem(ItemStack stack, int millibuckets);
+
+    /**
+     * Fill a copy of the stack with up to the given millibuckets of the fluid through the loader's item fluid API.
+     *
+     * @throws net.minecraft.gametest.framework.GameTestAssertException if the item offers no fluid handler
+     */
+    ItemFluidTransfer fillItem(ItemStack stack, Fluid fluid, int millibuckets);
+
+    /**
+     * The first tank of the Mekanism gas handler exposed at the position, or empty if there is none. The handler is
+     * looked up the way Mekanism's own blocks look up their neighbours.
+     *
+     * @param side the side being accessed, or null for the block's internal view
+     */
+    Optional<GasTank> mekanismGas(ServerLevel level, BlockPos position, @Nullable Direction side);
 
     /** Extract up to the given amount of gas through Mekanism and return how much was extracted. */
     long extractMekanismGas(ServerLevel level, BlockPos position, Direction side, long maxAmount);
@@ -42,5 +63,15 @@ public interface LoaderApis {
      * @param gas the gas id, or null when the tank is empty
      */
     record GasTank(@Nullable ResourceLocation gas, long stored, long capacity) {
+    }
+
+    /**
+     * The result of moving fluid in or out of an item.
+     *
+     * @param fluid        the fluid moved, or null if none was
+     * @param millibuckets how much fluid was moved
+     * @param container    the item left afterwards
+     */
+    record ItemFluidTransfer(@Nullable Fluid fluid, long millibuckets, ItemStack container) {
     }
 }

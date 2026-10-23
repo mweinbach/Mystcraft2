@@ -6,6 +6,7 @@ package ports.extremereactors.gametest;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -16,11 +17,13 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import ports.extremereactors.corelib.compat.mekanism.MekanismGas;
 import ports.extremereactors.platform.Platform;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -61,7 +64,26 @@ final class ForgeLoaderApis implements LoaderApis {
     }
 
     @Override
-    public Optional<GasTank> mekanismGas(final ServerLevel level, final BlockPos position, final Direction side) {
+    public ItemFluidTransfer drainItem(final ItemStack stack, final int millibuckets) {
+
+        final IFluidHandlerItem handler = itemHandler(stack);
+        final FluidStack drained = handler.drain(millibuckets, IFluidHandler.FluidAction.EXECUTE);
+
+        return new ItemFluidTransfer(drained.isEmpty() ? null : drained.getFluid(), drained.getAmount(),
+                handler.getContainer());
+    }
+
+    @Override
+    public ItemFluidTransfer fillItem(final ItemStack stack, final Fluid fluid, final int millibuckets) {
+
+        final IFluidHandlerItem handler = itemHandler(stack);
+        final int filled = handler.fill(new FluidStack(fluid, millibuckets), IFluidHandler.FluidAction.EXECUTE);
+
+        return new ItemFluidTransfer(0 == filled ? null : fluid, filled, handler.getContainer());
+    }
+
+    @Override
+    public Optional<GasTank> mekanismGas(final ServerLevel level, final BlockPos position, @Nullable final Direction side) {
         return Platform.isModLoaded(MekanismGas.MOD_ID) ? ForgeMekanismGas.find(level, position, side) : Optional.empty();
     }
 
@@ -69,6 +91,12 @@ final class ForgeLoaderApis implements LoaderApis {
     public long extractMekanismGas(final ServerLevel level, final BlockPos position, final Direction side,
                                    final long maxAmount) {
         return Platform.isModLoaded(MekanismGas.MOD_ID) ? ForgeMekanismGas.extract(level, position, side, maxAmount) : 0;
+    }
+
+    private static IFluidHandlerItem itemHandler(final ItemStack stack) {
+        return stack.copy().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve()
+                .orElseThrow(() -> new GameTestAssertException("no IFluidHandlerItem on "
+                        + Registry.ITEM.getKey(stack.getItem())));
     }
 
     private static <T> T capability(final ServerLevel level, final BlockPos position, final Capability<T> capability,
