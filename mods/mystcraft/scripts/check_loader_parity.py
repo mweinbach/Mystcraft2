@@ -15,12 +15,30 @@ forge = MOD / 'build/libs' / f'mystcraft-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'mystcraft-fabric-1.19.2-{version}.jar'
 
 GAMETEST_SOURCES = [MOD / 'src' / name / 'java' for name in ('gametestCommon', 'gametestForge', 'gametestFabric')]
+fluid_physics = parity.read_properties(MOD.parent / 'fluidphysics/port.properties')
+# Fabric include()s; Forge nests MixinExtras under META-INF/jarjar instead.
+NESTED = (
+    'META-INF/jars/mixinextras-fabric-0.4.1.jar',
+    f"META-INF/jars/fluidphysics-fabric-1.19.2-{fluid_physics['mod_version']}.jar",
+)
+ICON = 'assets/mystcraft/icon.png'
+REPOSITORY = 'https://github.com/mweinbach/Mystcraft2'
+BIOME_TAG = 'data/mystcraft/tags/worldgen/biome/has_exploration.json'
 
 
 with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(a.testzip() is None and b.testzip() is None, 'Corrupt artifact')
     fm, bm = parity.check_descriptors(a, b, mod_id='mystcraft', version=version,
                                      description=metadata['mod_description'])
+    parity.require(bm['depends'].get('fluidphysics'), 'Fabric build must depend on Fluid Physics')
+    parity.check_nested_libraries(a, b, bm, NESTED)
+    parity.require(bm.get('icon') == ICON and ICON in b.namelist(), 'Fabric icon missing')
+    parity.require(fm.get('logoFile') == ICON and ICON in a.namelist(), 'Forge logoFile missing')
+    for key in ('homepage', 'sources', 'issues'):
+        parity.require(bm.get('contact', {}).get(key, '').startswith(REPOSITORY), f'Fabric contact.{key} missing')
+    parity.require(BIOME_TAG in a.namelist() and BIOME_TAG in b.namelist(), 'Shared exploration biome tag missing')
+    modifier = json.loads(a.read('data/mystcraft/forge/biome_modifier/exploration.json'))
+    parity.require(modifier.get('biomes') == '#mystcraft:has_exploration', 'Forge exploration modifier must select the shared biome tag')
     parity.check_cross_loader(a, b)
     parity.check_gametests((a, b), *GAMETEST_SOURCES)
     paths = parity.gameplay_paths(a)
@@ -52,9 +70,11 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
         else:
             parity.require('LegacyTreasureLootMixin' not in settings.get('mixins', []), 'Fabric must use LootTableEvents, not a loot mixin')
         if jar is b:
+            # Black ink's entity, boat and path-type physics come from the bundled Fluid Physics library.
             for name in ('InkEntityPhysicsMixin', 'InkBoatPhysicsMixin'):
-                parity.require(name in settings.get('mixins', []), f'Missing native ink physics hook: {name}')
-                parity.require(mapped_prefix in json.dumps(mappings.get(namespace + name, {})), f'Missing production ink mapping: {name}')
+                parity.require(name not in settings.get('mixins', []) + settings.get('client', []),
+                               f'Hand-rolled ink physics mixin is back; register ink with Fluid Physics instead: {name}')
+                parity.require(f'net/mystcraft/fabric/mixin/{name}.class' not in jar.namelist(), f'Stale ink physics mixin shipped: {name}')
         accessor = 'WorldGenRegionBoundsMixin'
         parity.require(accessor in settings.get('mixins', []), f'Missing common bounds accessor: {config}')
         parity.require(('f_' if jar is a else 'field_') in json.dumps(mappings.get(namespace + accessor, {})),

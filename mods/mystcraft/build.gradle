@@ -40,7 +40,7 @@ dependencies {
 sourceSets {
     gametest {
         java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
-        resources.srcDirs = ['src/gametestForge/resources']
+        resources.srcDirs = ['src/gametestCommon/resources', 'src/gametestForge/resources']
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }

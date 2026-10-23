@@ -6,3 +6,10 @@ pluginManagement {
     }
 }
 rootProject.name = 'mystcraft-fabric'
+
+// The Fluid Physics library is bundled into this JAR and gives black ink Forge FluidType entity physics on Fabric.
+includeBuild('../../fluidphysics') {
+    dependencySubstitution {
+        substitute module('ports.fluidphysics:fluidphysics-fabric') using project(':')
+    }
+}

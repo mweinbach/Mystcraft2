@@ -1,12 +1,17 @@
 modLoader="javafml"
 loaderVersion="[43,44)"
 license="${mod_license}"
+issueTrackerURL="https://github.com/mweinbach/Mystcraft2/issues"
 
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
+displayURL="https://github.com/mweinbach/Mystcraft2"
+# The 16x16 linking-book texture; keep it sharp when the mod list scales it.
+logoFile="assets/mystcraft/icon.png"
+logoBlur=false
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]
