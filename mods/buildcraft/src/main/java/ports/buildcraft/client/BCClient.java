@@ -113,6 +113,8 @@ public final class BCClient {
         MenuScreens.register(BCEnergy.COMBUSTION_ENGINE_MENU.get(), CombustionEngineScreen::new);
         MenuScreens.register(BCFactory.DISTILLER_MENU.get(), DistillerScreen::new);
         MenuScreens.register(BCTransport.DIAMOND_PIPE_MENU.get(), DiamondPipeScreen::new);
+        MenuScreens.register(BCTransport.DIAMOND_WOOD_PIPE_MENU.get(), DiamondWoodPipeScreen::new);
+        MenuScreens.register(BCTransport.EMZULI_PIPE_MENU.get(), EmzuliPipeScreen::new);
         MenuScreens.register(BCBuilders.FILLER_MENU.get(), FillerScreen::new);
         MenuScreens.register(BCBuilders.ARCHITECT_TABLE_MENU.get(), ArchitectTableScreen::new);
         MenuScreens.register(BCBuilders.BUILDER_MENU.get(), BuilderScreen::new);

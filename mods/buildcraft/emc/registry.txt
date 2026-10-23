@@ -143,6 +143,10 @@ buildcraft:pipe_daizuli_item
 buildcraft:pipe_diamond_fluid
 buildcraft:pipe_diamond_item
 buildcraft:pipe_diamond_power
+buildcraft:pipe_diamond_wood_fluid
+buildcraft:pipe_diamond_wood_item
+buildcraft:pipe_diamond_wood_power
+buildcraft:pipe_emzuli_item
 buildcraft:pipe_gold_fluid
 buildcraft:pipe_gold_item
 buildcraft:pipe_gold_power
@@ -160,6 +164,7 @@ buildcraft:pipe_sandstone_power
 buildcraft:pipe_stone_fluid
 buildcraft:pipe_stone_item
 buildcraft:pipe_stone_power
+buildcraft:pipe_stripes_item
 buildcraft:pipe_structure
 buildcraft:pipe_void_fluid
 buildcraft:pipe_void_item

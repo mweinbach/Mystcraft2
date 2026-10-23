@@ -376,6 +376,21 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
     public static void obsidianPipeSucksItemsInRange(GameTestHelper helper) { SortingPipeTests.obsidianPipeSucksItemsInRange(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void diamondWoodPipeExtractsByFilterMode(GameTestHelper helper) { ExtractionPipeTests.diamondWoodPipeExtractsByFilterMode(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void diamondWoodFluidPipeHasNoRoundRobin(GameTestHelper helper) { ExtractionPipeTests.diamondWoodFluidPipeHasNoRoundRobin(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void emzuliPipeExtractsPerPresetAndPaints(GameTestHelper helper) { ExtractionPipeTests.emzuliPipeExtractsPerPresetAndPaints(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void stripesPipePlacesBreaksAndDrops(GameTestHelper helper) { StripesPipeTests.stripesPipePlacesBreaksAndDrops(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void stripesPipeTurnsByGate(GameTestHelper helper) { StripesPipeTests.stripesPipeTurnsByGate(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

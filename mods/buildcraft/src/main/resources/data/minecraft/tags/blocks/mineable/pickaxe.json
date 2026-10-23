@@ -33,6 +33,9 @@
     "buildcraft:pipe_obsidian_item",
     "buildcraft:pipe_lapis_item",
     "buildcraft:pipe_daizuli_item",
+    "buildcraft:pipe_diamond_wood_item",
+    "buildcraft:pipe_emzuli_item",
+    "buildcraft:pipe_stripes_item",
     "buildcraft:pipe_wood_fluid",
     "buildcraft:pipe_cobblestone_fluid",
     "buildcraft:pipe_stone_fluid",
@@ -43,6 +46,7 @@
     "buildcraft:pipe_diamond_fluid",
     "buildcraft:pipe_clay_fluid",
     "buildcraft:pipe_void_fluid",
+    "buildcraft:pipe_diamond_wood_fluid",
     "buildcraft:pipe_wood_power",
     "buildcraft:pipe_cobblestone_power",
     "buildcraft:pipe_stone_power",
@@ -51,6 +55,7 @@
     "buildcraft:pipe_sandstone_power",
     "buildcraft:pipe_iron_power",
     "buildcraft:pipe_diamond_power",
+    "buildcraft:pipe_diamond_wood_power",
     "buildcraft:pipe_structure"
   ]
 }

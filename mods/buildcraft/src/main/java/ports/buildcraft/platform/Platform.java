@@ -1,5 +1,6 @@
 package ports.buildcraft.platform;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -85,6 +87,13 @@ public final class Platform {
          * the shared item and registers that renderer from its client entrypoint.
          */
         Item createFacadeItem(Item.Properties properties);
+
+        /**
+         * Upstream {@code IFakePlayerProvider}: a server player that is not connected, for machines that use items
+         * and interact with the world as a player would. Forge returns its {@code FakePlayer}; Fabric API for 1.19.2
+         * has none, so Fabric returns its own disconnected player.
+         */
+        ServerPlayer fakePlayer(ServerLevel level, GameProfile profile);
     }
 
     /** A client-to-server message, handled on the server thread. */

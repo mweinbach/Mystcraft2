@@ -106,14 +106,21 @@ PIPES = [
     pipe("lapis_item", "lapis_item_white", title="Lazuli Transport Pipe", coloured="lapis_item_{colour}", colour_mode="all"),
     pipe("daizuli_item", "daizuli_item_filled", item_texture="daizuli_item_white", title="Daizuli Transport Pipe",
          coloured="daizuli_item_{colour}", colour_mode="special"),
+    # Upstream BCTransportPipes texSuffixes("_clear", "_filled") with the clear texture as the item, as for wood.
+    pipe("diamond_wood_item", "diamond_wood_item_clear", "diamond_wood_item_filled", title="Wooden Diamond Transport Pipe"),
+    pipe("emzuli_item", "emzuli_item_clear", "emzuli_item_filled", title="Emzuli Transport Pipe"),
+    # The stripes pipe's gold rod on its acting end is drawn by STRIPES_ROD below.
+    pipe("stripes_item", title="Stripes Transport Pipe"),
     pipe("wood_fluid", "wood_fluid_clear", "wood_fluid_filled"),
     pipe("cobblestone_fluid"), pipe("stone_fluid"), pipe("quartz_fluid"), pipe("gold_fluid"), pipe("sandstone_fluid"),
     pipe("iron_fluid", "iron_fluid_filled", "iron_fluid_clear"),
     pipe("diamond_fluid", faces={d: "diamond_fluid_" + d for d in DIRECTIONS}, item_texture="diamond_fluid_itemstack"),
     pipe("clay_fluid"), pipe("void_fluid"),
+    pipe("diamond_wood_fluid", "diamond_wood_fluid_clear", "diamond_wood_fluid_filled", title="Wooden Diamond Fluid Pipe"),
     pipe("wood_power", "wood_power_clear", "wood_power_filled"),
     pipe("cobblestone_power"), pipe("stone_power"), pipe("quartz_power"), pipe("gold_power"), pipe("sandstone_power"),
     limiter("iron_power"), limiter("diamond_power"),
+    pipe("diamond_wood_power", "diamond_wood_power_clear", "diamond_wood_power_filled", title="Wooden Diamond Kinesis Pipe"),
     pipe("structure", title="Cobblestone Structure Pipe"),
 ]
 
@@ -152,7 +159,12 @@ PIPE_MATERIALS = {
     "obsidian": ({"item": "minecraft:obsidian"}, {"item": "minecraft:obsidian"}),
     "lapis": ({"item": "minecraft:lapis_block"}, {"item": "minecraft:lapis_block"}),
     "daizuli": ({"item": "minecraft:lapis_block"}, DIAMOND),
+    "diamond_wood": (PLANKS, DIAMOND),
+    "stripes": (gear("gold"), gear("gold")),
 }
+
+# Upstream BCTransportRecipes.addPipeUpgradeRecipe between item pipes: (from, to, additional), with an "_undo" recipe.
+ITEM_PIPE_UPGRADES = [("diamond_wood_item", "emzuli_item", {"item": "minecraft:lapis_block"})]
 
 # Vanilla members of every tag the recipes use, defined under both namespaces so that recipes
 # resolve on either loader even without other mods.
@@ -297,6 +309,8 @@ class Generator:
         self.copy("buildcraftenergy/textures/gui/steam_engine_gui.png", "gui/stirling_engine.png")
         self.copy("buildcraftenergy/textures/gui/combustion_engine_gui.png", "gui/combustion_engine.png")
         self.copy("buildcrafttransport/textures/gui/filter.png", "gui/diamond_pipe.png")
+        for gui in ["pipe_emerald", "pipe_emerald_button", "pipe_emzuli"]:
+            self.copy(f"buildcrafttransport/textures/gui/{gui}.png", f"gui/{gui}.png")
 
         for name, heat, light, dark, _ in FLUIDS:
             for kind in ["still", "flow"]:
@@ -478,10 +492,38 @@ class Generator:
                                               "apply": {"model": self.pipe_part(coloured, "arm", direction, made)}})
                     else:
                         multipart.append({"when": {direction: "special", **extra}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
+            if definition["name"] == "stripes_item":
+                multipart += self.stripes_rod()
             self.blockstate(name, {"multipart": multipart})
             self.model(f"item/{name}", {"parent": rl("item/pipe_base"), "textures": {"pipe": rl("block/pipe/" + definition["item"])}})
             self.lang[f"block.{MOD}.{name}"] = definition["title"]
         self.lang[f"tip.block.{MOD}.pipe_structure"] = "Support pipe"
+        # Upstream en_US.lang strings of GuiDiamondWoodPipe and GuiEmzuliPipe.
+        self.lang.update({
+            "gui.pipes.emerald.title": "Filters",
+            "tip.PipeItemsEmerald.whitelist": "Whitelist",
+            "tip.PipeItemsEmerald.blacklist": "Blacklist",
+            "tip.PipeItemsEmerald.roundrobin": "Round Robin (In Order)",
+            "gui.pipes.emzuli.title": "Extraction Presets",
+            "gui.pipes.emzuli.paint": "Paint Items %s",
+            "gui.pipes.emzuli.nopaint": "Don't Paint Items",
+        })
+
+    # Vanilla blockstate rotations of a north-pointing model to each direction.
+    ROTATIONS = {"north": {}, "east": {"y": 90}, "south": {"y": 180}, "west": {"y": 270}, "down": {"x": 90}, "up": {"x": 270}}
+
+    def stripes_rod(self) -> list[dict]:
+        """
+        Upstream BCTransportModels' models/pipes/stripes.json: a gold rod on the acting end, there pointing west and
+        rotated by builtin:rotate_facing, here pointing north and rotated by the block's "direction" state.
+        """
+        gold = {"uv": [0, 0, 16, 16], "texture": "#rod"}
+        self.model("block/pipe/stripes_rod", {
+            "textures": {"particle": "minecraft:block/gold_block", "rod": "minecraft:block/gold_block"},
+            "elements": [{"from": [7.5, 7.5, 0], "to": [8.5, 8.5, 4], "faces": {d: gold for d in DIRECTIONS}}],
+        })
+        return [{"when": {"direction": direction}, "apply": {"model": rl("block/pipe/stripes_rod"), **rotation}}
+                for direction, rotation in self.ROTATIONS.items()]
 
     # Upstream ModelItemSimple.TRANSFORM_PLUG_AS_ITEM, the display of ModelPluggableItem.
     PLUG_ITEM_DISPLAY = {
@@ -979,6 +1021,8 @@ class Generator:
             self.copy(f"buildcrafttransport/textures/triggers/trigger_pipecontents_{contents}.png", f"triggers/trigger_pipecontents_{contents}.png")
         for limit in ["m256", "m128", "m64", "m16", "m8", "m2", "m0"]:
             self.copy(f"buildcrafttransport/textures/triggers/trigger_limiter_{limit}.png", f"triggers/trigger_limiter_{limit}.png")
+        for colour in ["red", "green", "blue", "yellow"]:
+            self.copy(f"buildcrafttransport/textures/triggers/extraction_preset_{colour}.png", f"triggers/extraction_preset_{colour}.png")
 
         # Upstream en_US.lang, whose %d placeholders become %s.
         self.lang.update({
@@ -1008,6 +1052,7 @@ class Generator:
             "gate.action.pipe.power_limit": "Switch to %s MJ/t limit",
             "chat.pipe.power.iron.mode": "Switched to %s MJ/t limit",
             "gate.action.pipe.item.color": "Paint Items %s",
+            "gate.action.extraction": "%s Extraction Preset",
             "chat.gateCopier.gateCopied": "Copied gate information to copier.",
             "chat.gateCopier.gatePasted": "Pasted copied data to gate.",
             "chat.gateCopier.noInformation": "No gate information stored!",
@@ -1250,6 +1295,9 @@ class Generator:
             if f"{material}_item" in names:
                 self.shaped(f"pipe_{material}_item", f"pipe_{material}_item", ["lgr"], {"l": left, "g": GLASS, "r": right}, count=8)
         self.shaped("pipe_structure", "pipe_structure", ["cgc"], {"c": COBBLESTONE, "g": {"item": "minecraft:gravel"}}, count=8)
+        for source, target, extra in ITEM_PIPE_UPGRADES:
+            self.shapeless(f"pipe_{target}", f"pipe_{target}", [{"item": rl(f"pipe_{source}")}, extra])
+            self.shapeless(f"pipe_{target}_undo", f"pipe_{source}", [{"item": rl(f"pipe_{target}")}])
         for definition in PIPES:
             if definition["name"] == "structure":
                 continue

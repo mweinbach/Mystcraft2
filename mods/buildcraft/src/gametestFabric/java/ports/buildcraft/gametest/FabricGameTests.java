@@ -374,6 +374,21 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public void obsidianPipeSucksItemsInRange(GameTestHelper helper) { SortingPipeTests.obsidianPipeSucksItemsInRange(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void diamondWoodPipeExtractsByFilterMode(GameTestHelper helper) { ExtractionPipeTests.diamondWoodPipeExtractsByFilterMode(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void diamondWoodFluidPipeHasNoRoundRobin(GameTestHelper helper) { ExtractionPipeTests.diamondWoodFluidPipeHasNoRoundRobin(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void emzuliPipeExtractsPerPresetAndPaints(GameTestHelper helper) { ExtractionPipeTests.emzuliPipeExtractsPerPresetAndPaints(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void stripesPipePlacesBreaksAndDrops(GameTestHelper helper) { StripesPipeTests.stripesPipePlacesBreaksAndDrops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void stripesPipeTurnsByGate(GameTestHelper helper) { StripesPipeTests.stripesPipeTurnsByGate(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

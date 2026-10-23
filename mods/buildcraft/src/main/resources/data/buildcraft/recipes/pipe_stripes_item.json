@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "lgr"
+  ],
+  "key": {
+    "l": [
+      {
+        "tag": "c:gold_gears"
+      },
+      {
+        "tag": "forge:gears/gold"
+      }
+    ],
+    "g": [
+      {
+        "tag": "c:glass_blocks"
+      },
+      {
+        "tag": "forge:glass/colorless"
+      }
+    ],
+    "r": [
+      {
+        "tag": "c:gold_gears"
+      },
+      {
+        "tag": "forge:gears/gold"
+      }
+    ]
+  },
+  "result": {
+    "item": "buildcraft:pipe_stripes_item",
+    "count": 8
+  }
+}

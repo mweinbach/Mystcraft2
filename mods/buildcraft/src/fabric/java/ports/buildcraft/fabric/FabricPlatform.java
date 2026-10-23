@@ -1,5 +1,6 @@
 package ports.buildcraft.fabric;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -285,5 +287,10 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public Item createFacadeItem(Item.Properties properties) {
         return new FacadeItem(properties);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return FabricFakePlayer.get(level, profile);
     }
 }

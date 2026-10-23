@@ -1,5 +1,6 @@
 package ports.buildcraft.forge;
 
+import com.mojang.authlib.GameProfile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -47,6 +49,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -223,5 +226,10 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public Item createFacadeItem(Item.Properties properties) {
         return new ForgeFacadeItem(properties);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return FakePlayerFactory.get(level, profile);
     }
 }
