@@ -32,18 +32,43 @@ None.
 
 ## Recipes other mods enable
 
-These recipes load only alongside another mod. Their ingredients are priced at the values that mod's port ships, and every output takes the cheapest of all its recipes, so no recipe gains EMC with or without the mod.
+These recipes load only alongside another mod, or accept more items there because that mod fills a tag they use. Their ingredients are priced at the values that mod's port ships, and every output takes the cheapest of all its recipes, so no recipe gains EMC with or without the mod.
 
 | Mod | Port | Why |
 | --- | --- | --- |
-| `mekanism` | [`mods/mekanism`](../../mekanism/emc/README.md) | The atomic-alloy alternatives of the nuclear, antimatter and red matter explosives load only with Mekanism, and Mekanism fills the uranium tags the uranium nuclear recipe needs. Item Alchemy ships fixed values, so these tiers must already be worth no more than their cheapest Mekanism recipe; Mekanism's items are priced at the values mods/mekanism ships. |
+| `mekanism` | [`mods/mekanism`](../../mekanism/emc/README.md) | The atomic-alloy alternatives of the nuclear, antimatter and red matter explosives load only with Mekanism, and Mekanism fills the uranium tags the uranium nuclear recipe needs. Item Alchemy ships fixed values, so these tiers must already be worth no more than their cheapest Mekanism recipe; Mekanism also adds items to tags ICBM's ordinary recipes accept (sulfur dust in the battery's sulfur tag, its steel and other metals in the material tags), so those recipes are read with Mekanism's tags too and the cheaper result sets the value. Mekanism's items are priced at the values mods/mekanism ships. |
 
-| Recipe | Output | Loads | ProjectE | Item Alchemy |
+| Recipe | Output | Changes | ProjectE | Item Alchemy |
 | --- | --- | --- | ---: | ---: |
-| `icbm_port:antimatter_explosive_mekanism` | `icbm_port:antimatter_explosive` | with mekanism | 179545 | 149720 |
-| `icbm_port:nuclear_explosive_mekanism` | `icbm_port:nuclear_explosive` | with mekanism | 156913 | 142464 |
-| `icbm_port:nuclear_explosive_uranium` | `icbm_port:nuclear_explosive` | with mekanism | 156913 | 142464 |
-| `icbm_port:redmatter_explosive_mekanism` | `icbm_port:redmatter_explosive` | with mekanism | 202177 | 156976 |
+| `icbm_port:advanced_circuit` | `icbm_port:advanced_circuit` | wider tags with mekanism | 702 | 702 |
+| `icbm_port:antimatter_explosive_mekanism` | `icbm_port:antimatter_explosive` | loads with mekanism | 124249 | 94424 |
+| `icbm_port:battery` | `icbm_port:battery` | wider tags with mekanism | 992 | 988 |
+| `icbm_port:cluster_missile` | `icbm_port:cluster_missile` | wider tags with mekanism | 1960 | 1911 |
+| `icbm_port:cruise_launcher` | `icbm_port:cruise_launcher` | wider tags with mekanism | 3371 | 3290 |
+| `icbm_port:debilitation_explosive` | `icbm_port:debilitation_explosive` | wider tags with mekanism | 985 | 985 |
+| `icbm_port:defuser` | `icbm_port:defuser` | wider tags with mekanism | 1050 | 1042 |
+| `icbm_port:elite_circuit` | `icbm_port:elite_circuit` | wider tags with mekanism | 7478 | 7464 |
+| `icbm_port:emp_tower` | `icbm_port:emp_tower` | wider tags with mekanism | 9327 | 6194 |
+| `icbm_port:empty_bomblet` | `icbm_port:empty_bomblet` | wider tags with mekanism | 90 | 87 |
+| `icbm_port:fire_spikes` | `icbm_port:fire_spikes` | wider tags with mekanism | 324 | 322 |
+| `icbm_port:held_item_missile` | `icbm_port:held_item_missile` | wider tags with mekanism | 2221 | 2168 |
+| `icbm_port:incendiary_explosive` | `icbm_port:incendiary_explosive` | wider tags with mekanism | 3212 | 3212 |
+| `icbm_port:laser_designator` | `icbm_port:laser_designator` | wider tags with mekanism | 8305 | 5149 |
+| `icbm_port:launcher_base_tier_1` | `icbm_port:launcher_base_tier_1` | wider tags with mekanism | 1443 | 1398 |
+| `icbm_port:launcher_base_tier_2` | `icbm_port:launcher_base_tier_2` | wider tags with mekanism | 2406 | 2352 |
+| `icbm_port:launcher_base_tier_3` | `icbm_port:launcher_base_tier_3` | wider tags with mekanism | 8219 | 5068 |
+| `icbm_port:launcher_connector` | `icbm_port:launcher_connector` | wider tags with mekanism | 640 | 626 |
+| `icbm_port:launcher_screen` | `icbm_port:launcher_screen` | wider tags with mekanism | 443 | 434 |
+| `icbm_port:missile_module` | `icbm_port:missile_module` | wider tags with mekanism | 1703 | 1654 |
+| `icbm_port:nuclear_explosive_mekanism` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 87168 |
+| `icbm_port:nuclear_explosive_uranium` | `icbm_port:nuclear_explosive` | loads with mekanism | 101617 | 87168 |
+| `icbm_port:radar_gun` | `icbm_port:radar_gun` | wider tags with mekanism | 409 | 401 |
+| `icbm_port:radar_station` | `icbm_port:radar_station` | wider tags with mekanism | 4417 | 4385 |
+| `icbm_port:radio_detonator` | `icbm_port:radio_detonator` | wider tags with mekanism | 2344 | 2284 |
+| `icbm_port:redmatter_explosive_mekanism` | `icbm_port:redmatter_explosive` | loads with mekanism | 146881 | 101680 |
+| `icbm_port:rocket_launcher` | `icbm_port:rocket_launcher` | wider tags with mekanism | 1389 | 1354 |
+| `icbm_port:sam_missile` | `icbm_port:sam_missile` | wider tags with mekanism | 3533 | 3484 |
+| `icbm_port:steel_plate` | `icbm_port:steel_plate` | wider tags with mekanism | 261 | 252 |
 
 ## Processes checked for EMC gain
 

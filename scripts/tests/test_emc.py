@@ -444,8 +444,41 @@ class OptionalModTests(unittest.TestCase):
                                                               / "testmod.json"]))
         readme = outputs[self.dir / "emc" / "README.md"]
         self.assertIn("## Recipes other mods enable", readme)
-        self.assertIn("| `testmod:bomb_alloy` | `testmod:bomb` | with othermod | 20 | 14 |", readme)
+        self.assertIn("| `testmod:bomb_alloy` | `testmod:bomb` | loads with othermod | 20 | 14 |", readme)
         self.assertNotIn("testmod:charge_bulk", readme)
+
+    def add_battery(self):
+        """ICBM's battery: an unconditional recipe whose sulfur tag othermod's cheap dust joins."""
+        other = self.dir.parent / "othermod"
+        document = json.loads((other / "emc" / "values.json").read_text())
+        document["items"]["othermod:sulfur"] = {"projecte": 3, "itemalchemy": 2, "source": "explicit"}
+        write(other / "emc" / "values.json", document)
+        write(other / "res" / "data" / "c" / "tags" / "items" / "sulfur_dusts.json", {"values": ["othermod:sulfur"]})
+        write(self.dir / "res" / "data" / "testmod" / "tags" / "items" / "materials" / "sulfur_dusts.json",
+              {"values": ["minecraft:gunpowder", {"id": "#c:sulfur_dusts", "required": False}]})
+        write(self.recipes / "battery.json", shaped(["sr"], {"s": {"tag": "testmod:materials/sulfur_dusts"},
+                                                             "r": {"item": "minecraft:redstone"}}, "testmod:battery"))
+        write(self.dir / "emc" / "registry.txt", "testmod:battery\ntestmod:bomb\ntestmod:charge\n")
+
+    def test_an_optional_mod_filling_a_tag_lowers_unconditional_recipes(self):
+        self.add_battery()
+        port, outputs = self.build()
+        self.assertEqual(port.problems, [])
+        values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
+        # Standalone the cheapest sulfur is gunpowder (192); with othermod its dust (3 / 2) is, so the battery
+        # takes that price (64 redstone + dust) rather than 256, or crafting it with othermod would gain EMC.
+        self.assertEqual(values["testmod:battery"], {"projecte": 67, "itemalchemy": 66, "source": "recipe"})
+        self.assertIn("| `testmod:battery` | `testmod:battery` | wider tags with othermod | 67 | 66 |",
+                      outputs[self.dir / "emc" / "README.md"])
+
+    def test_the_gain_check_covers_unconditional_recipes_with_an_optional_mods_tags(self):
+        self.add_battery()
+        self.policy["values"] = {"testmod:battery": {"emc": 256, "why": "w"}}
+        port, _outputs = self.build()
+        self.assertIn("Item Alchemy: recipe testmod:battery (with othermod) makes 1 testmod:battery worth 256 "
+                      "from 66 EMC of ingredients", port.problems)
+        self.assertFalse(any("testmod:battery" in p and "(with othermod)" not in p for p in port.problems),
+                         port.problems)
 
     def test_an_undeclared_mod_leaves_its_recipes_unpriced_and_fails_the_check(self):
         del self.policy["optional_mods"]

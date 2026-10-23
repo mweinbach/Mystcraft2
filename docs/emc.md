@@ -84,16 +84,24 @@ hand-written `emc/policy.json`:
   - **Recipes other mods enable.** A recipe that loads only alongside another mod is still a way to make its
     output, and Item Alchemy ships fixed values instead of recalculating them. When the other mod is a port in
     this repository, the policy declares it in `optional_mods`. `emc.py` then evaluates every combination of
-    those mods: it loads recipes with the mod present and the mod port's tags added, and adds every recipe whose
-    conditions name the mod and could hold whatever the tags are. A mod can fill a tag that switches its own
-    recipe off; Mekanism fills the uranium tags, which disables ICBM's atomic-alloy nuclear recipe. These
+    those mods. For each combination it loads recipes with the mod present and the mod port's tags added, and
+    adds every recipe whose conditions name the mod and could hold whatever the tags are. Every recipe active in
+    the combination is read against the merged tags, including unconditional ones. A mod that adds a cheap
+    item to a tag the port's recipe accepts makes that recipe cheaper: Mekanism's sulfur dust joins
+    `icbm_port:materials/sulfur_dusts`, which lowers ICBM's battery. A mod can also fill a tag that switches its
+    own recipe off; Mekanism fills the uranium tags, which disables ICBM's atomic-alloy nuclear recipe. These
     alternatives are priced with the values the other port ships, such as Mekanism's atomic alloy, and every
-    output takes the minimum over all its recipes.
+    output takes the minimum over all its recipes in every combination. The gain check covers every active
+    recipe in every combination.
 
     A recipe gated on a mod with no EMC data in the repository is not priced. `emc.py check` fails if it would
     gain EMC at the shipped values, or if it needs an ingredient with no known EMC. In that case declare the mod,
-    exclude the output, or gate the recipe off. The port README lists each optional mod and the alternatives it
-    enables.
+    exclude the output, or gate the recipe off. The port README lists each optional mod, the recipes it enables
+    ("loads with"), and the recipes whose tags it widens ("wider tags with").
+
+    Only the tags of declared optional mods are read. In a pack where an undeclared mod adds a cheaper item to
+    one of the port's tags (a third mod's sulfur, say), a recipe can still make its output for less than the
+    shipped value.
   - Special recipe types, whose result is empty to ProjectE, are listed in the port README so their outputs get
     a conversion, value or exclusion.
 - **Tags per loader.** ProjectE is analysed with Forge tags and Item Alchemy with Fabric conventional `c:` tags,

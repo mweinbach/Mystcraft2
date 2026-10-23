@@ -13,7 +13,7 @@ Dedicated-server checks only; no client was launched for this pass.
 | `./gradlew :icbm_port:runMaterialGametest` | Passed |
 | `python3 tools/validate_resources.py` | 672 JSON files, 2,101 references, 140 enabled fixed recipes; seven optional recipes (four material, three Mekanism) disabled in a standalone install |
 | `python3 -m unittest discover -s tools/tests` | 9 passed, including both branches of the Mekanism gate and the dust gunpowder recipe staying off with Mekanism |
-| `python3 scripts/emc.py check` (repository root) | Passed. Every recipe, including the alternatives Mekanism enables (priced with `mods/mekanism`'s shipped values), costs at least what its output is worth |
+| `python3 scripts/emc.py check` (repository root) | Passed. Every recipe, including the alternatives Mekanism enables and every recipe re-read with Mekanism's tag contributions (priced with `mods/mekanism`'s shipped values), costs at least what its output is worth |
 
 The REI plugin, Mekanism-present recipe loading and the new icon have not been
 checked in a live client or a Mekanism server.

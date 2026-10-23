@@ -96,7 +96,10 @@ once a dust tag is populated. Other mods' dusts still select the dust recipe.
 EMC: `scripts/emc.py` prices every one of these alternatives, with Mekanism's
 atomic alloy and uranium at the values `mods/mekanism` ships. Each tier then
 takes its cheapest recipe, so crafting and burning never gains EMC with or
-without Mekanism; see [emc/README.md](../emc/README.md).
+without Mekanism. Ordinary recipes are priced with Mekanism's tag contributions
+as well. Mekanism's sulfur dust in `icbm_port:materials/sulfur_dusts`, for
+example, sets the battery's value, along with everything built from it. See
+[emc/README.md](../emc/README.md).
 Source condition predicates and the one-component-missing module fallback gap
 are documented in the OreDictionary audit.
 

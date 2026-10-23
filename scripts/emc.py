@@ -659,8 +659,10 @@ class Port:
     def recipe_alternatives(self, system):
         """Recipe sets beyond the standalone port's, as ``(label, recipes, tags, priced)`` tuples.
 
-        For every combination of declared optional mods: the recipes that load with those mods and their ports'
-        tags (so another mod filling a tag counts) but not standalone, plus every recipe whose conditions name an
+        For every combination of declared optional mods: every recipe that loads with those mods and their ports'
+        tags, read against those merged tags. That includes the standalone recipes, because another mod filling
+        a tag they accept can make them cheaper (Mekanism's sulfur dust in ICBM's sulfur tag makes the battery
+        cheaper). Added to that is every recipe whose conditions name an
         optional mod and could hold with those mods whatever the tags are. The second part matters when the mod
         fills a tag that switches its own recipe off (Mekanism fills the uranium tags, which turns off ICBM's
         atomic-alloy nuclear recipe): a pack whose tags differ still loads it, so it bounds the value too. These
@@ -689,13 +691,11 @@ class Port:
             for chosen in itertools.combinations(optional, size):
                 tags = self._optional_tags(system, chosen)
                 mods = self._mods(loader) | set(chosen)
-                recipes, _skipped = load_recipes(roots, loader, tags, mods, custom)
-                extra = {rid: recipe for rid, recipe in recipes.items() if rid not in base}
+                active, _skipped = load_recipes(roots, loader, tags, mods, custom)
                 for rid, recipe in gated.items():
                     if all(condition_possible(c, loader, mods, custom)[0] for c in recipe.get(key, [])):
-                        extra.setdefault(rid, recipe)
-                if extra:
-                    found.append((f"with {' and '.join(chosen)}", extra, tags, True))
+                        active.setdefault(rid, recipe)
+                found.append((f"with {' and '.join(chosen)}", active, tags, True))
         if undeclared:
             found.append(("gated on undeclared mods", undeclared, base_tags, False))
         return found
@@ -1408,22 +1408,33 @@ class Port:
         if not optional:
             return []
         lines = ["", "## Recipes other mods enable", "",
-                 "These recipes load only alongside another mod. Their ingredients are priced at the values that mod's "
-                 "port ships, and every output takes the cheapest of all its recipes, so no recipe gains EMC with or "
-                 "without the mod.", "", "| Mod | Port | Why |", "| --- | --- | --- |"]
+                 "These recipes load only alongside another mod, or accept more items there because that mod fills a "
+                 "tag they use. Their ingredients are priced at the values that mod's port ships, and every output "
+                 "takes the cheapest of all its recipes, so no recipe gains EMC with or without the mod.", "",
+                 "| Mod | Port | Why |", "| --- | --- | --- |"]
         for mod, entry in sorted(optional.items()):
             lines.append(f"| `{mod}` | [`mods/{entry['port']}`](../../{entry['port']}/emc/README.md) | {entry['why']} |")
         rows = {}
         for system in SYSTEMS:
-            for label, recipes, _tags, priced in self.alternatives[system]:
-                if not priced or label == "standalone":
+            remainders = self.inputs[system][1]
+            _label, standalone, standalone_tags, _priced = self.alternatives[system][0]
+            for label, recipes, tags, priced in self.alternatives[system][1:]:
+                if not priced:
                     continue
                 for rid, recipe in recipes.items():
                     output, _count = result_of(recipe)
-                    if output in self.items:
-                        rows.setdefault((rid, output), set()).add(label)
+                    if output not in self.items:
+                        continue
+                    if rid not in standalone:
+                        how = "loads"
+                    elif (conversions_from({rid: recipe}, tags, remainders)
+                          != conversions_from({rid: recipe}, standalone_tags, remainders)):
+                        how = "wider tags"
+                    else:
+                        continue
+                    rows.setdefault((rid, output), set()).add(f"{how} {label}")
         if rows:
-            lines += ["", "| Recipe | Output | Loads | ProjectE | Item Alchemy |", "| --- | --- | --- | ---: | ---: |"]
+            lines += ["", "| Recipe | Output | Changes | ProjectE | Item Alchemy |", "| --- | --- | --- | ---: | ---: |"]
             for (rid, output), labels in sorted(rows.items()):
                 lines.append(f"| `{rid}` | `{output}` | {', '.join(sorted(labels))} | "
                              f"{self.final('projecte', output)} | {self.final('itemalchemy', output)} |")
