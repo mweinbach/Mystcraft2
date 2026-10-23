@@ -34,5 +34,6 @@
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
   heat tab and the inventory. A QIO dashboard on a public frequency was checked: the item viewer shows the
   frequency name and the diamond, emerald, gold and lapis stored on the drive. A survival player flying with a
-  hydrogen jetpack was checked: close third person, HUD hidden, and flame particles visible behind the jetpack. A Robit on a chargepad was checked: the model draws beside the pad, and the main screen
-  opens with the energy bar, the greeting, and the crafting, inventory, smelting and repair tabs.
+  hydrogen jetpack was checked: close third person, HUD hidden, and flame particles visible behind the jetpack. A charged
+  Robit item used on an idle chargepad was checked in survival: the item draws from the Robit atlas, the entity stands
+  on the pad, and a right-click opens the main screen (greeting, energy, following, pickup, owner, and the side tabs).

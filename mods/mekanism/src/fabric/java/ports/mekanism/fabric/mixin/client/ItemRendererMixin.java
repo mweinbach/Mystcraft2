@@ -8,15 +8,23 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mekanism.common.item.ItemRobit;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.mekanism.lib.client.extensions.IForgeVertexConsumer;
 import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
 
@@ -27,6 +35,43 @@ import ports.mekanism.lib.client.extensions.common.IClientItemExtensions;
  */
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
+
+    @Shadow
+    public abstract void renderModelLists(BakedModel model, ItemStack stack, int light, int overlay, PoseStack poseStack, VertexConsumer consumer);
+
+    /**
+     * The Robit item model is baked with {@code #robit} left unmapped, then the skin sprite from
+     * {@code mekanism:textures/atlas/robit.png} is written onto those quads. Forge binds that atlas because the baked
+     * model returns it from {@code getRenderTypes}. Vanilla's item pass binds one sheet from the block atlas, and
+     * Fabric's renderer does the same, so those UVs sample the missing-texture sprite. Draw this one item the way
+     * Forge does: each of the model's render types, which for the Robit is {@code entityCutoutNoCull} of its atlas.
+     */
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    private void mekanism$robitAtlas(ItemStack stack, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack,
+          MultiBufferSource buffers, int light, int overlay, BakedModel model, CallbackInfo ci) {
+        if (!(stack.getItem() instanceof ItemRobit)) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        LivingEntity holder = minecraft.player;
+        BakedModel resolved = model.getOverrides().resolve(model, stack, minecraft.level, holder, 0);
+        if (resolved == null) {
+            resolved = model;
+        }
+        poseStack.pushPose();
+        resolved.getTransforms().getTransform(transformType).apply(leftHand, poseStack);
+        poseStack.translate(-0.5D, -0.5D, -0.5D);
+        boolean foil = stack.hasFoil();
+        // A Robit is not a block item, so vanilla always uses the direct buffer for it.
+        for (BakedModel pass : resolved.getRenderPasses(stack, true)) {
+            for (RenderType renderType : pass.getRenderTypes(stack, true)) {
+                VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(buffers, renderType, true, foil);
+                renderModelLists(pass, stack, light, overlay, poseStack, consumer);
+            }
+        }
+        poseStack.popPose();
+        ci.cancel();
+    }
 
     @WrapOperation(method = "render", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemTransforms$TransformType;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))

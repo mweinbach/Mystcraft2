@@ -18,7 +18,12 @@ a vanilla smelting recipe such as iron dust to an iron ingot, at 100 ticks, and 
 per tick.
 
 The item model, the entity model and the skin textures are the upstream ones. Skins are the base skin, the allay
-skin and the pride skins, and a moving Robit cycles that skin's frames. The main screen shows the greeting, energy,
-following, pickup and owner, with the home, rename, skin, pickup and follow buttons. The side tabs open the crafting
-grid, the inventory, the smelting slots and the anvil repair screen. In the Fabric development client a Robit draws
-beside a chargepad in daylight, and the main screen opens on it.
+skin and the pride skins, and a moving Robit cycles that skin's frames. The item model leaves `#robit` unmapped and
+the baked model swaps in the skin sprite from `mekanism:textures/atlas/robit.png`. Forge binds that atlas from the
+model's render types. On Fabric the item renderer binds it the same way; drawing those quads with the block atlas
+shows the missing-texture sprite. The main screen shows the greeting, energy, following, pickup and owner, with the
+home, rename, skin, pickup and follow buttons. The side tabs open the crafting grid, the inventory, the smelting
+slots and the anvil repair screen. A normal right-click on the entity opens that screen. Shift-right-click with a
+configurator picks the Robit back up. In the Fabric development client, survival, a charged Robit item used on an
+idle chargepad places the entity on the pad. With the HUD hidden, the Robit is the gray body with green eyes
+standing on the pad, in front of the pad's back panel. The main screen then opens on a right-click.

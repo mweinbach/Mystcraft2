@@ -15,6 +15,7 @@ import mekanism.api.energy.IEnergyContainer;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.api.math.FloatingLong;
 import mekanism.common.entity.EntityRobit;
+import mekanism.common.inventory.container.entity.robit.MainRobitContainer;
 import mekanism.common.item.ItemRobit;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.registries.MekanismContainerTypes;
@@ -51,6 +52,31 @@ import net.minecraft.world.phys.Vec3;
 public class RobitGameTests {
 
     private static final BlockPos PAD = new BlockPos(2, 1, 2);
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public static void robitItemUseOnSpawnsEntityAndOpensMainGui(GameTestHelper helper) {
+        helper.setBlock(PAD, MekanismBlocks.CHARGEPAD.getBlock());
+        ServerPlayer player = player(helper);
+        ItemStack stack = new ItemStack(MekanismItems.ROBIT.get());
+        IEnergyContainer container = StorageUtils.getEnergyContainer(stack, 0);
+        check(container != null, "The Robit item has no energy container");
+        FloatingLong stored = FloatingLong.createConst(20_000);
+        container.setEnergy(stored);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        UseOnContext context = context(helper, player, PAD);
+        InteractionResult placed = player.getMainHandItem().getItem().useOn(context);
+        check(placed.consumesAction(), "useOn returned " + placed);
+        check(player.getMainHandItem().isEmpty(), "The Robit item was not consumed");
+        EntityRobit robit = find(helper);
+        check(robit != null, "useOn spawned no Robit");
+        InteractionResult opened = robit.interactAt(player, Vec3.ZERO, InteractionHand.MAIN_HAND);
+        helper.succeedWhen(() -> {
+            check(robit.isAlive(), "The Robit placed by useOn was removed");
+            check(robit.getEnergyContainer().getEnergy().equals(stored), "Energy is " + robit.getEnergyContainer().getEnergy());
+            check(opened.consumesAction(), "Right-click returned " + opened);
+            check(player.containerMenu instanceof MainRobitContainer, "Right-click opened " + player.containerMenu.getClass().getSimpleName());
+        });
+    }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void robitPlacedFromItemKeepsEnergyAndName(GameTestHelper helper) {
