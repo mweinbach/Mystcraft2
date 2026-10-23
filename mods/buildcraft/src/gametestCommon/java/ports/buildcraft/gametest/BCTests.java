@@ -21,14 +21,18 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -184,6 +188,17 @@ public final class BCTests {
         return tile(helper, pos, PipeBlockEntity.class);
     }
 
+    /**
+     * A survival server player whose connection leads nowhere, standing in for a real player: the loaders' block
+     * break handling sends it packets, which a player made without a connection could not take.
+     */
+    static ServerPlayer connectedPlayer(GameTestHelper helper, String name) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = new ServerPlayer(level.getServer(), level, new GameProfile(UUID.randomUUID(), name), null);
+        new ServerGamePacketListenerImpl(level.getServer(), new Connection(PacketFlow.SERVERBOUND), player);
+        return player;
+    }
+
     // ---- power ---------------------------------------------------------------------------------
 
     /** 1 MJ = 10 Forge Energy / Team Reborn Energy units, through a machine's energy port. */
@@ -286,6 +301,26 @@ public final class BCTests {
             require(helper, engine.getItem(0).isEmpty(), "the coal must be consumed");
             require(helper, engine.isBurning(), "the engine must be burning");
             require(helper, well.battery().stored() > 0, "the mining well must receive power");
+        });
+    }
+
+    /**
+     * The loader's crafting remainder (Forge's stack-aware {@code getCraftingRemainingItem}, Fabric API's
+     * {@code FabricItem#getRecipeRemainder}): a Stirling engine burning a lava bucket keeps the empty bucket in its
+     * fuel slot, and fuel with no remainder leaves nothing.
+     */
+    public static void stirlingEngineKeepsFuelRemainder(GameTestHelper helper) {
+        require(helper, Platform.get().craftingRemainder(new ItemStack(Items.WATER_BUCKET)).is(Items.BUCKET)
+                && Platform.get().craftingRemainder(new ItemStack(Items.COAL)).isEmpty(), "a bucket's remainder is the empty bucket, coal has none");
+        StirlingEngineBlockEntity engine = engine(helper, new BlockPos(1, 1, 1), BCEnergy.STIRLING_ENGINE.get(), Direction.EAST,
+                StirlingEngineBlockEntity.class);
+        engine.setItem(0, new ItemStack(Items.LAVA_BUCKET));
+        idleMiningWell(helper, new BlockPos(2, 1, 1));
+        helper.setBlock(new BlockPos(0, 1, 1), Blocks.REDSTONE_BLOCK);
+        helper.succeedWhen(() -> {
+            require(helper, engine.isBurning(), "the engine must burn the lava");
+            require(helper, engine.getItem(0).is(Items.BUCKET) && engine.getItem(0).getCount() == 1,
+                    "the lava bucket's remainder must stay in the fuel slot, found " + engine.getItem(0));
         });
     }
 
@@ -873,6 +908,14 @@ public final class BCTests {
                 && oilOcean.value().getBaseTemperature() == ocean.getBaseTemperature(), "the oil biomes must keep their parents' climates");
         require(helper, oilDesert.is(OilBiomes.EXCESSIVE_OIL) && oilOcean.is(OilBiomes.EXCESSIVE_OIL) && oilDesert.is(BiomeTags.IS_OVERWORLD)
                 && oilOcean.is(BiomeTags.IS_OVERWORLD) && oilOcean.is(BiomeTags.IS_OCEAN), "the oil biomes must be tagged as overworld, ocean and excessive");
+        // Both loaders' conventional tags, so other mods' biome checks treat the oil fields as their parents.
+        for (String tag : List.of("c:desert", "c:climate_hot", "c:climate_dry", "c:vegetation_sparse", "c:in_overworld",
+                "forge:is_desert", "forge:is_hot/overworld", "forge:is_dry/overworld", "forge:is_sandy")) {
+            require(helper, oilDesert.is(TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(tag))), "the oil desert must be in #" + tag);
+        }
+        for (String tag : List.of("c:ocean", "c:aquatic", "c:shallow_ocean", "c:in_overworld")) {
+            require(helper, oilOcean.is(TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(tag))), "the oil ocean must be in #" + tag);
+        }
         require(helper, !oilDesert.is(BiomeTags.HAS_DESERT_PYRAMID) && !oilDesert.is(BiomeTags.HAS_VILLAGE_DESERT),
                 "upstream's oil desert has no temples or villages");
         Holder<PlacedFeature> oilWell = registries.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY)
@@ -1811,11 +1854,12 @@ public final class BCTests {
                     && loaded.getPluggable(Direction.WEST) == null, "saving keeps the plug");
 
             helper.setBlock(b, Blocks.AIR);
-            lookWestAt(helper, player, a);
-            require(helper, PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, player), "breaking while looking at the plug hits the plug");
+            ServerPlayer breaker = connectedPlayer(helper, "plug_breaker");
+            lookWestAt(helper, breaker, a);
+            require(helper, PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, breaker), "breaking while looking at the plug hits the plug");
             require(helper, pipe.getPluggable(Direction.EAST) == null && helper.getBlockState(a).getBlock() instanceof PipeBlock
                     && BuilderTests.dropped(helper, a, new ItemStack(BCTransport.PLUG_BLOCKER.get())), "breaking the plug drops it and keeps the pipe");
-            require(helper, !PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, player), "without a plug in sight the pipe itself breaks");
+            require(helper, !PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, breaker), "without a plug in sight the pipe itself breaks");
 
             pipe.replacePluggable(Direction.EAST, BCTransport.BLOCKER.create(pipe, Direction.EAST));
             ServerPlayer serverPlayer = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), new GameProfile(UUID.randomUUID(), "plugs"), null);
@@ -1833,6 +1877,38 @@ public final class BCTests {
             other.replacePluggable(Direction.UP, BCTransport.BLOCKER.create(other, Direction.UP));
             helper.setBlock(dropper, Blocks.AIR);
             require(helper, BuilderTests.dropped(helper, dropper, new ItemStack(BCTransport.PLUG_BLOCKER.get())), "a broken pipe drops its plugs");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * Taking a plug off fires the loader's block break event for the player breaking it (Forge's
+     * {@code BlockEvent.BreakEvent}, Fabric's {@code PlayerBlockBreakEvents.BEFORE}), as breaking a block does: a
+     * protection mod that cancels it keeps the plug and the pipe, and once it allows the break the plug comes off.
+     */
+    public static void cancelledBreakKeepsPluggable(GameTestHelper helper) {
+        BlockPos a = new BlockPos(2, 2, 2);
+        PipeBlockEntity pipe = pipe(helper, a, BCTransport.STONE_ITEM);
+        BlockPos absolute = helper.absolutePos(a);
+        ServerPlayer player = connectedPlayer(helper, "protected_plug");
+        ItemStack plug = new ItemStack(BCTransport.PLUG_BLOCKER.get());
+
+        helper.runAfterDelay(2, () -> {
+            pipe.replacePluggable(Direction.EAST, BCTransport.BLOCKER.create(pipe, Direction.EAST));
+            lookWestAt(helper, player, a);
+            TestProtection.refuse(helper, a);
+            try {
+                require(helper, !player.gameMode.destroyBlock(absolute), "a refused break must not break the pipe");
+                require(helper, "protected_plug".equals(TestProtection.refusedPlayer(helper, a)),
+                        "the loader's break event must be fired for the breaking player, was " + TestProtection.refusedPlayer(helper, a));
+                require(helper, pipe.getPluggable(Direction.EAST) instanceof BlockerPluggable && helper.getBlockState(a).getBlock() instanceof PipeBlock
+                        && !BuilderTests.dropped(helper, a, plug), "a cancelled break event must keep the plug and the pipe and drop nothing");
+            } finally {
+                TestProtection.allow(helper, a);
+            }
+            require(helper, !player.gameMode.destroyBlock(absolute) && pipe.getPluggable(Direction.EAST) == null
+                    && helper.getBlockState(a).getBlock() instanceof PipeBlock && BuilderTests.dropped(helper, a, plug),
+                    "once the break is allowed the plug comes off and drops, and the pipe stays");
             helper.succeed();
         });
     }

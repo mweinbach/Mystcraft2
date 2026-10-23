@@ -48,6 +48,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
     public static void stirlingEngineBurnsCoal(GameTestHelper helper) { BCTests.stirlingEngineBurnsCoal(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void stirlingEngineKeepsFuelRemainder(GameTestHelper helper) { BCTests.stirlingEngineKeepsFuelRemainder(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
     public static void combustionEngineBurnsFuel(GameTestHelper helper) { BCTests.combustionEngineBurnsFuel(helper); }
 
@@ -266,6 +269,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { BCTests.plugBlocksConnectionsAndBreaksOff(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void cancelledBreakKeepsPluggable(GameTestHelper helper) { BCTests.cancelledBreakKeepsPluggable(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 1200)
     public static void powerAdaptorDrivesWoodenPipeThroughBlockedFace(GameTestHelper helper) {
         BCTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
@@ -279,6 +285,9 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 60)
     public static void gateTurnsRedstoneInputIntoSignal(GameTestHelper helper) { GateTests.gateTurnsRedstoneInputIntoSignal(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void redstoneWireJoinsOnlyTheGateFace(GameTestHelper helper) { GateTests.redstoneWireJoinsOnlyTheGateFace(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void gateGroupsPairsByLogic(GameTestHelper helper) { GateTests.gateGroupsPairsByLogic(helper); }

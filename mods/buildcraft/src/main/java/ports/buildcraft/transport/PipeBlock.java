@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -35,6 +36,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import ports.buildcraft.core.Wrenches;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.pluggable.PluggableItem;
 import ports.buildcraft.transport.wire.WireBetween;
@@ -163,8 +165,8 @@ public class PipeBlock extends BaseEntityBlock {
 
     /**
      * Forge's {@code IForgeBlock.canConnectRedstone}: wire connects only through a face whose pluggable allows it.
-     * Vanilla wire, as on Fabric, connects to any signal source, so there it connects to every face of a pipe
-     * carrying such a pluggable.
+     * Vanilla wire connects to any signal source, so on Fabric the wire's side check calls this through
+     * {@code RedStoneWireBlockMixin} in the Fabric-only mixin config. {@code direction} points from the wire to the pipe.
      */
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
         if (direction == null || !(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return false;
@@ -303,32 +305,61 @@ public class PipeBlock extends BaseEntityBlock {
         return null;
     }
 
-    /**
-     * Upstream {@code removedByPlayer}: breaking a pluggable or a wire takes off only that, which drops
-     * unless the player is in creative. The game-mode mixins call this on both sides before a block is
-     * destroyed and keep the pipe when it returns true. A creative player breaking the pipe itself
-     * loses its pluggables and wires, as upstream drops nothing in creative.
-     */
-    public static boolean onPlayerDestroy(Level level, BlockPos pos, Player player) {
-        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return false;
+    /** The pluggable face or the wire a player is looking at on a pipe. */
+    private record PartHit(@Nullable Direction side, @Nullable WireHit wire) {}
+
+    @Nullable
+    private static PartHit partHit(PipeBlockEntity pipe, BlockPos pos, Player player) {
         HitResult hit = player.pick(PICK_RANGE, 1.0F, false);
-        boolean onPipe = hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK && blockHit.getBlockPos().equals(pos);
-        Direction side = onPipe ? pluggableAt(pipe, hit.getLocation()) : null;
-        WireHit wire = onPipe && side == null ? wireAt(pipe, hit.getLocation()) : null;
-        if (level.isClientSide) return side != null || wire != null;
-        List<ItemStack> drops = new ArrayList<>();
-        if (side != null) {
-            pipe.removePluggable(side, drops);
-        } else if (wire != null) {
-            drops.addAll(removeWire(pipe, wire));
-        } else if (player.getAbilities().instabuild) {
-            for (Direction face : Direction.values()) pipe.removePluggable(face, drops);
+        if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK || !blockHit.getBlockPos().equals(pos)) return null;
+        Direction side = pluggableAt(pipe, hit.getLocation());
+        if (side != null) return new PartHit(side, null);
+        WireHit wire = wireAt(pipe, hit.getLocation());
+        return wire == null ? null : new PartHit(null, wire);
+    }
+
+    /**
+     * The client half of {@link #onPlayerDestroy}: whether breaking the pipe at {@code pos} would take off only a
+     * pluggable or a wire, so the client keeps the pipe instead of predicting it away.
+     */
+    public static boolean hitsPart(Level level, BlockPos pos, Player player) {
+        return level.getBlockEntity(pos) instanceof PipeBlockEntity pipe && partHit(pipe, pos, player) != null;
+    }
+
+    /**
+     * Upstream {@code removedByPlayer}: breaking a pluggable (a facade is one) or a wire takes off only that, which
+     * drops unless the player is in creative. The server's game-mode mixin calls this before a pipe is destroyed
+     * and keeps the pipe when it returns true. Upstream ran inside Forge's block breaking, after its
+     * {@code BreakEvent}; here the removal first passes {@link BlockProtection#breakPart}, so protection mods
+     * see it on both loaders. When they refuse, nothing changes and this still returns true, keeping the pipe.
+     */
+    public static boolean onPlayerDestroy(ServerLevel level, BlockPos pos, ServerPlayer player) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipe)) return false;
+        PartHit hit = partHit(pipe, pos, player);
+        if (hit == null) return false;
+        BlockProtection.breakPart(level, pos, player, () -> {
+            List<ItemStack> drops = new ArrayList<>();
+            if (hit.side() != null) pipe.removePluggable(hit.side(), drops);
+            else drops.addAll(removeWire(pipe, hit.wire()));
+            if (!player.getAbilities().instabuild) {
+                for (ItemStack stack : drops) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
+        });
+        return true;
+    }
+
+    /**
+     * A creative player breaking the pipe itself loses its pluggables and wires, as upstream drops nothing in
+     * creative. Both loaders call this once their break events have allowed the break.
+     */
+    @Override
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide && player.getAbilities().instabuild && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+            List<ItemStack> discarded = new ArrayList<>();
+            for (Direction face : Direction.values()) pipe.removePluggable(face, discarded);
             pipe.wires().removeAll();
         }
-        if (!player.getAbilities().instabuild) {
-            for (ItemStack stack : drops) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-        }
-        return side != null || wire != null;
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     /** Upstream {@code EnumPipePart} of a hit: null for the centre, otherwise the clicked arm's face. */

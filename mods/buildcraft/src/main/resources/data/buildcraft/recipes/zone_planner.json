@@ -6,17 +6,9 @@
     "wpw"
   ],
   "key": {
-    "w": [
-      {
-        "tag": "minecraft:planks"
-      },
-      {
-        "tag": "c:planks"
-      },
-      {
-        "tag": "forge:planks"
-      }
-    ],
+    "w": {
+      "tag": "minecraft:planks"
+    },
     "d": {
       "item": "buildcraft:pipe_diamond_item"
     },

@@ -1,6 +1,8 @@
 package ports.buildcraft.gametest;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.WeakHashMap;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -8,18 +10,24 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.energy.BCEnergy;
+import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.MiningWellBlockEntity;
 import ports.buildcraft.factory.TankBlockEntity;
@@ -28,10 +36,76 @@ import ports.buildcraft.lib.Power;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 import team.reborn.energy.api.EnergyStorage;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 /** BuildCraft blocks as other Fabric mods see them: Team Reborn Energy and Transfer API storages. */
 public final class FabricAdapterGameTests implements FabricGameTest {
     private static final long DROPLETS_PER_MB = 81;
+    /**
+     * Stand-ins for other mods' blocks, reached only through Fabric's lookups: an enchanting table holds Team Reborn
+     * energy in a {@code SimpleEnergyStorage}, and a lectern holds one stack of items in a Transfer API storage.
+     */
+    private static final Map<BlockEntity, SimpleEnergyStorage> FOREIGN_ENERGY = new WeakHashMap<>();
+    private static final Map<BlockEntity, SingleItemStorage> FOREIGN_ITEMS = new WeakHashMap<>();
+
+    static {
+        EnergyStorage.SIDED.registerForBlockEntity((tile, side) -> FOREIGN_ENERGY.computeIfAbsent(tile, t -> new SimpleEnergyStorage(10_000, 10_000, 0)),
+                BlockEntityType.ENCHANTING_TABLE);
+        ItemStorage.SIDED.registerForBlockEntity((tile, side) -> FOREIGN_ITEMS.computeIfAbsent(tile, t -> new SingleItemStorage() {
+            @Override protected long getCapacity(ItemVariant variant) { return 64; }
+        }), BlockEntityType.LECTERN);
+    }
+
+    /** Upstream's providing transactor: a mining well offers pipes a storage to connect to, but takes no items. */
+    @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 20)
+    public void providingMachinesRefuseInsertion(GameTestHelper helper) {
+        BCTests.idleMiningWell(helper, new BlockPos(1, 1, 1));
+        Storage<ItemVariant> items = ItemStorage.SIDED.find(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)), Direction.NORTH);
+        BCTests.require(helper, items != null, "the mining well must expose an item storage for pipes to connect to");
+        BCTests.require(helper, !items.supportsInsertion() && !items.supportsExtraction(), "the mining well's storage must claim neither insertion nor extraction");
+        try (Transaction transaction = Transaction.openOuter()) {
+            BCTests.require(helper, items.insert(ItemVariant.of(Items.APPLE), 1, transaction) == 0, "the mining well must take no items");
+        }
+        helper.succeed();
+    }
+
+    /** A Stirling engine pushes its power into another mod's Team Reborn energy storage. */
+    @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 200)
+    public void enginePushesIntoForeignEnergyStorage(GameTestHelper helper) {
+        StirlingEngineBlockEntity engine = BCTests.engine(helper, new BlockPos(1, 1, 1), BCEnergy.STIRLING_ENGINE.get(), Direction.EAST,
+                StirlingEngineBlockEntity.class);
+        engine.setItem(0, new ItemStack(Items.COAL));
+        helper.setBlock(new BlockPos(2, 1, 1), Blocks.ENCHANTING_TABLE);
+        helper.setBlock(new BlockPos(0, 1, 1), Blocks.REDSTONE_BLOCK);
+        BlockEntity foreign = helper.getBlockEntity(new BlockPos(2, 1, 1));
+        helper.succeedWhen(() -> {
+            EnergyStorage storage = EnergyStorage.SIDED.find(helper.getLevel(), helper.absolutePos(new BlockPos(2, 1, 1)), Direction.WEST);
+            BCTests.require(helper, storage == FOREIGN_ENERGY.get(foreign), "the stand-in energy storage must be the one found");
+            BCTests.require(helper, storage.getAmount() > 0, "the engine must push energy into the foreign storage");
+        });
+    }
+
+    /** An item pipe delivers into another mod's Transfer API item storage. */
+    @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 400)
+    public void pipeDeliversIntoForeignItemStorage(GameTestHelper helper) {
+        BCTests.chest(helper, new BlockPos(0, 1, 1));
+        BCTests.pipe(helper, new BlockPos(1, 1, 1), BCTransport.STONE_ITEM);
+        helper.setBlock(new BlockPos(2, 1, 1), Blocks.LECTERN);
+        BlockEntity foreign = helper.getBlockEntity(new BlockPos(2, 1, 1));
+        helper.runAfterDelay(2, () -> {
+            Storage<ItemVariant> pipe = ItemStorage.SIDED.find(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)), Direction.WEST);
+            BCTests.require(helper, pipe != null, "the pipe must expose an item storage");
+            try (Transaction transaction = Transaction.openOuter()) {
+                BCTests.require(helper, pipe.insert(ItemVariant.of(Items.APPLE), 3, transaction) == 3, "the pipe must take the apples");
+                transaction.commit();
+            }
+            helper.succeedWhen(() -> {
+                SingleItemStorage storage = FOREIGN_ITEMS.get(foreign);
+                BCTests.require(helper, storage != null && storage.getResource().isOf(Items.APPLE) && storage.getAmount() == 3,
+                        "the apples must reach the foreign storage, found " + (storage == null ? "none" : storage.getAmount()));
+            });
+        });
+    }
 
     @GameTest(template = FabricGameTests.TEMPLATE, timeoutTicks = 20)
     public void teamRebornEnergyStorage(GameTestHelper helper) {

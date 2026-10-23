@@ -16,7 +16,7 @@ public abstract class MultiPlayerGameModeMixin {
     private void buildcraft$keepPipe(BlockPos pos, CallbackInfoReturnable<Boolean> callback) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level != null && minecraft.player != null && minecraft.level.getBlockState(pos).getBlock() instanceof PipeBlock
-                && PipeBlock.onPlayerDestroy(minecraft.level, pos, minecraft.player)) {
+                && PipeBlock.hitsPart(minecraft.level, pos, minecraft.player)) {
             callback.setReturnValue(false);
         }
     }

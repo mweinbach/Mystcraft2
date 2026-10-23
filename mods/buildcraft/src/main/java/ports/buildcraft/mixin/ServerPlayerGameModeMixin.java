@@ -12,7 +12,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.buildcraft.transport.PipeBlock;
 
-/** Upstream {@code BlockPipeHolder.removedByPlayer}: breaking a pipe's pluggable removes only the pluggable. */
+/**
+ * Upstream {@code BlockPipeHolder.removedByPlayer}: breaking a pipe's pluggable removes only the pluggable. This runs
+ * before the loaders' own break events in {@code destroyBlock}, so {@link PipeBlock#onPlayerDestroy} fires them
+ * itself, through {@code BlockProtection.breakPart}, before it takes anything off.
+ */
 @Mixin(ServerPlayerGameMode.class)
 public abstract class ServerPlayerGameModeMixin {
     @Shadow

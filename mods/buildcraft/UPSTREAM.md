@@ -71,4 +71,5 @@ files had no counterpart for.
 `scripts/emc.py` from [`emc/policy.json`](emc/policy.json); see [`emc/README.md`](emc/README.md).
 
 Team Reborn Energy 2.3.0 (MIT) is bundled inside the Fabric JAR as a nested library; it is not
-modified.
+modified. MixinExtras 0.4.1 (MIT, [`licenses/mixinextras-LICENSE.txt`](licenses/mixinextras-LICENSE.txt)) is
+bundled the same way for the Fabric-only mixins; the Forge JAR uses none.

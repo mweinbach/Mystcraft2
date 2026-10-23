@@ -1,25 +1,39 @@
 package ports.buildcraft.gametest;
 
 import java.util.ArrayList;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
+import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.energy.StirlingEngineBlockEntity;
 import ports.buildcraft.core.FragileFluidShardItem;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
@@ -34,7 +48,79 @@ import ports.buildcraft.transport.PipeBlockEntity;
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeAdapterGameTests {
+    private static final ResourceLocation FOREIGN = new ResourceLocation("buildcraft_gametest", "foreign_storage");
+
+    static {
+        // Stand-ins for other mods' blocks, reached only through capabilities: an enchanting table holds Forge Energy
+        // and a lectern holds one slot of items.
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Class<AttachCapabilitiesEvent<BlockEntity>> type = (Class) AttachCapabilitiesEvent.class;
+        MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, EventPriority.NORMAL, false, type, event -> {
+            if (event.getObject() instanceof EnchantmentTableBlockEntity) {
+                event.addCapability(FOREIGN, provider(ForgeCapabilities.ENERGY, new EnergyStorage(10_000, 10_000, 0)));
+            } else if (event.getObject() instanceof LecternBlockEntity) {
+                event.addCapability(FOREIGN, provider(ForgeCapabilities.ITEM_HANDLER, new ItemStackHandler(1)));
+            }
+        });
+    }
+
     private ForgeAdapterGameTests() {}
+
+    private static <T> ICapabilityProvider provider(Capability<T> capability, T instance) {
+        LazyOptional<T> optional = LazyOptional.of(() -> instance);
+        return new ICapabilityProvider() {
+            @Override
+            public <C> LazyOptional<C> getCapability(Capability<C> asked, @Nullable Direction side) {
+                return asked == capability ? optional.cast() : LazyOptional.empty();
+            }
+        };
+    }
+
+    /** Upstream's providing transactor: a mining well offers pipes an item handler to connect to, but takes no items. */
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void providingMachinesRefuseInsertion(GameTestHelper helper) {
+        MiningWellBlockEntity well = BCTests.idleMiningWell(helper, new BlockPos(1, 1, 1));
+        IItemHandler items = well.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.NORTH).orElseThrow(IllegalStateException::new);
+        ItemStack apple = new ItemStack(Items.APPLE);
+        BCTests.require(helper, ItemStack.matches(items.insertItem(0, apple.copy(), false), apple), "the mining well must take no items");
+        BCTests.require(helper, items.extractItem(0, 64, false).isEmpty(), "the mining well must give no items");
+        helper.succeed();
+    }
+
+    /** A Stirling engine pushes its power into another mod's Forge Energy storage. */
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void enginePushesIntoForeignEnergyStorage(GameTestHelper helper) {
+        StirlingEngineBlockEntity engine = BCTests.engine(helper, new BlockPos(1, 1, 1), BCEnergy.STIRLING_ENGINE.get(), Direction.EAST,
+                StirlingEngineBlockEntity.class);
+        engine.setItem(0, new ItemStack(Items.COAL));
+        helper.setBlock(new BlockPos(2, 1, 1), Blocks.ENCHANTING_TABLE);
+        helper.setBlock(new BlockPos(0, 1, 1), Blocks.REDSTONE_BLOCK);
+        helper.succeedWhen(() -> {
+            IEnergyStorage storage = helper.getBlockEntity(new BlockPos(2, 1, 1)).getCapability(ForgeCapabilities.ENERGY, Direction.WEST)
+                    .orElseThrow(IllegalStateException::new);
+            BCTests.require(helper, storage instanceof EnergyStorage, "the stand-in energy storage must be the one found");
+            BCTests.require(helper, storage.getEnergyStored() > 0, "the engine must push energy into the foreign storage");
+        });
+    }
+
+    /** An item pipe delivers into another mod's item handler. */
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void pipeDeliversIntoForeignItemStorage(GameTestHelper helper) {
+        BCTests.chest(helper, new BlockPos(0, 1, 1));
+        PipeBlockEntity pipe = BCTests.pipe(helper, new BlockPos(1, 1, 1), BCTransport.STONE_ITEM);
+        helper.setBlock(new BlockPos(2, 1, 1), Blocks.LECTERN);
+        helper.runAfterDelay(2, () -> {
+            IItemHandler items = pipe.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.WEST).orElseThrow(IllegalStateException::new);
+            BCTests.require(helper, items.insertItem(0, new ItemStack(Items.APPLE, 3), false).isEmpty(), "the pipe must take the apples");
+            helper.succeedWhen(() -> {
+                IItemHandler foreign = helper.getBlockEntity(new BlockPos(2, 1, 1)).getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.WEST)
+                        .orElseThrow(IllegalStateException::new);
+                ItemStack held = foreign.getStackInSlot(0);
+                BCTests.require(helper, foreign instanceof ItemStackHandler && held.is(Items.APPLE) && held.getCount() == 3,
+                        "the apples must reach the foreign item handler, found " + held);
+            });
+        });
+    }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void forgeEnergyCapability(GameTestHelper helper) {

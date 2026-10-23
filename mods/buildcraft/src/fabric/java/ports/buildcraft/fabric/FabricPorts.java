@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.lib.InventoryUtil;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.ItemPort;
@@ -335,7 +336,8 @@ final class FabricPorts {
             return port.extract(resource::matches, max, false).getCount();
         }
 
-        @Override public boolean supportsInsertion() { return live(); }
+        /** Providing machines (the mining well and the quarry) expose a storage so pipes connect, but take nothing. */
+        @Override public boolean supportsInsertion() { return port != InventoryUtil.PROVIDING && live(); }
         @Override public boolean supportsExtraction() { return rollback && live(); }
         @Override public Iterator<StorageView<ItemVariant>> iterator() { return Collections.emptyIterator(); }
         @Override protected Object createSnapshot() { return rollback ? port.snapshot() : pending.size(); }

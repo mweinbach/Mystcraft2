@@ -156,8 +156,9 @@ public final class FacadeTests {
 
             ItemStack drop = FacadeItem.create(FacadeInstance.single(FacadeStateManager.info(Blocks.STONE.defaultBlockState()), false));
             helper.setBlock(b, Blocks.AIR);
-            lookWest(helper, player, a);
-            BCTests.require(helper, PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, player)
+            ServerPlayer breaker = BCTests.connectedPlayer(helper, "facade_breaker");
+            lookWest(helper, breaker, a);
+            BCTests.require(helper, PipeBlock.onPlayerDestroy(helper.getLevel(), absolute, breaker)
                     && pipe.getPluggable(Direction.EAST) == null && helper.getBlockState(a).getBlock() instanceof PipeBlock
                     && BuilderTests.dropped(helper, a, drop), "breaking the facade drops it and keeps the pipe");
 

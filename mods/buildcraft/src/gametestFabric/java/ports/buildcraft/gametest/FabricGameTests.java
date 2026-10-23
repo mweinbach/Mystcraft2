@@ -38,6 +38,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public void stirlingEngineBurnsCoal(GameTestHelper helper) { BCTests.stirlingEngineBurnsCoal(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void stirlingEngineKeepsFuelRemainder(GameTestHelper helper) { BCTests.stirlingEngineKeepsFuelRemainder(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 300)
     public void combustionEngineBurnsFuel(GameTestHelper helper) { BCTests.combustionEngineBurnsFuel(helper); }
 
@@ -256,6 +259,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void plugBlocksConnectionsAndBreaksOff(GameTestHelper helper) { BCTests.plugBlocksConnectionsAndBreaksOff(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void cancelledBreakKeepsPluggable(GameTestHelper helper) { BCTests.cancelledBreakKeepsPluggable(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 1200)
     public void powerAdaptorDrivesWoodenPipeThroughBlockedFace(GameTestHelper helper) {
         BCTests.powerAdaptorDrivesWoodenPipeThroughBlockedFace(helper);
@@ -269,6 +275,9 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 60)
     public void gateTurnsRedstoneInputIntoSignal(GameTestHelper helper) { GateTests.gateTurnsRedstoneInputIntoSignal(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void redstoneWireJoinsOnlyTheGateFace(GameTestHelper helper) { GateTests.redstoneWireJoinsOnlyTheGateFace(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void gateGroupsPairsByLogic(GameTestHelper helper) { GateTests.gateGroupsPairsByLogic(helper); }

@@ -248,4 +248,13 @@ final class ForgePlatform implements Platform.Backend {
         BlockSnapshot snapshot = BlockSnapshot.create(level.dimension(), level, pos);
         return !MinecraftForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(snapshot, placedAgainst, player));
     }
+
+    /** What Forge's {@code ServerPlayerGameMode.destroyBlock} runs first; -1 means the event was cancelled. */
+    @Override
+    public boolean firePlayerBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return ForgeHooks.onBlockBreakEvent(level, player.gameMode.getGameModeForPlayer(), player, pos) != -1;
+    }
+
+    @Override
+    public void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {}
 }

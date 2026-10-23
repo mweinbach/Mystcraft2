@@ -190,10 +190,10 @@ final class FabricPlatform implements Platform.Backend {
         return time == null ? 0 : time;
     }
 
+    /** Fabric API's stack-aware remainder ({@code FabricItem#getRecipeRemainder}), which defaults to the item's own. */
     @Override
     public ItemStack craftingRemainder(ItemStack stack) {
-        Item remainder = stack.getItem().getCraftingRemainingItem();
-        return remainder == null ? ItemStack.EMPTY : new ItemStack(remainder);
+        return stack.getRecipeRemainder();
     }
 
     @Nullable @Override public EnergyPort findEnergy(Level level, BlockPos pos, Direction side) { return FabricPorts.findEnergy(level, pos, side); }
@@ -307,5 +307,23 @@ final class FabricPlatform implements Platform.Backend {
     public boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player) {
         BlockState replaced = level.getBlockState(pos);
         return replaced.isAir() || fireBlockBreak(level, pos, replaced, player);
+    }
+
+    /**
+     * What Fabric API's {@code ServerPlayerGameMode.destroyBlock} mixin does for a block, after vanilla's first check
+     * there (the held item may refuse, as a sword in creative does): {@code BEFORE}, then {@code CANCELED} if refused.
+     */
+    @Override
+    public boolean firePlayerBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        if (!player.getMainHandItem().getItem().canAttackBlock(state, level, pos, player)) return false;
+        BlockEntity tile = level.getBlockEntity(pos);
+        if (PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, tile)) return true;
+        PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(level, player, pos, state, tile);
+        return false;
+    }
+
+    @Override
+    public void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
+        PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
     }
 }
