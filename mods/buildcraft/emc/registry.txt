@@ -3,10 +3,15 @@ buildcraft:architect_table
 buildcraft:assembly_table
 buildcraft:blueprint_clean
 buildcraft:blueprint_used
+buildcraft:board_carrier
+buildcraft:board_lumberjack
+buildcraft:board_miner
+buildcraft:board_picker
 buildcraft:builder
 buildcraft:combustion_engine
 buildcraft:diamond_chipset
 buildcraft:distiller
+buildcraft:docking_station
 buildcraft:electronic_library
 buildcraft:filler
 buildcraft:filter_black
@@ -180,9 +185,11 @@ buildcraft:plug_timer
 buildcraft:pump
 buildcraft:quarry
 buildcraft:quartz_chipset
+buildcraft:redstone_board
 buildcraft:redstone_chipset
 buildcraft:redstone_engine
 buildcraft:replacer
+buildcraft:robot
 buildcraft:schematic_single_clean
 buildcraft:schematic_single_used
 buildcraft:stirling_engine

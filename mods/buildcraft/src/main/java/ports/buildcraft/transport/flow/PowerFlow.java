@@ -10,6 +10,7 @@ import ports.buildcraft.lib.Ports;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.transport.PipeBlockEntity;
+import ports.buildcraft.transport.pluggable.PipePluggable;
 
 /**
  * Upstream {@code PipeFlowPower} (kinesis pipes). Each face section holds power received this tick
@@ -119,7 +120,6 @@ public final class PowerFlow extends PipeFlow {
             s.powerTick = 0;
         }
         for (Direction face : Direction.values()) {
-            if (pipe.connectedType(face) != PipeBlockEntity.ConnectedType.TILE) continue;
             EnergyPort receiver = receiver(face);
             if (receiver == null) continue;
             long requested = Power.fromUnits(receiver.receive(Power.toUnits(maxPower), true));
@@ -162,8 +162,12 @@ public final class PowerFlow extends PipeFlow {
         return null;
     }
 
+    /** What takes power through {@code face}: a pluggable's power sink (the docking station), else a connected machine. */
     @Nullable
     private EnergyPort receiver(Direction face) {
+        PipePluggable plug = pipe.getPluggable(face);
+        EnergyPort sink = plug == null ? null : plug.powerSink();
+        if (sink != null) return sink.canReceive() ? sink : null;
         if (pipe.connectedType(face) != PipeBlockEntity.ConnectedType.TILE) return null;
         EnergyPort port = Ports.energy(pipe.getLevel(), pipe.getBlockPos().relative(face), face.getOpposite());
         return port != null && port.canReceive() ? port : null;

@@ -80,6 +80,33 @@ Recipes and tags use both conventional `c:` tags (Fabric 1.19.2 plural names suc
 BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`, and the wrench is
 `c:wrenches` and `forge:tools/wrench`.
 
+## Robots
+
+Robots, docking stations and redstone boards are a clean-room implementation written for this port (upstream has
+them only in its MMPL `src_old_license` trees; see [robots-clean-room.md](robots-clean-room.md)). They follow
+BuildCraft 7.1's public behaviour, so the details below are this port's own design rather than upstream parity.
+
+| Area | Behaviour |
+| --- | --- |
+| Robot | `buildcraft:robot` item and entity. Crafted from five iron ingots, a redstone block and two diamond chipsets; crafted robots are empty. Using it on a docking station deploys it docked there and calling that station home, owned by the player who used it. It holds 10,000 MJ, flies 0.25 blocks a tick for 1 MJ a block, carries four stacks and one tool, and drops them when it is picked up. Sneak-using it with an empty hand or a wrench returns it as an item that keeps its board and energy. It is drawn as upstream's robot cube with its board's skin, holding its tool or cargo beneath it. |
+| Charging | Below 10% energy a robot drops its job and flies to its home, or the nearest free station within 64 blocks, on a kinesis pipe; the station passes the pipe's power (up to 100 MJ a tick) into the docked robot until it holds 95%. An empty robot on its way to charge drifts at half speed for free, so it is never stranded. |
+| Docking station | `buildcraft:docking_station`, a pluggable on any pipe face, crafted from three iron ingots and an iron chipset. It blocks its face, saves which robot lives there and shows clients whether one is linked or docked. Robots unload into its item pipe when the pipe leads somewhere, otherwise into the inventories beside the pipe, and take tools and cargo from those inventories. |
+| Boards | A redstone board (eight paper around redstone) is programmed in the assembly table for 10,000 MJ with a hopper (picker), chest (carrier), iron axe (lumberjack) or iron pickaxe (miner). Use a board on a robot, or craft them together, to install it; the old board comes back, and a programmed robot alone crafts back into a robot and its board. |
+| Picker | Collects dropped items in its work area and brings them home. |
+| Carrier | Loads at stations whose gate provides items and delivers to stations whose gate accepts items or drops them in the pipe; stations without those gates are left alone. |
+| Lumberjack | Takes an axe from beside its home station, cuts the logs (`minecraft:logs`) in its work area and brings them home. |
+| Miner | Takes a pickaxe from beside its home station and digs ores (`c:ores`, `forge:ores` and the vanilla ore tags) that are open to air or fluid, bringing them home. Ores its tool cannot harvest, or that protection refuses, are skipped. |
+| Gate statements | A gate on a pipe with a docking station is offered Robot In Station, Station Linked, Station Reserved and Sleep, and the actions Provide Items and Accept Items (each with up to three item filters), Drop Items In Pipe, Forbid Robot, Wake Up and Work in Area (an area or zone map location). Actions hold while the gate keeps them active. |
+
+Deliberate differences and gaps:
+
+- Robots fly in straight lines through blocks, as ghosts; BuildCraft 7 path-found through air.
+- Blocks are broken as the robot's owner through `BlockProtection`, which asks the loader's break event before each break starts and again as it finishes. Breaking takes `max(4, hardness × 30 / tool speed)` ticks and half the quarry's power for that block.
+- Boards are programmed in the assembly table and installed by hand or in the crafting grid; there is no programming or integration table step. Boards are separate items rather than one item with NBT.
+- A board's current job is not saved: a reloaded robot looks for work again. Claims on targets and the station registry are rebuilt as robots and stations tick.
+- The work area is a 33-block cube around the home station unless a Work in Area gate gives one; boxes are capped at 64 blocks a side.
+- Phase 2 boards are not yet ported: farmer, planter, harvester, leaf cutter, shovelman, fluid carrier and pump, knight, butcher, shear, stripes, builder, crafter, delivery (requests), breaker and bomber; also the requester, robot goggles, Load/Unload in Area, Goto Station, Request Items, the fluid station actions and the robot filter actions.
+
 ## Deliberate differences
 
 - **Builders recipes:** upstream 8.0 left the filler, builder, electronic library and replacer without
@@ -452,7 +479,7 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   programming tables, which upstream only registered in development builds; the `laser_power` and `precision_crafting`
   advancements; the `renderLaserBeams` display option and goggles (beams are always drawn, upstream's default); the
   advanced crafting table's recipe book and upstream's in-GUI help ledgers.
-- **Robotics:** robots, docking stations, the requester, redstone boards, the robot station pluggable, robot goggles and the old map system. At the pinned revision those live only in the MMPL `src_old_license` and `common_old_license` trees, so they are later slices. The MPL `robotics` module is the zone planner, which this port includes. The programming table remains the unregistered silicon stub.
+- **Robotics:** the requester, robot goggles, the old map system and the phase 2 robot boards listed under [Robots](#robots). Robots, docking stations and the picker, carrier, lumberjack and miner boards are this port's clean-room code, since upstream has them only in its MMPL `src_old_license` and `common_old_license` trees. The programming table remains the unregistered silicon stub.
 - **Misc:** 1.12 world migration, IMC and addon APIs, statistics and advancements.
 
 ## Multiplayer
@@ -499,7 +526,7 @@ the combustion engine burning oil into residue, the distiller splitting oil and 
 progress, heat exchanger rows
 forming, rotating and breaking (dropping shards), the water spring refilling, a heat exchanger heating oil with lava, fragile
 fluid shards splitting fluid, dropping from every broken fluid holder and emptying into a tank,
-containers clicked and shift-clicked on GUI tanks in survival and creative, the zone planner storing columns and a half-open painted rectangle (keeping upstream's full-chunk clear and chunk distance), map locations recording a spot, a land mark area and a path from a stack and clearing in the air, the planner importing and exporting a zone over 201 ticks and saving it, its menu refusing hoppers and a plan packet once the GUI closes and dropping its brushes, the map colouring the top block of a column, the paintbrush and zone planner recipes, and recipes (including the silicon machines and chipsets) and tags. Loader-specific tests check the Forge
+containers clicked and shift-clicked on GUI tanks in survival and creative, the zone planner storing columns and a half-open painted rectangle (keeping upstream's full-chunk clear and chunk distance), map locations recording a spot, a land mark area and a path from a stack and clearing in the air, the planner importing and exporting a zone over 201 ticks and saving it, its menu refusing hoppers and a plan packet once the GUI closes and dropping its brushes, the map colouring the top block of a column, the paintbrush and zone planner recipes, and recipes (including the silicon machines and chipsets) and tags. Robot tests cover the robot, board and station recipes and installing or removing boards by crafting, deploying a robot on a station and taking it back with its board and energy (saved and synced), a low robot flying home to charge from a kinesis pipe and returning to work, the picker, carrier, lumberjack and miner each doing its job in a gate's Work in Area, the miner skipping sealed ores and one protection refuses (naming its owner), and the robot triggers and station actions. Loader-specific tests check the Forge
 capabilities (`ForgeAdapterGameTests`) and the Team Reborn Energy and Transfer API storages
 (`FabricAdapterGameTests`), including transaction rollback and draining shards. `EmcGameTests` audits EMC coverage and,
 with `-PwithProjectE` or `-PwithItemAlchemy`, the live values.

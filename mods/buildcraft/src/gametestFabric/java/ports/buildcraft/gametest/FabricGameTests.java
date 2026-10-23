@@ -6,7 +6,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests} and {@link RecipeAuditTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests} and {@link RobotTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -461,4 +461,28 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void robotRecipesAndItems(GameTestHelper helper) { RobotTests.robotRecipesAndItems(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void stationDeploysAndReturnsRobots(GameTestHelper helper) { RobotTests.stationDeploysAndReturnsRobots(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public void robotRechargesAtItsStation(GameTestHelper helper) { RobotTests.robotRechargesAtItsStation(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void pickerCollectsItemsToItsStation(GameTestHelper helper) { RobotTests.pickerCollectsItemsToItsStation(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void carrierMovesItemsBetweenStations(GameTestHelper helper) { RobotTests.carrierMovesItemsBetweenStations(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void lumberjackCutsLogsWithAnAxeFromHome(GameTestHelper helper) { RobotTests.lumberjackCutsLogsWithAnAxeFromHome(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void minerDigsOpenOresItMayBreak(GameTestHelper helper) { RobotTests.minerDigsOpenOresItMayBreak(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public void robotStatements(GameTestHelper helper) { RobotTests.robotStatements(helper); }
 }

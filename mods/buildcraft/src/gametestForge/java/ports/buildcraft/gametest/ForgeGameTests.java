@@ -10,7 +10,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests} and {@link RecipeAuditTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests} and {@link RobotTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
@@ -471,4 +471,28 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void robotRecipesAndItems(GameTestHelper helper) { RobotTests.robotRecipesAndItems(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void stationDeploysAndReturnsRobots(GameTestHelper helper) { RobotTests.stationDeploysAndReturnsRobots(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void robotRechargesAtItsStation(GameTestHelper helper) { RobotTests.robotRechargesAtItsStation(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void pickerCollectsItemsToItsStation(GameTestHelper helper) { RobotTests.pickerCollectsItemsToItsStation(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void carrierMovesItemsBetweenStations(GameTestHelper helper) { RobotTests.carrierMovesItemsBetweenStations(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void lumberjackCutsLogsWithAnAxeFromHome(GameTestHelper helper) { RobotTests.lumberjackCutsLogsWithAnAxeFromHome(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void minerDigsOpenOresItMayBreak(GameTestHelper helper) { RobotTests.minerDigsOpenOresItMayBreak(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void robotStatements(GameTestHelper helper) { RobotTests.robotStatements(helper); }
 }
