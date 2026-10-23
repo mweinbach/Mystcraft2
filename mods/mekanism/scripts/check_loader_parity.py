@@ -73,16 +73,15 @@ main = files_under(MOD / 'src/main/resources')
 fabric_src = files_under(MOD / 'src/fabric/resources')
 forge_src = files_under(MOD / 'src/forge/resources')
 
-for path in (forge, fabric):
-    require(path.is_file(), f'missing {path.relative_to(MOD)}; build both variants first')
-
+parity.assert_built(forge, fabric)
 with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     require(forge_jar.testzip() is None and fabric_jar.testzip() is None, 'corrupt artifact')
     forge_names = set(forge_jar.namelist())
     fabric_names = set(fabric_jar.namelist())
 
     forge_mod, fabric_mod = parity.check_descriptors(
-        forge_jar, fabric_jar, mod_id=metadata['mod_id'], version=version, fail=require)
+        forge_jar, fabric_jar, mod_id=metadata['mod_id'], version=version,
+        license_id=metadata['mod_license'], fail=require)
     require(MIXIN_CONFIG not in forge_names and MIXIN_REFMAP not in forge_names,
             'Fabric mixin config leaked into Forge')
     require(fabric_mod['depends'].get('team_reborn_energy'), 'Fabric build must depend on Team Reborn Energy')
@@ -90,12 +89,15 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     require(fabric_mod.get('mixins') == [MIXIN_CONFIG], 'fabric.mod.json must list the mixin config')
     require(fabric_mod.get('accessWidener') == 'mekanism.accesswidener', 'missing access widener')
 
-    bundled = parity.check_nested_libraries(forge_jar, fabric_jar, fabric_mod, NESTED, fail=require)
+    shared_checks = parity.check_artifact_pair(forge_jar, fabric_jar, fabric_mod, build_dir=MOD / 'fabric',
+                                               src=MOD / 'src', nested=NESTED, label='mekanism', fail=require)
 
     parity.check_cross_loader(forge_jar, fabric_jar, forge_forbidden=(b'net/fabricmc/', b'team/reborn/'),
                               fail=require)
     parity.check_gametests((forge_jar, fabric_jar), *GAMETEST_ROOTS,
                                   class_substrings=('gametest',), fail=require)
+    # One GameTest mod covers Mekanism and its modules on each loader.
+    tests, loader_only = parity.check_loader_gametests(MOD, fail=require)
 
     # Jade and the ComputerCraft peripheral are shared. The One Probe, the Curios adapter and the ProjectE
     # mappers are Forge-only. WTHIT, the Fabric peripheral provider and the Trinkets adapter are Fabric-only, so
@@ -224,8 +226,9 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
 
     identical = len(shared_paths - overrides)
     print(f'PASS: {len(forge_classes)} shared classes, {identical} identical gameplay resources, '
-          f'{len(overrides)} Fabric tag-bridge overrides; loader isolation, mixins, nested libraries, '
-          'EMC data and attribution valid.')
+          f'{len(overrides)} Fabric tag-bridge overrides; {parity.summary(shared_checks)}; '
+          f'{tests} GameTests on both loaders, {loader_only} allowlisted to one; loader isolation, mixins, '
+          'nested libraries, EMC data and attribution valid.')
 
 
 MODULES = (
@@ -243,8 +246,7 @@ def module_jars(name, mod_id):
 def check_module(name, mod_id, expect_emc):
     """One extra mod id: its own jar on each loader, sharing the module's classes and resources."""
     forge_path, fabric_path = module_jars(name, mod_id)
-    for path in (forge_path, fabric_path):
-        require(path.is_file(), f'missing {path.relative_to(MOD)}; build both variants first')
+    parity.assert_built(forge_path, fabric_path)
     shared = files_under(MOD / 'src' / name / 'resources')
     prefix = f'mekanism/{name}/'
     entry = f'ports/mekanism/{name}/fabric/'
@@ -258,8 +260,13 @@ def check_module(name, mod_id, expect_emc):
         fabric_names = set(fabric_jar.namelist())
 
         forge_mod, fabric_mod = parity.check_descriptors(
-            forge_jar, fabric_jar, mod_id=mod_id, version=version, fail=require)
+            forge_jar, fabric_jar, mod_id=mod_id, version=version, license_id=metadata['mod_license'],
+            fail=require)
         require(fabric_mod['depends'].get('mekanism'), f'{mod_id}: Fabric jar must depend on mekanism')
+        # Each module jar must carry its own mixin config's refmap (MEK-1) and nests nothing.
+        shared_checks = parity.check_artifact_pair(
+            forge_jar, fabric_jar, fabric_mod, build_dir=MOD / 'fabric', src=MOD / 'src', nested=(),
+            label=mod_id, extra_depends={'mekanism': version}, fail=require)
         parity.check_cross_loader(forge_jar, fabric_jar, forge_forbidden=(b'net/fabricmc/', b'team/reborn/'),
                                   fail=require)
         parity.check_gametests((forge_jar, fabric_jar), *GAMETEST_ROOTS,
@@ -302,7 +309,7 @@ def check_module(name, mod_id, expect_emc):
             require('LICENSE' in jar.namelist() and jar.read('LICENSE') == (MOD / 'LICENSE').read_bytes(),
                     f'{mod_id}: LICENSE mismatch')
     print(f'PASS: {mod_id} {len(forge_classes)} shared classes, {len(expected)} gameplay resources, '
-          f'{len(bridge_paths)} Fabric tag bridges.')
+          f'{len(bridge_paths)} Fabric tag bridges; {parity.summary(shared_checks)}.')
     parity.print_hashes(forge_path, fabric_path)
 
 

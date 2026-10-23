@@ -51,5 +51,11 @@ fi
 
 source "$repo_root/scripts/env.sh"
 "$JAVA_HOME/bin/javac" -version
+# The loader parity gates read mods.toml with tomllib (3.11+); older Pythons use tomli from .local/tomli.
+if ! python3 -c 'import tomllib' 2>/dev/null && ! python3 -c 'import tomli' 2>/dev/null &&
+   [[ ! -d .local/tomli/tomli ]]; then
+    python3 -m pip install --quiet --target .local/tomli tomli ||
+        echo 'Could not install tomli; the loader parity gates need Python 3.11+ or tomli.' >&2
+fi
 python3 scripts/ports.py check
 ./scripts/gradle.sh --version

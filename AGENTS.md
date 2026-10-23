@@ -15,7 +15,15 @@ Minecraft as part of a port.
   environment so Java and proxy trust are configured.
 - Each port's gate is `mods/<mod>/scripts/check_loader_parity.py`; use the shared
   `scripts/loader_parity.py` helpers for the common artifact checks instead of
-  copying them between ports. The gates need Python 3.11+ (`tomllib`); CI uses 3.12.
+  copying them between ports. Every gate runs `assert_built`, `check_descriptors`
+  with the license, `check_artifact_pair` (each jar's mixin refmaps in that same
+  jar, entrypoint classes, `depends` floors against the Fabric build, access
+  widener with at least one entry, nested libraries, GameTest fixtures) for every
+  jar pair it owns, and `check_loader_gametests`. A GameTest that only one loader
+  registers must be listed in `mods/<mod>/gametest-loader-only.txt` with a reason;
+  move tests to shared code and delete their lines rather than adding new ones.
+  The gates run on Python 3.9+: `tomllib` on 3.11+, otherwise `tomli` or the copy
+  `./scripts/setup.sh` installs in `.local/tomli`. CI uses 3.12.
 - Validate metadata with `python3 scripts/ports.py check`. For tooling changes,
   run `python3 -m unittest discover -s scripts/tests -v`. Build the affected port
   with `./scripts/gradle.sh :<mod-id>:build`; build all ports for shared changes.

@@ -26,12 +26,15 @@ REPOSITORY = 'https://github.com/mweinbach/Mystcraft2'
 BIOME_TAG = 'data/mystcraft/tags/worldgen/biome/has_exploration.json'
 
 
+parity.assert_built(forge, fabric)
 with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(a.testzip() is None and b.testzip() is None, 'Corrupt artifact')
     fm, bm = parity.check_descriptors(a, b, mod_id='mystcraft', version=version,
-                                     description=metadata['mod_description'])
+                                     description=metadata['mod_description'],
+                                     license_id=metadata['mod_license'])
+    shared = parity.check_artifact_pair(a, b, bm, build_dir=MOD / 'fabric', src=MOD / 'src',
+                                        nested=NESTED, label='mystcraft')
     parity.require(bm['depends'].get('fluidphysics'), 'Fabric build must depend on Fluid Physics')
-    parity.check_nested_libraries(a, b, bm, NESTED)
     parity.require(bm.get('icon') == ICON and ICON in b.namelist(), 'Fabric icon missing')
     parity.require(fm.get('logoFile') == ICON and ICON in a.namelist(), 'Forge logoFile missing')
     for key in ('homepage', 'sources', 'issues'):
@@ -41,6 +44,7 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(modifier.get('biomes') == '#mystcraft:has_exploration', 'Forge exploration modifier must select the shared biome tag')
     parity.check_cross_loader(a, b)
     parity.check_gametests((a, b), *GAMETEST_SOURCES)
+    tests, loader_only = parity.check_loader_gametests(MOD)
     paths = parity.gameplay_paths(a)
     parity.require(paths == parity.gameplay_paths(b), 'Gameplay resource path mismatch')
     for name in sorted(paths):
@@ -86,5 +90,7 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
             parity.require(mapped_prefix in json.dumps(mappings.get(namespace + name, {})), f'Missing production mapping: {name}')
     parity.require('MixinConfigs: mystcraft.forge.mixins.json' in a.read('META-INF/MANIFEST.MF').decode(),
                    'Forge manifest must load its mixin configuration')
-    print(f'PASS: {len(paths)} identical gameplay resources; loader isolation, metadata and both production refmaps valid.')
+    print(f'PASS: {len(paths)} identical gameplay resources; {parity.summary(shared)}; '
+          f'{tests} GameTests on both loaders, {loader_only} allowlisted to one; '
+          'loader isolation, metadata and both production refmaps valid.')
 parity.print_hashes(forge, fabric)

@@ -47,6 +47,7 @@ def check_mixins(jar, config_name, refmap_prefixes, loader_package):
     return config, {name for name in names if not name.startswith(LOADER_PACKAGES)}
 
 
+parity.assert_built(forge, fabric)
 with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(a.testzip() is None and b.testzip() is None, 'Corrupt artifact')
     forge_mod, fabric_mod = parity.check_descriptors(
@@ -54,13 +55,15 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
         description=metadata['mod_description'], license_id=metadata['mod_license'])
     parity.require('LICENSE' in a.namelist() and 'LICENSE' in b.namelist()
                    and a.read('LICENSE') == b.read('LICENSE'), 'License mismatch')
-    parity.check_nested_libraries(a, b, fabric_mod, FABRIC_NESTED)
+    shared = parity.check_artifact_pair(a, b, fabric_mod, build_dir=MOD / 'fabric', src=MOD / 'src',
+                                        nested=FABRIC_NESTED, label='advancedgenetics')
     for notice in NESTED_LICENSES:
         parity.require(b.read(notice) == (MOD / 'licenses' / notice.rsplit('/', 1)[1]).read_bytes(),
                        f'Bundled-library license missing: {notice}')
 
     parity.check_cross_loader(a, b)
     parity.check_gametests((a, b), *GAMETEST_SOURCES, entry_prefixes=('data/advancedgenetics_gametest/',))
+    tests, loader_only = parity.check_loader_gametests(MOD)
 
     shared_paths = parity.gameplay_paths(a, extra=('pack.mcmeta',))
     fabric_paths = parity.gameplay_paths(b, extra=('pack.mcmeta',))
@@ -82,7 +85,9 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require(forge_shared == fabric_shared, 'Shared mixins differ: ' + ', '.join(sorted(forge_shared ^ fabric_shared)))
     parity.require(forge_config['package'] == fabric_config['package'], 'Mixin packages differ')
 
-    print(f'PASS: {len([n for n in shared_paths if not n.endswith("/")])} identical gameplay resources, '
-          f'{len(shared_classes(a))} shared classes, {len(forge_shared)} shared mixins; loader isolation, metadata, '
+    resources = len([n for n in shared_paths if not n.endswith('/')])
+    print(f'PASS: {resources} identical gameplay resources, '
+          f'{len(shared_classes(a))} shared classes, {len(forge_shared)} shared mixins; {parity.summary(shared)}; '
+          f'{tests} GameTests on both loaders, {loader_only} allowlisted to one; loader isolation, metadata, '
           'nested libraries, GameTest exclusion and both refmaps valid.')
 parity.print_hashes(forge, fabric)
