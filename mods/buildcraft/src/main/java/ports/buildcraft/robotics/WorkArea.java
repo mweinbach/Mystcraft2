@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.core.MapLocationItem;
@@ -46,14 +47,23 @@ public record WorkArea(BlockPos min, BlockPos max, @Nullable ZonePlan zone) {
                     new BlockPos(tag.getInt("xMax"), tag.getInt("yMax"), tag.getInt("zMax")), null);
             case ZONE -> {
                 ZonePlan plan = MapLocationItem.zone(stack);
-                if (plan == null || plan.columns().isEmpty()) yield null;
-                BlockPos lo = null, hi = null;
-                for (BlockPos column : plan.columns()) {
-                    lo = lo == null ? column : new BlockPos(Math.min(lo.getX(), column.getX()), 0, Math.min(lo.getZ(), column.getZ()));
-                    hi = hi == null ? column : new BlockPos(Math.max(hi.getX(), column.getX()), 0, Math.max(hi.getZ(), column.getZ()));
+                if (plan == null) yield null;
+                int minX = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+                for (ChunkPos chunk : plan.chunks()) {
+                    for (int dz = 0; dz < 16; dz++) {
+                        for (int dx = 0; dx < 16; dx++) {
+                            int x = chunk.getMinBlockX() + dx, z = chunk.getMinBlockZ() + dz;
+                            if (!plan.get(x, z)) continue;
+                            minX = Math.min(minX, x);
+                            minZ = Math.min(minZ, z);
+                            maxX = Math.max(maxX, x);
+                            maxZ = Math.max(maxZ, z);
+                        }
+                    }
                 }
-                yield new WorkArea(new BlockPos(lo.getX(), station.getY() - ZONE_HALF_HEIGHT, lo.getZ()),
-                        new BlockPos(hi.getX(), station.getY() + ZONE_HALF_HEIGHT, hi.getZ()), plan);
+                if (minX > maxX) yield null;
+                yield new WorkArea(new BlockPos(minX, station.getY() - ZONE_HALF_HEIGHT, minZ),
+                        new BlockPos(maxX, station.getY() + ZONE_HALF_HEIGHT, maxZ), plan);
             }
             default -> null;
         };

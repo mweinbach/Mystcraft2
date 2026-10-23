@@ -14,8 +14,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -253,6 +256,18 @@ public final class RobotTests {
         require(helper, robots == 1 && RobotItem.board(returned) == RobotBoardType.MINER && RobotItem.energy(returned) > 0,
                 "the robot comes back as an item with its board and energy");
         require(helper, !station.isLinked() && !station.hasDockedRobot(), "taking the robot frees its station");
+
+        RobotEntity away = deploy(helper, player, pos, station, RobotBoardType.PICKER);
+        away.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+        require(helper, useAt(helper, player, pos, Direction.UP, ON_STATION, RobotItem.create(null, 0)) == InteractionResult.FAIL,
+                "a station stays reserved for its robot while the robot is in unloaded chunks");
+
+        ItemStack badZone = new ItemStack(BCCore.MAP_LOCATION.get());
+        MapLocationItem.Type.ZONE.set(badZone);
+        ListTag notChunks = new ListTag();
+        notChunks.add(IntTag.valueOf(7));
+        badZone.getOrCreateTag().put("chunkMapping", notChunks);
+        require(helper, WorkArea.fromMap(badZone, helper.absolutePos(pos)) == null, "a malformed zone map gives no work area");
         helper.succeed();
     }
 

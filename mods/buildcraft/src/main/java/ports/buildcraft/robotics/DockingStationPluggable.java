@@ -361,7 +361,8 @@ public class DockingStationPluggable extends PipePluggable {
     public InteractionResult onActivate(Player player, InteractionHand hand, Vec3 hit) {
         ItemStack held = player.getItemInHand(hand);
         if (!(held.getItem() instanceof RobotItem)) return InteractionResult.PASS;
-        if (linked != null && linkedRobot() != null || hasDockedRobot()) return InteractionResult.FAIL;
+        // A station stays its robot's home while that robot is away, even in unloaded chunks.
+        if (isLinked() || hasDockedRobot()) return InteractionResult.FAIL;
         if (holder.getLevel().isClientSide) return InteractionResult.SUCCESS;
         RobotEntity robot = RobotItem.createRobot((ServerLevel) holder.getLevel(), held, ref());
         robot.setOwner(player.getGameProfile());

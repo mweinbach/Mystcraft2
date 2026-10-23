@@ -133,7 +133,7 @@ public final class ZonePlan {
         Tag stored = tag.get("chunkMapping");
         if (!(stored instanceof ListTag list)) return;
         for (Tag element : list) {
-            CompoundTag chunkTag = (CompoundTag) element;
+            if (!(element instanceof CompoundTag chunkTag)) continue;
             ZoneChunk chunk = new ZoneChunk();
             chunk.read(chunkTag);
             chunks.put(new ChunkPos(chunkTag.getInt("chunkX"), chunkTag.getInt("chunkZ")), chunk);
