@@ -64,13 +64,31 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertNotIn("forge_props", fluidphysics)
         self.assertNotIn("fabric_props", fluidphysics)
         jurassicraft = matrix_entry(self.text, "jurassicraft")
-        self.assertIn("forge_props: -PwithProjectE", jurassicraft)
+        self.assertIn("forge_props: -PwithProjectE -PwithJade -PwithJei\n", jurassicraft)
         self.assertIn("fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy", jurassicraft)
         for port in ("advancedgenetics", "mystcraft", "buildcraft", "extremereactors", "mekanism"):
             entry = matrix_entry(self.text, port)
-            self.assertIn("forge_props: -PwithProjectE", entry)
-            self.assertIn("fabric_props: -PwithItemAlchemy", entry)
-            self.assertNotIn("withJade", entry)
+            self.assertIn("forge_props: -PwithProjectE\n", entry)
+            self.assertIn("fabric_props: -PwithItemAlchemy\n", entry)
+
+    def test_optional_integrations_and_smoke_suite_run(self):
+        """Optional integrations get their own GameTest runs, apart from the EMC runs; Mystcraft runs its smoke suite."""
+        mekanism = matrix_entry(self.text, "mekanism")
+        self.assertIn("forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender\n",
+                      mekanism)
+        self.assertIn("fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender\n",
+                      mekanism)
+        extremereactors = matrix_entry(self.text, "extremereactors")
+        self.assertIn("forge_compat_props: -PwithCompat\n", extremereactors)
+        self.assertIn("fabric_compat_props: -PwithCompat -PwithMekanism\n", extremereactors)
+        self.assertIn("fabric_compat_props: -PwithEmi -PwithJei -PwithRei\n", matrix_entry(self.text, "icbm_port"))
+        self.assertIn("smoke: true\n", matrix_entry(self.text, "mystcraft"))
+        self.assertIn('gradle_with_props "$FORGE_COMPAT_PROPS" ":${PORT}:runGameTestServer"', self.text)
+        self.assertIn('gradle_with_props "$FABRIC_COMPAT_PROPS" -p "mods/${PORT}/fabric" runGametest', self.text)
+        self.assertIn('gradle_with_props "$FABRIC_COMPAT_PROPS" :icbm_port:runGametest', self.text)
+        self.assertIn(":mystcraft:runSmokeGameTestServer -PenableSmokeTests", self.text)
+        self.assertIn("-p mods/mystcraft/fabric runSmokeGametest -PenableSmokeTests", self.text)
+        self.assertEqual(self.text.count("MYSTCRAFT_SMOKE_GAMETEST MYSTCRAFT_SMOKE_COMPLETE"), 2)
 
     def test_every_emc_port_compares_live_values_with_both_emc_mods(self):
         """Each port's GameTest EmcAudit compares the shipped values with the live EMC mod when it is loaded."""

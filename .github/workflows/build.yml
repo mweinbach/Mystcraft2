@@ -72,6 +72,7 @@ jobs:
               mods/metalrender/build/reports/tests/test/
           - id: icbm_port
             kind: icbm
+            fabric_compat_props: -PwithEmi -PwithJei -PwithRei
             jars: mods/icbm_port/build/libs/*.jar
             reports: |
               mods/icbm_port/build/*-results.xml
@@ -92,13 +93,17 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
+            smoke: true
             jars: |
               mods/mystcraft/build/libs/*.jar
               mods/mystcraft/fabric/build/libs/*.jar
             reports: |
               mods/mystcraft/run/gameTestServer/logs/latest.log
+              mods/mystcraft/run/smokeGameTestServer/logs/latest.log
               mods/mystcraft/fabric/build/gametest-results.xml
               mods/mystcraft/fabric/build/gametest/logs/latest.log
+              mods/mystcraft/fabric/build/smoke-gametest-results.xml
+              mods/mystcraft/fabric/build/smokegametest/logs/latest.log
           - id: buildcraft
             kind: dual
             forge_props: -PwithProjectE
@@ -114,6 +119,10 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
+            # Mekanism enables the steel recipes and so changes derived EMC; it runs apart from the EMC mods.
+            # On Forge -PwithCompat also adds Mekanism.
+            forge_compat_props: -PwithCompat
+            fabric_compat_props: -PwithCompat -PwithMekanism
             jars: |
               mods/extremereactors/build/libs/*.jar
               mods/extremereactors/fabric/build/libs/*.jar
@@ -123,7 +132,7 @@ jobs:
               mods/extremereactors/fabric/build/gametest/logs/latest.log
           - id: jurassicraft
             kind: dual
-            forge_props: -PwithProjectE
+            forge_props: -PwithProjectE -PwithJade -PwithJei
             fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy
             jars: |
               mods/jurassicraft/build/libs/*.jar
@@ -136,6 +145,8 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
+            forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender
+            fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender
             jars: |
               mods/mekanism/build/libs/*.jar
               mods/mekanism/fabric/build/libs/*.jar
@@ -148,6 +159,8 @@ jobs:
       KIND: ${{ matrix.kind }}
       FORGE_PROPS: ${{ matrix.forge_props }}
       FABRIC_PROPS: ${{ matrix.fabric_props }}
+      FORGE_COMPAT_PROPS: ${{ matrix.forge_compat_props }}
+      FABRIC_COMPAT_PROPS: ${{ matrix.fabric_compat_props }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
@@ -212,6 +225,44 @@ jobs:
               exit 1
               ;;
           esac
+      # A second GameTest run with the port's optional integrations installed, apart from the EMC runs above.
+      - name: Run GameTests with optional integrations
+        if: ${{ matrix.forge_compat_props || matrix.fabric_compat_props }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT="${PORT:-}"
+          if [[ ! "$PORT" =~ ^[a-z][a-z0-9_]{1,63}$ ]]; then
+            echo "Unexpected port id: $PORT" >&2
+            exit 1
+          fi
+          gradle_with_props() {
+            local -a extra=()
+            read -r -a extra <<< "$1"
+            shift
+            ./gradlew --no-daemon "$@" "${extra[@]}"
+          }
+          if [ "${KIND:-}" = icbm ]; then
+            gradle_with_props "$FABRIC_COMPAT_PROPS" :icbm_port:runGametest
+          else
+            if [ -n "${FORGE_COMPAT_PROPS:-}" ]; then
+              gradle_with_props "$FORGE_COMPAT_PROPS" ":${PORT}:runGameTestServer"
+            fi
+            if [ -n "${FABRIC_COMPAT_PROPS:-}" ]; then
+              gradle_with_props "$FABRIC_COMPAT_PROPS" -p "mods/${PORT}/fabric" runGametest
+            fi
+          fi
+      # Mystcraft's dedicated-server smoke suite (mystcraft_smoke) runs as one GameTest on each loader's headless
+      # GameTest server, the same server the GameTest runs use. It does not read eula.txt, so no EULA is accepted.
+      - name: Run the Mystcraft smoke suite
+        if: ${{ matrix.smoke }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon :mystcraft:runSmokeGameTestServer -PenableSmokeTests
+          grep -F 'MYSTCRAFT_SMOKE_GAMETEST MYSTCRAFT_SMOKE_COMPLETE' mods/mystcraft/run/smokeGameTestServer/logs/latest.log
+          ./gradlew --no-daemon -p mods/mystcraft/fabric runSmokeGametest -PenableSmokeTests
+          grep -F 'MYSTCRAFT_SMOKE_GAMETEST MYSTCRAFT_SMOKE_COMPLETE' mods/mystcraft/fabric/build/smokegametest/logs/latest.log
       - name: Upload GameTest reports
         if: failure()
         uses: actions/upload-artifact@v4

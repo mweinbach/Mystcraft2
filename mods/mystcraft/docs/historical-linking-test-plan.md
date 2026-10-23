@@ -100,6 +100,23 @@ assertions emit `MYSTCRAFT_SMOKE_PASS`, the complete run emits
 Run separately on both loaders and record the actual output in the validation report.
 Remove the test mod after the run; it is not part of the user-facing gameplay artifact.
 
+### Headless runs (CI)
+
+CI runs the same command without a dedicated server. `SmokeGameTestRun` issues
+`mystcraft_smoke` at operator level 4 from a single GameTest and passes when the
+suite reports `MYSTCRAFT_SMOKE_COMPLETE`, failing on any `MYSTCRAFT_SMOKE_FAILURE`:
+
+```sh
+./scripts/gradle.sh :mystcraft:runSmokeGameTestServer -PenableSmokeTests
+./scripts/gradle.sh -p mods/mystcraft/fabric runSmokeGametest -PenableSmokeTests
+```
+
+Both use the loader's GameTest server, the same one `runGameTestServer` and
+`runGametest` use. It does not read `eula.txt`, so neither run accepts the Minecraft
+EULA. The world is the GameTest server's flat world in `run/smokeGameTestServer`
+(Forge) or `fabric/build/smokegametest` (Fabric) and is deleted before each run. It
+reports the same counts as a dedicated server: 150 on Forge and 145 on Fabric.
+
 ## Survival crafting and mixer
 
 - Craft an ink vial with **two ink sacs or black dyes in separate slots** plus

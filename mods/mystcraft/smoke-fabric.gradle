@@ -29,3 +29,22 @@ tasks.named('processSmokeResources', ProcessResources) {
     inputs.property 'mod_version', project.version
     filesMatching('fabric.mod.json') { expand mod_version: project.version }
 }
+
+// runSmokeGametest runs the whole mystcraft_smoke suite as one GameTest (FabricSmokeGameTest) on Fabric's headless
+// GameTest server, which like runGametest does not read eula.txt. CI uses it; a dedicated server is not needed.
+loom {
+    mods { mystcraft_smoke { sourceSet sourceSets.smoke } }
+    runs {
+        smokeGametest {
+            server()
+            name 'Mystcraft Fabric Smoke Suite'
+            source sourceSets.smoke
+            runDir 'build/smokegametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('smoke-gametest-results.xml').get().asFile}"
+        }
+    }
+}
+tasks.named('runSmokeGametest') {
+    doFirst { delete layout.buildDirectory.dir('smokegametest/world') }
+}

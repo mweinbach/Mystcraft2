@@ -20,3 +20,19 @@ tasks.named('processSmokeResources', ProcessResources) {
     inputs.property 'mod_version', project.version
     filesMatching('META-INF/mods.toml') { expand mod_version: project.version }
 }
+
+// runSmokeGameTestServer runs the whole mystcraft_smoke suite as one GameTest (ForgeSmokeGameTest) on Forge's
+// headless GameTest server, which like runGameTestServer does not read eula.txt. CI uses it; a dedicated server is
+// not needed. Only the mystcraft_smoke namespace runs, so Mystcraft's own GameTests stay in runGameTestServer.
+minecraft.runs {
+    gameTestServer {}
+    smokeGameTestServer {
+        parent minecraft.runs.gameTestServer
+        property 'forge.enabledGameTestNamespaces', 'mystcraft_smoke'
+        mods { mystcraft_smoke { source sourceSets.smoke } }
+    }
+}
+tasks.matching { it.name == 'runSmokeGameTestServer' }.configureEach {
+    dependsOn tasks.named('smokeClasses')
+    doFirst { delete file('run/smokeGameTestServer/world') }
+}
