@@ -6,4 +6,15 @@ The battery stores 100,000 E by default and transfers up to 10,000 E per operati
 
 Launchers expose 1,200 E per API transfer. Source bases/cruise start empty, hold 1,200 E and consume 1,200 E per successful launch. The legacy prototype retains its older capacity and initial charge. A launcher can consume redstone dust for up to 1,000 E as a documented compatibility fallback; other energy normally comes from compatible power mods. Connected launcher bases share available energy without duplication. Radar and EMP costs and buffers are listed in [DEFENSE.md](DEFENSE.md).
 
+## What other mods see
+
+Launchers and defense machines answer `EnergyStorage.SIDED` on every side with an **insert-only** view: `supportsExtraction()` is false and `extract` returns 0. Cables, batteries and other mods can charge a machine but never drain it. The machines' own costs and launcher energy sharing use the full internal buffer.
+
+EMP blasts also drain other mods' energy devices, as upstream EMP did. EMP payload detonations use the configured EMP payload radius; EMP towers use their configured range. In one Fabric transaction the blast empties:
+
+- blocks whose `EnergyStorage.SIDED` view allows extraction, unsided first and then the first side that allows it;
+- `EnergyStorage.ITEM` items in the inventories of non-spectator players and inventory entities such as chest minecarts, reached through `ContainerItemContext`.
+
+Each storage gets up to 16 extraction calls, so rate-limited devices still empty. Only loaded chunks are inspected. ICBM machines are not drained because their public view is insert-only; EMP fields disable them instead. Dropped item entities and mob equipment are not affected. The `emp_energy_drain` section of `config/icbm_port/payloads.json` sets `enabled` (default `true`), `maxBlocks` (nearest loaded block entities examined, default 1,024, at most 8,192) and `maxEntities` (nearest players or inventory entities examined, default 64, at most 1,024). `/icbm_payloads reload` applies changes; an invalid file keeps the active settings.
+
 `config/icbm_port/energy.json` controls `batteryCapacity`, `batteryInput` and `batteryOutput`. Values must be integers from 1 to 1,000,000,000. Unknown keys, invalid values and files over 16 KiB are rejected. `/icbm energy reload` requires operator permission level 2; an invalid reload preserves active settings. Lowering capacity clamps the usable charge of existing batteries. Machine capacity/cost settings are not changed by these battery keys.

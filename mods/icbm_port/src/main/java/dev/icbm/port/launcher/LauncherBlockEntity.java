@@ -283,7 +283,7 @@ public final class LauncherBlockEntity extends BlockEntity
   }
 
   public Text getDisplayName() {
-    return Text.literal("ICBM Launcher");
+    return Text.translatable("container.icbm_port.launcher");
   }
 
   public ScreenHandler createMenu(int syncId, PlayerInventory inventory, PlayerEntity player) {

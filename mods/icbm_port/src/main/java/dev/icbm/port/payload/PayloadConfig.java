@@ -34,13 +34,36 @@ public final class PayloadConfig {
     }
   }
 
-  private static volatile Map<PayloadType, Settings> active = defaults();
+  /**
+   * How EMP blasts drain other mods' Team Reborn Energy blocks and items. The caps bound the work a
+   * single blast does: it examines at most the nearest {@code maxBlocks} loaded block entities and
+   * the nearest {@code maxEntities} players or inventory entities.
+   */
+  public record EmpEnergyDrain(boolean enabled, int maxBlocks, int maxEntities) {
+    public static final EmpEnergyDrain DEFAULT = new EmpEnergyDrain(true, 1024, 64);
+
+    public EmpEnergyDrain {
+      Settings.range("maxBlocks", maxBlocks, 0, 8192);
+      Settings.range("maxEntities", maxEntities, 0, 1024);
+    }
+  }
+
+  /** Top-level key of the EMP energy drain section in {@code payloads.json}. */
+  public static final String EMP_ENERGY_DRAIN = "emp_energy_drain";
+
+  record Parsed(Map<PayloadType, Settings> payloads, EmpEnergyDrain empEnergyDrain) {}
+
+  private static volatile Parsed active = new Parsed(defaults(), EmpEnergyDrain.DEFAULT);
   private static Path path;
 
   private PayloadConfig() {}
 
   public static Settings forType(PayloadType type) {
-    return active.get(type);
+    return active.payloads().get(type);
+  }
+
+  public static EmpEnergyDrain empEnergyDrain() {
+    return active.empEnergyDrain();
   }
 
   public static void initialize(Path configDirectory) throws IOException {
@@ -54,6 +77,7 @@ public final class PayloadConfig {
       Files.createDirectories(path.getParent());
       JsonObject root = new JsonObject();
       defaults().forEach((type, settings) -> root.add(type.id(), new Gson().toJsonTree(settings)));
+      root.add(EMP_ENERGY_DRAIN, new Gson().toJsonTree(EmpEnergyDrain.DEFAULT));
       Path temporary = Files.createTempFile(path.getParent(), "payloads-", ".json.tmp");
       try {
         Files.writeString(temporary, new GsonBuilder().setPrettyPrinting().create().toJson(root));
@@ -65,18 +89,27 @@ public final class PayloadConfig {
     if (Files.size(path) > 1024 * 1024) throw new IOException("payloads.json exceeds 1 MiB");
     String text = Files.readString(path);
     try {
-      active = parse(text);
+      active = parseAll(text);
     } catch (RuntimeException e) {
       throw new IOException("Invalid payloads.json: " + e.getMessage(), e);
     }
   }
 
   static Map<PayloadType, Settings> parse(String text) {
+    return parseAll(text).payloads();
+  }
+
+  static Parsed parseAll(String text) {
     JsonElement element = JsonParser.parseString(text);
     if (!element.isJsonObject()) throw new IllegalArgumentException("Root must be an object");
     JsonObject root = element.getAsJsonObject();
     Map<PayloadType, Settings> next = defaults();
+    EmpEnergyDrain drain = EmpEnergyDrain.DEFAULT;
     for (String key : root.keySet()) {
+      if (key.equals(EMP_ENERGY_DRAIN)) {
+        drain = parseDrain(root.getAsJsonObject(key));
+        continue;
+      }
       PayloadType type =
           Arrays.stream(PayloadType.values())
               .filter(t -> t.id().equals(key))
@@ -111,7 +144,18 @@ public final class PayloadConfig {
               integer(value, "cartFuseTicks", d.cartFuseTicks),
               integer(value, "grenadeFuseTicks", d.grenadeFuseTicks)));
     }
-    return Collections.unmodifiableMap(next);
+    return new Parsed(Collections.unmodifiableMap(next), drain);
+  }
+
+  private static EmpEnergyDrain parseDrain(JsonObject value) {
+    EmpEnergyDrain d = EmpEnergyDrain.DEFAULT;
+    for (String field : value.keySet())
+      if (!Set.of("enabled", "maxBlocks", "maxEntities").contains(field))
+        throw new IllegalArgumentException("Unknown setting " + EMP_ENERGY_DRAIN + "." + field);
+    return new EmpEnergyDrain(
+        bool(value, "enabled", d.enabled()),
+        integer(value, "maxBlocks", d.maxBlocks()),
+        integer(value, "maxEntities", d.maxEntities()));
   }
 
   private static double number(JsonObject o, String key, double fallback) {

@@ -18,7 +18,7 @@ public final class DefenseScreenHandler extends ScreenHandler {
 
   DefenseScreenHandler(
       int syncId, PlayerInventory playerInventory, DefenseMachineBlockEntity machine) {
-    this(syncId, playerInventory, machine, machine, machine.properties());
+    this(syncId, playerInventory, machine.batterySlot(), machine, machine.properties());
   }
 
   private DefenseScreenHandler(

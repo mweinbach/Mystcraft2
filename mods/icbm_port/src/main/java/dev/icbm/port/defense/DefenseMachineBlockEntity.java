@@ -3,6 +3,14 @@ package dev.icbm.port.defense;
 import dev.icbm.port.energy.*;
 import dev.icbm.port.radio.RadioNetwork;
 import java.util.*;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.InsertionOnlyStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -16,10 +24,18 @@ import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.*;
 
-/** Persistent configuration, inventory, energy and radio receiver for defense machines. */
+/**
+ * Persistent configuration, battery slot, energy and radio receiver for defense machines.
+ *
+ * <p>The battery slot is a separate {@link Inventory} rather than this block entity: hoppers only
+ * use {@code ItemStorage.SIDED} for targets that are not inventories, and that lookup is how the
+ * SAM station's ammunition counter accepts {@code sam_missile} items from hoppers and pipes.
+ */
 public final class DefenseMachineBlockEntity extends BlockEntity
-    implements Inventory, EnergyMachine, NamedScreenHandlerFactory, RadioNetwork.Receiver {
+    implements EnergyMachine, NamedScreenHandlerFactory, RadioNetwork.Receiver {
   private final DefaultedList<ItemStack> items = DefaultedList.ofSize(1, ItemStack.EMPTY);
+  private final BatterySlot batterySlot = new BatterySlot();
+  private final SamAmmoStorage samAmmo = new SamAmmoStorage();
   private final EnergyBuffer energy;
   private int range, triggerRange = 50, channel, cooldown, tracks;
   private boolean explosiveFilter = true,
@@ -136,7 +152,7 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     if (!(world instanceof ServerWorld server)) return;
     try {
       RadioNetwork.register(server, machine);
-      EnergyContent.chargeFromBattery(machine, 0, machine.energy, 10_000);
+      EnergyContent.chargeFromBattery(machine.batterySlot, 0, machine.energy, 10_000);
       if (machine.cooldown > 0) {
         machine.cooldown--;
         machine.markDirty();
@@ -210,6 +226,11 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     long cost = (long) range * range * 100;
     if (!energy.consume(cost)) return false;
     DefenseContent.applyEmp(world, Vec3d.ofCenter(pos), range);
+    EmpEnergyDrain.drain(
+        (ServerWorld) world,
+        Vec3d.ofCenter(pos),
+        range,
+        dev.icbm.port.payload.PayloadConfig.empEnergyDrain());
     cooldown = 200;
     markDirty();
     return true;
@@ -350,7 +371,11 @@ public final class DefenseMachineBlockEntity extends BlockEntity
 
   @Override
   public Text getDisplayName() {
-    return Text.literal(kind() + " defense station");
+    return switch (kind()) {
+      case RADAR -> Text.translatable("container.icbm_port.radar_station");
+      case EMP -> Text.translatable("container.icbm_port.emp_tower");
+      case SAM -> Text.translatable("container.icbm_port.sam_launcher");
+    };
   }
 
   @Override
@@ -358,42 +383,22 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     return new DefenseScreenHandler(syncId, inventory, this);
   }
 
-  @Override
-  public int size() {
-    return 1;
+  /** The battery slot shown in the machine screen and dropped when the machine breaks. */
+  public Inventory batterySlot() {
+    return batterySlot;
   }
 
-  @Override
-  public boolean isEmpty() {
-    return items.get(0).isEmpty();
+  /**
+   * The {@code ItemStorage.SIDED} view: the battery slot on every machine, plus an insert-only
+   * {@code sam_missile} magazine on SAM stations.
+   */
+  public Storage<ItemVariant> itemStorage(Direction side) {
+    Storage<ItemVariant> battery = InventoryStorage.of(batterySlot, side);
+    return kind() == DefenseMachineBlock.Kind.SAM
+        ? new CombinedStorage<>(List.of(battery, samAmmo))
+        : battery;
   }
 
-  @Override
-  public ItemStack getStack(int slot) {
-    return items.get(slot);
-  }
-
-  @Override
-  public ItemStack removeStack(int slot, int amount) {
-    ItemStack result = Inventories.splitStack(items, slot, amount);
-    markDirty();
-    return result;
-  }
-
-  @Override
-  public ItemStack removeStack(int slot) {
-    ItemStack result = Inventories.removeStack(items, slot);
-    markDirty();
-    return result;
-  }
-
-  @Override
-  public void setStack(int slot, ItemStack stack) {
-    items.set(slot, stack);
-    markDirty();
-  }
-
-  @Override
   public boolean canPlayerUse(PlayerEntity player) {
     return world != null
         && !player.isSpectator()
@@ -403,15 +408,111 @@ public final class DefenseMachineBlockEntity extends BlockEntity
         && world.canPlayerModifyAt(player, pos);
   }
 
-  @Override
-  public boolean isValid(int slot, ItemStack stack) {
-    return EnergyContent.isBattery(stack);
+  private final class BatterySlot implements Inventory {
+    @Override
+    public int size() {
+      return 1;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return items.get(0).isEmpty();
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+      return items.get(slot);
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+      ItemStack result = Inventories.splitStack(items, slot, amount);
+      markDirty();
+      return result;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot) {
+      ItemStack result = Inventories.removeStack(items, slot);
+      markDirty();
+      return result;
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+      items.set(slot, stack);
+      markDirty();
+    }
+
+    @Override
+    public void markDirty() {
+      DefenseMachineBlockEntity.this.markDirty();
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+      return DefenseMachineBlockEntity.this.canPlayerUse(player);
+    }
+
+    @Override
+    public boolean isValid(int slot, ItemStack stack) {
+      return EnergyContent.isBattery(stack);
+    }
+
+    @Override
+    public void clear() {
+      items.clear();
+      markDirty();
+    }
   }
 
-  @Override
-  public void clear() {
-    items.clear();
-    markDirty();
+  /**
+   * SAM ammunition is the {@link DefenseMachineBlock#POWER} counter. Insertions are held per
+   * transaction and written to the block state only on the outermost commit, so simulated or
+   * aborted transfers never change the world.
+   */
+  private final class SamAmmoStorage extends SnapshotParticipant<Integer>
+      implements InsertionOnlyStorage<ItemVariant> {
+    private int pending;
+
+    @Override
+    public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+      StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+      if (!resource.isOf(DefenseContent.SAM_MISSILE) || world == null || isRemoved()) return 0;
+      BlockState state = world.getBlockState(pos);
+      if (!(state.getBlock() instanceof DefenseMachineBlock block)
+          || block.kind() != DefenseMachineBlock.Kind.SAM) return 0;
+      int space = DefenseMachineBlock.MAX_SAM_AMMO - state.get(DefenseMachineBlock.POWER) - pending;
+      int inserted = (int) Math.min(maxAmount, Math.max(0, space));
+      if (inserted > 0) {
+        updateSnapshots(transaction);
+        pending += inserted;
+      }
+      return inserted;
+    }
+
+    @Override
+    protected Integer createSnapshot() {
+      return pending;
+    }
+
+    @Override
+    protected void readSnapshot(Integer snapshot) {
+      pending = snapshot;
+    }
+
+    @Override
+    protected void onFinalCommit() {
+      int added = pending;
+      pending = 0;
+      if (added <= 0 || world == null) return;
+      BlockState state = world.getBlockState(pos);
+      if (!(state.getBlock() instanceof DefenseMachineBlock)) return;
+      int ammo =
+          Math.min(DefenseMachineBlock.MAX_SAM_AMMO, state.get(DefenseMachineBlock.POWER) + added);
+      world.setBlockState(pos, state.with(DefenseMachineBlock.POWER, ammo), Block.NOTIFY_ALL);
+      markDirty();
+    }
   }
 
   @Override

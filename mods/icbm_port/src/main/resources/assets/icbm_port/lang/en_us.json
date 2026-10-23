@@ -185,5 +185,9 @@
   "tooltip.icbm_port.payload.smoke": "A short-lived smoke plume marks the impact without a terrain blast.",
   "tooltip.icbm_port.redmatter_counter": "Use antimatter to collapse the core. Repulsive blasts can push it away.",
   "death.attack.icbm_port.redmatter": "%1$s was consumed by a redmatter core",
-  "death.attack.icbm_port.redmatter.player": "%1$s was consumed by %2$s's redmatter core"
+  "death.attack.icbm_port.redmatter.player": "%1$s was consumed by %2$s's redmatter core",
+  "container.icbm_port.launcher": "ICBM Launcher",
+  "container.icbm_port.radar_station": "Radar Station",
+  "container.icbm_port.emp_tower": "EMP Tower",
+  "container.icbm_port.sam_launcher": "SAM Launcher"
 }
