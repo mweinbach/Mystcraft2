@@ -10,8 +10,11 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Binds the shared {@link Config} to a ForgeConfigSpec, so Forge owns loading, validation and reloads. */
-final class ForgeConfig {
+/**
+ * Binds the shared {@link Config} to a ForgeConfigSpec, so Forge owns loading, validation and reloads.
+ * COMMON configs are not synced to clients, on load or on reload.
+ */
+public final class ForgeConfig {
 
     private static final Map<Config.Value<?>, ForgeConfigSpec.ConfigValue<?>> BINDINGS = new LinkedHashMap<>();
     private static final ForgeConfigSpec SPEC = build();
@@ -54,11 +57,12 @@ final class ForgeConfig {
 
     private static void onLoad(ModConfig config) {
         if (config.getSpec() != SPEC) return;
-        BINDINGS.forEach((value, bound) -> copy(value, bound));
+        // BooleanValue returns the raw file value, which may be a "true"/"false" string the spec accepts.
+        BINDINGS.forEach((value, bound) -> value.load(bound.get()));
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> void copy(Config.Value<T> value, ForgeConfigSpec.ConfigValue<?> bound) {
-        value.set((T) bound.get());
+    /** The spec, so the shared GameTests can check its corrections against Fabric's. */
+    public static ForgeConfigSpec spec() {
+        return SPEC;
     }
 }

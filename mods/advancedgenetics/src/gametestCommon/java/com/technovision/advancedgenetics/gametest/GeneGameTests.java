@@ -2,6 +2,8 @@ package com.technovision.advancedgenetics.gametest;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.technovision.advancedgenetics.api.AdvancedGeneticsApi;
+import com.technovision.advancedgenetics.api.component.EntityGeneticsComponent;
 import com.technovision.advancedgenetics.api.genetics.Genes;
 import com.technovision.advancedgenetics.commands.GeneArgumentType;
 import com.technovision.advancedgenetics.common.entity.FireballEntity;
@@ -50,6 +52,7 @@ import static com.technovision.advancedgenetics.gametest.GameTestSupport.genetic
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.getField;
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.platform;
 import static com.technovision.advancedgenetics.gametest.GameTestSupport.player;
+import static com.technovision.advancedgenetics.gametest.GameTestSupport.sentGeneticsSyncs;
 
 public class GeneGameTests {
 
@@ -67,6 +70,21 @@ public class GeneGameTests {
         PlayerGeneticsComponent genes = genetics(restored);
         check(genes.geneCount() == 2, "Expected 2 restored genes, got " + genes.getGenes());
         check(genes.hasGene(Genes.FLIGHT) && genes.hasGene(Genes.SPEED), "Restored genes differ: " + genes.getGenes());
+        helper.succeed();
+    }
+
+    /** The public accessor other mods use in place of upstream's Cardinal Components key. */
+    @GameTest(template = TEMPLATE)
+    public static void apiAccessorReturnsSavedAndSyncedGenetics(GameTestHelper helper) {
+        ServerPlayer player = player(helper, "ag_api", Genes.FLIGHT);
+        EntityGeneticsComponent api = AdvancedGeneticsApi.genetics(player);
+        check(api == genetics(player) && api.hasGene(Genes.FLIGHT), "The API returned other genetics: " + api.getGenes());
+
+        sentGeneticsSyncs(player);
+        api.addGene(Genes.SPEED);
+        check(sentGeneticsSyncs(player).size() == 1, "A gene added through the API was not synced");
+        CompoundTag saved = platform().savedGenetics(player.saveWithoutId(new CompoundTag()));
+        check(saved != null && saved.getCompound("genes").contains(Genes.SPEED.toString()), "A gene added through the API was not saved");
         helper.succeed();
     }
 

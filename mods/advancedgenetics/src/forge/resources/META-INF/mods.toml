@@ -1,12 +1,13 @@
 modLoader="javafml"
 loaderVersion="[43,44)"
 license="${mod_license}"
-issueTrackerURL="https://github.com/TechnoVisionDev/Advanced-Genetics/issues"
+issueTrackerURL="https://github.com/mweinbach/Mystcraft2/issues"
 
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
+displayURL="https://github.com/mweinbach/Mystcraft2/tree/main/mods/advancedgenetics"
 authors="${mod_authors}"
 logoFile="assets/advancedgenetics/icon.png"
 description='''${mod_description}'''

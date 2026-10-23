@@ -1,17 +1,23 @@
 package com.technovision.advancedgenetics.gametest;
 
+import com.technovision.advancedgenetics.network.KeyPressedPacket;
+import com.technovision.advancedgenetics.network.SyncGeneticsPacket;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
  * The few loader APIs the shared GameTests observe: each loader's energy and item transfer API,
- * where player genetics are saved, and a pre-invulnerability damage probe.
+ * where player genetics are saved, a pre-invulnerability damage probe, the packet channel and its
+ * sync events, and the config corrections.
  */
 public interface TestPlatform {
 
@@ -26,6 +32,21 @@ public interface TestPlatform {
 
     /** Counts damage attempts on {@code target} matching {@code filter} while {@code action} runs. */
     int countDamage(LivingEntity target, Predicate<DamageSource> filter, Runnable action);
+
+    /** Decodes {@code packet} if it is a gene sync on this loader's channel, read as the client would. */
+    Optional<SyncGeneticsPacket> decodeGeneticsSync(Packet<?> packet);
+
+    /** Encodes {@code packet} as this loader's client does and hands it to the server's packet handler. */
+    void receiveKeyPress(ServerPlayer player, KeyPressedPacket packet);
+
+    /** Fires this loader's own event for {@code trigger}, as the server does for a real player. */
+    void fireSyncTrigger(ServerPlayer player, SyncTrigger trigger);
+
+    /** {@code toml} after this loader's corrections: ForgeConfigSpec on Forge, FabricConfig on Fabric. */
+    String correctConfig(String toml);
+
+    /** The moments both loaders send a player their genes. */
+    enum SyncTrigger { LOGIN, RESPAWN, CHANGE_DIMENSION }
 
     interface EnergyAccess {
         int stored();
