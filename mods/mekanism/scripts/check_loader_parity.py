@@ -21,11 +21,14 @@ fabric = MOD / 'fabric/build/libs' / f'mekanism-fabric-1.19.2-{version}.jar'
 
 MIXIN_CONFIG = 'mekanism.mixins.json'
 MIXIN_REFMAP = 'mekanism.refmap.json'
+fluid_physics = dict(line.split('=', 1) for line in (MOD.parent / 'fluidphysics/port.properties').read_text().splitlines()
+                     if '=' in line and not line.startswith('#'))
 NESTED = (
     'META-INF/jars/energy-2.3.0.jar',
     'META-INF/jars/core-3.6.6.jar',
     'META-INF/jars/toml-3.6.6.jar',
     'META-INF/jars/maven-artifact-3.8.5.jar',
+    f"META-INF/jars/fluidphysics-fabric-1.19.2-{fluid_physics['mod_version']}.jar",
 )
 EMC = (
     'data/mekanism/pe_custom_conversions/mekanism.json',
@@ -79,6 +82,7 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     require(forge_mod['modId'] == fabric_mod['id'] == metadata['mod_id'], 'mod ID mismatch')
     require(forge_mod['version'] == fabric_mod['version'] == version, 'version mismatch')
     require(fabric_mod['depends'].get('team_reborn_energy'), 'Fabric build must depend on Team Reborn Energy')
+    require(fabric_mod['depends'].get('fluidphysics'), 'Fabric build must depend on Fluid Physics')
     require(fabric_mod.get('mixins') == [MIXIN_CONFIG], 'fabric.mod.json must list the mixin config')
     require(fabric_mod.get('accessWidener') == 'mekanism.accesswidener', 'missing access widener')
 

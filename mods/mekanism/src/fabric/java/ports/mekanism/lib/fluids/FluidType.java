@@ -321,7 +321,8 @@ public class FluidType {
         private double motionScale = 0.014D;
         private boolean canPushEntity = true;
         private boolean canSwim = true;
-        private boolean canDrown;
+        // Forge 1.19.2 defaults canDrown to true; types that cannot drown, such as lava, opt out.
+        private boolean canDrown = true;
         private float fallDistanceModifier = 0.5F;
         private boolean canExtinguish;
         private boolean canConvertToSource;

@@ -7,7 +7,7 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 
 | Loader | Requirements | Energy | Items and fluids | Chemicals and heat |
 | --- | --- | --- | --- | --- |
-| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2 | Team Reborn Energy (bundled) | Transfer API | `BlockApiLookup` / `ItemApiLookup` |
+| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2; Fluid Physics bundled | Team Reborn Energy (bundled) | Transfer API | `BlockApiLookup` / `ItemApiLookup` |
 | Forge | Forge 43.5.0 | Forge Energy | Forge capabilities | Forge capabilities |
 
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
@@ -31,7 +31,8 @@ Do not list features in this README; add that coverage under [`parity/`](parity/
   fill its fluid items the same way. Gas, infusion, pigment,
   slurry and heat are reachable the same way through the lookups below.
   Item and block hooks vanilla calls (break, fuel, enchanting, redstone, light, portals, elytra) are wired.
-  Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types.
+  Mekanism fluids render in the world, in buckets and in fluid tank gauges, tinted from their fluid types. Entities
+  swim, drown and are pushed in them as on Forge, through the bundled [Fluid Physics](../fluidphysics/README.md) library.
   Server player and living events are wired, so jetpacks, free runners, scuba tanks, radiation and MekaSuit mining
   modules run on a server. The client tick publishes the jump key those jetpacks read.
   Block entity renderers use Forge's render bounding box, and entities run `onRemovedFromWorld` when they leave tracking.

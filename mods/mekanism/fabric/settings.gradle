@@ -5,3 +5,10 @@ pluginManagement {
     }
 }
 rootProject.name = 'mekanism-fabric'
+
+// The Fluid Physics library is bundled into this JAR and provides Forge FluidType entity physics on Fabric.
+includeBuild('../../fluidphysics') {
+    dependencySubstitution {
+        substitute module('ports.fluidphysics:fluidphysics-fabric') using project(':')
+    }
+}

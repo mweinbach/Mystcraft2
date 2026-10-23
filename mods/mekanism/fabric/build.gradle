@@ -5,6 +5,17 @@ plugins {
 def metadata = new Properties()
 file('../port.properties').withInputStream { metadata.load(it) }
 version = metadata.mod_version
+def fluidPhysicsMetadata = new Properties()
+file('../../fluidphysics/port.properties').withInputStream { fluidPhysicsMetadata.load(it) }
+def fluidPhysicsVersion = fluidPhysicsMetadata.getProperty('mod_version')
+// Loom reads the included library's JAR while this build configures. A clean checkout has not produced it yet.
+def fluidPhysicsJar = file("../../fluidphysics/build/libs/fluidphysics-fabric-1.19.2-${fluidPhysicsVersion}.jar")
+if (!fluidPhysicsJar.isFile()) {
+    exec {
+        workingDir file('../../..')
+        commandLine file('../../../gradlew').absolutePath, '--no-daemon', '-p', 'mods/fluidphysics', 'remapJar'
+    }
+}
 group = metadata.mod_group
 base.archivesName = 'mekanism-fabric-1.19.2'
 
@@ -36,6 +47,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Team Reborn Energy is the Fabric energy standard; it is bundled so the mod has no extra install step.
     include(modImplementation('teamreborn:energy:2.3.0'))
+    // Forge's FluidType entity physics for Mekanism's fluids; the library is bundled for clients and servers.
+    include(modImplementation("ports.fluidphysics:fluidphysics-fabric:${fluidPhysicsVersion}"))
     // Forge ships Night Config; Fabric gets the same version bundled for the TOML config files.
     include(implementation('com.electronwill.night-config:core:3.6.6'))
     include(implementation('com.electronwill.night-config:toml:3.6.6'))
