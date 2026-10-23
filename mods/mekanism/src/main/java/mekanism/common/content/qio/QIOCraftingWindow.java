@@ -15,6 +15,7 @@ import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.common.Mekanism;
+import mekanism.common.integration.recipestages.RecipeStagesCompat;
 import mekanism.common.inventory.container.MekanismContainer;
 import mekanism.common.inventory.container.SelectedWindowData;
 import mekanism.common.inventory.container.SelectedWindowData.WindowType;
@@ -178,6 +179,10 @@ public class QIOCraftingWindow implements IContentsListener {
     }
 
     private ItemStack assembleRecipe(CraftingRecipe recipe) {
+        if (Mekanism.hooks.RecipeStagesLoaded) {
+            //Force assemble it as we handle validating if specific players can see/grab the output ourselves
+            return RecipeStagesCompat.assembleIgnoringStage(recipe, craftingInventory);
+        }
         return recipe.assemble(craftingInventory);
     }
 
@@ -187,6 +192,12 @@ public class QIOCraftingWindow implements IContentsListener {
             //Note: We don't check if it matches as if we don't have a match there won't
             // be anything in our output slot, so it doesn't matter
             return false;
+        }
+        if (Mekanism.hooks.RecipeStagesLoaded) {
+            //If recipe stages is loaded check if the player has access to the recipe
+            if (!RecipeStagesCompat.hasStageForRecipe(lastRecipe, player)) {
+                return false;
+            }
         }
         //If the recipe is dynamic, doLimitedCrafting is disabled, or the recipe is unlocked
         // allow viewing the recipe

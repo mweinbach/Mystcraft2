@@ -30,6 +30,7 @@ import mekanism.common.integration.computer.SpecialComputerMethodWrapper.Compute
 import mekanism.common.integration.computer.annotation.ComputerMethod;
 import mekanism.common.integration.computer.annotation.SyntheticComputerMethod;
 import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
+import mekanism.common.integration.recipestages.RecipeStagesCompat;
 import mekanism.common.inventory.container.MekanismContainer;
 import mekanism.common.inventory.container.slot.SlotOverlay;
 import mekanism.common.inventory.container.sync.SyncableBoolean;
@@ -313,14 +314,15 @@ public class TileEntityFormulaicAssemblicator extends TileEntityConfigurableMach
                 if (cachedRecipe == null) {
                     lastOutputStack = ItemStack.EMPTY;
                 } else {
-                    lastOutputStack = cachedRecipe.assemble(dummyInv);
+                    //Recipe Stages: a staged recipe is crafted when the owner has its stage
+                    lastOutputStack = RecipeStagesCompat.assembleForOwner(cachedRecipe, dummyInv, level, getOwnerUUID());
                     lastRemainingItems = cachedRecipe.getRemainingItems(dummyInv);
                 }
                 isRecipe = !lastOutputStack.isEmpty();
             } else {
                 isRecipe = formula.matches(level, craftingGridSlots);
                 if (isRecipe) {
-                    lastOutputStack = formula.assemble();
+                    lastOutputStack = formula.assemble(level, getOwnerUUID());
                     lastRemainingItems = formula.getRemainingItems();
                 } else {
                     lastOutputStack = ItemStack.EMPTY;

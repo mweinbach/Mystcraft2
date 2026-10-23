@@ -4,6 +4,7 @@ import java.util.List;
 import mekanism.common.integration.computer.computercraft.CCCapabilityHelper;
 import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.integration.gender.GenderCapabilityHelper;
+import mekanism.common.integration.recipestages.RecipeStagesCompat;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
@@ -62,7 +63,13 @@ public final class MekanismHooks {
         IC2Loaded = modList.isLoaded(IC2_MOD_ID);
         JEILoaded = modList.isLoaded(JEI_MOD_ID);
         ProjectELoaded = modList.isLoaded(PROJECTE_MOD_ID);
+        RecipeStagesLoaded = modList.isLoaded(RECIPE_STAGES_MOD_ID);
         TOPLoaded = modList.isLoaded(TOP_MOD_ID);
+        FluxNetworksLoaded = modList.isLoaded(FLUX_NETWORKS_MOD_ID);
+        if (RecipeStagesLoaded) {
+            // Recipe Stages has only Forge builds. Its types stay in the Forge source set behind this shared facade.
+            RecipeStagesCompat.load();
+        }
         if (WildfireGenderModLoaded) {
             // Fabric registers with the Gender Mod here. Forge attaches the capability when a stack is created;
             // this also loads that adapter.

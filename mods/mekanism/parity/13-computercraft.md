@@ -3,7 +3,8 @@
 Machines, multiblocks and the QIO and transporter blocks that carry `AttributeComputerIntegration` expose the same
 computer methods upstream binds: energy, configuration, and the formed multiblock's own methods. The shared classes
 are `mekanism.common.integration.computer` and `mekanism.common.integration.computer.computercraft` in `src/main`.
-OpenComputers 2 is still not ported; `OC2Loaded` stays false.
+OpenComputers 2 has no 1.19.2 build and is not ported; `OC2Loaded` stays false. See
+[18-flux-recipe-stages-oc2.md](18-flux-recipe-stages-oc2.md).
 
 CC: Tweaked is optional. The JARs load without it, and the GameTests do not install it. A development run includes
 it with `-PwithComputerCraft`.

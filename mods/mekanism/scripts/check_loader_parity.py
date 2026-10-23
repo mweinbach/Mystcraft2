@@ -110,6 +110,9 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
         # Forge's capability token is an anonymous class. Fabric's adapter has no inner class.
         'mekanism/common/integration/gender/GenderArmorCapability$',
         'mekanism/common/integration/projecte/',
+        # Flux Networks' long energy capability and the Recipe Stages bridge use mods that are Forge-only here.
+        'mekanism/common/integration/energy/fluxnetworks/',
+        'mekanism/common/integration/recipestages/RecipeStagesBridge',
     )
     fabric_only = (
         'mekanism/common/integration/lookingat/wthit/',
@@ -131,6 +134,11 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
             'Forge JAR is missing the ProjectE mappers')
     require(not any(name.startswith('mekanism/common/integration/projecte/') for name in fabric_names),
             'ProjectE mappers leaked into Fabric')
+    for prefix, label in (('mekanism/common/integration/energy/fluxnetworks/FNEnergyCompat', 'Flux Networks compat'),
+                          ('mekanism/common/integration/recipestages/RecipeStagesBridge', 'Recipe Stages bridge')):
+        require(prefix + '.class' in forge_names, f'Forge JAR is missing the {label}')
+    require('mekanism/common/integration/recipestages/RecipeStagesCompat.class' in forge_classes,
+            'shared Recipe Stages facade is missing')
     require(not any(name.startswith(forge_only) for name in fabric_names),
             'a Forge-only integration leaked into Fabric')
     require(any(name.startswith(fabric_only) for name in fabric_names), 'Fabric JAR is missing the WTHIT providers')

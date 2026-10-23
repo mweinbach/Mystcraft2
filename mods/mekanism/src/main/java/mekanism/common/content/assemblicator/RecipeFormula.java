@@ -3,7 +3,9 @@ package mekanism.common.content.assemblicator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
+import java.util.UUID;
 import mekanism.api.inventory.IInventorySlot;
+import mekanism.common.integration.recipestages.RecipeStagesCompat;
 import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.StackUtils;
@@ -66,6 +68,14 @@ public class RecipeFormula {
     //Must have matches be called before this and be true as it assumes that the dummy inventory was set by it
     public ItemStack assemble() {
         return recipe == null ? ItemStack.EMPTY : recipe.assemble(dummy);
+    }
+
+    /**
+     * {@link #assemble()} for a machine with an owner: Recipe Stages' staged recipes use the owner's stages.
+     */
+    //Must have matches be called before this and be true as it assumes that the dummy inventory was set by it
+    public ItemStack assemble(@Nullable Level world, @Nullable UUID owner) {
+        return recipe == null ? ItemStack.EMPTY : RecipeStagesCompat.assembleForOwner(recipe, dummy, world, owner);
     }
 
     //Must have matches be called before this and be true as it assumes that the dummy inventory was set by it

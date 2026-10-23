@@ -19,3 +19,6 @@ fabric FabricForeignInteropGameTests.foreignGasItemAnswersTheGasCapability  # Fa
 fabric FabricForeignInteropGameTests.foreignItemStorageAnswersTheItemCapability  # Fabric Transfer API interop; Forge reaches other mods through capabilities
 fabric FabricForeignInteropGameTests.recipeTagsReachFabricConventionTags  # c: convention tag bridges; Forge recipes use forge: tags directly
 fabric FabricPermissionGameTests.permissionModDecidesMekanismNodes  # fabric-permissions-api bridge for Forge PermissionAPI
+forge ForgeFluxCapabilityGameTests.mekanismOffersFluxsLongEnergyCapability  # Flux Networks' long FN energy capability exists only in Flux for Forge; Flux for Fabric uses Team Reborn Energy and cannot load beside Mekanism Fabric yet (Porting Lib clash, parity/18)
+forge ForgeRecipeStagesGameTests.assemblicatorCraftsStagedRecipesForItsOwner  # Recipe Stages and Game Stages have no Fabric build for 1.19.2
+forge ForgeRecipeStagesGameTests.qioCraftingWindowChecksThePlayersStage  # Recipe Stages and Game Stages have no Fabric build for 1.19.2
