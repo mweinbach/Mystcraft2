@@ -43,6 +43,8 @@ public final class FabricTestFluids implements ModInitializer {
         INERT_BLOCK = Registry.register(Registry.BLOCK, id("inert_fluid"),
               new ForgeLiquidBlock(() -> INERT, BlockBehaviour.Properties.of(Material.WATER).noCollission().strength(100.0F).noLootTable()));
         FabricFluidPhysics.register(INERT);
+        // The test mod's only main entrypoint also registers its foreign items.
+        FabricTestItems.register();
     }
 
     private static ResourceLocation id(String path) {

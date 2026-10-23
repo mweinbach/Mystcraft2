@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "minecraft:magenta_stained_glass_pane"
+    "minecraft:magenta_stained_glass_pane",
+    {
+      "id": "#c:magenta_glass_panes",
+      "required": false
+    }
   ]
 }

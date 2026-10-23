@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "minecraft:nether_star"
+    "minecraft:nether_star",
+    {
+      "id": "#c:nether_stars",
+      "required": false
+    }
   ]
 }
