@@ -6,3 +6,5 @@
 #
 # Format: <forge|fabric> <test method>  # reason (required)
 fabric upstreamCardinalComponentsSavesLoad  # reads saves written by upstream Fabric Cardinal Components; Forge never had them
+fabric configReloadHandsCorrectedValuesToTheGameThread  # Fabric's night-config reload; Forge's ModConfigEvent handles reloads
+fabric configReloadsWhenTheFileChanges  # Fabric's night-config FileWatcher; Forge's config tracker watches the file

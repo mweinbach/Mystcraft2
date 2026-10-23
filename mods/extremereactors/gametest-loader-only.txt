@@ -5,3 +5,4 @@
 # now runs on both must be removed, so this file only shrinks.
 #
 # Format: <forge|fabric> <test method>  # reason (required)
+fabric apiEntrypointMessagesApplyLikeImc  # Fabric bigreactors:api entrypoint stands in for Forge InterModComms

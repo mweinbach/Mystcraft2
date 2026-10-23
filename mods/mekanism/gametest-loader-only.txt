@@ -11,3 +11,8 @@ fabric inertFluidDoesNotPushEntities  # Fluid Physics bridge; Forge FluidType do
 fabric inertFluidDoesNotSetSwimPose  # Fluid Physics bridge; Forge FluidType does this natively
 fabric inertFluidPathsAsItsTypeSays  # Fluid Physics bridge; Forge FluidType does this natively
 fabric permissionModDecidesMekanismNodes  # fabric-permissions-api bridge for Forge PermissionAPI
+fabric chemicalTankFillsAForeignGasItem  # Fabric foreign-item interop; Forge reaches other mods through capabilities
+fabric fabricWrenchesWorkOnMekanismBlocks  # c:wrenches interop; Forge uses its own forge: tags and capabilities
+fabric foreignGasItemAnswersTheGasCapability  # Fabric foreign-item interop; Forge reaches other mods through capabilities
+fabric foreignItemStorageAnswersTheItemCapability  # Fabric Transfer API interop; Forge reaches other mods through capabilities
+fabric recipeTagsReachFabricConventionTags  # c: convention tag bridges; Forge recipes use forge: tags directly
