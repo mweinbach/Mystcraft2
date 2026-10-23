@@ -37,6 +37,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -108,6 +111,10 @@ final class ForgePlatform implements Platform.Backend, Network.Transport {
     }
     @Override public boolean mobGriefing(Level level, Entity entity) { return ForgeEventFactory.getMobGriefingEvent(level, entity); }
     @Override public boolean restoringBlockSnapshots(Level level) { return level.restoringBlockSnapshots; }
+    /** Forge reads the vanilla fire table (made public by the access transformer). */
+    @Override public void flammable(Block block, int burnChance, int spreadChance) {
+        ((FireBlock) Blocks.FIRE).setFlammable(block, burnChance, spreadChance);
+    }
     @Override public FoodProperties foodProperties(ItemStack stack, @Nullable LivingEntity entity) { return stack.getFoodProperties(entity); }
     @Override public CompoundTag persistentData(Entity entity) { return entity.getPersistentData(); }
     @Override public Network.Transport network() { return this; }

@@ -1,8 +1,8 @@
 accessWidener v2 named
-# Keep in sync with src/forge/resources/META-INF/accesstransformer.cfg.
+# Keep in sync with src/forge/resources/META-INF/accesstransformer.cfg, except FireBlock.setFlammable:
+# Fabric registers flammability through FlammableBlockRegistry instead.
 accessible method net/minecraft/world/level/GameRules$BooleanValue create (Z)Lnet/minecraft/world/level/GameRules$Type;
 accessible method net/minecraft/client/Camera setPosition (DDD)V
-accessible method net/minecraft/world/level/block/FireBlock setFlammable (Lnet/minecraft/world/level/block/Block;II)V
 accessible method net/minecraft/world/item/Item getPlayerPOVHitResult (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/ClipContext$Fluid;)Lnet/minecraft/world/phys/BlockHitResult;
 accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
 accessible field net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate entityInfoList Ljava/util/List;

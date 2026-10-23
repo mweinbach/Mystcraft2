@@ -10,8 +10,10 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -47,13 +49,23 @@ public final class FabricMod implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> JurassicEvents.commands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(JurassicEvents::serverAboutToStart);
+        // Forge re-reads edited config files through ModConfigEvent.Reloading; Fabric re-reads them on /reload.
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> FabricConfigBackend.reload());
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> JurassicEvents.chunkLoaded(level, chunk));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> JurassicEvents.entityJoined(entity));
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> JurassicEvents.blockBroken(level, player, pos, state));
-        LootTableEvents.MODIFY.register((resources, loot, id, table, source) -> JurassicEvents.lootTable(id, lootSink(table)));
+        LootTableEvents.MODIFY.register((resources, loot, id, table, source) -> modifyLootTable(id, table, source));
         JurassicEvents.trades((profession, level, listing) -> TradeOfferHelper.registerVillagerOffers(profession, level, trades -> trades.add(listing)));
 
         FabricPlatform.registerServerReceivers();
+    }
+
+    /**
+     * Like Forge's LootTableLoadEvent, which never fires for tables a datapack replaces, only tables
+     * that still come from the game or a mod receive the bonus loot. Public so in-world tests use it.
+     */
+    public static void modifyLootTable(ResourceLocation id, LootTable.Builder table, LootTableSource source) {
+        if (source.isBuiltin()) JurassicEvents.lootTable(id, lootSink(table));
     }
 
     /** Public so in-world tests exercise the same adapter. */

@@ -5,6 +5,12 @@
   "name": "JurassiCraft",
   "description": "${mod_description}",
   "authors": ["1.19.2 port contributors"],
+  "contact": {
+    "homepage": "https://github.com/JurassiCraftTeam/JurassiCraft",
+    "sources": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/jurassicraft",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
+  },
+  "icon": "assets/jurassicraft/textures/items/amber_mosquito.png",
   "environment": "*",
   "entrypoints": {
     "main": ["ports.jurassicraft.fabric.FabricMod"],
@@ -20,5 +26,9 @@
     "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17"
+  },
+  "suggests": {
+    "jade": "*",
+    "emi": "*"
   }
 }

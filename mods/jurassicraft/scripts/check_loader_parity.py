@@ -21,6 +21,7 @@ MACHINE_MODELS = {f'assets/jurassicraft/models/block/{name}.json' for name in (
     'embryo_calcification_machine', 'embryonic_machine', 'feeder', 'incubator')}
 LOADER_SPECIFIC = MACHINE_MODELS | {'data/jurassicraft/recipes/dna_nucleotides_from_water.json'}
 FORGE_ONLY_PREFIX = 'data/jurassicraft/forge/'
+FORGE_ONLY_TRANSFORMER = 'net.minecraft.world.level.block.FireBlock m_53444_'
 
 GAMETEST_SOURCES = [MOD / 'src' / name / 'java' for name in ('gametestCommon', 'gametestForge', 'gametestFabric')]
 
@@ -59,7 +60,8 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     mappings = json.loads(b.read(mixin['refmap']))['mappings']
     for name, side in (('EntityPersistentDataMixin', 'mixins'), ('FenceClimbMixin', 'mixins'),
                        ('VillageAssemblyMixin', 'mixins'), ('ParkEdgePostProcessMixin', 'mixins'),
-                       ('client.VehicleCameraMixin', 'client'), ('client.KeyBindConflictMixin', 'client')):
+                       ('client.VehicleCameraMixin', 'client'), ('client.KeyBindConflictMixin', 'client'),
+                       ('client.VehicleKeyDispatchMixin', 'client')):
         parity.require(name in mixin.get(side, []), f'Missing Fabric {side} hook: {name}')
         parity.require('method_' in json.dumps(mappings.get('ports/jurassicraft/fabric/mixin/' + name.replace('.', '/'), {})),
                        f'Missing production mixin mapping: {name}')
@@ -90,8 +92,9 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
     parity.require('MixinConfigs: jurassicraft.forge.mixins.json' in a.read('META-INF/MANIFEST.MF').decode(),
                    'Forge JAR does not load its mixin config')
 
+    # Fabric registers flammability through FlammableBlockRegistry, so FireBlock.setFlammable is Forge-only.
     transformer = [line for line in a.read('META-INF/accesstransformer.cfg').decode().splitlines()
-                   if line.strip() and not line.startswith('#')]
+                   if line.strip() and not line.startswith('#') and FORGE_ONLY_TRANSFORMER not in line]
     # A widener may list one member twice (accessible and mutable); a transformer line covers both.
     widener = {tuple(line.split()[1:]) for line in b.read('jurassicraft.accesswidener').decode().splitlines()[1:]
                if line.strip() and not line.startswith('#')}

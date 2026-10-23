@@ -81,7 +81,7 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | Releasing a gestated coelacanth onto water | Fabric (union) | Not in upstream; kept so the fish isn't released on land. |
 | Skull display | Forge placement, sound and saved state, plus Fabric's tooltip | Forge matched upstream's clicked-face placement. Fabric's hidden `skull_display` item model was dropped because no such item is registered. |
 | Fence climbing | Shared `FenceWireBlock.isLadder` | Overrides Forge's ladder hook by signature; Fabric's climb mixin calls the same method. |
-| Flammability | Shared values | Applied through `FireBlock.setFlammable` on Forge and `FlammableBlockRegistry` on Fabric. |
+| Flammability | Shared values, loader registry | `Platform.flammable` applies them through `FireBlock.setFlammable` on Forge (access transformer) and `FlammableBlockRegistry` on Fabric, so Fabric mods that query the registry see JurassiCraft wood. The Fabric widener no longer opens `setFlammable`. |
 | Spawn eggs | Shared `DinosaurSpawnEgg` behavior | Forge uses `ForgeSpawnEggItem` (registry-safe supplier); Fabric uses `SpawnEggItem`. Sneak-use cycles gender on both. |
 | Records | Both track lengths (4749, 1765, 2044 ticks) | Measured from the upstream audio. Forge takes a tick length and lazy sound; Fabric takes seconds, so its length is overridden in ticks. |
 | Harvest levels | Forge tags | Amber and ice shards need iron, fossils and nests need stone, peat uses a shovel, as upstream. Fabric was missing the iron and shovel tags. |
@@ -101,6 +101,8 @@ The rule: where the two ports differed, keep the variant that matches upstream
 | --- | --- | --- |
 | Structure bonus loot (visitor centre, dining figures, digsites) | Fabric: named `jurassicraft_bonus` pools in the structure loot JSON | Forge's runtime append duplicated the JSON pools. Pools do not scale with `lootSpawnrate`, as upstream. |
 | Village and structure chest injection | Shared `addTo(...)` with loader sinks | Same pools on both loaders. |
+| Fossil blocks and wooden fence gates | `forge:` and `c:` tags | Upstream's fossil ore dictionary and the wooden gates are exposed as `forge:fossils` / `c:fossils` and `forge:fence_gates/wooden` / `c:wooden_fence_gates`, block and item tags alike. |
+| Bonus chest and fishing loot | Built-in tables only | Forge's `LootTableLoadEvent` does not fire for a table a datapack replaced; Fabric's `LootTableEvents.MODIFY` adapter checks `LootTableSource.isBuiltin()` to match. |
 | Iron nuggets, iron ingots, redstone, blue dyes | New `#jurassicraft:` tags | Successors of upstream ore-dictionary inputs: the vanilla item plus optional `#forge:` and `#c:` tags. Literal `minecraft:iron_ingot` stays where upstream used the item. |
 | Fossil-nest replaceable blocks | Union | Both ports' stone, dirt and sand groups plus optional `forge` and `c` ore tags. |
 | Water-bottle nucleotide recipe | Per loader | The NBT ingredient type is loader-specific (`forge:partial_nbt` and `fabric:nbt`). |
@@ -129,10 +131,10 @@ Machine motion follows the 1.12.2 renderers that were actually registered. The c
 | Seat keys, helicopter autopilot and rotation lock | Forge: Ctrl+1–9, Ctrl+A, Ctrl+D | Upstream defaults. Fabric's key API cannot require a modifier, so it defaults to keypad 1–9, Home and End. Seat chords are active only while riding and are not shown as conflicts; they were red before, because the vehicle context overlapped in-game play. Autopilot and rotation lock share the strafe keys. The controls screen hides that warning on both loaders when exactly one of the two bindings is vehicle-only. On Forge the three Ctrl bindings still share one riding context, so descend, autopilot and rotation lock stay gold against each other. |
 | Record player key | Union: R | Upstream used only interaction; both ports added a key, now the same one. |
 | Zoom and rotation keys | Both | Page Down/Page Up and Left/Right, as upstream. |
-| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. `KeyMapping.same` still compares the physical key, so that suppression stays in effect. The controls screen hides the red warning when exactly one of the two bindings is vehicle-only. Ascend is white. Descend stays gold next to autopilot and rotation lock, because Forge counts the Ctrl modifier as the Left Ctrl key and both bindings are vehicle-only. Left Ctrl is itself a modifier, so the Forge binding still counts as held while riding; Forge would otherwise ignore an unmodified key whose context does not overlap in-game play. |
+| Helicopter ascend and descend | Both: Space and Left Ctrl | Upstream's dedicated bindings. While the pilot holds one, that press does not also jump or sprint. Forge's key lookup gives a shared key to every binding whose context is active. Vanilla Fabric gives a key to one binding, so a client mixin on `KeyMapping.set`/`click` runs after vanilla (at the method tail, without cancelling) and delivers the event only to the vehicle-only bindings on that key, plus the ordinary binding vanilla would have chosen when a vehicle binding owns the key. Other bindings that share a key keep vanilla's single-owner behaviour. `KeyMapping.same` still compares the physical key, so that suppression stays in effect. The controls screen hides the red warning when exactly one of the two bindings is vehicle-only. Ascend is white. Descend stays gold next to autopilot and rotation lock, because Forge counts the Ctrl modifier as the Left Ctrl key and both bindings are vehicle-only. Left Ctrl is itself a modifier, so the Forge binding still counts as held while riding; Forge would otherwise ignore an unmodified key whose context does not overlap in-game play. |
 | Journal | Forge: opens on the client | As upstream; Fabric used a server round trip. |
 | Field guide | Union | Using it on a dinosaur sends the upstream inspection packet; empty-hand use opens the manual (port addition). |
-| Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric keeps its first release's `jurassicraft-fabric.json` and key/value vehicle files with the same keys. |
+| Configuration | Shared options, native files | Forge: `jurassicraft-common.toml`, `jurassicraft-vehicles.toml`, `jurassicraft-vehicle-client.toml`. Fabric: flat `jurassicraft-fabric.json` plus Java properties files `jurassicraft-vehicles.properties` and `jurassicraft-vehicle-client.properties`, with the same keys. Fabric's properties files were misnamed `.toml` up to 0.1.0-alpha.1; such a file is read once and kept as `.toml.migrated`. Both loaders add options missing from an existing file and use defaults for missing or invalid values. Forge reloads edited files through `ModConfigEvent.Reloading`; Fabric re-reads its files on `ServerLifecycleEvents.END_DATA_PACK_RELOAD` (`/reload`), and on a client also the client file. |
 | Recipe viewers and tooltips | JEI on Forge, EMI on Fabric, Jade on both | Each viewer's plugin is loader-specific; Jade providers are shared. |
 | Entity spawn data | Vanilla spawn packets | Forge's `IEntityAdditionalSpawnData` was unnecessary. |
 | Creative tab label | Union | Both lang keys remain. |
@@ -172,6 +174,8 @@ Tests changed while merging:
 - Two mock players share helicopter and tour-rail seats, one feeder menu, one powered fence, and a mussaurus egg.
 - Fabric Transfer inserts into the feeder, bug crate, cultivator, calcifier, extractor and synthesizer.
 - The helicopter altitude test feeds ascend and descend through the vehicle control packet and checks that a jeep and an explorer ignore those bits.
+- Fabric GameTests check that every JurassiCraft log, leaf, plank, stair, slab, fence and gate has the upstream fire odds in `FlammableBlockRegistry`, and that the loot adapter adds bonus pools for each built-in `LootTableSource` and none for datapack tables.
+- Client mixins do not run in a server GameTest, so the Fabric build runs two standalone checks: `VehicleKeyDispatchTest` covers which bindings receive a shared key, and `FabricConfigBackendTest` covers adding missing keys to existing files, reloading edits, the `.toml` to `.properties` migration and leaving an unreadable file untouched.
 
 ## Known gaps against 1.12.2
 
@@ -190,6 +194,6 @@ Tests changed while merging:
 ## Loader limits
 
 - Install the same loader's JAR on the server and every client. Cross-loader multiplayer and moving worlds between loaders are not supported.
-- Forge and Fabric configuration files differ in format and are not converted.
+- Forge and Fabric configuration files differ in format (TOML versus JSON and Java properties) and are not converted between loaders.
 - Saves from the earlier separate Fabric alpha are not migrated.
 - Claim mods such as Open Parties and Claims see the vehicle, not its driver, when vehicles break foliage; this is untested in claimed areas.

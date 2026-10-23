@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.BlockPos;
@@ -49,6 +50,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import ports.jurassicraft.PortMod;
 import ports.jurassicraft.platform.Network;
 import ports.jurassicraft.platform.Platform;
@@ -137,6 +139,10 @@ final class FabricPlatform implements Platform.Backend, Network.Transport {
     @Override public boolean allowTreeGrowth(LevelAccessor level, RandomSource random, BlockPos pos) { return true; }
     @Override public boolean mobGriefing(Level level, Entity entity) { return level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING); }
     @Override public boolean restoringBlockSnapshots(Level level) { return false; }
+    /** Fabric's registry feeds FireBlock and lets other mods and datapack tools see the entry. */
+    @Override public void flammable(Block block, int burnChance, int spreadChance) {
+        FlammableBlockRegistry.getDefaultInstance().add(block, burnChance, spreadChance);
+    }
     @Override public FoodProperties foodProperties(ItemStack stack, @Nullable LivingEntity entity) { return stack.getItem().getFoodProperties(); }
     @Override public CompoundTag persistentData(Entity entity) { return ((PersistentDataHolder) entity).jurassicraft$persistentData(); }
     @Override public Network.Transport network() { return this; }

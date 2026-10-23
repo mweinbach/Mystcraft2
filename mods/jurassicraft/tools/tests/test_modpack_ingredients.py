@@ -23,8 +23,13 @@ class ModpackIngredientsTest(unittest.TestCase):
     def test_wooden_gates_and_fossils_are_exposed_to_modpacks(self):
         trees = ("ginkgo", "calamites", "psaronius", "phoenix", "araucaria")
         for kind in ("blocks", "items"):
-            gates = json.loads((ROOT / f"forge/tags/{kind}/fence_gates/wooden.json").read_text())["values"]
-            self.assertEqual({f"jurassicraft:{tree}_fence_gate" for tree in trees}, set(gates))
-            fossils = json.loads((ROOT / f"forge/tags/{kind}/fossils.json").read_text())["values"]
-            self.assertEqual(10, len(fossils))
-            self.assertIn("jurassicraft:tyrannosaurus_fossil_block", fossils)
+            for gate_tag, fossil_tag in (("forge/tags/{}/fence_gates/wooden.json", "forge/tags/{}/fossils.json"),
+                                         ("c/tags/{}/wooden_fence_gates.json", "c/tags/{}/fossils.json")):
+                with self.subTest(kind=kind, tag=gate_tag):
+                    gates = json.loads((ROOT / gate_tag.format(kind)).read_text())
+                    self.assertFalse(gates["replace"])
+                    self.assertEqual({f"jurassicraft:{tree}_fence_gate" for tree in trees}, set(gates["values"]))
+                    fossils = json.loads((ROOT / fossil_tag.format(kind)).read_text())
+                    self.assertFalse(fossils["replace"])
+                    self.assertEqual(10, len(fossils["values"]))
+                    self.assertIn("jurassicraft:tyrannosaurus_fossil_block", fossils["values"])

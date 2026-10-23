@@ -3,6 +3,7 @@ package ports.jurassicraft.loot;
 import java.util.HashSet;
 import java.util.Set;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -30,6 +32,26 @@ public final class FabricBonusLootGameTests implements FabricGameTest {
     private static LootContext context(GameTestHelper helper, long seed) {
         return new LootContext.Builder(helper.getLevel()).withRandom(RandomSource.create(seed))
                 .withParameter(LootContextParams.ORIGIN, Vec3.ZERO).create(LootContextParamSets.CHEST);
+    }
+
+    /** Forge's LootTableLoadEvent skips tables a datapack replaced; the Fabric adapter must do the same. */
+    @GameTest(template = "jurassicraft:cleaning_station_test")
+    public void datapackReplacedLootTablesAreUntouched(GameTestHelper helper) {
+        for (String id : new String[]{"minecraft:chests/simple_dungeon", "minecraft:gameplay/fishing"}) {
+            for (LootTableSource source : LootTableSource.values()) {
+                int[] pools = {0};
+                LootTable.Builder table = new LootTable.Builder() {
+                    @Override public LootTable.Builder withPool(LootPool.Builder pool) {
+                        pools[0]++;
+                        return super.withPool(pool);
+                    }
+                };
+                FabricMod.modifyLootTable(new ResourceLocation(id), table, source);
+                check(helper, (pools[0] > 0) == source.isBuiltin(),
+                        id + " from " + source + (source.isBuiltin() ? " lost its bonus loot" : " was modified"));
+            }
+        }
+        helper.succeed();
     }
     private static LootTable table(GameTestHelper helper, String path) {
         ResourceLocation id = new ResourceLocation(PortMod.MOD_ID, path);
