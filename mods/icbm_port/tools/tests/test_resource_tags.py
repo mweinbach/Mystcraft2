@@ -60,6 +60,41 @@ class TagResolutionTests(unittest.TestCase):
         self.assertTrue(provider.condition(condition))
         self.assertFalse(provider.enabled(fallback))
 
+    def test_mekanism_alternatives_swap_with_vanilla_fallbacks(self):
+        recipes = Path(__file__).resolve().parents[2] / "src/main/resources/data/icbm_port/recipes"
+        uranium = "data/icbm_port/tags/items/materials/uranium_ingots.json"
+        pellets = "data/icbm_port/tags/items/materials/uranium_235_pellets.json"
+        local = {uranium: tag([]), pellets: tag([])}
+        standalone = TagIndex(local, self.index({}).vanilla)
+        with_mekanism = TagIndex(local, self.index({}).vanilla, loaded_mods={"mekanism"})
+        for payload in ("nuclear", "antimatter", "redmatter"):
+            gated = json.loads((recipes / f"{payload}_explosive_mekanism.json").read_text())
+            fallback = json.loads((recipes / f"{payload}_explosive.json").read_text())
+            self.assertIn("mekanism:alloy_atomic", json.dumps(gated["key"]))
+            self.assertFalse(standalone.enabled(gated), payload)
+            self.assertTrue(standalone.enabled(fallback), payload)
+            self.assertTrue(with_mekanism.enabled(gated), payload)
+            self.assertFalse(with_mekanism.enabled(fallback), payload)
+        # A real uranium provider keeps selecting the uranium recipe even with Mekanism present.
+        provider = TagIndex({uranium: tag(["other:uranium"]), pellets: tag([])},
+                            self.index({}).vanilla, loaded_mods={"mekanism"})
+        nuclear = json.loads((recipes / "nuclear_explosive_mekanism.json").read_text())
+        self.assertFalse(provider.enabled(nuclear))
+
+    def test_dust_gunpowder_stays_off_with_mekanism(self):
+        recipes = Path(__file__).resolve().parents[2] / "src/main/resources/data/icbm_port/recipes"
+        dusts = "data/icbm_port/tags/items/materials/charcoal_dusts.json"
+        dust = json.loads((recipes / "gunpowder_from_dusts.json").read_text())
+        coal = json.loads((recipes / "gunpowder_from_components.json").read_text())
+        provider = TagIndex({dusts: tag(["other:charcoal_dust"])}, self.index({}).vanilla)
+        self.assertTrue(provider.enabled(dust))
+        self.assertFalse(provider.enabled(coal))
+        # Mekanism turns gunpowder into sulfur dust one-to-one, so one dust making three gunpowder would dupe it.
+        mekanism = TagIndex({dusts: tag(["mekanism:dust_charcoal"])}, self.index({}).vanilla,
+                            loaded_mods={"mekanism"})
+        self.assertFalse(mekanism.enabled(dust))
+        self.assertFalse(mekanism.enabled(coal))
+
 
 if __name__ == "__main__":
     unittest.main()

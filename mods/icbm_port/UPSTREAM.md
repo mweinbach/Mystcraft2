@@ -23,7 +23,7 @@ included in this independently built module. The ICBM code license is distinct
 from the repository's root Mystcraft license.
 
 The nested Team Reborn Energy API 2.3.0 is MIT licensed and retains its license
-inside its bundled JAR. Optional EMI 1.1.24 and JEI 11.8.1.1034 are separate runtime dependencies;
+inside its bundled JAR. Optional EMI 1.1.24, JEI 11.8.1.1034 and REI 9.2.784 are separate runtime dependencies;
 their code and assets are not redistributed by this module.
 
 See [PORTING.md](PORTING.md) for implementation status and behavior differences.

@@ -268,10 +268,49 @@ def condition_holds(condition, loader, tags, mods, custom=None):
     raise PolicyError(f"unsupported recipe condition {kind}")
 
 
-def load_recipes(roots, loader, tags, mods, custom=None):
-    """Recipes ProjectE maps (vanilla types) whose load conditions hold; other types are reported as skipped."""
-    recipes, skipped = {}, {}
-    key = "fabric:load_conditions" if loader == "fabric" else "conditions"
+def condition_possible(condition, loader, mods, custom=None):
+    """``(can hold, can fail)`` for a load condition when the loaded mods are fixed but item tags are not.
+
+    A pack's other mods and datapacks decide which tags are populated, so a tag condition may go either way;
+    mod and port conditions are fixed. Atoms are treated as independent, which can only widen the answer.
+    """
+    kind = condition.get("condition" if loader == "fabric" else "type")
+    if custom and kind in custom:
+        return custom[kind], not custom[kind]
+    if kind in ("fabric:not", "forge:not"):
+        can_hold, can_fail = condition_possible(condition["value"], loader, mods, custom)
+        return can_fail, can_hold
+    if kind in ("fabric:and", "forge:and", "fabric:or", "forge:or"):
+        parts = [condition_possible(c, loader, mods, custom) for c in condition["values"]]
+        if kind.endswith(":and"):
+            return all(h for h, _f in parts), any(f for _h, f in parts)
+        return any(h for h, _f in parts), all(f for _h, f in parts)
+    if kind in ("fabric:tags_populated", "forge:tag_empty"):
+        return True, True
+    holds = condition_holds(condition, loader, Tags({}), mods, custom)
+    return holds, not holds
+
+
+def condition_mods(condition):
+    """Every mod id a Forge or Fabric load condition (or a list of them) names, at any depth."""
+    found = set()
+    if isinstance(condition, list):
+        for part in condition:
+            found |= condition_mods(part)
+    elif isinstance(condition, dict):
+        kind = condition.get("condition", condition.get("type"))
+        if kind in ("fabric:all_mods_loaded", "fabric:any_mod_loaded"):
+            found |= set(condition.get("values", []))
+        elif kind == "forge:mod_loaded":
+            found.add(condition.get("modid"))
+        for key in ("value", "values"):
+            if isinstance(condition.get(key), (dict, list)):
+                found |= condition_mods(condition[key])
+    return {mod for mod in found if isinstance(mod, str)}
+
+
+def iter_recipe_files(roots):
+    """Every ``(recipe id, recipe)`` under the resource roots, whatever its load conditions."""
     for root in roots:
         data = root / "data"
         if not data.is_dir():
@@ -279,14 +318,20 @@ def load_recipes(roots, loader, tags, mods, custom=None):
         for namespace in sorted(p for p in data.iterdir() if p.is_dir()):
             folder = namespace / "recipes"
             for file in sorted(folder.rglob("*.json")):
-                rid = f"{namespace.name}:{file.relative_to(folder).with_suffix('').as_posix()}"
-                recipe = read_json(file)
-                if not all(condition_holds(c, loader, tags, mods, custom) for c in recipe.get(key, [])):
-                    continue
-                if recipe_ingredients(recipe) is None:
-                    skipped[rid] = recipe.get("type")
-                else:
-                    recipes[rid] = recipe
+                yield f"{namespace.name}:{file.relative_to(folder).with_suffix('').as_posix()}", read_json(file)
+
+
+def load_recipes(roots, loader, tags, mods, custom=None):
+    """Recipes ProjectE maps (vanilla types) whose load conditions hold; other types are reported as skipped."""
+    recipes, skipped = {}, {}
+    key = "fabric:load_conditions" if loader == "fabric" else "conditions"
+    for rid, recipe in iter_recipe_files(roots):
+        if not all(condition_holds(c, loader, tags, mods, custom) for c in recipe.get(key, [])):
+            continue
+        if recipe_ingredients(recipe) is None:
+            skipped[rid] = recipe.get("type")
+        else:
+            recipes[rid] = recipe
     return recipes, skipped
 
 
@@ -451,7 +496,7 @@ def policy_namespaces(policy):
 def validate_policy(policy):
     allowed = {"namespace", "namespaces", "loaders", "resources", "output", "outputs", "ignored", "values",
                "vanilla", "exclude", "conversions", "processes", "remainders", "conditions", "notes",
-               "projecte_mappers"}
+               "projecte_mappers", "optional_mods"}
     unknown = set(policy) - allowed
     if unknown:
         raise PolicyError(f"unknown policy keys: {', '.join(sorted(unknown))}")
@@ -500,6 +545,14 @@ def validate_policy(policy):
         if (not isinstance(entry, dict) or set(entry) != {"holds", "why"} or not isinstance(entry["holds"], bool)
                 or not entry["why"] or not any(kind.startswith(namespace + ":") for namespace in namespaces)):
             raise PolicyError(f"conditions.{kind}: the port's own condition type, with a boolean holds and a why")
+    optional = policy.get("optional_mods", {})
+    if not isinstance(optional, dict) or len(optional) > 4:
+        raise PolicyError("optional_mods must map at most four mod ids to their ports")
+    for mod, entry in optional.items():
+        if (not isinstance(mod, str) or not NAMESPACE_ID.fullmatch(mod) or mod in namespaces
+                or not isinstance(entry, dict) or set(entry) != {"port", "why"} or not entry["why"]
+                or not isinstance(entry["port"], str) or not NAMESPACE_ID.fullmatch(entry["port"])):
+            raise PolicyError(f"optional_mods.{mod}: another mod's id, with the port directory that prices it and a why")
     mappers = policy.get("projecte_mappers")
     if mappers is not None:
         guard = mappers.get("guard") if isinstance(mappers, dict) else None
@@ -554,10 +607,98 @@ class Port:
                 continue
             for item in (expand(key, set(self.items)) if "*" in key else [key]):
                 remainders[item] = entry if isinstance(entry, str) else entry["item"]
-        mods = {"minecraft", loader, *self.namespaces} | ({"fabric-api"} if loader == "fabric" else set())
+        mods = self._mods(loader)
         custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
         recipes, skipped = load_recipes(roots, loader, tags, mods, custom)
         return tags, remainders, recipes, skipped
+
+    def _mods(self, loader):
+        """The mods a standalone port runs with."""
+        return {"minecraft", loader, *self.namespaces} | ({"fabric-api"} if loader == "fabric" else set())
+
+    def _optional_ports(self):
+        """{mod id: (port directory, its policy, its generated values.json)} for every declared optional mod."""
+        if getattr(self, "_optional_cache", None) is None:
+            self._optional_cache = {}
+            for mod, entry in sorted(self.policy.get("optional_mods", {}).items()):
+                directory = self.dir.parent / entry["port"]
+                policy_file, values_file = directory / "emc" / "policy.json", directory / "emc" / "values.json"
+                if not policy_file.is_file() or not values_file.is_file():
+                    raise PolicyError(f"optional_mods.{mod}: {entry['port']} has no emc/policy.json and values.json")
+                self._optional_cache[mod] = (directory, read_json(policy_file), read_json(values_file))
+        return self._optional_cache
+
+    def _optional_tags(self, system, chosen):
+        """The port's tags plus the tags of the chosen optional mods' ports, read for the same loader."""
+        loader = self.policy["loaders"][system]
+        tags = Tags.for_loader(loader)
+        tags.add_resources([self.dir / r for r in self.policy["resources"][system]])
+        for mod in chosen:
+            directory, policy, _values = self._optional_ports()[mod]
+            same = [s for s in (system, *SYSTEMS) if policy["loaders"].get(s) == loader]
+            if not same:
+                raise PolicyError(f"optional_mods.{mod}: {directory.name} has no {loader} resources")
+            tags.add_resources([directory / r for r in policy["resources"][same[0]]])
+        return tags
+
+    def _optional_values(self, system):
+        """The optional mods' items at the values their own ports ship for this system (excluded items are left out)."""
+        found = {}
+        for _mod, (_directory, _policy, document) in self._optional_ports().items():
+            for item, entry in document["items"].items():
+                value = entry.get(system)
+                if ("excluded" not in entry and isinstance(value, int) and not isinstance(value, bool)
+                        and value >= 1 and item not in self.items):
+                    found[item] = Fraction(value)
+        return found
+
+    def _foreign_mods(self, recipe, loader):
+        key = "fabric:load_conditions" if loader == "fabric" else "conditions"
+        return condition_mods(recipe.get(key, [])) - self._mods(loader) - {"forge", "fabric"}
+
+    def recipe_alternatives(self, system):
+        """Recipe sets beyond the standalone port's, as ``(label, recipes, tags, priced)`` tuples.
+
+        For every combination of declared optional mods: every recipe that loads with those mods and their ports'
+        tags, read against those merged tags. That includes the standalone recipes, because another mod filling
+        a tag they accept can make them cheaper (Mekanism's sulfur dust in ICBM's sulfur tag makes the battery
+        cheaper). Added to that is every recipe whose conditions name an
+        optional mod and could hold with those mods whatever the tags are. The second part matters when the mod
+        fills a tag that switches its own recipe off (Mekanism fills the uranium tags, which turns off ICBM's
+        atomic-alloy nuclear recipe): a pack whose tags differ still loads it, so it bounds the value too. These
+        sets are ``priced``: outputs take the minimum over them. Last, recipes whose conditions name a mod the
+        policy does not declare, read with their conditions ignored and not priced, so the gain check can refuse
+        them.
+        """
+        loader = self.policy["loaders"][system]
+        roots = [self.dir / r for r in self.policy["resources"][system]]
+        custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
+        key = "fabric:load_conditions" if loader == "fabric" else "conditions"
+        base_tags = self._optional_tags(system, ())
+        base, _skipped = load_recipes(roots, loader, base_tags, self._mods(loader), custom)
+        optional = sorted(self.policy.get("optional_mods", {}))
+        gated, undeclared = {}, {}
+        for rid, recipe in iter_recipe_files(roots):
+            if rid in base or recipe_ingredients(recipe) is None:
+                continue
+            mods = self._foreign_mods(recipe, loader)
+            if mods & set(optional):
+                gated[rid] = recipe
+            elif mods:
+                undeclared[rid] = recipe
+        found = []
+        for size in range(1, len(optional) + 1):
+            for chosen in itertools.combinations(optional, size):
+                tags = self._optional_tags(system, chosen)
+                mods = self._mods(loader) | set(chosen)
+                active, _skipped = load_recipes(roots, loader, tags, mods, custom)
+                for rid, recipe in gated.items():
+                    if all(condition_possible(c, loader, mods, custom)[0] for c in recipe.get(key, [])):
+                        active.setdefault(rid, recipe)
+                found.append((f"with {' and '.join(chosen)}", active, tags, True))
+        if undeclared:
+            found.append(("gated on undeclared mods", undeclared, base_tags, False))
+        return found
 
     def compute(self):
         problems = self.problems
@@ -573,7 +714,7 @@ class Port:
         explicit_by = {item: key for item, (label, key) in owners.items() if label == "values"}
         self.excluded_by, self.explicit_by = excluded_by, explicit_by
         self.policy_conversions = self._expand_conversions()
-        self.results, self.sources, self.inputs, self.vanilla = {}, {}, {}, {}
+        self.results, self.sources, self.inputs, self.vanilla, self.alternatives = {}, {}, {}, {}, {}
         # ProjectE-only state: tag node values, the items the ore blacklists zero (and why), the items
         # metals.json prices, and the item (and why) a policy conversion names in place of a tag.
         self.tag_values, self.projecte_unvalued, self.projecte_overwritten, self.projecte_tag_items = {}, {}, {}, {}
@@ -613,6 +754,9 @@ class Port:
                 if item in source and source[item].startswith("tag") and system == "itemalchemy":
                     problems.append(f"{item} is excluded but Item Alchemy gives it {fixed[item]} via {source[item]}")
                 fixed.pop(item, None)
+            alternatives = self.recipe_alternatives(system)
+            for item, value in self._optional_values(system).items():
+                fixed.setdefault(item, value)
             unblacklisted = dict(fixed)
             blacklisted = self._projecte_blacklist(tags, universe) if system == "projecte" else {}
             for item in blacklisted:
@@ -622,6 +766,11 @@ class Port:
             overwritten_tags = {entry["output"] for entry in metals}
             tag_nodes = {f"#{tag}": Fraction(value) for tag, value in tag_defaults.items()} if system == "projecte" else {}
             conversions = conversions_from(recipes, tags, remainders)
+            for label, extra, extra_tags, priced in alternatives:
+                if priced:
+                    conversions += [(f"{rid} ({label})", output, count, ingredients)
+                                    for rid, output, count, ingredients in conversions_from(extra, extra_tags, remainders)]
+            self.alternatives[system] = [("standalone", recipes, tags, True), *alternatives]
             for name, output, count, ingredients in self.policy_conversions:
                 nodes = {}
                 for ingredient, amount in ingredients.items():
@@ -655,6 +804,7 @@ class Port:
             self.results[system] = values
             self.sources[system] = source
             self._check_system(system)
+            self._check_recipe_gains(system)
             if system == "projecte":
                 self._check_overwritten(shadowed)
         self._check_processes()
@@ -764,6 +914,51 @@ class Port:
                 if file.resolve() not in managed:
                     self.problems.append(f"{file.relative_to(self.dir)} is a ProjectE custom conversion file the "
                                          f"policy does not generate; move its values into emc/policy.json")
+
+    def _check_recipe_gains(self, system):
+        """No recipe, conditional or not, may make a port item worth more EMC than its ingredients.
+
+        Recipes are read again in every set ``recipe_alternatives`` returns, including those gated on mods the
+        policy does not declare, and priced with the shipped values (other ports' items at their own values).
+        An alternative that needs an item with no known EMC fails too: its output would have to be excluded,
+        or the item priced, because the mod could make that item outside EMC and craft it into a valued one.
+        Item Alchemy outputs priced by its own tag defaults are skipped, as in ``_check_system``.
+        """
+        label = "ProjectE" if system == "projecte" else "Item Alchemy"
+        loader = self.policy["loaders"][system]
+        remainders = self.inputs[system][1]
+        values = self.results[system]
+        source = self.sources[system]
+        reported = set()
+        for set_label, recipes, tags, priced in self.alternatives[system]:
+            for rid, recipe in sorted(recipes.items()):
+                for _rid, output, count, ingredients in conversions_from({rid: recipe}, tags, remainders):
+                    if (output not in self.items or output in self.excluded_by
+                            or (system == "itemalchemy" and source.get(output, "").startswith("tag"))):
+                        continue
+                    mods = ", ".join(sorted(self._foreign_mods(recipe, loader)))
+                    where = ("" if set_label == "standalone" else f" ({set_label})" if priced
+                             else f" (loads only with {mods})")
+                    cost, unknown = Fraction(0), None
+                    for node, amount in ingredients.items():
+                        value = node_value(node, values, remainders)
+                        if value is None or value == 0:
+                            unknown = node if isinstance(node, str) else ", ".join(sorted(node))
+                            break
+                        cost += amount * value
+                    if unknown is not None:
+                        if set_label != "standalone" and (rid, output) not in reported:
+                            reported.add((rid, output))
+                            fix = "price it in that mod's port" if priced else "declare the mod in optional_mods"
+                            self.problems.append(f"{label}: recipe {rid}{where} needs {unknown}, which has no EMC "
+                                                 f"here; {fix} or exclude {output}")
+                        continue
+                    value = values.get(output)
+                    if value is not None and value * count > cost and (rid, output) not in reported:
+                        reported.add((rid, output))
+                        fix = "" if priced else "; declare the mod in optional_mods so the value takes this recipe"
+                        self.problems.append(f"{label}: recipe {rid}{where} makes {count} {output} worth "
+                                             f"{float(value * count):g} from {float(cost):g} EMC of ingredients{fix}")
 
     def _check_system(self, system):
         problems = self.problems
@@ -1167,6 +1362,7 @@ class Port:
                 lines.append(f"| `{item}` | {fractions.get('projecte', items[item].get('projecte'))} | "
                              f"{fractions.get('itemalchemy', items[item].get('itemalchemy'))} |")
         lines += self._projecte_readme()
+        lines += self._optional_readme()
         if self.policy.get("conversions"):
             lines += ["", "## Machine conversions", "",
                       "Shipped to ProjectE as custom conversion groups and applied to Item Alchemy values the same way.",
@@ -1205,6 +1401,44 @@ class Port:
                       "exclusion: "
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
+
+    def _optional_readme(self):
+        """README rows for the optional mods and the recipe alternatives they enable."""
+        optional = self.policy.get("optional_mods")
+        if not optional:
+            return []
+        lines = ["", "## Recipes other mods enable", "",
+                 "These recipes load only alongside another mod, or accept more items there because that mod fills a "
+                 "tag they use. Their ingredients are priced at the values that mod's port ships, and every output "
+                 "takes the cheapest of all its recipes, so no recipe gains EMC with or without the mod.", "",
+                 "| Mod | Port | Why |", "| --- | --- | --- |"]
+        for mod, entry in sorted(optional.items()):
+            lines.append(f"| `{mod}` | [`mods/{entry['port']}`](../../{entry['port']}/emc/README.md) | {entry['why']} |")
+        rows = {}
+        for system in SYSTEMS:
+            remainders = self.inputs[system][1]
+            _label, standalone, standalone_tags, _priced = self.alternatives[system][0]
+            for label, recipes, tags, priced in self.alternatives[system][1:]:
+                if not priced:
+                    continue
+                for rid, recipe in recipes.items():
+                    output, _count = result_of(recipe)
+                    if output not in self.items:
+                        continue
+                    if rid not in standalone:
+                        how = "loads"
+                    elif (conversions_from({rid: recipe}, tags, remainders)
+                          != conversions_from({rid: recipe}, standalone_tags, remainders)):
+                        how = "wider tags"
+                    else:
+                        continue
+                    rows.setdefault((rid, output), set()).add(f"{how} {label}")
+        if rows:
+            lines += ["", "| Recipe | Output | Changes | ProjectE | Item Alchemy |", "| --- | --- | --- | ---: | ---: |"]
+            for (rid, output), labels in sorted(rows.items()):
+                lines.append(f"| `{rid}` | `{output}` | {', '.join(sorted(labels))} | "
+                             f"{self.final('projecte', output)} | {self.final('itemalchemy', output)} |")
+        return lines
 
     def _projecte_readme(self):
         """README rows for the values ProjectE's own mappers decide rather than the port's recipes."""
@@ -1338,8 +1572,24 @@ def discover(names):
         missing = set(names) - {p.name for p in chosen}
         if missing:
             raise SystemExit(f"no emc/policy.json for: {', '.join(sorted(missing))}")
-        return chosen
-    return found
+        found = chosen
+    # A port prices its optional mods with their ports' generated values, so those ports go first.
+    ordered, visiting = [], set()
+
+    def visit(directory):
+        if directory in ordered or directory in visiting:
+            return
+        visiting.add(directory)
+        policy = read_json(directory / "emc" / "policy.json")
+        for entry in policy.get("optional_mods", {}).values():
+            dependency = directory.parent / entry.get("port", "")
+            if dependency in found:
+                visit(dependency)
+        ordered.append(directory)
+
+    for directory in found:
+        visit(directory)
+    return ordered
 
 
 def build(directory):

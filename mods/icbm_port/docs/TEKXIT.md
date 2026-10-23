@@ -27,6 +27,8 @@ its dynamic cargo, held-item and cluster recipes, including their NBT and empty
 carrier remainders. **No additional JEI installation is required.** The native
 plugin avoids duplicate ICBM JEI/JEMI displays while EMI is active. Normal vanilla
 crafting and smelting recipes continue through EMI's standard recipe integration.
+Stock Tekxit ships no REI. Packs that use REI instead get the same ICBM displays
+through the native `rei_client` plugin; that combination has not been run in Tekxit.
 
 ## Materials and pack policy
 
@@ -189,7 +191,7 @@ or disable other mods' recipe integrations.
 
 ## Alpha.4 validation status
 
-Local alpha.4 build, 16 JUnit tests, 92 gameplay GameTests, the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
+Local alpha.4 build, 16 JUnit tests, the 92 gameplay GameTests of that time (102 in the current tree; see VALIDATION.md), the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
 
 The runtime results below were recorded for **alpha.3** and are retained as a historical compatibility baseline. They do not establish alpha.4 visual correctness or revalidate every new change.
 

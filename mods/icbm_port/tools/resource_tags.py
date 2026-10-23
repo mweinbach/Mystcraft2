@@ -3,9 +3,10 @@ import json
 
 
 class TagIndex:
-    def __init__(self, files, vanilla):
+    def __init__(self, files, vanilla, loaded_mods=()):
         self.files = files
         self.vanilla = vanilla
+        self.loaded_mods = frozenset(loaded_mods)
         self.cache = {}
 
     def definitions(self, identifier):
@@ -57,6 +58,11 @@ class TagIndex:
             return any(self.condition(child) for child in condition["values"])
         if kind == "fabric:and":
             return all(self.condition(child) for child in condition["values"])
+        # Static validation models a standalone install; optional mods are absent unless listed.
+        if kind == "fabric:all_mods_loaded":
+            return all(mod in self.loaded_mods for mod in condition["values"])
+        if kind == "fabric:any_mods_loaded":
+            return any(mod in self.loaded_mods for mod in condition["values"])
         raise ValueError("Unsupported resource condition " + kind)
 
     def enabled(self, data):

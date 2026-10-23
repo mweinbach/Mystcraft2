@@ -4,7 +4,7 @@ Baseline: ICBM Classic `prod/1.12`, revision
 `9c1d985a375adc2868ff47707b3a636452d0b63a`. Recipe data is translated into
 Minecraft 1.19.2 JSON. No upstream textures, models or language files are used.
 The exact input/output mapping and source-relative recipe path are retained in
-`tools/upstream_recipe_mapping.json` (132 entries). That file is authoritative
+`tools/upstream_recipe_mapping.json` (135 entries). That file is authoritative
 for reproducing this migration, and is applied last by the resource generator.
 
 ## Source-equivalent recipe shapes and quantities
@@ -55,8 +55,51 @@ are retained with native Fabric reload-time tag conditions. Their vanilla
 fallbacks use the inverse predicates, so datapack or mod-provided materials
 change the selected path on reload. Ordinary coal/charcoal items remain distinct
 from dust. Native conditions use `fabric:load_conditions`; no Forge condition
-serializer is installed. Official Mekanism is unavailable for Fabric 1.19.2, so
-its atomic-alloy alternatives remain unsupported rather than inventing that item.
+serializer is installed.
+
+The three upstream `explosives/mekanism/` atomic-alloy alternatives are now
+shipped for the repository's Fabric Mekanism port (mod ID `mekanism`), whose
+Mekanism 10.3 item is `mekanism:alloy_atomic` (1.12.2 `mekanism:atomicalloy`).
+Upstream gated them with `minecraft:item_exists`; the port uses
+`fabric:all_mods_loaded ["mekanism"]`:
+
+| Recipe | Loads when | Shape |
+| --- | --- | --- |
+| `nuclear_explosive_uranium` | a uranium ingot or U-235 pellet tag is populated | five uranium/pellets, four thermobaric |
+| `nuclear_explosive_mekanism` | no uranium **and** Mekanism loaded | five atomic alloys, four thermobaric |
+| `nuclear_explosive` | no uranium **and** Mekanism absent | five wither skeleton skulls, four thermobaric |
+| `antimatter_explosive_mekanism` / `redmatter_explosive_mekanism` | Mekanism loaded | eight atomic alloys around the prior tier |
+| `antimatter_explosive` / `redmatter_explosive` | Mekanism absent | eight nether stars around the prior tier |
+
+The vanilla antimatter/redmatter fallbacks previously loaded unconditionally;
+they now carry the inverse Mekanism gate, as upstream's did, so each tier has
+exactly one active recipe. Fabric Mekanism fills `c:uranium_ingots`, which
+`icbm_port:materials/uranium_ingots` includes. With Mekanism installed, the
+uranium recipe is therefore the active nuclear recipe and
+`nuclear_explosive_mekanism` stays off, as upstream's conditions intend; the
+atomic-alloy nuclear recipe applies only where Mekanism's uranium tag is empty.
+Recipe-book unlock advancements share their recipe's conditions.
+`IntegrationGameTests.mekanismAlternativesFollowModPresence` derives each
+recipe's expected state from Mekanism presence **and** the live uranium and
+dust tags, then checks it, and its unlock, on a real server. Without Mekanism,
+the gated recipes and unlocks are absent and the fallbacks load.
+`tools/tests/test_resource_tags.py` checks both branches statically. A server
+with Mekanism installed has not been run.
+
+`gunpowder_from_dusts` is also off when Mekanism is loaded (port addition, not
+upstream). Mekanism fills the carbon/charcoal/coal dust tags and converts
+gunpowder and sulfur dust one-to-one, so a recipe that turns one sulfur dust
+into three gunpowder would duplicate gunpowder and create EMC. With Mekanism,
+neither ICBM gunpowder recipe loads, because the coal fallback is already off
+once a dust tag is populated. Other mods' dusts still select the dust recipe.
+
+EMC: `scripts/emc.py` prices every one of these alternatives, with Mekanism's
+atomic alloy and uranium at the values `mods/mekanism` ships. Each tier then
+takes its cheapest recipe, so crafting and burning never gains EMC with or
+without Mekanism. Ordinary recipes are priced with Mekanism's tag contributions
+as well. Mekanism's sulfur dust in `icbm_port:materials/sulfur_dusts`, for
+example, sets the battery's value, along with everything built from it. See
+[emc/README.md](../emc/README.md).
 Source condition predicates and the one-component-missing module fallback gap
 are documented in the OreDictionary audit.
 

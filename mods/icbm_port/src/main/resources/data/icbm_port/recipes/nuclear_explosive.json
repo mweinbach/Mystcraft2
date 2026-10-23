@@ -19,24 +19,38 @@
   },
   "fabric:load_conditions": [
     {
-      "condition": "fabric:not",
-      "value": {
-        "condition": "fabric:or",
-        "values": [
-          {
-            "condition": "fabric:tags_populated",
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:or",
             "values": [
-              "icbm_port:materials/uranium_ingots"
-            ]
-          },
-          {
-            "condition": "fabric:tags_populated",
-            "values": [
-              "icbm_port:materials/uranium_235_pellets"
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_ingots"
+                ]
+              },
+              {
+                "condition": "fabric:tags_populated",
+                "values": [
+                  "icbm_port:materials/uranium_235_pellets"
+                ]
+              }
             ]
           }
-        ]
-      }
+        },
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "mekanism"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

@@ -559,8 +559,51 @@
         "n": {
           "item": "minecraft:nether_star"
         }
-      }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "mekanism"
+            ]
+          }
+        }
+      ]
     }
+  },
+  "redmatter_explosive_mekanism": {
+    "source": "explosives/mekanism/redmatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:redmatter_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "nnn",
+        "nrn",
+        "nnn"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:antimatter_explosive"
+        },
+        "n": {
+          "item": "mekanism:alloy_atomic"
+        }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:all_mods_loaded",
+          "values": [
+            "mekanism"
+          ]
+        }
+      ]
+    },
+    "mapping_note": "mekanism:atomicalloy (1.12.2) is mekanism:alloy_atomic in Mekanism 10.3 for 1.19.2; minecraft:item_exists is mapped to fabric:all_mods_loaded [mekanism]."
   },
   "nuclear_explosive": {
     "source": "explosives/vanilla/nuclear.json",
@@ -585,27 +628,98 @@
       },
       "fabric:load_conditions": [
         {
-          "condition": "fabric:not",
-          "value": {
-            "condition": "fabric:or",
-            "values": [
-              {
-                "condition": "fabric:tags_populated",
+          "condition": "fabric:and",
+          "values": [
+            {
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:or",
                 "values": [
-                  "icbm_port:materials/uranium_ingots"
-                ]
-              },
-              {
-                "condition": "fabric:tags_populated",
-                "values": [
-                  "icbm_port:materials/uranium_235_pellets"
+                  {
+                    "condition": "fabric:tags_populated",
+                    "values": [
+                      "icbm_port:materials/uranium_ingots"
+                    ]
+                  },
+                  {
+                    "condition": "fabric:tags_populated",
+                    "values": [
+                      "icbm_port:materials/uranium_235_pellets"
+                    ]
+                  }
                 ]
               }
-            ]
-          }
+            },
+            {
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:all_mods_loaded",
+                "values": [
+                  "mekanism"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
+  },
+  "nuclear_explosive_mekanism": {
+    "source": "explosives/mekanism/nuclear.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:nuclear_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "tit",
+        "iii",
+        "tit"
+      ],
+      "key": {
+        "t": {
+          "item": "icbm_port:thermobaric_explosive"
+        },
+        "i": {
+          "item": "mekanism:alloy_atomic"
+        }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:and",
+          "values": [
+            {
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:or",
+                "values": [
+                  {
+                    "condition": "fabric:tags_populated",
+                    "values": [
+                      "icbm_port:materials/uranium_ingots"
+                    ]
+                  },
+                  {
+                    "condition": "fabric:tags_populated",
+                    "values": [
+                      "icbm_port:materials/uranium_235_pellets"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "condition": "fabric:all_mods_loaded",
+              "values": [
+                "mekanism"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "mapping_note": "mekanism:atomicalloy (1.12.2) is mekanism:alloy_atomic in Mekanism 10.3 for 1.19.2; minecraft:item_exists is mapped to fabric:all_mods_loaded [mekanism]."
   },
   "antimatter_explosive": {
     "source": "explosives/vanilla/antimatter.json",
@@ -627,8 +741,51 @@
         "n": {
           "item": "minecraft:nether_star"
         }
-      }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:not",
+          "value": {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "mekanism"
+            ]
+          }
+        }
+      ]
     }
+  },
+  "antimatter_explosive_mekanism": {
+    "source": "explosives/mekanism/antimatter.json",
+    "recipe": {
+      "type": "minecraft:crafting_shaped",
+      "result": {
+        "item": "icbm_port:antimatter_explosive",
+        "count": 1
+      },
+      "pattern": [
+        "nnn",
+        "nrn",
+        "nnn"
+      ],
+      "key": {
+        "r": {
+          "item": "icbm_port:nuclear_explosive"
+        },
+        "n": {
+          "item": "mekanism:alloy_atomic"
+        }
+      },
+      "fabric:load_conditions": [
+        {
+          "condition": "fabric:all_mods_loaded",
+          "values": [
+            "mekanism"
+          ]
+        }
+      ]
+    },
+    "mapping_note": "mekanism:atomicalloy (1.12.2) is mekanism:alloy_atomic in Mekanism 10.3 for 1.19.2; minecraft:item_exists is mapped to fabric:all_mods_loaded [mekanism]."
   },
   "steel_clump": {
     "source": "parts/clump.steel.json",
@@ -3552,25 +3709,39 @@
       },
       "fabric:load_conditions": [
         {
-          "condition": "fabric:or",
+          "condition": "fabric:and",
           "values": [
             {
-              "condition": "fabric:tags_populated",
+              "condition": "fabric:or",
               "values": [
-                "icbm_port:materials/carbon_dusts"
+                {
+                  "condition": "fabric:tags_populated",
+                  "values": [
+                    "icbm_port:materials/carbon_dusts"
+                  ]
+                },
+                {
+                  "condition": "fabric:tags_populated",
+                  "values": [
+                    "icbm_port:materials/charcoal_dusts"
+                  ]
+                },
+                {
+                  "condition": "fabric:tags_populated",
+                  "values": [
+                    "icbm_port:materials/coal_dusts"
+                  ]
+                }
               ]
             },
             {
-              "condition": "fabric:tags_populated",
-              "values": [
-                "icbm_port:materials/charcoal_dusts"
-              ]
-            },
-            {
-              "condition": "fabric:tags_populated",
-              "values": [
-                "icbm_port:materials/coal_dusts"
-              ]
+              "condition": "fabric:not",
+              "value": {
+                "condition": "fabric:all_mods_loaded",
+                "values": [
+                  "mekanism"
+                ]
+              }
             }
           ]
         }
@@ -3597,7 +3768,8 @@
         "path": "/ingredients/2",
         "ore": "dustSaltpeter"
       }
-    ]
+    ],
+    "mapping_note": "Disabled when Mekanism is loaded: Mekanism fills the carbon/charcoal/coal dust tags and converts gunpowder and sulfur dust one-to-one, so one sulfur dust making three gunpowder would duplicate gunpowder and create EMC (scripts/emc.py checks every conditional recipe for gain)."
   },
   "iron_plate": {
     "source": "port-specific: mirrors parts/plate.steel.json for the previously uncraftable plateIron subtype",

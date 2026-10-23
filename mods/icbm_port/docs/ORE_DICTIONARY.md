@@ -125,12 +125,21 @@ recipe's **`fabric:load_conditions`** field. `tags_populated` defaults to the
 | `missile/vanilla/missile.module.json` | Requires **both** basic circuits and steel ingots to be absent. The source has no module fallback for only one missing family; do not silently describe an OR predicate as exact parity. |
 | Three `missile/special/` recipes | Require basic circuits. SAM's vanilla alternative requires circuits absent; cluster and held-item have no published vanilla-circuit fallback. |
 
-Official Mekanism has no Fabric 1.19.2 release. The port does not fabricate an
-atomic-alloy item or claim binary compatibility. Uranium and carbon alternatives
+The Mekanism alternatives target this repository's Fabric Mekanism port and its
+real `mekanism:alloy_atomic` item; `fabric:all_mods_loaded ["mekanism"]` stands
+in for `minecraft:item_exists` (see [RECIPES.md](RECIPES.md)). The port does not
+fabricate an atomic-alloy item. Uranium and carbon alternatives
 are useful with real Fabric providers and must remain enabled by their tag
 conditions. Vanilla fallbacks must become unavailable after a datapack introduces
 the corresponding valid material, and become available again after its removal.
 Local circuit/steel exports normally keep their component recipe paths selected.
+
+One deliberate deviation: the port's `gunpowder_from_dusts`
+(`parts/mod/gunpowder.json`) also requires Mekanism to be absent. Mekanism fills
+the dust tags and converts gunpowder and sulfur dust one-to-one, so one sulfur
+dust making three gunpowder would duplicate gunpowder and break the repository's
+EMC exploit rule. With Mekanism neither gunpowder recipe loads. Other providers'
+dusts still select the dust recipe as in the source.
 
 Other unions and metadata distinctions:
 

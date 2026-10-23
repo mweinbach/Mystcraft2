@@ -3,7 +3,19 @@
   "id": "icbm_port",
   "version": "${version}",
   "name": "ICBM Fabric Port (Alpha)",
-  "description": "An unofficial, in-progress ICBM gameplay port for Minecraft 1.19.2.",
+  "description": "An unofficial, in-progress ICBM Classic gameplay port for Minecraft 1.19.2 Fabric.",
+  "authors": [
+    "Calclavia (original ICBM)",
+    "Built Broken Modding and DarkGuardsman (ICBM Classic)",
+    "1.19.2 Fabric port contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/icbm_port",
+    "sources": "https://github.com/mweinbach/Mystcraft2",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/icbm_port/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -17,17 +29,26 @@
     ],
     "emi": [
       "dev.icbm.port.integration.IcbmEmiPlugin"
+    ],
+    "rei_client": [
+      "dev.icbm.port.integration.IcbmReiPlugin"
     ]
   },
   "mixins": [
     "icbm_port.mixins.json"
   ],
-  "license": "MIT",
   "depends": {
     "fabricloader": ">=0.16.14",
-    "fabric-api": "*",
+    "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17",
     "team_reborn_energy": ">=2.3.0"
+  },
+  "suggests": {
+    "roughlyenoughitems": "*",
+    "emi": "*",
+    "jei": "*",
+    "mekanism": "*",
+    "itemalchemy": "*"
   }
 }

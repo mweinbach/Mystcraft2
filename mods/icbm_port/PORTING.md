@@ -15,7 +15,7 @@ Reference: [BuiltBrokenModding/ICBM-Classic](https://github.com/BuiltBrokenModdi
 | `energy` | Transactional Fabric energy, rechargeable batteries and configuration |
 | `delivery` | Grenades, carts, handheld launchers, mixed clusters, held-item actions and carrier passengers |
 | `defense`, `radio` | Radar, guided SAMs, EMP fields/extenders, machine screens, channel/relay messaging and protective blocks |
-| `api`, `command`, `integration` | Executable extension registry/events, operator commands and optional JEI |
+| `api`, `command`, `integration` | Executable extension registry/events, operator commands and optional EMI/JEI/REI viewers |
 | `content`, `client` | Recipe components, sulfur loot, original model rendering and client initialization |
 | `tools` | Resource generation/validation and source recipe mappings |
 

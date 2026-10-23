@@ -30,5 +30,16 @@
     "recipes": [
       "icbm_port:redmatter_explosive"
     ]
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:all_mods_loaded",
+        "values": [
+          "mekanism"
+        ]
+      }
+    }
+  ]
 }

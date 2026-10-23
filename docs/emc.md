@@ -81,6 +81,27 @@ hand-written `emc/policy.json`:
     one EMC gets none; `values.json` records it under `below_one`.
   - Recipe load conditions are evaluated for the port's loader (Forge `conditions`, Fabric
     `fabric:load_conditions`).
+  - **Recipes other mods enable.** A recipe that loads only alongside another mod is still a way to make its
+    output, and Item Alchemy ships fixed values instead of recalculating them. When the other mod is a port in
+    this repository, the policy declares it in `optional_mods`. `emc.py` then evaluates every combination of
+    those mods. For each combination it loads recipes with the mod present and the mod port's tags added, and
+    adds every recipe whose conditions name the mod and could hold whatever the tags are. Every recipe active in
+    the combination is read against the merged tags, including unconditional ones. A mod that adds a cheap
+    item to a tag the port's recipe accepts makes that recipe cheaper: Mekanism's sulfur dust joins
+    `icbm_port:materials/sulfur_dusts`, which lowers ICBM's battery. A mod can also fill a tag that switches its
+    own recipe off; Mekanism fills the uranium tags, which disables ICBM's atomic-alloy nuclear recipe. These
+    alternatives are priced with the values the other port ships, such as Mekanism's atomic alloy, and every
+    output takes the minimum over all its recipes in every combination. The gain check covers every active
+    recipe in every combination.
+
+    A recipe gated on a mod with no EMC data in the repository is not priced. `emc.py check` fails if it would
+    gain EMC at the shipped values, or if it needs an ingredient with no known EMC. In that case declare the mod,
+    exclude the output, or gate the recipe off. The port README lists each optional mod, the recipes it enables
+    ("loads with"), and the recipes whose tags it widens ("wider tags with").
+
+    Only the tags of declared optional mods are read. In a pack where an undeclared mod adds a cheaper item to
+    one of the port's tags (a third mod's sulfur, say), a recipe can still make its output for less than the
+    shipped value.
   - Special recipe types, whose result is empty to ProjectE, are listed in the port README so their outputs get
     a conversion, value or exclusion.
 - **Tags per loader.** ProjectE is analysed with Forge tags and Item Alchemy with Fabric conventional `c:` tags,
@@ -134,9 +155,16 @@ ProjectE's tag values, its `metals.json` tag conversions and the tags its own co
   check; ICBM's sulfur is three gunpowder for this reason. So does a port item that would become the cheapest
   member of a tag vanilla recipes use or of a tag ProjectE's `TagMapper` equalises, and the ProjectE file never
   names a tag whose members are worth different amounts.
-- **Explosives** keep their recipe cost, so they are never cheaper to transmute than to craft, and crafting then
-  burning one never gains. This includes ICBM's nuclear, antimatter and red matter tiers, which cost a few
-  hundred thousand to a few million EMC because of their wither skeleton skulls and nether stars.
+- **Explosives** are worth their cheapest recipe, so crafting then burning one never gains under any recipe, and
+  transmuting one costs as much as its cheapest ingredients. ICBM's nuclear, antimatter and red matter tiers
+  have nether-star and skull recipes and atomic-alloy recipes that load only with Mekanism. They are valued at
+  the cheapest of those recipes, with Mekanism's items at Mekanism's shipped values (about 140 to 200 thousand
+  EMC). That is less than the nether-star recipes cost, which never gains.
+- **No gain from any recipe, conditional or not.** Every recipe the port ships counts, including recipes behind
+  load conditions and recipes only another mod enables, and none may make an output worth more than its
+  ingredients. Where no value can satisfy a recipe, the recipe is gated off instead. Mekanism converts gunpowder
+  and sulfur dust one-to-one, so ICBM's dust gunpowder recipe (one sulfur dust makes three gunpowder) does not
+  load with Mekanism.
 - **Vanilla gaps** (`vanilla`): when an EMC mod's defaults leave a vanilla ingredient unvalued, a port may ship a
   value for that mod only. It applies pack-wide, and `emc.py` refuses to override an existing default. ICBM gives
   ProjectE's wither skeleton skull a third of a nether star, because three skulls summon a Wither that drops one.
@@ -152,6 +180,9 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
   - A registered item has neither a value nor an exclusion.
   - Two policy entries claim the same item.
   - A process gains EMC, or a recipe devalues vanilla.
+  - Any recipe makes a port item worth more than its ingredients at the shipped values. This covers recipes
+    behind load conditions, alternatives an `optional_mods` mod enables, and recipes gated on undeclared mods. A
+    conditional alternative that needs an ingredient with no known EMC also fails.
   - A shipped file breaks the ProjectE or Item Alchemy grammar.
   - A generated file is stale.
   - A port ships a `pe_custom_conversions` file the policy does not generate (Mekanism's upstream `defaults.json`
@@ -215,6 +246,10 @@ Use this for Extreme Reactors or any new port.
    - `ignored` is only for test-only registrations.
    - `conditions` fixes the outcome of the port's own recipe condition types, such as Extreme Reactors'
      `bigreactors:config_condition`, with `holds` set to the shipped config default and a `why`.
+   - `optional_mods` maps another mod's id to the port directory under `mods/` that prices it (`port`) and a
+     `why`. Declare one when the port ships recipes that load only with that mod. For example, ICBM declares
+     `mekanism` → `mekanism` so its atomic-alloy recipes are priced. That port's `emc/values.json` must be
+     generated first.
 3. **Generate and read.** Run `python3 scripts/emc.py generate <id>` and fix every problem it reports:
    - Give base items a `like` anchor.
    - Turn each custom machine recipe into a conversion.
