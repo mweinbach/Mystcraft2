@@ -26,7 +26,9 @@ public final class FabricAgeBackend implements AgeRuntime.Backend {
     @Override public void prepare(ServerLevel level, long seed) {
         ((StructureCheckAccessor) ((ServerLevelAgeAccessor) level).mystcraft$structureCheck()).mystcraft$seed(seed);
     }
-    @Override public void levelsChanged(MinecraftServer server) {}
+    @Override public void levelsChanged(MinecraftServer server) {
+        ((AgeLevelSnapshot) server).mystcraft$levelsChanged();
+    }
     @Override public void loaded(MinecraftServer server, ServerLevel level) {
         ServerWorldEvents.LOAD.invoker().onWorldLoad(server, level);
     }

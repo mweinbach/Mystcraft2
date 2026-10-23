@@ -22,6 +22,7 @@ public final class FabricMystcraft implements ModInitializer {
         FabricAgeVisualTransport.initialize();
         FabricMenuActionTransport.initialize();
         FabricExplorationHooks.initialize();
+        FabricLegacyTreasureLoot.initialize();
         net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, access, selection) ->
                 net.mystcraft.minecraft.command.MystcraftCommands.register(dispatcher));
     }

@@ -40,7 +40,7 @@ dependencies {
 sourceSets {
     gametest {
         java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
-        resources.srcDirs = []
+        resources.srcDirs = ['src/gametestForge/resources']
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
@@ -49,6 +49,8 @@ minecraft.runs {
     gameTestServer {
         property 'forge.enabledGameTestNamespaces', 'mystcraft'
         property 'emc.values', file('emc/values.json').absolutePath
+        // A test-only getAllLevels injection that must keep running beside Mystcraft's hooks.
+        args '--mixin.config', 'mystcraft_gametest.mixins.json'
         mods { mystcraft { source sourceSets.gametest } }
     }
 }
@@ -57,6 +59,26 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach { dependsOn task
 // Generate official-name -> SRG mappings for client-only mixins in packaged Forge JARs.
 // Loom independently generates the Fabric refmap from its own adapter sources.
 dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+
+// Forge 43 does not bundle MixinExtras (@WrapOperation); nest it as Fabric does with include().
+jarJar.enable()
+dependencies {
+    compileOnly(annotationProcessor('io.github.llamalad7:mixinextras-common:0.4.1'))
+    implementation(jarJar('io.github.llamalad7:mixinextras-forge:0.4.1')) { jarJar.ranged(it, '[0.4.1,)') }
+}
+// The nested JAR is the published artifact; the plain JAR keeps a classifier.
+tasks.named('jar', Jar) { archiveClassifier = 'slim' }
+tasks.named('jarJar') {
+    archiveClassifier = ''
+    from('NOTICE.md')
+    from('LICENSE')
+    manifest.attributes('Implementation-Title': portMetadata.mod_name,
+                        'Implementation-Version': portMetadata.mod_version,
+                        'MixinConfigs': 'mystcraft.forge.mixins.json')
+    finalizedBy 'reobfJarJar'
+}
+reobf { jarJar {} }
+tasks.named('assemble') { dependsOn tasks.named('jarJar') }
 def forgeMixinRefmap = layout.buildDirectory.file('generated/mixin/mystcraft.forge.refmap.json')
 tasks.named('compileJava', JavaCompile) {
     dependsOn tasks.named('createMcpToSrg')
