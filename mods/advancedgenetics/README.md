@@ -87,7 +87,9 @@ The parity check confirms the following across the two JARs:
   - out-of-range numbers are clamped;
   - unknown keys are removed.
 
-  Forge reloads the file when it changes; Fabric reads it only at startup.
+  Both loaders reload the file when it is modified in place, correct it, and apply the new values
+  without a restart; Fabric applies them on the server thread. Neither syncs these settings to
+  clients, as Forge does not sync COMMON configs. See [PARITY.md](PARITY.md#config).
 - **EMC:** every item has a value for ProjectE and Item Alchemy, shipped as shared data in both
   JARs. See [`emc/README.md`](emc/README.md) and [docs/emc.md](../../docs/emc.md).
 
@@ -174,6 +176,13 @@ Retained upstream behavior:
 - Forge saves genetics in `ForgeCaps` and Fabric under its own key. Worlds are not migrated
   between loaders.
 
+## API change for add-ons
+
+Upstream's Cardinal Components key, `ComponentRegistry.PLAYER_GENETICS`, no longer exists, so a
+Fabric add-on that looks up the upstream component finds nothing. Call
+`com.technovision.advancedgenetics.api.AdvancedGeneticsApi.genetics(player)` instead; it returns
+the player's `EntityGeneticsComponent` on both loaders. Old saves are unaffected (see above).
+
 ## Known gaps
 
 - Machine progress and energy are synced through vanilla menu data, which is limited to 16-bit
@@ -186,19 +195,24 @@ Retained upstream behavior:
   - The Mob Sight glow, the teleport and dragon's breath keys, and flight have not been checked
     by hand.
   - The Fabric client has only been built, not run.
-- Fabric reads the config only at startup; edits need a restart.
+- On both loaders the config reloads only when the file is modified in place. An editor that saves
+  by replacing the file may need a restart for the change to apply on Linux.
 
 ## GameTests
 
 All GameTests are shared in `src/gametestCommon` and run on both loaders against real server
 players, so the loader's actual hooks run. A small `TestPlatform` per loader
 (`src/gametestForge` and `src/gametestFabric`) reads each loader's energy and item APIs, its
-genetics save location and a damage probe. Tests are merged into the mod only for the GameTest
-run and never ship in a JAR.
+genetics save location and a damage probe. It also decodes the loader's sync packet, delivers key
+packets through the loader's channel, fires the loader's login, respawn and dimension-change
+events, and runs the loader's config corrections (`ForgeConfigSpec` itself on Forge,
+`FabricConfig` on Fabric). Tests are merged into the mod only for the GameTest run and never ship
+in a JAR.
 
-The 30 shared tests cover:
+The 39 shared tests cover:
 
 - genetics persistence through player NBT, skipping unknown genes;
+- the public `AdvancedGeneticsApi.genetics` accessor;
 - respawn gene copy and Keep Inventory;
 - the Keep Inventory, Web Walking, Climb Walls and Infinity mixins;
 - the death genes, damage-cancelling genes and the dragon crystal;
@@ -208,6 +222,12 @@ The 30 shared tests cover:
 - Wither Hit, Eat Grass, Milky, and the Scare Creepers and Scare Skeletons goals;
 - gene-name argument parsing, and the `/gene` commands with their permission check;
 - recipe loading and network round trips;
+- the sync and key packets on the wire, including the key name's length limit;
+- key presses arriving through the loader's channel, and one gene sync for each gene change,
+  login, respawn and dimension change;
+- config corrections: missing keys and comments are filled in, out-of-range numbers are clamped,
+  values of the wrong type fall back to defaults, unknown keys are removed, and a corrected file
+  stays unchanged when corrected again;
 - the cell analyzer's configured time, energy, face rules and menu;
 - every machine stage through syringe injection;
 - automation leaving the infuser's and injector's in-place work alone;
@@ -215,8 +235,12 @@ The 30 shared tests cover:
   files load. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) the real EMC mod runs
   too, and every live value must match.
 
-Fabric adds one test: upstream Cardinal Components saves load, and the current key takes
-precedence over them.
+Fabric adds three tests:
+
+- upstream Cardinal Components saves load, and the current key takes precedence over them;
+- a config reload writes the corrected file back, hands the new values to the game thread, ignores
+  its own rewrite and leaves a malformed file and the current values alone;
+- editing the real config file reloads it through night-config's `FileWatcher`.
 
 ## Attribution and license
 

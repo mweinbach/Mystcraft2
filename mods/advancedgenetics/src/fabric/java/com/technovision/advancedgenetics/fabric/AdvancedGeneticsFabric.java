@@ -9,13 +9,17 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 
+import java.nio.file.Path;
+
 public class AdvancedGeneticsFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
         FabricPlatform platform = new FabricPlatform();
         Platform.install(platform);
-        FabricConfig.load(FabricLoader.getInstance().getConfigDir().resolve(Config.FILE_NAME));
+        Path config = FabricLoader.getInstance().getConfigDir().resolve(Config.FILE_NAME);
+        FabricConfig.load(config);
+        FabricConfig.watch(config);
         AdvancedGenetics.init();
         platform.flush();
         FabricTransfer.register();

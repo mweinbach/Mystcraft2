@@ -18,8 +18,9 @@ import java.util.function.Supplier;
 public final class ForgeNetwork {
 
     private static final String PROTOCOL_VERSION = "1";
+    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(AdvancedGenetics.MOD_ID, "main");
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(AdvancedGenetics.MOD_ID, "main"),
+            CHANNEL_NAME,
             () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals

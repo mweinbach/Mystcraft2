@@ -10,8 +10,9 @@
     "1.19.2 port contributors"
   ],
   "contact": {
-    "sources": "https://github.com/TechnoVisionDev/Advanced-Genetics",
-    "issues": "https://github.com/TechnoVisionDev/Advanced-Genetics/issues"
+    "homepage": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/advancedgenetics",
+    "sources": "https://github.com/mweinbach/Mystcraft2",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
   },
   "license": "MIT",
   "icon": "assets/advancedgenetics/icon.png",
@@ -26,5 +27,8 @@
     "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17"
+  },
+  "suggests": {
+    "itemalchemy": "*"
   }
 }

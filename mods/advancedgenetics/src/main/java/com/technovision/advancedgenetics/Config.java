@@ -80,11 +80,23 @@ public final class Config {
             this.value = value;
         }
 
+        /** Sets this value from what the file holds after ForgeConfigSpec's corrections. */
+        public void load(Object stored) {
+            set(convert(stored));
+        }
+
+        /**
+         * Reads a corrected file value the way ForgeConfigSpec's getters do: numbers are narrowed,
+         * and the {@code "true"}/{@code "false"} strings its boolean check accepts are parsed.
+         */
+        public abstract T convert(Object stored);
+
         public abstract boolean isValid(T value);
     }
 
     public static final class BoolValue extends Value<Boolean> {
         private BoolValue(String key, boolean defaultValue, String... comment) { super(key, defaultValue, comment); }
+        @Override public Boolean convert(Object stored) { return stored instanceof String text ? Boolean.parseBoolean(text) : (Boolean) stored; }
         @Override public boolean isValid(Boolean value) { return value != null; }
     }
 
@@ -98,6 +110,7 @@ public final class Config {
         }
         public int min() { return min; }
         public int max() { return max; }
+        @Override public Integer convert(Object stored) { return ((Number) stored).intValue(); }
         @Override public boolean isValid(Integer value) { return value != null && value >= min && value <= max; }
     }
 
@@ -111,6 +124,11 @@ public final class Config {
         }
         public double min() { return min; }
         public double max() { return max; }
+        /** ForgeConfigSpec's range check lets {@code nan} through; it means the default. */
+        @Override public Double convert(Object stored) {
+            double number = ((Number) stored).doubleValue();
+            return Double.isNaN(number) ? defaultValue() : number;
+        }
         @Override public boolean isValid(Double value) { return value != null && value >= min && value <= max; }
     }
 

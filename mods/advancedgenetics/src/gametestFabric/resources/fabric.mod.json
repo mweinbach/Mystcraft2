@@ -12,6 +12,8 @@
       "com.technovision.advancedgenetics.gametest.GeneGameTests",
       "com.technovision.advancedgenetics.gametest.MachineGameTests",
       "com.technovision.advancedgenetics.gametest.EmcGameTests",
+      "com.technovision.advancedgenetics.gametest.NetworkGameTests",
+      "com.technovision.advancedgenetics.gametest.ConfigGameTests",
       "com.technovision.advancedgenetics.gametest.FabricGameTests"
     ]
   },
