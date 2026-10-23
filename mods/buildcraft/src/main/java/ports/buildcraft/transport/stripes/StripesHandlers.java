@@ -33,6 +33,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.mixin.DispenserBlockAccessor;
 import ports.buildcraft.transport.PipeDefinition;
 import ports.buildcraft.transport.PipeItem;
@@ -42,6 +43,11 @@ import ports.buildcraft.transport.behaviour.StripesBehaviour;
  * Upstream's {@code StripesHandler*} item handlers, each acting on the block or entities in front of the stripes
  * pipe with the item in the fake player's main hand. Forge-only hooks upstream used ({@code IShearable},
  * {@code IPlantable}, {@code onItemUseFirst}) have loader-neutral stand-ins here, described on each handler.
+ *
+ * <p>Each handler first asks {@link BlockProtection} whether the pipe owner's fake player may act there: shearing
+ * removes a block, so it needs the loader's break check; the others use the item, so they need vanilla's checks, and
+ * on Forge {@code ItemStack.useOn} posts the place events for the blocks it changes, as it did upstream. A refused
+ * handler reports the item handled without using it, so no later handler tries it and the stripes pipe sends it back.
  */
 public final class StripesHandlers {
     /** Upstream {@code StripesHandlerUse.ITEMS}: items used on the block in front. Empty upstream too. */
@@ -67,6 +73,7 @@ public final class StripesHandlers {
         BlockPos above = soil.above();
         if (level.getBlockState(soil).is(plant) || !level.isEmptyBlock(above)) return false;
         if (!plant.defaultBlockState().canSurvive(level, above)) return false;
+        if (!BlockProtection.mayUse(level, above, Direction.UP, seed, player)) return true;
         return useItemOnBlock(player, soil, Direction.UP);
     }
 
@@ -83,6 +90,7 @@ public final class StripesHandlers {
         long seed = level.random.nextLong();
         List<ItemStack> sheared = loot(level, front, state, stack.copy(), player, seed);
         if (sheared.isEmpty() || sameStacks(sheared, loot(level, front, state, ItemStack.EMPTY, player, seed))) return false;
+        if (!BlockProtection.mayBreak(level, front, player)) return true;
         if (stack.hurt(1, player.getRandom(), player)) stack.shrink(1);
         level.setBlock(front, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
         for (ItemStack drop : sheared) activator.sendItem(drop, direction);
@@ -122,14 +130,19 @@ public final class StripesHandlers {
     static boolean hoe(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
         if (!(stack.getItem() instanceof HoeItem)) return false;
         BlockPos front = pos.relative(direction);
+        if (!BlockProtection.mayUse(level, front, Direction.UP, stack, player)) return true;
         if (useOn(player, front, Direction.UP, Vec3.atLowerCornerOf(front)) != InteractionResult.PASS) return true;
-        return direction != Direction.UP && useOn(player, front.below(), Direction.UP, Vec3.atLowerCornerOf(front.below())) != InteractionResult.PASS;
+        if (direction == Direction.UP) return false;
+        if (!BlockProtection.mayUse(level, front.below(), Direction.UP, stack, player)) return true;
+        return useOn(player, front.below(), Direction.UP, Vec3.atLowerCornerOf(front.below())) != InteractionResult.PASS;
     }
 
     /** Upstream {@code StripesHandlerEntityInteract}: the item is used on a random living entity in front. */
     static boolean entityInteract(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player,
             StripesBehaviour activator) {
         List<LivingEntity> entities = new ArrayList<>(level.getEntitiesOfClass(LivingEntity.class, new AABB(pos.relative(direction))));
+        if (entities.isEmpty()) return false;
+        if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
         Collections.shuffle(entities);
         for (LivingEntity entity : entities) {
             if (player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction()) return true;
@@ -144,6 +157,7 @@ public final class StripesHandlers {
      */
     static boolean dispenser(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
         if (!DispenserBlockAccessor.buildcraft$getRegistry().containsKey(stack.getItem())) return false;
+        if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
         DispenseItemBehavior behaviour = DispenserBlockAccessor.buildcraft$getRegistry().get(stack.getItem());
         ItemStack single = stack.split(1);
         ItemStack rest = stack.copy();
@@ -159,13 +173,16 @@ public final class StripesHandlers {
         if (!(stack.getItem() instanceof BlockItem)) return false;
         BlockPos front = pos.relative(direction);
         if (!level.isEmptyBlock(front)) return false;
+        if (!BlockProtection.mayUse(level, front, direction, stack, player)) return true;
         useOn(player, front, direction, Vec3.atCenterOf(front));
         return true;
     }
 
     /** Upstream {@code StripesHandlerUse}: items in {@link #USE_ITEMS} are used on the block in front. */
     static boolean use(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
-        return USE_ITEMS.contains(stack.getItem()) && useItemOnBlock(player, pos.relative(direction), direction.getOpposite());
+        if (!USE_ITEMS.contains(stack.getItem())) return false;
+        if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
+        return useItemOnBlock(player, pos.relative(direction), direction.getOpposite());
     }
 
     /**

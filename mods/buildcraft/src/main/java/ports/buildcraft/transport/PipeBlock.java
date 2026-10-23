@@ -12,6 +12,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -174,6 +175,18 @@ public class PipeBlock extends BaseEntityBlock {
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos from, boolean moving) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) pipe.markForUpdate();
+    }
+
+    /**
+     * Upstream {@code TileBC_Neptune.onPlacedBy}: the placing player owns the pipe. A pipe a stripes pipe lays is
+     * placed by its owner's fake player, so it has the same owner.
+     */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide && placer instanceof Player player && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+            pipe.setOwner(player.getGameProfile());
+        }
     }
 
     /** Upstream {@code onEntityCollidedWithBlock}: the behaviour hears of every entity inside the pipe's block. */

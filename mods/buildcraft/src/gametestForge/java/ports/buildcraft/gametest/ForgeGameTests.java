@@ -2,6 +2,10 @@ package ports.buildcraft.gametest;
 
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
@@ -10,6 +14,17 @@ import ports.buildcraft.BuildCraft;
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
+    static {
+        // TestProtection's stand-in protection mod: cancels Forge's break and place events where a test refuses them.
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, event -> {
+            if (TestProtection.refuses(event.getPos(), event.getPlayer())) event.setCanceled(true);
+        });
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.EntityPlaceEvent.class, event -> {
+            if (TestProtection.refuses(event.getPos(), event.getEntity() instanceof Player player ? player : null)) event.setCanceled(true);
+        });
+        TestProtection.installed("forge");
+    }
+
     private ForgeGameTests() {}
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
@@ -399,6 +414,15 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void stripesPipeRetractsTwiceInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeRetractsTwiceInOneTick(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void stripesPipeRespectsRefusedBreak(GameTestHelper helper) { StripesPipeTests.stripesPipeRespectsRefusedBreak(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void stripesPipeRespectsRefusedExtension(GameTestHelper helper) { StripesPipeTests.stripesPipeRespectsRefusedExtension(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void stripesPipeStaysAtBuildLimit(GameTestHelper helper) { StripesPipeTests.stripesPipeStaysAtBuildLimit(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

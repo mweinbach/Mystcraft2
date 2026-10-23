@@ -31,6 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.energy.BCFluid;
@@ -94,6 +95,23 @@ public final class Platform {
          * has none, so Fabric returns its own disconnected player.
          */
         ServerPlayer fakePlayer(ServerLevel level, GameProfile profile);
+
+        /**
+         * The loader's block break protection check, as upstream's {@code BlockUtil.breakBlock} posted Forge's
+         * {@code BlockEvent.BreakEvent} for a machine's owner: false if a handler refused {@code player} breaking
+         * {@code state} at {@code pos}. Forge posts {@code BreakEvent}; Fabric fires
+         * {@code PlayerBlockBreakEvents.BEFORE}. Callers use {@link ports.buildcraft.lib.BlockProtection}, which also
+         * makes vanilla's checks.
+         */
+        boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player);
+
+        /**
+         * The loader's block place protection check, made before the block at {@code pos} is replaced: false if a
+         * handler refused {@code player} placing a block there against {@code placedAgainst}. Forge posts
+         * {@code BlockEvent.EntityPlaceEvent}; Fabric API has no place event, so Fabric fires
+         * {@code PlayerBlockBreakEvents.BEFORE} for a block that placing would replace and allows placing into air.
+         */
+        boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player);
     }
 
     /** A client-to-server message, handled on the server thread. */

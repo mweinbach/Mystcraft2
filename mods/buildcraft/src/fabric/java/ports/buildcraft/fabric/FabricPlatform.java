@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import ports.buildcraft.BuildCraft;
@@ -292,5 +294,18 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
         return FabricFakePlayer.get(level, profile);
+    }
+
+    /** Fires {@code BEFORE} only, as for a player; the shared caller breaks the block itself. */
+    @Override
+    public boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, level.getBlockEntity(pos));
+    }
+
+    /** Fabric API has no place event: placing into air is allowed, and a block it replaces must be breakable. */
+    @Override
+    public boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player) {
+        BlockState replaced = level.getBlockState(pos);
+        return replaced.isAir() || fireBlockBreak(level, pos, replaced, player);
     }
 }

@@ -324,16 +324,33 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
   current slot as an index byte, where upstream saved a `BitSet` byte array and the slot's enum name. Upstream's
   emzuli pipe moved to the next slot only after a pull, so clearing the current slot's filter while its preset stayed
   active stalled it; here a current slot that has lost its filter or its preset gives way to the next active slot.
-- **Stripes pipe:** pipes have no owner here, so every stripes pipe acts as upstream's ownerless `[BuildCraft]`
-  machine player (Forge's `FakePlayerFactory` on Forge, a connectionless `ServerPlayer` on Fabric). It spends no
-  power on air, where upstream drained its battery while pointed at nothing. Upstream asked Forge's `IShearable` and
-  `IPlantable`; here a block is shearable when shears change its loot, and seeds are block items of bushes and cactus
-  planted where they can survive. Items are used without Forge's `onItemUseFirst`, the dispenser handler dispenses one
-  item at a time (upstream passed the whole stack), and pipe extension moves the pipes without Forge's break and place
-  events or block snapshots, as there are no loader-neutral equivalents. Upstream handled every pipe extension or
+- **Stripes pipe:** as upstream, a pipe remembers the player who placed it (saved as `owner`; a pipe a stripes pipe
+  lays gets its owner), and the stripes pipe acts as that owner's fake player (Forge's `FakePlayerFactory` on Forge,
+  a connectionless `ServerPlayer` on Fabric), or as upstream's ownerless `[BuildCraft]` player for pipes placed
+  without one. It spends no power on air, where upstream drained its battery while pointed at nothing. Upstream asked
+  Forge's `IShearable` and `IPlantable`; here a block is shearable when shears change its loot, and seeds are block
+  items of bushes and cactus planted where they can survive. Items are used without Forge's `onItemUseFirst`, and the
+  dispenser handler dispenses one item at a time (upstream passed the whole stack).
+  **Protection:** upstream posted Forge's break and place events for the owner and rolled back with block snapshots
+  when they were cancelled. Here every stripes action asks the shared `lib.BlockProtection` first, before anything
+  changes, and a refused action changes nothing and sends its item back down the pipe (a refused break wastes the
+  power spent, as upstream's). `BlockProtection` makes vanilla's checks (build height, spawn protection and the world
+  border through `Level.mayInteract`, adventure mode) and then the loader's events through `Platform.Backend`:
+  breaking the block in front, shearing, and on pipe extension breaking the stripes pipe's block and, on retraction,
+  the pipe behind it, fire Forge's `BlockEvent.BreakEvent` or Fabric's `PlayerBlockBreakEvents.BEFORE`; moving the
+  stripes pipe into a block fires Forge's `BlockEvent.EntityPlaceEvent`, posted before the move so its snapshot holds
+  the replaced block. Fabric API has no place event, so on Fabric placing into air takes vanilla's checks only and
+  replacing a block (grass, water) fires the break event for it. Item uses (placing, planting, tilling, dispensing,
+  entity interaction) take vanilla's checks, and on Forge `ItemStack.useOn` posts the place events itself, as it did
+  upstream. `BlockProtection` is meant for other machines too; the quarry, mining well, builder and pluggable removal
+  do not use it yet.
+  **Extension:** pipe extension moves the pipes without block snapshots. Upstream handled every pipe extension or
   retraction at the position the stripes pipe had when the item arrived, so a second pipe item reaching it in the
   same tick found it gone and was lost; here later requests follow the stripes pipe to where earlier ones moved it,
-  and one that still finds no stripes pipe drops its item.
+  and one that still finds no stripes pipe drops its item. Upstream also extended into any air, so at the top or
+  bottom of the world it took the stripes pipe up, could not place it outside the build height, and lost it with its
+  contents; here a block outside the build height, outside the world border or unloaded is refused before anything
+  moves, and if placing the stripes pipe still fails the laid pipe is taken up and everything is put back.
 
 ## Not ported
 
@@ -384,8 +401,9 @@ that slot's item painted its colour (or unpainted), switching with the gate and 
 on to the next active preset when the current one's filter is cleared, the
 stripes pipe pointing away from its connection with the rod drawn there, placing a block item in front, breaking the
 block in front with engine power and sending the drops back down the pipe, dropping an item it cannot use,
-turning by a gate's direction action, and laying two pipes or retracting twice in one tick without losing either
-item, the diamond-wood, stripes and emzuli recipes and the diamond-wood fluid and
+turning by a gate's direction action, laying two pipes or retracting twice in one tick without losing either
+item, a refused loader break event stopping its break and a refused break or place event stopping its extension
+(both naming the pipe's owner, who also owns the pipes it lays), and refusing to extend past the build limit, the diamond-wood, stripes and emzuli recipes and the diamond-wood fluid and
 kinesis upgrades with their undo recipes,
 kinesis pipes carrying engine power, the iron and diamond kinesis pipes' upstream rates, saved limits and block
 states, an iron kinesis pipe delivering exactly its selected limit and less once a gate's power limit action

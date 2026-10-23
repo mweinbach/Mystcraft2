@@ -1,5 +1,6 @@
 package ports.buildcraft.gametest;
 
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -9,6 +10,12 @@ import ports.buildcraft.BuildCraft;
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
+
+    static {
+        // TestProtection's stand-in protection mod: refuses Fabric's block break event where a test refuses it.
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> !TestProtection.refuses(pos, player));
+        TestProtection.installed("fabric");
+    }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void mjConversionRatio(GameTestHelper helper) { BCTests.mjConversionRatio(helper); }
@@ -397,6 +404,15 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void stripesPipeRetractsTwiceInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeRetractsTwiceInOneTick(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public void stripesPipeRespectsRefusedBreak(GameTestHelper helper) { StripesPipeTests.stripesPipeRespectsRefusedBreak(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public void stripesPipeRespectsRefusedExtension(GameTestHelper helper) { StripesPipeTests.stripesPipeRespectsRefusedExtension(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void stripesPipeStaysAtBuildLimit(GameTestHelper helper) { StripesPipeTests.stripesPipeStaysAtBuildLimit(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }

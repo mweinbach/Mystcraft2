@@ -22,6 +22,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.BlockUtil;
 import ports.buildcraft.lib.InventoryUtil;
 import ports.buildcraft.transport.PipeBlockEntity;
@@ -38,8 +39,10 @@ import ports.buildcraft.transport.wire.WireSystems;
  * Unused pipes and the removed pipe's drops come back through the stripes pipe.
  *
  * <p>Upstream posted Forge block break and place events for the stripes pipe's owner and rolled back with block
- * snapshots when they were cancelled. Pipes in the port have no owner and no loader-neutral protection events, so
- * the move only checks that each block can be replaced.
+ * snapshots when they were cancelled. Here the same checks go through {@link BlockProtection} for the owner's fake
+ * player, all before anything moves, so a refusal leaves every block as it was and sends the pipe item back:
+ * breaking the stripes pipe's block, placing it in its new block, and on retraction breaking the pipe it replaces.
+ * Laying the pipe uses the item as the fake player, which on Forge posts the place event itself.
  */
 public final class PipeExtensionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("BuildCraft");
@@ -89,19 +92,33 @@ public final class PipeExtensionManager {
         }
     }
 
+    /**
+     * Whether the stripes pipe can move into {@code p}: upstream's air or replaceable block, which here must also be
+     * loaded, inside the build height and inside the world border. Upstream did not check the build height, so at the
+     * top or bottom of the world it took the stripes pipe up, could not place it again, and lost it.
+     */
+    private static boolean canMoveInto(ServerLevel level, BlockPos p) {
+        if (level.isOutsideBuildHeight(p) || !level.getWorldBorder().isWithinBounds(p) || !level.isLoaded(p)) return false;
+        return level.isEmptyBlock(p) || level.getBlockState(p).getMaterial().isReplaceable();
+    }
+
     /** @return where the stripes pipe is afterwards. */
     private static BlockPos extend(ServerLevel level, StripesBehaviour stripes, Request r) {
         BlockPos p = r.pos.relative(r.dir);
-        if (!level.isEmptyBlock(p) && !level.getBlockState(p).getMaterial().isReplaceable()) {
+        BlockState stripesState = level.getBlockState(r.pos);
+        ServerPlayer player = stripes.fakePlayer(level, r.pos);
+        if (!canMoveInto(level, p) || !BlockProtection.mayBreak(level, r.pos, player)
+                || !BlockProtection.mayPlace(level, p, r.dir, stripesState, player)) {
             stripes.sendItem(r.stack.copy(), r.dir);
             return r.pos;
         }
-        BlockState stripesState = level.getBlockState(r.pos);
+        ItemStack original = r.stack.copy();
+        BlockState replaced = level.getBlockState(p);
         CompoundTag stripesTag = takeBlockEntity(level, r.pos);
         level.setBlock(r.pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 
         List<ItemStack> sendBack = new ArrayList<>();
-        ServerPlayer player = StripesBehaviour.fakePlayer(level, r.pos);
+        player = stripes.fakePlayer(level, r.pos);
         player.setItemInHand(InteractionHand.MAIN_HAND, r.stack);
         ItemStack held = player.getMainHandItem();
         boolean placed = held.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
@@ -114,7 +131,20 @@ public final class PipeExtensionManager {
             restore(level, r.pos, stripesTag, r.dir, sendBack);
             return r.pos;
         }
-        level.setBlock(p, stripesState, Block.UPDATE_ALL);
+        if (!level.setBlock(p, stripesState, Block.UPDATE_ALL) || !(level.getBlockEntity(p) instanceof PipeBlockEntity)) {
+            // Roll everything back: take up the laid pipe, put back what was in front and the stripes pipe where it was.
+            LOGGER.warn("Could not move the stripes pipe at {} to {}; putting it back", r.pos, p);
+            if (level.getBlockState(p) == stripesState) {
+                level.removeBlockEntity(p);
+                level.setBlock(p, replaced, Block.UPDATE_ALL);
+            }
+            level.removeBlockEntity(r.pos);
+            level.setBlock(r.pos, stripesState, Block.UPDATE_ALL);
+            sendBack.clear();
+            sendBack.add(original);
+            restore(level, r.pos, stripesTag, r.dir, sendBack);
+            return r.pos;
+        }
         restore(level, p, stripesTag, r.dir, sendBack);
         return p;
     }
@@ -134,11 +164,19 @@ public final class PipeExtensionManager {
             retractDir = possible.get(level.random.nextInt(possible.size()));
         }
         BlockPos p = r.pos.relative(retractDir);
+        BlockState stripesState = level.getBlockState(r.pos);
+        ServerPlayer player = stripes.fakePlayer(level, r.pos);
+        // Upstream's order: break the pipe behind, place the stripes pipe there, break the stripes pipe's old block.
+        if (!BlockProtection.mayBreak(level, p, player) || !BlockProtection.mayPlace(level, p, retractDir.getOpposite(), stripesState, player)
+                || !BlockProtection.mayBreak(level, r.pos, player)) {
+            stripes.sendItem(r.stack.copy(), r.dir);
+            return r.pos;
+        }
         List<ItemStack> sendBack = new ArrayList<>();
         // Upstream always returns the void pipe that asked for the retraction.
         sendBack.add(r.stack);
         stripes.setDirection(retractDir.getOpposite());
-        BlockState stripesState = level.getBlockState(r.pos);
+        stripesState = level.getBlockState(r.pos);
         CompoundTag stripesTag = takeBlockEntity(level, r.pos);
         level.setBlock(r.pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         sendBack.addAll(BlockUtil.breakBlockAndGetDrops(level, p));

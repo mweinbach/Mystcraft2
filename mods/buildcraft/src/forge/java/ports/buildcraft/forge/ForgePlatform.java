@@ -34,10 +34,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidStack;
@@ -231,5 +235,17 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
         return FakePlayerFactory.get(level, profile);
+    }
+
+    @Override
+    public boolean fireBlockBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player));
+    }
+
+    /** Posted before the block changes, so the snapshot holds the block being replaced. */
+    @Override
+    public boolean fireBlockPlace(ServerLevel level, BlockPos pos, BlockState placedAgainst, ServerPlayer player) {
+        BlockSnapshot snapshot = BlockSnapshot.create(level.dimension(), level, pos);
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(snapshot, placedAgainst, player));
     }
 }

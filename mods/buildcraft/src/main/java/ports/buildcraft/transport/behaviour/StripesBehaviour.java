@@ -1,10 +1,7 @@
 package ports.buildcraft.transport.behaviour;
 
-import com.mojang.authlib.GameProfile;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,14 +12,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.BlockUtil;
 import ports.buildcraft.lib.InventoryUtil;
 import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.EnergyPort;
-import ports.buildcraft.platform.Platform;
 import ports.buildcraft.statement.Action;
 import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.transport.PipeBlockEntity;
@@ -38,12 +36,10 @@ import ports.buildcraft.transport.stripes.StripesRegistry;
  * action sends it, on a free face). Items that reach it with nowhere to go are handed to the {@link StripesRegistry}
  * as if a player held them against the block in front; whatever the player is left holding comes back through the
  * pipe, and items no handler can use drop as usual. Power from engines (256 MJ battery, at most 10 MJ a tick) breaks
- * the block in front, and its drops come back through the pipe.
+ * the block in front, and its drops come back through the pipe. The pipe acts as its owner's fake player, and
+ * breaks, places and uses items only where {@link BlockProtection} allows that player to.
  */
 public class StripesBehaviour extends PipeBehaviour {
-    /** Upstream {@code BuildCraftAPI.fakePlayerProvider}'s profile for machines without an owner. */
-    public static final GameProfile PROFILE = new GameProfile(
-            UUID.nameUUIDFromBytes("buildcraft.core".getBytes(StandardCharsets.UTF_8)), "[BuildCraft]");
     private static final long MAX_BREAK_POWER_PER_TICK = 10 * Power.MJ;
 
     private final MjBattery battery = new MjBattery(256 * Power.MJ);
@@ -149,8 +145,15 @@ public class StripesBehaviour extends PipeBehaviour {
         } else {
             level.destroyBlockProgress(breakerId, front, -1);
             Direction dir = direction;
-            List<ItemStack> drops = BlockUtil.breakBlockAndGetDrops(server, front);
-            for (ItemStack stack : drops) sendItem(stack, dir);
+            // Upstream BlockUtil.breakBlockAndGetDrops posted the break event for the owner holding a diamond pickaxe
+            // and broke nothing when it was cancelled.
+            ServerPlayer player = fakePlayer(server, pipe.getBlockPos());
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_PICKAXE));
+            if (BlockProtection.mayBreak(server, front, player)) {
+                List<ItemStack> drops = BlockUtil.breakBlockAndGetDrops(server, front);
+                for (ItemStack stack : drops) sendItem(stack, dir);
+            }
+            player.getInventory().clearContent();
             progress = 0;
         }
     }
@@ -171,15 +174,11 @@ public class StripesBehaviour extends PipeBehaviour {
     }
 
     /**
-     * Upstream {@code getFakePlayer(world, owner, pos)}: the shared machine player, emptied and moved to {@code pos}.
-     * Pipes in the port have no owner, so every stripes pipe acts as upstream's ownerless profile.
+     * Upstream {@code getFakePlayer(world, holder.getOwner(), pos)}: the fake player of the pipe's owner (see
+     * {@link PipeBlockEntity#getOwner}), emptied and moved to {@code pos}. Loader protection events see the owner.
      */
-    public static ServerPlayer fakePlayer(ServerLevel level, BlockPos pos) {
-        ServerPlayer player = Platform.get().fakePlayer(level, PROFILE);
-        player.getInventory().clearContent();
-        player.getInventory().selected = 0;
-        player.moveTo(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-        return player;
+    public ServerPlayer fakePlayer(ServerLevel level, BlockPos pos) {
+        return BlockProtection.fakePlayer(level, pipe.getOwner(), pos);
     }
 
     /** Upstream {@code IStripesActivator.sendItem}: the stack enters the pipe's centre as if it came in from {@code from}. */
