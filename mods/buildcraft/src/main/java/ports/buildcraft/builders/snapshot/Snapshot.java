@@ -66,6 +66,19 @@ public abstract class Snapshot {
         return (long) size.getX() * size.getY() * size.getZ();
     }
 
+    /**
+     * Not upstream: the most blocks a snapshot, or the area of an architect table or filler, may cover. The
+     * builder and filler keep per-block state and sort every block of their area three ways when they take a
+     * snapshot, so an unbounded area (upstream allowed any) would let one template exhaust the server's memory.
+     * It covers the largest land mark area (65 blocks a side) with room to spare.
+     */
+    public static final long MAX_VOLUME = 1L << 19;
+
+    /** Not upstream: whether a box of {@code size} is one a snapshot may cover ({@link #MAX_VOLUME}). */
+    public static boolean isAllowedSize(BlockPos size) {
+        return size.getX() >= 1 && size.getY() >= 1 && size.getZ() >= 1 && getVolume(size) <= MAX_VOLUME;
+    }
+
     public static CompoundTag writeToNBT(Snapshot snapshot) {
         CompoundTag tag = snapshot.serializeNBT();
         tag.putString("type", snapshot.getType().name());
@@ -96,7 +109,7 @@ public abstract class Snapshot {
     public void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException {
         key = new Key(tag.getCompound("key"));
         size = NbtUtils.readBlockPos(tag.getCompound("size"));
-        if (size.getX() < 1 || size.getY() < 1 || size.getZ() < 1 || getVolume(size) > Integer.MAX_VALUE) {
+        if (!isAllowedSize(size)) {
             throw new InvalidSnapshotException("Invalid size " + size.toShortString());
         }
         try {

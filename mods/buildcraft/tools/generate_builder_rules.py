@@ -238,6 +238,18 @@ def generate(blocks):
         {"selectors": [b.selector("jukebox")], "requiredExtractors": [{"type": "item_from_block"}, {"type": "item", "path": ["RecordItem"]}]},
         {"selectors": b.selectors(["sticky_piston"]), "canBeReplacedWithBlocks": ["minecraft:sticky_piston", "minecraft:moving_piston"],
          "ignoredProperties": ["extended"]},
+    ] + [
+        # Not upstream: state that holds a harvestable resource is built back empty, as placing the block's item
+        # would, so recording a full composter, hive, anchor or ripe plant cannot build that resource for free.
+        {"selectors": b.selectors(["composter"]), "ignoredProperties": ["level"]},
+        {"selectors": b.selectors(["beehive", "bee_nest"]), "ignoredProperties": ["honey_level"]},
+        {"selectors": b.selectors(["respawn_anchor"]), "ignoredProperties": ["charges"]},
+        {"selectors": b.selectors(["sweet_berry_bush", "cocoa", "nether_wart"]), "ignoredProperties": ["age"]},
+        {"selectors": b.selectors(["cave_vines", "cave_vines_plant"]), "ignoredProperties": ["berries"]},
+    ] + [
+        # Not upstream: multi-face blocks drop one item a face, so each face costs one.
+        {"selectors": [b.selector(block, **{face: "true"})], "requiredExtractors": [items(item(block, 1))]}
+        for block in ["glow_lichen", "sculk_vein"] for face in ["north", "east", "south", "west", "up", "down"]
     ]
     return files
 

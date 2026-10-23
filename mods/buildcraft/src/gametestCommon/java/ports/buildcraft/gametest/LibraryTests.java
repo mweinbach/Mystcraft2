@@ -588,6 +588,20 @@ public final class LibraryTests {
                 && player.getMainHandItem().is(BCBuilders.SCHEMATIC_SINGLE_CLEAN.get()) && !player.getInventory().contains(new ItemStack(BCBuilders.SCHEMATIC_SINGLE_USED.get())),
                 "a locked chest the player cannot open must not be recorded");
 
+        BlockPos guardedPos = new BlockPos(1, 2, 3);
+        helper.setBlock(guardedPos.below(), Blocks.DIRT);
+        helper.setBlock(guardedPos, Blocks.GRASS);
+        clicker.setItemInHand(InteractionHand.MAIN_HAND, SchematicSingleItem.getUsed(stone));
+        clicker.getInventory().setItem(5, new ItemStack(Items.STONE));
+        TestProtection.refuse(helper, guardedPos);
+        require(helper, SchematicSingleItem.useFirst(clicker, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, guardedPos, Direction.UP)) == InteractionResult.FAIL
+                && helper.getBlockState(guardedPos).is(Blocks.GRASS) && clicker.getInventory().getItem(5).is(Items.STONE),
+                "a build whose break event is refused must leave the grass and the stone");
+        TestProtection.allow(helper, guardedPos);
+        require(helper, SchematicSingleItem.useFirst(clicker, helper.getLevel(), InteractionHand.MAIN_HAND, hit(helper, guardedPos, Direction.UP)) == InteractionResult.SUCCESS
+                && helper.getBlockState(guardedPos).is(Blocks.STONE) && clicker.getInventory().getItem(5).isEmpty(),
+                "once allowed, the build replaces the grass");
+
         Snapshot snapshot = SnapshotStorage.get(SnapshotStorage.Side.SERVER).getSnapshot(header.key);
         FriendlyByteBuf encoded = buffer();
         SnapshotPackets.write(encoded, snapshot);

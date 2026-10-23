@@ -57,8 +57,6 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
     public static final int UPLOAD_PART_BYTES = 4 * 1024;
     /** The most an upload may send in all, well past what any blueprint compresses to. */
     private static final int MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
-    /** The most blocks an upload may span: a blueprint's data alone takes 4 bytes a block of the 64 MiB the server reads. */
-    private static final long MAX_UPLOAD_VOLUME = 1 << 24;
     /** Not upstream: how long after asking for an upload its parts are still taken. */
     public static final int UPLOAD_TIMEOUT_TICKS = 30 * 20;
     public static final ResourceLocation DOWN_CHANNEL = BuildCraft.id("library_down");
@@ -289,7 +287,7 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
         }
         try {
             Snapshot uploaded = SchematicSafety.readInLevel(level, () -> SnapshotPackets.decompress(bytes));
-            if (Snapshot.getVolume(uploaded.size) > MAX_UPLOAD_VOLUME) {
+            if (!Snapshot.isAllowedSize(uploaded.size)) {
                 LOGGER.warn("Refused a snapshot of {} blocks uploaded to the electronic library", uploaded.size.toShortString());
                 return;
             }

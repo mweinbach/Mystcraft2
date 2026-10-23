@@ -32,6 +32,7 @@ import ports.buildcraft.builders.filler.PatternStatement;
 import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.builders.snapshot.BuildingInfo;
+import ports.buildcraft.builders.snapshot.Snapshot;
 import ports.buildcraft.builders.snapshot.TemplateBuilder;
 import ports.buildcraft.core.marker.volume.Lock;
 import ports.buildcraft.core.marker.volume.VolumeBox;
@@ -86,20 +87,22 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
 
     /**
      * Upstream {@code onPlacedBy}: a volume box behind the filler is copied and locked against removal and
-     * resizing; otherwise a marked area behind it is copied and its marks removed.
+     * resizing; otherwise a marked area behind it is copied and its marks removed. Not upstream: an area over
+     * {@link Snapshot#MAX_VOLUME} blocks is not taken.
      */
     void onPlaced() {
         Direction facing = getBlockState().getValue(FillerBlock.FACING);
         BlockPos offsetPos = worldPosition.relative(facing.getOpposite());
         VolumeBoxes volumeBoxes = VolumeBoxes.get((ServerLevel) level);
         VolumeBox volumeBox = volumeBoxes.getVolumeBoxAt(offsetPos);
-        if (volumeBox != null) {
+        AreaProvider provider = level.getBlockEntity(offsetPos) instanceof AreaProvider area ? area : null;
+        if (volumeBox != null && Snapshot.isAllowedSize(volumeBox.box.size())) {
             box.set(volumeBox.box.min(), volumeBox.box.max());
             volumeBox.locks.add(new Lock(new Lock.CauseBlock(worldPosition, getBlockState().getBlock()),
                     new Lock.Remove(), new Lock.Resize(), new Lock.UsedByMachine(Lock.MachineUse.STRIPES_WRITE)));
             volumeBoxes.markDirty();
             markerBox = false;
-        } else if (level.getBlockEntity(offsetPos) instanceof AreaProvider provider) {
+        } else if (volumeBox == null && provider != null && Snapshot.isAllowedSize(provider.max().subtract(provider.min()).offset(1, 1, 1))) {
             box.set(provider.min(), provider.max());
             provider.removeFromWorld();
         }
@@ -124,7 +127,7 @@ public class FillerBlockEntity extends SyncedBlockEntity implements PortHolder, 
         builder.cancel();
         buildingInfo = null;
         template = null;
-        if (hasBox()) {
+        if (hasBox() && Snapshot.isAllowedSize(box.size())) {
             FilledTemplate filled = patternStatement.get().createTemplate(box.size(), patternStatement.parameters());
             if (filled != null) {
                 if (inverted) filled.invert();

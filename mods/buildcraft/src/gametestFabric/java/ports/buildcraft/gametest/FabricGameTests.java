@@ -189,6 +189,12 @@ public final class FabricGameTests implements FabricGameTest {
     public void schematicDataIsBounded(GameTestHelper helper) { SchematicSafetyTests.schematicDataIsBounded(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void snapshotsAndAreasAreSizeBounded(GameTestHelper helper) { SchematicSafetyTests.snapshotsAndAreasAreSizeBounded(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void resourceStateBuildsEmpty(GameTestHelper helper) { SchematicSafetyTests.resourceStateBuildsEmpty(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)

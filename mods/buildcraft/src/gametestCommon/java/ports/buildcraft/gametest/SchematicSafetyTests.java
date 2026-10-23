@@ -27,7 +27,14 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import ports.buildcraft.builders.ArchitectTableBlock;
+import ports.buildcraft.builders.ArchitectTableBlockEntity;
 import ports.buildcraft.builders.BCBuilders;
+import ports.buildcraft.builders.FillerBlockEntity;
+import ports.buildcraft.builders.snapshot.Template;
+import ports.buildcraft.core.marker.volume.VolumeBox;
+import ports.buildcraft.core.marker.volume.VolumeBoxes;
 import ports.buildcraft.builders.snapshot.Blueprint;
 import ports.buildcraft.builders.snapshot.InvalidSnapshotException;
 import ports.buildcraft.builders.snapshot.SchematicBlock;
@@ -340,6 +347,98 @@ public final class SchematicSafetyTests {
         BlockPos absolute = helper.absolutePos(AT);
         CompoundTag chest = SchematicBlockManager.writeToNBT(SchematicBlockManager.getSchematicBlock(new SchematicBlockContext(helper.getLevel(), absolute, absolute)));
         require(helper, refused(chest), "a block entity carrying more than the limit must be refused");
+        helper.setBlock(AT, Blocks.AIR);
+        helper.succeed();
+    }
+
+    /**
+     * Snapshots may cover at most {@link Snapshot#MAX_VOLUME} blocks: a saved template past it is refused while the
+     * largest land mark cube reads back, and an architect table or filler placed against a larger volume box takes
+     * nothing and leaves it unlocked. The box exists only for the one tick the test runs in.
+     */
+    public static void snapshotsAndAreasAreSizeBounded(GameTestHelper helper) {
+        run(helper, SchematicSafetyTests::snapshotsAndAreasAreSizeBoundedBody);
+    }
+
+    private static void snapshotsAndAreasAreSizeBoundedBody(GameTestHelper helper) throws InvalidSnapshotException {
+        require(helper, Snapshot.isAllowedSize(new BlockPos(65, 65, 65)) && !Snapshot.isAllowedSize(new BlockPos(81, 81, 81))
+                && !Snapshot.isAllowedSize(new BlockPos(256, 256, 256)), "the cap must take a 65-block cube and refuse 81 and 256");
+        require(helper, Snapshot.readFromNBT(templateTag(new BlockPos(65, 65, 65))) instanceof Template, "a 65-block cube template must read back");
+        boolean bigRefused;
+        try {
+            Snapshot.readFromNBT(templateTag(new BlockPos(81, 81, 81)));
+            bigRefused = false;
+        } catch (InvalidSnapshotException e) {
+            bigRefused = true;
+        }
+        require(helper, bigRefused, "a template over the cap must be refused");
+
+        Player placer = helper.makeMockPlayer();
+        VolumeBox big = BCTests.placeVolumeBox(helper, placer, new BlockPos(4, 1, 4));
+        big.box.extendToEncompass(helper.absolutePos(new BlockPos(4, 2, 4)).offset(80, 80, 80));
+        BlockPos tablePos = new BlockPos(3, 2, 4), fillerPos = new BlockPos(4, 2, 3);
+        ArchitectTableBlockEntity table = ArchitectTests.placeTable(helper, tablePos, Direction.WEST, placer);
+        FillerBlockEntity filler = FillerTests.placeFiller(helper, fillerPos, Direction.NORTH);
+        boolean tableValid = table.isValid() || helper.getBlockState(tablePos).getValue(ArchitectTableBlock.VALID);
+        boolean fillerTook = filler.hasBox() || filler.templateBuildingInfo() != null;
+        boolean locked = !big.locks.isEmpty();
+        VolumeBoxes volumeBoxes = VolumeBoxes.get(helper.getLevel());
+        volumeBoxes.volumeBoxes.remove(big);
+        volumeBoxes.markDirty();
+        helper.setBlock(tablePos, Blocks.AIR);
+        helper.setBlock(fillerPos, Blocks.AIR);
+        require(helper, !tableValid, "an architect table against a box over the cap must stay invalid");
+        require(helper, !fillerTook, "a filler against a box over the cap must take nothing");
+        require(helper, !locked, "a box over the cap must not be locked by a machine that refused it");
+        helper.succeed();
+    }
+
+    private static CompoundTag templateTag(BlockPos size) {
+        Template template = new Template();
+        template.size = size;
+        template.facing = Direction.NORTH;
+        template.offset = BlockPos.ZERO;
+        template.data = new java.util.BitSet();
+        template.computeKey();
+        return Snapshot.writeToNBT(template);
+    }
+
+    /**
+     * Resource-holding state builds back empty, as placing the block's item would: a full composter, a hive full of
+     * honey and a charged respawn anchor. Glow lichen costs one per face.
+     */
+    public static void resourceStateBuildsEmpty(GameTestHelper helper) {
+        run(helper, SchematicSafetyTests::resourceStateBuildsEmptyBody);
+    }
+
+    private static void resourceStateBuildsEmptyBody(GameTestHelper helper) throws InvalidSnapshotException {
+        BlockPos target = new BlockPos(3, 2, 1);
+        record Case(BlockState full, net.minecraft.world.level.block.state.properties.IntegerProperty property) {}
+        for (Case c : List.of(
+                new Case(Blocks.COMPOSTER.defaultBlockState().setValue(net.minecraft.world.level.block.ComposterBlock.LEVEL, 8),
+                        net.minecraft.world.level.block.ComposterBlock.LEVEL),
+                new Case(Blocks.BEEHIVE.defaultBlockState().setValue(net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL, 5),
+                        net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL),
+                new Case(Blocks.RESPAWN_ANCHOR.defaultBlockState().setValue(net.minecraft.world.level.block.RespawnAnchorBlock.CHARGE, 4),
+                        net.minecraft.world.level.block.RespawnAnchorBlock.CHARGE))) {
+            SchematicBlock read = SchematicBlockManager.readFromNBT(scanned(helper, c.full()));
+            helper.setBlock(target, Blocks.AIR);
+            read.build(helper.getLevel(), helper.absolutePos(target));
+            BlockState built = helper.getBlockState(target);
+            require(helper, built.is(c.full().getBlock()) && built.getValue(c.property()) == 0,
+                    c.full() + " must build back with " + c.property().getName() + " 0, got " + built);
+            require(helper, read.isBuilt(helper.getLevel(), helper.absolutePos(target)), c.full() + " built back empty must count as built");
+        }
+        helper.setBlock(target, Blocks.AIR);
+
+        BlockState lichen = Blocks.GLOW_LICHEN.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH, true)
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WEST, true)
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.UP, true);
+        List<ItemStack> cost = SchematicBlockManager.readFromNBT(scanned(helper, lichen)).computeRequiredItems();
+        int count = cost.stream().filter(stack -> stack.is(Items.GLOW_LICHEN)).mapToInt(ItemStack::getCount).sum();
+        require(helper, count == 3 && cost.stream().allMatch(stack -> stack.is(Items.GLOW_LICHEN)),
+                "glow lichen on three faces must cost three, got " + cost);
         helper.setBlock(AT, Blocks.AIR);
         helper.succeed();
     }

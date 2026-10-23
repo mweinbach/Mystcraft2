@@ -9,6 +9,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,6 +34,7 @@ import ports.buildcraft.builders.snapshot.InvalidSnapshotException;
 import ports.buildcraft.builders.snapshot.SchematicBlock;
 import ports.buildcraft.builders.snapshot.SchematicBlockContext;
 import ports.buildcraft.builders.snapshot.SchematicBlockManager;
+import ports.buildcraft.lib.BlockProtection;
 
 /**
  * Upstream {@code ItemSchematicSingle}: a blank one used on a block records that block's schematic, and a
@@ -152,6 +155,7 @@ public class SchematicSingleItem extends Item {
             return InteractionResult.FAIL;
         }
         BlockState replaced = level.getBlockState(placePos);
+        if (!mayChange(player, level, placePos, side, replaceable && !replaced.isAir())) return InteractionResult.FAIL;
         if (replaceable && !replaced.isAir()) level.removeBlock(placePos, false);
         if (!schematic.canBuild(level, placePos) || !schematic.build(level, placePos)) {
             level.setBlock(placePos, replaced, Block.UPDATE_ALL);
@@ -162,6 +166,16 @@ public class SchematicSingleItem extends Item {
         level.playSound(null, placePos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
         player.swing(hand);
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Not upstream: building with the schematic must pass the loader's protection hooks (claims and the like) as
+     * the builder does, so breaking the replaced block and placing the new one post the break and place events.
+     */
+    private static boolean mayChange(Player player, Level level, BlockPos placePos, Direction side, boolean replacing) {
+        if (!(level instanceof ServerLevel server) || !(player instanceof ServerPlayer serverPlayer)) return true;
+        if (replacing && !BlockProtection.mayBreak(server, placePos, serverPlayer)) return false;
+        return BlockProtection.mayPlace(server, placePos, side, level.getBlockState(placePos.relative(side.getOpposite())), serverPlayer);
     }
 
     private static int count(Inventory inventory, ItemStack needed) {

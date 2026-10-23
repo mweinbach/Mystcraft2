@@ -79,7 +79,8 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
     /**
      * Upstream {@code onPlacedBy}: a volume box behind the table is copied and locked against removal and
      * resizing; otherwise a marked area behind it is copied and its marks removed; otherwise the table is
-     * left invalid and its front goes dark.
+     * left invalid and its front goes dark. Not upstream: an area over {@link Snapshot#MAX_VOLUME} blocks is not
+     * taken, so the table stays invalid.
      */
     void onPlaced(@Nullable LivingEntity placer) {
         if (placer instanceof Player player) owner = player.getUUID();
@@ -87,13 +88,14 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
         BlockPos offsetPos = worldPosition.relative(state.getValue(ArchitectTableBlock.FACING).getOpposite());
         VolumeBoxes volumeBoxes = VolumeBoxes.get((ServerLevel) level);
         VolumeBox volumeBox = volumeBoxes.getVolumeBoxAt(offsetPos);
-        if (volumeBox != null) {
+        AreaProvider provider = level.getBlockEntity(offsetPos) instanceof AreaProvider area ? area : null;
+        if (volumeBox != null && Snapshot.isAllowedSize(volumeBox.box.size())) {
             box.set(volumeBox.box.min(), volumeBox.box.max());
             isValid = true;
             volumeBox.locks.add(new Lock(new Lock.CauseBlock(worldPosition, state.getBlock()),
                     new Lock.Remove(), new Lock.Resize(), new Lock.UsedByMachine(Lock.MachineUse.STRIPES_READ)));
             volumeBoxes.markDirty();
-        } else if (level.getBlockEntity(offsetPos) instanceof AreaProvider provider) {
+        } else if (volumeBox == null && provider != null && Snapshot.isAllowedSize(provider.max().subtract(provider.min()).offset(1, 1, 1))) {
             box.set(provider.min(), provider.max());
             markerBox = true;
             isValid = true;
@@ -121,7 +123,7 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
         }
 
         ItemStack in = items.get(SLOT_IN);
-        if (in.getItem() instanceof SnapshotItem snapshotItem && items.get(SLOT_OUT).isEmpty() && isValid) {
+        if (in.getItem() instanceof SnapshotItem snapshotItem && items.get(SLOT_OUT).isEmpty() && isValid && Snapshot.isAllowedSize(box.size())) {
             if (!scanning) {
                 if (snapshotItem.snapshotType != snapshotType) clearScan();
                 snapshotType = snapshotItem.snapshotType;

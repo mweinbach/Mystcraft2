@@ -1581,5 +1581,241 @@
     "ignoredProperties": [
       "extended"
     ]
+  },
+  {
+    "selectors": [
+      "minecraft:composter"
+    ],
+    "ignoredProperties": [
+      "level"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:beehive",
+      "minecraft:bee_nest"
+    ],
+    "ignoredProperties": [
+      "honey_level"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:respawn_anchor"
+    ],
+    "ignoredProperties": [
+      "charges"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sweet_berry_bush",
+      "minecraft:cocoa",
+      "minecraft:nether_wart"
+    ],
+    "ignoredProperties": [
+      "age"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:cave_vines",
+      "minecraft:cave_vines_plant"
+    ],
+    "ignoredProperties": [
+      "berries"
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[north=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[east=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[south=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[west=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[up=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:glow_lichen[down=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:glow_lichen",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[north=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[east=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[south=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[west=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[up=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "selectors": [
+      "minecraft:sculk_vein[down=true]"
+    ],
+    "requiredExtractors": [
+      {
+        "type": "constant",
+        "items": [
+          {
+            "item": "minecraft:sculk_vein",
+            "amount": 1
+          }
+        ]
+      }
+    ]
   }
 ]
