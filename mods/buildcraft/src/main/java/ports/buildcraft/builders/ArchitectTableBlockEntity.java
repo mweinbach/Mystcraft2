@@ -195,7 +195,9 @@ public class ArchitectTableBlockEntity extends SyncedBlockEntity implements Worl
     private void scanEntities() {
         for (Entity entity : level.getEntitiesOfClass(Entity.class, box.boundingBox())) {
             SchematicEntity schematicEntity = SchematicEntityManager.getSchematicEntity(new SchematicEntityContext(level, box.min(), entity));
-            if (schematicEntity != null) blueprintScannedEntities.add(schematicEntity);
+            if (schematicEntity == null) continue;
+            if (blueprintScannedEntities.size() >= Blueprint.MAX_ENTITIES) break;
+            blueprintScannedEntities.add(schematicEntity);
         }
     }
 

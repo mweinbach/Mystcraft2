@@ -202,6 +202,9 @@ public final class ForgeGameTests {
     public static void snapshotsAndAreasAreSizeBounded(GameTestHelper helper) { SchematicSafetyTests.snapshotsAndAreasAreSizeBounded(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void blueprintCountsAreBounded(GameTestHelper helper) { SchematicSafetyTests.blueprintCountsAreBounded(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void resourceStateBuildsEmpty(GameTestHelper helper) { SchematicSafetyTests.resourceStateBuildsEmpty(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)

@@ -3,6 +3,7 @@ package ports.buildcraft.builders.snapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -300,20 +301,21 @@ public final class BlueprintBuilder extends SnapshotBuilder<BlueprintBuilder.Hos
         }
     }
 
-    /** Upstream {@code StackUtil.mergeSameItems}: one stack per item and tag, with the counts summed past the stack size. */
+    /**
+     * Upstream {@code StackUtil.mergeSameItems}: one stack per item and tag, in first-seen order, with the counts
+     * summed past the stack size. Upstream compared every stack with every other; this keys them by item and tag
+     * so the builder's per-tick merge stays linear however many distinct stacks a blueprint asks for.
+     */
     public static List<ItemStack> mergeSameItems(List<ItemStack> items) {
-        List<ItemStack> stacks = new ArrayList<>();
+        record Key(Item item, @Nullable CompoundTag tag) {}
+        Map<Key, ItemStack> stacks = new LinkedHashMap<>();
         for (ItemStack toAdd : items) {
-            boolean found = false;
-            for (ItemStack stack : stacks) {
-                if (ItemStack.isSameItemSameTags(stack, toAdd)) {
-                    stack.grow(toAdd.getCount());
-                    found = true;
-                }
-            }
-            if (!found) stacks.add(toAdd.copy());
+            Key key = new Key(toAdd.getItem(), toAdd.getTag());
+            ItemStack stack = stacks.get(key);
+            if (stack == null) stacks.put(key, toAdd.copy());
+            else stack.grow(toAdd.getCount());
         }
-        return stacks;
+        return new ArrayList<>(stacks.values());
     }
 
     /** Upstream {@code FluidUtilBC.mergeSameFluids}. */

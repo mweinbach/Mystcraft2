@@ -289,6 +289,80 @@ public final class SchematicSafetyTests {
         helper.succeed();
     }
 
+    /**
+     * A blueprint may carry at most {@link Blueprint#MAX_ENTITIES} entities and no more palette entries than blocks:
+     * a 1x1 blueprint with one entity too many, or with two palette entries, is refused before any entry is parsed.
+     * The builder's item merge keeps one stack per item and tag in first-seen order, and stays linear: thousands of
+     * distinct armour stands' worth of stacks merge in one pass.
+     */
+    public static void blueprintCountsAreBounded(GameTestHelper helper) {
+        run(helper, SchematicSafetyTests::blueprintCountsAreBoundedBody);
+    }
+
+    private static void blueprintCountsAreBoundedBody(GameTestHelper helper) throws InvalidSnapshotException {
+        Blueprint blueprint = new Blueprint();
+        blueprint.size = new BlockPos(1, 1, 1);
+        blueprint.facing = Direction.NORTH;
+        blueprint.offset = BlockPos.ZERO;
+        blueprint.palette.add(SchematicBlockManager.readFromNBT(scanned(helper, Blocks.STONE.defaultBlockState())));
+        helper.setBlock(AT, Blocks.AIR);
+        blueprint.data = new int[] {0};
+        blueprint.computeKey();
+        blueprint.key = new Snapshot.Key(blueprint.key, new Snapshot.Header(blueprint.key, new UUID(0, 0), new Date(), "Forged"));
+        CompoundTag honest = Snapshot.writeToNBT(blueprint);
+
+        CompoundTag atCap = honest.copy();
+        ListTag capEntities = new ListTag();
+        for (int i = 0; i < Blueprint.MAX_ENTITIES; i++) capEntities.add(entity("minecraft:armor_stand", 0.5, 0, 0.5));
+        atCap.put("entities", capEntities);
+        require(helper, Snapshot.readFromNBT(atCap) instanceof Blueprint read && read.entities.size() == Blueprint.MAX_ENTITIES,
+                "a blueprint with exactly the most entities must read back");
+
+        CompoundTag overCap = honest.copy();
+        ListTag tooMany = capEntities.copy();
+        tooMany.add(entity("minecraft:armor_stand", 0.5, 0, 0.5));
+        overCap.put("entities", tooMany);
+        require(helper, refusedSnapshot(overCap), "a blueprint with more than " + Blueprint.MAX_ENTITIES + " entities must be refused");
+
+        CompoundTag widePalette = honest.copy();
+        ListTag paletteTags = widePalette.getList("palette", Tag.TAG_COMPOUND);
+        paletteTags.add(paletteTags.get(0).copy());
+        require(helper, refusedSnapshot(widePalette), "a palette larger than the blocks it indexes must be refused");
+
+        ItemStack named = new ItemStack(Items.STONE);
+        named.setHoverName(net.minecraft.network.chat.Component.literal("Named"));
+        List<ItemStack> merged = ports.buildcraft.builders.snapshot.BlueprintBuilder.mergeSameItems(List.of(
+                new ItemStack(Items.STONE, 64), new ItemStack(Items.DIRT), new ItemStack(Items.STONE, 70), named, named.copy()));
+        require(helper, merged.size() == 3 && merged.get(0).is(Items.STONE) && !merged.get(0).hasTag() && merged.get(0).getCount() == 134
+                        && merged.get(1).is(Items.DIRT) && merged.get(1).getCount() == 1
+                        && ItemStack.isSameItemSameTags(merged.get(2), named) && merged.get(2).getCount() == 2,
+                "stacks must merge per item and tag in first-seen order, got " + merged);
+
+        List<ItemStack> distinct = new java.util.ArrayList<>();
+        for (int i = 0; i < 50000; i++) {
+            ItemStack stack = new ItemStack(Items.LEATHER_HELMET);
+            stack.getOrCreateTag().putInt("variant", i);
+            distinct.add(stack);
+        }
+        distinct.addAll(distinct.subList(0, 100).stream().map(ItemStack::copy).toList());
+        long start = System.nanoTime();
+        List<ItemStack> mergedDistinct = ports.buildcraft.builders.snapshot.BlueprintBuilder.mergeSameItems(distinct);
+        long millis = (System.nanoTime() - start) / 1_000_000;
+        require(helper, mergedDistinct.size() == 50000 && mergedDistinct.get(0).getCount() == 2 && mergedDistinct.get(49999).getCount() == 1,
+                "50000 distinct stacks plus 100 repeats must merge to 50000, got " + mergedDistinct.size());
+        require(helper, millis < 2000, "merging 50000 distinct stacks must be linear, took " + millis + " ms");
+        helper.succeed();
+    }
+
+    private static boolean refusedSnapshot(CompoundTag tag) {
+        try {
+            Snapshot.readFromNBT(tag);
+            return false;
+        } catch (InvalidSnapshotException e) {
+            return true;
+        }
+    }
+
     /** {@code depth} nested JSON arrays around one string: valid text component JSON that recurses that deep. */
     private static String nested(int depth) {
         return "[".repeat(depth) + "\"x\"" + "]".repeat(depth);

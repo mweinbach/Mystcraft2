@@ -192,6 +192,9 @@ public final class FabricGameTests implements FabricGameTest {
     public void snapshotsAndAreasAreSizeBounded(GameTestHelper helper) { SchematicSafetyTests.snapshotsAndAreasAreSizeBounded(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void blueprintCountsAreBounded(GameTestHelper helper) { SchematicSafetyTests.blueprintCountsAreBounded(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void resourceStateBuildsEmpty(GameTestHelper helper) { SchematicSafetyTests.resourceStateBuildsEmpty(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
