@@ -118,6 +118,9 @@ import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlock;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.PipeDefinition;
+import ports.buildcraft.transport.SideCheck;
+import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
+import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.behaviour.DirectionalBehaviour;
 import ports.buildcraft.transport.flow.ItemFlow;
 import ports.buildcraft.transport.pluggable.BlockerPluggable;
@@ -1316,6 +1319,75 @@ public final class BCTests {
         });
     }
 
+    /** Upstream's diamond fluid pipe transfers 8x the base rate and uses the diamond filter menu. */
+    public static void diamondFluidPipeDefinition(GameTestHelper helper) {
+        PipeDefinition definition = BCTransport.DIAMOND_FLUID;
+        require(helper, definition.flow == PipeDefinition.Flow.FLUID, "the diamond fluid pipe must carry fluid");
+        require(helper, definition.fluidTransferPerTick == 80, "the diamond fluid pipe must move 80 mB/t, moves "
+                + definition.fluidTransferPerTick);
+        require(helper, definition.fluidTransferDelay == 10, "the diamond fluid pipe must have no speed bonus, delay "
+                + definition.fluidTransferDelay);
+        require(helper, definition.hasMenu, "the diamond fluid pipe must open the diamond filter menu");
+        PipeBlockEntity pipe = pipe(helper, new BlockPos(1, 1, 1), definition);
+        require(helper, pipe.behaviour() instanceof DiamondFluidBehaviour, "the diamond fluid pipe must use the diamond fluid behaviour");
+        helper.succeed();
+    }
+
+    /**
+     * A filter face holding a container of the travelling fluid is preferred; a face whose filters hold
+     * other fluids rejects it. Faces without fluid filters stay available.
+     */
+    public static void diamondFluidFiltersFaces(GameTestHelper helper) {
+        PipeBlockEntity pipe = pipe(helper, new BlockPos(1, 1, 1), BCTransport.DIAMOND_FLUID);
+        helper.setBlock(new BlockPos(1, 1, 0), BCFactory.TANK.get());
+        helper.setBlock(new BlockPos(2, 1, 1), BCFactory.TANK.get());
+        DiamondFluidBehaviour behaviour = (DiamondFluidBehaviour) pipe.behaviour();
+        behaviour.filters.setItem(DiamondItemBehaviour.FILTERS_PER_SIDE * Direction.NORTH.ordinal(), new ItemStack(Items.WATER_BUCKET));
+        behaviour.filters.setItem(DiamondItemBehaviour.FILTERS_PER_SIDE * Direction.EAST.ordinal(), new ItemStack(Items.LAVA_BUCKET));
+        helper.succeedWhen(() -> {
+            require(helper, pipe.isConnected(Direction.NORTH) && pipe.isConnected(Direction.EAST),
+                    "the tanks must connect to the filtered faces");
+            SideCheck water = new SideCheck(Fluids.WATER, null);
+            water.disallowAllExcept(EnumSet.of(Direction.NORTH, Direction.EAST));
+            behaviour.fluidSideCheck(water);
+            require(helper, water.isAllowed(Direction.NORTH), "the water-filtered face must accept water");
+            require(helper, !water.isAllowed(Direction.EAST), "the lava-filtered face must reject water");
+            require(helper, water.firstOrder().equals(EnumSet.of(Direction.NORTH)), "water must prefer only the matching face");
+
+            SideCheck lava = new SideCheck(Fluids.LAVA, null);
+            lava.disallowAllExcept(EnumSet.of(Direction.NORTH, Direction.EAST));
+            behaviour.fluidSideCheck(lava);
+            require(helper, lava.isAllowed(Direction.EAST), "the lava-filtered face must accept lava");
+            require(helper, !lava.isAllowed(Direction.NORTH), "the water-filtered face must reject lava");
+            require(helper, lava.firstOrder().equals(EnumSet.of(Direction.EAST)), "lava must prefer only the matching face");
+
+            SideCheck unfiltered = new SideCheck(Fluids.WATER, null);
+            unfiltered.disallowAllExcept(EnumSet.of(Direction.SOUTH, Direction.WEST));
+            behaviour.fluidSideCheck(unfiltered);
+            require(helper, unfiltered.isAllowed(Direction.SOUTH) && unfiltered.isAllowed(Direction.WEST),
+                    "faces without fluid filters must stay available");
+        });
+    }
+
+    /** Water inserted into a diamond fluid pipe leaves through its matching filter face and not the other filtered face. */
+    public static void diamondFluidPipeRoutesFilteredFluid(GameTestHelper helper) {
+        helper.setBlock(new BlockPos(0, 1, 1), BCFactory.TANK.get());
+        PipeBlockEntity pipe = pipe(helper, new BlockPos(1, 1, 1), BCTransport.DIAMOND_FLUID);
+        helper.setBlock(new BlockPos(1, 1, 0), BCFactory.TANK.get());
+        helper.setBlock(new BlockPos(2, 1, 1), BCFactory.TANK.get());
+        TankBlockEntity north = tile(helper, new BlockPos(1, 1, 0), TankBlockEntity.class);
+        TankBlockEntity east = tile(helper, new BlockPos(2, 1, 1), TankBlockEntity.class);
+        DiamondFluidBehaviour behaviour = (DiamondFluidBehaviour) pipe.behaviour();
+        behaviour.filters.setItem(DiamondItemBehaviour.FILTERS_PER_SIDE * Direction.NORTH.ordinal(), new ItemStack(Items.WATER_BUCKET));
+        behaviour.filters.setItem(DiamondItemBehaviour.FILTERS_PER_SIDE * Direction.EAST.ordinal(), new ItemStack(Items.LAVA_BUCKET));
+        helper.onEachTick(() -> pipe.fluidPort(Direction.WEST).fill(Fluids.WATER, BCTransport.DIAMOND_FLUID.fluidTransferPerTick, false));
+        helper.succeedWhen(() -> {
+            require(helper, north.tank().fluid() == Fluids.WATER && north.tank().amount() > 0,
+                    "water must reach the matching filtered tank, has " + north.tank().amount());
+            require(helper, east.tank().amount() == 0, "water must not take the face filtered for lava, has " + east.tank().amount());
+        });
+    }
+
     /** Kinesis pipes carry a Stirling engine's output to a machine. */
     public static void kinesisPipesCarryEnginePower(GameTestHelper helper) {
         StirlingEngineBlockEntity engine = engine(helper, new BlockPos(1, 1, 1), BCEnergy.STIRLING_ENGINE.get(), Direction.EAST,
@@ -1367,6 +1439,13 @@ public final class BCTests {
         upgrade.setItem(1, new ItemStack(BCTransport.WATERPROOF.get()));
         CraftingRecipe fluidPipe = (CraftingRecipe) recipes.byKey(BuildCraft.id(BCTransport.STONE_FLUID.registryName())).orElseThrow();
         require(helper, fluidPipe.matches(upgrade, helper.getLevel()), "a stone pipe and sealant must make a stone fluid pipe");
+
+        CraftingContainer diamondUpgrade = grid();
+        diamondUpgrade.setItem(0, new ItemStack(BCTransport.DIAMOND_ITEM.item()));
+        diamondUpgrade.setItem(1, new ItemStack(BCTransport.WATERPROOF.get()));
+        CraftingRecipe diamondFluid = (CraftingRecipe) recipes.byKey(BuildCraft.id(BCTransport.DIAMOND_FLUID.registryName())).orElseThrow();
+        require(helper, diamondFluid.matches(diamondUpgrade, helper.getLevel()),
+                "a diamond pipe and sealant must make a diamond fluid pipe");
         helper.succeed();
     }
 

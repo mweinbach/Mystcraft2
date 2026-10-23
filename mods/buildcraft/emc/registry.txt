@@ -139,6 +139,7 @@ buildcraft:pipe_clay_item
 buildcraft:pipe_cobblestone_fluid
 buildcraft:pipe_cobblestone_item
 buildcraft:pipe_cobblestone_power
+buildcraft:pipe_diamond_fluid
 buildcraft:pipe_diamond_item
 buildcraft:pipe_gold_fluid
 buildcraft:pipe_gold_item

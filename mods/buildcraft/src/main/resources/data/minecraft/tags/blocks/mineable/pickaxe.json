@@ -37,6 +37,7 @@
     "buildcraft:pipe_gold_fluid",
     "buildcraft:pipe_sandstone_fluid",
     "buildcraft:pipe_iron_fluid",
+    "buildcraft:pipe_diamond_fluid",
     "buildcraft:pipe_clay_fluid",
     "buildcraft:pipe_void_fluid",
     "buildcraft:pipe_wood_power",

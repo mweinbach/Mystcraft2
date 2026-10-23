@@ -210,6 +210,15 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
     public static void fluidPipesFillTank(GameTestHelper helper) { BCTests.fluidPipesFillTank(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void diamondFluidPipeDefinition(GameTestHelper helper) { BCTests.diamondFluidPipeDefinition(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void diamondFluidFiltersFaces(GameTestHelper helper) { BCTests.diamondFluidFiltersFaces(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void diamondFluidPipeRoutesFilteredFluid(GameTestHelper helper) { BCTests.diamondFluidPipeRoutesFilteredFluid(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void kinesisPipesCarryEnginePower(GameTestHelper helper) { BCTests.kinesisPipesCarryEnginePower(helper); }
 

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * Upstream {@code PipeEventItem.SideCheck} and {@code PipeEventFluid.SideCheck}: which faces a
@@ -16,6 +17,9 @@ import net.minecraft.world.item.ItemStack;
  */
 public final class SideCheck {
     public final ItemStack stack;
+    /** The travelling fluid for a fluid check, or null for an item check. */
+    @Nullable
+    public final Fluid fluid;
     /** The travelling item's colour, which lenses give and filters sort by; null for fluids and unpainted items. */
     @Nullable
     public final DyeColor colour;
@@ -25,7 +29,16 @@ public final class SideCheck {
     private final EnumSet<Direction> allowed = EnumSet.allOf(Direction.class);
 
     public SideCheck(ItemStack stack, @Nullable DyeColor colour, @Nullable Direction from) {
+        this(stack, null, colour, from);
+    }
+
+    public SideCheck(Fluid fluid, @Nullable Direction from) {
+        this(ItemStack.EMPTY, fluid, null, from);
+    }
+
+    private SideCheck(ItemStack stack, @Nullable Fluid fluid, @Nullable DyeColor colour, @Nullable Direction from) {
         this.stack = stack;
+        this.fluid = fluid;
         this.colour = colour;
         this.from = from;
     }

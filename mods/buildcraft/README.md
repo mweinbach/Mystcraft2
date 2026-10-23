@@ -17,10 +17,11 @@ worlds do not migrate between them or from 1.12.
 
 - Engines: redstone, Stirling and combustion, with upstream heat and power stages.
 - Pipes: item (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void),
-  fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, clay, void) and kinesis (wood,
+  fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void) and kinesis (wood,
   cobblestone, stone, quartz, gold, sandstone), and the structure pipe, which only joins other
-  structure pipes. Pipe plugs close a pipe's face, and power adapters let an engine drive a wooden
-  pipe through a closed face.
+  structure pipes. The diamond item and fluid pipes hold nine phantom filters per face; the fluid
+  pipe reads fluid containers placed in them. Pipe plugs close a pipe's face, and power adapters let
+  an engine drive a wooden pipe through a closed face.
 - Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
   fills the land mark area or volume box behind it with one of upstream's 18 patterns from the
   block items it holds and clears what the pattern leaves empty.
