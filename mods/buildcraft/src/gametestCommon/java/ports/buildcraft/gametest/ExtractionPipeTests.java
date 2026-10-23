@@ -251,4 +251,43 @@ public final class ExtractionPipeTests {
                 })
                 .thenSucceed();
     }
+
+    /**
+     * With two presets held active by a gate, the pipe waits on the current slot while its filter item is missing,
+     * as upstream; once the player clears that slot's filter it moves on to the other preset instead of stalling.
+     */
+    public static void emzuliPipeMovesOnFromClearedFilter(GameTestHelper helper) {
+        ChestBlockEntity source = chest(helper, new BlockPos(0, 2, 1), new ItemStack(Items.DIRT, 4));
+        PipeBlockEntity emzuli = pipe(helper, new BlockPos(1, 2, 1), BCTransport.EMZULI_ITEM);
+        pipe(helper, new BlockPos(2, 2, 1), BCTransport.STONE_ITEM);
+        ChestBlockEntity target = chest(helper, new BlockPos(3, 2, 1));
+        EmzuliBehaviour behaviour = (EmzuliBehaviour) emzuli.behaviour();
+
+        helper.startSequence()
+                .thenExecuteAfter(2, () -> {
+                    behaviour.filters.setItem(SlotIndex.SQUARE.ordinal(), new ItemStack(Items.COBBLESTONE));
+                    behaviour.filters.setItem(SlotIndex.CIRCLE.ordinal(), new ItemStack(Items.DIRT));
+                    PluggableGate gate = new PluggableGate(BCSilicon.GATE, emzuli, Direction.NORTH, IRON_AND);
+                    emzuli.replacePluggable(Direction.NORTH, gate);
+                    presetAction(gate.logic(), SlotIndex.SQUARE);
+                    gate.logic().statements[1].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
+                    gate.logic().statements[1].action.set(ActionWrapper.wrap(BCTransportStatements.ACTION_EXTRACTION_PRESET[SlotIndex.CIRCLE.ordinal()], null));
+                })
+                .thenWaitUntil(() -> require(helper, behaviour.activeSlots().equals(Set.of(SlotIndex.SQUARE, SlotIndex.CIRCLE)),
+                        "the gate holds both presets active, active " + behaviour.activeSlots()))
+                .thenExecute(() -> {
+                    pulse(emzuli);
+                    require(helper, behaviour.currentSlot() == SlotIndex.SQUARE && count(source, Items.DIRT) == 4,
+                            "the square preset waits for cobblestone that is not there, at " + behaviour.currentSlot() + ", " + stock(source));
+                    behaviour.filters.setItem(SlotIndex.SQUARE.ordinal(), ItemStack.EMPTY);
+                    pulse(emzuli);
+                    require(helper, count(source, Items.DIRT) < 4, "with the square filter cleared the circle preset pulls dirt, " + stock(source));
+                    require(helper, behaviour.currentSlot() == SlotIndex.CIRCLE, "the pipe stays on the circle preset, at " + behaviour.currentSlot());
+                })
+                .thenWaitUntil(() -> {
+                    pulse(emzuli);
+                    require(helper, count(target, Items.DIRT) == 4, "all the dirt is delivered, target holds " + stock(target));
+                })
+                .thenSucceed();
+    }
 }

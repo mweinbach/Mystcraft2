@@ -321,14 +321,19 @@ BuildCraft's gears are tagged `c:<material>_gears` and `forge:gears/<material>`,
 - **Zone planner:** upstream stored the paintbrush and the map location as one item each, with metadata. This port uses a clean paintbrush, one item per dye colour, and one map location whose `mapType` tag drives the `buildcraft:type` model. A mixin keeps a clean map stacking to 16 and a recorded one to 1. Using a stack records one map and leaves the rest clean, so the recorded copy is not lost. A clean paintbrush is not a colour. Copying a zone chunk keeps a completely filled chunk, and reading a plan replaces what was stored. A plan packet applies only while that planner's GUI is open and still valid, and a plan refuses more than 4096 chunks. Map colours are read at world positions. The face texture is cached per facing, so a wrench updates the picture. The highlight is a line box. The scroll wheel uses the 1.19 notch (`delta * 4` in place of `dWheel / 30`). Painting and panning start on the map, so the slots stay usable. The recipe is the commented `BCRoboticsRecipes` pattern with a diamond item pipe in the centre of the top row, which upstream left as a TODO. The map location has no recipe. Block painting and the paintbrush's 64 uses are not part of the planner. Display lists are vertex buffers, and the three vanilla dimensions keep upstream's ids. The planner is not a container, so hoppers cannot see it. The downward map scan stops at the bottom of the 1.19 world rather than y 0, so a slice below sea level still has a colour. The map packet writes a presence flag before each column's height and colour, so a column at or below y 0 stays aligned; upstream treated a height of 0 or less as an empty column. Kept from upstream: clearing a full chunk with `BitSet.flip(0, 255)` also clears column (15, 15); `distanceToSquared` uses `x << 4 + 8`; `columns()` lists a column in chunk 0 twice; the ground search stops at y 255; import and export progress, including resuming from -1; the painted rectangle is half-open; a map request is scanned only while that planner's GUI is open and still valid, for a slice inside the world's build height and a loaded chunk within 32 chunks of the planner, at most four times a tick (upstream scanned any key in the sender's world and loaded the chunk); and an input tick returns before the output runs.
 - **Diamond-wood and emzuli filters** match items by item and NBT (`ItemStack.isSameItemSameTags`); upstream also
   matched list items, which are not ported. The emzuli pipe saves its active presets as a bitmask byte and its
-  current slot as an index byte, where upstream saved a `BitSet` byte array and the slot's enum name.
+  current slot as an index byte, where upstream saved a `BitSet` byte array and the slot's enum name. Upstream's
+  emzuli pipe moved to the next slot only after a pull, so clearing the current slot's filter while its preset stayed
+  active stalled it; here a current slot that has lost its filter or its preset gives way to the next active slot.
 - **Stripes pipe:** pipes have no owner here, so every stripes pipe acts as upstream's ownerless `[BuildCraft]`
   machine player (Forge's `FakePlayerFactory` on Forge, a connectionless `ServerPlayer` on Fabric). It spends no
   power on air, where upstream drained its battery while pointed at nothing. Upstream asked Forge's `IShearable` and
   `IPlantable`; here a block is shearable when shears change its loot, and seeds are block items of bushes and cactus
   planted where they can survive. Items are used without Forge's `onItemUseFirst`, the dispenser handler dispenses one
   item at a time (upstream passed the whole stack), and pipe extension moves the pipes without Forge's break and place
-  events or block snapshots, as there are no loader-neutral equivalents.
+  events or block snapshots, as there are no loader-neutral equivalents. Upstream handled every pipe extension or
+  retraction at the position the stripes pipe had when the item arrived, so a second pipe item reaching it in the
+  same tick found it gone and was lost; here later requests follow the stripes pipe to where earlier ones moved it,
+  and one that still finds no stripes pipe drops its item.
 
 ## Not ported
 
@@ -375,10 +380,12 @@ items in front of it while ignoring one beyond its range, the obsidian, lapis an
 the diamond-wood pipe pulling one item a pulse and only filter items when whitelisting, all others when
 blacklisting and each filter in turn (waiting on a missing one) in round robin, with saving, and its fluid pipe
 refusing round robin, the emzuli pipe pulling nothing until a gate's extraction preset selects a slot and then only
-that slot's item painted its colour (or unpainted), switching with the gate and dropping lapsed presets, the
+that slot's item painted its colour (or unpainted), switching with the gate and dropping lapsed presets, and moving
+on to the next active preset when the current one's filter is cleared, the
 stripes pipe pointing away from its connection with the rod drawn there, placing a block item in front, breaking the
-block in front with engine power and sending the drops back down the pipe, dropping an item it cannot use and
-turning by a gate's direction action, the diamond-wood, stripes and emzuli recipes and the diamond-wood fluid and
+block in front with engine power and sending the drops back down the pipe, dropping an item it cannot use,
+turning by a gate's direction action, and laying two pipes or retracting twice in one tick without losing either
+item, the diamond-wood, stripes and emzuli recipes and the diamond-wood fluid and
 kinesis upgrades with their undo recipes,
 kinesis pipes carrying engine power, the iron and diamond kinesis pipes' upstream rates, saved limits and block
 states, an iron kinesis pipe delivering exactly its selected limit and less once a gate's power limit action

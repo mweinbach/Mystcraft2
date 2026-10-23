@@ -391,6 +391,15 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
     public static void stripesPipeTurnsByGate(GameTestHelper helper) { StripesPipeTests.stripesPipeTurnsByGate(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
+    public static void emzuliPipeMovesOnFromClearedFilter(GameTestHelper helper) { ExtractionPipeTests.emzuliPipeMovesOnFromClearedFilter(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 200)
+    public static void stripesPipeLaysTwoPipesInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeLaysTwoPipesInOneTick(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
+    public static void stripesPipeRetractsTwiceInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeRetractsTwiceInOneTick(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }

@@ -1,6 +1,7 @@
 package ports.buildcraft.transport.stripes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -64,23 +65,36 @@ public final class PipeExtensionManager {
         return true;
     }
 
-    /** Called at the end of each server level tick. */
+    /**
+     * Called at the end of each server level tick. Several pipes can reach one stripes pipe in a tick; upstream
+     * handled every request at the position it was made from, so once the first had moved the stripes pipe the rest
+     * found no stripes pipe there and their pipes were lost. Here later requests follow the stripes pipe to where the
+     * earlier ones moved it, and a request that still finds none drops its pipe.
+     */
     public static void tick(ServerLevel level) {
         List<Request> requests = REQUESTS.remove(level);
         if (requests == null) return;
+        // Every request from one stripes pipe in a tick is made from where it started the tick.
+        Map<BlockPos, BlockPos> moved = new HashMap<>();
         for (Request request : requests) {
-            if (isRetractionPipe(request.pipeDef)) retract(level, request);
-            else extend(level, request);
+            BlockPos from = moved.getOrDefault(request.pos, request.pos);
+            StripesBehaviour stripes = stripesAt(level, from);
+            if (stripes == null) {
+                InventoryUtil.drop(level, request.pos, request.stack);
+                continue;
+            }
+            Direction dir = from.equals(request.pos) || stripes.direction() == null ? request.dir : stripes.direction();
+            Request current = new Request(from, dir, request.pipeDef, request.stack);
+            moved.put(request.pos, isRetractionPipe(request.pipeDef) ? retract(level, stripes, current) : extend(level, stripes, current));
         }
     }
 
-    private static void extend(ServerLevel level, Request r) {
-        StripesBehaviour stripes = stripesAt(level, r.pos);
-        if (stripes == null) return;
+    /** @return where the stripes pipe is afterwards. */
+    private static BlockPos extend(ServerLevel level, StripesBehaviour stripes, Request r) {
         BlockPos p = r.pos.relative(r.dir);
         if (!level.isEmptyBlock(p) && !level.getBlockState(p).getMaterial().isReplaceable()) {
             stripes.sendItem(r.stack.copy(), r.dir);
-            return;
+            return r.pos;
         }
         BlockState stripesState = level.getBlockState(r.pos);
         CompoundTag stripesTag = takeBlockEntity(level, r.pos);
@@ -98,15 +112,15 @@ public final class PipeExtensionManager {
         if (!placed) {
             level.setBlock(r.pos, stripesState, Block.UPDATE_ALL);
             restore(level, r.pos, stripesTag, r.dir, sendBack);
-            return;
+            return r.pos;
         }
         level.setBlock(p, stripesState, Block.UPDATE_ALL);
         restore(level, p, stripesTag, r.dir, sendBack);
+        return p;
     }
 
-    private static void retract(ServerLevel level, Request r) {
-        StripesBehaviour stripes = stripesAt(level, r.pos);
-        if (stripes == null) return;
+    /** @return where the stripes pipe is afterwards. */
+    private static BlockPos retract(ServerLevel level, StripesBehaviour stripes, Request r) {
         Direction retractDir = r.dir.getOpposite();
         if (!isValidRetractionPath(level, r, retractDir)) {
             List<Direction> possible = new ArrayList<>();
@@ -115,7 +129,7 @@ public final class PipeExtensionManager {
             }
             if (possible.isEmpty()) {
                 stripes.sendItem(r.stack.copy(), r.dir);
-                return;
+                return r.pos;
             }
             retractDir = possible.get(level.random.nextInt(possible.size()));
         }
@@ -130,6 +144,7 @@ public final class PipeExtensionManager {
         sendBack.addAll(BlockUtil.breakBlockAndGetDrops(level, p));
         level.setBlock(p, stripesState, Block.UPDATE_ALL);
         restore(level, p, stripesTag, r.dir, sendBack);
+        return p;
     }
 
     /** Upstream {@code isValidRetractionPath}: the pipe behind joins only the stripes pipe and one other pipe. */

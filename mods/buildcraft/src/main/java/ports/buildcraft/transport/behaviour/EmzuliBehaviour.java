@@ -100,7 +100,11 @@ public class EmzuliBehaviour extends WoodBehaviour {
 
     @Override
     protected int extractItems(ItemFlow flow, Direction dir, int count, boolean simulate) {
-        if (currentSlot == null && !activeSlots.isEmpty()) currentSlot = nextSlot();
+        // Upstream only moved on after a pull, so a cleared filter on the current slot stalled the pipe for as long
+        // as its preset stayed active; here a slot that lost its filter or its preset gives way to the next one.
+        if (currentSlot == null || !activeSlots.contains(currentSlot) || filters.getItem(currentSlot.ordinal()).isEmpty()) {
+            currentSlot = activeSlots.isEmpty() ? null : nextSlot();
+        }
         if (currentSlot == null) return 0;
         ItemStack filter = filters.getItem(currentSlot.ordinal());
         int extracted = flow.tryExtractItems(count, dir, slotColours.get(currentSlot),

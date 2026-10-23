@@ -389,6 +389,15 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void stripesPipeTurnsByGate(GameTestHelper helper) { StripesPipeTests.stripesPipeTurnsByGate(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public void emzuliPipeMovesOnFromClearedFilter(GameTestHelper helper) { ExtractionPipeTests.emzuliPipeMovesOnFromClearedFilter(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public void stripesPipeLaysTwoPipesInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeLaysTwoPipesInOneTick(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void stripesPipeRetractsTwiceInOneTick(GameTestHelper helper) { StripesPipeTests.stripesPipeRetractsTwiceInOneTick(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void recipesAndTags(GameTestHelper helper) { BCTests.recipesAndTags(helper); }
 }
