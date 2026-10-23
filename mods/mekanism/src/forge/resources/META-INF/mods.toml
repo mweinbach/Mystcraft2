@@ -65,3 +65,15 @@ license="${mod_license}"
     versionRange="[1.0.0,)"
     ordering="AFTER"
     side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="fluxnetworks"
+    mandatory=false
+    versionRange="[1.19.2-7.1.3.12,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="recipestages"
+    mandatory=false
+    versionRange="[4.0.0.4,)"
+    ordering="AFTER"
+    side="BOTH"

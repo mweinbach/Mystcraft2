@@ -101,6 +101,36 @@ dependencies {
     if (providers.gradleProperty('withGender').isPresent()) {
         modRuntimeOnly('curse.maven:female-gender-456319:4023966') { transitive = false }
     }
+    // Flux Networks for Fabric 1.19.2-7.2.1.16 (Modrinth 1HFd7hEa) is shurik204's MIT port. It moves energy through Team
+    // Reborn Energy, which Mekanism already offers, so nothing compiles against it. -PwithFluxNetworks adds it to a
+    // development run. Loom's development copy drops its nested jars, so Porting Lib and Simple Chunk Manager are added too.
+    // The run does not start yet: Porting Lib adds Forge-style default methods to the same vanilla classes as this port's
+    // Forge API layer (parity/18-flux-recipe-stages-oc2.md), and the JVM rejects BlockEntity. The flag reproduces that.
+    if (providers.gradleProperty('withFluxNetworks').isPresent()) {
+        def flux = 'maven.modrinth:flux-network-fabric:1HFd7hEa'
+        modRuntimeOnly(flux) { transitive = false }
+        // Loom remaps mod dependencies while configuring, so the nested jars are unpacked here, recursively. Team Reborn
+        // Energy, Night Config and MixinExtras are already on the classpath.
+        def nestedDir = layout.buildDirectory.dir('flux-nested').get().asFile
+        def unpack
+        unpack = { File jar ->
+            new java.util.zip.ZipFile(jar).withCloseable { zip ->
+                zip.entries().toList().findAll { !it.directory && it.name ==~ /META-INF\/jars\/[^\/]+\.jar/ }.each { entry ->
+                    def out = new File(nestedDir, entry.name.substring('META-INF/jars/'.length()))
+                    if (!out.isFile()) {
+                        out.parentFile.mkdirs()
+                        zip.getInputStream(entry).withCloseable { input -> out.bytes = input.bytes }
+                    }
+                    unpack(out)
+                }
+            }
+        }
+        unpack(configurations.detachedConfiguration(dependencies.create(flux) { transitive = false }).singleFile)
+        modRuntimeOnly fileTree(nestedDir) {
+            include '*.jar'
+            exclude 'energy-*.jar', 'core-*.jar', 'toml-*.jar', 'MixinExtras-*.jar', 'mixinextras-*.jar'
+        }
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'

@@ -39,15 +39,18 @@ Copied unchanged, then edited as listed below:
   viewer's synchronized counts and capacities instead of `getFrequency()`, which is null on the client for the
   portable dashboard.
 
-Not imported: CraftTweaker, OpenComputers 2 and Flux
-Networks integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. ProjectE's
+Not imported: CraftTweaker and OpenComputers 2 integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. ProjectE's
 recipe mappers, NSS serializers and contents processor are in `src/forge` and load only when ProjectE is present.
 Curios is
 ported as an optional Forge adapter and Trinkets as the Fabric adapter. Wildfire's Gender Mod is optional on both
 loaders; both have a 1.19.2 build. The look-at
 providers are imported: Jade and the shared tooltip data are in `src/main`, The One Probe is in `src/forge`, and
 WTHIT is in `src/fabric`. Upstream's Forge WTHIT plugin is not built into the Forge JAR. The ComputerCraft package
-is imported in `src/main`; the Fabric peripheral provider is port code in `src/fabric`. OpenComputers 2 is not.
+is imported in `src/main`; the Fabric peripheral provider is port code in `src/fabric`. OpenComputers 2 is not: it has no
+1.19.2 build (see [parity/18-flux-recipe-stages-oc2.md](parity/18-flux-recipe-stages-oc2.md)). The Flux Networks energy
+compat (`mekanism.common.integration.energy.fluxnetworks`) is imported unchanged into `src/forge`. Upstream's Recipe Stages
+checks in the QIO crafting window are restored through the port's `RecipeStagesCompat`, with the Recipe Stages types in
+`src/forge`.
 
 ## The Forge API mirror
 
@@ -73,15 +76,16 @@ Every edit beyond the scripted import rewrite:
 | --- | --- | --- |
 | `mekanism/api/MekanismAPI.java` | `getJeiHelper()` looks up `MekanismJEIHelper` only after `ModList` reports JEI. The helper interface references JEI's ingredient API | JEI is optional; the API class must not load JEI until something asks for the helper |
 | `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. `ProjectELoaded` is set when `projecte` is loaded, and `NSSHelper.init` is called by name. OC2, Flux Networks and Recipe Stages stay undetected and those flags stay `false`. ComputerCraft and The One Probe are unchanged | Curios, Trinkets, Gender Mod and ProjectE types stay in the loader source sets. The shared hook cannot mention them |
+| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. `ProjectELoaded` is set when `projecte` is loaded, and `NSSHelper.init` is called by name. `FluxNetworksLoaded` and `RecipeStagesLoaded` are set as upstream; Recipe Stages also loads `RecipeStagesCompat`'s Forge bridge by name. OC2 stays undetected and `OC2Loaded` stays `false`. ComputerCraft and The One Probe are unchanged | Curios, Trinkets, Gender Mod and ProjectE types stay in the loader source sets. The shared hook cannot mention them |
 | `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
 | `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` attaches the ComputerCraft capability and skips the OpenComputers 2 branch | OC2 is not ported. The ComputerCraft helper is the upstream class |
 | `mekanism/common/integration/computer/ComputerMethodMapper.java` | `isEnabled` is also true when `mekanism.gametest.computer` is set | GameTests check method lists without CC: Tweaked installed. The capability is still attached only when that mod is loaded |
 | `data/mekanism/parameter_names/computer.json`, `data/mekanismgenerators/parameter_names/computer.json` | Copied from the Mekanism and Mekanism Generators 10.3.9.13 release jars | The annotation processor that writes these files was not imported. Methods bind without them; the files restore parameter names |
-| `mekanism/common/integration/energy/EnergyCompatUtils.java` | Removed the Flux Networks energy compat | Flux Networks not ported |
+| `mekanism/common/integration/energy/EnergyCompatUtils.java` | The Flux Networks compat is loaded by name, in upstream's place between Mekanism's own capability and Forge Energy, and is skipped when the class is absent | `FNEnergyCompat` is in `src/forge`. Flux Networks for Fabric speaks Team Reborn Energy, which the Fabric JAR already offers, but its nested Porting Lib cannot load beside the Fabric JAR yet (parity/18) |
 | `mekanism/client/key/MekanismKeyHandler.java`, `client/render/hud/MekanismHUD.java`, `common/content/gear/mekasuit/ModuleChargeDistributionUnit.java`, `common/tile/TileEntityChargepad.java`, `common/item/interfaces/IJetpackItem.java` | The Curios branches call `CuriosIntegration`, which delegates to Curios or Trinkets. The mode key sends `AccessoryResult` slot id and index | The shared classes cannot mention Curios or Trinkets types |
 | `mekanism/common/network/PacketHandler.java` | Registers `PacketModeChangeCurios`. The packet reads the stack through `CuriosIntegration.getCurioStack` | The Curios `SlotResult` type is not shared. `MekanismCurioRenderer` is Forge-only; Fabric's renderer is inside `FabricTrinkets` |
-| `mekanism/common/content/qio/QIOCraftingWindow.java` | Removed Recipe Stages checks | Recipe Stages not ported |
+| `mekanism/common/content/qio/QIOCraftingWindow.java` | Upstream's Recipe Stages checks call `RecipeStagesCompat.assembleIgnoringStage` and `hasStageForRecipe` instead of `IStagedRecipe.forceAssemble` and `RecipeStagesUtil.hasStageForRecipe` | Recipe Stages has only Forge builds, so the shared class cannot mention its types |
+| `mekanism/common/tile/machine/TileEntityFormulaicAssemblicator.java`, `common/content/assemblicator/RecipeFormula.java` | Crafting recipes are assembled through `RecipeStagesCompat.assembleForOwner` with the block's owner. A staged recipe is crafted when the owner has its stage; otherwise Recipe Stages' own container rules decide | Port addition. Upstream left staged recipes to Recipe Stages, which finds no player in the assemblicator's grid and never crafts them unless a pack grants the stage to Mekanism's container |
 | `mekanism/common/item/gear/ItemHazmatSuitArmor.java`, `ItemSpecialArmor.java` | `gatherCapabilities` and hazmat `initCapabilities` call `GenderCapabilityHelper.addGenderCapability` | The helper loads the loader adapter by name, so these items do not import the Gender Mod |
 | `mekanism/client/ClientRegistration.java` | Registers `JeiScreenWatcher` on the forge bus only when JEI is loaded. The watcher is the upstream `RenderTickHandler.guiOpening` listener, moved so `RenderTickHandler` does not reference JEI | JEI is optional. Fabric posts `ScreenEvent.Opening` from `MinecraftMixin`; that event was not in the mirror |
 | `pack.mcmeta` | Wrote in the pack formats upstream's build expanded (`pack_format` 10, resource 9, data 10) | The port's builds do not expand upstream's template variables |

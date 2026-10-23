@@ -145,7 +145,7 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
-            forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender
+            forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender -PwithFluxNetworks -PwithRecipeStages
             fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender
             jars: |
               mods/mekanism/build/libs/*.jar

@@ -74,7 +74,8 @@ class CiWorkflowTests(unittest.TestCase):
     def test_optional_integrations_and_smoke_suite_run(self):
         """Optional integrations get their own GameTest runs, apart from the EMC runs; Mystcraft runs its smoke suite."""
         mekanism = matrix_entry(self.text, "mekanism")
-        self.assertIn("forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender\n",
+        self.assertIn("forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender"
+                      " -PwithFluxNetworks -PwithRecipeStages\n",
                       mekanism)
         self.assertIn("fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender\n",
                       mekanism)

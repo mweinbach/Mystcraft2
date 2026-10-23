@@ -1,7 +1,9 @@
 package mekanism.common.integration.energy;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import mekanism.api.energy.IStrictEnergyHandler;
 import mekanism.common.integration.energy.forgeenergy.ForgeEnergyCompat;
 import net.minecraft.core.Direction;
@@ -18,11 +20,25 @@ public class EnergyCompatUtils {
     private EnergyCompatUtils() {
     }
 
-    private static final List<IEnergyCompat> energyCompats = List.of(
+    private static final List<IEnergyCompat> energyCompats = Stream.of(
           //We always have our own energy capability as the first one we check
           new StrictEnergyCompat(),
+          //Note: We check the Flux Networks capability above Forge's so that we allow it to use the higher throughput amount supported by Flux Networks
+          // The Flux Networks compat is in the Forge source set; the Fabric JAR does not contain it, so it is loaded by name.
+          optionalCompat("mekanism.common.integration.energy.fluxnetworks.FNEnergyCompat"),
           new ForgeEnergyCompat()
-    );
+    ).filter(Objects::nonNull).toList();
+
+    @Nullable
+    private static IEnergyCompat optionalCompat(String className) {
+        try {
+            return (IEnergyCompat) Class.forName(className).getDeclaredConstructor().newInstance();
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Mekanism's energy compat " + className + " failed to load", e);
+        }
+    }
 
     public static List<IEnergyCompat> getCompats() {
         return energyCompats;
