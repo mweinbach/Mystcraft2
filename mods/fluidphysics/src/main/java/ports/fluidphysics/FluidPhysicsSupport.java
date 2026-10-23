@@ -94,6 +94,15 @@ public final class FluidPhysicsSupport {
         return height[0];
     }
 
+    /** Whether the fluid in the entity's feet block allows swimming. */
+    public static boolean isSwimmableFluidAtFeet(final Entity entity) {
+
+        final FluidState state = entity.level.getFluidState(entity.blockPosition());
+        final FluidProperties properties = FluidPhysics.propertiesOf(state);
+
+        return null != properties && properties.canSwim();
+    }
+
     /** Whether the entity's body is in a fluid whose properties allow swimming. */
     public static boolean isInSwimmableFluid(final Entity entity) {
 

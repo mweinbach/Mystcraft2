@@ -74,6 +74,75 @@ public final class FluidPhysicsGameTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void shallowSwimmableFluidDoesNotStartSwimming(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 1, 1, 5, 1, 5);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 1, 3));
+
+        zombie.setSprinting(true);
+        zombie.setSwimming(false);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+
+                    check(zombie.getEyeY() > helper.absolutePos(new BlockPos(0, 2, 0)).getY(),
+                            "the test entity's eyes are not above the shallow fluid");
+                    check(!zombie.isSwimming(),
+                            "a sprinting entity with only its feet in a swimmable fluid started swimming");
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void submergedSwimmableFluidStartsSwimming(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 4, 1, 5, 1, 5);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 1, 3));
+
+        zombie.setSprinting(true);
+        zombie.setSwimming(false);
+
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> check(zombie.isSwimming(),
+                        "a submerged sprinting entity in a swimmable fluid is not swimming"))
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
+    public void swimmingContinuesWithOnlyTheBodyInSwimmableFluid(final GameTestHelper helper) {
+
+        floodPool(helper, FluidPhysicsTestFluids.SWIMMABLE_BLOCK, 1, 2, 1, 5, 1, 5);
+
+        final LivingEntity zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 1, 3));
+
+        zombie.setNoGravity(true);
+        zombie.setSprinting(true);
+
+        helper.startSequence()
+                .thenExecute(() -> {
+
+                    final BlockPos base = helper.absolutePos(new BlockPos(3, 1, 3));
+
+                    // Eyes above the surface, body still in the fluid.
+                    zombie.setPos(base.getX() + 0.5D, base.getY() + 0.45D, base.getZ() + 0.5D);
+                    zombie.setSwimming(true);
+                })
+                .thenIdle(1)
+                .thenExecute(() -> {
+
+                    check(zombie.getEyeY() > helper.absolutePos(new BlockPos(0, 3, 0)).getY(),
+                            "the test entity's eyes are not above the fluid surface");
+                    check(zombie.isSwimming(),
+                            "an already-swimming entity stopped when its eyes rose above the swimmable fluid");
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = TIMEOUT)
     public void nonSwimmableFluidDoesNotSetTheSwimmingPose(final GameTestHelper helper) {
 
         floodPool(helper, FluidPhysicsTestFluids.PLAIN_BLOCK, 1, 4, 1, 3, 1, 3);
