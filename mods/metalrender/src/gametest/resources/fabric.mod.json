@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "metalrender_gametest",
+  "version": "1.0.0",
+  "name": "MetalRender Fabric Game Tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "ports.metalrender.gametest.MetalRenderGameTests"
+    ],
+    "client": [
+      "ports.metalrender.gametest.MetalRenderAutotest"
+    ]
+  },
+  "depends": {
+    "metalrender": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

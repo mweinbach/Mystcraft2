@@ -10,13 +10,14 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [Mystcraft](mods/mystcraft/) | In progress | Forge + Fabric development port with linking, descriptive books, generated Ages, writing and portals. Full classic parity remains in progress. |
 | [ICBM](mods/icbm_port/) | In progress | Fabric alpha: payload simulation, persistent flight/exposure, energy, delivery, defenses, screens and optional JEI. |
 | [Fluid Physics](mods/fluidphysics/) | In progress | Fabric-only library that gives registered modded fluids Forge `FluidType`-style swimming, drowning, pushing, fall distance, boating and path types. Bundled by Extreme Reactors Fabric. |
+| [MetalRender](mods/metalrender/) | In progress | Clean-room Fabric renderer that draws terrain with Apple Metal (Metal 4, Metal 3 mesh shaders or Compute+ICB, plus optional MetalFX upscaling) on macOS clients. Replaces Sodium on macOS. Inactive on other systems and on servers. |
 | [JurassiCraft](mods/jurassicraft/) | In progress | Forge + Fabric alpha with shared gameplay: fossils, dinosaurs, genetics, plants, laboratories, and park equipment. |
 | [BuildCraft](mods/buildcraft/) | In progress | Fabric + Forge port of BuildCraft 8.0.x: engines, item/fluid/kinesis pipes, tank, pump, mining well, quarry, oil wells and the distiller/heat exchanger fuel chain, with Team Reborn Energy/Forge Energy at 1 MJ = 10 units. |
 | [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge + Fabric port of the 1.0.3 release with shared gameplay: all genes, six machines, Forge Energy or Team Reborn Energy, and server GameTests on both loaders. Survival and multiplayer play-testing remain. |
 | [Extreme Reactors](mods/extremereactors/) | In progress | Fabric + Forge alpha of Extreme Reactors 2 with shared gameplay: reactors, turbines, reprocessor and fluidizer with the upstream simulation and screens, Team Reborn Energy/Forge Energy, and server GameTests on both loaders. The ComputerCraft, JEI and Patchouli integrations are not ported yet. |
 
 Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics and Extreme Reactors support Forge and Fabric;
-ICBM and Fluid Physics target Fabric. Install the variant matching your game loader;
+ICBM, Fluid Physics and MetalRender target Fabric. Install the variant matching your game loader;
 a mod's Forge and Fabric JARs cannot be installed together.
 
 ## Get started
@@ -49,6 +50,9 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/fluidphysics build
 ./scripts/gradle.sh -p mods/fluidphysics test
 ./scripts/gradle.sh -p mods/fluidphysics runGametest
+./scripts/gradle.sh -p mods/metalrender build
+./scripts/gradle.sh -p mods/metalrender runGametest
+./scripts/gradle.sh -p mods/metalrender runAutotestClient
 ./scripts/gradle.sh :jurassicraft:build
 ./scripts/gradle.sh -p mods/jurassicraft/fabric build
 ./scripts/gradle.sh :jurassicraft:runGameTestServer

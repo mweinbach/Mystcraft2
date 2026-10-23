@@ -156,3 +156,18 @@ Fabric builds consume it through `include(...)`. Keep its limitations in
 
 - `./scripts/gradle.sh -p mods/fluidphysics build`
 - `./scripts/gradle.sh -p mods/fluidphysics runGametest`
+
+## MetalRender
+
+`mods/metalrender` is a **clean-room**, MIT-licensed Fabric renderer that draws
+terrain with Apple Metal and composites it into Minecraft's OpenGL frame through
+`IOSurface`. `https://github.com/webblepebbles/MetalRender` is a feature reference
+only: never copy its code, shaders or assets. The mod must stay inactive (vanilla
+OpenGL terrain) on Linux, Windows and dedicated servers. The committed natives in
+`src/main/resources/natives/macos/` are rebuilt by `compileNative` on macOS; commit
+them whenever `src/main/native` changes. Keep the verified/unverified lists in
+`mods/metalrender/README.md` current and test with:
+
+- `./scripts/gradle.sh -p mods/metalrender build` (JUnit, JNI hardware tests and `nativeSelfTest` on macOS)
+- `./scripts/gradle.sh -p mods/metalrender runGametest`
+- `./scripts/gradle.sh -p mods/metalrender runAutotestClient` (macOS, opens a game window; writes `build/autotest-client/autotest/report.txt`)

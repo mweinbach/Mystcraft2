@@ -1,0 +1,17 @@
+{
+  "metalrender.settings.button": "MetalRender...",
+  "metalrender.settings.title": "MetalRender",
+  "metalrender.settings.enabled": "Metal Terrain",
+  "metalrender.settings.tier": "Tier",
+  "metalrender.settings.upscaler": "Upscaler",
+  "metalrender.settings.scale": "Render Scale",
+  "metalrender.settings.mesh_shaders": "Mesh Shaders",
+  "metalrender.settings.debug_info": "F3 Details",
+  "metalrender.tier.auto": "Auto",
+  "metalrender.tier.metal4": "Metal 4",
+  "metalrender.tier.metal3_mesh": "Metal 3 Mesh",
+  "metalrender.tier.compute_icb": "Compute+ICB",
+  "metalrender.upscaler.none": "Off",
+  "metalrender.upscaler.metalfx_spatial": "MetalFX Spatial",
+  "metalrender.upscaler.metalfx_temporal": "MetalFX Temporal"
+}

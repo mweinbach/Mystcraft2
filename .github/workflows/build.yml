@@ -63,6 +63,13 @@ jobs:
             reports: |
               mods/fluidphysics/build/gametest-results.xml
               mods/fluidphysics/build/gametest/logs/latest.log
+          - id: metalrender
+            kind: fabric
+            jars: mods/metalrender/build/libs/*.jar
+            reports: |
+              mods/metalrender/build/gametest-results.xml
+              mods/metalrender/build/gametest/logs/latest.log
+              mods/metalrender/build/reports/tests/test/
           - id: icbm_port
             kind: icbm
             jars: mods/icbm_port/build/libs/*.jar

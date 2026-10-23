@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "metalrender",
+  "version": "${version}",
+  "name": "MetalRender",
+  "description": "${mod_description}",
+  "authors": [
+    "1.19.2 port contributors"
+  ],
+  "license": "MIT",
+  "icon": "assets/metalrender/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.metalrender.MetalRenderMod"
+    ],
+    "client": [
+      "ports.metalrender.client.MetalRenderClient"
+    ]
+  },
+  "mixins": [
+    "metalrender.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  },
+  "breaks": {
+    "sodium": "*"
+  }
+}

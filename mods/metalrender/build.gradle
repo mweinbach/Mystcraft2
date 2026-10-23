@@ -1,0 +1,135 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'fabric-loom' version '1.7.4'
+}
+
+def metadata = new Properties()
+file('port.properties').withInputStream { metadata.load(it) }
+version = metadata.mod_version
+group = metadata.mod_group
+base.archivesName = 'metalrender-fabric-1.19.2'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+
+sourceSets {
+    test.java.setSrcDirs(['src/test/java'])
+    // The GameTest mod is development only; it never enters the production JAR.
+    gametest {
+        java.setSrcDirs(['src/gametest/java'])
+        resources.setSrcDirs(['src/gametest/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+def nativeOutDir = 'src/main/resources/natives/macos'
+def compileNative = tasks.register('compileNative', Exec) {
+    onlyIf { OperatingSystem.current().isMacOsX() }
+    inputs.dir('src/main/native')
+    outputs.files(
+        "${nativeOutDir}/shaders_metal3.metallib",
+        "${nativeOutDir}/shaders_metal4.metallib",
+        "${nativeOutDir}/shaders_metal4_1.metallib",
+        "${nativeOutDir}/libmetalrender.dylib",
+        'build/native/metalrender_selftest'
+    )
+    environment 'JAVA_HOME', javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }.get().metadata.installationPath.asFile.absolutePath
+    commandLine 'bash', "${projectDir}/src/main/native/build_native.sh"
+}
+
+// Renders a synthetic scene through every Metal tier this Mac supports (Compute+ICB, Metal 3 mesh,
+// Metal 4) plus MetalFX spatial/temporal, with Metal API validation on. macOS only.
+def nativeSelfTest = tasks.register('nativeSelfTest', Exec) {
+    onlyIf { OperatingSystem.current().isMacOsX() }
+    dependsOn compileNative
+    environment 'MTL_DEBUG_LAYER', '1'
+    commandLine "${projectDir}/build/native/metalrender_selftest", "${projectDir}/${nativeOutDir}"
+}
+
+tasks.named('check') {
+    dependsOn nativeSelfTest
+}
+
+tasks.named('processResources', ProcessResources) {
+    dependsOn compileNative
+    inputs.properties metadata
+    filesMatching('fabric.mod.json') {
+        expand version: project.version, mod_description: metadata.mod_description
+    }
+}
+
+tasks.named('sourcesJar') {
+    dependsOn compileNative
+}
+
+tasks.named('test', Test) {
+    dependsOn compileNative
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+tasks.withType(Jar).configureEach {
+    from('LICENSE') { into 'META-INF' }
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+loom {
+    mods {
+        metalrender { sourceSet sourceSets.main }
+        metalrender_gametest { sourceSet sourceSets.gametest }
+    }
+    runs {
+        client {
+            client()
+            name 'MetalRender Fabric Client'
+            runDir 'run/client'
+        }
+        gametest {
+            server()
+            name 'MetalRender Fabric Game Tests'
+            source sourceSets.gametest
+            runDir 'build/gametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
+        }
+        // In-game comparison of vanilla terrain against each Metal tier and MetalFX mode (macOS only).
+        // Writes build/autotest-client/autotest/report.txt and one screenshot per variant.
+        autotestClient {
+            client()
+            name 'MetalRender Autotest Client'
+            source sourceSets.gametest
+            runDir 'build/autotest-client'
+            programArgs '--width', '1280', '--height', '720'
+            vmArg '-Dmetalrender.autotest=true'
+        }
+    }
+}
