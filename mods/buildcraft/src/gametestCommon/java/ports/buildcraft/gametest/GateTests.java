@@ -10,6 +10,7 @@ import static ports.buildcraft.gametest.BCTests.useOn;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -35,11 +36,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import ports.buildcraft.core.BCCore;
 import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.core.statements.StatementParamGateSideOnly;
 import ports.buildcraft.energy.BCEnergy;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.DistillerBlockEntity;
+import ports.buildcraft.lib.Power;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.EnumGateLogic;
 import ports.buildcraft.silicon.gate.EnumGateMaterial;
@@ -54,9 +57,13 @@ import ports.buildcraft.statement.Statement;
 import ports.buildcraft.statement.StatementWrapper;
 import ports.buildcraft.statement.TriggerWrapper;
 import ports.buildcraft.transport.BCTransport;
+import ports.buildcraft.transport.LimiterPipeBlock;
 import ports.buildcraft.transport.PipeBlock;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.behaviour.DirectionalBehaviour;
+import ports.buildcraft.transport.behaviour.LimiterBehaviour;
+import ports.buildcraft.transport.flow.PowerFlow;
+import ports.buildcraft.transport.statements.ActionPowerLimit;
 import ports.buildcraft.transport.statements.BCTransportStatements;
 
 /** Loader-neutral GameTests of gates on pipes, the gate copier and the gate GUI's server side. */
@@ -90,6 +97,16 @@ public final class GateTests {
             for (int i = sent.size() - 1; i >= 0; i--) {
                 if (sent.get(i) instanceof ClientboundSystemChatPacket chat && chat.overlay() && chat.content().getContents() instanceof TranslatableContents text) {
                     return text.getKey();
+                }
+            }
+            return null;
+        }
+
+        @Nullable
+        Object lastActionBarArgument() {
+            for (int i = sent.size() - 1; i >= 0; i--) {
+                if (sent.get(i) instanceof ClientboundSystemChatPacket chat && chat.overlay() && chat.content().getContents() instanceof TranslatableContents text) {
+                    return text.getArgs().length > 0 ? text.getArgs()[0] : null;
                 }
             }
             return null;
@@ -413,5 +430,66 @@ public final class GateTests {
             require(helper, ((DirectionalBehaviour) iron.behaviour()).currentDir() == Direction.WEST, "the gate turns the iron pipe west");
             helper.succeed();
         });
+    }
+
+    /**
+     * Upstream {@code ActionProviderPipes}: an iron kinesis pipe's gate offers its seven power limit actions and a
+     * diamond one's its own, each named after its limit; an active action sets the limit, which the block shows. As
+     * upstream {@code PipeBehaviourLimiter}, a wrench steps a pipe from its full rate down to stopped and back,
+     * saying each new limit on the action bar.
+     */
+    public static void gateAndWrenchSetKinesisPowerLimit(GameTestHelper helper) {
+        BlockPos ironPos = new BlockPos(1, 2, 1);
+        BlockPos diamondPos = new BlockPos(3, 2, 3);
+        PipeBlockEntity iron = pipe(helper, ironPos, BCTransport.IRON_POWER);
+        PipeBlockEntity diamond = pipe(helper, diamondPos, BCTransport.DIAMOND_POWER);
+        GateLogic ironLogic = gate(iron, Direction.UP, IRON_AND).logic();
+        GateLogic diamondLogic = gate(diamond, Direction.UP, IRON_AND).logic();
+        ActionPowerLimit eightMj = BCTransportStatements.ACTION_IRON_POWER_LIMIT[LimiterBehaviour.MAX_SHIFT - 2];
+
+        helper.runAfterDelay(2, () -> {
+            List<ActionWrapper> ironLimits = Arrays.stream(BCTransportStatements.ACTION_IRON_POWER_LIMIT).map(GateTests::action).toList();
+            List<ActionWrapper> diamondLimits = Arrays.stream(BCTransportStatements.ACTION_DIAMOND_POWER_LIMIT).map(GateTests::action).toList();
+            require(helper, ironLimits.size() == 7 && diamondLimits.size() == 7, "each kinesis limiter pipe has seven power limits");
+            require(helper, ironLogic.getAllValidActions().containsAll(ironLimits)
+                    && ironLogic.getAllValidActions().stream().noneMatch(diamondLimits::contains),
+                    "an iron kinesis pipe's gate offers the iron power limits only");
+            require(helper, diamondLogic.getAllValidActions().containsAll(diamondLimits)
+                    && diamondLogic.getAllValidActions().stream().noneMatch(ironLimits::contains),
+                    "a diamond kinesis pipe's gate offers the diamond power limits only");
+            require(helper, eightMj.limitShift == 2 && "gate.action.pipe.power_limit".equals(key(eightMj.getDescription()))
+                    && argument(eightMj.getDescription()).equals(8), "the third iron limit is named 8 MJ/t");
+            require(helper, argument(BCTransportStatements.ACTION_DIAMOND_POWER_LIMIT[LimiterBehaviour.MAX_SHIFT].getDescription()).equals(256),
+                    "the last diamond limit is the full 256 MJ/t");
+            ironLogic.statements[0].trigger.set(trigger(BCCoreStatements.TRIGGER_TRUE, null));
+            ironLogic.statements[0].action.set(action(eightMj));
+        });
+        helper.runAfterDelay(4, () -> {
+            LimiterBehaviour limiter = (LimiterBehaviour) iron.behaviour();
+            require(helper, limiter.limitShift() == 2 && ((PowerFlow) iron.flow()).maxPower() == 8 * Power.MJ,
+                    "the gate's action limits the iron kinesis pipe to 8 MJ/t, shift " + limiter.limitShift());
+            require(helper, helper.getBlockState(ironPos).getValue(LimiterPipeBlock.LIMIT_SHIFT) == 2, "the block shows the 8 MJ/t limit");
+
+            CapturingConnection connection = new CapturingConnection();
+            ServerPlayer player = player(helper, diamondPos, connection);
+            ItemStack wrench = new ItemStack(BCCore.WRENCH.get());
+            LimiterBehaviour diamondLimiter = (LimiterBehaviour) diamond.behaviour();
+            int[] limits = {128, 64, 32, 16, 8, 0, 256};
+            for (int step = 0; step < limits.length; step++) {
+                InteractionResult result = useOn(helper, player, diamondPos, Direction.EAST, wrench);
+                int shift = (step + 1) % (LimiterBehaviour.MAX_SHIFT + 1);
+                require(helper, result.consumesAction() && diamondLimiter.limitShift() == shift,
+                        "wrench use " + (step + 1) + " must set limit shift " + shift + ", has " + diamondLimiter.limitShift());
+                require(helper, "chat.pipe.power.iron.mode".equals(connection.lastActionBarKey())
+                        && Integer.valueOf(limits[step]).equals(connection.lastActionBarArgument()),
+                        "the wrench must report " + limits[step] + " MJ/t, reported " + connection.lastActionBarArgument());
+                require(helper, helper.getBlockState(diamondPos).getValue(LimiterPipeBlock.LIMIT_SHIFT) == shift, "the block follows the wrench");
+            }
+            helper.succeed();
+        });
+    }
+
+    private static Object argument(Component component) {
+        return ((TranslatableContents) component.getContents()).getArgs()[0];
     }
 }

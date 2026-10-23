@@ -1,0 +1,1138 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "0"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m128_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "1"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m64_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "2"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m32_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "3"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m16_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "4"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m8_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "5"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m4_arm_east"
+      }
+    },
+    {
+      "when": {
+        "down": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_down"
+      }
+    },
+    {
+      "when": {
+        "down": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_up"
+      }
+    },
+    {
+      "when": {
+        "up": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_north"
+      }
+    },
+    {
+      "when": {
+        "north": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_south"
+      }
+    },
+    {
+      "when": {
+        "south": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_west"
+      }
+    },
+    {
+      "when": {
+        "west": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_east"
+      }
+    },
+    {
+      "when": {
+        "east": "special",
+        "limit_shift": "6"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/diamond_power_m0_arm_east"
+      }
+    }
+  ]
+}

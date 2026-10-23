@@ -1,10 +1,12 @@
 package ports.buildcraft.transport;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
 
 /**
@@ -30,6 +32,7 @@ public final class PipeDefinition {
     public final boolean powerReceiver;
     /** True when using the pipe opens a screen (diamond pipes). */
     public final boolean hasMenu;
+    final BiFunction<BlockBehaviour.Properties, PipeDefinition, PipeBlock> blockFactory;
     Supplier<PipeBlock> block;
     Supplier<Item> item;
 
@@ -45,6 +48,7 @@ public final class PipeDefinition {
         powerTransferPerTick = builder.powerTransferPerTick;
         powerReceiver = builder.powerReceiver;
         hasMenu = builder.hasMenu;
+        blockFactory = builder.blockFactory;
     }
 
     public String registryName() {
@@ -76,6 +80,7 @@ public final class PipeDefinition {
         private long powerTransferPerTick;
         private boolean powerReceiver;
         private boolean hasMenu;
+        private BiFunction<BlockBehaviour.Properties, PipeDefinition, PipeBlock> blockFactory = PipeBlock::new;
         private final List<PipeDefinition>[] lists;
 
         private Builder(String name, Flow flow, Function<PipeBlockEntity, PipeBehaviour> behaviour, List<PipeDefinition>[] lists) {
@@ -117,6 +122,12 @@ public final class PipeDefinition {
 
         Builder menu() {
             hasMenu = true;
+            return this;
+        }
+
+        /** The block class, for pipes whose model reads more block state than their connections. */
+        Builder block(BiFunction<BlockBehaviour.Properties, PipeDefinition, PipeBlock> factory) {
+            blockFactory = factory;
             return this;
         }
 

@@ -652,6 +652,11 @@
       "itemalchemy": 512,
       "source": "recipe"
     },
+    "buildcraft:pipe_diamond_power": {
+      "projecte": 2112,
+      "itemalchemy": 576,
+      "source": "recipe"
+    },
     "buildcraft:pipe_gold_fluid": {
       "projecte": 520,
       "itemalchemy": 526,
@@ -675,6 +680,11 @@
     "buildcraft:pipe_iron_item": {
       "projecte": 64,
       "itemalchemy": 63,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_iron_power": {
+      "projecte": 128,
+      "itemalchemy": 127,
       "source": "recipe"
     },
     "buildcraft:pipe_quartz_fluid": {

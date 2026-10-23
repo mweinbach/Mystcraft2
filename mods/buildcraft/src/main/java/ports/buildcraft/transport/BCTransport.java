@@ -22,6 +22,7 @@ import ports.buildcraft.platform.Reg;
 import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.behaviour.IronBehaviour;
+import ports.buildcraft.transport.behaviour.LimiterBehaviour;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours;
 import ports.buildcraft.transport.behaviour.SimpleBehaviours.Separate.Kind;
@@ -77,6 +78,10 @@ public final class BCTransport {
     public static final PipeDefinition QUARTZ_POWER = power("quartz_power", separate(Kind.QUARTZ), 8, false).build();
     public static final PipeDefinition GOLD_POWER = power("gold_power", SimpleBehaviours.Gold::new, 32, false).build();
     public static final PipeDefinition SANDSTONE_POWER = power("sandstone_power", SimpleBehaviours.Sandstone::new, 4, false).build();
+    public static final PipeDefinition IRON_POWER = power("iron_power", LimiterBehaviour::new, 8, false)
+            .texture("iron_power_m128").block(LimiterPipeBlock::new).build();
+    public static final PipeDefinition DIAMOND_POWER = power("diamond_power", LimiterBehaviour::new, 64, false)
+            .texture("diamond_power_m128").block(LimiterPipeBlock::new).build();
 
     public static final PipeDefinition STRUCTURE = PipeDefinition.builder("structure", PipeDefinition.Flow.STRUCTURE,
             SimpleBehaviours.Structure::new, PIPES).build();
@@ -88,7 +93,7 @@ public final class BCTransport {
 
     static {
         for (PipeDefinition definition : PIPES) {
-            definition.block = Reg.block(definition.registryName(), () -> new PipeBlock(pipeProperties(), definition));
+            definition.block = Reg.block(definition.registryName(), () -> definition.blockFactory.apply(pipeProperties(), definition));
             definition.item = Reg.item(definition.registryName(), () -> new PipeItem(definition.block(), BuildCraft.pipeProperties(), definition));
         }
     }

@@ -249,7 +249,7 @@ public class PipeBlockEntity extends SyncedBlockEntity implements PortHolder, In
             PipePluggable plug = pluggables[face.ordinal()];
             redstone |= plug != null && plug.canConnectToRedstone(null);
         }
-        updated = updated.setValue(PipeBlock.REDSTONE, redstone);
+        updated = behaviour.modelState(updated.setValue(PipeBlock.REDSTONE, redstone));
         if (updated != state) level.setBlock(worldPosition, updated, Block.UPDATE_CLIENTS);
     }
 

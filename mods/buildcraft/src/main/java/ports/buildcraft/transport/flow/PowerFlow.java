@@ -15,12 +15,16 @@ import ports.buildcraft.transport.PipeBlockEntity;
  * Upstream {@code PipeFlowPower} (kinesis pipes). Each face section holds power received this tick
  * and the power its neighbours asked for; power is shared out in proportion to those requests one
  * tick later. Power is counted in micro-MJ; neighbouring blocks see Forge Energy or Team Reborn
- * Energy units at {@link Power#UNITS_PER_MJ} per MJ. Transfer is lossless, as upstream's default.
+ * Energy units at {@link Power#UNITS_PER_MJ} per MJ. Transfer is lossless, as upstream's default: upstream
+ * {@code BCTransportConfig} gives each pipe a resistance (1/32 MJ per MJ for the iron and diamond pipes) and
+ * {@code reconfigure} works out a loss from it, but its transfer never subtracts that loss and its
+ * {@code kinesisLossMode} defaults to {@code lossless}.
  */
 public final class PowerFlow extends PipeFlow {
     private static final int SYNC_INTERVAL = 2;
+    /** Upstream {@code DEFAULT_MAX_POWER}, used when a configured limit is not positive. */
+    private static final long DEFAULT_MAX_POWER = 10 * Power.MJ;
 
-    private final long maxPower;
     private final boolean isReceiver;
     private final Section[] sections = new Section[6];
     private long currentWorldTime;
@@ -28,13 +32,29 @@ public final class PowerFlow extends PipeFlow {
 
     public PowerFlow(PipeBlockEntity pipe) {
         super(pipe);
-        maxPower = pipe.definition().powerTransferPerTick;
         isReceiver = pipe.definition().powerReceiver;
         for (Direction face : Direction.values()) sections[face.ordinal()] = new Section(face);
     }
 
+    /**
+     * Upstream {@code reconfigure}: the definition's rate as the behaviour configures it (a limiter shifts it).
+     * Read from the behaviour each time, so a changed limit applies at once.
+     */
     public long maxPower() {
-        return maxPower;
+        long max = pipe.behaviour().configureMaxPower(pipe.definition().powerTransferPerTick);
+        return max <= 0 ? DEFAULT_MAX_POWER : max;
+    }
+
+    /** Upstream {@code PipeEventPower.Configure#disableTransfer}: the pipe asks its neighbouring pipes for nothing. */
+    public boolean isTransferDisabled() {
+        return pipe.behaviour().disablesPowerTransfer();
+    }
+
+    /** Micro-MJ held in the pipe's sections, including what arrived this tick; for checks that no power is made or lost. */
+    public long storedMicroJoules() {
+        long stored = 0;
+        for (Section s : sections) stored += s.internalPower + s.internalNextPower;
+        return stored;
     }
 
     @Override
@@ -57,6 +77,7 @@ public final class PowerFlow extends PipeFlow {
             lastDisplayPower[s.side.ordinal()] = s.displayPower;
         }
         step();
+        long maxPower = maxPower();
         for (Section s : sections) {
             if (s.internalPower <= 0) continue;
             long totalPowerQuery = 0;
@@ -113,8 +134,9 @@ public final class PowerFlow extends PipeFlow {
             }
             transferQuery[face.ordinal()] = query;
         }
+        boolean disabled = isTransferDisabled();
         for (Direction face : Direction.values()) {
-            if (transferQuery[face.ordinal()] <= 0) continue;
+            if (disabled || transferQuery[face.ordinal()] <= 0) continue;
             PowerFlow other = neighbourFlow(face);
             if (other != null) other.requestPower(face.getOpposite(), transferQuery[face.ordinal()]);
         }
@@ -158,7 +180,7 @@ public final class PowerFlow extends PipeFlow {
     private void requestPower(Direction from, long amount) {
         step();
         Section s = sections[from.ordinal()];
-        s.nextPowerQuery = Math.min(s.nextPowerQuery + amount, maxPower);
+        s.nextPowerQuery = Math.min(s.nextPowerQuery + amount, maxPower());
     }
 
     /** The power asked for through every face but {@code side}, or through all of them. */
@@ -297,7 +319,7 @@ public final class PowerFlow extends PipeFlow {
 
         @Override public long extract(long amount, boolean simulate) { return 0; }
         @Override public long stored() { return Power.toUnits(internalPower + internalNextPower); }
-        @Override public long capacity() { return Power.toUnits(maxPower); }
+        @Override public long capacity() { return Power.toUnits(maxPower()); }
         @Override public boolean canReceive() { return isReceiver; }
         @Override public boolean canExtract() { return false; }
         @Override public Object snapshot() { return new long[] {internalNextPower, internalPower}; }
