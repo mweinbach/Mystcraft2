@@ -17,6 +17,7 @@ public final class FabricMystcraft implements ModInitializer {
         FabricSymbolTuning.register();
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTING.register(net.mystcraft.minecraft.exploration.VillageArchivistPools::initialize);
         net.mystcraft.fabric.fluid.FabricInkAutomation.initialize();
+        net.mystcraft.fabric.fluid.FabricInkPhysics.initialize();
         FabricLinkingTransport.initialize();
         FabricLinkingRulesEvents.initialize();
         FabricAgeVisualTransport.initialize();

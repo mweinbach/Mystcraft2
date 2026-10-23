@@ -2,7 +2,7 @@
 
 Imported files in the table are byte-identical to the pinned Mystcraft-Legacy revision in `NOTICE.md`. Derived page resources are identified separately below.
 
-Complete machine-readable manifest: [imported-assets.json](imported-assets.json), covering **52 byte-identical imports** with upstream paths and SHA-256 digests. This includes original book covers and pages, binder/mixer/modifier interfaces, desk/collection artwork, glyph atlas, block/entity/item textures, animated portal resources, decay textures, archivist artwork and linking/fissure sounds. The manifest is based on bytes, so renamed modern resource paths retain their original provenance.
+Complete machine-readable manifest: [imported-assets.json](imported-assets.json), covering **53 byte-identical imports** (the mod-list icon `icon.png` is a byte-identical copy of the linking-book item texture) with upstream paths and SHA-256 digests. This includes original book covers and pages, binder/mixer/modifier interfaces, desk/collection artwork, glyph atlas, block/entity/item textures, animated portal resources, decay textures, archivist artwork and linking/fissure sounds. The manifest is based on bytes, so renamed modern resource paths retain their original provenance.
 
 ## Derived classic symbol-page models
 

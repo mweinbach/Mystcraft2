@@ -367,6 +367,13 @@
         "textures/models/lectern_texture.png"
       ],
       "sha256": "54426373d777b57811d72daad3ea04eb0b639cb2fbcfadc0223d69737f6f8ab4"
+    },
+    {
+      "asset": "icon.png",
+      "upstream_paths": [
+        "textures/items/linkingbook.png"
+      ],
+      "sha256": "74b80f440ff278c997ae5197c4d92889bda78d04d94b49b98990d124b868bfba"
     }
   ]
 }

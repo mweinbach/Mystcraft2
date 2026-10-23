@@ -18,8 +18,6 @@
     "VillageHousePoolMixin",
     "WorldGenRegionBoundsMixin",
     "DeferredCrystalChunkSaveMixin",
-    "InkEntityPhysicsMixin",
-    "InkBoatPhysicsMixin",
     "ArchivistCareerMixin",
     "HopperBookPickupMixin"
   ],

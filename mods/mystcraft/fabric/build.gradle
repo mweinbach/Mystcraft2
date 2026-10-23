@@ -5,6 +5,17 @@ plugins {
 def metadata = new Properties()
 file('../port.properties').withInputStream { metadata.load(it) }
 version = metadata.mod_version
+def fluidPhysicsMetadata = new Properties()
+file('../../fluidphysics/port.properties').withInputStream { fluidPhysicsMetadata.load(it) }
+def fluidPhysicsVersion = fluidPhysicsMetadata.getProperty('mod_version')
+// Loom reads the included library's JAR while this build configures. A clean checkout has not produced it yet.
+def fluidPhysicsJar = file("../../fluidphysics/build/libs/fluidphysics-fabric-1.19.2-${fluidPhysicsVersion}.jar")
+if (!fluidPhysicsJar.isFile()) {
+    exec {
+        workingDir file('../../..')
+        commandLine file('../../../gradlew').absolutePath, '--no-daemon', '-p', 'mods/fluidphysics', 'remapJar'
+    }
+}
 group = metadata.mod_group
 base.archivesName = 'mystcraft-fabric-1.19.2'
 
@@ -28,6 +39,8 @@ dependencies {
     modImplementation 'net.fabricmc.fabric-api:fabric-api:0.77.0+1.19.2'
     include(modImplementation('io.github.llamalad7:mixinextras-fabric:0.4.1'))
     annotationProcessor 'io.github.llamalad7:mixinextras-fabric:0.4.1'
+    // Forge's FluidType entity physics (swim, drown, push, boats, path types) for black ink; bundled for clients and servers.
+    include(modImplementation("ports.fluidphysics:fluidphysics-fabric:${fluidPhysicsVersion}"))
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -47,7 +60,7 @@ sourceSets {
     // Server GameTests are a separate development-only mod; they never enter the production JAR.
     gametest {
         java.setSrcDirs(['../src/gametestCommon/java', '../src/gametestFabric/java'])
-        resources.setSrcDirs(['../src/gametestFabric/resources'])
+        resources.setSrcDirs(['../src/gametestCommon/resources', '../src/gametestFabric/resources'])
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
