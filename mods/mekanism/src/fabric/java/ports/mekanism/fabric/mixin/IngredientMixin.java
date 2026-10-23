@@ -21,7 +21,10 @@ import ports.mekanism.lib.common.extensions.IForgeIngredient;
  * that same marker and rejects an id it does not know, so this reader only keeps ids this port registered and rewinds
  * the rest for Fabric's reader.
  * <p>
- * Both methods are wrapped rather than injected at HEAD, because a {@link WrapMethod} runs outside every other mod's
+ * Only the types registered with {@link CraftingHelper} are handled here; every other ingredient, type id or JSON
+ * {@code type} goes to the original method, so other mods' injections still read and write their own.
+ * <p>
+ * The methods are wrapped rather than injected at HEAD, because a {@link WrapMethod} runs outside every other mod's
  * injection and the order of HEAD injections from different mods is not fixed. IngredientExtensionAPI, which
  * CraftTweaker for Fabric bundles, writes its own int marker at the head of {@code toNetwork} for every ingredient it
  * does not own and lets the method continue. When its hook ran first, this port's {@code -1} came after that int, this
@@ -34,7 +37,12 @@ public abstract class IngredientMixin implements IForgeIngredient {
     @WrapMethod(method = "fromJson")
     private static Ingredient mekanism$readForgeIngredient(@Nullable JsonElement json, Operation<Ingredient> original) {
         Ingredient custom = CraftingHelper.getCustomIngredient(json);
-        return custom == null ? original.call(json) : custom;
+        if (custom != null) {
+            return custom;
+        }
+        Ingredient read = original.call(json);
+        CraftingHelper.requireClaimedType(json, read);
+        return read;
     }
 
     @WrapMethod(method = "fromNetwork")
@@ -52,10 +60,11 @@ public abstract class IngredientMixin implements IForgeIngredient {
 
     @WrapMethod(method = "toNetwork")
     private void mekanism$writeForgeIngredient(FriendlyByteBuf buffer, Operation<Void> original) {
-        if (isVanilla()) {
-            original.call(buffer);
+        Ingredient self = (Ingredient) (Object) this;
+        if (CraftingHelper.writesIngredient(self)) {
+            CraftingHelper.write(buffer, self);
         } else {
-            CraftingHelper.write(buffer, (Ingredient) (Object) this);
+            original.call(buffer);
         }
     }
 }

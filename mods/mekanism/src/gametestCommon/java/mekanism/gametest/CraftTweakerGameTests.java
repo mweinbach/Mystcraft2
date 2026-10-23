@@ -8,6 +8,8 @@ import static mekanism.gametest.CoreMachineGameTests.TEMPLATE;
 import static mekanism.gametest.CoreMachineGameTests.check;
 import static mekanism.gametest.CoreMachineGameTests.poweredMachine;
 
+import com.google.gson.JsonParser;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 import mekanism.api.chemical.ChemicalTags;
 import mekanism.api.chemical.gas.Gas;
@@ -37,10 +39,12 @@ import mekanism.common.tile.base.TileEntityMekanism;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
@@ -88,6 +92,34 @@ public class CraftTweakerGameTests {
             immutable.setAmount(7);
             check(immutable.getAmount() == 100 && mutable.getAmount() == 5, "setAmount on the immutable stack changed a stack");
         }
+    }
+
+    /**
+     * CraftTweaker registers its own ingredient types ({@code crafttweaker:any} and others; on Fabric through
+     * IngredientExtensionAPI). The port's ingredient reader and writer must hand those to CraftTweaker rather than
+     * rejecting them or reading them as plain item ingredients, on their own and inside an array.
+     */
+    @GameTest(template = TEMPLATE)
+    public static void craftTweakerIngredientTypesReadAndSync(GameTestHelper helper) {
+        if (EXPECTED) {
+            ItemStack stick = new ItemStack(Items.STICK);
+            Ingredient any = Ingredient.fromJson(JsonParser.parseString("{\"type\":\"crafttweaker:any\"}"));
+            check(any.getClass() != Ingredient.class, "crafttweaker:any was read as a plain ingredient");
+            check(any.test(stick), "crafttweaker:any does not match a stick");
+            check(roundTrip(any).test(stick), "crafttweaker:any does not match a stick after a network round trip");
+            Ingredient mixed = Ingredient.fromJson(JsonParser.parseString("[{\"type\":\"crafttweaker:any\"},{\"item\":\"minecraft:stone\"}]"));
+            check(mixed.test(stick), "An array holding crafttweaker:any does not match a stick");
+            check(roundTrip(mixed).test(stick), "An array holding crafttweaker:any does not match a stick after a network round trip");
+        }
+        helper.succeed();
+    }
+
+    private static Ingredient roundTrip(Ingredient ingredient) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        ingredient.toNetwork(buffer);
+        Ingredient read = Ingredient.fromNetwork(buffer);
+        check(buffer.readableBytes() == 0, buffer.readableBytes() + " bytes left after reading " + ingredient);
+        return read;
     }
 
     @GameTest(template = TEMPLATE)

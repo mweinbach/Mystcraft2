@@ -96,6 +96,13 @@ MixinExtras `@WrapMethod` for all three methods, so it runs outside every other 
 `CustomIngredientGameTests` cover the round trip with `-PwithCraftTweaker`. Before the change they failed in 3 of 5
 flagged Fabric runs.
 
+The wrappers only handle the types the port registers. A JSON `type` the port does not know, an ingredient subclass
+it does not serialize, and a network id it did not write all go to the original method, so IngredientExtensionAPI
+reads and writes CraftTweaker's own types (`crafttweaker:any`, `crafttweaker:list`, ...), alone or inside an array.
+A `type` that no mod reads is still rejected after the original method returns, as on Forge.
+`CraftTweakerGameTests.craftTweakerIngredientTypesReadAndSync` reads `crafttweaker:any` from JSON, alone and in an
+array, and round-trips both over the network.
+
 ## Tests
 
 `CraftTweakerGameTests` (both loaders) and `ForgeCraftTweakerGameTests` (Forge only, listed in
