@@ -115,7 +115,8 @@ sourceSets {
         java.setSrcDirs(['../src/main/java', '../src/fabric/java'])
         resources.setSrcDirs(['../src/main/resources', '../src/fabric/resources'])
     }
-    test.java.setSrcDirs(['../src/test/java'])
+    // The shared JUnit tests, plus checks of Fabric adapter logic that need no game.
+    test.java.setSrcDirs(['../src/test/java', '../src/testFabric/java'])
     test.resources.setSrcDirs([])
     // In-world tests are a separate development-only mod; they never enter the production JAR.
     gametest {

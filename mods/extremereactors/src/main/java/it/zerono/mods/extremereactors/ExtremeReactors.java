@@ -101,7 +101,12 @@ public class ExtremeReactors {
     public void onInterModProcess(final Function<String, Stream<Runnable>> imcMessages) {
 
         for (final String method : IMC_METHODS) {
-            Stream.concat(imcMessages.apply(method), InternalDispatcher.drain(method)).forEach(Runnable::run);
+
+            final Stream<Runnable> queued = InternalDispatcher.drain(method);
+
+            // A message makes its API calls directly; they must apply now, not join a queue already drained.
+            InternalDispatcher.runInternal(() -> imcMessages.apply(method).forEach(Runnable::run));
+            queued.forEach(Runnable::run);
         }
 
         InternalDispatcher.open();

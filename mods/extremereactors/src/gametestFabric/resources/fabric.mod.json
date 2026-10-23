@@ -10,7 +10,11 @@
       "ports.extremereactors.gametest.FabricGameTestSteel"
     ],
     "fabric-gametest": [
-      "ports.extremereactors.gametest.ExtremeReactorsFabricGameTests"
+      "ports.extremereactors.gametest.ExtremeReactorsFabricGameTests",
+      "ports.extremereactors.gametest.FabricApiEntrypointGameTest"
+    ],
+    "bigreactors:api": [
+      "ports.extremereactors.gametest.FabricApiEntrypointGameTest"
     ]
   },
   "depends": {

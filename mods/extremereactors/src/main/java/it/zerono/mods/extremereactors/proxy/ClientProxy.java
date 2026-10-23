@@ -79,7 +79,6 @@ import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.model.BakedModel;
-import java.util.function.Consumer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -105,8 +104,7 @@ public class ClientProxy
 
         final ClientPlatform.Backend client = ClientPlatform.backend();
 
-        client.onRegisterAdditionalModels(this::onRegisterModels);
-        client.onModelBakingCompleted(this::onModelBake);
+        client.registerModelBuilders(this._modelBuilders);
         client.onItemTooltip(this::onItemTooltip);
         client.addAtlasSprite(InventoryMenu.BLOCK_ATLAS, CachedSprites.GUI_CHARGINGPORT_SLOT_ID);
         Platform.backend().onTagsUpdated(this::onVanillaTagsUpdated);
@@ -136,14 +134,6 @@ public class ClientProxy
         if (Platform.isModLoaded("patchouli")) {
             PatchouliCompat.initialize();
         }
-    }
-
-    public void onRegisterModels(final Consumer<ResourceLocation> additionalModels) {
-        this._modelBuilders.forEach(b -> b.onRegisterModels(additionalModels));
-    }
-
-    public void onModelBake(final Map<ResourceLocation, BakedModel> models) {
-        this._modelBuilders.forEach(builder -> builder.onBakeModels(models));
     }
 
     public void onItemTooltip(final ItemStack stack, final TooltipFlag flags, final List<Component> tooltip) {

@@ -59,6 +59,9 @@ Modpacks can add reactants, moderators, coolants and coils with
 `config/extremereactors/modpack_api.json`, as described in
 [upstream/README.md](upstream/README.md); an example is in
 [upstream/modpack_api.json](upstream/modpack_api.json).
+Add-ons send the same registrations through Forge IMC on Forge and through the
+`bigreactors:api` entrypoint (`ports.extremereactors.fabric.api.ExtremeReactorsApiEntrypoint`)
+on Fabric; see [PARITY.md](PARITY.md#api-dispatcher).
 
 Clients also read `config/extremereactors/effects.toml`, the port's own file,
 which turns each machine effect on or off and sets their range, glow strength,

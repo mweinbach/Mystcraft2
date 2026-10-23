@@ -29,6 +29,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import ports.extremereactors.corelib.client.model.ICustomModelBuilder;
 import ports.extremereactors.corelib.fluid.FluidStack;
 import ports.extremereactors.platform.ClientPlatform;
 
@@ -79,9 +80,13 @@ final class ForgeClientPlatform implements ClientPlatform.Backend {
     }
 
     @Override
-    public void onRegisterAdditionalModels(final Consumer<Consumer<ResourceLocation>> handler) {
+    public void registerModelBuilders(final List<? extends ICustomModelBuilder> builders) {
+
         this._modBus.addListener(EventPriority.NORMAL, false, ModelEvent.RegisterAdditional.class,
-                event -> handler.accept(event::register));
+                event -> builders.forEach(builder -> builder.onRegisterModels(event::register)));
+        // Before the other handlers, so they see the replaced models.
+        this._modBus.addListener(EventPriority.HIGH, false, ModelEvent.BakingCompleted.class,
+                event -> builders.forEach(builder -> builder.onBakeModels(event.getModels())));
     }
 
     @Override

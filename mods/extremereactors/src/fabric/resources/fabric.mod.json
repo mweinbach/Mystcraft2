@@ -42,5 +42,12 @@
     "fluidphysics": ">=0.1.0",
     "minecraft": "1.19.2",
     "java": ">=17"
+  },
+  "suggests": {
+    "computercraft": "*",
+    "patchouli": "*",
+    "jei": "*",
+    "emi": "*",
+    "mekanism": "*"
   }
 }
