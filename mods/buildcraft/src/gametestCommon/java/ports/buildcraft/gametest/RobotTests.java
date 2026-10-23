@@ -17,12 +17,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -343,18 +345,34 @@ public final class RobotTests {
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
         confine(helper, pipe, Direction.NORTH);
-        // Placing neighbouring tests may clear this arena's edge floor; keep the items from falling out of the area.
-        helper.setBlock(new BlockPos(2, 0, 2), Blocks.STONE);
-        helper.setBlock(new BlockPos(6, 0, 6), Blocks.STONE);
-        helper.spawnItem(Items.COBBLESTONE, 2.5F, 1.2F, 2.5F).getItem().setCount(8);
-        helper.spawnItem(Items.DIAMOND, 6.5F, 1.2F, 6.5F);
+        // Placing neighbouring tests may clear this arena's floor, and their drops may land in it: give the items a
+        // floor and a name, and count only the named ones.
+        for (int x = 1; x <= 7; x++) {
+            for (int z = 1; z <= 7; z++) {
+                if (x != 4 || z != 4) helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+            }
+        }
+        Component name = Component.literal("picker test");
+        ItemStack cobblestone = helper.spawnItem(Items.COBBLESTONE, 2.5F, 1.2F, 2.5F).getItem();
+        cobblestone.setCount(8);
+        cobblestone.setHoverName(name);
+        helper.spawnItem(Items.DIAMOND, 6.5F, 1.2F, 6.5F).getItem().setHoverName(name);
         RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
         helper.succeedWhen(() -> {
-            require(helper, count(chest, Items.COBBLESTONE) == 8 && count(chest, Items.DIAMOND) == 1,
-                    "the picker brings the cobblestone and the diamond home, chest has " + count(chest, Items.COBBLESTONE) + " and "
-                            + count(chest, Items.DIAMOND) + "; " + describe(helper, robot));
+            require(helper, countNamed(chest, Items.COBBLESTONE, name) == 8 && countNamed(chest, Items.DIAMOND, name) == 1,
+                    "the picker brings the cobblestone and the diamond home, chest has " + countNamed(chest, Items.COBBLESTONE, name)
+                            + " and " + countNamed(chest, Items.DIAMOND, name) + "; " + describe(helper, robot));
             robot.discard();
         });
+    }
+
+    private static int countNamed(ChestBlockEntity chest, Item item, Component name) {
+        int total = 0;
+        for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+            ItemStack stack = chest.getItem(slot);
+            if (stack.is(item) && stack.hasCustomHoverName() && stack.getHoverName().getString().equals(name.getString())) total += stack.getCount();
+        }
+        return total;
     }
 
     /**
