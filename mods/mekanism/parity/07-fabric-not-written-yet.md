@@ -1,7 +1,7 @@
 ## Fabric: not written yet
 
 - Entity leave is posted on the server. The client copy Forge posts when an entity stops being tracked is unwired.
-- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor, Robit,
+- Not yet checked in the client: chemical machine screens other than the chemical infuser and the pigment extractor,
   the simple generators' block-entity renderers. The energy cube core, the industrial alarm, the seismic vibrator and the
   pigment mixer were checked in `11-block-entity-renderers.md`.
   The fission burn glow and coolant body were checked on a fueled reactor: see the generators note below.
@@ -34,4 +34,6 @@
   are visible. The quantum entangloporter screen opened beside it, with the frequency selector, the energy tab, the
   heat tab and the inventory. A QIO dashboard on a public frequency was checked: the item viewer shows the
   frequency name and the diamond, emerald, gold and lapis stored on the drive. A survival player flying with a
-  hydrogen jetpack was checked: close third person, HUD hidden, and flame particles visible behind the jetpack.
+  hydrogen jetpack was checked: close third person, HUD hidden, and flame particles visible behind the jetpack. A charged
+  Robit item used on an idle chargepad was checked in survival: the item draws from the Robit atlas, the entity stands
+  on the pad, and a right-click opens the main screen (greeting, energy, following, pickup, owner, and the side tabs).

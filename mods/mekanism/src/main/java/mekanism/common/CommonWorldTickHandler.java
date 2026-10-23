@@ -153,9 +153,12 @@ public class CommonWorldTickHandler {
     @SubscribeEvent
     public void chunkUnloadEvent(ChunkEvent.Unload event) {
         if (event.getLevel() instanceof Level level && !level.isClientSide() && chunkVersions != null) {
-            //When a chunk unloads, free up the memory tracking what version it has
-            chunkVersions.getOrDefault(level.dimension().location(), Object2IntMaps.emptyMap())
-                  .removeInt(event.getChunk().getPos());
+            //When a chunk unloads, free up the memory tracking what version it has.
+            //Dimensions that were never recorded have no map; the empty default is immutable.
+            Object2IntMap<ChunkPos> versions = chunkVersions.get(level.dimension().location());
+            if (versions != null) {
+                versions.removeInt(event.getChunk().getPos());
+            }
         }
     }
 
