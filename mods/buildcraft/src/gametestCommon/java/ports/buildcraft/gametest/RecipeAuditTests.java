@@ -135,7 +135,8 @@ public final class RecipeAuditTests {
             if (id.getNamespace().equals(BuildCraft.MOD_ID) && id.getPath().startsWith("gametest_")) continue;
             boolean resolves = true;
             for (Ingredient ingredient : recipe.getIngredients()) {
-                if (ingredient != Ingredient.EMPTY && ingredient.isEmpty()) resolves = false;
+                // A tag-backed ingredient is not isEmpty() even when its tags hold nothing, so check what it matches.
+                if (ingredient != Ingredient.EMPTY && ingredient.getItems().length == 0) resolves = false;
             }
             if (!resolves) {
                 if (id.getNamespace().equals(BuildCraft.MOD_ID)) unresolved.add(id.toString());
