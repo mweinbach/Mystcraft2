@@ -130,7 +130,7 @@ public class ServerDataEventGameTests {
         });
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void cancelledJoinKeepsTheEntityOut(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos pos = helper.absolutePos(new BlockPos(3, 2, 3));
@@ -138,36 +138,40 @@ public class ServerDataEventGameTests {
         check(pig != null, "Could not create a pig");
         pig.moveTo(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
         AtomicBoolean sawFresh = new AtomicBoolean();
+        AtomicBoolean freshFromDisk = new AtomicBoolean();
+        AtomicBoolean listen = new AtomicBoolean(true);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, event -> {
-            if (event.getEntity() == pig) {
+            if (listen.get() && event.getEntity() == pig) {
                 sawFresh.set(true);
-                check(!event.loadedFromDisk(), "A freshly added pig was marked loaded from disk");
+                freshFromDisk.set(event.loadedFromDisk());
                 event.setCanceled(true);
             }
         });
         check(!level.addFreshEntity(pig), "Cancelling entity join still added the pig");
         check(sawFresh.get(), "Adding a pig did not fire entity join");
+        check(!freshFromDisk.get(), "A freshly added pig was marked loaded from disk");
         check(level.getEntity(pig.getId()) == null, "The cancelled pig is in the level");
 
         Pig allowed = EntityType.PIG.create(level);
         check(allowed != null, "Could not create the second pig");
         allowed.moveTo(pos.getX() + 1, pos.getY(), pos.getZ(), 0, 0);
         check(level.addFreshEntity(allowed), "Entities stopped joining after a cancelled join");
-        check(level.getEntity(allowed.getId()) == allowed, "The allowed pig is not in the level");
 
         ServerPlayer player = new ServerPlayer(level.getServer(), level, new GameProfile(UUID.randomUUID(), "cancelled-join"), null);
         new ServerGamePacketListenerImpl(level.getServer(), new Connection(PacketFlow.SERVERBOUND), player);
         player.moveTo(pos.getX(), pos.getY(), pos.getZ() + 1, 0, 0);
         AtomicInteger playerJoins = new AtomicInteger();
+        AtomicBoolean playerFromDisk = new AtomicBoolean();
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, event -> {
-            if (event.getEntity() == player) {
+            if (listen.get() && event.getEntity() == player) {
                 playerJoins.incrementAndGet();
-                check(!event.loadedFromDisk(), "A player join was marked loaded from disk");
+                playerFromDisk.set(event.loadedFromDisk());
                 event.setCanceled(true);
             }
         });
         addPlayer(level, player);
         check(playerJoins.get() == 1, "Player join fired " + playerJoins.get() + " times");
+        check(!playerFromDisk.get(), "A player join was marked loaded from disk");
         check(level.getPlayerByUUID(player.getUUID()) == null, "The cancelled player is in the level");
 
         ServerPlayer allowedPlayer = new ServerPlayer(level.getServer(), level, new GameProfile(UUID.randomUUID(), "allowed-join"), null);
@@ -175,7 +179,7 @@ public class ServerDataEventGameTests {
         allowedPlayer.moveTo(pos.getX() + 1, pos.getY(), pos.getZ() + 1, 0, 0);
         AtomicInteger allowedJoins = new AtomicInteger();
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, event -> {
-            if (event.getEntity() == allowedPlayer) {
+            if (listen.get() && event.getEntity() == allowedPlayer) {
                 allowedJoins.incrementAndGet();
             }
         });
@@ -183,7 +187,12 @@ public class ServerDataEventGameTests {
         check(allowedJoins.get() == 1, "An added player joined " + allowedJoins.get() + " times");
         check(level.getPlayerByUUID(allowedPlayer.getUUID()) == allowedPlayer, "The player was not added");
         allowedPlayer.discard();
-        helper.succeed();
+        helper.runAtTickTime(101, () -> listen.set(false));
+        // addFreshEntity returns before the pig is in the id map. The default batch can still be promoting that chunk.
+        helper.succeedWhen(() -> {
+            check(level.getEntity(allowed.getId()) == allowed, "The allowed pig is not in the level");
+            listen.set(false);
+        });
     }
 
     private static CompoundTag save(ServerLevel level, ChunkAccess chunk, AtomicReference<CompoundTag> captured) {

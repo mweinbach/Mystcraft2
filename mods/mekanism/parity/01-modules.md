@@ -30,13 +30,12 @@ Generators, Tools and Additions are separate mod ids built from this port. Each 
   clears heated coolant, scrams, sets the post-meltdown damage and raises radiation at the core. A separate test, in
   its own batch, leaves meltdowns on and the radius at the upstream default of 8. `handleDamage` rolls once per
   reactor tick, `nextDouble() < (damage / 100) × meltdownChance`, and only while the reactor is still at least
-  1,200 K. The test sets that chance to 1. The multiblock cache is copied before `handleDamage`, and a structure
+  1,200 K.   The test sets that chance to 1. The multiblock cache is copied before `handleDamage`, and a structure
   rescan applies that copy, so a one-shot write of heat and damage is discarded if formation runs again. The test
-  repeats the arming, writes it into the cache, and waits until the roll queues a meltdown. The queued meltdown's
-  saved radius is 8.
-  The explosion releases that radiation before it removes a block. Reactor glass does not go through
-  `BlockMekanism.onBlockExploded`; removing the glass invalidates the structure, so a casing broken later in the
-  same blast can no longer find the formed reactor. The explosion breaks the shell. A dirt block about 28 blocks away, past
+  writes the arming into that cache and runs the reactor tick so the roll queues a meltdown whose saved radius is 8.
+  It detonates that meltdown in the same assertion. A blast left for a later tick can remove reactor glass first.
+  Glass does not go through `BlockMekanism.onBlockExploded`, and removing it invalidates the structure, so a casing
+  broken later in the same blast can no longer find the formed reactor or release its radiation. The explosion breaks the shell. A dirt block about 28 blocks away, past
   the ray reach of that radius, stays dirt. Fissile fuel and superheated sodium have no radiation attribute, so the
   release is `(1,000 mB + 0.5 partial waste) × 0.01 Sv/h per mB × the 50× multiplier`. A full waste tank that burns
   one mB of fuel leaks `0.01` Sv/h at the core. A survival player standing outside the shell, not in the burn

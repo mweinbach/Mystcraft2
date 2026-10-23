@@ -10,6 +10,7 @@ import static mekanism.gametest.CoreMachineGameTests.succeedAfterScan;
 
 import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -425,7 +428,10 @@ public class FissionReactorGameTests {
      * <p>
      * {@code handleDamage} rolls once per reactor tick, and only while the reactor is still hot.
      * The reactor cache is copied before that roll. A rescan applies the copy, so the arming is
-     * written through until a meltdown is actually queued. A missing queue stays a wait.
+     * written through before the reactor tick that must queue the meltdown. The queued meltdown is
+     * detonated in that same assertion. Left for a later tick, the blast can remove reactor glass
+     * first. Glass does not go through {@code BlockMekanism.onBlockExploded}, and removing it
+     * invalidates the structure, so a casing broken later can no longer find the reactor.
      */
     @GameTest(template = "mekanism:fission_yard", timeoutTicks = 400, batch = "mekanismFissionMeltdown")
     public static void meltdownExplosionBreaksTheReactor(GameTestHelper helper) {
@@ -434,56 +440,45 @@ public class FissionReactorGameTests {
         BlockPos sentinel = new BlockPos(2, 20, 2);
         helper.setBlock(sentinel, Blocks.DIRT);
         Coord4D[] center = new Coord4D[1];
-        BlockPos[] min = new BlockPos[1];
         double[] expected = new double[1];
         boolean[] armed = new boolean[1];
-        boolean[] sawRadius = new boolean[1];
         helper.succeedWhen(() -> {
             try {
                 if (!shellBroken(helper, reactor)) {
-                    // Once a meltdown is queued, leave the reactor alone. A rescan can unform it while the
-                    // blast is still in flight, and that wait must not fail the test.
-                    if (!sawRadius[0] || meltdownAt(helper, min[0]) == null) {
-                        FissionReactorMultiblockData data = formed(input(helper, reactor));
-                        if (!armed[0]) {
-                            rememberMeltdownConfig();
-                            checkNotRadioactive(MekanismGases.FISSILE_FUEL.get(), "Fissile fuel");
-                            checkNotRadioactive(MekanismGases.SUPERHEATED_SODIUM.get(), "Superheated sodium");
-                            RadiationManager.INSTANCE.removeRadiationSource(new Coord4D(data.getBounds().getCenter(), helper.getLevel()));
-                            check(MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get() == 50,
-                                  "Meltdown radiation multiplier is " + MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get());
-                            expected[0] = (1_000.5D) * wasteRadioactivity() * MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get();
-                            armed[0] = true;
-                        }
-                        // A rescan applies the cache, which was synced before this write. Put the waste
-                        // and the arming back on every pass until the live reactor queues the meltdown.
-                        data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(500));
-                        data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(200));
-                        data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(1_000));
-                        data.partialWaste = 0.5;
-                        center[0] = new Coord4D(data.getBounds().getCenter(), helper.getLevel());
-                        min[0] = data.getMinPos();
-                        armMeltdown(data);
-                        keepAcrossFormation(helper, reactor, data);
-                        if (meltdownAt(helper, min[0]) == null) {
-                            check(false, "Waiting for the meltdown");
-                        }
-                        if (!sawRadius[0]) {
-                            checkMeltdownRadius(helper, min[0]);
-                            sawRadius[0] = true;
-                        }
+                    FissionReactorMultiblockData data = formed(input(helper, reactor));
+                    if (!armed[0]) {
+                        rememberMeltdownConfig();
+                        checkNotRadioactive(MekanismGases.FISSILE_FUEL.get(), "Fissile fuel");
+                        checkNotRadioactive(MekanismGases.SUPERHEATED_SODIUM.get(), "Superheated sodium");
+                        check(MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get() == 50,
+                              "Meltdown radiation multiplier is " + MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get());
+                        expected[0] = (1_000.5D) * wasteRadioactivity() * MekanismGeneratorsConfig.generators.fissionMeltdownRadiationMultiplier.get();
+                        armed[0] = true;
                     }
-                    check(false, "Waiting for the blast");
+                    // A rescan applies the cache, which was synced before this write. Put the waste
+                    // and the arming back, then tick this object so the queue is not a later tick's.
+                    data.fuelTank.setStack(MekanismGases.FISSILE_FUEL.getStack(500));
+                    data.heatedCoolantTank.setStack(MekanismGases.SUPERHEATED_SODIUM.getStack(200));
+                    data.wasteTank.setStack(MekanismGases.NUCLEAR_WASTE.getStack(1_000));
+                    data.partialWaste = 0.5;
+                    armMeltdown(data);
+                    keepAcrossFormation(helper, reactor, data);
+                    clearMeltdowns(helper);
+                    data.tick(helper.getLevel());
+                    BlockPos min = data.getMinPos();
+                    center[0] = new Coord4D(data.getBounds().getCenter(), helper.getLevel());
+                    RadiationManager.INSTANCE.removeRadiationSource(center[0]);
+                    if (meltdownAt(helper, min) == null) {
+                        check(false, "Waiting for the meltdown temp=" + data.heatCapacitor.getTemperature()
+                              + " chance=" + MekanismGeneratorsConfig.generators.fissionMeltdownChance.get());
+                    }
+                    checkMeltdownRadius(helper, min);
+                    detonate(meltdownAt(helper, min), helper.getLevel(), data.getBounds().getCenter());
                 }
-                // The blast can land on the same tick the roll queues it, before this assertion sees the object.
-                if (!sawRadius[0] && min[0] != null && meltdownAt(helper, min[0]) != null) {
-                    checkMeltdownRadius(helper, min[0]);
-                    sawRadius[0] = true;
-                }
-                check(sawRadius[0], "The shell broke before a radius-8 meltdown was queued");
+                check(shellBroken(helper, reactor), "The meltdown left the shell intact");
                 check(helper.getBlockState(sentinel).is(Blocks.DIRT), "The blast reached the sentinel at " + sentinel);
                 IRadiationSource source = sourceAt(center[0]);
-                check(source != null, "The meltdown released no radiation");
+                check(source != null, "The meltdown released no radiation at " + center[0]);
                 double magnitude = source.getMagnitude();
                 double decay = MekanismConfig.general.radiationSourceDecayRate.get();
                 check(magnitude <= expected[0], "Meltdown radiation " + magnitude + " exceeds " + expected[0]);
@@ -877,6 +872,19 @@ public class FissionReactorGameTests {
 
     private static IRadiationSource sourceAt(Coord4D center) {
         return RadiationManager.INSTANCE.getRadiationSources().get(new Chunk3D(center), center);
+    }
+
+    /** Runs the queued meltdown's own explosion while its reactor is still the one that queued it. */
+    private static void detonate(Meltdown meltdown, Level level, BlockPos center) {
+        try {
+            Method method = Meltdown.class.getDeclaredMethod("createExplosion", Level.class, double.class, double.class, double.class,
+                  float.class, boolean.class, Explosion.BlockInteraction.class);
+            method.setAccessible(true);
+            method.invoke(meltdown, level, center.getX() + 0.5D, center.getY() + 0.5D, center.getZ() + 0.5D, 8.0F, true,
+                  Explosion.BlockInteraction.DESTROY);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**

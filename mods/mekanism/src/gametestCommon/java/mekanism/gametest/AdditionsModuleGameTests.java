@@ -388,8 +388,9 @@ public class AdditionsModuleGameTests {
 
         ServerLevel level = helper.getLevel();
         Holder<Biome> plains = level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS);
-        WeightedRandomList<MobSpawnSettings.SpawnerData> mobs = level.getChunkSource().getGenerator()
-              .getMobsAt(plains, level.structureManager(), MobCategory.MONSTER, helper.absolutePos(new BlockPos(8, 1, 8)));
+        // getMobsAt replaces the biome list when a structure overlaps the query. A new GameTest world
+        // can place one there, so read the plains list the baby-spawn modifier actually changed.
+        WeightedRandomList<MobSpawnSettings.SpawnerData> mobs = plains.value().getMobSettings().getMobs(MobCategory.MONSTER);
         int parent = spawnWeight(mobs, EntityType.CREEPER);
         int baby = spawnWeight(mobs, AdditionsEntityTypes.BABY_CREEPER.get());
         check(parent > 0, "Plains has no creeper spawns");

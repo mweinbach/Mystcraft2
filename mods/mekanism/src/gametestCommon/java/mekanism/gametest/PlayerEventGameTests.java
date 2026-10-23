@@ -346,18 +346,29 @@ public class PlayerEventGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void entityLeaveFiresWhenDiscarded(GameTestHelper helper) {
+        // The default batch starts this with a hundred other tests. addFreshEntity can return before the chunk is
+        // entity-tracked, and discard only posts EntityLeaveLevelEvent from onTrackingEnd once it is.
         Pig pig = helper.spawn(EntityType.PIG, 3, 2, 3);
         AtomicBoolean left = new AtomicBoolean();
+        AtomicBoolean listen = new AtomicBoolean(true);
+        AtomicBoolean discarded = new AtomicBoolean();
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, event -> {
-            if (event.getEntity() == pig && event.getLevel() == helper.getLevel()) {
+            if (listen.get() && event.getEntity() == pig && event.getLevel() == helper.getLevel()) {
                 left.set(true);
             }
         });
-        pig.discard();
-        check(left.get(), "Discarding an entity did not fire the leave event");
-        helper.succeed();
+        helper.runAtTickTime(101, () -> listen.set(false));
+        helper.succeedWhen(() -> {
+            check(helper.getLevel().getEntity(pig.getId()) == pig, "Waiting for the pig to be tracked");
+            if (!discarded.get()) {
+                pig.discard();
+                discarded.set(true);
+            }
+            check(left.get(), "Discarding an entity did not fire the leave event");
+            listen.set(false);
+        });
     }
 
     @GameTest(template = TEMPLATE)

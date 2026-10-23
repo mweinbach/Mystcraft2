@@ -11,6 +11,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import mekanism.api.Coord4D;
 import mekanism.common.Mekanism;
 import mekanism.common.entity.EntityRobit;
 import mekanism.common.registries.MekanismBlocks;
@@ -18,11 +20,14 @@ import mekanism.common.registries.MekanismEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.Ticket;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.SortedArraySet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -51,27 +56,38 @@ public class RenderBoundsGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void followingRobitHoldsItsChunkWhenRemoved(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ServerPlayer owner = new ServerPlayer(level.getServer(), level, Mekanism.gameProfile, null);
+        // The owner stays on the player list until the Robit is tracked. A passing test broadcasts
+        // through that list, and a player with no connection NPEs in sendSystemMessage.
+        new ServerGamePacketListenerImpl(level.getServer(), new Connection(PacketFlow.SERVERBOUND), owner);
         // 1.19.2 resolves an owner by scanning the level's player list, which placeNewPlayer would have filled.
         level.players().add(owner);
-        try {
-            EntityRobit following = robit(helper, new BlockPos(1, 2, 1));
-            following.setFollowing(true);
-            check(following.getOwner() != null, "The following Robit has no owner for the unload ticket");
-            following.discard();
+        // A Robit with no home discards itself on the first tick it is tracked, before this test can remove it.
+        // The ticket is requested from onRemovedFromWorld, which runs only after the chunk is entity-tracked.
+        EntityRobit following = robit(helper, new BlockPos(1, 2, 1));
+        following.setHome(new Coord4D(following));
+        following.setFollowing(true);
+        EntityRobit staying = robit(helper, new BlockPos(3, 2, 1));
+        staying.setHome(new Coord4D(staying));
+        staying.setFollowing(false);
+        check(following.getOwner() != null, "The following Robit has no owner for the unload ticket");
+        AtomicBoolean removed = new AtomicBoolean();
+        helper.runAtTickTime(101, () -> level.players().remove(owner));
+        helper.succeedWhen(() -> {
+            check(level.getEntity(following.getId()) == following && level.getEntity(staying.getId()) == staying,
+                  "Waiting for the Robits to be tracked");
+            if (!removed.get()) {
+                following.discard();
+                staying.discard();
+                removed.set(true);
+            }
             check(hasUnloadTicket(level, following), "Removing a following Robit did not request its chunk ticket");
-
-            EntityRobit staying = robit(helper, new BlockPos(3, 2, 1));
-            staying.setFollowing(false);
-            staying.discard();
             check(!hasUnloadTicket(level, staying), "A Robit that is not following requested an unload ticket");
-        } finally {
             level.players().remove(owner);
-        }
-        helper.succeed();
+        });
     }
 
     private static EntityRobit robit(GameTestHelper helper, BlockPos pos) {
