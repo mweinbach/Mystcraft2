@@ -3,7 +3,6 @@ package dev.icbm.port.launcher;
 import dev.icbm.port.IcbmPort;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -78,7 +77,10 @@ public final class LauncherContent {
                     CRUISE)
                 .build());
     SCREEN =
-        ScreenHandlerRegistry.registerSimple(IcbmPort.id("launcher"), LauncherScreenHandler::new);
+        Registry.register(
+            Registry.SCREEN_HANDLER,
+            IcbmPort.id("launcher"),
+            new ScreenHandlerType<>(LauncherScreenHandler::new));
     Registry.register(Registry.ITEM, IcbmPort.id("gps"), GPS);
     Registry.register(Registry.ITEM, IcbmPort.id("laser_designator"), LASER_DESIGNATOR);
     Registry.register(Registry.ITEM, IcbmPort.id("radio_detonator"), RADIO_DETONATOR);

@@ -9,8 +9,11 @@ or vanilla resource references.
 
 Right-click radar, EMP or SAM stations to open their actual server-backed
 container. The battery slot accepts the port's rechargeable energy battery.
-Machine energy is exposed through TeamReborn's transactional Fabric energy API.
-New machines start empty. Configuration buttons change detection/EMP/SAM range,
+Machine energy is exposed through TeamReborn's transactional Fabric energy API
+as an insert-only view: other mods can charge a machine but cannot extract from
+it (see [ENERGY.md](ENERGY.md)). The battery slot is also reachable through
+Fabric's `ItemStorage.SIDED` lookup, so hoppers and pipes can insert or remove
+batteries. New machines start empty. Configuration buttons change detection/EMP/SAM range,
 radar trigger range, radio channel, explosive/cargo missile filters, radio/relay
 and enabled state. The SAM radar-only toggle disables autonomous scanning while
 retaining incoming radio targeting. Server handlers validate the open container,
@@ -26,7 +29,11 @@ trigger sphere, ignores receding flights and EMP-disabled missiles. Radar
 broadcasts an incoming UUID at most every 40 ticks on its configured channel.
 An unpowered radar clears its output; it cannot scan for free.
 
-Load `sam_missile` items into the SAM station by right-clicking, up to 15. Apply
+Load `sam_missile` items into the SAM station by right-clicking, or with
+hoppers and item pipes, up to 15. Automated loading goes through an
+insert-only `ItemStorage.SIDED` magazine on every side: it accepts only
+`sam_missile`, stops at 15, updates the counter only when the transfer
+commits, and never gives loaded missiles back. Apply
 redstone to enable autonomous defense, or configure a radio channel matching a
 radar. Target range defaults to upstream SAM 30 and is adjustable to 128. Family
 filters apply to both paths. The station rejects receding, disabled or already
@@ -74,6 +81,9 @@ EMP disables missile/launcher electronics for 200 ticks. Per-dimension
 `PersistentState` retains at most 256 spherical fields, with finite positions,
 radius at most 512 and absolute game-time expiry. Reload preserves remaining
 duration. EMP neutralizes in-flight SAMs and safely recovers cargo missiles.
+EMP payloads and towers also drain other mods' Team Reborn Energy blocks and
+items in the blast sphere, bounded and configurable as described in
+[ENERGY.md](ENERGY.md).
 
 Radar guns trace blocks up to 200 away and share launcher target NBT;
 sneak-use clears their target. Antidote consumes after 32 ticks, clears status
@@ -93,7 +103,11 @@ Defense GameTests cover sphere bounds, loaded radar output, guided SAM firing
 and exact ammunition use, persisted target/lifetime, receding-target rejection,
 wall obstruction, EMP field reload/expiry/storage/radius caps, spike effects,
 cargo missile countermeasures, configuration/energy persistence, EMP extension
-teardown/action cost and radio channel/relay isolation. Integration builds and dedicated-server tests passed. Radar/EMP screens were inspected in a live client at the default window size, and radar changes were confirmed after close/reopen; see VALIDATION.md.
+teardown/action cost and radio channel/relay isolation. Interop GameTests use
+the public lookups on placed blocks: insert succeeds and extraction fails on
+launchers and all three machines, EMP drains a test energy block and battery
+item inside its radius but not outside or when disabled, and a vanilla hopper
+and `ItemStorage.SIDED` load SAM ammunition while rejecting other items. Integration builds and dedicated-server tests passed. Radar/EMP screens were inspected in a live client at the default window size, and radar changes were confirmed after close/reopen; see VALIDATION.md.
 
 Remaining upstream differences include full machine/radio GUI appearance,
 exact upstream energy buffer sizing, all radio command/message types,

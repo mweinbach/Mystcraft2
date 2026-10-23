@@ -5,6 +5,9 @@
   "name": "ICBM Port Game Tests",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "dev.icbm.port.energy.TestEnergyFixtures"
+    ],
     "fabric-gametest": [
       "dev.icbm.port.IcbmGameTests",
       "dev.icbm.port.LauncherGameTests",
@@ -14,6 +17,7 @@
       "dev.icbm.port.MissileGameTests",
       "dev.icbm.port.ContentGameTests",
       "dev.icbm.port.energy.EnergyGameTests",
+      "dev.icbm.port.energy.InteropGameTests",
       "dev.icbm.port.exposure.ExposureGameTests",
       "dev.icbm.port.command.CommandApiGameTests",
       "dev.icbm.port.FlightGameTests",

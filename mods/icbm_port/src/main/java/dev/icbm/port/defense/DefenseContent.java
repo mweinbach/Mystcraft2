@@ -20,8 +20,9 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 /**
- * Gameplay adaptations of upstream radar, EMP, antidote, defuser and protection blocks. Machines
- * deliberately use redstone rather than reproducing Forge energy or radio GUIs.
+ * Gameplay adaptations of upstream radar, EMP, antidote, defuser and protection blocks. Machines run
+ * on Team Reborn Energy from other mods or the port's battery instead of upstream Forge energy;
+ * redstone only triggers them. Upstream radio GUIs are not reproduced.
  */
 public final class DefenseContent {
   public static final EntityType<SamInterceptorEntity> SAM_INTERCEPTOR =
@@ -75,8 +76,12 @@ public final class DefenseContent {
     Registry.register(
         Registry.BLOCK_ENTITY_TYPE, IcbmPort.id("defense_machine"), MACHINE_BLOCK_ENTITY);
     MACHINE_SCREEN =
-        net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.registerSimple(
-            IcbmPort.id("defense_machine"), DefenseScreenHandler::new);
+        Registry.register(
+            Registry.SCREEN_HANDLER,
+            IcbmPort.id("defense_machine"),
+            new net.minecraft.screen.ScreenHandlerType<>(DefenseScreenHandler::new));
+    net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.registerForBlockEntity(
+        DefenseMachineBlockEntity::itemStorage, MACHINE_BLOCK_ENTITY);
     block("emp_tower_extension", EMP_TOWER_EXTENSION);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("sam_interceptor"), SAM_INTERCEPTOR);
     dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(
@@ -86,6 +91,8 @@ public final class DefenseContent {
                 pos,
                 dev.icbm.port.payload.PayloadConfig.forType(dev.icbm.port.payload.PayloadType.EMP)
                     .radius()));
+    dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(
+        dev.icbm.port.energy.EmpEnergyDrain.PAYLOAD_HANDLER);
     block("radar_station", RADAR_STATION);
     block("emp_tower", EMP_TOWER);
     block("sam_launcher", SAM_LAUNCHER);

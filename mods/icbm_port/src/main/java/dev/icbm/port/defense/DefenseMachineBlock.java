@@ -18,6 +18,9 @@ public final class DefenseMachineBlock extends BlockWithEntity {
   }
 
   public static final IntProperty POWER = IntProperty.of("power", 0, 15);
+
+  /** SAM stations store their ammunition in {@link #POWER}, so the magazine holds 15 missiles. */
+  public static final int MAX_SAM_AMMO = 15;
   private final Kind kind;
 
   DefenseMachineBlock(Kind kind) {
@@ -72,7 +75,7 @@ public final class DefenseMachineBlock extends BlockWithEntity {
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
     if (!state.isOf(newState.getBlock())) {
       if (world.getBlockEntity(pos) instanceof DefenseMachineBlockEntity machine)
-        ItemScatterer.spawn(world, pos, machine);
+        ItemScatterer.spawn(world, pos, machine.batterySlot());
       if (kind == Kind.SAM && state.get(POWER) > 0)
         Block.dropStack(
             world,
@@ -97,7 +100,9 @@ public final class DefenseMachineBlock extends BlockWithEntity {
       return ActionResult.PASS;
     if (!world.isClient && world.getBlockEntity(pos) instanceof DefenseMachineBlockEntity machine) {
       var ammo = player.getStackInHand(hand);
-      if (kind == Kind.SAM && ammo.isOf(DefenseContent.SAM_MISSILE) && state.get(POWER) < 15) {
+      if (kind == Kind.SAM
+          && ammo.isOf(DefenseContent.SAM_MISSILE)
+          && state.get(POWER) < MAX_SAM_AMMO) {
         world.setBlockState(pos, state.with(POWER, state.get(POWER) + 1), Block.NOTIFY_ALL);
         if (!player.getAbilities().creativeMode) ammo.decrement(1);
       } else player.openHandledScreen(machine);

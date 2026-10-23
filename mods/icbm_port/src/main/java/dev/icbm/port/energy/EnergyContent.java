@@ -56,7 +56,7 @@ public final class EnergyContent {
             !world.isClient
                     && entity instanceof EnergyMachine machine
                     && machine.acceptsEnergy(side)
-                ? machine.energyBuffer()
+                ? machine.energyBuffer().insertOnly()
                 : null);
   }
 
