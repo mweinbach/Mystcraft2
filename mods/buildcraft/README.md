@@ -31,18 +31,22 @@ worlds do not migrate between them or from 1.12.
   items that reach its open end, lays item pipes to extend itself, and with engine power breaks the block in
   front. Pipe plugs close a pipe's face, and power adapters let an engine drive a wooden pipe through a closed
   face.
-- Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
+- Factory and builders: tank, pump, mining well, quarry and its frame, and the filler, which
   fills the land mark area or volume box behind it with one of upstream's 18 patterns from the
   block items it holds and clears what the pattern leaves empty.
 - Blueprints: the architect table records the land mark area or volume box behind it onto
   templates (which blocks are filled) and blueprints (each block, what it costs and what must be
-  built first, following upstream's builder rules restated for 1.19.2 blocks). The creative
+  built first, following upstream's builder rules restated for 1.19.2 blocks). The
   builder builds a recorded template or blueprint behind it, turned to its own facing, from the
   items and fluids it holds, including a blueprint's chest contents and entities, and builds it
-  again at every block along a path of path marks placed behind it. The creative electronic
-  library copies recordings between the server and each player's local library, the creative
-  replacer swaps one block for another throughout a blueprint, and the creative single block
+  again at every block along a path of path marks placed behind it. The electronic
+  library copies recordings between the server and each player's local library, the
+  replacer swaps one block for another throughout a blueprint, and the single block
   schematic records and rebuilds one block; recordings show their snapshot turning in their tooltip.
+  The filler, builder, architect table and electronic library use BuildCraft 7.1's crafting recipes;
+  the replacer and single block schematics, which 7.1 lacked, have recipes in the same style (see
+  [docs/PARITY.md](docs/PARITY.md)). Every other item is craftable or listed, with its reason, in
+  [uncraftable.txt](uncraftable.txt), which a GameTest checks on both loaders.
 - Markers: land marks that connect into boxes (a quarry placed against one takes its box as its
   area), path marks that connect into paths and loops, and the marker connector, with upstream's
   lasers; creative volume boxes that the connector resizes and removes.
@@ -104,10 +108,10 @@ the other.
 The GameTests run the same gameplay checks on both loaders plus loader adapter checks, and audit EMC
 coverage. With `-PwithProjectE` (Forge) or `-PwithItemAlchemy` (Fabric) they also compare against
 the real EMC mod. Every item has an EMC value derived from its recipe, except the creative-only
-frame, filler, builder, electronic library, replacer, single block schematics, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT), the map location (which upstream gives no recipe) and the refinery's
+frame, oil spring, water spring and volume box, fragile fluid shards (whose fluid is in their NBT), the map location (which upstream gives no recipe) and the refinery's
 by-products and intermediate heats. Paintbrushes and the zone planner take their value from their recipes. Oil is valued like lava,
-light fuel at the two buckets of oil the refinery needs to make one, a recorded template or
-blueprint like a blank one, chipsets, pipe wire, the pipe pulsar, the timer and the light sensor like their assembly ingredients, gates and the gate copier at the cheaper of their crafting and assembly ingredients, and a facade as the dirt recipe (one full block plus three structure pipes) divided by six, with laser power unvalued. See [emc/README.md](emc/README.md) and
+light fuel at the two buckets of oil the refinery needs to make one, a recorded template,
+blueprint or single block schematic like a blank one, chipsets, pipe wire, the pipe pulsar, the timer and the light sensor like their assembly ingredients, gates and the gate copier at the cheaper of their crafting and assembly ingredients, and a facade as the dirt recipe (one full block plus three structure pipes) divided by six, with laser power unvalued. See [emc/README.md](emc/README.md) and
 [docs/emc.md](../../docs/emc.md).
 
 Assets and data are regenerated from an upstream checkout with

@@ -1,0 +1,52 @@
+# BuildCraft items and blocks that no recipe makes. The `everyItemCraftableOrListed` GameTest
+# (RecipeAuditTests, run on Forge and Fabric) reads this file and fails when
+# - a registered buildcraft item is neither the result of a recipe the server loaded (crafting,
+#   smelting, assembly, integration or any other type, including the facade assembly) nor listed here;
+# - a buildcraft block has no item and is not listed here, unless it is a fluid block whose bucket
+#   is a buildcraft item (the bucket is audited instead);
+# - a listed id is not registered, or a listed item is now craftable, so this file only shrinks.
+#
+# Format: <kind> <id>  # reason (required); <id> is a buildcraft registry path.
+#   creative  no survival source: creative tab and commands only
+#   obtained  made in survival, but not by a recipe (the reason names how)
+#   block     a block with no item
+creative frame  # the quarry builds its frame from power and frame blocks drop nothing; upstream has no frame recipe
+creative volume_box  # upstream 8.0 has no recipe; land marks and the marker connector give survival players areas
+creative oil_spring  # worldgen block under large oil wells, unbreakable like bedrock and dropping nothing
+creative water_spring  # upstream never generates or crafts water springs; unbreakable like bedrock
+creative map_location  # upstream 8.0 gives the map location no recipe (robotics, not builders); see docs/PARITY.md
+obtained template_used  # the architect table records a blank template; the electronic library copies one
+obtained blueprint_used  # the architect table records a blank blueprint; the electronic library and replacer copy one
+obtained schematic_single_used  # a blank single block schematic used on a block records it
+obtained fragile_fluid_shard  # dropped with the fluid of a broken tank, pump, distiller, heat exchanger, engine or fluid pipe
+obtained oil_bucket  # a bucket filled from oil wells and their springs, or from a tank
+obtained oil_heat_1_bucket  # refinery fluid: heated by the heat exchanger, bucketed from a tank
+obtained oil_heat_2_bucket  # refinery fluid: heated by the heat exchanger, bucketed from a tank
+obtained oil_residue_bucket  # refinery fluid: distilled, or burnt by the combustion engine, bucketed from a tank
+obtained oil_residue_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_residue_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_heavy_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained oil_heavy_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_heavy_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_dense_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained oil_dense_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_dense_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_distilled_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained oil_distilled_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained oil_distilled_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_dense_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained fuel_dense_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_dense_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_mixed_heavy_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained fuel_mixed_heavy_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_mixed_heavy_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_mixed_light_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained fuel_mixed_light_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_mixed_light_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_light_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained fuel_light_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_light_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_gaseous_bucket  # refinery fluid: distilled, bucketed from a tank
+obtained fuel_gaseous_heat_1_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+obtained fuel_gaseous_heat_2_bucket  # refinery fluid: distilled or heated, bucketed from a tank
+block tube  # laid by the mining well and pump below themselves and removed with them

@@ -13,8 +13,8 @@
         }
       ]
     },
-    "buildcraft_architect_table_records": {
-      "comment": "The architect table records an area onto a blank template or blueprint and hands back the recorded one, so a recorded item is worth its blank. Transmutation never copies NBT, and a recorded item without its header acts as a blank one: the table records onto it again.",
+    "buildcraft_recordings_are_worth_their_blanks": {
+      "comment": "The architect table records an area onto a blank template or blueprint, and a blank single block schematic records the block it is used on; each hands back the recorded item, so a recorded item is worth its blank. Transmutation never copies NBT, and a recorded item without its data acts as a blank one: the table records onto a template or blueprint again, and a single block schematic used while sneaking is wiped back to a blank.",
       "conversions": [
         {
           "output": "buildcraft:blueprint_used",
@@ -724,24 +724,6 @@
     },
     "conversion": [
       {
-        "output": "buildcraft:builder",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "buildcraft:electronic_library",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "buildcraft:filler",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
         "output": "buildcraft:fragile_fluid_shard",
         "ingredients": [
           "FAKE|no_emc"
@@ -929,24 +911,6 @@
       },
       {
         "output": "buildcraft:oil_spring",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "buildcraft:replacer",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "buildcraft:schematic_single_clean",
-        "ingredients": [
-          "FAKE|no_emc"
-        ]
-      },
-      {
-        "output": "buildcraft:schematic_single_used",
         "ingredients": [
           "FAKE|no_emc"
         ]

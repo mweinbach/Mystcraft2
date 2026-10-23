@@ -68,6 +68,7 @@ minecraft.runs {
         property 'forge.enableGameTest', 'true'
         property 'forge.enabledGameTestNamespaces', 'buildcraft'
         property 'emc.values', file('emc/values.json').absolutePath
+        property 'buildcraft.uncraftable', file('uncraftable.txt').absolutePath
         mods { buildcraft { source sourceSets.gametest } }
     }
 }
