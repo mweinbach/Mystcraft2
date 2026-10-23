@@ -725,7 +725,6 @@ class Generator:
             self.lang[f"buildcraft.param.facing.{face}"] = face.capitalize()
         self.lang.update({
             f"block.{MOD}.filler": "Filler",
-            f"block.{MOD}.filler.tip": "Not usable in survival.",
             f"gui.{MOD}.locked": "Locked",
             "gui.filling.resources": "Filling Resources",
             "gui.progress": "Progress",
@@ -758,7 +757,6 @@ class Generator:
                 self.generated_item(f"{kind}_{state}", f"{kind}/{state}")
         self.lang.update({
             f"block.{MOD}.architect_table": "Architect Table",
-            f"block.{MOD}.architect_table.tip": "Not usable in survival",
             f"item.{MOD}.template_clean": "Template",
             f"item.{MOD}.template_used": "Template",
             f"item.{MOD}.blueprint_clean": "Blueprint",
@@ -791,7 +789,7 @@ class Generator:
                                   "apply": dict({"model": rl(f"block/builder/{slot}")}, **rotation)})
         self.blockstate("builder", {"multipart": multipart})
         self.item_model("builder", rl("block/builder/main"))
-        self.lang.update({f"block.{MOD}.builder": "Builder", f"block.{MOD}.builder.tip": "Not usable in survival"})
+        self.lang.update({f"block.{MOD}.builder": "Builder"})
 
     def library(self) -> None:
         for block, parts in [("library", ["back", "bottom", "front", "left", "right", "top"]),
@@ -816,7 +814,6 @@ class Generator:
         # Upstream's lang named no replacer.
         self.lang.update({
             f"block.{MOD}.electronic_library": "Electronic Library",
-            f"block.{MOD}.electronic_library.tip": "Not usable in survival",
             f"block.{MOD}.replacer": "Replacer",
             f"item.{MOD}.schematic_single_clean": "Single Block Schematic",
             f"item.{MOD}.schematic_single_used": "Single Block Schematic",
@@ -1281,6 +1278,19 @@ class Generator:
         self.shaped("architect_table", "architect_table", ["bmb", "ycy", "dsd"], {
             "b": tags("black_dyes", "dyes/black"), "m": {"item": rl("marker_volume")}, "y": tags("yellow_dyes", "dyes/yellow"),
             "c": {"item": "minecraft:crafting_table"}, "d": gear("diamond"), "s": {"item": rl("blueprint_clean")}})
+        # Upstream 8.0 gives these no recipe: the filler, builder and electronic library (7.1's blueprint library)
+        # take BuildCraft 7.1's shapes, the replacer one in the same style, and the single block schematic
+        # upstream's commented-out recipe. See docs/PARITY.md.
+        black, yellow, mark = tags("black_dyes", "dyes/black"), tags("yellow_dyes", "dyes/yellow"), {"item": rl("marker_volume")}
+        table, blueprint = {"item": "minecraft:crafting_table"}, {"item": rl("blueprint_clean")}
+        for machine, machine_gear in [("filler", "gold"), ("builder", "diamond")]:
+            self.shaped(machine, machine, ["btb", "ycy", "gCg"], {
+                "b": black, "t": mark, "y": yellow, "c": table, "g": gear(machine_gear), "C": {"item": "minecraft:chest"}})
+        self.shaped("electronic_library", "electronic_library", ["igi", "bBb", "iri"], {
+            "i": IRON, "g": gear("iron"), "b": {"item": "minecraft:bookshelf"}, "B": blueprint, "r": REDSTONE})
+        self.shaped("replacer", "replacer", ["btb", "scs", "gBg"], {
+            "b": black, "t": mark, "s": {"item": rl("schematic_single_clean")}, "c": table, "g": gear("gold"), "B": blueprint})
+        self.shapeless("schematic_single", "schematic_single_clean", [paper, paper, tags("lapis", "gems/lapis")], count=4)
 
         structure = {"item": rl("pipe_structure")}
         self.shaped("plug_blocker", "plug_blocker", ["s"], {"s": structure}, count=4)
