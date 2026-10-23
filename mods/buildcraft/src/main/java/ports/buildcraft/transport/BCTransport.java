@@ -19,6 +19,7 @@ import ports.buildcraft.BuildCraft;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.platform.Reg;
+import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.behaviour.IronBehaviour;
 import ports.buildcraft.transport.behaviour.PipeBehaviour;
@@ -65,6 +66,8 @@ public final class BCTransport {
     public static final PipeDefinition GOLD_FLUID = fluid("gold_fluid", SimpleBehaviours.Gold::new, 8, 2).build();
     public static final PipeDefinition SANDSTONE_FLUID = fluid("sandstone_fluid", SimpleBehaviours.Sandstone::new, 2, 10).build();
     public static final PipeDefinition IRON_FLUID = fluid("iron_fluid", IronBehaviour::new, 4, 10).texture("iron_fluid_filled").special("iron_fluid_clear").build();
+    public static final PipeDefinition DIAMOND_FLUID = fluid("diamond_fluid", DiamondFluidBehaviour::new, 8, 10)
+            .faceTextures(diamondTextures("diamond_fluid"), "diamond_fluid_itemstack").menu().build();
     public static final PipeDefinition CLAY_FLUID = fluid("clay_fluid", SimpleBehaviours.Clay::new, 4, 10).build();
     public static final PipeDefinition VOID_FLUID = fluid("void_fluid", SimpleBehaviours.Void::new, 8, 10).build();
 

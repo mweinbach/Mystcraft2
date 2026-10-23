@@ -208,6 +208,15 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 600)
     public void fluidPipesFillTank(GameTestHelper helper) { BCTests.fluidPipesFillTank(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void diamondFluidPipeDefinition(GameTestHelper helper) { BCTests.diamondFluidPipeDefinition(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void diamondFluidFiltersFaces(GameTestHelper helper) { BCTests.diamondFluidFiltersFaces(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public void diamondFluidPipeRoutesFilteredFluid(GameTestHelper helper) { BCTests.diamondFluidPipeRoutesFilteredFluid(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void kinesisPipesCarryEnginePower(GameTestHelper helper) { BCTests.kinesisPipesCarryEnginePower(helper); }
 

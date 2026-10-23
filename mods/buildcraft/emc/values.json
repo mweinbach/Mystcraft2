@@ -642,6 +642,11 @@
       "itemalchemy": 64,
       "source": "recipe"
     },
+    "buildcraft:pipe_diamond_fluid": {
+      "projecte": 2056,
+      "itemalchemy": 528,
+      "source": "recipe"
+    },
     "buildcraft:pipe_diamond_item": {
       "projecte": 2048,
       "itemalchemy": 512,

@@ -87,6 +87,7 @@ PIPES = [
     pipe("wood_fluid", "wood_fluid_clear", "wood_fluid_filled"),
     pipe("cobblestone_fluid"), pipe("stone_fluid"), pipe("quartz_fluid"), pipe("gold_fluid"), pipe("sandstone_fluid"),
     pipe("iron_fluid", "iron_fluid_filled", "iron_fluid_clear"),
+    pipe("diamond_fluid", faces={d: "diamond_fluid_" + d for d in DIRECTIONS}, item_texture="diamond_fluid_itemstack"),
     pipe("clay_fluid"), pipe("void_fluid"),
     pipe("wood_power", "wood_power_clear", "wood_power_filled"),
     pipe("cobblestone_power"), pipe("stone_power"), pipe("quartz_power"), pipe("gold_power"), pipe("sandstone_power"),
