@@ -10,6 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,6 +60,18 @@ public abstract class PipeBehaviour {
     public ItemStack onItemReachCenter(ItemStack stack, Direction from) {
         return stack;
     }
+
+    /** Upstream {@code PipeEventItem.ReachCenter#colour}: the colour an item has from the centre on. */
+    @Nullable
+    public DyeColor colourAtCenter(@Nullable DyeColor colour) {
+        return colour;
+    }
+
+    /** Upstream {@code onEntityCollide}: an entity is inside the pipe's block. Server side only. */
+    public void onEntityCollide(Entity entity) {}
+
+    /** Upstream {@code PipeEventItem.Drop}: the pipe is about to spawn {@code entity} for an item it could not route. */
+    public void onDrop(ItemEntity entity) {}
 
     public void itemSideCheck(SideCheck check) {}
 

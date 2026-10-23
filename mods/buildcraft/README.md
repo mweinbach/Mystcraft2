@@ -16,12 +16,16 @@ worlds do not migrate between them or from 1.12.
 ## What works
 
 - Engines: redstone, Stirling and combustion, with upstream heat and power stages.
-- Pipes: item (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void),
+- Pipes: item (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void,
+  obsidian, lapis, daizuli),
   fluid (wood, cobblestone, stone, quartz, gold, sandstone, iron, diamond, clay, void) and kinesis (wood,
   cobblestone, stone, quartz, gold, sandstone, iron, diamond), and the structure pipe, which only joins other
   structure pipes. The diamond item and fluid pipes hold nine phantom filters per face; the fluid
   pipe reads fluid containers placed in them. The iron and diamond kinesis pipes limit the power
-  they pass on to a level set with the wrench or a gate. Pipe plugs close a pipe's face, and power adapters let
+  they pass on to a level set with the wrench or a gate. The obsidian pipe sucks dropped items in front of its
+  open face, further with engine power; the lapis pipe paints the items passing through it, and the
+  daizuli pipe sends items of its colour out of its selected face and the rest elsewhere (a wrench
+  steps either pipe's colour, and gates can paint). Pipe plugs close a pipe's face, and power adapters let
   an engine drive a wooden pipe through a closed face.
 - Factory and builders: tank, pump, mining well, quarry and its frame, and the creative filler, which
   fills the land mark area or volume box behind it with one of upstream's 18 patterns from the

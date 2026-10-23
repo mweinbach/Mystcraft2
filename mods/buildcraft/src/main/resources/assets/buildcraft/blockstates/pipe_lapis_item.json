@@ -1,0 +1,1732 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "colour": "white",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "down": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "up": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "north": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "south": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "west": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_white_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_orange_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_magenta_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_light_blue_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_yellow_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_lime_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_pink_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_gray_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_silver_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_cyan_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_purple_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_blue_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_brown_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_green_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_red_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_center_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "east": "connected|special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/lapis_item_black_arm_east"
+      }
+    }
+  ]
+}

@@ -1,0 +1,964 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_down"
+      }
+    },
+    {
+      "when": {
+        "down": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_down"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "down": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_down"
+      }
+    },
+    {
+      "when": {
+        "up": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_up"
+      }
+    },
+    {
+      "when": {
+        "up": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_up"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "up": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_up"
+      }
+    },
+    {
+      "when": {
+        "north": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_north"
+      }
+    },
+    {
+      "when": {
+        "north": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_north"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "north": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_north"
+      }
+    },
+    {
+      "when": {
+        "south": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_south"
+      }
+    },
+    {
+      "when": {
+        "south": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_south"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "south": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_south"
+      }
+    },
+    {
+      "when": {
+        "west": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_west"
+      }
+    },
+    {
+      "when": {
+        "west": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_west"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "west": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_west"
+      }
+    },
+    {
+      "when": {
+        "east": "none"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_center_east"
+      }
+    },
+    {
+      "when": {
+        "east": "connected"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_filled_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "white",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_white_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "orange",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_orange_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "magenta",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_magenta_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_blue",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_light_blue_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "yellow",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_yellow_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "lime",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_lime_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "pink",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_pink_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "gray",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_gray_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "light_gray",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_silver_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "cyan",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_cyan_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "purple",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_purple_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "blue",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_blue_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "brown",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_brown_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "green",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_green_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "red",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_red_arm_east"
+      }
+    },
+    {
+      "when": {
+        "colour": "black",
+        "east": "special"
+      },
+      "apply": {
+        "model": "buildcraft:block/pipe/daizuli_item_black_arm_east"
+      }
+    }
+  ]
+}

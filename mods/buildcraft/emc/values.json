@@ -642,6 +642,11 @@
       "itemalchemy": 64,
       "source": "recipe"
     },
+    "buildcraft:pipe_daizuli_item": {
+      "projecte": 1996,
+      "itemalchemy": 1228,
+      "source": "recipe"
+    },
     "buildcraft:pipe_diamond_fluid": {
       "projecte": 2056,
       "itemalchemy": 528,
@@ -685,6 +690,16 @@
     "buildcraft:pipe_iron_power": {
       "projecte": 128,
       "itemalchemy": 127,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_lapis_item": {
+      "projecte": 1944,
+      "itemalchemy": 1944,
+      "source": "recipe"
+    },
+    "buildcraft:pipe_obsidian_item": {
+      "projecte": 16,
+      "itemalchemy": 16,
       "source": "recipe"
     },
     "buildcraft:pipe_quartz_fluid": {
