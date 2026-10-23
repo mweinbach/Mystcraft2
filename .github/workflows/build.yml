@@ -72,8 +72,7 @@ jobs:
               mods/metalrender/build/reports/tests/test/
           - id: icbm_port
             kind: icbm
-            # TODO(#124): add -PwithRei once the ICBM REI plugin and its flag land on main.
-            fabric_compat_props: -PwithEmi -PwithJei
+            fabric_compat_props: -PwithEmi -PwithJei -PwithRei
             jars: mods/icbm_port/build/libs/*.jar
             reports: |
               mods/icbm_port/build/*-results.xml

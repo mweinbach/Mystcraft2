@@ -81,7 +81,7 @@ class CiWorkflowTests(unittest.TestCase):
         extremereactors = matrix_entry(self.text, "extremereactors")
         self.assertIn("forge_compat_props: -PwithCompat\n", extremereactors)
         self.assertIn("fabric_compat_props: -PwithCompat -PwithMekanism\n", extremereactors)
-        self.assertIn("fabric_compat_props: -PwithEmi -PwithJei", matrix_entry(self.text, "icbm_port"))
+        self.assertIn("fabric_compat_props: -PwithEmi -PwithJei -PwithRei\n", matrix_entry(self.text, "icbm_port"))
         self.assertIn("smoke: true\n", matrix_entry(self.text, "mystcraft"))
         self.assertIn('gradle_with_props "$FORGE_COMPAT_PROPS" ":${PORT}:runGameTestServer"', self.text)
         self.assertIn('gradle_with_props "$FABRIC_COMPAT_PROPS" -p "mods/${PORT}/fabric" runGametest', self.text)
