@@ -233,7 +233,14 @@ public final class LibraryTests {
         upload(helper, player, uploaded, 16);
         require(helper, library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT).isEmpty(), "an upload the library has not asked for must be ignored");
         library.askForUpload();
-        upload(helper, player, uploaded, 16);
+        AtomicInteger sentParts = new AtomicInteger();
+        ElectronicLibraryBlockEntity.upload(helper.absolutePos(LIBRARY), uploaded, 16, payload -> {
+            FriendlyByteBuf part = buffer();
+            payload.accept(part);
+            ElectronicLibraryBlockEntity.receiveUp(player, part);
+            // The next transfer cycle asking again while parts are in flight must keep what has arrived.
+            if (sentParts.incrementAndGet() == 1) library.askForUpload();
+        });
         ItemStack out = library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_OUT);
         Snapshot.Header outHeader = SnapshotItem.getHeader(out);
         require(helper, out.is(BCBuilders.TEMPLATE_USED.get()) && library.getItem(ElectronicLibraryBlockEntity.SLOT_UP_IN).isEmpty(),

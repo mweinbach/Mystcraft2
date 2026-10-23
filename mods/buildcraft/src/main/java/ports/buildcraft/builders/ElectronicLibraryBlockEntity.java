@@ -133,10 +133,11 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
      * Not upstream: the server remembers what it asked for, and takes upload parts only for that snapshot, only
      * for {@link #UPLOAD_TIMEOUT_TICKS} and only while {@code upIn} holds an item and {@code upOut} is empty. One
      * upload is read per request, so with {@link UploadQuota} a player cannot make the server buffer or read
-     * uploads it did not ask for.
+     * uploads it did not ask for. While a request for the selected snapshot is still open, asking again does
+     * nothing, so the parts of an upload slower than one transfer cycle are kept until it ends or times out.
      */
     public void askForUpload() {
-        if (selected == null || level == null) return;
+        if (selected == null || level == null || uploadWanted(selected)) return;
         endUpload();
         requested = selected;
         requestedAt = level.getGameTime();
