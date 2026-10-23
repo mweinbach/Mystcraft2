@@ -59,8 +59,6 @@ class CiWorkflowTests(unittest.TestCase):
             "cache-read-only:",
         ):
             self.assertIn(snippet, self.text)
-        self.assertIn('forge_props: ""', matrix_entry(self.text, "mekanism"))
-        self.assertNotIn("withProjectE", matrix_entry(self.text, "mekanism"))
         fluidphysics = matrix_entry(self.text, "fluidphysics")
         self.assertIn("kind: fabric", fluidphysics)
         self.assertNotIn("forge_props", fluidphysics)
@@ -68,11 +66,25 @@ class CiWorkflowTests(unittest.TestCase):
         jurassicraft = matrix_entry(self.text, "jurassicraft")
         self.assertIn("forge_props: -PwithProjectE", jurassicraft)
         self.assertIn("fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy", jurassicraft)
-        for port in ("advancedgenetics", "mystcraft", "buildcraft", "extremereactors"):
+        for port in ("advancedgenetics", "mystcraft", "buildcraft", "extremereactors", "mekanism"):
             entry = matrix_entry(self.text, port)
             self.assertIn("forge_props: -PwithProjectE", entry)
             self.assertIn("fabric_props: -PwithItemAlchemy", entry)
             self.assertNotIn("withJade", entry)
+
+    def test_every_emc_port_compares_live_values_with_both_emc_mods(self):
+        """Each port's GameTest EmcAudit compares the shipped values with the live EMC mod when it is loaded."""
+        dual = [path.parent.parent.name for path in (ROOT / "mods").glob("*/emc/policy.json")
+                if (path.parent.parent / "fabric").is_dir()]
+        self.assertTrue(dual)
+        for port in dual:
+            entry = matrix_entry(self.text, port)
+            self.assertIn("kind: dual", entry, port)
+            self.assertRegex(entry, r"forge_props: [^\n]*-PwithProjectE", port)
+            self.assertRegex(entry, r"fabric_props: [^\n]*-PwithItemAlchemy", port)
+        self.assertIn('gradle_with_props "$FORGE_PROPS" ":${PORT}:runGameTestServer"', self.text)
+        self.assertIn('gradle_with_props "$FABRIC_PROPS" -p "mods/${PORT}/fabric" runGametest', self.text)
+        self.assertIn('gradle_with_props "-PwithItemAlchemy" :icbm_port:runGametest', self.text)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +32,33 @@ class EmcAuditTest {
         Assertions.assertEquals(List.of(
               "registered item has neither an EMC value nor an exclusion: mekanism:b",
               "EMC data names an unregistered item: mekanismgenerators:c"), EmcAudit.coverage(registered, items));
+    }
+
+    @Test
+    @DisplayName("Live values must equal the expected column, with excluded items and missing columns meaning 0")
+    void compareReportsEveryLiveMismatch() {
+        JsonObject items = new JsonObject();
+        JsonObject valued = new JsonObject();
+        valued.addProperty("projecte", 64);
+        items.add("mekanism:valued", valued);
+        JsonObject excluded = new JsonObject();
+        excluded.addProperty("excluded", "random yield");
+        items.add("mekanism:excluded", excluded);
+        JsonObject zeroed = new JsonObject();
+        zeroed.addProperty("projecte", 0);
+        items.add("mekanism:ore", zeroed);
+        Map<String, Long> actual = new TreeMap<>();
+        actual.put("mekanism:excluded", 0L);
+        actual.put("mekanism:ore", null);
+        actual.put("mekanism:undecided", 5L);
+        actual.put("mekanism:valued", 72L);
+
+        Assertions.assertEquals(List.of(
+              "projecte value for mekanism:ore is unset, expected 0",
+              "projecte value for mekanism:valued is 72, expected 64"), EmcAudit.compare(items, actual, "projecte"));
+        actual.put("mekanism:ore", 0L);
+        actual.put("mekanism:valued", 64L);
+        Assertions.assertEquals(List.of(), EmcAudit.compare(items, actual, "projecte"));
     }
 
     @Test

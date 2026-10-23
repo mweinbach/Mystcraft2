@@ -4,31 +4,35 @@
  */
 package mekanism.gametest;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
 /**
- * Loader-neutral EMC coverage check (see docs/emc.md).
+ * Loader-neutral EMC audit (see docs/emc.md).
  * Mekanism ships values for four namespaces, so every registered item in any of them must have a decision in
  * emc/values.json and both shipped data files must load for each namespace. Entries listed as ignored in values.json
  * (test fixtures) are skipped.
- * The registry is also written to the run directory for scripts/emc.py.
- * <p>
- * Unlike the single-namespace copies in the other ports, this audit does not compare live ProjectE or Item Alchemy
- * values. ProjectE's ore blacklist zeros the ores the static table prices and its recipe mappers may raise mapped
- * values, so equality with the static table does not hold for valid data; see parity/15-projecte.md.
+ * When ProjectE (Forge, {@code -PwithProjectE}) or Item Alchemy (Fabric, {@code -PwithItemAlchemy}) is installed,
+ * every live value must equal the expected one in values.json, as in the other ports.
+ * The registry and live values are also written to the run directory for scripts/emc.py.
  */
 public final class EmcAudit {
     /** The core module and the three separate module jars, which share one policy and one set of values. */
@@ -78,6 +82,8 @@ public final class EmcAudit {
             return report(failures);
         }
         failures.addAll(coverage(registered, items));
+        compareLive(failures, items, registered, "projecte", projectE());
+        compareLive(failures, items, registered, "itemalchemy", itemAlchemy());
         return report(failures);
     }
 
@@ -98,6 +104,67 @@ public final class EmcAudit {
             }
         }
         return failures;
+    }
+
+    private static void compareLive(List<String> failures, JsonObject items, Set<String> registered, String mod,
+          Function<String, Long> live) {
+        if (live == null) {
+            return;
+        }
+        Map<String, Long> actual = new TreeMap<>();
+        for (String id : registered) {
+            actual.put(id, live.apply(id));
+        }
+        failures.addAll(compare(items, actual, mod));
+        write("emc-actual-" + mod + ".json", new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(actual) + "\n");
+        LOGGER.info("EMC audit compared {} items with {}", actual.size(), mod);
+    }
+
+    /**
+     * Live values ({@code null} when the mod has none) against the {@code mod} column of values.json, where an
+     * excluded item or a missing column means 0. Items without a decision are reported by {@link #coverage}.
+     */
+    static List<String> compare(JsonObject items, Map<String, Long> actual, String mod) {
+        List<String> failures = new ArrayList<>();
+        actual.forEach((id, value) -> {
+            if (!items.has(id)) {
+                return;
+            }
+            JsonObject expected = items.getAsJsonObject(id);
+            long want = expected.has(mod) ? expected.get(mod).getAsLong() : 0L;
+            long got = value == null ? -1L : value;
+            if (got != want) {
+                failures.add(mod + " value for " + id + " is " + (value == null ? "unset" : value) + ", expected " + want);
+            }
+        });
+        return failures;
+    }
+
+    private static Function<String, Long> projectE() {
+        try {
+            Object proxy = Class.forName("moze_intel.projecte.api.ProjectEAPI").getMethod("getEMCProxy").invoke(null);
+            Method value = Class.forName("moze_intel.projecte.api.proxy.IEMCProxy").getMethod("getValue", Item.class);
+            return id -> {
+                try {
+                    return (Long) value.invoke(proxy, Registry.ITEM.get(new ResourceLocation(id)));
+                } catch (ReflectiveOperationException e) {
+                    throw new IllegalStateException(e);
+                }
+            };
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
+    /** Item Alchemy stores excluded items as 0 and has no entry for items it never valued. */
+    @SuppressWarnings("unchecked")
+    private static Function<String, Long> itemAlchemy() {
+        try {
+            Map<String, Long> map = (Map<String, Long>) Class.forName("net.pitan76.itemalchemy.EMCManager").getMethod("getMap").invoke(null);
+            return id -> map.containsKey(id) ? ((Number) map.get(id)).longValue() : null;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
 
     private static List<String> report(List<String> failures) {

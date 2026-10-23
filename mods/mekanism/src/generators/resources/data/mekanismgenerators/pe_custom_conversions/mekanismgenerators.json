@@ -7,7 +7,7 @@
         {
           "output": "mekanismgenerators:wind_generator",
           "ingredients": {
-            "#forge:ingots/osmium": 3,
+            "mekanism:ingot_osmium": 3,
             "#mekanism:alloys/infused": 1,
             "mekanism:energy_tablet": 2,
             "#forge:circuits/basic": 1

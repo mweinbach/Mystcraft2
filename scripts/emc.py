@@ -3,8 +3,9 @@
 
 Each port keeps a hand-written ``emc/policy.json`` and the live item registry dumped by its
 GameTest (``emc/registry.txt``). This tool resolves every item the way ProjectE's graph mapper
-would (recipes, tags, fixed values, minimum-cost propagation) against vanilla baselines from
-both mods, then writes ``emc/values.json``, ``emc/README.md`` and the shipped data:
+would (recipes, tags, fixed values, minimum-cost propagation, plus ProjectE's ore blacklists,
+metals.json and TagMapper) against vanilla baselines from both mods, then writes ``emc/values.json``,
+``emc/README.md`` and the shipped data:
 ``data/<ns>/pe_custom_conversions/<ns>.json`` and ``data/<ns>/default_emcs/<ns>.json``.
 A policy may also set ``projecte_mappers`` so Forge ProjectE's recipe mappers are checked against a
 generated guard file. See docs/emc.md.
@@ -35,6 +36,15 @@ REMAINDERS = {
 ITEM_ID = re.compile(r"[a-z0-9_.-]+:[a-z0-9_./-]+\Z")
 NSS = re.compile(r"(#[a-z0-9_.-]+:[a-z0-9_./-]+|FAKE\|[A-Za-z0-9_.:-]+|[a-z0-9_.-]+:[a-z0-9_./-]+(\{.*\})?)\Z")
 PLACEHOLDER = re.compile(r"\{([a-z]+)\}")
+# ProjectE 1.1.0's OresBlacklistMapper and RawOresBlacklistMapper set every member of these Forge tags to 0 both
+# before and after mapping. Such an item has no EMC, and no conversion that needs it resolves.
+PROJECTE_BLACKLISTS = {"forge:ores": "OresBlacklistMapper", "forge:raw_materials": "RawOresBlacklistMapper"}
+# Where a conversion's rid starts with this, it is a ProjectE metals.json tag conversion (setValueFromConversion).
+METALS = "ProjectE metals.json"
+# ProjectE's TagMapper runs last and adds `tag = 1 member` and `member = 1 tag` for every item tag any custom
+# conversion names, so every member of such a tag is worth at most its cheapest member. ProjectE's own files name
+# the tags in projecte-tags.json; a tag only a port's file names is written as an item when that would lower a member.
+TAG_MAPPER = "ProjectE TagMapper"
 
 
 class PolicyError(ValueError):
@@ -474,6 +484,14 @@ def validate_policy(policy):
             raise PolicyError(f"exclude.{key}: give a reason, or an object with items and why")
         if not reason_of(entry):
             raise PolicyError(f"exclude.{key} needs a reason")
+    for key, entry in policy.get("remainders", {}).items():
+        if isinstance(entry, str) and ITEM_ID.match(entry):
+            continue
+        if (not isinstance(entry, dict) or set(entry) != {"item", "systems", "why"} or not entry["why"]
+                or not isinstance(entry["item"], str) or not ITEM_ID.match(entry["item"])
+                or not isinstance(entry["systems"], list) or not entry["systems"]
+                or set(entry["systems"]) - set(SYSTEMS)):
+            raise PolicyError(f"remainders.{key}: give the remainder item, or an object with item, systems and why")
     for key, why in policy.get("ignored", {}).items():
         if not isinstance(why, str) or not why:
             raise PolicyError(f"ignored.{key} needs a reason")
@@ -530,7 +548,12 @@ class Port:
         roots = [self.dir / r for r in self.policy["resources"][system]]
         tags = Tags.for_loader(loader)
         tags.add_resources(roots)
-        remainders = {**REMAINDERS, **self.policy.get("remainders", {})}
+        remainders = dict(REMAINDERS)
+        for key, entry in self.policy.get("remainders", {}).items():
+            if isinstance(entry, dict) and system not in entry["systems"]:
+                continue
+            for item in (expand(key, set(self.items)) if "*" in key else [key]):
+                remainders[item] = entry if isinstance(entry, str) else entry["item"]
         mods = {"minecraft", loader, *self.namespaces} | ({"fabric-api"} if loader == "fabric" else set())
         custom = {kind: entry["holds"] for kind, entry in self.policy.get("conditions", {}).items()}
         recipes, skipped = load_recipes(roots, loader, tags, mods, custom)
@@ -551,6 +574,10 @@ class Port:
         self.excluded_by, self.explicit_by = excluded_by, explicit_by
         self.policy_conversions = self._expand_conversions()
         self.results, self.sources, self.inputs, self.vanilla = {}, {}, {}, {}
+        # ProjectE-only state: tag node values, the items the ore blacklists zero (and why), the items
+        # metals.json prices, and the item (and why) a policy conversion names in place of a tag.
+        self.tag_values, self.projecte_unvalued, self.projecte_overwritten, self.projecte_tag_items = {}, {}, {}, {}
+        self.projecte_blacklisted, self.projecte_tag_reasons = {}, {}
         for system in SYSTEMS:
             tags, remainders, recipes, skipped = self.system_inputs(system)
             baseline = {k: Fraction(v) for k, v in read_json(BASELINES / f"{system}-vanilla.json").items()}
@@ -586,22 +613,157 @@ class Port:
                 if item in source and source[item].startswith("tag") and system == "itemalchemy":
                     problems.append(f"{item} is excluded but Item Alchemy gives it {fixed[item]} via {source[item]}")
                 fixed.pop(item, None)
+            unblacklisted = dict(fixed)
+            blacklisted = self._projecte_blacklist(tags, universe) if system == "projecte" else {}
+            for item in blacklisted:
+                fixed.pop(item, None)
+            blocked |= set(blacklisted)
+            metals = read_json(BASELINES / "projecte-tag-conversions.json") if system == "projecte" else []
+            overwritten_tags = {entry["output"] for entry in metals}
+            tag_nodes = {f"#{tag}": Fraction(value) for tag, value in tag_defaults.items()} if system == "projecte" else {}
             conversions = conversions_from(recipes, tags, remainders)
             for name, output, count, ingredients in self.policy_conversions:
                 nodes = {}
                 for ingredient, amount in ingredients.items():
-                    node = tags.members(ingredient[1:]) if ingredient.startswith("#") else ingredient
+                    if ingredient.startswith("#") and ingredient[1:] in overwritten_tags:
+                        node = self._projecte_tag_item(ingredient[1:], tags, universe, baseline, name)
+                    else:
+                        node = tags.members(ingredient[1:]) if ingredient.startswith("#") else ingredient
                     if isinstance(node, frozenset) and len(node) == 1:
                         node = next(iter(node))
                     nodes[node] = nodes.get(node, 0) + amount
                 conversions.append((f"conversion {name}", output, count, nodes))
-            values = resolve(conversions, fixed, blocked, remainders)
+            created = set(read_json(BASELINES / "projecte-tags.json")) - overwritten_tags \
+                if system == "projecte" else set()
+            self._tag_mapper_conversions(created, tags, universe, baseline, conversions)
+            overwritten = self._metals_conversions(metals, tags, universe, fixed, blocked, conversions, source)
+            shadowed = [c for c in conversions if c[1] in overwritten and not c[0].startswith(METALS)]
+            conversions = [c for c in conversions if c[1] not in overwritten or c[0].startswith(METALS)]
+            values = resolve(conversions, {**fixed, **tag_nodes}, blocked, remainders)
+            nodes = {key: values.pop(key) for key in [key for key in values if key.startswith("#")]}
+            if system == "projecte":
+                self.tag_values = nodes
+                self.projecte_blacklisted, self.projecte_overwritten = blacklisted, overwritten
+                self.projecte_unvalued = dict(blacklisted)
+                if blacklisted:
+                    others = resolve(conversions, {**unblacklisted, **tag_nodes}, blocked - set(blacklisted), remainders)
+                    for item in self.items:
+                        if item not in values and item not in blacklisted and others.get(item, 0) >= 1:
+                            self.projecte_unvalued[item] = "made only from items ProjectE's ore blacklists zero"
+                self._choose_projecte_tag_items(created | overwritten_tags, tags, universe, baseline, values)
             self.inputs[system] = (tags, remainders, conversions, baseline, fixed, skipped)
             self.results[system] = values
             self.sources[system] = source
             self._check_system(system)
+            if system == "projecte":
+                self._check_overwritten(shadowed)
         self._check_processes()
         self._check_projecte_mappers()
+        self._check_unmanaged_projecte_files()
+
+    def _projecte_blacklist(self, tags, universe):
+        """Port items ProjectE's ore blacklist mappers zero, with the reason, in registry order."""
+        found = {}
+        for tag, mapper in PROJECTE_BLACKLISTS.items():
+            for item in sorted(tags.members(tag)):
+                if item in universe and item not in found:
+                    found[item] = f"#{tag} ({mapper})"
+        return found
+
+    def _projecte_tag_item(self, tag, tags, universe, baseline, name):
+        """The one item a policy conversion means by a tag that ProjectE's metals.json prices on its own.
+
+        ProjectE values such a tag node by its metals.json conversion, not by its cheapest member, so a
+        conversion naming the tag could price its output above what the item it consumes is worth.
+        """
+        members = sorted(i for i in tags.members(tag) if i in universe or i in baseline)
+        if len(members) != 1:
+            self.problems.append(f"conversion {name}: ProjectE prices #{tag} through metals.json, not by its "
+                                 f"members ({', '.join(members) or 'none'}); name the item instead")
+            return f"#{tag}"
+        self.projecte_tag_items[tag] = members[0]
+        self.projecte_tag_reasons[tag] = "ProjectE prices the tag through metals.json, not by its members"
+        return members[0]
+
+    def _tag_mapper_conversions(self, created, tags, universe, baseline, conversions):
+        """Add ProjectE TagMapper's `tag = member` and `member = tag` conversions for the tags ProjectE creates.
+
+        An excluded item in such a tag would take the tag's value, so that is a problem.
+        """
+        for tag in sorted(created):
+            for member in sorted(m for m in tags.members(tag) if m in universe or m in baseline):
+                if member in self.excluded_by:
+                    self.problems.append(f"{member} is excluded, but ProjectE's TagMapper values it through #{tag}")
+                    continue
+                conversions.append((f"{TAG_MAPPER} #{tag}", f"#{tag}", 1, {member: 1}))
+                conversions.append((f"{TAG_MAPPER} #{tag}", member, 1, {f"#{tag}": 1}))
+
+    def _choose_projecte_tag_items(self, created, tags, universe, baseline, values):
+        """Name an item instead of a tag in the ProjectE file where TagMapper would lower a member.
+
+        Writing ``#tag`` in a custom conversion makes ProjectE's TagMapper value every member at the cheapest
+        member's value, which would devalue vanilla members and give excluded members EMC. A tag only this
+        port's file names is kept when all its members are worth the same; otherwise the conversion names the
+        cheapest member, which costs the output exactly what the tag would.
+        """
+        for _name, _output, _count, ingredients in self.policy_conversions:
+            for ingredient in ingredients:
+                tag = ingredient[1:]
+                if not ingredient.startswith("#") or tag in created or tag in self.projecte_tag_items:
+                    continue
+                members = sorted(m for m in tags.members(tag) if m in universe or m in baseline)
+                priced = {m: values[m] for m in members if values.get(m, 0) > 0}
+                if not priced or (len(priced) == len(members) and len(set(priced.values())) == 1):
+                    continue
+                cheapest = min(priced, key=lambda m: (priced[m], m))
+                self.projecte_tag_items[tag] = cheapest
+                self.projecte_tag_reasons[tag] = ("naming the tag would let ProjectE's TagMapper lower every member "
+                                                  "to the cheapest one's value")
+
+    @staticmethod
+    def _metals_conversions(metals, tags, universe, fixed, blocked, conversions, source):
+        """Add ProjectE metals.json's tag conversions; return {port item: tag} for members they price.
+
+        metals.json uses ``setValueFromConversion`` with ``propagateTags``: the tag node and every member
+        take their value only from that conversion, unless a fixed (``before``) value wins.
+        """
+        overwritten, chosen = {}, {}
+        for entry in metals:
+            tag, count = entry["output"], entry.get("count", 1)
+            nodes = {f"#{name}": amount for name, amount in entry["ingredients"].items()}
+            conversions.append((f"{METALS} #{tag}", f"#{tag}", count, nodes))
+            for member in sorted(tags.members(tag)):
+                if member in universe and member not in fixed and member not in blocked:
+                    # A later setValueFromConversion for the same item replaces the earlier one.
+                    overwritten[member], chosen[member] = tag, (count, nodes)
+        for member, tag in overwritten.items():
+            source[member] = f"tag #{tag} (ProjectE metals.json)"
+            conversions.append((f"{METALS} #{tag}", member, *chosen[member]))
+        return overwritten
+
+    def _check_overwritten(self, shadowed):
+        """A recipe that makes a metals.json-priced item for less would be an EMC gain; ProjectE only logs it."""
+        values = self.results["projecte"]
+        remainders = self.inputs["projecte"][1]
+        for rid, output, count, ingredients in shadowed:
+            cost = conversion_cost(ingredients, values, remainders)
+            if cost is not None and output in values and floor_value(cost / count) < values[output]:
+                self.problems.append(f"ProjectE: metals.json prices {output} at {values[output]} through "
+                                     f"#{self.projecte_overwritten[output]}, but {rid} makes it for "
+                                     f"{float(cost / count):g}; give it an explicit value")
+
+    def _check_unmanaged_projecte_files(self):
+        """Every ProjectE custom conversion file the port ships must be generated, so nothing else sets values."""
+        managed = {(self.output_root(namespace) / "data" / namespace / "pe_custom_conversions" / f"{namespace}.json")
+                   .resolve() for namespace in self.namespaces}
+        for relative in self.policy["resources"]["projecte"]:
+            data = self.dir / relative / "data"
+            if not data.is_dir():
+                continue
+            for file in sorted(data.glob("*/pe_custom_conversions/**/*.json")):
+                if file.resolve() not in managed:
+                    self.problems.append(f"{file.relative_to(self.dir)} is a ProjectE custom conversion file the "
+                                         f"policy does not generate; move its values into emc/policy.json")
 
     def _check_system(self, system):
         problems = self.problems
@@ -868,6 +1030,9 @@ class Port:
                 elif below_one is not None and 0 < below_one < 1:
                     entry[system] = 0
                     entry.setdefault("below_one", {})[system] = str(below_one)
+                elif system == "projecte" and item in self.projecte_unvalued:
+                    entry[system] = 0
+                    entry.setdefault("no_value", {})[system] = self.projecte_unvalued[item]
                 else:
                     self.problems.append(f"{item} resolves to no {system} value; give it an explicit value or exclude it")
             entry["source"] = self.source_of(item)
@@ -899,7 +1064,9 @@ class Port:
     def projecte_document(self, namespace):
         before = {}
         for item in self.items:
-            if self._namespace_of(item) == namespace and self.explicit_by.get(item):
+            # A blacklisted item's before value would race the ore blacklist mappers, so it is left out.
+            if (self._namespace_of(item) == namespace and self.explicit_by.get(item)
+                    and item not in self.projecte_blacklisted):
                 before[item] = int(self.results["projecte"][item])
         if namespace == self.namespace:
             before.update(self.vanilla["projecte"])
@@ -913,7 +1080,12 @@ class Port:
                     entry = {"output": output}
                     if count != 1:
                         entry["count"] = count
-                    entry["ingredients"] = ingredients
+                    written = {}
+                    for ingredient, amount in ingredients.items():
+                        key = self.projecte_tag_items.get(ingredient[1:], ingredient) \
+                            if ingredient.startswith("#") else ingredient
+                        written[key] = written.get(key, 0) + amount
+                    entry["ingredients"] = written
                     entries.append(entry)
             if entries:
                 groups[f"{namespace}_{spec['name']}"] = {"comment": spec["why"], "conversions": entries}
@@ -994,6 +1166,7 @@ class Port:
             for item, fractions in below.items():
                 lines.append(f"| `{item}` | {fractions.get('projecte', items[item].get('projecte'))} | "
                              f"{fractions.get('itemalchemy', items[item].get('itemalchemy'))} |")
+        lines += self._projecte_readme()
         if self.policy.get("conversions"):
             lines += ["", "## Machine conversions", "",
                       "Shipped to ProjectE as custom conversion groups and applied to Item Alchemy values the same way.",
@@ -1032,6 +1205,32 @@ class Port:
                       "exclusion: "
                       + ", ".join(f"`{t}`" for t in skipped) + "."]
         return "\n".join(lines) + "\n"
+
+    def _projecte_readme(self):
+        """README rows for the values ProjectE's own mappers decide rather than the port's recipes."""
+        unvalued = {i: r for i, r in self.projecte_unvalued.items() if i not in self.excluded_by}
+        priced = {i: t for i, t in self.projecte_overwritten.items() if self.final("projecte", i)}
+        if not (unvalued or priced or self.projecte_tag_items):
+            return []
+        lines = ["", "## ProjectE mapper effects", "",
+                 "ProjectE's own mappers decide these values, so the static table predicts them; the Forge GameTest "
+                 "compares every value with the live ProjectE mapping."]
+        if unvalued:
+            lines += ["", "No ProjectE EMC (`OresBlacklistMapper` and `RawOresBlacklistMapper` zero `#forge:ores` and "
+                      "`#forge:raw_materials`):", "", "| Item | Item Alchemy | Why |", "| --- | ---: | --- |"]
+            for item, reason in unvalued.items():
+                lines.append(f"| `{item}` | {self.final('itemalchemy', item) or 0} | {reason} |")
+        if priced:
+            lines += ["", "Priced by ProjectE's `metals.json` tag conversions:", "",
+                      "| Item | ProjectE | Tag |", "| --- | ---: | --- |"]
+            for item, tag in sorted(priced.items()):
+                lines.append(f"| `{item}` | {self.final('projecte', item)} | `#{tag}` |")
+        if self.projecte_tag_items:
+            lines += ["", "Tags the shipped ProjectE conversions name as one item:", "",
+                      "| Tag | Item | Why |", "| --- | --- | --- |"]
+            for tag, item in sorted(self.projecte_tag_items.items()):
+                lines.append(f"| `#{tag}` | `{item}` | {self.projecte_tag_reasons.get(tag, '')} |")
+        return lines
 
     def output_root(self, namespace):
         mapped = self.policy.get("outputs")
@@ -1209,6 +1408,32 @@ def command_merge(args):
     return 0
 
 
+def projecte_tag_conversions(document):
+    """ProjectE ``values.conversion`` entries whose output is a tag they propagate to every member.
+
+    Returned as ``{"output": tag, "count": n, "ingredients": {tag: amount}}`` without the ``#``. ProjectE 1.1.0's
+    metals.json uses these to price other mods' ingots (tin as one iron ingot, lead as two, and so on).
+    """
+    found = []
+    for conversion in document.get("values", {}).get("conversion", []):
+        output = conversion.get("output", "")
+        ingredients = conversion.get("ingredients")
+        if isinstance(ingredients, list):
+            counted = {}
+            for name in ingredients:
+                counted[name] = counted.get(name, 0) + 1
+            ingredients = counted
+        if not output.startswith("#") or not conversion.get("propagateTags") or not isinstance(ingredients, dict) \
+                or not all(name.startswith("#") for name in ingredients):
+            raise PolicyError(f"unsupported ProjectE default conversion {conversion}")
+        entry = {"output": output[1:]}
+        if conversion.get("count", 1) != 1:
+            entry["count"] = conversion["count"]
+        entry["ingredients"] = {name[1:]: amount for name, amount in ingredients.items()}
+        found.append(entry)
+    return found
+
+
 def read_tag_files(jar, namespace):
     tags = {}
     prefix = f"data/{namespace}/tags/items/"
@@ -1258,14 +1483,19 @@ def command_refresh(args):
     if args.convention_jar:
         (BASELINES / "tags-c.json").write_text(dumps(read_tag_files(args.convention_jar, "c")))
     if args.projecte_jar:
-        values = {}
+        values, conversions, created = {}, [], set()
         with zipfile.ZipFile(args.projecte_jar) as archive:
             for name in ("defaults", "metals"):
-                document = json.loads(archive.read(f"data/projecte/pe_custom_conversions/{name}.json"))
+                text = archive.read(f"data/projecte/pe_custom_conversions/{name}.json").decode()
+                document = json.loads(text)
                 for key, value in document.get("values", {}).get("before", {}).items():
                     if key.startswith("#"):
                         values[key[1:]] = value
+                conversions += projecte_tag_conversions(document)
+                created |= set(re.findall(r'"#([a-z0-9_.-]+:[a-z0-9_./-]+)"', text))
         (BASELINES / "projecte-tag-values.json").write_text(dumps(dict(sorted(values.items()))))
+        (BASELINES / "projecte-tag-conversions.json").write_text(dumps(conversions))
+        (BASELINES / "projecte-tags.json").write_text(dumps(sorted(created)))
     if args.projecte_dump:
         dump = read_json(args.projecte_dump)
         vanilla = {k: v for k, v in dump.items() if k.startswith("minecraft:") and "{" not in k}

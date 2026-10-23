@@ -34,8 +34,8 @@ Anything else is left out:
   so a player who enables them in ProjectE's config still cannot undercut the table.
 - Ore multipliers and the other item recipes whose output would be cheaper than the static value. Enriching three
   raw ore into four dust, or sawing a log into six planks, would pull dust and planks below the ingot and the
-  crafting recipe. Raw osmium and uranium are fixed to the ingot, and tin and lead are fixed to Item Alchemy's
-  tags, so those chains are not repriced. The guard refuses the recipe instead.
+  crafting recipe. ProjectE's ore blacklists already zero the ores and raw ores, so those chains have no ProjectE
+  value to reprice, and the guard refuses the recipe for every other item.
 
 Equal-cost item recipes, such as crushing one ingot into one dust when both have the same value, may be mapped.
 ProjectE keeps the minimum, so a duplicate at the same cost does not move the value.
@@ -54,20 +54,40 @@ The audit reads the expected decisions from `-Demc.values`, which both GameTest 
 `mods/mekanism/emc/values.json`. It writes the live registry to `emc-registry.txt` in the run directory, the input
 `scripts/emc.py` expects when `emc/registry.txt` is refreshed.
 
-The audit is static. The live comparison the other ports run is not wired here because it does not hold for
-Mekanism's data:
+With ProjectE (`-PwithProjectE`, Forge) or Item Alchemy (`-PwithItemAlchemy`, Fabric) installed, the audit also
+requires every live value in the four namespaces to equal the `projecte` or `itemalchemy` column, as in the other
+ports, and writes the live values to `emc-actual-<mod>.json`. CI runs both comparisons in Mekanism's matrix entry.
+All 779 values match on both loaders, and no item is exempt.
 
-- ProjectE's `OresBlacklistMapper` and `RawOresBlacklistMapper` clear the ores and raw ores the static table prices
-  from Item Alchemy's tag values, so live ProjectE reports 0 for them.
-- Mekanism's ProjectE recipe mappers may add a conversion at any cost at least the static value, so a mapped recipe
-  can raise the live ProjectE value above the `projecte` column.
+### Why the live ProjectE values used to differ
 
-A trial `-PwithProjectE` run reported 518 deviations for that reason (505 higher, 13 lower). Item Alchemy's live
-table matched all 779 entries in a trial `-PwithItemAlchemy` run, but the shared audit stays static so both loaders
-check the same thing. Making the live columns agree would mean changing EMC values or mapper behaviour, which is out
-of scope for this test change.
+A trial `-PwithProjectE` run in #106 reported 518 deviations (505 higher, 13 lower), while Item Alchemy matched all
+779. The differences came from ProjectE itself and from a file the generator did not manage, not from Mekanism's
+mappers:
 
-The optional live check remains available to a future change that reconciles those differences.
+- **Upstream `pe_custom_conversions/defaults.json`.** Mekanism's own ProjectE file gave fluorite 576, HDPE pellets 32
+  and salt 8 as `before` values. They overrode the generated table (fluorite 256) and fed every pellet, plastic and
+  polonium recipe. The pellet and salt figures also let a machine create EMC: salt is evaporated from water, which
+  has no EMC, and a pellet is made from 2/5 EMC of substrate. The port removed the file; the policy prices or
+  excludes those items, and `emc.py check` now fails if a port ships a ProjectE file it does not generate.
+- **`metals.json`.** ProjectE prices `#forge:ingots/tin` as one iron ingot, lead and osmium as two, and bronze as
+  three copper plus one tin over four. That raised every conversion that named `#forge:ingots/osmium` by 128 per
+  ingot (circuits, factories, casings) even though the osmium ingot keeps its explicit 384. The generator now models
+  these conversions and writes the item, not the tag, into Mekanism's conversions. Tin, lead and bronze ingots keep
+  explicit values (189, 252, 99) because the `metals.json` prices would make nuggets and dusts craft into ingots
+  worth more than their inputs.
+- **Ore blacklists.** `OresBlacklistMapper` and `RawOresBlacklistMapper` zero the tin, lead and deepslate ores and the
+  raw lead, osmium, tin and uranium the static table priced; the raw-ore storage blocks then have no recipe value.
+  The generator now predicts 0 for them and records why under `no_value`.
+- **`TagMapper`.** Every tag a custom conversion names becomes worth its cheapest member and so does each member.
+  Naming `#forge:glass`, `#forge:glass_panes`, `#minecraft:coals` and `#mekanism:personal_storage` lowered stained
+  and tinted glass, coal and the personal chest. The generated file now names the cheapest member for such tags.
+- **Bucket remainders.** Mekanism's fluid buckets leave an empty bucket in the grid, which ProjectE's crafting
+  mapper subtracts (the frost walker unit uses two hydrogen buckets). The policy now applies that remainder for
+  ProjectE.
+
+Mekanism's recipe mappers were not changed. With the table equal to ProjectE's own result, the guard only admits
+conversions that cost at least the mapped value, so a mapper can never move a value.
 
 ### Fabric
 

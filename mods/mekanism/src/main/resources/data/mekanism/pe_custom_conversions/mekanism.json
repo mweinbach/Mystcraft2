@@ -520,7 +520,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:purification_chamber": 1
           }
         }
@@ -534,7 +534,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/basic": 2,
-            "#mekanism:personal_storage": 1,
+            "mekanism:personal_barrel": 1,
             "mekanism:dynamic_tank": 1,
             "mekanism:basic_chemical_tank": 1
           }
@@ -548,7 +548,7 @@
           "output": "mekanism:advanced_chemical_tank",
           "ingredients": {
             "#mekanism:alloys/infused": 4,
-            "#forge:ingots/osmium": 4,
+            "mekanism:ingot_osmium": 4,
             "mekanism:basic_chemical_tank": 1
           }
         }
@@ -561,7 +561,7 @@
           "output": "mekanism:elite_chemical_tank",
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
-            "#forge:ingots/osmium": 4,
+            "mekanism:ingot_osmium": 4,
             "mekanism:advanced_chemical_tank": 1
           }
         }
@@ -574,7 +574,7 @@
           "output": "mekanism:ultimate_chemical_tank",
           "ingredients": {
             "#mekanism:alloys/atomic": 4,
-            "#forge:ingots/osmium": 4,
+            "mekanism:ingot_osmium": 4,
             "mekanism:elite_chemical_tank": 1
           }
         }
@@ -602,7 +602,7 @@
           "output": "mekanism:basic_control_circuit",
           "count": 4,
           "ingredients": {
-            "#forge:ingots/osmium": 4,
+            "mekanism:ingot_osmium": 4,
             "#mekanism:enriched/redstone": 1
           }
         }
@@ -1784,7 +1784,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "mekanism:energy_tablet": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_energy_cube": 1
           }
         }
@@ -1812,7 +1812,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "mekanism:energy_tablet": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_energy_cube": 1
           }
         }
@@ -1861,7 +1861,7 @@
         {
           "output": "mekanism:enriched_carbon",
           "ingredients": {
-            "#minecraft:coals": 1
+            "minecraft:charcoal": 1
           }
         }
       ]
@@ -1952,7 +1952,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_combining_factory": 1
           }
         }
@@ -1966,7 +1966,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_compressing_factory": 1
           }
         }
@@ -1980,7 +1980,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_crushing_factory": 1
           }
         }
@@ -1994,7 +1994,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_enriching_factory": 1
           }
         }
@@ -2008,7 +2008,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_infusing_factory": 1
           }
         }
@@ -2022,7 +2022,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_injecting_factory": 1
           }
         }
@@ -2036,7 +2036,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_purifying_factory": 1
           }
         }
@@ -2050,7 +2050,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_sawing_factory": 1
           }
         }
@@ -2064,7 +2064,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:basic_smelting_factory": 1
           }
         }
@@ -2204,7 +2204,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_combining_factory": 1
           }
         }
@@ -2218,7 +2218,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_compressing_factory": 1
           }
         }
@@ -2232,7 +2232,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_crushing_factory": 1
           }
         }
@@ -2246,7 +2246,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_enriching_factory": 1
           }
         }
@@ -2260,7 +2260,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_infusing_factory": 1
           }
         }
@@ -2274,7 +2274,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_injecting_factory": 1
           }
         }
@@ -2288,7 +2288,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_purifying_factory": 1
           }
         }
@@ -2302,7 +2302,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_sawing_factory": 1
           }
         }
@@ -2316,7 +2316,7 @@
           "ingredients": {
             "#mekanism:alloys/reinforced": 4,
             "#forge:circuits/elite": 2,
-            "#forge:ingots/gold": 2,
+            "minecraft:gold_ingot": 2,
             "mekanism:advanced_smelting_factory": 1
           }
         }
@@ -2454,10 +2454,10 @@
         {
           "output": "mekanism:flamethrower",
           "ingredients": {
-            "#forge:ingots/tin": 4,
+            "mekanism:ingot_tin": 4,
             "mekanism:basic_chemical_tank": 1,
             "minecraft:flint_and_steel": 1,
-            "#forge:ingots/bronze": 2,
+            "mekanism:ingot_bronze": 2,
             "#forge:circuits/advanced": 1
           }
         }
@@ -2508,7 +2508,7 @@
         {
           "output": "mekanism:fluidic_plenisher",
           "ingredients": {
-            "#forge:ingots/tin": 6,
+            "mekanism:ingot_tin": 6,
             "#forge:circuits/basic": 2,
             "mekanism:electric_pump": 1
           }
@@ -2537,7 +2537,7 @@
             "#forge:storage_blocks/steel": 1,
             "#forge:dusts/diamond": 2,
             "mekanism:free_runners": 1,
-            "#forge:ingots/bronze": 2
+            "mekanism:ingot_bronze": 2
           }
         }
       ]
@@ -2610,7 +2610,7 @@
         {
           "output": "mekanism:isotopic_centrifuge",
           "ingredients": {
-            "#forge:ingots/lead": 6,
+            "mekanism:ingot_lead": 6,
             "#forge:circuits/ultimate": 2,
             "mekanism:basic_chemical_tank": 1
           }
@@ -2625,7 +2625,7 @@
           "ingredients": {
             "#forge:ingots/steel": 2,
             "#forge:circuits/basic": 1,
-            "#forge:ingots/tin": 3,
+            "mekanism:ingot_tin": 3,
             "mekanism:basic_chemical_tank": 1
           }
         }
@@ -2638,7 +2638,7 @@
           "output": "mekanism:jetpack_armored",
           "ingredients": {
             "#forge:dusts/diamond": 2,
-            "#forge:ingots/bronze": 2,
+            "mekanism:ingot_bronze": 2,
             "#forge:storage_blocks/steel": 1,
             "mekanism:jetpack": 1
           }
@@ -2678,7 +2678,7 @@
         {
           "output": "mekanism:laser_tractor_beam",
           "ingredients": {
-            "#mekanism:personal_storage": 1,
+            "mekanism:personal_barrel": 1,
             "mekanism:laser_amplifier": 1
           }
         }
@@ -2729,7 +2729,7 @@
         {
           "output": "mekanism:network_reader",
           "ingredients": {
-            "#forge:glass": 1,
+            "minecraft:glass": 1,
             "#mekanism:alloys/infused": 2,
             "mekanism:energy_tablet": 1,
             "#forge:ingots/steel": 1
@@ -2785,7 +2785,7 @@
         {
           "output": "mekanism:dust_bronze",
           "ingredients": {
-            "#forge:ingots/bronze": 1
+            "mekanism:ingot_bronze": 1
           }
         }
       ]
@@ -2797,7 +2797,7 @@
           "output": "mekanism:ingot_bronze",
           "count": 32,
           "ingredients": {
-            "#forge:ingots/copper": 24,
+            "minecraft:copper_ingot": 24,
             "#mekanism:enriched/tin": 1
           }
         }
@@ -2853,7 +2853,7 @@
         {
           "output": "mekanism:dust_copper",
           "ingredients": {
-            "#forge:ingots/copper": 1
+            "minecraft:copper_ingot": 1
           }
         }
       ]
@@ -2976,7 +2976,7 @@
         {
           "output": "mekanism:dust_gold",
           "ingredients": {
-            "#forge:ingots/gold": 1
+            "minecraft:gold_ingot": 1
           }
         }
       ]
@@ -3132,7 +3132,7 @@
         {
           "output": "mekanism:dust_lead",
           "ingredients": {
-            "#forge:ingots/lead": 1
+            "mekanism:ingot_lead": 1
           }
         }
       ]
@@ -3198,7 +3198,7 @@
         {
           "output": "mekanism:dust_osmium",
           "ingredients": {
-            "#forge:ingots/osmium": 1
+            "mekanism:ingot_osmium": 1
           }
         }
       ]
@@ -3334,7 +3334,7 @@
         {
           "output": "mekanism:dust_tin",
           "ingredients": {
-            "#forge:ingots/tin": 1
+            "mekanism:ingot_tin": 1
           }
         }
       ]
@@ -3437,7 +3437,7 @@
           "ingredients": {
             "#mekanism:alloys/infused": 4,
             "#forge:circuits/advanced": 2,
-            "#forge:ingots/osmium": 2,
+            "mekanism:ingot_osmium": 2,
             "mekanism:enrichment_chamber": 1
           }
         }
@@ -3450,9 +3450,9 @@
           "output": "mekanism:qio_drive_array",
           "ingredients": {
             "#forge:pellets/polonium": 4,
-            "#forge:glass_panes": 1,
+            "minecraft:glass_pane": 1,
             "#forge:circuits/ultimate": 2,
-            "#mekanism:personal_storage": 1,
+            "mekanism:personal_barrel": 1,
             "mekanism:teleportation_core": 1
           }
         }
@@ -3464,7 +3464,7 @@
         {
           "output": "mekanism:qio_drive_hyper_dense",
           "ingredients": {
-            "#forge:ingots/lead": 4,
+            "mekanism:ingot_lead": 4,
             "mekanism:qio_drive_base": 4,
             "#forge:gems/diamond": 1
           }
@@ -3477,7 +3477,7 @@
         {
           "output": "mekanism:qio_drive_supermassive",
           "ingredients": {
-            "#forge:ingots/lead": 4,
+            "mekanism:ingot_lead": 4,
             "mekanism:qio_drive_time_dilating": 4,
             "#forge:pellets/antimatter": 1
           }
@@ -3490,7 +3490,7 @@
         {
           "output": "mekanism:qio_drive_time_dilating",
           "ingredients": {
-            "#forge:ingots/lead": 4,
+            "mekanism:ingot_lead": 4,
             "mekanism:qio_drive_hyper_dense": 4,
             "#forge:gems/emerald": 1
           }
@@ -3547,7 +3547,7 @@
         {
           "output": "mekanism:resistive_heater",
           "ingredients": {
-            "#forge:ingots/tin": 4,
+            "mekanism:ingot_tin": 4,
             "#forge:dusts/redstone": 3,
             "mekanism:steel_casing": 1,
             "mekanism:energy_tablet": 1
@@ -3565,7 +3565,7 @@
             "mekanism:energy_tablet": 2,
             "#mekanism:alloys/atomic": 1,
             "#forge:ingots/refined_obsidian": 2,
-            "#mekanism:personal_storage": 1
+            "mekanism:personal_barrel": 1
           }
         }
       ]
@@ -3576,7 +3576,7 @@
         {
           "output": "mekanism:rotary_condensentrator",
           "ingredients": {
-            "#forge:glass": 4,
+            "minecraft:glass": 4,
             "#forge:circuits/basic": 2,
             "mekanism:basic_chemical_tank": 1,
             "mekanism:energy_tablet": 1,
@@ -3627,18 +3627,13 @@
   },
   "values": {
     "before": {
-      "mekanism:deepslate_lead_ore": 256,
-      "mekanism:deepslate_tin_ore": 192,
       "mekanism:dust_sulfur": 192,
       "mekanism:fluorite_gem": 256,
+      "mekanism:ingot_bronze": 99,
+      "mekanism:ingot_lead": 252,
       "mekanism:ingot_osmium": 384,
-      "mekanism:lead_ore": 256,
-      "mekanism:raw_lead": 256,
-      "mekanism:raw_osmium": 384,
-      "mekanism:raw_tin": 192,
-      "mekanism:raw_uranium": 4096,
+      "mekanism:ingot_tin": 189,
       "mekanism:sawdust": 64,
-      "mekanism:tin_ore": 192,
       "minecraft:elytra": 16463
     },
     "conversion": [
