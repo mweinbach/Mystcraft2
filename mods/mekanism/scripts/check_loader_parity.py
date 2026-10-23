@@ -7,22 +7,22 @@ set must not. Fabric tag bridges replace some shared data files; everything
 else under assets/ and data/ is the same bytes in both jars.
 """
 from pathlib import Path
-import hashlib
 import json
-import tomllib
 import zipfile
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
+import loader_parity as parity
+
 MOD = Path(__file__).resolve().parents[1]
-metadata = dict(line.split('=', 1) for line in (MOD / 'port.properties').read_text().splitlines()
-                if '=' in line and not line.startswith('#'))
+metadata = parity.read_properties(MOD / 'port.properties')
 version = metadata['mod_version']
 forge = MOD / 'build/libs' / f'mekanism-forge-1.19.2-{version}.jar'
 fabric = MOD / 'fabric/build/libs' / f'mekanism-fabric-1.19.2-{version}.jar'
 
 MIXIN_CONFIG = 'mekanism.mixins.json'
 MIXIN_REFMAP = 'mekanism.refmap.json'
-fluid_physics = dict(line.split('=', 1) for line in (MOD.parent / 'fluidphysics/port.properties').read_text().splitlines()
-                     if '=' in line and not line.startswith('#'))
+fluid_physics = parity.read_properties(MOD.parent / 'fluidphysics/port.properties')
 NESTED = (
     'META-INF/jars/energy-2.3.0.jar',
     'META-INF/jars/core-3.6.6.jar',
@@ -36,8 +36,12 @@ EMC = (
 )
 # Forge expands these. pack.mcmeta has no tokens today; mods.toml does.
 EXPANDED = {'META-INF/mods.toml', 'pack.mcmeta'}
-SHARED_ROOTS = ('assets/', 'data/')
 ATTRIBUTION = 'META-INF/Mekanism-UPSTREAM.md'
+GAMETEST_ROOTS = (
+    MOD / 'src/gametestCommon/java',
+    MOD / 'src/gametestForge/java',
+    MOD / 'src/gametestFabric/java',
+)
 
 
 def require(condition, message):
@@ -45,20 +49,23 @@ def require(condition, message):
         raise SystemExit(f'FAIL: {message}')
 
 
+class SourceTree(dict):
+    """A source tree's ``relative path -> bytes`` mapping, listable like a jar."""
+
+    def namelist(self):
+        return list(self)
+
+
 def files_under(root):
     if not root.is_dir():
-        return {}
-    return {path.relative_to(root).as_posix(): path.read_bytes()
-            for path in root.rglob('*') if path.is_file()}
+        return SourceTree()
+    return SourceTree((path.relative_to(root).as_posix(), path.read_bytes())
+                      for path in root.rglob('*') if path.is_file())
 
 
-def gameplay(names):
-    return {name for name in names
-            if not name.endswith('/') and (name.startswith(SHARED_ROOTS) or name in ('pack.mcmeta', 'logo.png'))}
-
-
-def outer_class(name):
-    return name.removesuffix('.class').split('$', 1)[0]
+def gameplay(entries):
+    """The gameplay paths a built jar or a source tree ships."""
+    return parity.gameplay_paths(entries, extra=('pack.mcmeta', 'logo.png'))
 
 
 main = files_under(MOD / 'src/main/resources')
@@ -72,36 +79,22 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     require(forge_jar.testzip() is None and fabric_jar.testzip() is None, 'corrupt artifact')
     forge_names = set(forge_jar.namelist())
     fabric_names = set(fabric_jar.namelist())
-    require('fabric.mod.json' not in forge_names, 'Fabric descriptor leaked into Forge')
-    require('META-INF/mods.toml' not in fabric_names, 'Forge descriptor leaked into Fabric')
+
+    forge_mod, fabric_mod = parity.check_descriptors(
+        forge_jar, fabric_jar, mod_id=metadata['mod_id'], version=version, fail=require)
     require(MIXIN_CONFIG not in forge_names and MIXIN_REFMAP not in forge_names,
             'Fabric mixin config leaked into Forge')
-
-    forge_mod = tomllib.loads(forge_jar.read('META-INF/mods.toml').decode())['mods'][0]
-    fabric_mod = json.loads(fabric_jar.read('fabric.mod.json'))
-    require(forge_mod['modId'] == fabric_mod['id'] == metadata['mod_id'], 'mod ID mismatch')
-    require(forge_mod['version'] == fabric_mod['version'] == version, 'version mismatch')
     require(fabric_mod['depends'].get('team_reborn_energy'), 'Fabric build must depend on Team Reborn Energy')
     require(fabric_mod['depends'].get('fluidphysics'), 'Fabric build must depend on Fluid Physics')
     require(fabric_mod.get('mixins') == [MIXIN_CONFIG], 'fabric.mod.json must list the mixin config')
     require(fabric_mod.get('accessWidener') == 'mekanism.accesswidener', 'missing access widener')
 
-    nested = [name for name in fabric_names if name.startswith('META-INF/jars/') and name.endswith('.jar')]
-    require(sorted(nested) == sorted(NESTED), f'Fabric nested libraries: {nested}')
-    declared = [entry.get('file') for entry in fabric_mod.get('jars', [])]
-    require(sorted(declared) == sorted(NESTED), f'fabric.mod.json jars: {declared}')
-    require(not any(name.startswith('META-INF/jars/') for name in forge_names), 'Forge JAR must not nest libraries')
+    bundled = parity.check_nested_libraries(forge_jar, fabric_jar, fabric_mod, NESTED, fail=require)
 
-    for jar, forbidden, label in (
-            (forge_jar, (b'net/fabricmc/', b'team/reborn/'), 'Forge'),
-            (fabric_jar, (b'net/minecraftforge/',), 'Fabric')):
-        for name in jar.namelist():
-            if name.endswith('.class'):
-                body = jar.read(name)
-                for marker in forbidden:
-                    require(marker not in body, f'{label} class references {marker.decode()} in {name}')
-                require('gametest' not in name.lower(), f'GameTest class shipped: {name}')
-            require('/gametest/' not in name and not name.endswith('.snbt'), f'GameTest fixture shipped: {name}')
+    parity.check_cross_loader(forge_jar, fabric_jar, forge_forbidden=(b'net/fabricmc/', b'team/reborn/'),
+                              fail=require)
+    parity.check_gametests((forge_jar, fabric_jar), *GAMETEST_ROOTS,
+                                  class_substrings=('gametest',), fail=require)
 
     # Jade and the ComputerCraft peripheral are shared. The One Probe, the Curios adapter and the ProjectE
     # mappers are Forge-only. WTHIT, the Fabric peripheral provider and the Trinkets adapter are Fabric-only, so
@@ -179,7 +172,7 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     declared_classes = {package + name.replace('.', '/') for name in mixin_names}
     for name in fabric_names:
         if name.startswith(package) and name.endswith('.class'):
-            require(outer_class(name) in declared_classes, f'non-mixin class in the mixin package: {name}')
+            require(parity.outer_class(name) in declared_classes, f'non-mixin class in the mixin package: {name}')
     for name in declared_classes:
         require(name + '.class' in fabric_names, f'declared mixin missing: {name}')
     # Interface mixins only add a Forge-shaped interface, so they have no member to remap.
@@ -196,8 +189,8 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     expected_forge = gameplay(main) | gameplay(forge_src)
     expected_fabric = (expected_forge - set(fabric_src)) | gameplay(fabric_src)
     # A Fabric file at the same path replaces the shared one. Forge keeps the shared bytes.
-    forge_paths = gameplay(forge_names)
-    fabric_paths = gameplay(fabric_names)
+    forge_paths = gameplay(forge_jar)
+    fabric_paths = gameplay(fabric_jar)
     require(forge_paths == expected_forge,
             'Forge gameplay paths differ from sources: ' + ', '.join(sorted(forge_paths ^ expected_forge)[:8]))
     require(fabric_paths == expected_fabric,
@@ -262,24 +255,14 @@ def check_module(name, mod_id, expect_emc):
         require(forge_jar.testzip() is None and fabric_jar.testzip() is None, f'{mod_id}: corrupt artifact')
         forge_names = set(forge_jar.namelist())
         fabric_names = set(fabric_jar.namelist())
-        require('fabric.mod.json' not in forge_names, f'{mod_id}: Fabric descriptor leaked into Forge')
-        require('META-INF/mods.toml' not in fabric_names, f'{mod_id}: Forge descriptor leaked into Fabric')
-        forge_mod = tomllib.loads(forge_jar.read('META-INF/mods.toml').decode())['mods'][0]
-        fabric_mod = json.loads(fabric_jar.read('fabric.mod.json'))
-        require(forge_mod['modId'] == fabric_mod['id'] == mod_id, f'{mod_id}: mod ID mismatch')
-        require(forge_mod['version'] == fabric_mod['version'] == version, f'{mod_id}: version mismatch')
+
+        forge_mod, fabric_mod = parity.check_descriptors(
+            forge_jar, fabric_jar, mod_id=mod_id, version=version, fail=require)
         require(fabric_mod['depends'].get('mekanism'), f'{mod_id}: Fabric jar must depend on mekanism')
-        for jar, forbidden, label in (
-                (forge_jar, (b'net/fabricmc/', b'team/reborn/'), 'Forge'),
-                (fabric_jar, (b'net/minecraftforge/',), 'Fabric')):
-            for entry_name in jar.namelist():
-                if entry_name.endswith('.class'):
-                    body = jar.read(entry_name)
-                    for marker in forbidden:
-                        require(marker not in body, f'{mod_id} {label} class references {marker.decode()} in {entry_name}')
-                    require('gametest' not in entry_name.lower(), f'{mod_id}: GameTest class shipped: {entry_name}')
-                require('/gametest/' not in entry_name and not entry_name.endswith('.snbt'),
-                        f'{mod_id}: GameTest fixture shipped: {entry_name}')
+        parity.check_cross_loader(forge_jar, fabric_jar, forge_forbidden=(b'net/fabricmc/', b'team/reborn/'),
+                                  fail=require)
+        parity.check_gametests((forge_jar, fabric_jar), *GAMETEST_ROOTS,
+                                  class_substrings=('gametest',), fail=require)
         forge_classes = {entry_name for entry_name in forge_names if entry_name.endswith('.class') and entry_name.startswith(prefix)}
         fabric_classes = {entry_name for entry_name in fabric_names if entry_name.endswith('.class') and entry_name.startswith(prefix)}
         require(forge_classes and forge_classes == fabric_classes,
@@ -288,8 +271,8 @@ def check_module(name, mod_id, expect_emc):
                 f'{mod_id}: Fabric adapter leaked into Forge')
         require(any(entry_name.startswith(entry) and entry_name.endswith('.class') for entry_name in fabric_names),
                 f'{mod_id}: missing Fabric entrypoint under {entry}')
-        forge_paths = gameplay(forge_names)
-        fabric_paths = gameplay(fabric_names)
+        forge_paths = gameplay(forge_jar)
+        fabric_paths = gameplay(fabric_jar)
         expected = gameplay(shared) | {'logo.png'}
         require(forge_paths == fabric_paths == expected,
                 f'{mod_id}: gameplay paths differ: ' + ', '.join(sorted((forge_paths ^ expected) | (fabric_paths ^ expected))[:8]))
@@ -307,12 +290,10 @@ def check_module(name, mod_id, expect_emc):
             require('LICENSE' in jar.namelist() and jar.read('LICENSE') == (MOD / 'LICENSE').read_bytes(),
                     f'{mod_id}: LICENSE mismatch')
     print(f'PASS: {mod_id} {len(forge_classes)} shared classes, {len(expected)} gameplay resources.')
-    for path in (forge_path, fabric_path):
-        print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')
+    parity.print_hashes(forge_path, fabric_path)
 
 
 for module_name, module_id, module_emc in MODULES:
     check_module(module_name, module_id, module_emc)
 
-for path in (forge, fabric):
-    print(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}')
+parity.print_hashes(forge, fabric)

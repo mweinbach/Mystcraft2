@@ -3,7 +3,7 @@
   "id": "mystcraft",
   "version": "${version}",
   "name": "Mystcraft",
-  "description": "Classic Mystcraft linking books, bookstands, and ink mixer for Minecraft 1.19.2. Age writing and generation remain unported.",
+  "description": "Classic Mystcraft development port for Minecraft 1.19.2: linking, descriptive books, Ages, writing and crystal portals. Full 1.12 parity remains in progress.",
   "authors": ["XCompWiz", "1.19.2 port contributors"],
   "license": "LGPL-3.0-only",
   "environment": "*",

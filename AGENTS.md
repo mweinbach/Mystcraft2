@@ -13,6 +13,9 @@ Minecraft as part of a port.
   build. Individual dependency declarations belong in each mod's `build.gradle`.
 - Run `./scripts/setup.sh` if needed, then use `./scripts/gradle.sh` in this cloud
   environment so Java and proxy trust are configured.
+- Each port's gate is `mods/<mod>/scripts/check_loader_parity.py`; use the shared
+  `scripts/loader_parity.py` helpers for the common artifact checks instead of
+  copying them between ports. The gates need Python 3.11+ (`tomllib`); CI uses 3.12.
 - Validate metadata with `python3 scripts/ports.py check`. For tooling changes,
   run `python3 -m unittest discover -s scripts/tests -v`. Build the affected port
   with `./scripts/gradle.sh :<mod-id>:build`; build all ports for shared changes.
@@ -38,7 +41,7 @@ After Mystcraft changes, build both variants:
 
 The Fabric build intentionally isolates Loom from the root ForgeGradle build.
 Server/client loader combinations must match; cross-loader multiplayer and world
-migration are not promised. Keep classic 1.12 parity gaps explicit.
+migration are not promised. Keep classic 1.12 parity gaps explicit in `mods/mystcraft/PARITY.md`.
 
 ## JurassiCraft loader support
 
@@ -66,7 +69,8 @@ Advanced Genetics uses the same layout: gameplay, registries, recipes, assets an
 data live in `mods/advancedgenetics/src/main`; Forge adapters in `src/forge`,
 Fabric adapters in `src/fabric`, and the Loom build in `mods/advancedgenetics/fabric`.
 Shared code reaches loader services only through `Platform`. Fabric gene hooks
-must fire where Forge fires the matching event. Shared GameTests live in
+must fire where Forge fires the matching event. Record loader services and known
+gaps in `mods/advancedgenetics/PARITY.md`. Shared GameTests live in
 `src/gametestCommon` and run on both loaders through each loader's `TestPlatform`.
 They must stay out of production JARs. Mixin packages may contain only mixins.
 After Advanced Genetics changes, run:
@@ -131,3 +135,16 @@ forwarded by both loaders. After Extreme Reactors changes, run:
 - `python3 scripts/emc.py check`
 - `./scripts/gradle.sh :extremereactors:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/extremereactors/fabric runGametest -PwithItemAlchemy`
+
+## Fluid Physics support
+
+`mods/fluidphysics` is a **Fabric-only library**, not a gameplay port. It gives
+modded fluids the part of Forge's `FluidType` behaviour vanilla applies only to
+water and lava: swimming, drowning, current pushing, the fall distance modifier,
+boat support and path types. Forge already has `FluidType`, so there is no Forge
+variant and no parity gate. Extreme Reactors' Fabric build consumes it through
+`include(...)`. Keep its limitations in `mods/fluidphysics/README.md` current and
+test it with:
+
+- `./scripts/gradle.sh -p mods/fluidphysics build`
+- `./scripts/gradle.sh -p mods/fluidphysics runGametest`
