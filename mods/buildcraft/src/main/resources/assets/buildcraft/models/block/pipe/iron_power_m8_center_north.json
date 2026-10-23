@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_center_north",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/iron_power_m8"
+  }
+}

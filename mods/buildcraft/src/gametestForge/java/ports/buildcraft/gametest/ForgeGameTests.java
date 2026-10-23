@@ -222,6 +222,21 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 400)
     public static void kinesisPipesCarryEnginePower(GameTestHelper helper) { BCTests.kinesisPipesCarryEnginePower(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void kinesisLimiterPipeDefinitions(GameTestHelper helper) { BCTests.kinesisLimiterPipeDefinitions(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 240)
+    public static void ironKinesisPipeCapsDeliveredPower(GameTestHelper helper) { BCTests.ironKinesisPipeCapsDeliveredPower(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void ironKinesisPipeFeedsEveryRequestingFace(GameTestHelper helper) { BCTests.ironKinesisPipeFeedsEveryRequestingFace(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void diamondKinesisPipeCarriesMoreThanBase(GameTestHelper helper) { BCTests.diamondKinesisPipeCarriesMoreThanBase(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 100)
+    public static void kinesisSimulatedTransferMatchesReal(GameTestHelper helper) { BCTests.kinesisSimulatedTransferMatchesReal(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 60)
     public static void laserPowersTablesInSight(GameTestHelper helper) { SiliconTests.laserPowersTablesInSight(helper); }
 
@@ -261,6 +276,9 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) { GateTests.gateTurnsIronPipeAndReadsInventories(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
+    public static void gateAndWrenchSetKinesisPowerLimit(GameTestHelper helper) { GateTests.gateAndWrenchSetKinesisPowerLimit(helper); }
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 40)
     public static void wirePlacesJoinsAndSaves(GameTestHelper helper) { WireTests.wirePlacesJoinsAndSaves(helper); }

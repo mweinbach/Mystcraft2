@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:block/pipe_arm_up",
+  "textures": {
+    "pipe": "buildcraft:block/pipe/iron_power_m0"
+  }
+}

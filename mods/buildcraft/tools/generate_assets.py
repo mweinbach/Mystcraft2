@@ -68,13 +68,23 @@ FLOW_NAMES = {"item": "Transport", "fluid": "Fluid", "power": "Kinesis"}
 
 
 def pipe(name: str, texture: str | None = None, special: str | None = None, faces: dict[str, str] | None = None,
-         item_texture: str | None = None, title: str | None = None) -> dict:
+         item_texture: str | None = None, title: str | None = None, limits: list[str] | None = None) -> dict:
     texture = texture or name
     if title is None:
         material, flow = name.rsplit("_", 1)
         title = f"{MATERIAL_NAMES[material]} {FLOW_NAMES[flow]} Pipe"
     return {"name": name, "faces": faces or {d: texture for d in DIRECTIONS}, "special": special,
-            "item": item_texture or texture, "title": title}
+            "item": item_texture or texture, "title": title, "limits": limits}
+
+
+# Upstream BCTransportPipes' limiter texture suffixes; PipeBehaviourLimiter.getTextureIndex is MAX_SHIFT - limitShift.
+LIMITER_SUFFIXES = ["_m0", "_m4", "_m8", "_m16", "_m32", "_m64", "_m128"]
+
+
+def limiter(name: str) -> dict:
+    """An iron or diamond kinesis pipe: one texture per limit_shift, and upstream's itemTex(6) for the item."""
+    textures = [name + LIMITER_SUFFIXES[len(LIMITER_SUFFIXES) - 1 - shift] for shift in range(len(LIMITER_SUFFIXES))]
+    return pipe(name, textures[0], item_texture=textures[0], limits=textures)
 
 
 # Mirrors ports.buildcraft.transport.BCTransport.
@@ -91,6 +101,7 @@ PIPES = [
     pipe("clay_fluid"), pipe("void_fluid"),
     pipe("wood_power", "wood_power_clear", "wood_power_filled"),
     pipe("cobblestone_power"), pipe("stone_power"), pipe("quartz_power"), pipe("gold_power"), pipe("sandstone_power"),
+    limiter("iron_power"), limiter("diamond_power"),
     pipe("structure", title="Cobblestone Structure Pipe"),
 ]
 
@@ -236,6 +247,7 @@ class Generator:
             pipe_textures.add(definition["item"])
             if definition["special"]:
                 pipe_textures.add(definition["special"])
+            pipe_textures.update(definition["limits"] or [])
         for texture in sorted(pipe_textures):
             self.copy(f"buildcrafttransport/textures/pipes/{texture}.png", f"block/pipe/{texture}.png")
 
@@ -424,12 +436,17 @@ class Generator:
         for definition in PIPES:
             name = "pipe_" + definition["name"]
             multipart = []
-            for direction in DIRECTIONS:
-                texture = definition["faces"][direction]
-                special = definition["special"] or texture
-                multipart.append({"when": {direction: "none"}, "apply": {"model": self.pipe_part(texture, "center", direction, made)}})
-                multipart.append({"when": {direction: "connected"}, "apply": {"model": self.pipe_part(texture, "arm", direction, made)}})
-                multipart.append({"when": {direction: "special"}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
+            # Limiter pipes use one texture per limit_shift on every face; other pipes have one state of textures.
+            states = [({"limit_shift": str(shift)}, {d: texture for d in DIRECTIONS}, texture)
+                      for shift, texture in enumerate(definition["limits"])] if definition["limits"] else \
+                [({}, definition["faces"], None)]
+            for extra, faces, special_texture in states:
+                for direction in DIRECTIONS:
+                    texture = faces[direction]
+                    special = special_texture or definition["special"] or texture
+                    multipart.append({"when": {direction: "none", **extra}, "apply": {"model": self.pipe_part(texture, "center", direction, made)}})
+                    multipart.append({"when": {direction: "connected", **extra}, "apply": {"model": self.pipe_part(texture, "arm", direction, made)}})
+                    multipart.append({"when": {direction: "special", **extra}, "apply": {"model": self.pipe_part(special, "arm", direction, made)}})
             self.blockstate(name, {"multipart": multipart})
             self.model(f"item/{name}", {"parent": rl("item/pipe_base"), "textures": {"pipe": rl("block/pipe/" + definition["item"])}})
             self.lang[f"block.{MOD}.{name}"] = definition["title"]
@@ -929,6 +946,8 @@ class Generator:
             self.copy(f"{core}/{sprite}.png", f"triggers/{sprite}.png")
         for contents in ["containsitems", "containsfluids", "requestsenergy"]:
             self.copy(f"buildcrafttransport/textures/triggers/trigger_pipecontents_{contents}.png", f"triggers/trigger_pipecontents_{contents}.png")
+        for limit in ["m256", "m128", "m64", "m16", "m8", "m2", "m0"]:
+            self.copy(f"buildcrafttransport/textures/triggers/trigger_limiter_{limit}.png", f"triggers/trigger_limiter_{limit}.png")
 
         # Upstream en_US.lang, whose %d placeholders become %s.
         self.lang.update({
@@ -955,6 +974,8 @@ class Generator:
             "gate.trigger.pipe.requestsEnergy": "Power Requested",
             "gate.action.redstone.signal": "Redstone Signal",
             "gate.action.pipe.direction": "Face the %s side",
+            "gate.action.pipe.power_limit": "Switch to %s MJ/t limit",
+            "chat.pipe.power.iron.mode": "Switched to %s MJ/t limit",
             "chat.gateCopier.gateCopied": "Copied gate information to copier.",
             "chat.gateCopier.gatePasted": "Pasted copied data to gate.",
             "chat.gateCopier.noInformation": "No gate information stored!",

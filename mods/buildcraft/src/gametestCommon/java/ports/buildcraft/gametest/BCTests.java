@@ -114,7 +114,11 @@ import ports.buildcraft.lib.marker.MarkerSubCache;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.FluidPort;
 import ports.buildcraft.platform.Platform;
+import ports.buildcraft.silicon.BCSilicon;
+import ports.buildcraft.silicon.LaserBlockEntity;
+import ports.buildcraft.statement.StatementParameter;
 import ports.buildcraft.transport.BCTransport;
+import ports.buildcraft.transport.LimiterPipeBlock;
 import ports.buildcraft.transport.PipeBlock;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.PipeDefinition;
@@ -122,7 +126,10 @@ import ports.buildcraft.transport.SideCheck;
 import ports.buildcraft.transport.behaviour.DiamondFluidBehaviour;
 import ports.buildcraft.transport.behaviour.DiamondItemBehaviour;
 import ports.buildcraft.transport.behaviour.DirectionalBehaviour;
+import ports.buildcraft.transport.behaviour.LimiterBehaviour;
 import ports.buildcraft.transport.flow.ItemFlow;
+import ports.buildcraft.transport.flow.PowerFlow;
+import ports.buildcraft.transport.statements.BCTransportStatements;
 import ports.buildcraft.transport.pluggable.BlockerPluggable;
 import ports.buildcraft.transport.pluggable.PowerAdaptorPluggable;
 
@@ -1401,6 +1408,216 @@ public final class BCTests {
                 "the mining well must receive power through the pipes, has " + well.battery().stored()));
     }
 
+    /**
+     * Upstream {@code BCTransportConfig}: iron kinesis pipes move 8 times and diamond ones 64 times the base 4 MJ/t,
+     * neither takes power from machines, and upstream's {@code PipeBehaviourLimiter} shifts the rate right by 0 to 5
+     * and stops transfer at 6. The limit is saved and drawn from the block state.
+     */
+    public static void kinesisLimiterPipeDefinitions(GameTestHelper helper) {
+        long base = BCTransport.COBBLESTONE_POWER.powerTransferPerTick;
+        require(helper, base == 4 * Power.MJ, "the base kinesis rate must be 4 MJ/t, is " + Power.formatMj(base));
+        require(helper, BCTransport.IRON_POWER.powerTransferPerTick == 8 * base, "the iron kinesis pipe must move 32 MJ/t");
+        require(helper, BCTransport.DIAMOND_POWER.powerTransferPerTick == 64 * base, "the diamond kinesis pipe must move 256 MJ/t");
+        for (PipeDefinition definition : List.of(BCTransport.IRON_POWER, BCTransport.DIAMOND_POWER)) {
+            require(helper, definition.flow == PipeDefinition.Flow.POWER && !definition.powerReceiver,
+                    definition.registryName() + " must carry power without taking it from machines");
+        }
+        PipeBlockEntity iron = pipe(helper, new BlockPos(1, 1, 1), BCTransport.IRON_POWER);
+        PipeBlockEntity diamond = pipe(helper, new BlockPos(3, 1, 3), BCTransport.DIAMOND_POWER);
+        require(helper, iron.behaviour() instanceof LimiterBehaviour && diamond.behaviour() instanceof LimiterBehaviour,
+                "the iron and diamond kinesis pipes must use the limiter behaviour");
+        LimiterBehaviour limiter = (LimiterBehaviour) iron.behaviour();
+        PowerFlow flow = (PowerFlow) iron.flow();
+        long[] expected = {32, 16, 8, 4, 2, 1};
+        for (int shift = 0; shift <= LimiterBehaviour.MAX_SHIFT; shift++) {
+            limiter.setLimitShift(shift);
+            require(helper, iron.getBlockState().getValue(LimiterPipeBlock.LIMIT_SHIFT) == shift,
+                    "the block state must show limit shift " + shift);
+            require(helper, flow.isTransferDisabled() == (shift == LimiterBehaviour.MAX_SHIFT), "only the last limit stops transfer");
+            if (shift < LimiterBehaviour.MAX_SHIFT) {
+                require(helper, flow.maxPower() == expected[shift] * Power.MJ,
+                        "limit shift " + shift + " must allow " + expected[shift] + " MJ/t, allows " + Power.formatMj(flow.maxPower()));
+            }
+        }
+        limiter.setLimitShift(3);
+        CompoundTag saved = iron.saveWithoutMetadata();
+        PipeBlockEntity loaded = pipe(helper, new BlockPos(1, 1, 3), BCTransport.IRON_POWER);
+        loaded.load(saved);
+        require(helper, ((LimiterBehaviour) loaded.behaviour()).limitShift() == 3, "the limit must survive saving");
+        require(helper, ((PowerFlow) diamond.flow()).maxPower() == 256 * Power.MJ, "an unlimited diamond kinesis pipe must allow 256 MJ/t");
+        helper.succeed();
+    }
+
+    /**
+     * A wooden kinesis pipe fed far more than it can pass on drives a laser through an iron kinesis pipe: the laser
+     * gets the iron pipe's selected limit each tick, a gate's power limit action lowers it, and the last limit stops
+     * the flow. Power is never made or lost along the way.
+     */
+    public static void ironKinesisPipeCapsDeliveredPower(GameTestHelper helper) {
+        PipeBlockEntity wood = pipe(helper, new BlockPos(1, 1, 1), BCTransport.WOOD_POWER);
+        PipeBlockEntity iron = pipe(helper, new BlockPos(2, 1, 1), BCTransport.IRON_POWER);
+        LaserBlockEntity laser = laser(helper, new BlockPos(3, 1, 1));
+        LimiterBehaviour limiter = (LimiterBehaviour) iron.behaviour();
+        limiter.setLimitShift(2);
+        long[] injected = {0};
+        long[] mark = new long[1];
+        helper.onEachTick(() -> {
+            injected[0] += Power.fromUnits(wood.energyPort(Direction.WEST).receive(Power.toUnits(64 * Power.MJ), false));
+            requireConserved(helper, injected[0], laser, wood, iron);
+        });
+        helper.runAtTickTime(20, () -> mark[0] = laser.battery().stored());
+        helper.runAtTickTime(60, () -> {
+            requireDelivered(helper, laser.battery().stored() - mark[0], 8 * Power.MJ, 40, "the iron kinesis pipe at 8 MJ/t");
+            limiter.onActionActivate(BCTransportStatements.ACTION_IRON_POWER_LIMIT[LimiterBehaviour.MAX_SHIFT - 3], new StatementParameter[0]);
+            require(helper, limiter.limitShift() == 3, "the power limit action must set the iron pipe to 4 MJ/t");
+        });
+        helper.runAtTickTime(80, () -> mark[0] = laser.battery().stored());
+        helper.runAtTickTime(120, () -> {
+            requireDelivered(helper, laser.battery().stored() - mark[0], 4 * Power.MJ, 40, "the iron kinesis pipe at 4 MJ/t");
+            limiter.onActionActivate(BCTransportStatements.ACTION_IRON_POWER_LIMIT[0], new StatementParameter[0]);
+            require(helper, limiter.limitShift() == LimiterBehaviour.MAX_SHIFT, "the first power limit action must stop transfer");
+        });
+        helper.runAtTickTime(140, () -> mark[0] = laser.battery().stored());
+        helper.runAtTickTime(180, () -> {
+            require(helper, laser.battery().stored() == mark[0], "a stopped iron kinesis pipe must deliver nothing, delivered "
+                    + Power.formatMj(laser.battery().stored() - mark[0]) + " MJ");
+            require(helper, wood.energyPort(Direction.WEST).receive(1000, true) == 0, "the wooden pipe must not be asked for power");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * As upstream's {@code PipeBehaviourLimiter}, which has no facing, an iron kinesis pipe sends power to every face
+     * that asks for it, each up to its limit; the wrench changes the limit instead of a direction.
+     */
+    public static void ironKinesisPipeFeedsEveryRequestingFace(GameTestHelper helper) {
+        PipeBlockEntity wood = pipe(helper, new BlockPos(1, 1, 2), BCTransport.WOOD_POWER);
+        PipeBlockEntity iron = pipe(helper, new BlockPos(2, 1, 2), BCTransport.IRON_POWER);
+        LaserBlockEntity east = laser(helper, new BlockPos(3, 1, 2));
+        LaserBlockEntity north = laser(helper, new BlockPos(2, 1, 1));
+        ((LimiterBehaviour) iron.behaviour()).setLimitShift(3);
+        long[] injected = {0};
+        helper.onEachTick(() -> {
+            injected[0] += Power.fromUnits(wood.energyPort(Direction.WEST).receive(Power.toUnits(64 * Power.MJ), false));
+            requireConserved(helper, injected[0], east, north, wood, iron);
+        });
+        helper.runAtTickTime(60, () -> {
+            require(helper, east.battery().stored() > 0 && north.battery().stored() > 0,
+                    "both lasers must receive power, east " + Power.formatMj(east.battery().stored()) + " MJ, north "
+                            + Power.formatMj(north.battery().stored()) + " MJ");
+            long cap = 4 * Power.MJ * 62;
+            require(helper, east.battery().stored() <= cap && north.battery().stored() <= cap, "each face must keep to the 4 MJ/t limit");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * Each kinesis pipe asks a laser for at most its upstream rate (cobblestone 4, gold 128, diamond 256 MJ/t), and a
+     * wooden pipe passes on 16 MJ/t through a diamond pipe but only the base 4 MJ/t through a cobblestone one.
+     */
+    public static void diamondKinesisPipeCarriesMoreThanBase(GameTestHelper helper) {
+        PipeBlockEntity cobble = pipe(helper, new BlockPos(0, 1, 0), BCTransport.COBBLESTONE_POWER);
+        laser(helper, new BlockPos(0, 2, 0));
+        PipeBlockEntity gold = pipe(helper, new BlockPos(2, 1, 0), BCTransport.GOLD_POWER);
+        laser(helper, new BlockPos(2, 2, 0));
+        PipeBlockEntity diamondAlone = pipe(helper, new BlockPos(4, 1, 0), BCTransport.DIAMOND_POWER);
+        laser(helper, new BlockPos(4, 2, 0));
+
+        PipeBlockEntity baseWood = pipe(helper, new BlockPos(0, 1, 2), BCTransport.WOOD_POWER);
+        PipeBlockEntity basePipe = pipe(helper, new BlockPos(1, 1, 2), BCTransport.COBBLESTONE_POWER);
+        LaserBlockEntity baseLaser = laser(helper, new BlockPos(2, 1, 2));
+        PipeBlockEntity diamondWood = pipe(helper, new BlockPos(0, 1, 4), BCTransport.WOOD_POWER);
+        PipeBlockEntity diamond = pipe(helper, new BlockPos(1, 1, 4), BCTransport.DIAMOND_POWER);
+        LaserBlockEntity diamondLaser = laser(helper, new BlockPos(2, 1, 4));
+        long[] injected = {0, 0};
+        long[] base = new long[1];
+        long[] fast = new long[1];
+        helper.onEachTick(() -> {
+            injected[0] += Power.fromUnits(baseWood.energyPort(Direction.WEST).receive(Power.toUnits(64 * Power.MJ), false));
+            injected[1] += Power.fromUnits(diamondWood.energyPort(Direction.WEST).receive(Power.toUnits(64 * Power.MJ), false));
+            requireConserved(helper, injected[0], baseLaser, baseWood, basePipe);
+            requireConserved(helper, injected[1], diamondLaser, diamondWood, diamond);
+        });
+        helper.runAtTickTime(10, () -> {
+            requireRequested(helper, cobble, 4 * Power.MJ);
+            requireRequested(helper, gold, 128 * Power.MJ);
+            requireRequested(helper, diamondAlone, 256 * Power.MJ);
+        });
+        helper.runAtTickTime(20, () -> {
+            base[0] = baseLaser.battery().stored();
+            fast[0] = diamondLaser.battery().stored();
+        });
+        helper.runAtTickTime(60, () -> {
+            long viaBase = baseLaser.battery().stored() - base[0];
+            long viaDiamond = diamondLaser.battery().stored() - fast[0];
+            requireDelivered(helper, viaBase, 4 * Power.MJ, 40, "the cobblestone kinesis pipe");
+            requireDelivered(helper, viaDiamond, 16 * Power.MJ, 40, "the diamond kinesis pipe behind a 16 MJ/t wooden pipe");
+            require(helper, viaDiamond > viaBase, "the diamond kinesis pipe must carry more than the base pipe");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * A kinesis pipe's face takes for real exactly what it said it would take when simulated, also when a limiter
+     * pipe behind it is stopped, and no power appears or disappears between the wooden pipe and the laser.
+     */
+    public static void kinesisSimulatedTransferMatchesReal(GameTestHelper helper) {
+        PipeBlockEntity wood = pipe(helper, new BlockPos(1, 1, 1), BCTransport.WOOD_POWER);
+        PipeBlockEntity diamond = pipe(helper, new BlockPos(2, 1, 1), BCTransport.DIAMOND_POWER);
+        LaserBlockEntity laser = laser(helper, new BlockPos(3, 1, 1));
+        LimiterBehaviour limiter = (LimiterBehaviour) diamond.behaviour();
+        long[] injected = {0};
+        boolean[] sawPower = {false};
+        helper.onEachTick(() -> {
+            EnergyPort port = wood.energyPort(Direction.WEST);
+            long offer = Power.toUnits(7 * Power.MJ) + 3;
+            long simulated = port.receive(offer, true);
+            long storedBefore = port.stored();
+            long real = port.receive(offer, false);
+            require(helper, simulated == real, "a simulated receive offered " + simulated + " units, the real one took " + real);
+            require(helper, port.stored() - storedBefore == real, "the wooden pipe must hold exactly what it took");
+            sawPower[0] |= real > 0;
+            injected[0] += Power.fromUnits(real);
+            requireConserved(helper, injected[0], laser, wood, diamond);
+        });
+        helper.runAtTickTime(40, () -> {
+            require(helper, sawPower[0] && laser.battery().stored() > 0, "power must reach the laser");
+            limiter.setLimitShift(LimiterBehaviour.MAX_SHIFT);
+        });
+        helper.runAtTickTime(60, () -> {
+            require(helper, wood.energyPort(Direction.WEST).receive(1000, true) == 0
+                    && wood.energyPort(Direction.WEST).receive(1000, false) == 0, "a stopped diamond pipe's wooden feeder must take nothing");
+            helper.succeed();
+        });
+    }
+
+    private static LaserBlockEntity laser(GameTestHelper helper, BlockPos pos) {
+        helper.setBlock(pos, BCSilicon.LASER.get());
+        return tile(helper, pos, LaserBlockEntity.class);
+    }
+
+    /** Everything put into the wooden pipes is in a laser's battery or still in the pipes, to the micro-MJ. */
+    private static void requireConserved(GameTestHelper helper, long injected, Object... holders) {
+        long total = 0;
+        for (Object holder : holders) {
+            if (holder instanceof LaserBlockEntity laser) total += laser.battery().stored();
+            else total += ((PowerFlow) ((PipeBlockEntity) holder).flow()).storedMicroJoules();
+        }
+        require(helper, total == injected, "kinesis pipes must neither make nor lose power: put in " + injected + " µMJ, hold " + total);
+    }
+
+    /** Over {@code ticks} ticks a steady chain delivers its rate each tick, give or take what a pipe holds for a tick or two. */
+    private static void requireDelivered(GameTestHelper helper, long delivered, long perTick, int ticks, String what) {
+        require(helper, delivered >= perTick * (ticks - 2) && delivered <= perTick * (ticks + 2), what + " must deliver "
+                + Power.formatMj(perTick) + " MJ/t, delivered " + Power.formatMj(delivered) + " MJ in " + ticks + " ticks");
+    }
+
+    private static void requireRequested(GameTestHelper helper, PipeBlockEntity pipe, long expected) {
+        long requested = ((PowerFlow) pipe.flow()).getPowerRequested(null);
+        require(helper, requested == expected, pipe.definition().registryName() + " must ask an empty laser for "
+                + Power.formatMj(expected) + " MJ/t, asks " + Power.formatMj(requested));
+    }
+
     // ---- data ----------------------------------------------------------------------------------
 
     private static final List<String> RECIPES = List.of("gear_wood", "gear_stone", "gear_iron", "gear_gold", "gear_diamond", "wrench",
@@ -1446,6 +1663,16 @@ public final class BCTests {
         CraftingRecipe diamondFluid = (CraftingRecipe) recipes.byKey(BuildCraft.id(BCTransport.DIAMOND_FLUID.registryName())).orElseThrow();
         require(helper, diamondFluid.matches(diamondUpgrade, helper.getLevel()),
                 "a diamond pipe and sealant must make a diamond fluid pipe");
+
+        for (PipeDefinition[] pair : new PipeDefinition[][] {{BCTransport.IRON_ITEM, BCTransport.IRON_POWER},
+                {BCTransport.DIAMOND_ITEM, BCTransport.DIAMOND_POWER}}) {
+            CraftingContainer kinesis = grid();
+            kinesis.setItem(0, new ItemStack(pair[0].item()));
+            kinesis.setItem(1, new ItemStack(Items.REDSTONE));
+            CraftingRecipe recipe = (CraftingRecipe) recipes.byKey(BuildCraft.id(pair[1].registryName())).orElseThrow();
+            require(helper, recipe.matches(kinesis, helper.getLevel()) && recipe.assemble(kinesis).is(pair[1].item()),
+                    "a " + pair[0].registryName() + " and redstone must make a " + pair[1].registryName());
+        }
         helper.succeed();
     }
 

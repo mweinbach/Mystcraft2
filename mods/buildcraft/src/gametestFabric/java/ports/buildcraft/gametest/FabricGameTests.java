@@ -220,6 +220,21 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public void kinesisPipesCarryEnginePower(GameTestHelper helper) { BCTests.kinesisPipesCarryEnginePower(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void kinesisLimiterPipeDefinitions(GameTestHelper helper) { BCTests.kinesisLimiterPipeDefinitions(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 240)
+    public void ironKinesisPipeCapsDeliveredPower(GameTestHelper helper) { BCTests.ironKinesisPipeCapsDeliveredPower(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void ironKinesisPipeFeedsEveryRequestingFace(GameTestHelper helper) { BCTests.ironKinesisPipeFeedsEveryRequestingFace(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void diamondKinesisPipeCarriesMoreThanBase(GameTestHelper helper) { BCTests.diamondKinesisPipeCarriesMoreThanBase(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public void kinesisSimulatedTransferMatchesReal(GameTestHelper helper) { BCTests.kinesisSimulatedTransferMatchesReal(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 60)
     public void laserPowersTablesInSight(GameTestHelper helper) { SiliconTests.laserPowersTablesInSight(helper); }
 
@@ -259,6 +274,9 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void gateTurnsIronPipeAndReadsInventories(GameTestHelper helper) { GateTests.gateTurnsIronPipeAndReadsInventories(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 40)
+    public void gateAndWrenchSetKinesisPowerLimit(GameTestHelper helper) { GateTests.gateAndWrenchSetKinesisPowerLimit(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 40)
     public void wirePlacesJoinsAndSaves(GameTestHelper helper) { WireTests.wirePlacesJoinsAndSaves(helper); }

@@ -141,11 +141,13 @@ buildcraft:pipe_cobblestone_item
 buildcraft:pipe_cobblestone_power
 buildcraft:pipe_diamond_fluid
 buildcraft:pipe_diamond_item
+buildcraft:pipe_diamond_power
 buildcraft:pipe_gold_fluid
 buildcraft:pipe_gold_item
 buildcraft:pipe_gold_power
 buildcraft:pipe_iron_fluid
 buildcraft:pipe_iron_item
+buildcraft:pipe_iron_power
 buildcraft:pipe_quartz_fluid
 buildcraft:pipe_quartz_item
 buildcraft:pipe_quartz_power

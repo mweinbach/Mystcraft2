@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.statement.Action;
 import ports.buildcraft.statement.StatementParameter;
@@ -96,6 +97,24 @@ public abstract class PipeBehaviour {
 
     /** Upstream {@code PipeEventActionActivate}: a gate on this pipe has {@code action} active this tick. */
     public void onActionActivate(Action action, StatementParameter[] parameters) {}
+
+    /**
+     * Upstream {@code PipeEventPower.Configure#setMaxPower}: the most power, in micro-MJ, a kinesis pipe asks for
+     * through one face each tick, given its definition's rate.
+     */
+    public long configureMaxPower(long maxPower) {
+        return maxPower;
+    }
+
+    /** Upstream {@code PipeEventPower.Configure#disableTransfer}: the kinesis pipe stops asking its neighbouring pipes for power. */
+    public boolean disablesPowerTransfer() {
+        return false;
+    }
+
+    /** Block state beyond the connections that the pipe's model reads, such as a limiter's texture. */
+    public BlockState modelState(BlockState state) {
+        return state;
+    }
 
     public void save(CompoundTag tag) {}
 

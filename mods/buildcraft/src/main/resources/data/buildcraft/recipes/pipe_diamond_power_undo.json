@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "buildcraft:pipe_diamond_power"
+    }
+  ],
+  "result": {
+    "item": "buildcraft:pipe_diamond_item"
+  }
+}
