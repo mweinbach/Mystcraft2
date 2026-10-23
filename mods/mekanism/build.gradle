@@ -6,10 +6,11 @@ base.archivesName = 'mekanism-forge-1.19.2'
 
 minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
 
-// Jade, The One Probe, CC: Tweaked, JEI, Curios, Wildfire's Gender Mod, ProjectE, Flux Networks and Recipe Stages are
-// optional at runtime. Their APIs are compile-only so the JAR loads without them. -PwithJade, -PwithTop,
-// -PwithComputerCraft, -PwithJei, -PwithCurios, -PwithGender, -PwithProjectE, -PwithFluxNetworks and -PwithRecipeStages
-// add them to a development run.
+// Jade, The One Probe, CC: Tweaked, JEI, Curios, Wildfire's Gender Mod, ProjectE, Flux Networks, Recipe Stages and
+// CraftTweaker are optional at runtime. Their APIs are compile-only so the JAR loads without them. -PwithJade,
+// -PwithTop, -PwithComputerCraft, -PwithJei, -PwithCurios, -PwithGender, -PwithProjectE, -PwithFluxNetworks,
+// -PwithRecipeStages and -PwithCraftTweaker add them to a development run.
+def withCraftTweaker = providers.gradleProperty('withCraftTweaker').isPresent()
 repositories {
     maven {
         url = 'https://api.modrinth.com/maven'
@@ -26,6 +27,7 @@ repositories {
             includeGroup 'com.blamejared.recipestages'
             includeGroup 'net.darkhax.gamestages'
             includeGroup 'net.darkhax.bookshelf'
+            includeGroup 'com.blamejared.crafttweaker'
         }
     }
     maven {
@@ -92,14 +94,20 @@ dependencies {
         runtimeOnly(fg.deobf('net.darkhax.gamestages:GameStages-Forge-1.19.2:11.1.4')) { transitive = false }
         runtimeOnly(fg.deobf('net.darkhax.bookshelf:Bookshelf-Forge-1.19.2:16.3.20')) { transitive = false }
     }
+    // CraftTweaker 10.1.44 is the Forge build upstream Mekanism 10.3.9 compiled against. CraftTweaker finds the
+    // integration by scanning for its annotations, so nothing loads those classes when the mod is absent.
+    compileOnly(fg.deobf('com.blamejared.crafttweaker:CraftTweaker-forge-1.19.2:10.1.44')) { transitive = false }
+    if (withCraftTweaker) {
+        runtimeOnly(fg.deobf('com.blamejared.crafttweaker:CraftTweaker-forge-1.19.2:10.1.44')) { transitive = false }
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Curios' and Bookshelf's (Recipe Stages) mixins carry SRG refmaps; the development runs use official names.
-if (['withCurios', 'withRecipeStages'].any { providers.gradleProperty(it).isPresent() }) {
+// Curios', Bookshelf's (Recipe Stages) and CraftTweaker's mixins carry SRG refmaps; the development runs use official names.
+if (['withCurios', 'withRecipeStages', 'withCraftTweaker'].any { providers.gradleProperty(it).isPresent() }) {
     minecraft.runs.configureEach {
         property 'mixin.env.remapRefMap', 'true'
         property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
@@ -140,6 +148,10 @@ minecraft.runs {
         property 'mekanism.gametest.computer', 'true'
         // The shared EmcAudit reads the expected decisions from the checked-in values file.
         property 'emc.values', file('emc/values.json').absolutePath
+        // CraftTweakerGameTests require CraftTweaker and the test scripts only when the run was asked for them.
+        if (withCraftTweaker) {
+            property 'mekanism.gametest.crafttweaker', 'true'
+        }
         mods {
             mekanism { source sourceSets.gametest }
         }
@@ -163,6 +175,14 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     dependsOn copyGameTestStructures, tasks.named('gametestClasses')
     doFirst {
         delete file('run/gameTestServer/world')
+        // CraftTweaker loads ZenScript from <run>/scripts. Without -PwithCraftTweaker the folder is removed.
+        delete file('run/gameTestServer/scripts')
+        if (withCraftTweaker) {
+            project.copy {
+                from 'src/gametestCommon/crafttweaker', 'src/gametestForge/crafttweaker'
+                into 'run/gameTestServer/scripts'
+            }
+        }
         def configDir = file('run/gameTestServer/config')
         configDir.mkdirs()
         new File(configDir, 'fml.toml').text = '''\

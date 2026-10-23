@@ -43,6 +43,7 @@
     "wthit": ">=5.36.1",
     "computercraft": ">=1.101.2",
     "jei": "*",
+    "crafttweaker": ">=10.1.44",
     "trinkets": ">=3.4.2",
     "wildfire_gender": "*"
   },

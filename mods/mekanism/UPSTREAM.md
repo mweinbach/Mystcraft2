@@ -39,7 +39,13 @@ Copied unchanged, then edited as listed below:
   viewer's synchronized counts and capacities instead of `getFrequency()`, which is null on the client for the
   portable dashboard.
 
-Not imported: CraftTweaker and OpenComputers 2 integrations, the datagen sources, the Defense module and the Blockbench/Blender model sources. ProjectE's
+- The CraftTweaker integration (`mekanism.common.integration.crafttweaker`), except the `jeitweaker` package
+  (JEITweaker is not a dependency). Most classes are shared in `src/main`. The evaporating manager, the five fluid
+  recipe handlers, the rotary and evaporating recipe expansions, the ProjectE expansions and the content-registration
+  hook are in `src/forge`, because CraftTweaker for Fabric 1.19.2 has no fluid stack API. See
+  [parity/19-crafttweaker.md](parity/19-crafttweaker.md).
+
+Not imported: the OpenComputers 2 integration, the datagen sources, the Defense module and the Blockbench/Blender model sources. ProjectE's
 recipe mappers, NSS serializers and contents processor are in `src/forge` and load only when ProjectE is present.
 Curios is
 ported as an optional Forge adapter and Trinkets as the Fabric adapter. Wildfire's Gender Mod is optional on both
@@ -75,8 +81,11 @@ Every edit beyond the scripted import rewrite:
 | File | Edit | Reason |
 | --- | --- | --- |
 | `mekanism/api/MekanismAPI.java` | `getJeiHelper()` looks up `MekanismJEIHelper` only after `ModList` reports JEI. The helper interface references JEI's ingredient API | JEI is optional; the API class must not load JEI until something asks for the helper |
-| `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block | CraftTweaker integration not ported |
-| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. `ProjectELoaded` is set when `projecte` is loaded, and `NSSHelper.init` is called by name. `FluxNetworksLoaded` and `RecipeStagesLoaded` are set as upstream; Recipe Stages also loads `RecipeStagesCompat`'s Forge bridge by name. OC2 stays undetected and `OC2Loaded` stays `false`. ComputerCraft and The One Probe are unchanged | Curios, Trinkets, Gender Mod and ProjectE types stay in the loader source sets. The shared hook cannot mention them |
+| `mekanism/common/Mekanism.java` | Removed the CraftTweaker content registration block. `MekanismHooks.hookConstructor` sets `CraftTweakerLoaded` and, when it is true, calls `ForgeCrTContentRegistration.register` by name; that Forge-only class is the removed block | The block names Forge's `FMLModContainer`, which the shared class cannot mention |
+| `mekanism/common/integration/crafttweaker/CrTUtils.java`, `CrTRecipeComponents.java`, `MekCraftTweakerPlugin.java`, `CrTIngredientExpansion.java`, `ingredient/CrTFluidStackIngredient.java`, `recipe/manager/MekanismRecipeManager.java`, `recipe/manager/RotaryRecipeManager.java`, `recipe/handler/MekanismRecipeHandler.java` | CraftTweaker fluid-stack imports, fields, overloads, expansions and branches are inside `// region forge-only` ... `// endregion forge-only`. The Fabric build blanks those lines (`StripForgeOnlyRegions` in `fabric/build.gradle`), keeping line numbers. `MekanismRecipeHandler` builds its output `TypeData` with `FluidStack` instead of `IFluidStack` and converts it with `CrTUtils.convertFluids` inside the Forge region | CraftTweaker for Fabric 1.19.2 has no `IFluidStack`, `MCFluidStack` or `CTFluidIngredient` |
+| `mekanism/common/integration/crafttweaker/CrTRecipeComponents.java` | The two `new TypeToken<>() {}` are `TypeToken.get(...)` | The anonymous classes were numbered differently once the Fabric build blanks the fluid one, which breaks the shared class set |
+| `mekanism/common/integration/crafttweaker/bracket/CrTBracketValidators.java` | The `ForgeRegistry` import and `isLocked` check are in a forge-only region, so on Fabric `isRegistryUnlocked` returns `false`. Forge behaves as upstream | The Fabric mirror has no `ForgeRegistry`, and Fabric does not run content scripts while a registry is open |
+| `mekanism/common/integration/MekanismHooks.java` | `CuriosLoaded` is set when `curios` or `trinkets` is loaded. The accessory adapter is loaded by name. `WildfireGenderModLoaded` loads the gender adapter by name. `ProjectELoaded` is set when `projecte` is loaded, and `NSSHelper.init` is called by name. `FluxNetworksLoaded`, `RecipeStagesLoaded` and `CraftTweakerLoaded` are set as upstream; Recipe Stages also loads `RecipeStagesCompat`'s Forge bridge by name. OC2 stays undetected and `OC2Loaded` stays `false`. ComputerCraft and The One Probe are unchanged | Curios, Trinkets, Gender Mod and ProjectE types stay in the loader source sets. The shared hook cannot mention them |
 | `mekanism/common/integration/lookingat/wthit/MekanismWTHITPlugin.java` | `addBlockData` and `addEntityData` are cast to `IServerDataProvider` | WTHIT 5.36 also overloads those methods with `IDataProvider`. The cast keeps upstream's server-data provider |
 | `mekanism/common/integration/computer/ComputerCapabilityHelper.java` | `addComputerCapabilities` attaches the ComputerCraft capability and skips the OpenComputers 2 branch | OC2 is not ported. The ComputerCraft helper is the upstream class |
 | `mekanism/common/integration/computer/ComputerMethodMapper.java` | `isEnabled` is also true when `mekanism.gametest.computer` is set | GameTests check method lists without CC: Tweaked installed. The capability is still attached only when that mod is loaded |

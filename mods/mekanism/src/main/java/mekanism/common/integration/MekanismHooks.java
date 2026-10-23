@@ -46,6 +46,10 @@ public final class MekanismHooks {
     public boolean WildfireGenderModLoaded;
 
     public void hookConstructor(final IEventBus bus) {
+        CraftTweakerLoaded = ModList.get().isLoaded(CRAFTTWEAKER_MOD_ID);
+        if (CraftTweakerLoaded) {
+            registerCrTContent(bus);
+        }
         // Curios on Forge, Trinkets on Fabric. One flag: the shared lookups behave the same for either mod.
         // Listeners have to be registered during construction. Client setup can run alongside common setup.
         CuriosLoaded = ModList.get().isLoaded(CURIOS_MODID) || ModList.get().isLoaded(TRINKETS_MODID);
@@ -80,6 +84,20 @@ public final class MekanismHooks {
             // Forge exposes the peripheral as a capability. Fabric's provider is a separate class so this shared
             // hook does not mention its types.
             registerFabricPeripherals();
+        }
+    }
+
+    private static void registerCrTContent(IEventBus bus) {
+        // Custom chemicals and robit skins come from #loader mekanismcontent scripts, which run inside Mekanism's first
+        // registry event. The listener goes on CraftTweaker's own mod bus, a Forge type, so the Forge-only class is
+        // resolved by name. Fabric has no such hook; see parity/19-crafttweaker.md.
+        try {
+            Class.forName("mekanism.common.integration.crafttweaker.content.ForgeCrTContentRegistration")
+                  .getMethod("register", IEventBus.class).invoke(null, bus);
+        } catch (ClassNotFoundException ignored) {
+            // The Fabric JAR does not register CraftTweaker content.
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("CraftTweaker is loaded but Mekanism's content registration failed to load", e);
         }
     }
 

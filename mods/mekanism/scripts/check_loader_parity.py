@@ -43,6 +43,25 @@ GAMETEST_ROOTS = (
     MOD / 'src/gametestForge/java',
     MOD / 'src/gametestFabric/java',
 )
+# CraftTweaker for Fabric 1.19.2 has no fluid stack API (com.blamejared.crafttweaker.api.fluid). The evaporating
+# manager (fluid output), the fluid recipe handlers (they decompose through CraftTweaker fluid stacks), the rotary and
+# evaporating recipe expansions and the IFluidStack/CTFluidIngredient expansions are Forge-only, as are the ProjectE
+# expansions and the content hook that names Forge's mod container. See parity/19-crafttweaker.md.
+_CRT = 'mekanism/common/integration/crafttweaker/'
+CRAFTTWEAKER_FORGE_ONLY = (
+    _CRT + 'projecte/',
+    _CRT + 'content/ForgeCrTContentRegistration',
+    _CRT + 'CrTIngredientExpansion$IFluidStackExpansion',
+    _CRT + 'CrTIngredientExpansion$CTFluidIngredientExpansion',
+    _CRT + 'recipe/CrTFluidToFluidRecipe',
+    _CRT + 'recipe/CrTRotaryRecipe',
+    _CRT + 'recipe/handler/FluidToFluidRecipeHandler',
+    _CRT + 'recipe/handler/FluidSlurryToSlurryRecipeHandler',
+    _CRT + 'recipe/handler/PressurizedReactionRecipeHandler',
+    _CRT + 'recipe/handler/RotaryRecipeHandler',
+    _CRT + 'recipe/handler/ElectrolysisRecipeHandler',
+    _CRT + 'recipe/manager/FluidToFluidRecipeManager',
+)
 
 
 def require(condition, message):
@@ -113,7 +132,7 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
         # Flux Networks' long energy capability and the Recipe Stages bridge use mods that are Forge-only here.
         'mekanism/common/integration/energy/fluxnetworks/',
         'mekanism/common/integration/recipestages/RecipeStagesBridge',
-    )
+    ) + CRAFTTWEAKER_FORGE_ONLY
     fabric_only = (
         'mekanism/common/integration/lookingat/wthit/',
         'mekanism/common/integration/computer/computercraft/FabricPeripheralProvider',

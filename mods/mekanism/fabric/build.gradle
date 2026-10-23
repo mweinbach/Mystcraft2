@@ -18,6 +18,7 @@ if (!fluidPhysicsJar.isFile()) {
 }
 group = metadata.mod_group
 base.archivesName = 'mekanism-fabric-1.19.2'
+def withCraftTweaker = providers.gradleProperty('withCraftTweaker').isPresent()
 
 repositories {
     mavenCentral()
@@ -28,7 +29,12 @@ repositories {
     }
     maven {
         url = 'https://maven.blamejared.com/'
-        content { includeGroup 'mezz.jei' }
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'com.blamejared.crafttweaker'
+            includeGroup 'com.faux.ingredientextension'
+            includeGroup 'com.faux.fauxcustomentitydata'
+        }
     }
     maven {
         url = 'https://cursemaven.com'
@@ -131,6 +137,18 @@ dependencies {
             exclude 'energy-*.jar', 'core-*.jar', 'toml-*.jar', 'MixinExtras-*.jar', 'mixinextras-*.jar'
         }
     }
+    // CraftTweaker 10.1.44, the version upstream Mekanism 10.3.9 compiled against on Forge, is optional. CraftTweaker
+    // finds the integration by scanning for its annotations, so nothing loads those classes when the mod is absent.
+    // -PwithCraftTweaker adds it to a development run with its runtime dependencies. Loom drops the jars CraftTweaker
+    // nests (Reflections and Javassist), so they are listed here.
+    modCompileOnly('com.blamejared.crafttweaker:CraftTweaker-fabric-1.19.2:10.1.44') { transitive = false }
+    if (withCraftTweaker) {
+        modRuntimeOnly('com.blamejared.crafttweaker:CraftTweaker-fabric-1.19.2:10.1.44') { transitive = false }
+        modRuntimeOnly('com.faux.ingredientextension:IngredientExtensionAPI-fabric-1.19.2:3.0.5') { transitive = false }
+        modRuntimeOnly('com.faux.fauxcustomentitydata:FauxCustomEntityData-fabric-1.19.2:2.0.2') { transitive = false }
+        runtimeOnly('org.reflections:reflections:0.10.2') { transitive = false }
+        runtimeOnly('org.javassist:javassist:3.29.0-GA') { transitive = false }
+    }
     testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'org.quicktheories:quicktheories:0.26'
@@ -175,6 +193,40 @@ def forgeOnlyVanillaMembers = [
 def rewriteForFabric = { String line ->
     forgeOnlyVanillaMembers.inject(line) { String result, rule -> result.replaceAll(rule[0], rule[1].toString()) }
 }
+// Shared code that needs an API Fabric's build of a library does not have (CraftTweaker for Fabric 1.19.2 has no fluid
+// stacks) sits between '// region forge-only' and '// endregion forge-only' lines. The Fabric copy blanks those lines,
+// markers included, so line numbers still match the shared source. An unclosed or nested region fails the build.
+class StripForgeOnlyRegions extends FilterReader {
+    static final java.util.regex.Pattern BEGIN = ~/^\s*\/\/ region forge-only\b.*/
+    static final java.util.regex.Pattern END = ~/^\s*\/\/ endregion forge-only\b.*/
+
+    StripForgeOnlyRegions(Reader input) {
+        super(new StringReader(strip(input.text)))
+    }
+
+    static String strip(String text) {
+        boolean inRegion = false
+        int lineNumber = 0
+        StringBuilder out = new StringBuilder(text.length())
+        for (String line : text.split('\n', -1)) {
+            lineNumber++
+            boolean begin = BEGIN.matcher(line).matches()
+            boolean end = END.matcher(line).matches()
+            if (begin && inRegion || end && !inRegion) {
+                throw new GradleException("Unbalanced forge-only region at line ${lineNumber}")
+            }
+            boolean blank = inRegion || begin
+            if (begin) inRegion = true
+            if (end) inRegion = false
+            if (out.length() > 0 || lineNumber > 1) out.append('\n')
+            out.append(blank ? (line.endsWith('\r') ? '\r' : '') : line)
+        }
+        if (inRegion) {
+            throw new GradleException('Unclosed forge-only region')
+        }
+        return out.toString()
+    }
+}
 def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
 def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
 def rewrittenGametest = layout.buildDirectory.dir('generated/sources/fabricShared/gametest')
@@ -183,6 +235,7 @@ def rewriteMain = tasks.register('rewriteSharedSources', Sync) {
     inputs.property 'rewriteRules', rewriteRules
     from '../src/main/java'
     into rewrittenMain
+    filter StripForgeOnlyRegions
     filter rewriteForFabric
 }
 def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
@@ -197,6 +250,7 @@ def rewriteModule = { String name ->
         inputs.property 'rewriteRules', rewriteRules
         from "../src/${name}/java"
         into layout.buildDirectory.dir("generated/sources/fabricShared/${name}")
+        filter StripForgeOnlyRegions
         filter rewriteForFabric
     }
 }
@@ -207,6 +261,7 @@ def rewriteGametest = tasks.register('rewriteSharedGametestSources', Sync) {
     inputs.property 'rewriteRules', rewriteRules
     from '../src/gametestCommon/java'
     into rewrittenGametest
+    filter StripForgeOnlyRegions
     filter rewriteForFabric
 }
 sourceSets {
@@ -345,6 +400,9 @@ loom {
             vmArg '-Dmekanism.gametest.computer=true'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('../emc/values.json')}"
+            if (withCraftTweaker) {
+                vmArg '-Dmekanism.gametest.crafttweaker=true'
+            }
         }
         // A client with the development-only block row, for one screenshot. Not part of the production JAR.
         showcaseClient {
@@ -422,5 +480,14 @@ tasks.named('processGametestResources', ProcessResources) {
 }
 tasks.named('runGametest') {
     // Item Alchemy only reads default_emcs when it has no saved emc_config.json.
-    doFirst { delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/itemalchemy') }
+    // CraftTweaker loads ZenScript from <run>/scripts. Without -PwithCraftTweaker the folder is removed.
+    doFirst {
+        delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/itemalchemy'), layout.buildDirectory.dir('gametest/scripts')
+        if (withCraftTweaker) {
+            project.copy {
+                from '../src/gametestCommon/crafttweaker'
+                into layout.buildDirectory.dir('gametest/scripts')
+            }
+        }
+    }
 }
