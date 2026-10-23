@@ -23,12 +23,12 @@ import ports.mekanism.lib.common.IForgeShearable;
 public abstract class SheepMixin implements IForgeShearable {
 
     @Override
-    public boolean isShearable(ItemStack item, Level level, BlockPos pos) {
+    public boolean mekanism$isShearable(ItemStack item, Level level, BlockPos pos) {
         return ((Sheep) (Object) this).readyForShearing();
     }
 
     @Override
-    public List<ItemStack> onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
+    public List<ItemStack> mekanism$onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
         Sheep sheep = (Sheep) (Object) this;
         sheep.shear(player == null ? SoundSource.BLOCKS : SoundSource.PLAYERS);
         sheep.gameEvent(GameEvent.SHEAR, player);

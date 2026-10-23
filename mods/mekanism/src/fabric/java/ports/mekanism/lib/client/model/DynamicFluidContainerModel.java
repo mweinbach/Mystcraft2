@@ -206,8 +206,8 @@ public class DynamicFluidContainerModel implements IUnbakedGeometry<DynamicFluid
     private static BlockElement offsetFrontBack(BlockElement element, float offset) {
         Vector3f from = element.from.copy();
         Vector3f to = element.to.copy();
-        from.setZ(from.z() - offset * 16);
-        to.setZ(to.z() + offset * 16);
+        from.mekanism$setZ(from.z() - offset * 16);
+        to.mekanism$setZ(to.z() + offset * 16);
         return new BlockElement(from, to, element.faces, element.rotation, element.shade);
     }
 

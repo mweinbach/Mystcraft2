@@ -80,7 +80,7 @@ public interface IForgeItem {
         return stack.getItem() instanceof ArmorItem armor && armor.getMaterial() == ArmorMaterials.GOLD;
     }
 
-    default boolean onBlockStartBreak(ItemStack stack, BlockPos pos, Player player) {
+    default boolean mekanism$onBlockStartBreak(ItemStack stack, BlockPos pos, Player player) {
         return false;
     }
 
@@ -222,7 +222,7 @@ public interface IForgeItem {
     }
 
     @Nullable
-    default String getCreatorModId(ItemStack stack) {
+    default String mekanism$getCreatorModId(ItemStack stack) {
         return Registry.ITEM.getKey(stack.getItem()).getNamespace();
     }
 
@@ -259,7 +259,7 @@ public interface IForgeItem {
         return stack.is(Items.LEATHER_BOOTS);
     }
 
-    default int getDefaultTooltipHideFlags(@NotNull ItemStack stack) {
+    default int mekanism$getDefaultTooltipHideFlags(@NotNull ItemStack stack) {
         return 0;
     }
 

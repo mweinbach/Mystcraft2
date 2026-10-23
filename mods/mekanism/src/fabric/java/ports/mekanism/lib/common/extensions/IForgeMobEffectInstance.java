@@ -13,7 +13,7 @@ import net.minecraft.world.item.Items;
  */
 public interface IForgeMobEffectInstance {
 
-    default boolean isCurativeItem(ItemStack stack) {
+    default boolean mekanism$isCurativeItem(ItemStack stack) {
         return stack.is(Items.MILK_BUCKET);
     }
 }

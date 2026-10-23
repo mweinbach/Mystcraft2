@@ -23,13 +23,13 @@ import ports.mekanism.lib.common.IForgeShearable;
 public abstract class MushroomCowMixin implements IForgeShearable {
 
     @Override
-    public boolean isShearable(ItemStack item, Level level, BlockPos pos) {
+    public boolean mekanism$isShearable(ItemStack item, Level level, BlockPos pos) {
         MushroomCow cow = (MushroomCow) (Object) this;
         return cow.isAlive() && !cow.isBaby();
     }
 
     @Override
-    public List<ItemStack> onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
+    public List<ItemStack> mekanism$onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
         MushroomCow cow = (MushroomCow) (Object) this;
         cow.shear(player == null ? SoundSource.BLOCKS : SoundSource.PLAYERS);
         cow.gameEvent(GameEvent.SHEAR, player);

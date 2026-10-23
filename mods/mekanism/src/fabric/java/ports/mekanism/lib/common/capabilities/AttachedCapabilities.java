@@ -71,7 +71,7 @@ public final class AttachedCapabilities {
         CompoundTag tag = new CompoundTag();
         providers.forEach((key, provider) -> {
             if (provider instanceof INBTSerializable<?> serializable) {
-                tag.put(key.toString(), serializable.serializeNBT());
+                tag.put(key.toString(), serializable.mekanism$serializeNBT());
             }
         });
         return tag.isEmpty() ? null : tag;
@@ -85,7 +85,7 @@ public final class AttachedCapabilities {
         providers.forEach((key, provider) -> {
             if (provider instanceof INBTSerializable serializable && tag.contains(key.toString())) {
                 Tag value = tag.get(key.toString());
-                serializable.deserializeNBT(value);
+                serializable.mekanism$deserializeNBT(value);
             }
         });
     }

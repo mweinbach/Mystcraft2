@@ -75,7 +75,7 @@ public interface IForgeBlock {
         return state.is(Blocks.OBSIDIAN);
     }
 
-    default int getExpDrop(BlockState state, LevelReader level, RandomSource random, BlockPos pos, int fortuneLevel, int silkTouchLevel) {
+    default int mekanism$getExpDrop(BlockState state, LevelReader level, RandomSource random, BlockPos pos, int fortuneLevel, int silkTouchLevel) {
         return 0;
     }
 

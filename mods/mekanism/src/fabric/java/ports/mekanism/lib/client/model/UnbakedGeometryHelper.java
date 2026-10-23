@@ -16,7 +16,7 @@ public final class UnbakedGeometryHelper {
      * Applies a model's root transform under the block state rotation, the order Forge uses.
      */
     public static ModelState composeRootTransform(ModelState modelState, Transformation rootTransform) {
-        if (rootTransform.isIdentity()) {
+        if (rootTransform.mekanism$isIdentity()) {
             return modelState;
         }
         return new SimpleModelState(modelState.getRotation().compose(rootTransform), modelState.isUvLocked());

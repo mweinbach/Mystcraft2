@@ -55,8 +55,8 @@ public interface IForgeBlockState {
         return self().getBlock().isPortalFrame(self(), level, pos);
     }
 
-    default int getExpDrop(LevelReader level, RandomSource random, BlockPos pos, int fortuneLevel, int silkTouchLevel) {
-        return self().getBlock().getExpDrop(self(), level, random, pos, fortuneLevel, silkTouchLevel);
+    default int mekanism$getExpDrop(LevelReader level, RandomSource random, BlockPos pos, int fortuneLevel, int silkTouchLevel) {
+        return self().getBlock().mekanism$getExpDrop(self(), level, random, pos, fortuneLevel, silkTouchLevel);
     }
 
     default BlockState rotate(LevelAccessor level, BlockPos pos, Rotation direction) {

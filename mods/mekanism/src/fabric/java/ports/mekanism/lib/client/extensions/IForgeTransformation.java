@@ -16,11 +16,11 @@ public interface IForgeTransformation {
         return (Transformation) this;
     }
 
-    default boolean isIdentity() {
+    default boolean mekanism$isIdentity() {
         return self().equals(Transformation.identity());
     }
 
-    default Direction rotateTransform(Direction facing) {
+    default Direction mekanism$rotateTransform(Direction facing) {
         return Direction.rotate(self().getMatrix(), facing);
     }
 }

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Calls {@code onLoad} when a block entity joins a loaded chunk, queues it for the block entities of a chunk that has
+ * Calls {@code mekanism$onLoad} when a block entity joins a loaded chunk, queues it for the block entities of a chunk that has
  * just loaded, calls {@code onChunkUnloaded} before a chunk's block entities are removed, and hands chunk packet tags
  * to {@code handleUpdateTag}, where Forge does.
  */
@@ -28,13 +28,13 @@ public abstract class LevelChunkMixin {
     @Inject(method = "addAndRegisterBlockEntity", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/chunk/LevelChunk;updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V", shift = At.Shift.AFTER))
     private void mekanism$onLoad(BlockEntity blockEntity, CallbackInfo ci) {
-        blockEntity.onLoad();
+        blockEntity.mekanism$onLoad();
     }
 
     @Inject(method = "registerAllBlockEntitiesAfterLevelLoad", at = @At("TAIL"))
     private void mekanism$queueOnLoad(CallbackInfo ci) {
         LevelChunk self = (LevelChunk) (Object) this;
-        self.getLevel().addFreshBlockEntities(self.getBlockEntities().values());
+        self.getLevel().mekanism$addFreshBlockEntities(self.getBlockEntities().values());
     }
 
     @Inject(method = "clearAllBlockEntities", at = @At("HEAD"))

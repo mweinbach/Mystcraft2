@@ -65,6 +65,6 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
         if (tag != null && tag.contains("HideFlags", 99)) {
             return;
         }
-        cir.setReturnValue(((IForgeItem) self.getItem()).getDefaultTooltipHideFlags(self));
+        cir.setReturnValue(((IForgeItem) self.getItem()).mekanism$getDefaultTooltipHideFlags(self));
     }
 }

@@ -48,12 +48,12 @@ public interface IForgeItemStack extends ICapabilitySerializable<CompoundTag> {
     }
 
     @Override
-    default CompoundTag serializeNBT() {
+    default CompoundTag mekanism$serializeNBT() {
         return self().save(new CompoundTag());
     }
 
     @Override
-    default void deserializeNBT(CompoundTag nbt) {
+    default void mekanism$deserializeNBT(CompoundTag nbt) {
         throw new UnsupportedOperationException("Use ItemStack.of to read an item stack");
     }
 

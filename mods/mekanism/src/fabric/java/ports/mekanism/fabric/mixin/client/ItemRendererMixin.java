@@ -93,6 +93,6 @@ public abstract class ItemRendererMixin {
           target = "Lcom/mojang/blaze3d/vertex/VertexConsumer;putBulkData(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/renderer/block/model/BakedQuad;FFFII)V"))
     private void mekanism$emissiveItemQuads(VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int light,
           int overlay, Operation<Void> original) {
-        ((IForgeVertexConsumer) consumer).putBulkData(pose, quad, red, green, blue, 1.0F, light, overlay, true);
+        ((IForgeVertexConsumer) consumer).mekanism$putBulkData(pose, quad, red, green, blue, 1.0F, light, overlay, true);
     }
 }

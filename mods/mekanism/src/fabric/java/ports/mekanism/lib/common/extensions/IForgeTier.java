@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public interface IForgeTier {
 
     @Nullable
-    default TagKey<Block> getTag() {
+    default TagKey<Block> mekanism$getTag() {
         return null;
     }
 }
