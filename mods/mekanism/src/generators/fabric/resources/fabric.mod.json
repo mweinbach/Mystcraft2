@@ -31,6 +31,7 @@
   },
   "depends": {
     "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
     "minecraft": "1.19.2",
     "java": ">=17",
     "mekanism": "${version}"

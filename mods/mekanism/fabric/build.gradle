@@ -47,6 +47,11 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Team Reborn Energy is the Fabric energy standard; it is bundled so the mod has no extra install step.
     include(modImplementation('teamreborn:energy:2.3.0'))
+    // fabric-permissions-api is the API Fabric permission mods (LuckPerms and others) answer. Forge's PermissionAPI
+    // defers to the installed permission handler the same way. 0.3.1 only references intermediary members that exist
+    // in 1.19.2 (Entity.createCommandSourceStack, SharedSuggestionProvider.hasPermission, MinecraftServer.getProfilePermissions).
+    // Not transitive: its POM resolves fabric-api-base through the 1.20.4 Fabric API BOM.
+    include(modImplementation('me.lucko:fabric-permissions-api:0.3.1') { transitive = false })
     // Forge's FluidType entity physics for Mekanism's fluids; the library is bundled for clients and servers.
     include(modImplementation("ports.fluidphysics:fluidphysics-fabric:${fluidPhysicsVersion}"))
     // Forge ships Night Config; Fabric gets the same version bundled for the TOML config files.
@@ -283,7 +288,14 @@ tasks.withType(AbstractArchiveTask).configureEach {
 
 loom {
     accessWidenerPath = file('../src/fabric/resources/mekanism.accesswidener')
-    mixin { defaultRefmapName = 'mekanism.refmap.json' }
+    // Each mod jar carries the refmap its mixin config names. Loom's default for a non-main source set is
+    // '<sourceSet>-<defaultRefmapName>', which no config declares, so production (intermediary) installs could not
+    // resolve the module mixins' targets. Generators and Tools have no mixins and get no annotation processor.
+    mixin {
+        defaultRefmapName = 'mekanism.refmap.json'
+        add(sourceSets.main, 'mekanism.refmap.json')
+        add(sourceSets.additions, 'mekanismadditions.refmap.json')
+    }
     mods {
         mekanism { sourceSet sourceSets.main }
         mekanismgenerators { sourceSet sourceSets.generators }

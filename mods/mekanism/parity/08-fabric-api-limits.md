@@ -3,7 +3,10 @@
 - Capabilities attached to item stacks, entities and block entities are kept in a lazily created store per object,
   saved under Forge's `ForgeCaps` tag and invalidated and revived where Forge does it.
 - Block entity model data is the block entity's Fabric render attachment; `requestModelDataUpdate` does nothing.
-- Permission checks use each node's default value; no permission mod is consulted.
+- Permission checks for an online player's boolean nodes go through the bundled fabric-permissions-api, so LuckPerms
+  and other Fabric permission mods can grant or deny `mekanism.*` nodes; a node no provider decides keeps its default.
+  Offline checks and non-boolean nodes use the node's default resolver: that API has no synchronous offline query and
+  no non-boolean values. Dynamic permission contexts are not passed to the provider.
 - Creative tabs past vanilla's twelve rely on Fabric API's tab pages.
 - `MobEffectInstance.isCurativeItem` only accepts milk buckets, Forge's default.
 - `Item.Properties.setNoRepair` does nothing; Mekanism only uses it on items without durability.

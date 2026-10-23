@@ -25,6 +25,7 @@ MIXIN_REFMAP = 'mekanism.refmap.json'
 fluid_physics = parity.read_properties(MOD.parent / 'fluidphysics/port.properties')
 NESTED = (
     'META-INF/jars/energy-2.3.0.jar',
+    'META-INF/jars/fabric-permissions-api-0.3.1.jar',
     'META-INF/jars/core-3.6.6.jar',
     'META-INF/jars/toml-3.6.6.jar',
     'META-INF/jars/maven-artifact-3.8.5.jar',

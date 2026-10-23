@@ -7,7 +7,7 @@ build is the primary target. Upstream attribution and every edit to upstream fil
 
 | Loader | Requirements | Energy | Items and fluids | Chemicals and heat |
 | --- | --- | --- | --- | --- |
-| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2; Fluid Physics bundled | Team Reborn Energy (bundled) | Transfer API | `BlockApiLookup` / `ItemApiLookup` |
+| Fabric | Loader 0.16.14+, Fabric API 0.77.0+1.19.2; Fluid Physics and fabric-permissions-api bundled | Team Reborn Energy (bundled) | Transfer API | `BlockApiLookup` / `ItemApiLookup` |
 | Forge | Forge 43.5.0 | Forge Energy | Forge capabilities | Forge capabilities |
 
 These are the planned interop targets. The two builds cannot be mixed in one game, and worlds do not migrate between
