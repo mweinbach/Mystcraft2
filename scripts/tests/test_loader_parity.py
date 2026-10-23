@@ -463,8 +463,11 @@ class GameTestDiscoveryTests(unittest.TestCase):
             }""")
         self.descriptor('demo.SharedTests', 'demo.FabricTests')
         forge, fabric = parity.loader_gametests(self.mod)
-        self.assertEqual(forge, {'shared': 'demo.SharedTests', 'forgeAdapter': 'demo.ForgeTests'})
-        self.assertEqual(fabric, {'shared': 'demo.SharedTests', 'fabricAdapter': 'demo.FabricTests'})
+        # Keyed by runtime class.method; the loader-named adapters normalise to one class.
+        self.assertEqual(forge, {'sharedtests.shared': 'SharedTests.shared',
+                                 'tests.forgeadapter': 'ForgeTests.forgeAdapter'})
+        self.assertEqual(fabric, {'sharedtests.shared': 'SharedTests.shared',
+                                  'tests.fabricadapter': 'FabricTests.fabricAdapter'})
 
     def test_package_scanning_generator_and_delegation(self):
         # Mekanism: Forge's holder delegates to a shared generator that scans its own package at runtime.
@@ -482,8 +485,8 @@ class GameTestDiscoveryTests(unittest.TestCase):
             }""")
         self.descriptor('demo.Scanner')
         forge, fabric = parity.loader_gametests(self.mod)
-        self.assertEqual(set(forge), {'machine'})
-        self.assertEqual(set(fabric), {'machine', 'fabricOnly'})
+        self.assertEqual(set(forge), {'machinetests.machine'})
+        self.assertEqual(set(fabric), {'machinetests.machine', 'onlytests.fabriconly'})
 
     def test_unexplained_generator_fails_loudly(self):
         self.java(self.forge, 'demo.ForgeTests', """\
@@ -497,15 +500,27 @@ class GameTestDiscoveryTests(unittest.TestCase):
     def test_symmetry_and_allowlist(self):
         allowlist = write(self.mod / parity.ALLOWLIST_NAME, """\
             # header comment
-            forge forgeEnergy  # Forge capability adapter
-            fabric transferApi  # Transfer API adapter
+            forge ForgeEnergyTests.forgeEnergy  # Forge capability adapter
+            fabric FabricTransferTests.transferApi  # Transfer API adapter
             """)
-        forge, fabric = {'shared', 'forgeEnergy'}, {'shared', 'transferApi'}
+
+        def tests(*displays):
+            return {parity.gametest_identity(*d.split('.')): d for d in displays}
+
+        shared = ('SharedTests.shared', )
+        forge = tests(*shared, 'ForgeEnergyTests.forgeEnergy')
+        fabric = tests(*shared, 'FabricTransferTests.transferApi')
         self.assertEqual(parity.check_gametest_symmetry(forge, fabric, allowlist), (1, 2))
         cases = {
-            'unlisted one-loader test': (forge | {'newForgeTest'}, fabric, 'newForgeTest runs only on Forge'),
-            'stale entry': (forge | {'transferApi'}, fabric, 'lists transferApi as fabric-only, but it is not'),
-            'wrong loader': ({'shared', 'transferApi'}, {'shared', 'forgeEnergy'}, 'runs only on Forge'),
+            'unlisted one-loader test': ({**forge, **tests('NewTests.newForgeTest')}, fabric,
+                                         'NewTests.newForgeTest runs only on Forge'),
+            'stale entry': ({**forge, **tests('FabricTransferTests.transferApi')}, fabric,
+                            'lists FabricTransferTests.transferApi as fabric-only, but it is not'),
+            'wrong loader': (tests(*shared, 'FabricTransferTests.transferApi'),
+                             tests(*shared, 'ForgeEnergyTests.forgeEnergy'), 'runs only on Forge'),
+            'bare method name no longer matches': (
+                {**forge, **tests('OtherEnergyTests.forgeEnergy')}, fabric,
+                'OtherEnergyTests.forgeEnergy runs only on Forge'),
         }
         for label, (a, b, message) in cases.items():
             with self.subTest(label):
@@ -514,13 +529,63 @@ class GameTestDiscoveryTests(unittest.TestCase):
                 self.assertTrue(any(message in f for f in failures), failures)
 
     def test_allowlist_needs_a_reason_per_line_and_no_duplicates(self):
-        for body, message in (('forge onlyHere\n', 'expected'), ('neoforge x  # why\n', 'expected'),
-                              ('forge a  # one\nforge a  # two\n', 'listed twice')):
+        for body, message in (('forge Tests.onlyHere\n', 'expected'), ('neoforge Tests.x  # why\n', 'expected'),
+                              ('forge onlyHere  # bare method, no class\n', 'expected'),
+                              ('forge Tests.a  # one\nforge Tests.a  # two\n', 'listed twice')):
             with self.subTest(body):
                 path = write(self.mod / 'list.txt', body)
                 failures = Failures()
                 parity.read_gametest_allowlist(path, fail=failures)
                 self.assertTrue(any(message in f for f in failures), failures)
+
+
+    def test_same_method_in_two_classes_is_two_tests(self):
+        # Codex P2 on #122: Mekanism's FissionReactorGameTests and FusionReactorGameTests both
+        # declare reactorContentsSurviveSaveAndLoad.  Keyed by bare method name, the fission test
+        # stood in for a fusion test that had stopped registering on one loader.
+        for simple in ('FissionTests', 'FusionTests'):
+            self.java(self.common, f'demo.{simple}', f"""\
+                public class {simple} {{
+                    @GameTest public static void reactorContentsSurviveSaveAndLoad(GameTestHelper h) {{}}
+                }}""")
+        self.java(self.forge, 'demo.forge.ForgeTests', """\
+            @GameTestHolder("demo") public class ForgeTests {
+                @GameTestGenerator public static List<TestFunction> all() {
+                    return of(FissionTests.class, FusionTests.class); }
+            }""")
+        self.descriptor('demo.FissionTests')
+        forge, fabric = parity.loader_gametests(self.mod)
+        self.assertEqual(forge, {'fissiontests.reactorcontentssurvivesaveandload':
+                                 'FissionTests.reactorContentsSurviveSaveAndLoad',
+                                 'fusiontests.reactorcontentssurvivesaveandload':
+                                 'FusionTests.reactorContentsSurviveSaveAndLoad'})
+        self.assertEqual(set(fabric), {'fissiontests.reactorcontentssurvivesaveandload'})
+        failures = Failures()
+        allowlist = write(self.mod / parity.ALLOWLIST_NAME, '# nothing is one-loader\n')
+        parity.check_gametest_symmetry(forge, fabric, allowlist, fail=failures)
+        self.assertTrue(any('FusionTests.reactorContentsSurviveSaveAndLoad runs only on Forge' in f
+                            for f in failures), failures)
+        # Registering the fusion class on Fabric restores symmetry.
+        self.descriptor('demo.FissionTests', 'demo.FusionTests')
+        forge, fabric = parity.loader_gametests(self.mod)
+        self.assertEqual(parity.check_gametest_symmetry(forge, fabric, allowlist), (2, 0))
+
+    def test_loader_named_forwarders_share_an_identity(self):
+        self.assertEqual(parity.shared_class_name('ExtremeReactorsForgeGameTests'), 'ExtremeReactorsGameTests')
+        self.assertEqual(parity.gametest_identity('ExtremeReactorsForgeGameTests', 'turbineSpins'),
+                         parity.gametest_identity('ExtremeReactorsFabricGameTests', 'turbineSpins'))
+        self.assertEqual(parity.gametest_identity('FabricBonusLootGameTests', 'drops'),
+                         parity.gametest_identity('BonusLootGameTests', 'drops'))
+        self.assertNotEqual(parity.gametest_identity('DinosaurInjuryGameTests', 'heals'),
+                            parity.gametest_identity('DinosaurFabricGameTests', 'heals'))
+
+    def test_two_tests_with_one_runtime_name_on_a_loader_fail(self):
+        for simple in ('ForgeMachineTests', 'MachineTests'):
+            self.java(self.common, f'demo.{simple}', f"""\
+                public class {simple} {{ @GameTest public static void runs(GameTestHelper h) {{}} }}""")
+        self.descriptor('demo.ForgeMachineTests', 'demo.MachineTests')
+        with self.assertRaises(SystemExit):
+            parity.loader_gametests(self.mod)
 
 
 class RepositoryGateTests(unittest.TestCase):

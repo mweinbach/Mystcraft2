@@ -1,181 +1,190 @@
 # GameTests that only one loader registers. `scripts/loader_parity.py` discovers the
 # tests each loader runs from its GameTest sources (Forge: @GameTestHolder classes;
-# Fabric: the fabric-gametest entrypoints; generators expanded) and compares them by
-# method name. Any test on only one loader must be listed here, and a listed test that
-# now runs on both must be removed, so this file only shrinks.
+# Fabric: the fabric-gametest entrypoints; generators expanded) and matches them by
+# runtime name, <class>.<method>, with loader-named forwarding classes normalised
+# (ExtremeReactorsForgeGameTests and ExtremeReactorsFabricGameTests are one class).
+# Any test on only one loader must be listed here, and a listed test that now runs on
+# both must be removed, so this file only shrinks.
 #
-# Format: <forge|fabric> <test method>  # reason (required)
-forge abandonedDigsiteKeepsFossilDisplayAndZombieProfessional  # Forge-only (ZombieVillageGameTests) until JC-B moves it to shared GameTests
-forge abandonedGeneticistHouseSpawnsZombieProfessional  # Forge-only (ZombieVillageGameTests) until JC-B moves it to shared GameTests
-forge abandonedPoolsUseMatchingStreetAndIdempotentInjection  # Forge-only (ZombieVillageGameTests) until JC-B moves it to shared GameTests
-forge actionTransitionsAndResumption  # Forge-only (DinosaurPoseEngineGameTests) until JC-B moves it to shared GameTests
-forge actualTablesReceivePools  # Forge-only (BonusLootGameTests) until JC-B moves it to shared GameTests
-forge adultsDefendAttackedInfants  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge amberFortuneKeepsIndependentVariants  # Forge-only (FossilLootGameTests) until JC-B moves it to shared GameTests
-forge ambientCallsAnimateOnlyWhenIdle  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge animateCommandSelectsSupportedVariants  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge aquaticSpawnAllowsWaterButNotSolidBlocks  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge babyGrowthAndGeneticsPersist  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge bestFoodBreedsAndPersists  # Forge-only (BugGameTests) until JC-B moves it to shared GameTests
-forge birthPausesForForcedPosesAndTranquilization  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge blockedAndRestored  # Forge-only (CleaningStationGameTests) until JC-B moves it to shared GameTests
-forge bothHalvesUseOneMachine  # Forge-only (CultivatorGameTests) until JC-B moves it to shared GameTests
-forge callusPreservesDna  # Forge-only (PlantCultureGameTests) until JC-B moves it to shared GameTests
-forge canceledCarcassDeathCannotDuplicateLoot  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge carcassDecayAndCarnivoreScavenging  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge carcassHarvestPreservesGeneticsAndDecomposes  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge carcassRespectsMobLootAndConfig  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge coelacanthBirthRetriesWhenWaterIsUnavailable  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge combineAndSynthesize  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge commandPlacesTransformedPaddockAndLoot  # Forge-only (SpawnParkCommandGameTests) until JC-B moves it to shared GameTests
-forge connectedShapesUpdate  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge connectionRangeAndDisconnection  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge customItemAndBlockEnvironmentsIncubate  # Forge-only (LabExtensionGameTests) until JC-B moves it to shared GameTests
-forge customItemSequencesAndCustomBlockSynthesizes  # Forge-only (LabExtensionGameTests) until JC-B moves it to shared GameTests
-forge dartsPersistAndRecover  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge debugBreedingAndBirth  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge deniedPlacementRestoresItemAndBlock  # Forge-only (SkullGameTests) until JC-B moves it to shared GameTests
-forge diagonalBasesConduct  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge dilophosaurusSpitAndBiteHaveOriginalEffects  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge dilophosaurusWaitsBeforeSpitting  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge diningFiguresAndDigsiteBones  # Forge-only (BonusLootGameTests) until JC-B moves it to shared GameTests
-forge disabledGrowthAndMetabolismPreserveAgeAndNeeds  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge displaySamplesSyncWithoutOtherInventory  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge embryoChainAndPersistence  # Forge-only (HatcheryGameTests) until JC-B moves it to shared GameTests
-forge enabledMetabolismDehydratesAndRainRestoresWater  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge everyUpstreamLayoutProducesItsMatchingDisplay  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge excavationPreservesFossilsRestoresSandAndRespectsGriefing  # Forge-only (PaleontologistGameTests) until JC-B moves it to shared GameTests
-forge existingEggDataIsPreserved  # Forge-only (HatchedEggGameTests) until JC-B moves it to shared GameTests
-forge extractionBlockedOutputAndAutomation  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge extractSpeciesMeat  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge familySurvivesDeathDuringGestation  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge feedingRespectsDietAndPersists  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge feedsHungryHerbivore  # Forge-only (FeederGameTests) until JC-B moves it to shared GameTests
-forge fenceShockInterruptsHerdingAndSignalsEscape  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge fishingAndVanillaChests  # Forge-only (BonusLootGameTests) until JC-B moves it to shared GameTests
-forge followAndOwnerDefenseRespectSpeciesAndAge  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge forcedSoundsAndStomps  # Forge-only (DinosaurPresentationGameTests) until JC-B moves it to shared GameTests
-forge fossilOddsAndMetadata  # Forge-only (FossilGrinderGameTests) until JC-B moves it to shared GameTests
-forge fossilToHatchedDinosaur  # Forge-only (RevivalChainGameTests) until JC-B moves it to shared GameTests
-forge freshBonesPreserveGeneticsWhenGround  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge friendshipAndFamilyBoundaries  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge generatedResourcesResolve  # Forge-only (RegistryResourceGameTests) until JC-B moves it to shared GameTests
-forge growthTimingAndTotalAgeMigrateAndPersist  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge gypsumIceAndSilkPreserveOriginalRules  # Forge-only (FossilLootGameTests) until JC-B moves it to shared GameTests
-forge headTrackingMatchesOriginalClampAndDistribution  # Forge-only (DinosaurPresentationGameTests) until JC-B moves it to shared GameTests
-forge heldPosesFallbackAndCoelacanth  # Forge-only (DinosaurPoseEngineGameTests) until JC-B moves it to shared GameTests
-forge herdDefenseAndFleeing  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge herdLimitsAndPredatorPrey  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge hungryDinosaursSeekAndEatDroppedFood  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge hungryHerbivoresGrazeAndWaterBanksAreRecognized  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge hybridMatchingRejectsIncompleteOrExtraSamples  # Forge-only (HybridizationGameTests) until JC-B moves it to shared GameTests
-forge hybridModePreservesInventoryAndAutomation  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge incubatorAndTemperatureButtons  # Forge-only (HatcheryGameTests) until JC-B moves it to shared GameTests
-forge incubatorVisualSlots  # Forge-only (HatcheryGameTests) until JC-B moves it to shared GameTests
-forge inheritedAttributesApplyAndPersist  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge inheritedTraitsSurviveEggPickupAndHatching  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge inventoryAndPersistence  # Forge-only (FeederGameTests) until JC-B moves it to shared GameTests
-forge layoutAndMixedSpecies  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge loadedHealthRespectsRecalculatedMaximum  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge microraptorGlidesAndLands  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge mossMakesMossyStone  # Forge-only (MossRecipeGameTests) until JC-B moves it to shared GameTests
-forge naturalHatchJoinsUnloadedFamily  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge naturalRestPersistsAndEndsForNeedsOrOrders  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge naturalSpawnGroupsAreAdults  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge naturalSpawningIsOptInAndSpeciesSpecific  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge nearbyAnimalsCallAndMatureRexRoars  # Forge-only (DinosaurPresentationGameTests) until JC-B moves it to shared GameTests
-forge onlyFullAggressiveHerdsAttackOutcasts  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge onlyPoweredWireShocks  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge outputConsumesBones  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge ownerInventoryDropsOnceAndRespectsCanceledDeaths  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge ownerInventoryIsSizedAuthorizedAndPersistent  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge ownerOrdersAreAuthorizedAndPersist  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge permissionsErrorsAndCompletions  # Forge-only (SpawnParkCommandGameTests) until JC-B moves it to shared GameTests
-forge persistenceReplacementAndAutomation  # Forge-only (FossilGrinderGameTests) until JC-B moves it to shared GameTests
-forge pickedUpNaturalEggKeepsFamily  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge placementAndMetadata  # Forge-only (SkullGameTests) until JC-B moves it to shared GameTests
-forge placementPersistenceAndSupport  # Forge-only (MuralGameTests) until JC-B moves it to shared GameTests
-forge plantFortuneUsesOriginalLuck  # Forge-only (FossilLootGameTests) until JC-B moves it to shared GameTests
-forge plantOutputs  # Forge-only (CleaningStationGameTests) until JC-B moves it to shared GameTests
-forge playerAndRaptorsCanClimb  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge poleLightsAndArmsFollowNeighbors  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge powerRequiresContinuousWireColumn  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge proceduralMotionAndAttackPose  # Forge-only (DinosaurProceduralGameTests) until JC-B moves it to shared GameTests
-forge rangeIsMeasuredFromThePoweredPole  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge raptorLeapPreparesLaunchesAndHitsOnLanding  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge recipesLootAndWorldgenAreLoaded  # Forge-only (DatapackLoadingGameTests) until JC-B moves it to shared GameTests
-forge recordsAndChestLoot  # Forge-only (MusicGameTests) until JC-B moves it to shared GameTests
-forge replacedFoodResetsProgress  # Forge-only (BugGameTests) until JC-B moves it to shared GameTests
-forge reproductionPreservesEmbryosAndLaysEggs  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge sequencerPersistsAndKeepsGenome  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge sequencerSplitsGuiInputsAndProtectsOccupiedAutomationSlots  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge simultaneousAnimationAndIndependentStates  # Forge-only (DinosaurPoseEngineGameTests) until JC-B moves it to shared GameTests
-forge sittingMicroraptorsRideAndDismountOnlyTheirOwner  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge skeletonAppearanceSurvivesBreakingAndReplacement  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge sleepSchedulesAndWake  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge sneakUsingToolsReachesTheItemInteraction  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge spawnEggSelectsGenderAndAgeAndStillConfiguresSpawners  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge speciesDietsDistinguishFishMeatInsectsAndFilterFood  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge speedAndBreathing  # Forge-only (DinosaurPresentationGameTests) until JC-B moves it to shared GameTests
-forge swarmRequiresWater  # Forge-only (BugGameTests) until JC-B moves it to shared GameTests
-forge synthesizerStacksPlantDnaWithoutMixingMetadata  # Forge-only (DnaMachineGameTests) until JC-B moves it to shared GameTests
-forge tallAndAquaticPlanting  # Forge-only (PlantCultureGameTests) until JC-B moves it to shared GameTests
-forge thirstPersistsAndPotionsRestoreWater  # Forge-only (DinosaurGameTests) until JC-B moves it to shared GameTests
-forge twoBlockTable  # Forge-only (AssemblyGameTests) until JC-B moves it to shared GameTests
-forge unloadedYoungRemainUntilMature  # Forge-only (DinosaurFamilyGameTests) until JC-B moves it to shared GameTests
-forge untaggedCreativeEggsInitializeOnce  # Forge-only (HatchedEggGameTests) until JC-B moves it to shared GameTests
-forge visitorRoomsProduceOriginalVariants  # Forge-only (BonusLootGameTests) until JC-B moves it to shared GameTests
-forge visualStateFollowsProcessing  # Forge-only (CleaningStationGameTests) until JC-B moves it to shared GameTests
-forge waterAndAutomation  # Forge-only (CleaningStationGameTests) until JC-B moves it to shared GameTests
-forge waterNutrientsGestationAndPersistence  # Forge-only (CultivatorGameTests) until JC-B moves it to shared GameTests
-forge wireCollisionMatchesItsConnections  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-forge wiresConnectAcrossOneBlockRise  # Forge-only (FenceGameTests) until JC-B moves it to shared GameTests
-fabric allSkeletonLayoutsRejectMixedBones  # Fabric-only (FossilMachineGameTests) until JC-B moves it to shared GameTests
-fabric breedingAndSidedInventorySurviveReload  # Fabric-only (BugFeederGameTests) until JC-B moves it to shared GameTests
-fabric carCanClimbOriginalStepHeight  # Fabric-only (VehicleGameTests) until JC-B moves it to shared GameTests
-fabric cleaningAutomationAndPersistence  # Fabric-only (FossilMachineGameTests) until JC-B moves it to shared GameTests
-fabric copiedDigsiteHasExactlyOneBonusPool  # Fabric-only (FabricBonusLootGameTests) until JC-B moves it to shared GameTests
-fabric copiedStructureEntriesProduceValidDnaAndFigures  # Fabric-only (FabricBonusLootGameTests) until JC-B moves it to shared GameTests
-fabric coreRecipesAreLoadedAndPlasterCanBeCrafted  # Fabric-only (CoreRecipeGameTests) until JC-B moves it to shared GameTests
-fabric cultivatorConsumesWaterAndNutrientsForCoelacanth  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric dartsApplyTheirEffectsToDinosaurs  # Fabric-only (DartGameTests) until JC-B moves it to shared GameTests
-fabric datapackEntitiesRemainSupportedAndChunkClipped  # Fabric-only (ParkStructureGameTests) until JC-B moves it to shared GameTests
-fabric datapackReplacedLootTablesAreUntouched  # Fabric-only (FabricBonusLootGameTests) until JC-B moves it to shared GameTests
-fabric earlyRadioPacketsWaitForEntityAndRespectWorldChanges  # Fabric-only (VehicleGameTests) until JC-B moves it to shared GameTests
-fabric encasedFossilLootTablesLoadAndDropTheirBlock  # Fabric-only (CoreFossilGameTests) until JC-B moves it to shared GameTests
-fabric feederAutomationPersistenceAndClientUpdates  # Fabric-only (BugFeederGameTests) until JC-B moves it to shared GameTests
-fabric feederServesSuitableDinosaur  # Fabric-only (BugFeederGameTests) until JC-B moves it to shared GameTests
-fabric fossilBlocksPlaceAndLoadMiningTags  # Fabric-only (CoreFossilGameTests) until JC-B moves it to shared GameTests
-fabric fossilCatalogIsRegistered  # Fabric-only (CoreFossilGameTests) until JC-B moves it to shared GameTests
-fabric fossilExplosionAndMiningDrops  # Fabric-only (FossilNestGameTests) until JC-B moves it to shared GameTests
-fabric fossilsAndFreshBonesPreserveDna  # Fabric-only (FossilMachineGameTests) until JC-B moves it to shared GameTests
-fabric freshFloorAndFossilWall  # Fabric-only (SkullGameTests) until JC-B moves it to shared GameTests
-fabric geneticsSurviveHatcheryStages  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric gestatedCoelacanthCanBeReleasedIntoWater  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric grinderCyclePersistenceAndReplacement  # Fabric-only (FossilMachineGameTests) until JC-B moves it to shared GameTests
-fabric gunLoadsAndFiresServerSide  # Fabric-only (DartGameTests) until JC-B moves it to shared GameTests
-fabric juvenileTemptationTracksDietAgeAndOrders  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric machinesIncubateBothSexesAndRetainProgress  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric machineTransfersUseRealInputSlots  # Fabric-only (RecipePreviewFabricGameTests) until JC-B moves it to shared GameTests
-fabric meleeAnimationDelaysBirthAndSurvivesReload  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric meleeAnimationUsesSpeciesDurationAndSurvivesReload  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric meleeAnimationYieldsToOtherActions  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric naturalSpawningUsesPigBiomesAndConfig  # Fabric-only (GoatGameTests) until JC-B moves it to shared GameTests
-fabric ownerControlsAndFishDiets  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric recipeClickAreasAvoidInteractiveIncubatorControls  # Fabric-only (RecipePreviewFabricGameTests) until JC-B moves it to shared GameTests
-fabric recipesLootAndWorldgenActuallyLoad  # Fabric-only (FabricDataGameTests) until JC-B moves it to shared GameTests
-fabric recordsKeepTheirExactDurations  # Fabric-only (MusicGameTests) until JC-B moves it to shared GameTests
-fabric registeredSpeciesPreserveTraitsAndOwner  # Fabric-only (DinosaurFabricGameTests) until JC-B moves it to shared GameTests
-fabric registeredStructureDatapackLoads  # Fabric-only (VillageGameTests) until JC-B moves it to shared GameTests
-fabric replacementResetsCycleAndSwarmNeedsWater  # Fabric-only (BugFeederGameTests) until JC-B moves it to shared GameTests
-fabric requiredModTagValuesAreRegistered  # Fabric-only (FabricDataGameTests) until JC-B moves it to shared GameTests
-fabric sidedTransfersReachFeederCrateCultivatorAndLab  # Fabric-only (MachineTransferGameTests) until JC-B moves it to shared GameTests
-fabric sidedTransfersRespectModeAndTransactions  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric undersidePlacementIsRejected  # Fabric-only (SkullGameTests) until JC-B moves it to shared GameTests
-fabric vanillaLootInjectionPreservesRate  # Fabric-only (FabricBonusLootGameTests) until JC-B moves it to shared GameTests
-fabric vanillaNominalSkullSelectsRandomBone  # Fabric-only (FabricBonusLootGameTests) until JC-B moves it to shared GameTests
-fabric vehicleTurnsEachRiderOnce  # Fabric-only (VehicleGameTests) until JC-B moves it to shared GameTests
-fabric visitorPaintingKeepsTransformedAnchor  # Fabric-only (ParkStructureGameTests) until JC-B moves it to shared GameTests
-fabric wallPlacementSaveAndSpawnPacket  # Fabric-only (MuralGameTests) until JC-B moves it to shared GameTests
-fabric waterPotionSmeltingUsesPartialNbt  # Fabric-only (GeneticsMachineGameTests) until JC-B moves it to shared GameTests
-fabric woodIsFlammableThroughFabricRegistry  # Fabric-only (AncientTreeGameTests) until JC-B moves it to shared GameTests
+# Format: <forge|fabric> <Class>.<method>  # reason (required); Class is the declaring
+# class on that loader.
+forge AssemblyGameTests.everyUpstreamLayoutProducesItsMatchingDisplay  # Forge-only until JC-B moves it to shared GameTests
+forge AssemblyGameTests.freshBonesPreserveGeneticsWhenGround  # Forge-only until JC-B moves it to shared GameTests
+forge AssemblyGameTests.layoutAndMixedSpecies  # Forge-only until JC-B moves it to shared GameTests
+forge AssemblyGameTests.outputConsumesBones  # Forge-only until JC-B moves it to shared GameTests
+forge AssemblyGameTests.skeletonAppearanceSurvivesBreakingAndReplacement  # Forge-only until JC-B moves it to shared GameTests
+forge AssemblyGameTests.twoBlockTable  # Forge-only until JC-B moves it to shared GameTests
+forge BonusLootGameTests.actualTablesReceivePools  # Forge-only until JC-B moves it to shared GameTests
+forge BonusLootGameTests.diningFiguresAndDigsiteBones  # Forge-only until JC-B moves it to shared GameTests
+forge BonusLootGameTests.fishingAndVanillaChests  # Forge-only until JC-B moves it to shared GameTests
+forge BonusLootGameTests.visitorRoomsProduceOriginalVariants  # Forge-only until JC-B moves it to shared GameTests
+forge BugGameTests.bestFoodBreedsAndPersists  # Forge-only until JC-B moves it to shared GameTests
+forge BugGameTests.replacedFoodResetsProgress  # Forge-only until JC-B moves it to shared GameTests
+forge BugGameTests.swarmRequiresWater  # Forge-only until JC-B moves it to shared GameTests
+forge CleaningStationGameTests.blockedAndRestored  # Forge-only until JC-B moves it to shared GameTests
+forge CleaningStationGameTests.plantOutputs  # Forge-only until JC-B moves it to shared GameTests
+forge CleaningStationGameTests.visualStateFollowsProcessing  # Forge-only until JC-B moves it to shared GameTests
+forge CleaningStationGameTests.waterAndAutomation  # Forge-only until JC-B moves it to shared GameTests
+forge CultivatorGameTests.bothHalvesUseOneMachine  # Forge-only until JC-B moves it to shared GameTests
+forge CultivatorGameTests.waterNutrientsGestationAndPersistence  # Forge-only until JC-B moves it to shared GameTests
+forge DatapackLoadingGameTests.recipesLootAndWorldgenAreLoaded  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.adultsDefendAttackedInfants  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.familySurvivesDeathDuringGestation  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.friendshipAndFamilyBoundaries  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.naturalHatchJoinsUnloadedFamily  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.pickedUpNaturalEggKeepsFamily  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurFamilyGameTests.unloadedYoungRemainUntilMature  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.ambientCallsAnimateOnlyWhenIdle  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.animateCommandSelectsSupportedVariants  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.aquaticSpawnAllowsWaterButNotSolidBlocks  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.babyGrowthAndGeneticsPersist  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.birthPausesForForcedPosesAndTranquilization  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.canceledCarcassDeathCannotDuplicateLoot  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.carcassDecayAndCarnivoreScavenging  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.carcassHarvestPreservesGeneticsAndDecomposes  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.carcassRespectsMobLootAndConfig  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.coelacanthBirthRetriesWhenWaterIsUnavailable  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.dartsPersistAndRecover  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.debugBreedingAndBirth  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.dilophosaurusSpitAndBiteHaveOriginalEffects  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.dilophosaurusWaitsBeforeSpitting  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.disabledGrowthAndMetabolismPreserveAgeAndNeeds  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.enabledMetabolismDehydratesAndRainRestoresWater  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.feedingRespectsDietAndPersists  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.fenceShockInterruptsHerdingAndSignalsEscape  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.followAndOwnerDefenseRespectSpeciesAndAge  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.growthTimingAndTotalAgeMigrateAndPersist  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.herdDefenseAndFleeing  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.herdLimitsAndPredatorPrey  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.hungryDinosaursSeekAndEatDroppedFood  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.hungryHerbivoresGrazeAndWaterBanksAreRecognized  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.inheritedAttributesApplyAndPersist  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.inheritedTraitsSurviveEggPickupAndHatching  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.loadedHealthRespectsRecalculatedMaximum  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.microraptorGlidesAndLands  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.naturalRestPersistsAndEndsForNeedsOrOrders  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.naturalSpawnGroupsAreAdults  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.naturalSpawningIsOptInAndSpeciesSpecific  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.onlyFullAggressiveHerdsAttackOutcasts  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.ownerInventoryDropsOnceAndRespectsCanceledDeaths  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.ownerInventoryIsSizedAuthorizedAndPersistent  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.ownerOrdersAreAuthorizedAndPersist  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.raptorLeapPreparesLaunchesAndHitsOnLanding  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.reproductionPreservesEmbryosAndLaysEggs  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.sittingMicroraptorsRideAndDismountOnlyTheirOwner  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.sleepSchedulesAndWake  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.sneakUsingToolsReachesTheItemInteraction  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.spawnEggSelectsGenderAndAgeAndStillConfiguresSpawners  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.speciesDietsDistinguishFishMeatInsectsAndFilterFood  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurGameTests.thirstPersistsAndPotionsRestoreWater  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurInjuryGameTests.injuryPausesAndRestoresBirthWithoutEarlyDelivery  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurInjuryGameTests.injuryRejectsBlockedHitsAndYieldsToNewActions  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurInjuryGameTests.injuryUsesSpeciesDurationAndSurvivesReload  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPoseEngineGameTests.actionTransitionsAndResumption  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPoseEngineGameTests.heldPosesFallbackAndCoelacanth  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPoseEngineGameTests.simultaneousAnimationAndIndependentStates  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPresentationGameTests.forcedSoundsAndStomps  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPresentationGameTests.headTrackingMatchesOriginalClampAndDistribution  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPresentationGameTests.nearbyAnimalsCallAndMatureRexRoars  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurPresentationGameTests.speedAndBreathing  # Forge-only until JC-B moves it to shared GameTests
+forge DinosaurProceduralGameTests.proceduralMotionAndAttackPose  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.combineAndSynthesize  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.displaySamplesSyncWithoutOtherInventory  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.extractionBlockedOutputAndAutomation  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.extractSpeciesMeat  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.hybridModePreservesInventoryAndAutomation  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.sequencerPersistsAndKeepsGenome  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.sequencerSplitsGuiInputsAndProtectsOccupiedAutomationSlots  # Forge-only until JC-B moves it to shared GameTests
+forge DnaMachineGameTests.synthesizerStacksPlantDnaWithoutMixingMetadata  # Forge-only until JC-B moves it to shared GameTests
+forge FeederGameTests.feedsHungryHerbivore  # Forge-only until JC-B moves it to shared GameTests
+forge FeederGameTests.inventoryAndPersistence  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.connectedShapesUpdate  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.connectionRangeAndDisconnection  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.diagonalBasesConduct  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.onlyPoweredWireShocks  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.playerAndRaptorsCanClimb  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.poleLightsAndArmsFollowNeighbors  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.powerRequiresContinuousWireColumn  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.rangeIsMeasuredFromThePoweredPole  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.wireCollisionMatchesItsConnections  # Forge-only until JC-B moves it to shared GameTests
+forge FenceGameTests.wiresConnectAcrossOneBlockRise  # Forge-only until JC-B moves it to shared GameTests
+forge FossilGrinderGameTests.fossilOddsAndMetadata  # Forge-only until JC-B moves it to shared GameTests
+forge FossilGrinderGameTests.persistenceReplacementAndAutomation  # Forge-only until JC-B moves it to shared GameTests
+forge FossilLootGameTests.amberFortuneKeepsIndependentVariants  # Forge-only until JC-B moves it to shared GameTests
+forge FossilLootGameTests.gypsumIceAndSilkPreserveOriginalRules  # Forge-only until JC-B moves it to shared GameTests
+forge FossilLootGameTests.plantFortuneUsesOriginalLuck  # Forge-only until JC-B moves it to shared GameTests
+forge HatchedEggGameTests.existingEggDataIsPreserved  # Forge-only until JC-B moves it to shared GameTests
+forge HatchedEggGameTests.untaggedCreativeEggsInitializeOnce  # Forge-only until JC-B moves it to shared GameTests
+forge HatcheryGameTests.embryoChainAndPersistence  # Forge-only until JC-B moves it to shared GameTests
+forge HatcheryGameTests.incubatorAndTemperatureButtons  # Forge-only until JC-B moves it to shared GameTests
+forge HatcheryGameTests.incubatorVisualSlots  # Forge-only until JC-B moves it to shared GameTests
+forge HybridizationGameTests.hybridMatchingRejectsIncompleteOrExtraSamples  # Forge-only until JC-B moves it to shared GameTests
+forge LabExtensionGameTests.customItemAndBlockEnvironmentsIncubate  # Forge-only until JC-B moves it to shared GameTests
+forge LabExtensionGameTests.customItemSequencesAndCustomBlockSynthesizes  # Forge-only until JC-B moves it to shared GameTests
+forge MossRecipeGameTests.mossMakesMossyStone  # Forge-only until JC-B moves it to shared GameTests
+forge MuralGameTests.placementPersistenceAndSupport  # Forge-only until JC-B moves it to shared GameTests
+forge MusicGameTests.recordsAndChestLoot  # Forge-only until JC-B moves it to shared GameTests
+forge PaleontologistGameTests.excavationPreservesFossilsRestoresSandAndRespectsGriefing  # Forge-only until JC-B moves it to shared GameTests
+forge PlantCultureGameTests.callusPreservesDna  # Forge-only until JC-B moves it to shared GameTests
+forge PlantCultureGameTests.tallAndAquaticPlanting  # Forge-only until JC-B moves it to shared GameTests
+forge RegistryResourceGameTests.generatedResourcesResolve  # Forge-only until JC-B moves it to shared GameTests
+forge RevivalChainGameTests.fossilToHatchedDinosaur  # Forge-only until JC-B moves it to shared GameTests
+forge SkullGameTests.deniedPlacementRestoresItemAndBlock  # Forge-only until JC-B moves it to shared GameTests
+forge SkullGameTests.placementAndMetadata  # Forge-only until JC-B moves it to shared GameTests
+forge SpawnParkCommandGameTests.commandPlacesTransformedPaddockAndLoot  # Forge-only until JC-B moves it to shared GameTests
+forge SpawnParkCommandGameTests.permissionsErrorsAndCompletions  # Forge-only until JC-B moves it to shared GameTests
+forge ZombieVillageGameTests.abandonedDigsiteKeepsFossilDisplayAndZombieProfessional  # Forge-only until JC-B moves it to shared GameTests
+forge ZombieVillageGameTests.abandonedGeneticistHouseSpawnsZombieProfessional  # Forge-only until JC-B moves it to shared GameTests
+forge ZombieVillageGameTests.abandonedPoolsUseMatchingStreetAndIdempotentInjection  # Forge-only until JC-B moves it to shared GameTests
+fabric AncientTreeGameTests.woodIsFlammableThroughFabricRegistry  # Fabric-only until JC-B moves it to shared GameTests
+fabric BugFeederGameTests.breedingAndSidedInventorySurviveReload  # Fabric-only until JC-B moves it to shared GameTests
+fabric BugFeederGameTests.feederAutomationPersistenceAndClientUpdates  # Fabric-only until JC-B moves it to shared GameTests
+fabric BugFeederGameTests.feederServesSuitableDinosaur  # Fabric-only until JC-B moves it to shared GameTests
+fabric BugFeederGameTests.replacementResetsCycleAndSwarmNeedsWater  # Fabric-only until JC-B moves it to shared GameTests
+fabric CoreFossilGameTests.encasedFossilLootTablesLoadAndDropTheirBlock  # Fabric-only until JC-B moves it to shared GameTests
+fabric CoreFossilGameTests.fossilBlocksPlaceAndLoadMiningTags  # Fabric-only until JC-B moves it to shared GameTests
+fabric CoreFossilGameTests.fossilCatalogIsRegistered  # Fabric-only until JC-B moves it to shared GameTests
+fabric CoreRecipeGameTests.coreRecipesAreLoadedAndPlasterCanBeCrafted  # Fabric-only until JC-B moves it to shared GameTests
+fabric DartGameTests.dartsApplyTheirEffectsToDinosaurs  # Fabric-only until JC-B moves it to shared GameTests
+fabric DartGameTests.gunLoadsAndFiresServerSide  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.injuryPausesAndRestoresBirthWithoutEarlyDelivery  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.injuryRejectsBlockedHitsAndYieldsToNewActions  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.injuryUsesSpeciesDurationAndSurvivesReload  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.juvenileTemptationTracksDietAgeAndOrders  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.meleeAnimationDelaysBirthAndSurvivesReload  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.meleeAnimationUsesSpeciesDurationAndSurvivesReload  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.meleeAnimationYieldsToOtherActions  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.ownerControlsAndFishDiets  # Fabric-only until JC-B moves it to shared GameTests
+fabric DinosaurFabricGameTests.registeredSpeciesPreserveTraitsAndOwner  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricBonusLootGameTests.copiedDigsiteHasExactlyOneBonusPool  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricBonusLootGameTests.copiedStructureEntriesProduceValidDnaAndFigures  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricBonusLootGameTests.datapackReplacedLootTablesAreUntouched  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricBonusLootGameTests.vanillaLootInjectionPreservesRate  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricBonusLootGameTests.vanillaNominalSkullSelectsRandomBone  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricDataGameTests.recipesLootAndWorldgenActuallyLoad  # Fabric-only until JC-B moves it to shared GameTests
+fabric FabricDataGameTests.requiredModTagValuesAreRegistered  # Fabric-only until JC-B moves it to shared GameTests
+fabric FossilMachineGameTests.allSkeletonLayoutsRejectMixedBones  # Fabric-only until JC-B moves it to shared GameTests
+fabric FossilMachineGameTests.cleaningAutomationAndPersistence  # Fabric-only until JC-B moves it to shared GameTests
+fabric FossilMachineGameTests.fossilsAndFreshBonesPreserveDna  # Fabric-only until JC-B moves it to shared GameTests
+fabric FossilMachineGameTests.grinderCyclePersistenceAndReplacement  # Fabric-only until JC-B moves it to shared GameTests
+fabric FossilNestGameTests.fossilExplosionAndMiningDrops  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.cultivatorConsumesWaterAndNutrientsForCoelacanth  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.geneticsSurviveHatcheryStages  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.gestatedCoelacanthCanBeReleasedIntoWater  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.machinesIncubateBothSexesAndRetainProgress  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.sidedTransfersRespectModeAndTransactions  # Fabric-only until JC-B moves it to shared GameTests
+fabric GeneticsMachineGameTests.waterPotionSmeltingUsesPartialNbt  # Fabric-only until JC-B moves it to shared GameTests
+fabric GoatGameTests.naturalSpawningUsesPigBiomesAndConfig  # Fabric-only until JC-B moves it to shared GameTests
+fabric MachineTransferGameTests.sidedTransfersReachFeederCrateCultivatorAndLab  # Fabric-only until JC-B moves it to shared GameTests
+fabric MuralGameTests.wallPlacementSaveAndSpawnPacket  # Fabric-only until JC-B moves it to shared GameTests
+fabric MusicGameTests.recordsKeepTheirExactDurations  # Fabric-only until JC-B moves it to shared GameTests
+fabric ParkStructureGameTests.datapackEntitiesRemainSupportedAndChunkClipped  # Fabric-only until JC-B moves it to shared GameTests
+fabric ParkStructureGameTests.visitorPaintingKeepsTransformedAnchor  # Fabric-only until JC-B moves it to shared GameTests
+fabric RecipePreviewFabricGameTests.machineTransfersUseRealInputSlots  # Fabric-only until JC-B moves it to shared GameTests
+fabric RecipePreviewFabricGameTests.recipeClickAreasAvoidInteractiveIncubatorControls  # Fabric-only until JC-B moves it to shared GameTests
+fabric SkullGameTests.freshFloorAndFossilWall  # Fabric-only until JC-B moves it to shared GameTests
+fabric SkullGameTests.undersidePlacementIsRejected  # Fabric-only until JC-B moves it to shared GameTests
+fabric VehicleGameTests.carCanClimbOriginalStepHeight  # Fabric-only until JC-B moves it to shared GameTests
+fabric VehicleGameTests.earlyRadioPacketsWaitForEntityAndRespectWorldChanges  # Fabric-only until JC-B moves it to shared GameTests
+fabric VehicleGameTests.vehicleTurnsEachRiderOnce  # Fabric-only until JC-B moves it to shared GameTests
+fabric VillageGameTests.registeredStructureDatapackLoads  # Fabric-only until JC-B moves it to shared GameTests

@@ -487,6 +487,28 @@ def java_code(path: Path) -> str:
     return _JAVA_TOKEN.sub(replace, path.read_text(encoding='utf-8'))
 
 
+def shared_class_name(simple: str) -> str:
+    """The name a loader-specific forwarding class stands for: drop ``Forge``/``Fabric``.
+
+    Each loader forwards shared bodies from a class named after it
+    (``ExtremeReactorsForgeGameTests`` / ``ExtremeReactorsFabricGameTests``,
+    ``ForgeGameTests`` / ``FabricGameTests``), so their runtime names differ only by
+    that word.  Any other difference is a real difference and must be allowlisted.
+    """
+    return re.sub(r'Forge|Fabric', '', simple) or simple
+
+
+def gametest_identity(simple: str, method: str) -> str:
+    """How a test is matched across loaders: its runtime ``class.method`` name, wrappers normalised.
+
+    Vanilla, Fabric, Forge's ``@GameTestHolder`` and the ports' generators all name a
+    test ``<simple class>.<method>`` in lower case, so two classes declaring the same
+    method (Mekanism's fission and fusion ``reactorContentsSurviveSaveAndLoad``) are two
+    tests.
+    """
+    return f'{shared_class_name(simple)}.{method}'.lower()
+
+
 def gametest_methods(path: Path) -> set[str]:
     """Names of the ``@GameTest`` methods a Java source declares.
 
@@ -513,7 +535,7 @@ class GameTestSources:
         return matches[0] if len(matches) == 1 else None
 
     def tests(self, entry_classes: Iterable[str]) -> dict[str, str]:
-        """``{test method: declaring class}`` for the classes a loader registers.
+        """``{gametest_identity: "Class.method"}`` for the classes a loader registers.
 
         A registered class contributes its static ``@GameTest`` methods.  A
         ``@GameTestGenerator`` in it contributes, in this order of evidence: the tests
@@ -521,7 +543,8 @@ class GameTestSources:
         calls (``Shared.sharedTests()``); or, when it scans its package at runtime
         (``Class.forName``/``getResource``), every GameTest class in that package.  A
         generator none of these explain raises, so a new pattern is taught here instead
-        of silently counting no tests.
+        of silently counting no tests.  Two tests with one identity on a loader fail:
+        the runtime would register the same name twice.
         """
         found: dict[str, str] = {}
         seen: set[str] = set()
@@ -532,12 +555,15 @@ class GameTestSources:
             seen.add(name)
             path = self.files.get(name)
             require(path is not None, f'FAIL: GameTest class {name} has no source')
-            for method in gametest_methods(path):
-                found.setdefault(method, name)
+            simple = name.rpartition('.')[2]
+            for method in sorted(gametest_methods(path)):
+                identity, display = gametest_identity(simple, method), f'{simple}.{method}'
+                require(found.get(identity, display) == display,
+                        f'FAIL: GameTests {found.get(identity)} and {display} share the runtime name {identity}')
+                found[identity] = display
             code = java_code(path)
             if not _GENERATOR.search(code):
                 return
-            simple = name.rpartition('.')[2]
             targets = {self.resolve(ref, name) for ref in re.findall(r'\b([A-Z]\w*)\.class\b', code)
                        if ref != simple}
             targets = {target for target in targets
@@ -577,9 +603,9 @@ def loader_gametests(mod: Path) -> tuple[dict[str, str], dict[str, str]]:
     Forge compiles ``src/gametestCommon`` + ``src/gametestForge`` and registers the
     ``@GameTestHolder`` classes; Fabric compiles ``src/gametestCommon`` +
     ``src/gametestFabric`` and registers the ``fabric-gametest`` entrypoints of
-    ``src/gametestFabric/resources/fabric.mod.json``.  Tests are compared by method
-    name, because each loader forwards shared bodies from its own class
-    (``ExtremeReactorsForgeGameTests`` / ``ExtremeReactorsFabricGameTests``).
+    ``src/gametestFabric/resources/fabric.mod.json``.  Tests are matched by
+    ``gametest_identity``: the runtime ``class.method`` name, with loader-named
+    forwarding classes normalised.
     """
     common = mod / 'src/gametestCommon/java'
     forge = GameTestSources(common, mod / 'src/gametestForge/java')
@@ -589,14 +615,15 @@ def loader_gametests(mod: Path) -> tuple[dict[str, str], dict[str, str]]:
 
 
 ALLOWLIST_NAME = 'gametest-loader-only.txt'
-_ALLOWLIST_LINE = re.compile(r'(forge|fabric)\s+(\w+)\s+#\s*(\S.*)')
+_ALLOWLIST_LINE = re.compile(r'(forge|fabric)\s+(\w+\.\w+)\s+#\s*(\S.*)')
 
 
 def read_gametest_allowlist(path: Path, *, fail=require) -> dict[str, str]:
     """``{test: loader}`` from a ``gametest-loader-only.txt``.
 
-    Each non-comment line is ``<forge|fabric> <test method>  # reason``; the reason is
-    required, and a test may appear once.
+    Each non-comment line is ``<forge|fabric> <Class>.<method>  # reason``, naming the
+    test's declaring class on that loader; the reason is required, and a test may
+    appear once.
     """
     allowed: dict[str, str] = {}
     if not path.is_file():
@@ -606,7 +633,7 @@ def read_gametest_allowlist(path: Path, *, fail=require) -> dict[str, str]:
         if not line or line.startswith('#'):
             continue
         match = _ALLOWLIST_LINE.fullmatch(line)
-        fail(match, f'{path.name}:{number}: expected "<forge|fabric> <test>  # reason", got {raw!r}')
+        fail(match, f'{path.name}:{number}: expected "<forge|fabric> <Class>.<method>  # reason", got {raw!r}')
         if not match:
             continue
         loader, test, _reason = match.groups()
@@ -615,25 +642,27 @@ def read_gametest_allowlist(path: Path, *, fail=require) -> dict[str, str]:
     return allowed
 
 
-def check_gametest_symmetry(forge_tests: Iterable[str], fabric_tests: Iterable[str], allowlist: Path, *,
+def check_gametest_symmetry(forge_tests: dict[str, str], fabric_tests: dict[str, str], allowlist: Path, *,
                             fail=require) -> tuple[int, int]:
     """Both loaders must run the same GameTests, except the allowlisted ones.
 
-    A test only one loader runs must be listed for that loader; a listed test that now
-    runs on both loaders (or on neither, or on the other one) must be removed, so the
-    list only shrinks as tests move to shared code.  Returns ``(shared, allowlisted)``.
+    ``forge_tests``/``fabric_tests`` map ``gametest_identity`` to the ``Class.method``
+    the allowlist names.  A test only one loader runs must be listed for that loader;
+    a listed test that now runs on both loaders (or on neither, or on the other one)
+    must be removed, so the list only shrinks as tests move to shared code.  Returns
+    ``(shared, allowlisted)``.
     """
-    forge, fabric = set(forge_tests), set(fabric_tests)
     allowed = read_gametest_allowlist(allowlist, fail=fail)
-    for loader, only in (('forge', forge - fabric), ('fabric', fabric - forge)):
-        for test in sorted(only):
+    only = {}
+    for loader, own, other in (('forge', forge_tests, fabric_tests), ('fabric', fabric_tests, forge_tests)):
+        only[loader] = {own[identity] for identity in set(own) - set(other)}
+        for test in sorted(only[loader]):
             fail(allowed.get(test) == loader,
                  f'GameTest {test} runs only on {loader.capitalize()}; share it or list it in '
                  f'{allowlist.name} with a reason')
     for test, loader in sorted(allowed.items()):
-        actual = forge - fabric if loader == 'forge' else fabric - forge
-        fail(test in actual, f'{allowlist.name} lists {test} as {loader}-only, but it is not; remove the line')
-    return len(forge & fabric), len(allowed)
+        fail(test in only[loader], f'{allowlist.name} lists {test} as {loader}-only, but it is not; remove the line')
+    return len(set(forge_tests) & set(fabric_tests)), len(allowed)
 
 
 def check_loader_gametests(mod: Path, *, fail=require) -> tuple[int, int]:
