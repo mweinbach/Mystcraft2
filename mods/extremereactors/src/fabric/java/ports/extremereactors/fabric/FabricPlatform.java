@@ -54,6 +54,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import ports.extremereactors.corelib.block.AbstractModBlockEntity;
 import ports.extremereactors.corelib.capability.Capability;
 import ports.extremereactors.corelib.capability.LazyOptional;
@@ -65,6 +66,8 @@ import ports.extremereactors.platform.Network;
 import ports.extremereactors.platform.Platform;
 import ports.extremereactors.platform.registry.DeferredRegister;
 import ports.extremereactors.platform.registry.RegistryObject;
+import ports.fluidphysics.FluidPhysics;
+import ports.fluidphysics.FluidProperties;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
@@ -107,6 +110,8 @@ public final class FabricPlatform implements Platform.Backend {
         this._registers = new ArrayList<>();
         this._blocksWithEntities = new LinkedHashSet<>();
         this._fluids = new IdentityHashMap<>();
+        this._fluidSources = new IdentityHashMap<>();
+        this._fluidFlows = new IdentityHashMap<>();
         this._levelTickHandlers = new CopyOnWriteArrayList<>();
         this._levelUnloadHandlers = new CopyOnWriteArrayList<>();
         this._network = new FabricNetwork();
@@ -144,10 +149,34 @@ public final class FabricPlatform implements Platform.Backend {
 
         this._registers.clear();
         FabricTransfer.registerBlockLookups(this._blocksWithEntities.toArray(new Block[0]));
+
+        this._fluidSources.forEach((definition, source) -> {
+
+            final FlowingFluid flowing = this._fluidFlows.get(definition);
+
+            if (null != flowing) {
+                FluidPhysics.register(source, flowing, propertiesOf(definition));
+            } else {
+                FluidPhysics.register(source, propertiesOf(definition));
+            }
+        });
     }
 
     public Map<Fluid, FluidDefinition> getFluids() {
         return Collections.unmodifiableMap(this._fluids);
+    }
+
+    private static FluidProperties propertiesOf(final FluidDefinition definition) {
+
+        final boolean swimmable = definition.swimmable();
+
+        return FluidProperties.create()
+                .canDrown(swimmable)
+                .canSwim(swimmable)
+                .canPushEntity(swimmable)
+                .supportsBoating(swimmable)
+                .fallDistanceModifier(swimmable ? 0.4f : 0.1f)
+                .pathType(swimmable ? BlockPathTypes.WATER : BlockPathTypes.WALKABLE);
     }
 
     public void fireLevelTickStart(final Level level) {
@@ -313,7 +342,10 @@ public final class FabricPlatform implements Platform.Backend {
         this._fluids.put(fluid, definition);
 
         if (source) {
+            this._fluidSources.put(definition, fluid);
             FluidVariantAttributes.register(fluid, new FabricFluid.Attributes(definition));
+        } else {
+            this._fluidFlows.put(definition, fluid);
         }
 
         return fluid;
@@ -405,6 +437,8 @@ public final class FabricPlatform implements Platform.Backend {
     private final List<DeferredRegister<?>> _registers;
     private final Set<Block> _blocksWithEntities;
     private final Map<Fluid, FluidDefinition> _fluids;
+    private final Map<FluidDefinition, FlowingFluid> _fluidSources;
+    private final Map<FluidDefinition, FlowingFluid> _fluidFlows;
     private final List<Consumer<Level>> _levelTickHandlers;
     private final List<Consumer<LevelAccessor>> _levelUnloadHandlers;
     private final FabricNetwork _network;

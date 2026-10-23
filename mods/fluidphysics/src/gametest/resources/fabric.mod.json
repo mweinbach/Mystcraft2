@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "fluidphysics_gametest",
+  "version": "1.0.0",
+  "name": "Fluid Physics Fabric Game Tests",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ports.fluidphysics.gametest.FluidPhysicsTestFluids"
+    ],
+    "fabric-gametest": [
+      "ports.fluidphysics.gametest.FluidPhysicsGameTests"
+    ]
+  },
+  "depends": {
+    "fluidphysics": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

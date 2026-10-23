@@ -57,6 +57,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - id: fluidphysics
+            kind: fabric
+            jars: mods/fluidphysics/build/libs/*.jar
+            reports: |
+              mods/fluidphysics/build/gametest-results.xml
+              mods/fluidphysics/build/gametest/logs/latest.log
           - id: icbm_port
             kind: icbm
             jars: mods/icbm_port/build/libs/*.jar
@@ -171,6 +177,10 @@ jobs:
             fi
           }
           case "$KIND" in
+            fabric)
+              gradle_with_props "" -p "mods/${PORT}" build
+              gradle_with_props "" -p "mods/${PORT}" runGametest
+              ;;
             icbm)
               gradle_with_props "" :icbm_port:build
               python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
