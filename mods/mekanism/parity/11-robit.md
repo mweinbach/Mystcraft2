@@ -20,8 +20,11 @@ per tick.
 The item model, the entity model and the skin textures are the upstream ones. Skins are the base skin, the allay
 skin and the pride skins, and a moving Robit cycles that skin's frames. The item model leaves `#robit` unmapped and
 the baked model swaps in the skin sprite from `mekanism:textures/atlas/robit.png`. Forge binds that atlas from the
-model's render types. On Fabric the item renderer binds it the same way; drawing those quads with the block atlas
-shows the missing-texture sprite. The main screen shows the greeting, energy, following, pickup and owner, with the
+model's render types. On Fabric the item renderer binds it the same way. Vanilla and Fabric's item pass bind the
+block atlas only, and those UVs then sample the missing-texture sprite. The skin is not a flat
+item texture left out of that atlas: the entity and the item share the Robit atlas, so stitching
+the PNG onto the block atlas would split their UVs. In the Fabric client the hotbar slot and the
+held item are the gray body with green eyes. The main screen shows the greeting, energy, following, pickup and owner, with the
 home, rename, skin, pickup and follow buttons. The side tabs open the crafting grid, the inventory, the smelting
 slots and the anvil repair screen. A normal right-click on the entity opens that screen. Shift-right-click with a
 configurator picks the Robit back up. In the Fabric development client, survival, a charged Robit item used on an

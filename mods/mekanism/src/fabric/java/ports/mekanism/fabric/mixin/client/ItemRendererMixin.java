@@ -40,11 +40,12 @@ public abstract class ItemRendererMixin {
     public abstract void renderModelLists(BakedModel model, ItemStack stack, int light, int overlay, PoseStack poseStack, VertexConsumer consumer);
 
     /**
-     * The Robit item model is baked with {@code #robit} left unmapped, then the skin sprite from
-     * {@code mekanism:textures/atlas/robit.png} is written onto those quads. Forge binds that atlas because the baked
-     * model returns it from {@code getRenderTypes}. Vanilla's item pass binds one sheet from the block atlas, and
-     * Fabric's renderer does the same, so those UVs sample the missing-texture sprite. Draw this one item the way
-     * Forge does: each of the model's render types, which for the Robit is {@code entityCutoutNoCull} of its atlas.
+     * Upstream 10.3.9 leaves {@code #robit} unmapped on purpose ({@code RobitModel} drops that missing-texture error)
+     * and stitches the skin only into {@code mekanism:textures/atlas/robit.png}. The item quads and {@code RenderRobit}
+     * share that atlas, and {@code getRenderTypes} is {@code entityCutoutNoCull} of it. This is not a flat texture that
+     * failed to join the block atlas: stitching it there would give the item different UVs from the entity and the
+     * skin swap. Vanilla's item pass, and Fabric's renderer, bind the block atlas only. Forge binds each render type.
+     * This is that bind, and only for this item.
      */
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void mekanism$robitAtlas(ItemStack stack, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack,
