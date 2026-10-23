@@ -197,6 +197,9 @@ sourceSets {
         runtimeClasspath += sourceSets.generators.output + sourceSets.tools.output + sourceSets.additions.output
     }
 }
+// The EMC audit's data-side check is split out so a JUnit test can run it without a server.
+sourceSets.test.compileClasspath += sourceSets.gametest.output
+sourceSets.test.runtimeClasspath += sourceSets.gametest.output
 tasks.withType(JavaCompile).configureEach {
     options.release = 17
     options.encoding = 'UTF-8'
@@ -206,6 +209,7 @@ tasks.withType(JavaCompile).configureEach {
 tasks.named('test', Test) {
     useJUnitPlatform()
     workingDir layout.buildDirectory.dir('test-work').get().asFile
+    dependsOn tasks.named('gametestClasses')
     doFirst { workingDir.mkdirs() }
 }
 

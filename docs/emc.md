@@ -151,14 +151,17 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | BuildCraft | `./scripts/gradle.sh :buildcraft:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/buildcraft/fabric runGametest -PwithItemAlchemy` |
 | ICBM | `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` |
 | Advanced Genetics | `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy` |
+| Mekanism | `./scripts/gradle.sh :mekanism:runGameTestServer`, `./scripts/gradle.sh -p mods/mekanism/fabric runGametest` |
 
-CI runs every audit in the table against its real EMC mod. That catches stale values, changed dependency
-coordinates and data-format regressions. Mekanism ships those two data files for the core module and again
-for Generators, Tools and Additions; `scripts/emc.py check` covers them. Its GameTests do not run `EmcAudit` or
-install an EMC mod yet. On Forge, ProjectE's recipe mappers are an optional compile-only dependency and add a
-machine recipe only when it does not undercut the static table (`projecte_mapper_guard.json`). Item Alchemy has
-no mapper API, so the Fabric build uses the static values alone. See
-[`mods/mekanism/parity/15-projecte.md`](../mods/mekanism/parity/15-projecte.md).
+CI runs every audit in the table against its real EMC mod, except Mekanism, whose matrix entry and audit are static.
+That catches stale values, changed dependency coordinates and data-format regressions. Mekanism ships those two data
+files for the core module and again for Generators, Tools and Additions; `scripts/emc.py check` covers them. Its
+GameTests run a four-namespace `EmcAudit` that checks the static coverage and both files per namespace. The audit
+does not compare live values: ProjectE blacklists the ores the static table prices and its recipe mappers may raise
+mapped values, so equality does not hold; see
+[`mods/mekanism/parity/15-projecte.md`](../mods/mekanism/parity/15-projecte.md). On Forge, ProjectE's recipe mappers
+are an optional compile-only dependency and add a machine recipe only when it does not undercut the static table
+(`projecte_mapper_guard.json`). Item Alchemy has no mapper API, so the Fabric build uses the static values alone.
 
 ## Adding EMC to a port
 

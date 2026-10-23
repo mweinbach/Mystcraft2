@@ -40,7 +40,8 @@ Do not list features in this README; add that coverage under [`parity/`](parity/
   layers, block highlighting and in-game key and scroll input are wired. An anchor upgrade keeps that machine's chunk
   loaded, including after a restart. Forced chunks do not random-tick.
   [PARITY.md](PARITY.md) lists every remaining gap.
-- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests pass on both loaders.
+- Upstream's 60 JUnit tests pass on both loaders, and the shared GameTests, including the four-namespace EMC
+  audit, pass on both loaders.
   Per-feature test coverage is in [`parity/`](parity/).
 
 Do not install either JAR in a world you care about.
@@ -59,7 +60,7 @@ Do not install either JAR in a world you care about.
 | `src/test` | Upstream JUnit tests, run on both loaders |
 | `src/gametestCommon`, `src/gametestForge`, `src/gametestFabric` | Shared GameTests and each loader's `TestPlatform`; development only |
 | `scripts` | The Fabric tag bridge generator, the loader-parity check and its Forge tag baseline |
-| `emc` | EMC policy and the generated ProjectE and Item Alchemy values |
+| `emc` | EMC policy, generated ProjectE and Item Alchemy values, and the static GameTest audit data |
 
 A new shared GameTest is a class in `src/gametestCommon/java/mekanism/gametest` (both loaders discover it), and a new parity entry is a file in [`parity/`](parity/).
 

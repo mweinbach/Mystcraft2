@@ -96,6 +96,10 @@ sourceSets {
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath + sourceSets.generators.output + sourceSets.tools.output + sourceSets.additions.output
     }
 }
+// The EMC audit's data-side check is split out so a JUnit test can run it without a server.
+sourceSets.test.compileClasspath += sourceSets.gametest.output
+sourceSets.test.runtimeClasspath += sourceSets.gametest.output
+tasks.named('test') { dependsOn tasks.named('gametestClasses') }
 minecraft.runs {
     gameTestServer {
         property 'forge.enableGameTest', 'true'
@@ -104,6 +108,8 @@ minecraft.runs {
         property 'mekanism.gametest.skipConfigWatcher', 'true'
         // Binds computer methods so ComputerGameTests can run without CC: Tweaked installed.
         property 'mekanism.gametest.computer', 'true'
+        // The shared EmcAudit reads the expected decisions from the checked-in values file.
+        property 'emc.values', file('emc/values.json').absolutePath
         mods {
             mekanism { source sourceSets.gametest }
         }

@@ -40,6 +40,35 @@ Anything else is left out:
 Equal-cost item recipes, such as crushing one ingot into one dust when both have the same value, may be mapped.
 ProjectE keeps the minimum, so a duplicate at the same cost does not move the value.
 
+### GameTest coverage
+
+The shared GameTests run `EmcAudit` on both loaders. It covers the core module and the three separate module jars
+(`mekanism`, `mekanismgenerators`, `mekanismtools`, `mekanismadditions`) and checks that:
+
+- every live registry item in those namespaces has a decision in `emc/values.json`;
+- `emc/values.json` names no unregistered item, skipping entries listed under `ignored`;
+- `data/<namespace>/pe_custom_conversions/<namespace>.json` and
+  `data/<namespace>/default_emcs/<namespace>.json` both load for each of the four namespaces.
+
+The audit reads the expected decisions from `-Demc.values`, which both GameTest runs set to
+`mods/mekanism/emc/values.json`. It writes the live registry to `emc-registry.txt` in the run directory, the input
+`scripts/emc.py` expects when `emc/registry.txt` is refreshed.
+
+The audit is static. The live comparison the other ports run is not wired here because it does not hold for
+Mekanism's data:
+
+- ProjectE's `OresBlacklistMapper` and `RawOresBlacklistMapper` clear the ores and raw ores the static table prices
+  from Item Alchemy's tag values, so live ProjectE reports 0 for them.
+- Mekanism's ProjectE recipe mappers may add a conversion at any cost at least the static value, so a mapped recipe
+  can raise the live ProjectE value above the `projecte` column.
+
+A trial `-PwithProjectE` run reported 518 deviations for that reason (505 higher, 13 lower). Item Alchemy's live
+table matched all 779 entries in a trial `-PwithItemAlchemy` run, but the shared audit stays static so both loaders
+check the same thing. Making the live columns agree would mean changing EMC values or mapper behaviour, which is out
+of scope for this test change.
+
+The optional live check remains available to a future change that reconciles those differences.
+
 ### Fabric
 
 Item Alchemy has no recipe-mapper API and no custom NSS types. It reads `data/<namespace>/default_emcs/<namespace>.json`.
