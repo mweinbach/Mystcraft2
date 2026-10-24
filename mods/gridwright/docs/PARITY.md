@@ -52,6 +52,33 @@ access, plus the block-break permission check). All 23 `TransferGameTests` run o
 | Sound Muffler | Quieter sounds nearby | `PlayLevelSoundEvent` (position and entity variants), applied on the client only so a broadcast sound is muffled once | No sound event: `ServerLevelMixin` replays both `playSeededSound` overloads at the muffled volume; sounds a client plays only for itself are not muffled | `soundMufflerQuietsNearbySounds` |
 | Wards | Stop hostile natural spawns or enderman teleports nearby | `LivingSpawnEvent.CheckSpawn` set to `DENY` for `MobSpawnType.NATURAL`; `EntityTeleportEvent.EnderEntity` cancelled | No spawn or teleport event: `NaturalSpawnerMixin` makes `NaturalSpawner.isValidPositionForMob` return false; `EnderManMixin` makes `EnderMan.teleport(double, double, double)` return false | `spawnWardStopsHostileNaturalSpawns`, `greaterSpawnWardRunsOnGridPower`, `enderWardStopsEndermanTeleports` |
 
+## Phase 2c: quarries and mechanical blocks
+
+| Feature | Public behaviour (see NOTICE) | Forge | Fabric | GameTests |
+| --- | --- | --- | --- | --- |
+| Quantum quarry + actuators | Mines a generated world, not real terrain; needs actuators and lots of power | Shared; modded ores from `#forge:ores` | Shared; modded ores from `#c:ores` | `quantumQuarryNeedsActuators`, `quantumQuarryStopsWhenOverloaded`, `quantumQuarryMinesWithPowerAndUpgrades`, `quantumQuarryIsDeterministic`, `quarryTablesFollowTheirRegion`, `taggedOresJoinTheirRegion`, `quarryUpgradesChangeLoot`, `quantumQuarryWaitsWhenFull`, `brokenQuarryDropsWaitingLoot` |
+| Biome marker | Picks the quantum quarry's biome | Shared | Shared | `biomeMarkerPicksTheTable` |
+| Ender quarry | Mines inside a fence loop with upgrades | Forge Energy capability in; each break fires `BreakEvent` as the owner's `FakePlayerFactory` player | Team Reborn Energy in; each break fires `PlayerBlockBreakEvents.BEFORE` (and `AFTER`) as the owner's `FabricFakePlayer` | `enderQuarryFindsItsBoundary`, `enderQuarryMinesInsideOnlyAndRespectsProtection`, `enderQuarryNeedsEnergyOwnerAndLoop`, `enderQuarryReportsBadBoundaries` |
+| Mechanical miner | Fake player breaks the block in front | `BreakEvent` as the owner | `PlayerBlockBreakEvents.BEFORE` / `AFTER` as the owner | `minerBreaksWithItsTool`, `minerWithoutToolHarvestsLikeAHand`, `minerRespectsProtection`, `minerNeedsOwnerPowerAndNoSignal` |
+| Mechanical user | Fake player right-clicks with its items | Vanilla `useItemOn` fires `RightClickBlock`; use in the air also needs `BreakEvent` to pass for the block in front and every block the item could aim at | Vanilla `useItemOn` fires `UseBlockCallback`; use in the air also needs `PlayerBlockBreakEvents.BEFORE` to pass for the same blocks | `userPlacesBlocks`, `userFillsBuckets`, `userRespectsProtection`, `userStopsWhenTheClickIsRefused`, `userCooldownsRunOut`, `userCannotReachPastIntoProtection` |
+
+### Differences from the public descriptions
+
+| Block | Public behaviour | Gridwright | Deliberate differences |
+| --- | --- | --- | --- |
+| Quantum quarry | Endgame machine that mines a dimension generated for it, so it yields worldgen blocks and ores (modded ones too) without touching the world; needs actuators on all sides and huge power; a biome marker picks the biome. | Mines a weighted worldgen-style table per region and terrain ([`QuarryTable`](../src/main/java/ports/gridwright/worker/QuarryTable.java)); modded ores from `c:ores` / `forge:ores`; four horizontal actuators; 32 GP + 16 GP per upgrade level; deterministic per world seed, position and index. | No dimension or chunk generation (cheaper, deterministic, nothing to load); Grid Power instead of RF; four actuators, not six; upgrades and the marker go in the quarry's own slots, not in actuators; modded ores enter at one flat weight per depth band rather than their real generation frequency. |
+| Biome marker | Records a biome for the quantum quarry. | Records the biome the user stands in; nether/end biomes switch the table's region; badlands, mountain, ocean and desert terrains adjust it. | Only biome *tags* matter, so modded biomes behave like the vanilla category they are tagged as. |
+| Ender quarry | Mines everything inside a closed fence (or Ender-Marker) loop down to bedrock, replacing blocks with dirt; chunk-loads its area; adjacent upgrade blocks (silk touch, fortune I–III, speed I–III, world hole, pump) multiply its RF cost. | Fence or wall loop (any shape, one height, ≤1,024 boundary blocks, ≤128 across); mines from its height to the bottom of the world; FE / TR energy at 400 per block plus per-upgrade costs; skips protected blocks, block entities, unbreakables and `#gridwright:unminable`. | Leaves the hole open (no dirt, so no world-hole upgrade); no Ender-Markers; no pump (fluids are left in place); no chunk loading (waits for loaded chunks); upgrades are items in its slots, additive rather than multiplicative costs; skips block entities instead of breaking them. |
+| Mechanical miner | Fake-player block that breaks the block in front of it; enchantments and speed upgrades. | Breaks the block in front with the tool in its slot as the owner would: player break time, tool-dependent drops, tool wear; 4 GP. | The tool itself carries enchantments and efficiency (no separate upgrade slots); skips block entities. |
+| Mechanical user | Fake-player block that right-clicks with its items (bone meal, buckets, placing blocks, seeds…). | Right-clicks the block in front every 20 ticks with each input stack in turn, then uses the item in the air if the click did nothing; 2 GP. | No entity interaction (shears on sheep, buckets on cows) and no speed upgrades yet. |
+
+The quarries take the transfer nodes' `speed_upgrade` item (phase 2a) rather than a separate quarry
+speed upgrade; a quarry counts up to 8 of them, a node up to 64.
+
+Both mechanical blocks and both quarries act only as their owner, through a fake player with the
+owner's profile, and fire the loaders' own break and right-click events before acting, so claim and
+protection mods can refuse them exactly as they would refuse the player. Unowned machines do nothing.
+
 ## Deliberate loader differences
 
 - **Sound muffling coverage.** Forge muffles on the client, where the level sound event fires for
@@ -69,9 +96,12 @@ access, plus the block-break permission check). All 23 `TransferGameTests` run o
   `UseBlockCallback` because Fabric has no place event.
 - **Fluid units.** Drum capacities are whole buckets on both loaders; only the API units differ.
 - **Fake players.** Spikes use a fixed-profile player named `[Gridwright]` on both loaders; it never
-  joins the world, so mobs hit by it are told not to retaliate.
+  joins the world, so mobs hit by it are told not to retaliate. Quarries and mechanical blocks use a
+  fake player with their owner's profile instead (Forge `FakePlayerFactory`, Fabric `FabricFakePlayer`),
+  so claim mods judge them as that player; item cooldowns are advanced by elapsed server ticks because
+  neither loader ticks these players.
 
 ## Not implemented
 
-See the README's plan and known gaps: transfer nodes and quarries are other phases; there is no
+See the README's plan and known gaps: transfer nodes and the Deep Dark are other phases; there is no
 cursed lasso, creative wand or drum, Angel Ring wings or Curios/Trinkets slot, or spike enchantment.

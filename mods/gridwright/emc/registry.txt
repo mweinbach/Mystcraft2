@@ -1,5 +1,6 @@
 gridwright:angel_ring
 gridwright:bag_of_holding
+gridwright:biome_marker
 gridwright:builders_wand
 gridwright:compressed_cobblestone
 gridwright:compressed_dirt
@@ -15,11 +16,13 @@ gridwright:double_compressed_gravel
 gridwright:double_compressed_netherrack
 gridwright:double_compressed_sand
 gridwright:ender_generator
+gridwright:ender_quarry
 gridwright:ender_ward
 gridwright:energy_trash_can
 gridwright:fluid_retrieval_node
 gridwright:fluid_transfer_node
 gridwright:fluid_trash_can
+gridwright:fortune_upgrade
 gridwright:furnace_generator
 gridwright:gargantuan_drum
 gridwright:golden_lasso
@@ -32,12 +35,16 @@ gridwright:item_filter
 gridwright:lava_generator
 gridwright:lunar_panel
 gridwright:machine_frame
+gridwright:mechanical_miner
+gridwright:mechanical_user
 gridwright:octuple_compressed_cobblestone
 gridwright:pocket_workbench
 gridwright:potion_generator
 gridwright:quadruple_compressed_cobblestone
 gridwright:quadruple_compressed_dirt
 gridwright:quadruple_compressed_netherrack
+gridwright:quantum_quarry
+gridwright:quarry_actuator
 gridwright:quintuple_compressed_cobblestone
 gridwright:quintuple_compressed_netherrack
 gridwright:redstone_generator
@@ -47,6 +54,7 @@ gridwright:retrieval_node
 gridwright:septuple_compressed_cobblestone
 gridwright:sextuple_compressed_cobblestone
 gridwright:sextuple_compressed_netherrack
+gridwright:silk_touch_upgrade
 gridwright:solar_panel
 gridwright:sound_muffler
 gridwright:spawn_ward

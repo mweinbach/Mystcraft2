@@ -42,6 +42,11 @@
     "gridwright:transfer_node",
     "gridwright:fluid_transfer_node",
     "gridwright:retrieval_node",
-    "gridwright:fluid_retrieval_node"
+    "gridwright:fluid_retrieval_node",
+    "gridwright:quantum_quarry",
+    "gridwright:quarry_actuator",
+    "gridwright:ender_quarry",
+    "gridwright:mechanical_miner",
+    "gridwright:mechanical_user"
   ]
 }

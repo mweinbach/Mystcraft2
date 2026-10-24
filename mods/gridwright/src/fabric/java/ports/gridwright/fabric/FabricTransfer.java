@@ -1,8 +1,9 @@
 package ports.gridwright.fabric;
 
 import ports.gridwright.machine.EnergyBuffer;
-import ports.gridwright.machine.MachineBlockEntity;
+import ports.gridwright.machine.EnergyHolder;
 import ports.gridwright.registry.ModBlockEntities;
+import net.minecraft.world.WorldlyContainer;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
@@ -12,7 +13,8 @@ import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Exposes the machines through the Fabric Transfer API (following each machine's face rules, like the
- * Forge item handlers) and the generators through Team Reborn Energy, extraction only.
+ * Forge item handlers) and energy stores through Team Reborn Energy, in the directions each store
+ * allows: generators give, the ender quarry takes.
  */
 @SuppressWarnings("UnstableApiUsage")
 final class FabricTransfer {
@@ -20,13 +22,15 @@ final class FabricTransfer {
     private FabricTransfer() { }
 
     static void register() {
-        EnergyStorage.SIDED.registerForBlockEntity((generator, side) -> new EnergyView(generator.energy()),
-                ModBlockEntities.GENERATOR.get());
-        ItemStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity instanceof MachineBlockEntity machine
-                ? InventoryStorage.of(machine, side) : null, ModBlockEntities.GENERATOR.get(), ModBlockEntities.RESONATOR.get());
+        EnergyStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity instanceof EnergyHolder holder
+                ? new EnergyView(holder.energy()) : null, ModBlockEntities.GENERATOR.get(), ModBlockEntities.ENDER_QUARRY.get());
+        ItemStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity instanceof WorldlyContainer container
+                ? InventoryStorage.of(container, side) : null, ModBlockEntities.GENERATOR.get(), ModBlockEntities.RESONATOR.get(),
+                ModBlockEntities.QUANTUM_QUARRY.get(), ModBlockEntities.ENDER_QUARRY.get(), ModBlockEntities.MECHANICAL_MINER.get(),
+                ModBlockEntities.MECHANICAL_USER.get());
     }
 
-    /** Team Reborn Energy view of a generator's store; other mods may extract, never insert. */
+    /** Team Reborn Energy view of a store; other mods may move energy only in the directions it allows. */
     private static final class EnergyView extends SnapshotParticipant<Long> implements EnergyStorage {
 
         private final EnergyBuffer energy;
@@ -52,12 +56,22 @@ final class FabricTransfer {
 
         @Override
         public boolean supportsInsertion() {
-            return false;
+            return energy.maxReceive() > 0;
         }
 
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
-            return 0;
+            StoragePreconditions.notNegative(maxAmount);
+            long inserted = energy.receive(maxAmount, true);
+            if (inserted <= 0) return 0;
+            updateSnapshots(transaction);
+            energy.restore(energy.stored() + inserted);
+            return inserted;
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            return energy.maxExtract() > 0;
         }
 
         @Override

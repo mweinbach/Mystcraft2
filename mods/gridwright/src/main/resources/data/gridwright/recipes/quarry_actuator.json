@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " P ",
+    "OFO",
+    " O "
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    }
+  },
+  "result": {
+    "item": "gridwright:quarry_actuator",
+    "count": 1
+  }
+}

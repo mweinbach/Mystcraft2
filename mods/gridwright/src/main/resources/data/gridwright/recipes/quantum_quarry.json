@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EDE",
+    "CFC",
+    "EDE"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    }
+  },
+  "result": {
+    "item": "gridwright:quantum_quarry",
+    "count": 1
+  }
+}

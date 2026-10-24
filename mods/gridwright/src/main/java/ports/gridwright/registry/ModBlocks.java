@@ -1,7 +1,9 @@
 package ports.gridwright.registry;
 
 import ports.gridwright.block.MachineBlock;
+import ports.gridwright.block.MechanicalBlock;
 import ports.gridwright.block.ProducerBlock;
+import ports.gridwright.block.WorkerBlock;
 import ports.gridwright.grid.ProducerKind;
 import ports.gridwright.machine.GeneratorKind;
 import ports.gridwright.platform.Platform;
@@ -33,6 +35,20 @@ public final class ModBlocks {
             BlockBehaviour.Properties.of(Material.METAL).strength(3.5F).sound(SoundType.METAL)));
 
     public static final Map<GeneratorKind, Supplier<MachineBlock>> GENERATORS = generators();
+
+    // Phase 2c: quarries and mechanical blocks.
+    public static final Supplier<WorkerBlock> QUANTUM_QUARRY = register("quantum_quarry", () -> new WorkerBlock(WorkerBlock.Kind.QUANTUM_QUARRY,
+            BlockBehaviour.Properties.of(Material.METAL).strength(5.0F, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+    public static final Supplier<Block> QUARRY_ACTUATOR = register("quarry_actuator", () -> new Block(
+            BlockBehaviour.Properties.of(Material.METAL).strength(5.0F, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+    public static final Supplier<WorkerBlock> ENDER_QUARRY = register("ender_quarry", () -> new WorkerBlock(WorkerBlock.Kind.ENDER_QUARRY,
+            BlockBehaviour.Properties.of(Material.METAL).strength(5.0F, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+    public static final Supplier<MechanicalBlock> MECHANICAL_MINER = register("mechanical_miner", () -> new MechanicalBlock(
+            WorkerBlock.Kind.MECHANICAL_MINER, BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops()));
+    public static final Supplier<MechanicalBlock> MECHANICAL_USER = register("mechanical_user", () -> new MechanicalBlock(
+            WorkerBlock.Kind.MECHANICAL_USER, BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops()));
 
     private ModBlocks() { }
 
