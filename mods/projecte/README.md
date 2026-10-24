@@ -18,9 +18,9 @@ values and player knowledge; running it beside the Fabric build is checked in ph
 
 ## Status
 
-Phase 1 of 4 is verified: the EMC mapper, player knowledge, transmutation, the Philosopher's Stone, collectors,
-relays, condensers and the Alchemical Chest pass GameTests on both loaders. Everything else upstream has is
-registered on both loaders but not yet verified; [PARITY.md](PARITY.md) has the phase plan and the test list. No
+Phases 1 and 2 of 4 are verified: the EMC mapper, player knowledge, transmutation, the Philosopher's Stone,
+collectors, relays, condensers, the Alchemical Chest, and the Dark/Red Matter tools, armour and furnaces and Gem
+armour pass GameTests on both loaders. Everything else upstream has is registered on both loaders but not yet verified; [PARITY.md](PARITY.md) has the phase plan and the test list. No
 client has been launched yet.
 
 Do not install either JAR in a world you care about.
