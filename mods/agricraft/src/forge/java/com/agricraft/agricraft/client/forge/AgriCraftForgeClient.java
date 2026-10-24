@@ -2,6 +2,7 @@ package com.agricraft.agricraft.client.forge;
 
 import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.client.AgriCraftClient;
+import com.agricraft.agricraft.client.IrrigationClient;
 import com.agricraft.agricraft.client.ber.CropBlockEntityRenderer;
 import com.agricraft.agricraft.client.ber.SeedAnalyzerEntityRenderer;
 import com.agricraft.agricraft.client.gui.AgriGuiGraphics;
@@ -40,6 +41,7 @@ public class AgriCraftForgeClient {
 		AgriCraftForgeClient.init();
 		MenuScreens.register(ModMenus.SEED_ANALYZER_MENU.get(), SeedAnalyzerScreen::new);
 		ItemBlockRenderTypes.setRenderLayer(ModBlocks.SEED_ANALYZER.get(), RenderType.cutout());
+		IrrigationClient.cutoutBlocks().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout()));
 	}
 
 	@SubscribeEvent
@@ -59,12 +61,14 @@ public class AgriCraftForgeClient {
 		event.register(new ResourceLocation("agricraft:block/wooden_cross_crop_sticks"));
 		event.register(new ResourceLocation("agricraft:block/iron_cross_crop_sticks"));
 		event.register(new ResourceLocation("agricraft:block/obsidian_cross_crop_sticks"));
+		IrrigationClient.EXTRA_MODELS.forEach(event::register);
 	}
 
 	@SubscribeEvent
 	public static void registerBer(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerBlockEntityRenderer(ModBlockEntityTypes.CROP.get(), CropBlockEntityRenderer::new);
 		event.registerBlockEntityRenderer(ModBlockEntityTypes.SEED_ANALYZER.get(), SeedAnalyzerEntityRenderer::new);
+		IrrigationClient.registerRenderers(event::registerBlockEntityRenderer);
 	}
 
 	@SubscribeEvent

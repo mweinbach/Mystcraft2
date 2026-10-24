@@ -1,3 +1,4 @@
+agricraft:agri_channel_valve
 agricraft:amathyllis_petal
 agricraft:clipper
 agricraft:coal_pebble
@@ -7,6 +8,9 @@ agricraft:diamond_shard
 agricraft:emerald_shard
 agricraft:iron_crop_sticks
 agricraft:iron_rake
+agricraft:irrigation_channel
+agricraft:irrigation_channel_hollow
+agricraft:irrigation_tank
 agricraft:journal
 agricraft:magnifying_glass
 agricraft:netherite_sliver
@@ -15,6 +19,7 @@ agricraft:quartz_shard
 agricraft:seed
 agricraft:seed_analyzer
 agricraft:seed_bag
+agricraft:sprinkler
 agricraft:trowel
 agricraft:wooden_crop_sticks
 agricraft:wooden_rake

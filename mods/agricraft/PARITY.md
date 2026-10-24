@@ -27,9 +27,45 @@ phase of this port), **absent** (not in 4.0.6).
 | EMI, JEI, REI plugins | planned (phase 3) | |
 | Jade / WTHIT tooltips | planned (phase 3) | |
 | Botania (mana growth condition, horn harvest), Fabric Seasons / Serene Seasons, PneumaticCraft, Industrial Foregoing, Mystical Agriculture plugins | planned (phase 3) | |
-| Irrigation (tank, channel, valve, sprinkler) | planned (phase 2) | Not in 4.x; to be ported from AgriCraft 3 (branch `1.16.5`, MIT). |
+| Irrigation (tank, channel, hollow channel, valve, sprinkler) | tested | Not in 4.x; ported from AgriCraft 3 (branch `1.16.5`, MIT). See [Irrigation](#irrigation-from-agricraft-3). |
 | Greenhouses | absent | Not in AgriCraft 4.0.6 (or 3.x). |
 | Torchflower plant and mutation | absent on 1.19.2 | Torchflowers were added in Minecraft 1.19.4; the data and models are removed. Its lang keys remain unused. |
+
+## Irrigation (from AgriCraft 3)
+
+AgriCraft 4 has no irrigation. The irrigation blocks are ported from AgriCraft 3 (branch `1.16.5`, revision
+`4b52a422`, MIT) without InfinityLib:
+
+- **Tank** (`irrigation_tank`, 8,000 mB per block): fills from water buckets and rain, empties into empty
+  buckets. Touching tanks that fill a cuboid merge into one multi-block that pools the water; breaking a block
+  splits it and keeps the water level. A ladder can be fitted to a tank wall and climbed. A sufficiently full
+  tank leaves a water source when broken (configurable). Water evaporates in ultra-warm dimensions.
+- **Channel** (`irrigation_channel`, 500 mB) and **hollow channel** (`irrigation_channel_hollow`): water
+  levels balance between connected tanks and channels. The **channel valve** (`agri_channel_valve`) is fitted
+  to a channel by using it on one; a valved channel is opened and closed by hand, a valved hollow channel by
+  redstone. Closed valves block the flow.
+- **Sprinkler** (`sprinkler`): hangs under a channel, draws its water and, while active, moistens farmland
+  in a 7×7 area up to five blocks below and gives plants there an extra growth tick (20% chance per pass).
+- Fluid APIs: Forge exposes tanks through the `IFluidHandler` capability, Fabric through Fabric Transfer
+  `Storage<FluidVariant>` (81 droplets per mB). Channels and sprinklers are not exposed, as in AgriCraft 3.
+- Config (`irrigation` category): tank and channel capacity, rain fill rate, the water block on breaking,
+  sprinkle interval, sprinkler growth chance and water use, with AgriCraft 3's defaults.
+
+Differences from AgriCraft 3:
+
+- **Wood textures.** AgriCraft 3 crafts and renders tanks and channels from any plank (InfinityLib dynamic
+  models and NBT). Here the recipes take any plank, but every tank and channel uses the oak plank texture
+  and the item carries no wood type.
+- **Tank water.** AgriCraft 3 places an invisible `tank_water` fluid block so entities can swim in a tank;
+  it is not ported, so an entity inside a tank stands on its floor rather than swimming.
+- **Sprinkler particles** use vanilla splash (or cloud in ultra-warm dimensions) instead of AgriCraft 3's
+  custom particle; the client particle setting (off/decreased/all) is respected.
+- **Block hardness and sounds** are this port's choice (wood: hardness 2 for tanks and channels, 1 for sprinklers; axe-mineable).
+- AgriCraft 3's unused irrigation network classes (`IrrigationNetworkLayer` and friends) are not ported.
+- Fixes: toggling a valve no longer breaks the sprinkler below; un-forming a multi-block takes the water level
+  from the structure's origin; buckets use the vanilla filled-bucket logic, so a stack of empty buckets is not
+  consumed; the valve wheel animates from block-state changes; clients are synced when a component becomes
+  empty or full, not only on large changes.
 
 ## 1.19.2 changes
 
@@ -75,8 +111,10 @@ phase of this port), **absent** (not in 4.0.6).
 
 ## Validation
 
-- GameTests on both loaders: `src/gametestCommon` (crop, analyzer and EMC suites), run by
-  `ForgeGameTests` and the Fabric `fabric-gametest` entrypoints. No test is loader-only.
+- GameTests on both loaders: `src/gametestCommon` (crop, analyzer, irrigation and EMC suites), run by
+  `ForgeGameTests` and the Fabric `fabric-gametest` entrypoints, plus `TankFluidGameTests`, which has a
+  Forge (fluid capability) and a Fabric (Transfer API) version under the same name. No test is loader-only.
 - `scripts/check_loader_parity.py` compares the two jars (resources, shared classes, mixins and refmaps,
   descriptors, access widener/transformer, nested MixinExtras).
-- Not yet done: a client session (screens, overlay, journal, models) and multiplayer play-testing.
+- Not yet done: a client session (screens, overlay, journal, models, irrigation renderers and particles) and
+  multiplayer play-testing.
