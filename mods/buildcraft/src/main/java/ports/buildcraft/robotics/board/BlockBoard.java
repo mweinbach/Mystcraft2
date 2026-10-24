@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -29,6 +30,11 @@ public abstract class BlockBoard extends RobotBoard {
     public static final int IDLE_TICKS = 100;
     /** Positions checked per tick while looking for work: a 64-block cube takes 32 ticks, the default area 5. */
     public static final int SCAN_BUDGET = 8192;
+    /**
+     * What asking protection about a candidate costs out of {@link #SCAN_BUDGET}: protection mods may do real work
+     * for each event, so a sweep asks at most 128 times a tick.
+     */
+    public static final int PROTECTION_COST = 64;
     /** What a quick job on one block, such as tilling, planting or using an item, costs. */
     public static final long USE_COST = 10 * Power.MJ;
     private static final Direction[] APPROACH = {Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.DOWN};
@@ -59,6 +65,13 @@ public abstract class BlockBoard extends RobotBoard {
 
     /** Works on {@code pos} while the robot hovers beside it; {@link Progress#FAILED} skips the block. */
     protected abstract Progress work(BlockPos pos);
+
+    /**
+     * Whether protection lets the robot's owner do this board's work on {@code pos} (break, place or use, as
+     * {@link #work} would). Asked while searching, so the robot never sets off for a block it may not touch, and
+     * again by {@link #work} on arrival.
+     */
+    protected abstract boolean mayWork(ServerLevel level, BlockPos pos);
 
     /** Gets the robot ready to work, for example by fetching a tool; false while it is still busy with that. */
     protected boolean prepare() {
@@ -148,8 +161,9 @@ public abstract class BlockBoard extends RobotBoard {
 
     /**
      * Looks for the nearest work over several ticks, checking at most {@link #SCAN_BUDGET} positions a tick so a
-     * large area (or one full of blocks protection refuses) never costs a whole sweep in one tick. Returns true once
-     * the sweep is done, leaving its nearest find (or null) in {@link #scanBest}.
+     * large area (or one full of blocks protection refuses) never costs a whole sweep in one tick. A block protection
+     * refuses ({@link #mayWork}) is skipped as it is found, costing {@link #PROTECTION_COST}. Returns true once the
+     * sweep is done, leaving its nearest find (or null) in {@link #scanBest}.
      */
     private boolean scanStep(WorkArea area) {
         if (scan == null || !area.equals(scanArea)) {
@@ -163,6 +177,12 @@ public abstract class BlockBoard extends RobotBoard {
             BlockPos pos = scan.next();
             double distance = pos.distToCenterSqr(from);
             if (distance >= scanBestDistance || !isTarget(pos, area)) continue;
+            // Only a block that would become the nearest find is put to protection, so a sweep asks about few blocks.
+            checked += PROTECTION_COST;
+            if (!mayWork((ServerLevel) level(), pos)) {
+                skipped.add(pos.immutable());
+                continue;
+            }
             scanBest = pos.immutable();
             scanBestDistance = distance;
         }

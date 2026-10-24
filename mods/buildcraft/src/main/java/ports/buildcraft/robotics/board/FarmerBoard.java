@@ -43,12 +43,17 @@ public class FarmerBoard extends BlockBoard {
         return isTillable(level.getBlockState(pos)) && level.isEmptyBlock(pos.above());
     }
 
+    /** Tilling is asked as a block placed on the dirt. */
+    @Override
+    protected boolean mayWork(ServerLevel level, BlockPos pos) {
+        return BlockProtection.mayPlace(level, pos, Direction.UP, level.getBlockState(pos), robot.actor());
+    }
+
     @Override
     protected Progress work(BlockPos pos) {
         ServerLevel level = (ServerLevel) level();
-        BlockState state = level.getBlockState(pos);
         if (!isWork(level, pos)) return Progress.DONE;
-        if (!BlockProtection.mayPlace(level, pos, Direction.UP, state, robot.actor())) return Progress.FAILED;
+        if (!mayWork(level, pos)) return Progress.FAILED;
         if (!robot.spend(USE_COST)) return Progress.WORKING;
         level.setBlock(pos, Blocks.FARMLAND.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
         level.playSound(null, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);

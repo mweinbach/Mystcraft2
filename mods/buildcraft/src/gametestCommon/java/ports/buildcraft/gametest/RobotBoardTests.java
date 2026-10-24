@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.factory.TankBlockEntity;
 import ports.buildcraft.robotics.DockingStationPluggable;
@@ -42,6 +43,7 @@ import ports.buildcraft.robotics.board.PlanterBoard;
 import ports.buildcraft.robotics.board.RobotBoardType;
 import ports.buildcraft.robotics.board.StripesBoard;
 import ports.buildcraft.robotics.statements.BCRoboticsStatements;
+import ports.buildcraft.silicon.gate.GateLogic;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
 
@@ -61,19 +63,31 @@ public final class RobotBoardTests {
     private RobotBoardTests() {}
 
     /** A station on an item pipe at {@link #HOME}, confined to the arena; the block beside the pipe is set by the caller. */
-    private static DockingStationPluggable home(GameTestHelper helper) {
+    private static DockingStationPluggable home(GameTestHelper helper, Player owner) {
         PipeBlockEntity pipe = pipe(helper, HOME, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        confine(helper, pipe, Direction.NORTH);
+        confine(helper, pipe, Direction.NORTH, owner);
         return station;
     }
 
     /** As {@link #home}, but confined to the air above the arena's floor, for robots that would dig the floor. */
-    private static DockingStationPluggable homeAboveFloor(GameTestHelper helper) {
+    private static DockingStationPluggable homeAboveFloor(GameTestHelper helper, Player owner) {
         PipeBlockEntity pipe = pipe(helper, HOME, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        gate(pipe, Direction.NORTH, ONE_PARAMETER, BCRoboticsStatements.ACTION_WORK_IN_AREA, areaMap(helper, new BlockPos(0, 2, 0), new BlockPos(8, 6, 8)));
+        gate(pipe, Direction.NORTH, ONE_PARAMETER, BCRoboticsStatements.ACTION_WORK_IN_AREA, areaMap(helper, new BlockPos(0, 2, 0), new BlockPos(8, 6, 8)))
+                .logic().setEditor(GateLogic.Editor.of(owner));
         return station;
+    }
+
+    /**
+     * Tracks how close {@code robot} comes to the centre of {@code pos} over the test. Boards ask protection while
+     * they search, so a robot never flies to a block protection refuses its owner.
+     */
+    private static double[] closestApproach(GameTestHelper helper, RobotEntity robot, BlockPos pos) {
+        Vec3 centre = helper.absoluteVec(Vec3.atCenterOf(pos));
+        double[] closest = {Double.MAX_VALUE};
+        helper.onEachTick(() -> closest[0] = Math.min(closest[0], robot.position().distanceTo(centre)));
+        return closest;
     }
 
     /** Spawns a mob without AI on a stone block at {@code pos}, so that it stays in the arena whatever happens to the floor. */
@@ -97,7 +111,8 @@ public final class RobotBoardTests {
     /** The harvester picks mature crops by hand and brings the harvest home, leaving young crops to grow. */
     public static void harvesterPicksMatureCrops(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME);
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockPos ripe = new BlockPos(2, 2, 2), young = new BlockPos(6, 2, 6);
         helper.setBlock(ripe.below(), FARMLAND);
         helper.setBlock(young.below(), FARMLAND);
@@ -107,7 +122,7 @@ public final class RobotBoardTests {
         require(helper, BreakerBoard.isMatureCrop(wheat.getStateForAge(wheat.getMaxAge())) && !BreakerBoard.isMatureCrop(wheat.getStateForAge(3))
                 && BreakerBoard.isMatureCrop(Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, 3)),
                 "the harvester knows ripe crops");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.HARVESTER);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.HARVESTER);
         helper.succeedWhen(() -> {
             require(helper, helper.getBlockState(ripe).isAir(), "the harvester picks the ripe wheat; " + describe(helper, robot));
             require(helper, count(chest, Items.WHEAT) >= 1, "the harvester brings the wheat home; " + describe(helper, robot));
@@ -119,11 +134,12 @@ public final class RobotBoardTests {
     /** The leaf cutter takes shears from home when there are some, cuts the leaves in its area and brings them home. */
     public static void leafCutterCutsLeaves(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME, new ItemStack(Items.SHEARS));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockState leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
         BlockPos[] targets = {new BlockPos(2, 1, 2), new BlockPos(6, 3, 6)};
         for (BlockPos pos : targets) helper.setBlock(pos, leaves);
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.LEAF_CUTTER);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.LEAF_CUTTER);
         helper.succeedWhen(() -> {
             for (BlockPos pos : targets) require(helper, helper.getBlockState(pos).isAir(), "the leaf cutter cuts the leaves at " + pos + "; " + describe(helper, robot));
             require(helper, robot.tool().is(Items.SHEARS) && count(chest, Items.SHEARS) == 0, "the leaf cutter works with the chest's shears");
@@ -136,7 +152,8 @@ public final class RobotBoardTests {
     /** The shovelman digs dirt and clay open to air with a shovel from home, and leaves ground it has no business with. */
     public static void shovelmanDigsOpenGround(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME, new ItemStack(Items.IRON_SHOVEL));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockPos dirt = new BlockPos(2, 1, 2), clay = new BlockPos(6, 2, 6), planks = new BlockPos(2, 1, 6);
         helper.setBlock(dirt, Blocks.DIRT);
         helper.setBlock(clay, Blocks.CLAY);
@@ -144,7 +161,7 @@ public final class RobotBoardTests {
         require(helper, BreakerBoard.isShovelGround(Blocks.GRAVEL.defaultBlockState()) && !BreakerBoard.isShovelGround(Blocks.FARMLAND.defaultBlockState())
                 && BreakerBoard.isShovel(new ItemStack(Items.WOODEN_SHOVEL)) && !BreakerBoard.isShovel(new ItemStack(Items.IRON_PICKAXE)),
                 "the shovelman knows its ground and its tools");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.SHOVELMAN);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.SHOVELMAN);
         helper.succeedWhen(() -> {
             require(helper, helper.getBlockState(dirt).isAir() && helper.getBlockState(clay).isAir(), "the shovelman digs the dirt and clay; " + describe(helper, robot));
             require(helper, count(chest, Items.DIRT) == 1 && count(chest, Items.CLAY_BALL) == 4,
@@ -160,16 +177,18 @@ public final class RobotBoardTests {
      */
     public static void breakerDigsOpenStoneItMayBreak(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME, new ItemStack(Items.STONE_PICKAXE));
-        DockingStationPluggable station = homeAboveFloor(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = homeAboveFloor(helper, player);
         BlockPos open = new BlockPos(2, 2, 2), refused = new BlockPos(6, 2, 2);
         helper.setBlock(open, Blocks.STONE);
         helper.setBlock(refused, Blocks.STONE);
         TestProtection.refuse(helper, refused);
         require(helper, BreakerBoard.isStone(Blocks.DEEPSLATE.defaultBlockState()) && BreakerBoard.isStone(Blocks.NETHERRACK.defaultBlockState())
                 && !BreakerBoard.isStone(Blocks.COAL_ORE.defaultBlockState()), "the breaker knows stone from ore");
-        Player player = helper.makeMockPlayer();
         RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.BREAKER);
+        double[] closest = closestApproach(helper, robot, refused);
         helper.succeedWhen(() -> {
+            require(helper, closest[0] > 2, "the breaker never flies to the protected stone, came within " + closest[0]);
             require(helper, helper.getBlockState(open).isAir(), "the breaker digs the open stone; " + describe(helper, robot));
             require(helper, count(chest, Items.COBBLESTONE) == 1, "the breaker brings the cobblestone home; " + describe(helper, robot));
             require(helper, player.getGameProfile().getName().equals(TestProtection.refusedPlayer(helper, refused)),
@@ -183,7 +202,8 @@ public final class RobotBoardTests {
     /** The farmer tills dirt and grass with air above into farmland with a hoe from home, and leaves dirt protection refuses. */
     public static void farmerTillsDirtItMayChange(GameTestHelper helper) {
         chest(helper, BESIDE_HOME, new ItemStack(Items.IRON_HOE));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockPos dirt = new BlockPos(2, 1, 2), grass = new BlockPos(6, 1, 6), covered = new BlockPos(6, 1, 2), refused = new BlockPos(2, 1, 6);
         helper.setBlock(dirt, Blocks.DIRT);
         helper.setBlock(grass, Blocks.GRASS_BLOCK);
@@ -191,9 +211,10 @@ public final class RobotBoardTests {
         helper.setBlock(covered.above(), Blocks.STONE);
         helper.setBlock(refused, Blocks.DIRT);
         TestProtection.refuse(helper, refused);
-        Player player = helper.makeMockPlayer();
         RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.FARMER);
+        double[] closest = closestApproach(helper, robot, refused);
         helper.succeedWhen(() -> {
+            require(helper, closest[0] > 2, "the farmer never flies to the protected dirt, came within " + closest[0]);
             require(helper, helper.getBlockState(dirt).is(Blocks.FARMLAND) && helper.getBlockState(grass).is(Blocks.FARMLAND),
                     "the farmer tills the dirt and the grass; " + describe(helper, robot));
             require(helper, robot.tool().is(Items.IRON_HOE) && robot.tool().getDamageValue() >= 2, "the farmer's hoe wears as it tills");
@@ -212,7 +233,8 @@ public final class RobotBoardTests {
      */
     public static void planterPlantsSeedsAndSaplings(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME, new ItemStack(Items.WHEAT_SEEDS, 3), new ItemStack(Items.OAK_SAPLING, 2));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockPos farmland = new BlockPos(2, 1, 2), dirt = new BlockPos(6, 1, 6);
         helper.setBlock(farmland, FARMLAND);
         helper.setBlock(dirt, Blocks.DIRT);
@@ -220,7 +242,7 @@ public final class RobotBoardTests {
                 "the planter knows plantables");
         // Neighbouring tests may shade the arena, and wheat needs light: a lamp beside the farmland lets it grow.
         helper.setBlock(farmland.west(), Blocks.GLOWSTONE);
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.PLANTER);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.PLANTER);
         helper.succeedWhen(() -> {
             require(helper, helper.getBlockState(farmland.above()).is(Blocks.WHEAT), "the planter sows the farmland, which is " + helper.getBlockState(farmland)
                     + " under " + helper.getBlockState(farmland.above()) + ", chest has " + count(chest, Items.WHEAT_SEEDS) + " seeds and "
@@ -238,7 +260,8 @@ public final class RobotBoardTests {
      */
     public static void pumpDrainsSourcesIntoTanksAtHome(GameTestHelper helper) {
         TankBlockEntity tank = tank(helper, BESIDE_HOME);
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         BlockPos[] sources = {new BlockPos(2, 2, 2), new BlockPos(6, 2, 6)};
         BlockPos refused = new BlockPos(2, 2, 6);
         for (BlockPos pos : List.of(sources[0], sources[1], refused)) {
@@ -246,9 +269,10 @@ public final class RobotBoardTests {
             helper.setBlock(pos, Blocks.WATER);
         }
         TestProtection.refuse(helper, refused);
-        Player player = helper.makeMockPlayer();
         RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.PUMP);
+        double[] closest = closestApproach(helper, robot, refused);
         helper.succeedWhen(() -> {
+            require(helper, closest[0] > 2, "the pump never flies to the protected water, came within " + closest[0]);
             for (BlockPos pos : sources) {
                 require(helper, helper.getBlockState(pos).isAir(), "the pump drains the water at " + pos + ", found " + helper.getBlockState(pos)
                         + ", refused for " + TestProtection.refusedPlayer(helper, pos) + "; tank has " + tank.tank().amount() + ", robot "
@@ -269,7 +293,8 @@ public final class RobotBoardTests {
      * station whose gate accepts fluids. A Provide Fluids filter of a lava bucket lets no water through.
      */
     public static void tankRobotMovesFluidsBetweenStations(GameTestHelper helper) {
-        DockingStationPluggable homeStation = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable homeStation = home(helper, player);
 
         TankBlockEntity source = tank(helper, new BlockPos(1, 1, 1));
         source.tank().set(Fluids.WATER, 4000);
@@ -286,7 +311,7 @@ public final class RobotBoardTests {
         station(acceptor, Direction.UP);
         gate(acceptor, Direction.NORTH, PLAIN, BCRoboticsStatements.ACTION_ACCEPT_FLUIDS);
 
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, homeStation, RobotBoardType.FLUID_CARRIER);
+        RobotEntity robot = deploy(helper, player, HOME, homeStation, RobotBoardType.FLUID_CARRIER);
         helper.succeedWhen(() -> {
             require(helper, target.tank().fluid() == Fluids.WATER && target.tank().amount() == 4000 && source.tank().isEmpty(),
                     "the tank robot moves the water, target has " + target.tank().amount() + ", source " + source.tank().amount()
@@ -298,16 +323,18 @@ public final class RobotBoardTests {
     /** The knight fights a hostile mob with a sword from home, as its owner, and spares one protection will not let it attack. */
     public static void knightFightsMobsItMayAttack(GameTestHelper helper) {
         chest(helper, BESIDE_HOME, new ItemStack(Items.IRON_SWORD));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         Husk prey = mob(helper, EntityType.HUSK, new BlockPos(2, 1, 2));
         Husk spared = mob(helper, EntityType.HUSK, new BlockPos(6, 1, 6));
         Cow cow = mob(helper, EntityType.COW, new BlockPos(2, 1, 6));
         TestProtection.refuseAttacks(helper, spared);
         require(helper, FighterBoard.attackDamage(new ItemStack(Items.IRON_SWORD), prey) == 6 && FighterBoard.attackTicks(new ItemStack(Items.IRON_SWORD)) == 13,
                 "a strike with an iron sword deals 6 damage every 13 ticks, as a player's full swing");
-        Player player = helper.makeMockPlayer();
         RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.KNIGHT);
+        double[] closest = closestApproach(helper, robot, new BlockPos(6, 2, 6));
         helper.succeedWhen(() -> {
+            require(helper, closest[0] > 2, "the knight never flies to the protected husk, came within " + closest[0]);
             require(helper, !prey.isAlive(), "the knight kills the husk, health " + prey.getHealth() + "; " + describe(helper, robot));
             require(helper, player.getGameProfile().getName().equals(TestProtection.refusedAttacker(spared)),
                     "the attack event names the robot's owner, was " + TestProtection.refusedAttacker(spared));
@@ -324,7 +351,8 @@ public final class RobotBoardTests {
     /** The butcher fights an adult animal with an axe from home, and spares calves and monsters. */
     public static void butcherFightsAdultAnimals(GameTestHelper helper) {
         chest(helper, BESIDE_HOME, new ItemStack(Items.IRON_AXE));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         Cow adult = mob(helper, EntityType.COW, new BlockPos(2, 1, 2));
         Cow calf = mob(helper, EntityType.COW, new BlockPos(6, 1, 6));
         calf.setAge(-24000);
@@ -335,7 +363,7 @@ public final class RobotBoardTests {
         require(helper, FighterBoard.isLivestock(horse), "an untamed horse is livestock");
         horse.setTamed(true);
         require(helper, !FighterBoard.isLivestock(horse), "a tamed horse is spared");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.BUTCHER);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.BUTCHER);
         helper.succeedWhen(() -> {
             require(helper, !adult.isAlive(), "the butcher kills the cow, health " + adult.getHealth() + "; " + describe(helper, robot));
             require(helper, calf.isAlive() && husk.isAlive() && husk.getHealth() == husk.getMaxHealth(), "the butcher spares the calf and the husk");
@@ -352,10 +380,11 @@ public final class RobotBoardTests {
      */
     public static void stripesRobotUsesItems(GameTestHelper helper) {
         ChestBlockEntity chest = chest(helper, BESIDE_HOME, new ItemStack(Items.MOSSY_COBBLESTONE, 2));
-        DockingStationPluggable station = home(helper);
+        Player player = helper.makeMockPlayer();
+        DockingStationPluggable station = home(helper, player);
         require(helper, !StripesBoard.isFreeSpot(helper.getLevel(), helper.absolutePos(HOME.above()))
                 && StripesBoard.isFreeSpot(helper.getLevel(), helper.absolutePos(new BlockPos(2, 2, 2))), "the stripes robot builds on the floor but never on its home's pipe");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.STRIPES);
+        RobotEntity robot = deploy(helper, player, HOME, station, RobotBoardType.STRIPES);
         helper.succeedWhen(() -> {
             int placed = 0;
             for (BlockPos pos : BlockPos.betweenClosed(0, 1, 0, 8, 6, 8)) {

@@ -77,13 +77,19 @@ public class PlanterBoard extends BlockBoard {
         });
     }
 
+    /** Planting is asked as a block placed on the soil. */
+    @Override
+    protected boolean mayWork(ServerLevel level, BlockPos pos) {
+        return BlockProtection.mayPlace(level, pos, Direction.UP, level.getBlockState(pos.below()), robot.actor());
+    }
+
     @Override
     protected Progress work(BlockPos pos) {
         ServerLevel level = (ServerLevel) level();
         int slot = slotFor(level, pos);
         if (slot < 0) return Progress.DONE;
         Block plant = plant(robot.inventory().getItem(slot));
-        if (!BlockProtection.mayPlace(level, pos, Direction.UP, level.getBlockState(pos.below()), robot.actor())) return Progress.FAILED;
+        if (!mayWork(level, pos)) return Progress.FAILED;
         if (!robot.spend(USE_COST)) return Progress.WORKING;
         BlockState state = plant.defaultBlockState();
         level.setBlock(pos, state, Block.UPDATE_ALL);

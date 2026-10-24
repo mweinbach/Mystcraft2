@@ -44,11 +44,17 @@ public class PumpBoard extends BlockBoard {
         return fluid != null && robot.tank().fill(fluid, BUCKET, true) == BUCKET;
     }
 
+    /** Draining a source is asked as breaking it. */
+    @Override
+    protected boolean mayWork(ServerLevel level, BlockPos pos) {
+        return BlockProtection.mayBreak(level, pos, robot.actor());
+    }
+
     @Override
     protected Progress work(BlockPos pos) {
         ServerLevel level = (ServerLevel) level();
         if (!isWork(level, pos)) return Progress.DONE;
-        if (!BlockProtection.mayBreak(level, pos, robot.actor())) return Progress.FAILED;
+        if (!mayWork(level, pos)) return Progress.FAILED;
         if (!robot.spend(PUMP_COST)) return Progress.WORKING;
         Fluid fluid = BlockUtil.drainBlock(level, pos, true);
         if (fluid != null) robot.tank().fill(fluid, BUCKET, false);

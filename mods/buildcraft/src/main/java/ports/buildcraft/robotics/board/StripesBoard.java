@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.robotics.Progress;
 import ports.buildcraft.robotics.RobotEntity;
 import ports.buildcraft.transport.PipeItem;
@@ -56,6 +57,19 @@ public class StripesBoard extends BlockBoard {
     @Override
     protected boolean isWork(Level level, BlockPos pos) {
         return isFreeSpot(level, pos);
+    }
+
+    /**
+     * Asked as using the first usable stack on the spot from above; the stripes handlers ask protection again for
+     * what they actually do.
+     */
+    @Override
+    protected boolean mayWork(ServerLevel level, BlockPos pos) {
+        int slot = slotOf(this::isUsable);
+        if (slot < 0) return true;
+        ServerPlayer player = robot.actor();
+        ItemStack stack = robot.inventory().getItem(slot);
+        return BlockProtection.mayUse(level, pos, Direction.UP, stack, player);
     }
 
     /**

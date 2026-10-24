@@ -54,6 +54,10 @@ public class FighterBoard extends RobotBoard {
     private boolean unloading;
     /** Prey protection would not let the robot attack, left alone until it next rests. */
     private final Set<UUID> refused = new HashSet<>();
+    /** How many candidates the attack event is asked about a tick while choosing prey. */
+    public static final int PROTECTION_CHECKS = 128;
+    /** True while a search for prey has more candidates to put to the attack event. */
+    private boolean searching;
 
     protected FighterBoard(RobotEntity robot, Predicate<LivingEntity> prey, Predicate<ItemStack> weapons) {
         super(robot);
@@ -104,6 +108,7 @@ public class FighterBoard extends RobotBoard {
             drop();
             target = find(area);
             if (target == null) {
+                if (searching) return;
                 if (!robot.isInventoryEmpty()) unloading = true;
                 else if (idleAtHome(IDLE_TICKS)) refused.clear();
                 return;
@@ -153,10 +158,27 @@ public class FighterBoard extends RobotBoard {
                 && !refused.contains(entity.getUUID()) && prey.test(entity) && !world().isClaimedByOther(robot, entity.getUUID());
     }
 
+    /**
+     * The nearest prey the attack event lets the owner strike. Protection is asked while choosing, nearest first, so
+     * the robot never sets off for refused prey; at most {@link #PROTECTION_CHECKS} are asked a tick, and
+     * {@link #searching} says the search goes on next tick.
+     */
     @Nullable
     private LivingEntity find(WorkArea area) {
         List<LivingEntity> found = level().getEntitiesOfClass(LivingEntity.class, area.bounds(), entity -> isValid(entity, area));
-        return found.stream().min(Comparator.comparingDouble(entity -> entity.distanceToSqr(robot))).orElse(null);
+        found.sort(Comparator.comparingDouble(entity -> entity.distanceToSqr(robot)));
+        searching = false;
+        ServerPlayer player = robot.actor();
+        int asked = 0;
+        for (LivingEntity entity : found) {
+            if (asked++ >= PROTECTION_CHECKS) {
+                searching = true;
+                return null;
+            }
+            if (BlockProtection.mayAttack(player, entity)) return entity;
+            refused.add(entity.getUUID());
+        }
+        return null;
     }
 
     private void drop() {
@@ -173,5 +195,6 @@ public class FighterBoard extends RobotBoard {
     public void reset() {
         drop();
         unloading = false;
+        searching = false;
     }
 }
