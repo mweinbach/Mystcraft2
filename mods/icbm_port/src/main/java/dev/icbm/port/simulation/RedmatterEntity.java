@@ -375,6 +375,11 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     if (distance < Math.max(1, size() * .3) && getId() < other.getId()) {
       setSize((float) Math.cbrt(Math.pow(size(), 3) + Math.pow(other.size(), 3)));
       maxHorizon = Math.max(horizonLimit(), other.horizonLimit());
+      // The survivor's sphere has another anchor, so it would never redo the chunks the absorbed
+      // core's horizon passed while they were unloaded; finish that crater as a scar instead.
+      if (other.anchor != null && world instanceof ServerWorld server)
+        Payloads.registerScar(server, other.anchor, other.horizonRadius(), other.deferred);
+      other.deferred.clear();
       other.discard();
       return 1;
     }

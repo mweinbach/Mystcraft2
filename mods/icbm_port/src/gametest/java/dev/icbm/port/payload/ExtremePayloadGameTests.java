@@ -354,4 +354,61 @@ public final class ExtremePayloadGameTests implements FabricGameTest {
           c.complete();
         });
   }
+
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      tickLimit = 200,
+      batchId = "icbmExtremeRedmatterMerge")
+  public void mergedCoreFinishesItsDeferredCrater(TestContext c) {
+    ServerWorld world = c.getWorld();
+    Vec3d base = new Vec3d(6152.5, 0, 4104.5);
+    // Only the cores' own chunk is loaded; the chunk six away stays unloaded until the end.
+    List<ChunkPos> chunks = forceLoad(world, base.x, base.z, 0);
+    int ground = world.getTopY(Heightmap.Type.MOTION_BLOCKING, (int) base.x, (int) base.z);
+    check(c, !world.getBlockState(new BlockPos(base.x, ground - 1, base.z)).isAir(), "Ground expected");
+    Vec3d at = new Vec3d(base.x, ground + .5, base.z);
+    ChunkPos far = new ChunkPos(new BlockPos(base.x + 100, 0, base.z));
+    BlockPos target = new BlockPos(base.x + 100, ground - 1, base.z);
+    check(c, world.getChunkManager().getWorldChunk(far.x, far.z) == null, "Far chunk must start unloaded");
+    // The survivor spawns first, so it has the lower id and absorbs the other.
+    RedmatterEntity survivor = fieldCore(world, at);
+    RedmatterEntity absorbed = new RedmatterEntity(SimulationContent.REDMATTER, world);
+    absorbed.refreshPositionAndAngles(at.x, at.y, at.z, 0, 0);
+    // A full-grown horizon of 120 whose sweep passed the far chunk while it was unloaded.
+    net.minecraft.nbt.NbtCompound saved = new net.minecraft.nbt.NbtCompound();
+    absorbed.writeNbt(saved);
+    saved.putInt("horizon", 120);
+    saved.putInt("maxHorizon", 120);
+    saved.putDouble("anchorX", at.x);
+    saved.putDouble("anchorY", at.y);
+    saved.putDouble("anchorZ", at.z);
+    saved.putLongArray("deferred", new long[] {far.toLong()});
+    absorbed.readNbt(saved);
+    check(c, world.spawnEntity(absorbed), "Second core must spawn");
+    List<ChunkPos> loaded = new ArrayList<>();
+    long[] mergedAt = {-1};
+    c.runAtEveryTick(
+        () -> {
+          if (mergedAt[0] < 0) {
+            if (!absorbed.isRemoved()) return;
+            check(c, survivor.isAlive(), "The older core must absorb the newer one");
+            // Stop the survivor before its own growing horizon could reach the far chunk.
+            survivor.discard();
+            mergedAt[0] = world.getTime();
+            loaded.addAll(forceLoad(world, target.getX(), target.getZ(), 0));
+            return;
+          }
+          if (world.getTime() - mergedAt[0] < 5) return;
+          try {
+            check(
+                c,
+                world.getBlockState(target).isAir(),
+                "The absorbed core's deferred crater must be erased once its chunk loads");
+          } finally {
+            release(world, loaded);
+            release(world, chunks);
+          }
+          c.complete();
+        });
+  }
 }
