@@ -33,7 +33,7 @@ public final class ServerChecks {
     /** Mod ids that must be loaded, in install order. */
     public static final List<String> PORT_MODS = List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
             "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
-            "gridwright", "fluidphysics");
+            "gridwright", "agricraft", "fluidphysics");
     /** Registry namespaces the ports own; every one must register items and recipes. */
     /** Blocks that drop through code rather than a loot table: the action figure keeps its figure NBT, and Mekanism's
      *  bounding block is the filler of multiblock machines, whose main block drops (as upstream). */
@@ -54,6 +54,7 @@ public final class ServerChecks {
                 "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
                 "gridwright"));
         if (FabricLoader.getInstance().isModLoaded("projecte")) list.add("projecte");
+        if (FabricLoader.getInstance().isModLoaded("agricraft")) list.add("agricraft");
         return List.copyOf(list);
     }
 
