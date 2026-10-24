@@ -367,9 +367,10 @@ loom {
 }
 tasks.named('processGametestResources', ProcessResources) {
     from('../src/gametestCommon/structures') { into 'data/projecte/gametest/structures' }
-    // Test classes for an optional mod run only when it is loaded. Their entrypoints sit before the always-present
-    // FabricTransferGameTests entry, so removing a line never leaves a trailing comma.
-    def optionalTests = ['withMekanism': 'FabricMekanismGameTests']
+    // Test classes for an optional mod run only when it is loaded: a run without -PwithMekanism or -PwithTrinkets
+    // leaves that mod's tests out (and tests ProjectE with no trinket slots). Their entrypoints sit before the
+    // always-present FabricTransferGameTests entry, so removing a line never leaves a trailing comma.
+    def optionalTests = ['withMekanism': 'FabricMekanismGameTests', 'withTrinkets': 'FabricTrinketsGameTests']
     def absentTests = optionalTests.findAll { property, testClass -> !providers.gradleProperty(property).isPresent() }.values().toList()
     inputs.property('absentOptionalTests', absentTests)
     if (!absentTests.isEmpty()) {

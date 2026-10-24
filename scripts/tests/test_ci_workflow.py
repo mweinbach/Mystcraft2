@@ -92,7 +92,7 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertIn("fabric_compat_props: -PwithEmi -PwithJei -PwithRei\n", matrix_entry(self.text, "icbm_port"))
         projecte = matrix_entry(self.text, "projecte")
         self.assertIn("kind: dual", projecte)
-        self.assertIn("fabric_compat_props: -PwithMekanism -PwithPortingLib\n", projecte)
+        self.assertIn("fabric_compat_props: -PwithMekanism -PwithPortingLib -PwithTrinkets\n", projecte)
         gridwright = matrix_entry(self.text, "gridwright")
         self.assertIn("forge_compat_props: -PwithEmi -PwithJei -PwithRei\n", gridwright)
         self.assertIn("fabric_compat_props: -PwithEmi -PwithJei -PwithRei\n", gridwright)

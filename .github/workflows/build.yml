@@ -160,8 +160,9 @@ jobs:
           - id: projecte
             kind: dual
             # The GameTests again beside the other Forge-to-Fabric layers a pack carries: the Mekanism port and
-            # Porting Lib (as Create nests it). checkFabricClashes in the Fabric build compares the jars statically.
-            fabric_compat_props: -PwithMekanism -PwithPortingLib
+            # Porting Lib (as Create nests it), plus Trinkets for the trinket-slot tests. checkFabricClashes in the Fabric
+            # build compares the jars statically.
+            fabric_compat_props: -PwithMekanism -PwithPortingLib -PwithTrinkets
             jars: |
               mods/projecte/build/libs/*.jar
               mods/projecte/fabric/build/libs/*.jar

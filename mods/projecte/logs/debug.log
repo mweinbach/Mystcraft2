@@ -1,0 +1,1 @@
+[24Oct2026 13:12:00.230] [Test worker/WARN] [moze_intel.projecte.PECore/]: EMC Exploit: "0 + 1*a => 1*b" ingredient cost: 1 value of result: 3 setValueFromConversion: 0 + 3*a => 1*b
