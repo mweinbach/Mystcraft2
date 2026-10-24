@@ -100,6 +100,10 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 
 	@Override
 	public InteractionResult place(BlockPlaceContext context) {
+		// placing the seed as a block plants it; a seed whose species is not loaded places nothing and is kept
+		if (this.getGenome(context.getItemInHand()).flatMap(AgriApi::getPlantFor).isEmpty()) {
+			return InteractionResult.FAIL;
+		}
 		InteractionResult result = super.place(context);
 		Level level = context.getLevel();
 		if (result.consumesAction() && !level.isClientSide) {
@@ -127,8 +131,7 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 			if (crop.hasPlant() || crop.isCrossCropSticks()) {
 				return InteractionResult.PASS;
 			}
-			plantSeed(context.getPlayer(), crop, heldItem);
-			return InteractionResult.CONSUME;
+			return plantSeed(context.getPlayer(), crop, heldItem) ? InteractionResult.CONSUME : InteractionResult.FAIL;
 		}
 		// if a seed analyzer was clicked, insert the seed inside
 		if (level.getBlockEntity(context.getClickedPos()) instanceof SeedAnalyzerBlockEntity seedAnalyzer) {
@@ -148,8 +151,7 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 				if (crop.hasPlant() || crop.isCrossCropSticks()) {
 					return InteractionResult.PASS;
 				}
-				plantSeed(context.getPlayer(), crop, heldItem);
-				return InteractionResult.CONSUME;
+				return plantSeed(context.getPlayer(), crop, heldItem) ? InteractionResult.CONSUME : InteractionResult.FAIL;
 			}
 		}
 		// 4.0.6 built this fallback with orElse(super.useOn(context)), which placed the seed as a block before the
@@ -157,11 +159,20 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 		return super.useOn(context);
 	}
 
-	private void plantSeed(Player player, AgriCrop crop, ItemStack seed) {
-		crop.plantGenome(AgriGenome.fromNBT(seed.getTag()), player);
+	/** Plants the seed and takes it; a seed whose species is not loaded is neither planted nor taken. */
+	private boolean plantSeed(Player player, AgriCrop crop, ItemStack seed) {
+		AgriGenome genome = seed.getTag() == null ? null : AgriGenome.fromNBT(seed.getTag());
+		if (AgriApi.getPlantFor(genome).isEmpty()) {
+			return false;
+		}
+		crop.plantGenome(genome, player);
+		if (!crop.hasPlant()) {
+			return false;
+		}
 		if (player != null && !player.isCreative()) {
 			seed.shrink(1);
 		}
+		return true;
 	}
 
 	@Override

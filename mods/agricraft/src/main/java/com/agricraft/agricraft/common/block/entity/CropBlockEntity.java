@@ -16,6 +16,7 @@ import com.agricraft.agricraft.api.tools.magnifying.MagnifyingInspectable;
 import com.agricraft.agricraft.common.block.CropBlock;
 import com.agricraft.agricraft.common.block.CropState;
 import com.agricraft.agricraft.common.block.SimpleFluidloggedBlock;
+import com.agricraft.agricraft.common.registry.AgriDataRegistries;
 import com.agricraft.agricraft.common.registry.ModBlockEntityTypes;
 import com.agricraft.agricraft.common.registry.ModBlocks;
 import com.agricraft.agricraft.common.util.LangUtils;
@@ -50,7 +51,10 @@ import java.util.stream.Stream;
 
 public class CropBlockEntity extends BlockEntity implements AgriCrop, MagnifyingInspectable {
 
-	private final Map<Integer, VoxelShape> shapeByAge = new HashMap<>();
+	/** Shapes by species (or weed) and growth stage: keying by stage alone reused one species' shape for the next. */
+	private final Map<String, VoxelShape> shapeCache = new HashMap<>();
+	/** {@link AgriDataRegistries#generation()} {@link #plant} and {@link #weed} were resolved against. */
+	private int resolvedGeneration = -1;
 	private AgriGenome genome;
 	private String plantId = "";
 	private AgriPlant plant;
@@ -68,6 +72,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	@Override
 	public void load(CompoundTag tag) {
 		super.load(tag);
+		this.shapeCache.clear();
 		// The client also loads every block entity update through here, so a tag without a plant or weeds must clear
 		// the cached ones (the clipper, a harvest or the rake removed them), and a changed species must be resolved again.
 		boolean hasPlant = tag.getBoolean("hasPlant");
@@ -81,9 +86,8 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			int growthIndex = tag.getInt("growthIndex");
 			int growthTotal = tag.getInt("growthTotal");
 			this.growthStage = new AgriGrowthStage(growthIndex, growthTotal);
-			if (level != null) {
-				this.plant = AgriApi.getPlant(this.plantId, this.level.registryAccess()).orElse(null);
-			}
+			// null while the species is not loaded; the genome is kept (and saved) so the plant returns with its data
+			this.plant = AgriApi.getPlant(this.plantId).orElse(null);
 		} else {
 			this.genome = null;
 			this.plantId = "";
@@ -95,20 +99,36 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			int weedGrowthIndex = tag.getInt("weedGrowthIndex");
 			int weedGrowthTotal = tag.getInt("weedGrowthTotal");
 			this.weedGrowthStage = new AgriGrowthStage(weedGrowthIndex, weedGrowthTotal);
-			if (level != null) {
-				this.weed = AgriApi.getWeed(this.weedId, this.level.registryAccess()).orElse(null);
-			}
+			this.weed = AgriApi.getWeed(this.weedId).orElse(null);
 		} else {
 			this.weedId = "";
 			this.weed = null;
 			this.weedGrowthStage = null;
 		}
+		this.resolvedGeneration = AgriDataRegistries.generation();
+	}
+
+	/**
+	 * Looks {@link #plant} and {@link #weed} up again once the data registries were replaced ({@code /reload}, or new
+	 * data from the server): the old instances describe data that may have changed or been disabled.
+	 */
+	private void refreshResolved() {
+		int generation = AgriDataRegistries.generation();
+		if (generation == this.resolvedGeneration) {
+			return;
+		}
+		this.resolvedGeneration = generation;
+		this.plant = this.plantId.isEmpty() ? null : AgriApi.getPlant(this.plantId).orElse(null);
+		this.weed = this.weedId.isEmpty() ? null : AgriApi.getWeed(this.weedId).orElse(null);
+		this.shapeCache.clear();
 	}
 
 	@Override
 	protected void saveAdditional(CompoundTag tag) {
 		super.saveAdditional(tag);
-		if (this.hasPlant()) {
+		// Saved from the stored data, not the resolved plant: a crop whose species is not loaded (its datapack was
+		// disabled) keeps its genome and comes back with it, instead of being wiped by the next save.
+		if (this.genome != null && this.growthStage != null && this.getBlockState().getValue(CropBlock.CROP_STATE).hasPlant()) {
 			tag.putBoolean("hasPlant", true);
 			genome.writeToNBT(tag);
 			tag.putInt("growthIndex", this.growthStage.index());
@@ -116,7 +136,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 		} else {
 			tag.putBoolean("hasPlant", false);
 		}
-		if (this.hasWeeds()) {
+		if (!this.weedId.isEmpty() && this.weedGrowthStage != null) {
 			tag.putBoolean("hasWeeds", true);
 			tag.putString("weedId", this.weedId);
 			tag.putInt("weedGrowthIndex", this.weedGrowthStage.index());
@@ -144,6 +164,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 		// when the block id deserialized the level is null so we can't load the plant from the registry yet
 		// thus, we're doing it now, as soon as the level is present
 		if (level != null) {
+			this.refreshResolved();
 			if (!level.isClientSide) {
 				this.plant = AgriApi.getPlant(this.plantId, level.registryAccess()).orElse(null);
 				if (this.plant != null && this.growthStage == null) {
@@ -194,26 +215,34 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 
 	@Override
 	public void plantGenome(AgriGenome genome, @Nullable LivingEntity entity) {
-		if (genome == null) {
+		// Resolve the species before changing anything. A seed whose species is not loaded (an unknown id, or its
+		// datapack was disabled) still decodes to a genome; planting it used to change the crop and then NPE in
+		// onPlanted. Callers check AgriApi.getPlantFor first so the seed is not consumed either.
+		if (genome == null || this.level == null) {
 			return;
 		}
+		Optional<AgriPlant> resolved = AgriApi.getPlantFor(genome);
+		if (resolved.isEmpty()) {
+			return;
+		}
+		this.refreshResolved();
 		this.genome = genome;
 		this.plantId = genome.getSpeciesGene().getDominant().trait();
-		this.plant = AgriApi.getPlant(this.plantId, this.level.registryAccess()).orElse(null);
-		if (this.plant != null) {
-			this.growthStage = this.plant.getInitialGrowthStage();
-		}
+		this.plant = resolved.get();
+		this.growthStage = this.plant.getInitialGrowthStage();
 		this.syncCropState(this.hasCropSticks() ? this.getBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT_STICKS) : this.getBlockState());
 		this.plant.onPlanted(this, null);
 	}
 
 	@Override
 	public boolean hasPlant() {
+		this.refreshResolved();
 		return this.getBlockState().getValue(CropBlock.CROP_STATE).hasPlant() && !this.plantId.isEmpty() && this.plant != null;
 	}
 
 	@Override
 	public boolean hasWeeds() {
+		this.refreshResolved();
 		return !this.weedId.isEmpty() && this.weed != null;
 	}
 
@@ -234,6 +263,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 
 	@Override
 	public AgriPlant getPlant() {
+		this.refreshResolved();
 		return this.plant;
 	}
 
@@ -249,6 +279,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 
 	@Override
 	public AgriWeed getWeed() {
+		this.refreshResolved();
 		return this.weed;
 	}
 
@@ -317,11 +348,17 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 		}
 		if (!this.hasPlant()) {
 			if (this.hasWeeds()) {
-				return shapeByAge.computeIfAbsent(this.weedGrowthStage.index(), stage -> Block.box(0, 0, 0, 16, this.weed.getWeedHeight(this.weedGrowthStage), 16)).move(0, yoffset, 0);
+				AgriWeed weed = this.weed;
+				AgriGrowthStage stage = this.weedGrowthStage;
+				return this.shapeCache.computeIfAbsent("weed:" + this.weedId + "#" + stage.index() + "/" + stage.total(),
+						key -> Block.box(0, 0, 0, 16, weed.getWeedHeight(stage), 16)).move(0, yoffset, 0);
 			}
 			return Shapes.empty();
 		}
-		return shapeByAge.computeIfAbsent(this.growthStage.index(), stage -> Block.box(0, 0, 0, 16, this.plant.getPlantHeight(this.growthStage), 16)).move(0, yoffset, 0);
+		AgriPlant plant = this.plant;
+		AgriGrowthStage stage = this.growthStage;
+		return this.shapeCache.computeIfAbsent("plant:" + this.plantId + "#" + stage.index() + "/" + stage.total(),
+				key -> Block.box(0, 0, 0, 16, plant.getPlantHeight(stage), 16)).move(0, yoffset, 0);
 	}
 
 	/**
@@ -372,6 +409,9 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			AgriApi.getMutationHandler().getActiveCrossBreedEngine().handleCrossBreedTick(this, this.streamNeighbours(), this.level.random);
 		} else {
 			if (!this.hasPlant()) {
+				if (this.getBlockState().getValue(CropBlock.LIGHT) != 0 || this.announcedRedstonePower != 0) {
+					this.syncCropState(this.getBlockState());
+				}
 				return;
 			}
 			AgriGrowthResponse fertility = this.getFertilityResponse();
@@ -478,6 +518,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 		if (this.level == null) {
 			return;
 		}
+		this.refreshResolved();
 		BlockPos pos = this.getBlockPos();
 		if (!this.level.isClientSide) {
 			// every caller changed saved data (plant, growth, weeds); 4.0.6 missed this for new and spread weeds
@@ -507,6 +548,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	 * @return the redstone power the crop emits right now (what {@link CropBlock#getDirectSignal} reports)
 	 */
 	public int getEmittedRedstonePower() {
+		this.refreshResolved();
 		if (this.plant == null || this.growthStage == null || !this.getBlockState().getValue(CropBlock.CROP_STATE).hasPlant()) {
 			return 0;
 		}

@@ -1,5 +1,6 @@
 package com.agricraft.agricraft.api.plant;
 
+import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.api.codecs.AgriParticleEffect;
 import com.agricraft.agricraft.api.codecs.AgriProduct;
 import com.agricraft.agricraft.api.codecs.AgriRequirement;
@@ -204,7 +205,7 @@ public class AgriPlant {
 		this.particleEffects.stream()
 				.filter(effect -> effect.allowParticles(stage.index()))
 				.forEach(effect -> {
-					ParticleType<?> particle = Platform.get().getParticleType(new ResourceLocation(effect.particle()));
+					ParticleType<?> particle = AgriApi.parseId(effect.particle()).map(id -> Platform.get().getParticleType(id)).orElse(null);
 					if (!(particle instanceof ParticleOptions)) {
 						return;
 					}

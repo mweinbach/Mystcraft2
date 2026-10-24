@@ -79,6 +79,11 @@ public class JournalItem extends Item {
 		return stack;
 	}
 
+	/** Researches the species of a seed; a malformed or unloaded species is not recorded. */
+	public static void researchSpecies(ItemStack journal, String species) {
+		AgriApi.parseId(species).filter(id -> AgriApi.getPlant(id).isPresent()).ifPresent(id -> researchPlant(journal, id));
+	}
+
 	public static void researchPlant(ItemStack journal, ResourceLocation plantId) {
 		CompoundTag tag = journal.getOrCreateTag();
 		StringTag idTag = StringTag.valueOf(plantId.toString());
@@ -123,10 +128,7 @@ public class JournalItem extends Item {
 			if (tag != null && tag.contains("plants")) {
 				ListTag list = tag.getList("plants", Tag.TAG_STRING);
 				for (Tag plantTag : list) {
-					ResourceLocation plantId = new ResourceLocation(plantTag.getAsString());
-					if (AgriApi.getPlant(plantId).isPresent()) {
-						plants.add(plantId);
-					}
+					AgriApi.parseId(plantTag.getAsString()).filter(plantId -> AgriApi.getPlant(plantId).isPresent()).ifPresent(plants::add);
 				}
 			}
 			this.plants.sort(Comparator.comparing(ResourceLocation::toString));

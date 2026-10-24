@@ -81,7 +81,7 @@ public class SeedBagItem extends Item {
 			return false;
 		}
 		crop.plantGenome(AgriGenome.fromNBT(seed.getTag()));
-		return true;
+		return crop.hasPlant();
 	}
 
 	public static int add(ItemStack seedBag, ItemStack insertedStack) {
@@ -254,6 +254,10 @@ public class SeedBagItem extends Item {
 			return InteractionResult.PASS;
 		}
 		ItemStack seed = extractFirstItem(seedBag, true);
+		// seeds whose species is not loaded (missing or disabled data) stay in the bag and plant nothing
+		if (seed.getTag() == null || AgriApi.getPlantFor(AgriGenome.fromNBT(seed.getTag())).isEmpty()) {
+			return InteractionResult.FAIL;
+		}
 		BlockPos pos = context.getClickedPos();
 		Optional<AgriCrop> optional = AgriApi.getCrop(level, pos);
 		// if we clicked on a crop stick
@@ -280,8 +284,11 @@ public class SeedBagItem extends Item {
 				optional = AgriApi.getCrop(level, pos.above());
 				if (optional.isPresent()) {
 					optional.get().plantGenome(AgriGenome.fromNBT(seed.getTag()), context.getPlayer());
-					extractFirstItem(seedBag, false);
-					return InteractionResult.SUCCESS;
+					if (optional.get().hasPlant()) {
+						extractFirstItem(seedBag, false);
+						return InteractionResult.SUCCESS;
+					}
+					level.setBlock(pos.above(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 				}
 				return InteractionResult.PASS;
 			}

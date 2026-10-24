@@ -69,6 +69,8 @@ public final class AgriDataRegistries {
 	private static volatile Map<ResourceKey<?>, Registry<?>> current = Map.of();
 	/** Whether {@link #current} came from a remote server rather than this JVM's server. */
 	private static volatile boolean fromRemote = false;
+	/** Bumped whenever {@link #current} is replaced, so anything that resolved entries from it can tell they are stale. */
+	private static volatile int generation = 0;
 
 	private AgriDataRegistries() {
 	}
@@ -76,6 +78,14 @@ public final class AgriDataRegistries {
 	@SuppressWarnings("unchecked")
 	public static <T> Optional<Registry<T>> get(ResourceKey<? extends Registry<T>> key) {
 		return Optional.ofNullable((Registry<T>) current.get(key));
+	}
+
+	/**
+	 * Changes every time the registries are replaced (a reload, a remote server's data, or leaving a world). Code that
+	 * caches an entry looked up from them compares this to know when to look it up again.
+	 */
+	public static int generation() {
+		return generation;
 	}
 
 	/** True once a server has loaded the registries, or a remote server has sent them. */
@@ -88,6 +98,7 @@ public final class AgriDataRegistries {
 		if (!remoteOnly || fromRemote) {
 			current = Map.of();
 			fromRemote = false;
+			generation++;
 		}
 	}
 
@@ -129,6 +140,7 @@ public final class AgriDataRegistries {
 				raw.forEach((type, files) -> built.put(type.key(), build(type, files)));
 				current = Map.copyOf(built);
 				fromRemote = false;
+				generation++;
 				LOGGER.info("Loaded AgriCraft data: {}", summary());
 			}, gameExecutor);
 		}
@@ -264,6 +276,7 @@ public final class AgriDataRegistries {
 	public static void apply(Map<ResourceKey<?>, Registry<?>> registries) {
 		current = Map.copyOf(registries);
 		fromRemote = true;
+		generation++;
 		LOGGER.info("Received AgriCraft data: {}", summary());
 	}
 

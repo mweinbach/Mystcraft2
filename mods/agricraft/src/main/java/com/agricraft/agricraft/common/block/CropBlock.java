@@ -305,6 +305,10 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 		Optional<AgriGenome> genome = AgriApi.getGenomeAdapter(heldItem).flatMap(adapter -> adapter.valueOf(heldItem));
 		if (genome.isPresent()) {
 			if (!crop.isCrossCropSticks() && !crop.hasPlant()) {
+				// a seed whose species is not loaded is refused on both sides, and kept
+				if (AgriApi.getPlantFor(genome.get()).isEmpty()) {
+					return InteractionResult.FAIL;
+				}
 				if (level.isClientSide) {
 					return InteractionResult.SUCCESS;
 				}

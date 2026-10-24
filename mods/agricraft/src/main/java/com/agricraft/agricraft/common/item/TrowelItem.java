@@ -88,6 +88,10 @@ public class TrowelItem extends Item implements AgriGenomeProviderItem {
 			return InteractionResult.FAIL;
 		}
 		if (this.hasPlant(stack)) {
+			// a plant whose species is no longer loaded stays on the trowel
+			if (this.getGenome(stack).flatMap(AgriApi::getPlantFor).isEmpty()) {
+				return InteractionResult.FAIL;
+			}
 			if (crop.hasCropSticks()) {
 				this.getGenome(stack).ifPresent(genome ->
 						this.getGrowthStage(stack).ifPresent(growth -> {
@@ -118,7 +122,10 @@ public class TrowelItem extends Item implements AgriGenomeProviderItem {
 		if (world.isClientSide()) {
 			return InteractionResult.PASS;
 		}
-		// only plant into an empty space above a soil, so a trowel never overwrites a block
+		// only plant into an empty space above a soil, so a trowel never overwrites a block, and only a loaded species
+		if (this.getGenome(stack).flatMap(AgriApi::getPlantFor).isEmpty()) {
+			return InteractionResult.FAIL;
+		}
 		if (CoreConfig.plantOffCropSticks && world.getBlockState(pos).isAir() && AgriApi.getSoil(world, pos.below()).isPresent()) {
 			CropBlock cropBlock = (CropBlock) ModBlocks.CROP.get();
 			BlockState newState = cropBlock.blockStatePlant(cropBlock.defaultBlockState());

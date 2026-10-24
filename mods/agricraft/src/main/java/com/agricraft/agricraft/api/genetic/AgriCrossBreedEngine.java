@@ -1,5 +1,6 @@
 package com.agricraft.agricraft.api.genetic;
 
+import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.api.plant.AgriPlant;
 import com.agricraft.agricraft.api.config.CoreConfig;
 import com.agricraft.agricraft.api.crop.AgriCrop;
@@ -100,9 +101,7 @@ public class AgriCrossBreedEngine {
 			// roll for spread chance
 			if (random.nextDouble() < parent.getPlant().getSpreadChance(parent.getGrowthStage())) {
 				AgriGenome clone = this.getCloner().clone(target, parent.getGenome(), random);
-				target.plantGenome(clone);
-				target.getPlant().onSpawned(target);
-				return true;
+				return this.spawn(target, clone);
 			}
 		}
 		// spreading failed
@@ -113,7 +112,18 @@ public class AgriCrossBreedEngine {
 		// Determine the child's genome
 		AgriGenome genome = this.getCombiner().combine(target, a.getGenome(), b.getGenome(), random);
 		// Spawn the child
+		return this.spawn(target, genome);
+	}
+
+	/** Plants {@code genome} on {@code target}, unless its species is not loaded (missing or disabled data). */
+	protected boolean spawn(AgriCrop target, AgriGenome genome) {
+		if (AgriApi.getPlantFor(genome).isEmpty()) {
+			return false;
+		}
 		target.plantGenome(genome);
+		if (!target.hasPlant()) {
+			return false;
+		}
 		target.getPlant().onSpawned(target);
 		return true;
 	}

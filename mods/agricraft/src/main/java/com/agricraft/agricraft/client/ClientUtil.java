@@ -35,7 +35,8 @@ public class ClientUtil {
 	}
 
 	public static void spawnParticlesForPlant(String plantModelId, LevelAccessor level, BlockState state, BlockPos pos, VoxelShape voxelShape) {
-		BakedModel model = Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(plantModelId));
+		ResourceLocation location = ResourceLocation.tryParse(plantModelId);
+		BakedModel model = location == null ? null : Minecraft.getInstance().getModelManager().bakedRegistry.get(location);
 		spawnParticlesForShape(model, level, state, pos, voxelShape);
 	}
 

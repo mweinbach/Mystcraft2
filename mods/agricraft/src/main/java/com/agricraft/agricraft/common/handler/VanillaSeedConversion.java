@@ -60,7 +60,10 @@ public class VanillaSeedConversion {
 
 			return AgriApi.getGenomeAdapter(heldItem).flatMap(adapter -> adapter.valueOf(heldItem)).map(genome -> {
 				// check if the seed does allow to override planting
-				AgriPlant plant = AgriApi.getPlant(genome.getSpeciesGene().getTrait()).get();
+				AgriPlant plant = AgriApi.getPlantFor(genome).orElse(null);
+				if (plant == null) {
+					return InteractionResult.PASS;
+				}
 				AgriSeed seed = plant.getSeed(heldItem);
 				if (!seed.overridePlanting()) {
 					return InteractionResult.PASS;

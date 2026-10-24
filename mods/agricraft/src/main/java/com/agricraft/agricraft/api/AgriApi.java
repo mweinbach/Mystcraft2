@@ -26,6 +26,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -56,8 +57,28 @@ public final class AgriApi {
 		return AgriApi.getPlantRegistry(registryAccess).map(registry -> registry.getKey(plant));
 	}
 
+	/**
+	 * Parses an id read from NBT, a datapack or a command. Plant, weed and soil ids reach the game from seeds, crops
+	 * and data files, so a malformed one resolves to nothing instead of throwing.
+	 */
+	public static Optional<ResourceLocation> parseId(@Nullable String id) {
+		return id == null || id.isEmpty() ? Optional.empty() : Optional.ofNullable(ResourceLocation.tryParse(id));
+	}
+
 	public static Optional<AgriPlant> getPlant(String plantId) {
-		return AgriApi.getPlant(new ResourceLocation(plantId));
+		return AgriApi.parseId(plantId).flatMap(id -> AgriApi.getPlant(id));
+	}
+
+	/**
+	 * The plant a genome's dominant species resolves to. Empty for a null genome, or for a species that is not loaded
+	 * (an unknown id, or one whose datapack was disabled): such seeds still decode to a genome, so check this before
+	 * planting one or consuming it.
+	 */
+	public static Optional<AgriPlant> getPlantFor(@Nullable AgriGenome genome) {
+		if (genome == null || genome.getSpeciesGene() == null) {
+			return Optional.empty();
+		}
+		return AgriApi.getPlant(genome.getSpeciesGene().getDominant().trait());
 	}
 
 	public static Optional<AgriPlant> getPlant(ResourceLocation plantId) {
@@ -65,7 +86,7 @@ public final class AgriApi {
 	}
 
 	public static Optional<AgriPlant> getPlant(String plantId, RegistryAccess registryAccess) {
-		return AgriApi.getPlant(new ResourceLocation(plantId), registryAccess);
+		return AgriApi.parseId(plantId).flatMap(id -> AgriApi.getPlant(id, registryAccess));
 	}
 
 	public static Optional<AgriPlant> getPlant(ResourceLocation plantId, RegistryAccess registryAccess) {
@@ -81,7 +102,7 @@ public final class AgriApi {
 	}
 
 	public static Optional<AgriWeed> getWeed(String weedId) {
-		return AgriApi.getWeed(new ResourceLocation(weedId));
+		return AgriApi.parseId(weedId).flatMap(id -> AgriApi.getWeed(id));
 	}
 
 	public static Optional<AgriWeed> getWeed(ResourceLocation weedId) {
@@ -89,7 +110,7 @@ public final class AgriApi {
 	}
 
 	public static Optional<AgriWeed> getWeed(String weedId, RegistryAccess registryAccess) {
-		return AgriApi.getWeed(new ResourceLocation(weedId), registryAccess);
+		return AgriApi.parseId(weedId).flatMap(id -> AgriApi.getWeed(id, registryAccess));
 	}
 
 	public static Optional<AgriWeed> getWeed(ResourceLocation weedId, RegistryAccess registryAccess) {
@@ -142,6 +163,8 @@ public final class AgriApi {
 
 	public static Stream<AgriMutation> getMutationsFromParents(String parent1, String parent2) {
 		return AgriApi.getMutationRegistry().map(registry -> registry.stream()
+				// a mutation whose child is not loaded (missing or disabled data) would plant an unknown species
+				.filter(mutation -> mutation.getChild().isPresent())
 				.filter(mutation -> {
 					String p1 = mutation.parent1().toString();
 					String p2 = mutation.parent2().toString();

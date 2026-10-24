@@ -1,5 +1,6 @@
 package com.agricraft.agricraft.api.fertilizer;
 
+import com.agricraft.agricraft.api.AgriApi;
 import net.minecraft.core.Registry;
 
 import com.agricraft.agricraft.api.crop.AgriCrop;
@@ -135,7 +136,7 @@ public class AgriFertilizer {
 		if (fertilizable instanceof AgriCrop crop) {
 			String type = "neutral";
 			for (int i = 0; i < this.potency; i++) {
-				if (this.isNegativeOn(new ResourceLocation(crop.getPlantId ()))) {
+				if (crop.hasPlant() && AgriApi.parseId(crop.getPlantId()).map(this::isNegativeOn).orElse(false)) {
 					if (this.canReduceGrowth() && random.nextBoolean()) {
 						type = "negative";
 						if (!level.isClientSide()) {
@@ -175,7 +176,7 @@ public class AgriFertilizer {
 	protected void spawnParticles(Level world, BlockPos pos, String type, RandomSource rand) {
 		this.getParticles(type)
 				.forEach(effect -> {
-					ParticleType<?> particle = Registry.PARTICLE_TYPE.get(new ResourceLocation(effect.particle()));
+					ParticleType<?> particle = AgriApi.parseId(effect.particle()).map(Registry.PARTICLE_TYPE::get).orElse(null);
 					if (!(particle instanceof ParticleOptions)) {
 						return;
 					}
@@ -198,7 +199,7 @@ public class AgriFertilizer {
 		if (!(target instanceof AgriCrop crop)) {
 			return false;
 		}
-		return crop.hasPlant() && this.affects(new ResourceLocation(crop.getPlantId()));
+		return crop.hasPlant() && AgriApi.parseId(crop.getPlantId()).map(this::affects).orElse(false);
 	}
 
 	@Override

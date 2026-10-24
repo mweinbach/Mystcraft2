@@ -52,7 +52,9 @@ public final class AgriClientApi {
 			// compute the block model from the plant id and growth stage
 			// will look like <namespace>:crop/<id>_stage<growth_stage> so the file is assets/<namespace>/models/crop/<id>_stage<growth_stage>.json
 			String plant = plantId.replace(":", ":crop/") + "_stage" + stage;
-			BakedModel model = Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(plant));
+			// ids come from seed and crop NBT: a malformed one falls back to the unknown model instead of throwing
+			ResourceLocation location = ResourceLocation.tryParse(plant);
+			BakedModel model = location == null ? null : Minecraft.getInstance().getModelManager().bakedRegistry.get(location);
 			if (model == null) {
 				// model not found, default to the unknown crop model that should always be present
 				return Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(UNKNOWN_PLANT));
@@ -69,7 +71,8 @@ public final class AgriClientApi {
 			// compute the block model from the plant id and growth stage
 			// will look like <namespace>:weed/<id>_stage<growth_stage> so the file is assets/<namespace>/models/weed/<id>_stage<growth_stage>.json
 			String plant = weedId.replace(":", ":weed/") + "_stage" + stage;
-			BakedModel model = Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(plant));
+			ResourceLocation location = ResourceLocation.tryParse(plant);
+			BakedModel model = location == null ? null : Minecraft.getInstance().getModelManager().bakedRegistry.get(location);
 			if (model == null) {
 				// model not found, default to the unknown crop model that should always be present
 				return Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(UNKNOWN_PLANT));
@@ -85,7 +88,8 @@ public final class AgriClientApi {
 		// compute the model of the seed from the plant id. the seed model path will look like <namespace>:seed/<id> so the file is /assets/<namespace>/models/seed/<id>.json
 		plantId = plantId.replace(":", ":seed/");
 
-		BakedModel model = Minecraft.getInstance().getModelManager().bakedRegistry.get(new ResourceLocation(plantId));
+		ResourceLocation location = ResourceLocation.tryParse(plantId);
+		BakedModel model = location == null ? null : Minecraft.getInstance().getModelManager().bakedRegistry.get(location);
 		if (model == null) {
 			// model not found, defaults to the missing model
 			model = Minecraft.getInstance().getModelManager().getMissingModel();

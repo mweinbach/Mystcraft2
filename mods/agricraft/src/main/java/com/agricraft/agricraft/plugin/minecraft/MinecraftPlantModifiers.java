@@ -1,5 +1,6 @@
 package com.agricraft.agricraft.plugin.minecraft;
 
+import com.agricraft.agricraft.api.AgriApi;
 import net.minecraft.world.damagesource.DamageSource;
 
 import net.minecraft.core.Registry;
@@ -44,8 +45,9 @@ public class MinecraftPlantModifiers {
 		AgriPlantModifierFactoryRegistry.register(BurnPlantModifier.ID, info -> Optional.of(new BurnPlantModifier()));
 		AgriPlantModifierFactoryRegistry.register(BushyPlantModifier.ID, info -> Optional.of(new BushyPlantModifier()));
 		AgriPlantModifierFactoryRegistry.register(ExperiencePlantModifier.ID, info -> Optional.of(new ExperiencePlantModifier()));
+		// modifiers are built from plant data when a plant is first used, so a malformed or unknown id must not throw
 		AgriPlantModifierFactoryRegistry.register(FungusPlantModifier.ID, info -> {
-			Block block = Registry.BLOCK.get(new ResourceLocation(info.value()));
+			Block block = AgriApi.parseId(info.value()).map(Registry.BLOCK::get).orElse(null);
 			if (block instanceof FungusBlock fungus) {
 				return Optional.of(new FungusPlantModifier(fungus));
 			}
@@ -54,14 +56,11 @@ public class MinecraftPlantModifiers {
 		AgriPlantModifierFactoryRegistry.register(PoisonPlantModifier.ID, info -> Optional.of(new PoisonPlantModifier()));
 		AgriPlantModifierFactoryRegistry.register(RedstonePlantModifier.ID, info -> Optional.of(new RedstonePlantModifier()));
 		AgriPlantModifierFactoryRegistry.register(SummonPlantModifier.ID, info -> {
-			if (Registry.ENTITY_TYPE.containsKey(new ResourceLocation(info.value()))) {
-				return Optional.of(new SummonPlantModifier(Registry.ENTITY_TYPE.get(new ResourceLocation(info.value()))));
-			}
-			return Optional.empty();
+			return AgriApi.parseId(info.value()).flatMap(Registry.ENTITY_TYPE::getOptional).<IAgriPlantModifier>map(SummonPlantModifier::new);
 		});
 		AgriPlantModifierFactoryRegistry.register(ThornsPlantModifier.ID, info -> Optional.of(new ThornsPlantModifier()));
 		AgriPlantModifierFactoryRegistry.register(TreePlantModifier.ID, info -> {
-			Block block = Registry.BLOCK.get(new ResourceLocation(info.value()));
+			Block block = AgriApi.parseId(info.value()).map(Registry.BLOCK::get).orElse(null);
 			if (block instanceof BonemealableBlock sapling) {
 				return Optional.of(new TreePlantModifier(sapling));
 			}

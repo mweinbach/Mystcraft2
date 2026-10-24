@@ -108,6 +108,13 @@ phase of this port), **absent** (not in 4.0.6).
   - A loaded trowel used on the soil under a planted crop leaves that plant alone; 4.0.6 overwrote its genome.
     Iron or obsidian sticks added to a bare plant keep their material; 4.0.6 left them wooden, so they rendered,
     dropped and burned in lava as wood.
+  - Seeds, seed bags, trowels and cross-breeding never plant a species that is not loaded (an unknown id, or a
+    disabled datapack): the planting is refused and nothing is consumed. 4.0.6 changed the crop and then crashed
+    the server in `onPlanted`. A crop whose species stops loading keeps its genome through saves and drops its
+    light and redstone power; malformed ids from NBT or data resolve to nothing instead of throwing.
+  - Crop hitboxes are cached per species and growth stage; 4.0.6 cached them per stage only, so wheat planted
+    after carrots kept the carrot's shape. Crops and the mutation complexities look their data up again after
+    `/reload`; 4.0.6 kept the first world's.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

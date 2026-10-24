@@ -63,6 +63,22 @@ public final class GameTestSupport {
 		return crop;
 	}
 
+	/** Like {@link GameTestHelper#makeMockPlayer()}, but in survival, so item use really consumes items. */
+	static net.minecraft.world.entity.player.Player survivalPlayer(GameTestHelper helper) {
+		return new net.minecraft.world.entity.player.Player(helper.getLevel(), BlockPos.ZERO, 0.0F,
+				new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "agricraft-survival-player"), null) {
+			@Override
+			public boolean isSpectator() {
+				return false;
+			}
+
+			@Override
+			public boolean isCreative() {
+				return false;
+			}
+		};
+	}
+
 	static void check(boolean condition, String message) {
 		if (!condition) {
 			throw new GameTestAssertException(message);

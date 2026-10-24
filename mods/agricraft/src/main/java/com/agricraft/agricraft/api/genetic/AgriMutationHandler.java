@@ -5,6 +5,7 @@ import com.agricraft.agricraft.api.codecs.AgriMutation;
 import com.agricraft.agricraft.api.crop.AgriCrop;
 import com.agricraft.agricraft.api.stat.AgriStat;
 import com.agricraft.agricraft.api.stat.AgriStatRegistry;
+import com.agricraft.agricraft.common.registry.AgriDataRegistries;
 import com.google.common.collect.Sets;
 import net.minecraft.core.Registry;
 import net.minecraft.util.RandomSource;
@@ -33,7 +34,8 @@ public class AgriMutationHandler {
 	private AgriGeneMutator<String> plantMutator;
 	private AgriGeneMutator<Integer> statMutator;
 	private final Map<String, Integer> complexities;
-	private boolean computed = false;
+	/** {@link AgriDataRegistries#generation()} the complexities were computed for; -1 before the first computation. */
+	private int computedGeneration = -1;
 
 	public static AgriMutationHandler getInstance() {
 		return INSTANCE;
@@ -79,9 +81,12 @@ public class AgriMutationHandler {
 	 * @return integer value representing the complexity
 	 */
 	public int complexity(String plant) {
-		// the first time a complexity is wanted, we compute the complexity of each plant
-		if (!computed) {
-			computed = true;
+		// computed when first wanted, and again once the mutation data changed: 4.0.6 computed them once per JVM, so a
+		// /reload or another world kept the first world's complexities (and so its dominance order)
+		int generation = AgriDataRegistries.generation();
+		if (computedGeneration != generation) {
+			computedGeneration = generation;
+			complexities.clear();
 			setupComplexities();
 		}
 		return complexities.getOrDefault(plant, 0);

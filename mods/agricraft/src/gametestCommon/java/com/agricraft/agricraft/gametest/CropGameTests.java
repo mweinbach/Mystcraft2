@@ -456,6 +456,112 @@ public class CropGameTests {
 	}
 
 	@GameTest(template = TEMPLATE)
+	public static void unknownSpeciesSeedIsRejectedAndKept(GameTestHelper helper) {
+		// what a seed of a disabled datapack looks like: its genome decodes, its species does not resolve
+		String unknown = "agricraft:does_not_exist";
+		check(AgriApi.getPlant(unknown).isEmpty(), unknown + " should not be a loaded plant");
+		check(AgriApi.getPlant("Not A Valid Id!").isEmpty() && AgriApi.getWeed("Not A Valid Id!").isEmpty(), "malformed ids must resolve to nothing instead of throwing");
+		AgriGenome genome = genome(unknown, 5);
+		check(AgriApi.getPlantFor(genome).isEmpty(), "the unknown genome should not resolve to a plant");
+		Player player = GameTestSupport.survivalPlayer(helper);
+		BlockPos soil = new BlockPos(1, 1, 1);
+		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
+
+		// the seed on the crop sticks, on the soil under them, and through the crop block's own right-click
+		ItemStack seed = AgriSeedItem.toStack(genome);
+		seed.setCount(2);
+		player.setItemInHand(InteractionHand.MAIN_HAND, seed);
+		useOn(helper, player, seed, soil.above());
+		useOn(helper, player, seed, soil);
+		BlockPos cropPos = helper.absolutePos(soil.above());
+		helper.getLevel().getBlockState(cropPos).use(helper.getLevel(), player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(cropPos), Direction.UP, cropPos, false));
+		// and straight through the API, which used to change the crop and then NPE in onPlanted
+		crop.plantGenome(genome, player);
+		check(seed.getCount() == 2, "rejected plantings consumed " + (2 - seed.getCount()) + " unknown seeds");
+		check(!crop.hasPlant() && crop.getPlantId().isEmpty() && crop.getGenome() == null, "an unknown seed was planted as '" + crop.getPlantId() + "'");
+		check(helper.getBlockState(soil.above()).getValue(CropBlock.CROP_STATE) == CropState.SINGLE_STICKS,
+				"a rejected seed changed the crop to " + helper.getBlockState(soil.above()).getValue(CropBlock.CROP_STATE));
+
+		// placing the seed on bare soil places no crop
+		BlockPos bare = new BlockPos(4, 1, 4);
+		helper.setBlock(bare, Blocks.FARMLAND.defaultBlockState().setValue(net.minecraft.world.level.block.FarmBlock.MOISTURE, 7));
+		useOn(helper, player, seed, bare);
+		helper.assertBlockPresent(Blocks.AIR, bare.above());
+		check(seed.getCount() == 2, "placing an unknown seed on soil consumed it");
+
+		// the seed bag keeps it, on crop sticks and on bare soil
+		ItemStack bag = new ItemStack(ModItems.SEED_BAG.get());
+		check(SeedBagItem.add(bag, AgriSeedItem.toStack(genome)) == 1, "the bag should hold the unknown seed");
+		player.setItemInHand(InteractionHand.MAIN_HAND, bag);
+		useOn(helper, player, bag, soil.above());
+		useOn(helper, player, bag, bare);
+		helper.assertBlockPresent(Blocks.AIR, bare.above());
+		check(SeedBagItem.size(bag) == 1 && !crop.hasPlant(), "the seed bag planted or lost an unknown seed");
+
+		// a trowel carrying an unknown plant keeps it
+		ItemStack trowel = new ItemStack(ModItems.TROWEL.get());
+		TrowelItem item = (TrowelItem) trowel.getItem();
+		item.setPlant(trowel, genome, new com.agricraft.agricraft.api.crop.AgriGrowthStage(0, 8));
+		player.setItemInHand(InteractionHand.MAIN_HAND, trowel);
+		useOn(helper, player, trowel, soil.above());
+		useOn(helper, player, trowel, bare);
+		helper.assertBlockPresent(Blocks.AIR, bare.above());
+		check(item.hasPlant(trowel) && !crop.hasPlant(), "the trowel planted or lost an unknown plant");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void cropWithAnUnloadedSpeciesKeepsItsGenome(GameTestHelper helper) {
+		AgriCrop crop = matureCrop(helper, new BlockPos(1, 1, 1), "minecraft:wheat", 4);
+		CropBlockEntity entity = (CropBlockEntity) crop;
+		// a crop saved while its datapack was enabled, loaded after it was disabled
+		CompoundTag tag = entity.saveWithoutMetadata();
+		genome("agricraft:does_not_exist", 4).writeToNBT(tag);
+		entity.load(tag);
+		check(!crop.hasPlant(), "a crop of an unloaded species should have no plant");
+		for (int tick = 0; tick < 50; tick++) {
+			crop.applyGrowthTick();
+		}
+		CompoundTag saved = entity.saveWithoutMetadata();
+		AgriGenome kept = AgriGenome.fromNBT(saved);
+		check(saved.getBoolean("hasPlant") && kept != null && "agricraft:does_not_exist".equals(kept.getSpeciesGene().getDominant().trait()),
+				"saving a crop of an unloaded species wiped its genome");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void cropShapeFollowsTheSpecies(GameTestHelper helper) {
+		BlockPos soil = new BlockPos(1, 1, 1);
+		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
+		CropBlockEntity entity = (CropBlockEntity) crop;
+		// mature carrots are 9/16 tall, mature wheat 16/16, both at the last of eight stages; farmland lowers both by 1/16
+		growTo(helper, crop, "minecraft:carrot");
+		double carrot = entity.getShape().max(Direction.Axis.Y);
+		check(Math.abs(carrot - 8.0 / 16.0) < 1.0E-6, "mature carrots should be 8/16 above the crop's base, got " + carrot);
+		crop.removeGenome();
+		growTo(helper, crop, "minecraft:wheat");
+		double wheat = entity.getShape().max(Direction.Axis.Y);
+		check(Math.abs(wheat - 15.0 / 16.0) < 1.0E-6, "wheat planted after carrots kept a " + wheat + " tall shape, expected 15/16");
+
+		// a client update that swaps the species (the block entity is kept) changes the shape too
+		AgriCrop other = matureCrop(helper, new BlockPos(3, 1, 3), "minecraft:carrot", 5);
+		CropBlockEntity otherEntity = (CropBlockEntity) other;
+		check(Math.abs(otherEntity.getShape().max(Direction.Axis.Y) - 8.0 / 16.0) < 1.0E-6, "the second crop should start as carrots");
+		otherEntity.load(entity.saveWithoutMetadata());
+		check(Math.abs(otherEntity.getShape().max(Direction.Axis.Y) - 15.0 / 16.0) < 1.0E-6, "loading wheat over carrots kept the carrot shape");
+		helper.succeed();
+	}
+
+	private static void growTo(GameTestHelper helper, AgriCrop crop, String plant) {
+		crop.plantGenome(genome(plant, 5));
+		check(plant.equals(crop.getPlantId()), "could not plant " + plant);
+		while (!crop.isFullyGrown()) {
+			crop.setGrowthStage(crop.getGrowthStage().getNext(crop, helper.getLevel().random));
+		}
+	}
+
+	@GameTest(template = TEMPLATE)
 	public static void magnifyingHelmetRecipeRejectsUnrelatedItems(GameTestHelper helper) {
 		Player player = helper.makeMockPlayer();
 		CraftingContainer grid = new CraftingContainer(new CraftingMenu(0, player.getInventory()), 3, 3);
