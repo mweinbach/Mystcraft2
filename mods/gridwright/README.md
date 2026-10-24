@@ -303,15 +303,17 @@ Mystcraft without changes:
 
 ## Build and test
 
+Fabric is the primary loader (see [AGENTS.md](AGENTS.md)); run its build and GameTests first.
+
 ```sh
-./scripts/gradle.sh :gridwright:build
 ./scripts/gradle.sh -p mods/gridwright/fabric build
-python3 mods/gridwright/scripts/check_loader_parity.py
-./scripts/gradle.sh :gridwright:runGameTestServer -PwithProjectE
 ./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithItemAlchemy
+./scripts/gradle.sh :gridwright:build
+./scripts/gradle.sh :gridwright:runGameTestServer -PwithProjectE
+python3 mods/gridwright/scripts/check_loader_parity.py
 # Optional recipe viewers, alone or together (CI runs all three on both loaders):
-./scripts/gradle.sh :gridwright:runGameTestServer -PwithJei -PwithEmi -PwithRei
 ./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithJei -PwithEmi -PwithRei
+./scripts/gradle.sh :gridwright:runGameTestServer -PwithJei -PwithEmi -PwithRei
 python3 scripts/emc.py check
 ```
 

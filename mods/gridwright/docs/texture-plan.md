@@ -7,10 +7,10 @@ Use native 32x32 pixel art and compact, visible machinery. The extra resolution 
 detail and readable controls. A water mill should have a wheel with gaps around its spokes. A hand
 mill should have a handle. Solar panels should sit close to the floor.
 
-This is a visual proposal for the clean-room rebuild. It includes **73 original texture candidates
-and 35 static model candidates** in an optional resource pack. It does not install them in the mod.
-The pack covers 69 of the 124 shipped texture paths and adds four small material sheets. The other
-55 shipped textures remain as they are. Shared machine casing replacements also affect blocks whose
+This is a visual proposal for the clean-room rebuild. It includes **92 original texture candidates
+and 52 static model candidates** in an optional resource pack. It does not install them in the mod.
+The pack covers 88 of the 145 shipped texture paths and adds four small material sheets. The other
+57 shipped textures remain as they are. Shared machine casing replacements also affect blocks whose
 individual front faces have not been redrawn.
 
 ## Look at the proposal
@@ -135,6 +135,26 @@ and Fabric with default lighting before promoting the assets.
 For each production PR run both loader builds, the loader parity gate, EMC validation and the
 Forge/ProjectE and Fabric/Item Alchemy GameTests listed in the mod README. Add shared shape and
 interaction tests when the geometry changes. Server tests cannot establish that a model looks right.
+
+## Phase 3 additions
+
+Phase 3 extended existing families rather than adding casings, so it needs no new pattern:
+
+- **Generators.** The eight new fuels use the shared chassis, with a symbol that reads without its
+  colour: a bundled charge with a fuse (TNT), a five-petal flower (pink), a four-point star (nether
+  star), a skull (death), an open book (enchantment), a cube within a cube (slime), a six-armed
+  snowflake (frosty) and a breath cloud over a stoppered bottle (halitosis, which reuses the potion
+  generator's bottle collar). Pink and slime add three palette entries each, shaded like the rest.
+- **Energy transfer node.** The node hardware and push arrow, with the FE/TR amber bolt in the corner
+  where item nodes have a crate and fluid nodes a droplet. It moves stored energy, never GP.
+- **Mechanical crafter.** Timber body on an iron band with the item crate mark and a GP crystal (it is
+  a Grid Power consumer); the top is the 3x3 grid of wells. Textures only: the worker blocks have no
+  study model yet.
+- The chunk loading ward and cursed lasso wait for the ward and tool pass in step 4 below, like the
+  other wards and lassos.
+
+The phase 3 blocks ship with 16px placeholders that match the rest of the installed art until the
+32px pass is promoted.
 
 ## Sources and ownership
 
