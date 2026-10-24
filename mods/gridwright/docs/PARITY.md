@@ -35,6 +35,7 @@ is empty.
 | Compressed blocks | 9:1 tiers of common blocks | Shared recipes; EMC 9^tier | Shared recipes; EMC 9^tier | `compressedBlocksCraftNineToOneAndBack` |
 | Spikes | Hurt mobs; better spikes kill as a player | Forge `FakePlayerFactory` player takes the kill credit | `FabricFakePlayer` (a `ServerPlayer` with a packet-dropping connection) takes it | `woodenSpikesNeverKill`, `goldenSpikesDropExperienceIronSpikesDoNot`, `spikesHurtCreaturesStandingOnThem` |
 | Sound Muffler | Quieter sounds nearby | `PlayLevelSoundEvent` (position and entity variants), applied on the client only so a broadcast sound is muffled once | No sound event: `ServerLevelMixin` replays both `playSeededSound` overloads at the muffled volume; sounds a client plays only for itself are not muffled | `soundMufflerQuietsNearbySounds` |
+| Wards | Stop hostile natural spawns or enderman teleports nearby | `LivingSpawnEvent.CheckSpawn` set to `DENY` for `MobSpawnType.NATURAL`; `EntityTeleportEvent.EnderEntity` cancelled | No spawn or teleport event: `NaturalSpawnerMixin` makes `NaturalSpawner.isValidPositionForMob` return false; `EnderManMixin` makes `EnderMan.teleport(double, double, double)` return false | `spawnWardStopsHostileNaturalSpawns`, `greaterSpawnWardRunsOnGridPower`, `enderWardStopsEndermanTeleports` |
 
 ## Deliberate loader differences
 
@@ -42,7 +43,12 @@ is empty.
   every sound the server sends and for the client's own predicted sounds (the server-side firing is
   skipped so nothing is muffled twice). Fabric muffles every sound the server broadcasts; it has no
   client hook, so a player's own predicted sounds stay at full volume for that player.
-  This is Gridwright's only mixin, and `scripts/check_loader_parity.py` fails if any other appears.
+  This and the two ward mixins below are Gridwright's only mixins, and `scripts/check_loader_parity.py`
+  fails if any other appears.
+- **Ward hooks.** Forge wards answer the loader's spawn-check and ender-teleport events; Fabric has
+  neither, so `NaturalSpawnerMixin` and `EnderManMixin` hook the same two vanilla checks. Both reach
+  the shared `Wards` registry, so coverage and rules are identical. On Forge another mod may also
+  answer `CheckSpawn`; a ward's `DENY` is just one listener's result.
 - **Claim checks.** Gridwright has no protection API of its own. Both wands fire each loader's
   standard break / place hooks so claim mods can cancel per block; the Fabric builder's wand uses
   `UseBlockCallback` because Fabric has no place event.

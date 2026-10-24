@@ -15,12 +15,14 @@ gridwright:double_compressed_gravel
 gridwright:double_compressed_netherrack
 gridwright:double_compressed_sand
 gridwright:ender_generator
+gridwright:ender_ward
 gridwright:energy_trash_can
 gridwright:fluid_trash_can
 gridwright:furnace_generator
 gridwright:gargantuan_drum
 gridwright:golden_lasso
 gridwright:golden_spike
+gridwright:greater_spawn_ward
 gridwright:grid_crystal
 gridwright:iron_drum
 gridwright:iron_spike
@@ -43,6 +45,7 @@ gridwright:sextuple_compressed_cobblestone
 gridwright:sextuple_compressed_netherrack
 gridwright:solar_panel
 gridwright:sound_muffler
+gridwright:spawn_ward
 gridwright:stone_drum
 gridwright:survivalist_generator
 gridwright:trash_can

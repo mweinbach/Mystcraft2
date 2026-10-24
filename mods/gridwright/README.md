@@ -73,6 +73,7 @@ Every block and item has a survival recipe in [`src/main/resources/data/gridwrig
 | Compressed blocks | `compressed_<kind>` up to `octuple_compressed_cobblestone` | Nine of a tier craft into one of the next and one crafts back into nine: cobblestone to octuple (9^8), dirt to quadruple, gravel and sand to double, netherrack to sextuple. Each tier is harder to break than the last. EMC is exactly 9^tier of the base block, so compressing never gains EMC. |
 | Spikes | `wooden_spike`, `iron_spike`, `golden_spike`, `diamond_spike` | Hurt any creature standing on them (one hit per invulnerability window): wooden 1 damage and never kills, iron 4, golden 2 and diamond 7. Golden and diamond kills count as a player's (a no-client stand-in player takes the credit), so they drop experience and player-only loot; iron kills do not. |
 | Sound Muffler | `sound_muffler` | Sounds played within 8 blocks are played at 10% volume; several mufflers do not stack. Forge muffles on the client through `PlayLevelSoundEvent` (sounds the server sends and the client's own); Fabric, which has no sound event, uses one small mixin on the server's sound broadcast. |
+| Wards | `spawn_ward`, `greater_spawn_ward`, `ender_ward` | Each ward stops one creature behaviour in the cube around it (measured from the ward's centre). The spawn ward stops hostile creatures spawning naturally within 16 blocks; the greater spawn ward reaches 48 blocks but draws 8 GP from its owner's grid through the normal consumer API, and stops working when the grid is short or the ward has no owner. The ender ward stops endermen teleporting from, within or into 16 blocks. Spawners, spawn eggs, commands and passive creatures are unaffected. Right-click a ward to see whether it is working. Forge uses `LivingSpawnEvent.CheckSpawn` (natural spawns only) and `EntityTeleportEvent.EnderEntity`; Fabric, which has neither event, uses one small mixin on each of the same vanilla checks. |
 
 Recipes (all survival): spikes are three swords of the material over four of the material (four
 spikes); drums are a cauldron wrapped in stone, iron, diamond and iron blocks, or netherite and crying
@@ -80,7 +81,8 @@ obsidian; trash cans are cobblestone and stone slabs around a cactus, sponge or 
 Angel Ring is gold, feathers, ghast tears, a diamond and a grid crystal; the lasso gold, string and an
 ender pearl; the wands two sticks with gold or a diamond; the watering can iron around a bowl; the bag
 leather, gold, two chests and an ender pearl; the muffler wool and a note block; the pocket workbench
-a crafting table and leather. See [`docs/PARITY.md`](docs/PARITY.md) for the loader-by-loader detail.
+a crafting table and leather; the spawn ward gold, torches and glowstone; the greater spawn ward four
+spawn wards, glowstone and a grid crystal; the ender ward obsidian, iron and an eye of ender. See [`docs/PARITY.md`](docs/PARITY.md) for the loader-by-loader detail.
 
 ### EMC
 
@@ -118,7 +120,7 @@ In order of usefulness to the pack; each is a separate PR with survival recipes,
 both loaders.
 
 Phase 2b (the Angel Ring, lasso, wands, watering can, bag, workbench, drums, trash cans, compressed
-blocks, spikes and sound muffler) is done; see above.
+blocks, spikes, sound muffler and wards) is done; see above.
 
 1. **Transfer nodes and pipes** (item and fluid) with speed, stack, filter and world-interaction upgrades.
 2. **GP ↔ energy converter** block, deliberately lossy, so GP can feed FE/TR machines and vice versa.
@@ -133,7 +135,8 @@ blocks, spikes and sound muffler) is done; see above.
 ## Known gaps
 
 - Client-side rendering (block models, screens, creative tab) is untested; only compiled.
-- Phase 2b has no cursed lasso, creative wands or drum, wing cosmetics or spike enchantments.
+- Phase 2b has no cursed lasso, creative wands or drum, wing cosmetics or spike enchantments. Wards
+  cover natural spawns and enderman teleports only (no per-mob filters or other behaviours).
 - No JEI/REI/EMI category for resonating recipes yet.
 - GP state is recomputed every tick from loaded blocks; unloaded producers stop counting, so a grid
   spread across unloaded chunks reports only what is loaded (by design, but worth knowing).

@@ -72,6 +72,11 @@ page), so these are the public, player-facing descriptions that were used, with 
   this block is in Extra Utilities 2 or only its predecessor).
 - The **Pocket Workbench** (a carried crafting table) is Gridwright's own reading of "crafting
   blocks/table-style items" in its plan; the summaries found no such item in Extra Utilities 2.
+- **Wards** (spawn ward, greater spawn ward, ender ward) are Gridwright's own design, added to the
+  phase at the coordinator's request. The idea of a placed block that keeps hostile spawns or
+  endermen out of an area is a common one across mods and was taken only as that general idea; no
+  page about any particular mod's ward or spawn-blocking block was consulted. Radii, GP cost and
+  recipes are Gridwright's.
 
 No textures, models, sounds, language strings or recipe layouts were taken from any of these pages;
 every value and recipe above was chosen for this repository.

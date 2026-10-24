@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "gridwright.fabric.refmap.json",
   "mixins": [
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "NaturalSpawnerMixin",
+    "EnderManMixin"
   ],
   "injectors": {
     "defaultRequire": 1

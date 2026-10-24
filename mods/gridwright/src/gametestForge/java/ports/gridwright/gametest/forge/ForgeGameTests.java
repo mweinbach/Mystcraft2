@@ -14,6 +14,7 @@ import ports.gridwright.gametest.ResonatorGameTests;
 import ports.gridwright.gametest.TestPlatform;
 import ports.gridwright.gametest.UtilityBlockGameTests;
 import ports.gridwright.gametest.UtilityItemGameTests;
+import ports.gridwright.gametest.WardGameTests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,7 +35,8 @@ public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(GridGameTests.class, ProducerGameTests.class,
             GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
-            UtilityItemGameTests.class, UtilityBlockGameTests.class);
+            UtilityItemGameTests.class, UtilityBlockGameTests.class,
+            WardGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

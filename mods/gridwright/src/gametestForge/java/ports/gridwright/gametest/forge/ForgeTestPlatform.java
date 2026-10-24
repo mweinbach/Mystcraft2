@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -20,6 +21,9 @@ import ports.gridwright.Gridwright;
 import ports.gridwright.gametest.TestPlatform;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.event.level.BlockEvent;
@@ -139,5 +143,10 @@ final class ForgeTestPlatform implements TestPlatform {
     public void protect(BlockPos pos, boolean claimed) {
         if (claimed) CLAIMED.add(pos.immutable());
         else CLAIMED.remove(pos);
+    }
+
+    @Override
+    public boolean naturalSpawnAllowed(ServerLevel level, Mob mob) {
+        return ForgeHooks.canEntitySpawn(mob, level, mob.getX(), mob.getY(), mob.getZ(), null, MobSpawnType.NATURAL) != -1;
     }
 }

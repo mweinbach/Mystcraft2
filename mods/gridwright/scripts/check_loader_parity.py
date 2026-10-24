@@ -50,14 +50,15 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
                                 and '/forge/' not in n and '/fabric/' not in n}
     parity.require(shared_classes(a) == shared_classes(b),
                    'Shared class mismatch: ' + ', '.join(sorted(shared_classes(a) ^ shared_classes(b))))
-    # Loader hooks go through the Platform bridge. The one exception is Fabric's Sound Muffler hook, which
-    # has no Fabric event (Forge fires PlayLevelSoundEvent); Forge has no mixins at all.
+    # Loader hooks go through the Platform bridge. The exceptions are Fabric's Sound Muffler and Ward hooks,
+    # which have no Fabric events (Forge fires PlayLevelSoundEvent, LivingSpawnEvent.CheckSpawn and
+    # EntityTeleportEvent.EnderEntity); Forge has no mixins at all.
     parity.require(fabric_mod.get('mixins') == [FABRIC_MIXINS], f'Fabric descriptor must name only {FABRIC_MIXINS}')
     fabric_mixins = json.loads(b.read(FABRIC_MIXINS))
     parity.require(fabric_mixins.get('package') == 'ports.gridwright.fabric.mixin'
-                   and fabric_mixins.get('mixins') == ['ServerLevelMixin']
+                   and fabric_mixins.get('mixins') == ['ServerLevelMixin', 'NaturalSpawnerMixin', 'EnderManMixin']
                    and not fabric_mixins.get('client') and not fabric_mixins.get('server'),
-                   f'{FABRIC_MIXINS} may hold only the Sound Muffler hook')
+                   f'{FABRIC_MIXINS} may hold only the Sound Muffler and Ward hooks')
     parity.require('MixinConfigs' not in a.read('META-INF/MANIFEST.MF').decode(), 'Forge manifest names a mixin config')
     parity.require(not any(n.endswith('mixins.json') for n in a.namelist()), 'Forge jar carries a mixin config')
 

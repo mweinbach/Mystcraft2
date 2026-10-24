@@ -21,6 +21,9 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -181,5 +184,16 @@ final class FabricTestPlatform implements TestPlatform {
     public void protect(BlockPos pos, boolean claimed) {
         if (claimed) CLAIMED.add(pos.immutable());
         else CLAIMED.remove(pos);
+    }
+
+    @Override
+    public boolean naturalSpawnAllowed(ServerLevel level, Mob mob) {
+        try {
+            java.lang.reflect.Method check = NaturalSpawner.class.getDeclaredMethod("isValidPositionForMob", ServerLevel.class, Mob.class, double.class);
+            check.setAccessible(true);
+            return (boolean) check.invoke(null, level, mob, 0.0);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Cannot call NaturalSpawner.isValidPositionForMob", e);
+        }
     }
 }
