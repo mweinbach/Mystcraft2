@@ -1,0 +1,3 @@
+# Tests that run on one loader only. Format: <forge|fabric> <Class>.<method>  # reason
+fabric FabricTransferGameTests.alchemicalChestIsAFabricItemStorage  # Fabric Transfer API; Forge has the item handler capability, covered by the shared chest test
+fabric FabricTransferGameTests.condenserOutputIsExtractable  # Fabric Transfer API; Forge automation goes through the item handler the shared condenser test uses

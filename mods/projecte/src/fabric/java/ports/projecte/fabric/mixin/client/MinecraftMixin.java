@@ -4,6 +4,11 @@
  */
 package ports.projecte.fabric.mixin.client;
 
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.jetbrains.annotations.Nullable;
+import ports.projecte.lib.event.entity.player.PlayerInteractEvent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
@@ -43,6 +48,25 @@ public abstract class MinecraftMixin {
      * Forge posts {@code ScreenEvent.Opening} at the start of {@code setScreen}. JEI's recipe screen is how a machine
      * GUI knows to keep its container open.
      */
+    @Shadow
+    protected int missTime;
+
+    @Shadow
+    @Nullable
+    public HitResult hitResult;
+
+    @Shadow
+    @Nullable
+    public LocalPlayer player;
+
+    /** Forge posts {@code LeftClickEmpty} when an attack swings at nothing. */
+    @Inject(method = "startAttack", at = @At("HEAD"))
+    private void projecte$leftClickEmpty(CallbackInfoReturnable<Boolean> cir) {
+        if (missTime <= 0 && hitResult != null && hitResult.getType() == HitResult.Type.MISS && player != null && !player.isHandsBusy()) {
+            MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickEmpty(player));
+        }
+    }
+
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void projecte$screenOpening(Screen next, CallbackInfo ci) {
         if (this.projecte$openingScreen) {

@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -50,6 +51,13 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
         // The generic signature of hurtAndBreak makes ModifyVariable see an extra int, so the damage hook wraps hurt.
         int modified = ((IForgeItem) stack.getItem()).damageItem(stack, amount, entity, onBroken);
         return original.call(stack, modified, random, player);
+    }
+
+    /** Forge's {@code ItemStack.isCorrectToolForDrops} asks the stack-aware item method. */
+    @Inject(method = "isCorrectToolForDrops", at = @At("HEAD"), cancellable = true)
+    private void projecte$correctTool(BlockState state, CallbackInfoReturnable<Boolean> cir) {
+        ItemStack self = (ItemStack) (Object) this;
+        cir.setReturnValue(((IForgeItem) self.getItem()).projecte$isCorrectToolForDrops(self, state));
     }
 
     @Inject(method = "getMaxDamage", at = @At("HEAD"), cancellable = true)

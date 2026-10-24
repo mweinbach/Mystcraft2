@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
@@ -62,7 +63,7 @@ import ports.projecte.lib.server.permission.PermissionAPI;
  */
 public final class FabricGameEvents {
 
-    public static final ResourceLocation CONFIG_SYNC = new ResourceLocation("mekanism", "fabric_config_sync");
+    public static final ResourceLocation CONFIG_SYNC = new ResourceLocation("projecte", "fabric_config_sync");
 
     private FabricGameEvents() {
     }
@@ -106,6 +107,11 @@ public final class FabricGameEvents {
             return !canceled;
         });
         UseBlockCallback.EVENT.register(FabricGameEvents::rightClickBlock);
+        // Forge posts LeftClickBlock on both sides when a player starts hitting a block; so does this callback.
+        AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
+            PlayerInteractEvent.LeftClickBlock event = new PlayerInteractEvent.LeftClickBlock(player, pos, direction);
+            return post(event) ? InteractionResult.FAIL : InteractionResult.PASS;
+        });
     }
 
     public static boolean post(Event event) {

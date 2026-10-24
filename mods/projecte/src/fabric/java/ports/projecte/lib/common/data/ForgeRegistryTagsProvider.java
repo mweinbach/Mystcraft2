@@ -33,6 +33,6 @@ public abstract class ForgeRegistryTagsProvider<T> implements DataProvider {
 
     @Override
     public void run(CachedOutput output) {
-        throw new UnsupportedOperationException("Mekanism data generation runs on the Forge build");
+        throw new UnsupportedOperationException("ProjectE data generation runs on the Forge build");
     }
 }

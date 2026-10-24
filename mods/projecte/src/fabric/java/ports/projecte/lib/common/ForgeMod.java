@@ -35,7 +35,7 @@ public final class ForgeMod {
     }
 
     private static RegistryObject<Attribute> attribute(String name) {
-        return RegistryObject.create(new ResourceLocation("mekanism", name), ForgeRegistries.ATTRIBUTES);
+        return RegistryObject.create(new ResourceLocation("projecte", name), ForgeRegistries.ATTRIBUTES);
     }
 
     private static RegistryObject<FluidType> fluidType(String name) {

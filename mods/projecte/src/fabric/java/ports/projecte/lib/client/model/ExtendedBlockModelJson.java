@@ -47,7 +47,7 @@ public final class ExtendedBlockModelJson {
         // A loader the port does not know belongs to another mod or library (see ModelLoaderKey); unlike Forge,
         // the model is left as vanilla read it.
         IGeometryLoader<?> loader = ModelLoaderKey.resolve(json, GeometryLoaderManager::get,
-              name -> LOGGER.debug("Model loader {} is not one of Mekanism's; leaving its models to the mod that registers it", name));
+              name -> LOGGER.debug("Model loader {} is not one of the port's; leaving its models to the mod that registers it", name));
         if (loader != null) {
             model.getElements().clear();
             customData.setCustomGeometry(loader.read(json, context));

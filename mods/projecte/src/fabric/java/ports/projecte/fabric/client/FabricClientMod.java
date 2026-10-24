@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.minecraft.client.Minecraft;
+import ports.projecte.lib.event.entity.player.ItemTooltipEvent;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -97,6 +100,8 @@ public final class FabricClientMod implements ClientModInitializer {
     }
 
     private static void registerGameEvents() {
+        ItemTooltipCallback.EVENT.register((stack, flag, lines) ->
+              FabricGameEvents.post(new ItemTooltipEvent(stack, Minecraft.getInstance().player, lines, flag)));
         ClientTickEvents.START_CLIENT_TICK.register(client -> FabricGameEvents.post(new TickEvent.ClientTickEvent(TickEvent.Phase.START)));
         ClientTickEvents.END_CLIENT_TICK.register(client -> FabricGameEvents.post(new TickEvent.ClientTickEvent(TickEvent.Phase.END)));
         ClientTickEvents.START_WORLD_TICK.register(level -> FabricGameEvents.post(new TickEvent.LevelTickEvent(LogicalSide.CLIENT, TickEvent.Phase.START, level, () -> true)));

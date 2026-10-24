@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "projecte_gametest",
+  "version": "1.0.0",
+  "name": "ProjectE Game Tests",
+  "description": "Development-only server tests for the Fabric build of ProjectE.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "moze_intel.projecte.gametest.EmcMapperGameTests",
+      "moze_intel.projecte.gametest.TransmutationGameTests",
+      "moze_intel.projecte.gametest.EmcBlockGameTests",
+      "moze_intel.projecte.gametest.PhilosophersStoneGameTests",
+      "moze_intel.projecte.gametest.fabric.FabricTransferGameTests"
+    ]
+  },
+  "depends": {
+    "projecte": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

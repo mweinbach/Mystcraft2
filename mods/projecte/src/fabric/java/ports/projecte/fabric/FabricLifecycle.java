@@ -37,6 +37,7 @@ import ports.projecte.lib.fml.event.lifecycle.InterModProcessEvent;
 import ports.projecte.lib.fml.loading.FMLPaths;
 import ports.projecte.lib.fml.loading.moddiscovery.ModAnnotation;
 import ports.projecte.lib.forgespi.language.ModFileScanData;
+import ports.projecte.lib.common.capabilities.RegisterCapabilitiesEvent;
 import ports.projecte.lib.event.entity.EntityAttributeCreationEvent;
 import ports.projecte.lib.registries.ForgeRegistries;
 import ports.projecte.lib.registries.IForgeRegistry;
@@ -93,7 +94,7 @@ public final class FabricLifecycle {
         if (MODS.size() != expected) {
             return;
         }
-        // Entrypoints can run in any order. Core has to exist before a module calls Mekanism.addModule.
+        // Entrypoints can run in any order. Own mods construct in OWN_MODS order.
         MODS.sort(Comparator.comparingInt(mod -> {
             int index = OWN_MODS.indexOf(mod.modId());
             return index < 0 ? OWN_MODS.size() : index;
@@ -118,6 +119,8 @@ public final class FabricLifecycle {
         registerContent();
         FabricTransfer.registerBlockEntityLookups(MODS.stream().map(OwnMod::modId).collect(Collectors.toSet()));
         postToMods(new EntityAttributeCreationEvent());
+        // Capabilities are name-keyed here and created on first use; the event only lets mods name theirs, as on Forge.
+        postToMods(new RegisterCapabilitiesEvent());
         if (Platform.dist() == Dist.CLIENT) {
             ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get());
         }

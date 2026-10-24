@@ -24,8 +24,8 @@ import ports.projecte.lib.entity.IEntityAdditionalSpawnData;
  */
 public final class FabricNetworking {
 
-    public static final ResourceLocation OPEN_MENU = new ResourceLocation("mekanism", "fabric_open_menu");
-    public static final ResourceLocation SPAWN_ENTITY = new ResourceLocation("mekanism", "fabric_spawn_entity");
+    public static final ResourceLocation OPEN_MENU = new ResourceLocation("projecte", "fabric_open_menu");
+    public static final ResourceLocation SPAWN_ENTITY = new ResourceLocation("projecte", "fabric_spawn_entity");
     /**
      * Forge's limit on a menu's extra data.
      */

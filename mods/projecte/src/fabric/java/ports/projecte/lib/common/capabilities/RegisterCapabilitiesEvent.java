@@ -8,7 +8,7 @@ import ports.projecte.lib.eventbus.api.Event;
 
 /**
  * Capabilities in the port are keyed by interface name and exist as soon as they are requested, so registering one
- * only records nothing.
+ * only creates it early.
  */
 public class RegisterCapabilitiesEvent extends Event {
 

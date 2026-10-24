@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:tools/hoes/dark_matter",
+    "#forge:tools/hoes/red_matter",
+    "minecraft:wooden_hoe",
+    "minecraft:stone_hoe",
+    "minecraft:iron_hoe",
+    "minecraft:golden_hoe",
+    "minecraft:diamond_hoe",
+    "minecraft:netherite_hoe",
+    {
+      "id": "#c:hoes",
+      "required": false
+    }
+  ]
+}

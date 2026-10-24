@@ -9,7 +9,12 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import ports.projecte.lib.common.extensions.IForgeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -56,6 +61,25 @@ public abstract class PlayerMixin {
     private static void projecte$reach(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         ForgeMod.registerAttributes();
         cir.getReturnValue().add(ForgeMod.REACH_DISTANCE.get());
+    }
+
+    /** Forge asks the held item before a player attacks; {@code true} from the item cancels the attack. */
+    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    private void projecte$leftClickEntity(Entity target, CallbackInfo ci) {
+        Player self = (Player) (Object) this;
+        ItemStack stack = self.getMainHandItem();
+        if (!stack.isEmpty() && ((IForgeItem) stack.getItem()).projecte$onLeftClickEntity(stack, self, target)) {
+            ci.cancel();
+        }
+    }
+
+    /** Forge lets the held item choose the box a sweep attack hits. */
+    @ModifyArg(method = "attack", at = @At(value = "INVOKE",
+          target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"), index = 1)
+    private AABB projecte$sweepBox(AABB original, @Local(argsOnly = true) Entity target) {
+        Player self = (Player) (Object) this;
+        ItemStack stack = self.getMainHandItem();
+        return stack.isEmpty() ? original : ((IForgeItem) stack.getItem()).projecte$getSweepHitBox(stack, self, target);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

@@ -232,6 +232,8 @@ tasks.named('test', Test) {
 
 tasks.named('processResources', ProcessResources) {
     inputs.properties metadata
+    // The Fabric tag bridges repeat the shared values of the forge: tags ProjectE defines; the Fabric copy wins.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     // Literal replacement rather than expand(): injected interface keys contain '$' (nested intermediary classes).
     def version = project.version.toString()
     filesMatching('fabric.mod.json') {

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:tools/pickaxes/dark_matter",
+    "#forge:tools/pickaxes/red_matter",
+    "minecraft:wooden_pickaxe",
+    "minecraft:stone_pickaxe",
+    "minecraft:iron_pickaxe",
+    "minecraft:golden_pickaxe",
+    "minecraft:diamond_pickaxe",
+    "minecraft:netherite_pickaxe",
+    {
+      "id": "#c:pickaxes",
+      "required": false
+    }
+  ]
+}

@@ -41,11 +41,11 @@ import ports.projecte.lib.fml.ModList;
  */
 public final class ForgeChunkManager {
 
-    public static final String BLOCK_TICKET = "mekanism_port:block";
-    public static final String BLOCK_TICKING_TICKET = "mekanism_port:block_ticking";
+    public static final String BLOCK_TICKET = "projecte_port:block";
+    public static final String BLOCK_TICKING_TICKET = "projecte_port:block_ticking";
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String DATA_NAME = "mekanism_port_forced_chunks";
+    private static final String DATA_NAME = "projecte_port_forced_chunks";
     private static final int TICKET_DISTANCE = 2;
     private static final TicketType<BlockOwner> BLOCK = TicketType.create(BLOCK_TICKET, BlockOwner::compareTo);
     private static final TicketType<BlockOwner> BLOCK_TICKING = TicketType.create(BLOCK_TICKING_TICKET, BlockOwner::compareTo);
