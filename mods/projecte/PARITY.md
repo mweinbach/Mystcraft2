@@ -39,7 +39,10 @@ The port lands in phases, one pull request each:
 | The Alchemical Chest stores items through its item handler | `EmcBlockGameTests.alchemicalChestHoldsItemsThroughItsItemHandler` |
 
 Fabric only (allowlisted in [gametest-loader-only.txt](gametest-loader-only.txt)): the Alchemical Chest is a Transfer
-API `Storage<ItemVariant>`, and condenser output can be extracted through the Transfer API.
+API `Storage<ItemVariant>`, and condenser output can be extracted through the Transfer API. Transfer API moves act on
+the block entity's own slots at once and are undone if the transaction aborts, so several lookups of one block (or
+faces whose handlers share slots) cannot move the same item twice: `twoLookupsCannotExtractTheSameItemTwice`,
+`furnaceFacesSharingSlotsCannotDoubleExtract` and `abortedTransactionsRestoreTheChest` check it.
 
 Upstream's JUnit tests (graph mapper, fractions, custom-conversion serialization) pass on both loaders.
 

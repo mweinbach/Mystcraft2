@@ -5,6 +5,7 @@
 package ports.projecte.fabric;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.world.item.ItemStack;
@@ -42,13 +42,15 @@ import ports.projecte.lib.fluids.FluidStack;
 import ports.projecte.lib.fluids.capability.IFluidHandler;
 import ports.projecte.lib.fluids.capability.IFluidHandlerItem;
 import ports.projecte.lib.items.IItemHandler;
+import ports.projecte.lib.items.IItemHandlerModifiable;
 
 /**
  * Bridges Forge's item and fluid handlers with the Fabric Transfer API, in both directions.
  * <p>
- * Forge handlers only simulate or execute, so the storages exposing them record what a transaction moved and apply it
- * when the outermost transaction commits. Forge measures fluids in millibuckets and Fabric in droplets; only whole
- * millibuckets move.
+ * Forge handlers only simulate or execute. The storages exposing ProjectE's item handlers execute each move at once,
+ * so the handler's slots stay the only record of what they hold, and undo it if the transaction aborts (see
+ * {@link SlotJournal}). Any number of storages looked up for the same handler, or for handlers sharing slots, therefore
+ * see each other's moves. Forge measures fluids in millibuckets and Fabric in droplets; only whole millibuckets move.
  */
 public final class FabricTransfer {
 
@@ -61,7 +63,7 @@ public final class FabricTransfer {
     }
 
     /**
-     * Exposes the handlers of the block entities the port's mods register: items and fluids through the Transfer API.
+     * Exposes the item handlers of the block entities the port's mods register through the Transfer API.
      */
     static void registerBlockEntityLookups(Set<String> namespaces) {
         ownNamespaces = Set.copyOf(namespaces);
@@ -71,9 +73,9 @@ public final class FabricTransfer {
               .toArray(BlockEntityType<?>[]::new);
         exported = Set.of(types);
         ItemStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
-              .<Storage<ItemVariant>>map(FabricTransfer::asStorage).orElse(null), types);
-        FluidStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side)
-              .<Storage<FluidVariant>>map(HandlerFluidStorage::new).orElse(null), types);
+              .resolve().map(FabricTransfer::asStorage).orElse(null), types);
+        // No ProjectE block entity has a fluid handler or energy storage, so none is exposed: only the amulets' item
+        // fluid handlers are, below, and those keep their state in the transaction-aware item context.
         registerItemFluidLookups(ownNamespaces);
     }
 
@@ -169,10 +171,18 @@ public final class FabricTransfer {
         return (int) Math.max(0, Math.min(Integer.MAX_VALUE, value));
     }
 
+    /**
+     * A Transfer API view of a block entity's item handler. Every ProjectE handler can set its slots, which is what
+     * undoing an aborted transaction needs; a handler that cannot is not exposed rather than risk an undo that fails.
+     */
+    @Nullable
     private static Storage<ItemVariant> asStorage(IItemHandler handler) {
-        List<HandlerSlotStorage> slots = new ArrayList<>(handler.getSlots());
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            slots.add(new HandlerSlotStorage(handler, slot));
+        if (!(handler instanceof IItemHandlerModifiable modifiable)) {
+            return null;
+        }
+        List<HandlerSlotStorage> slots = new ArrayList<>(modifiable.getSlots());
+        for (int slot = 0; slot < modifiable.getSlots(); slot++) {
+            slots.add(new HandlerSlotStorage(modifiable, slot));
         }
         return new CombinedStorage<>(slots);
     }
@@ -186,22 +196,16 @@ public final class FabricTransfer {
     }
 
     /**
-     * What a transaction moved into (positive) or out of (negative) a handler and has not applied yet.
+     * One slot of a ProjectE item handler. Moves execute on the handler at once, after the handler has simulated them,
+     * and are journalled so an aborted transaction puts the slot back. Nothing is held back for commit, so there is no
+     * commit-time move that could fail, and a second view of the same slot sees the first view's moves.
      */
-    private record Pending<V>(@Nullable V resource, long amount) {
+    private static final class HandlerSlotStorage implements SingleSlotStorage<ItemVariant> {
 
-        static <V> Pending<V> none() {
-            return new Pending<>(null, 0);
-        }
-    }
-
-    private static final class HandlerSlotStorage extends SnapshotParticipant<Pending<ItemVariant>> implements SingleSlotStorage<ItemVariant> {
-
-        private final IItemHandler handler;
+        private final IItemHandlerModifiable handler;
         private final int slot;
-        private Pending<ItemVariant> pending = Pending.none();
 
-        HandlerSlotStorage(IItemHandler handler, int slot) {
+        HandlerSlotStorage(IItemHandlerModifiable handler, int slot) {
             this.handler = handler;
             this.slot = slot;
         }
@@ -209,195 +213,103 @@ public final class FabricTransfer {
         @Override
         public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
             StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            long already = Math.max(0, pending.amount());
-            if (pending.amount() < 0 || (already > 0 && !resource.equals(pending.resource()))) {
+            int requested = clampToInt(maxAmount);
+            if (requested == 0) {
                 return 0;
             }
-            int total = clampToInt(already + maxAmount);
-            ItemStack remainder = handler.insertItem(slot, resource.toStack(total), true);
-            long accepted = Math.min(maxAmount, total - remainder.getCount() - already);
+            int accepted = requested - handler.insertItem(slot, resource.toStack(requested), true).getCount();
             if (accepted <= 0) {
                 return 0;
             }
-            updateSnapshots(transaction);
-            pending = new Pending<>(resource, already + accepted);
-            return accepted;
+            SlotJournal.record(transaction, handler, slot);
+            return accepted - handler.insertItem(slot, resource.toStack(accepted), false).getCount();
         }
 
         @Override
         public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
             StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            if (pending.amount() > 0 || !resource.matches(handler.getStackInSlot(slot))) {
+            int requested = clampToInt(maxAmount);
+            if (requested == 0 || !resource.matches(handler.getStackInSlot(slot))) {
                 return 0;
             }
-            long already = -pending.amount();
-            ItemStack extracted = handler.extractItem(slot, clampToInt(already + maxAmount), true);
-            if (!resource.matches(extracted)) {
+            ItemStack simulated = handler.extractItem(slot, requested, true);
+            if (simulated.isEmpty() || !resource.matches(simulated)) {
                 return 0;
             }
-            long accepted = Math.min(maxAmount, extracted.getCount() - already);
-            if (accepted <= 0) {
+            ItemStack before = SlotJournal.record(transaction, handler, slot);
+            ItemStack extracted = handler.extractItem(slot, simulated.getCount(), false);
+            if (extracted.isEmpty() || !resource.matches(extracted)) {
+                // The handler disagreed with its own simulation: put the slot back and move nothing.
+                handler.setStackInSlot(slot, before.copy());
                 return 0;
             }
-            updateSnapshots(transaction);
-            pending = new Pending<>(resource, -(already + accepted));
-            return accepted;
+            return extracted.getCount();
         }
 
         @Override
         public boolean isResourceBlank() {
-            return getResource().isBlank();
+            return handler.getStackInSlot(slot).isEmpty();
         }
 
         @Override
         public ItemVariant getResource() {
+            return ItemVariant.of(handler.getStackInSlot(slot));
+        }
+
+        @Override
+        public long getAmount() {
+            return handler.getStackInSlot(slot).getCount();
+        }
+
+        @Override
+        public long getCapacity() {
             ItemStack stack = handler.getStackInSlot(slot);
-            if (stack.isEmpty()) {
-                return pending.amount() > 0 ? pending.resource() : ItemVariant.blank();
-            }
-            return stack.getCount() + pending.amount() > 0 ? ItemVariant.of(stack) : ItemVariant.blank();
-        }
-
-        @Override
-        public long getAmount() {
-            return Math.max(0, handler.getStackInSlot(slot).getCount() + pending.amount());
-        }
-
-        @Override
-        public long getCapacity() {
-            ItemVariant resource = getResource();
             int limit = handler.getSlotLimit(slot);
-            return resource.isBlank() ? limit : Math.min(limit, resource.getItem().getMaxStackSize());
-        }
-
-        @Override
-        protected Pending<ItemVariant> createSnapshot() {
-            return pending;
-        }
-
-        @Override
-        protected void readSnapshot(Pending<ItemVariant> snapshot) {
-            pending = snapshot;
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            Pending<ItemVariant> committed = pending;
-            pending = Pending.none();
-            if (committed.amount() > 0 && committed.resource() != null) {
-                handler.insertItem(slot, committed.resource().toStack(clampToInt(committed.amount())), false);
-            } else if (committed.amount() < 0) {
-                handler.extractItem(slot, clampToInt(-committed.amount()), false);
-            }
+            return stack.isEmpty() ? limit : Math.min(limit, stack.getMaxStackSize());
         }
     }
 
-    private static final class HandlerFluidStorage extends SnapshotParticipant<Pending<FluidVariant>> implements Storage<FluidVariant> {
+    /**
+     * The undo log for slot changes made inside Fabric transactions: each entry is a slot's contents before one change.
+     * There is one log per open transaction. An abort restores its entries newest first; a nested commit hands them to
+     * the enclosing transaction. A single log, rather than a snapshot per storage, keeps the undo order exact even when
+     * several storages (two lookups, or two sides' handlers over the same slots) change the same slot.
+     */
+    private static final class SlotJournal implements TransactionContext.CloseCallback {
 
-        private final IFluidHandler handler;
-        private Pending<FluidVariant> pending = Pending.none();
+        private static final ThreadLocal<Map<TransactionContext, SlotJournal>> OPEN = ThreadLocal.withInitial(IdentityHashMap::new);
 
-        HandlerFluidStorage(IFluidHandler handler) {
-            this.handler = handler;
+        private final List<Entry> entries = new ArrayList<>();
+
+        /** Records {@code slot}'s contents before a change and returns them. */
+        static ItemStack record(TransactionContext transaction, IItemHandlerModifiable handler, int slot) {
+            ItemStack before = handler.getStackInSlot(slot).copy();
+            journal(transaction).entries.add(new Entry(handler, slot, before));
+            return before;
+        }
+
+        private static SlotJournal journal(TransactionContext transaction) {
+            return OPEN.get().computeIfAbsent(transaction, open -> {
+                SlotJournal journal = new SlotJournal();
+                open.addCloseCallback(journal);
+                return journal;
+            });
         }
 
         @Override
-        public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            long already = Math.max(0, pending.amount());
-            if (pending.amount() < 0 || (already > 0 && !resource.equals(pending.resource()))) {
-                return 0;
-            }
-            int total = clampToInt(already + maxAmount / DROPLETS_PER_MB);
-            long accepted = Math.min(maxAmount / DROPLETS_PER_MB, handler.fill(toStack(resource, total), IFluidHandler.FluidAction.SIMULATE) - already);
-            if (accepted <= 0) {
-                return 0;
-            }
-            updateSnapshots(transaction);
-            pending = new Pending<>(resource, already + accepted);
-            return accepted * DROPLETS_PER_MB;
-        }
-
-        @Override
-        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            long already = Math.max(0, -pending.amount());
-            if (pending.amount() > 0 || (already > 0 && !resource.equals(pending.resource()))) {
-                return 0;
-            }
-            int total = clampToInt(already + maxAmount / DROPLETS_PER_MB);
-            FluidStack drained = handler.drain(toStack(resource, total), IFluidHandler.FluidAction.SIMULATE);
-            if (drained.isEmpty() || !resource.isOf(drained.getFluid())) {
-                return 0;
-            }
-            long accepted = Math.min(maxAmount / DROPLETS_PER_MB, drained.getAmount() - already);
-            if (accepted <= 0) {
-                return 0;
-            }
-            updateSnapshots(transaction);
-            pending = new Pending<>(resource, -(already + accepted));
-            return accepted * DROPLETS_PER_MB;
-        }
-
-        @Override
-        public Iterator<StorageView<FluidVariant>> iterator() {
-            List<StorageView<FluidVariant>> views = new ArrayList<>(handler.getTanks());
-            for (int tank = 0; tank < handler.getTanks(); tank++) {
-                views.add(new TankView(this, tank));
-            }
-            return views.iterator();
-        }
-
-        @Override
-        protected Pending<FluidVariant> createSnapshot() {
-            return pending;
-        }
-
-        @Override
-        protected void readSnapshot(Pending<FluidVariant> snapshot) {
-            pending = snapshot;
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            Pending<FluidVariant> committed = pending;
-            pending = Pending.none();
-            if (committed.resource() == null || committed.amount() == 0) {
-                return;
-            }
-            if (committed.amount() > 0) {
-                handler.fill(toStack(committed.resource(), clampToInt(committed.amount())), IFluidHandler.FluidAction.EXECUTE);
-            } else {
-                handler.drain(toStack(committed.resource(), clampToInt(-committed.amount())), IFluidHandler.FluidAction.EXECUTE);
+        public void onClose(TransactionContext transaction, TransactionContext.Result result) {
+            OPEN.get().remove(transaction);
+            if (result.wasAborted()) {
+                for (int i = entries.size() - 1; i >= 0; i--) {
+                    Entry entry = entries.get(i);
+                    entry.handler().setStackInSlot(entry.slot(), entry.before().copy());
+                }
+            } else if (transaction.nestingDepth() > 0) {
+                journal(transaction.getOpenTransaction(transaction.nestingDepth() - 1)).entries.addAll(entries);
             }
         }
-    }
 
-    private record TankView(HandlerFluidStorage storage, int tank) implements StorageView<FluidVariant> {
-
-        @Override
-        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            return resource.equals(getResource()) ? storage.extract(resource, maxAmount, transaction) : 0;
-        }
-
-        @Override
-        public boolean isResourceBlank() {
-            return storage.handler.getFluidInTank(tank).isEmpty();
-        }
-
-        @Override
-        public FluidVariant getResource() {
-            return toVariant(storage.handler.getFluidInTank(tank));
-        }
-
-        @Override
-        public long getAmount() {
-            return storage.handler.getFluidInTank(tank).getAmount() * DROPLETS_PER_MB;
-        }
-
-        @Override
-        public long getCapacity() {
-            return storage.handler.getTankCapacity(tank) * DROPLETS_PER_MB;
+        private record Entry(IItemHandlerModifiable handler, int slot, ItemStack before) {
         }
     }
 
