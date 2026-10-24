@@ -24,6 +24,7 @@ import net.minecraft.world.level.ChunkPos;
  * An anchor upgrade keeps its chunk loaded through the loader's chunk tickets, and the saved ticket comes back after
  * the runtime ticket is dropped the way a server start does.
  */
+@LevelTickingOnly
 public class ChunkLoadingGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)

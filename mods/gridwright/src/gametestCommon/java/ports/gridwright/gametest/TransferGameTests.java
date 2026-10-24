@@ -65,6 +65,7 @@ public class TransferGameTests {
     private static NodeBlockEntity node(GameTestHelper helper, NodeKind kind, BlockPos pos, Direction facing) {
         helper.setBlock(pos, TransferRegistry.NODES.get(kind).get().defaultBlockState().setValue(NodeBlock.FACING, facing));
         check(helper.getBlockEntity(pos) instanceof NodeBlockEntity, "No node at " + pos);
+        GameTestTicking.keepTestAreaTicking(helper);
         return (NodeBlockEntity) helper.getBlockEntity(pos);
     }
 

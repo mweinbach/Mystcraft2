@@ -330,21 +330,16 @@ public class QuarryGameTests {
 
         EnderQuarryBlockEntity quarry = enderQuarry(helper, Owner.random("gwX"));
         charge(quarry, EnderQuarryBlockEntity.CAPACITY);
-        // The quarry's ticker is run here rather than left to the world. A block entity ticks only once its chunk is
-        // ticking with its entities loaded, and on a loaded CI server a freshly placed GameTest area can wait longer
-        // than the timeout for that, so the area was sometimes still untouched (dirt left at the first column) when
-        // the test gave up. MAX_DRIVEN_TICKS is the old timeout; the 14 minable blocks take about 60 quarry ticks.
-        BlockState state = quarry.getBlockState();
-        int ticks = 0;
-        while (ticks < MAX_DRIVEN_TICKS && !enderAreaMined(helper, claimed, bedrock, barrier, chest)) {
-            EnderQuarryBlockEntity.serverTick(helper.getLevel(), quarry.getBlockPos(), state, quarry);
-            ticks++;
-        }
+        // The quarry is ticked here rather than left to the world. A block entity ticks only once its chunk is ticking
+        // with its entities loaded, and on a loaded CI server a freshly placed GameTest area can wait longer than the
+        // timeout for that, so the area was sometimes still untouched (dirt left at the first column) when the test
+        // gave up. MAX_DRIVEN_TICKS is the old timeout; the 14 minable blocks take about 60 quarry ticks.
+        GameTestTicking.tickUntil(helper, quarry, MAX_DRIVEN_TICKS, () -> enderAreaMined(helper, claimed, bedrock, barrier, chest));
         for (int x = 3; x <= 5; x++) {
             for (int z = 3; z <= 5; z++) {
                 BlockPos top = new BlockPos(x, 2, z);
                 BlockPos low = new BlockPos(x, 1, z);
-                String after = " after " + ticks + " quarry ticks (" + quarry.status() + ", " + quarry.mined() + " mined)";
+                String after = " (" + quarry.status() + ", " + quarry.mined() + " mined)";
                 if (!top.equals(claimed)) check(helper.getBlockState(top).isAir(), "Dirt left at " + top + after);
                 if (!low.equals(bedrock) && !low.equals(barrier) && !low.equals(chest)) {
                     check(helper.getBlockState(low).isAir(), "Stone left at " + low + after);

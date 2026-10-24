@@ -49,6 +49,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 public class ServerDataEventGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    @LevelTickingOnly
     public static void chunkDataRoundTripsThroughSaveAndLoad(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos absolute = helper.absolutePos(new BlockPos(2, 2, 2));

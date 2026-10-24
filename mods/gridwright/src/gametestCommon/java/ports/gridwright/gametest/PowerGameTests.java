@@ -38,6 +38,7 @@ public class PowerGameTests {
         helper.setBlock(pos, ModPower.POWER_CONVERTER.get().defaultBlockState().setValue(ConverterBlock.MODE, mode));
         ConverterBlockEntity converter = (ConverterBlockEntity) helper.getBlockEntity(pos);
         check(converter != null, "No converter at " + pos);
+        GameTestTicking.keepTestAreaTicking(helper);
         return owned(converter, owner);
     }
 

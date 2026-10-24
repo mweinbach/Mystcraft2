@@ -11,7 +11,6 @@ import mekanism.common.registries.MekanismFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Block;
@@ -41,7 +40,9 @@ public class FluidEntityGameTests {
         // Cows have none of the undead or water-mob exceptions that let vanilla mobs breathe in water.
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
         cow.setAirSupply(100);
-        afterOwnTicks(helper, cow, 20, () -> check(cow.getAirSupply() < 100, "a cow under brine kept its air: " + cow.getAirSupply()));
+        GameTestTicking.awaitEntityTicked(helper, cow, 20)
+              .thenExecute(() -> check(cow.getAirSupply() < 100, "a cow under brine kept its air: " + cow.getAirSupply()))
+              .thenSucceed();
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
@@ -50,18 +51,24 @@ public class FluidEntityGameTests {
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
         cow.setSprinting(true);
         cow.setSwimming(false);
-        afterOwnTicks(helper, cow, 2, () -> check(cow.isSwimming(), "a sprinting cow under brine is not swimming"));
+        GameTestTicking.awaitEntityTicked(helper, cow, 2)
+              .thenExecute(() -> check(cow.isSwimming(), "a sprinting cow under brine is not swimming"))
+              .thenSucceed();
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void entityTracksBrineFluidType(GameTestHelper helper) {
         floodPool(helper, brine());
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
-        afterOwnTicks(helper, cow, 2, () -> {
-            check(cow.getMaxHeightFluidType() == brineType(), "the cow's tallest fluid type is " + cow.getMaxHeightFluidType());
-            check(cow.isInFluidType(brineType()), "the cow is not in brine's fluid type");
-            check(cow.isEyeInFluidType(brineType()), "the cow's eyes are not in brine's fluid type");
-        });
+        // Count the cow's own ticks: two test ticks raced its section becoming entity-ticking, and the cow was then
+        // still untracked (minecraft:empty).
+        GameTestTicking.awaitEntityTicked(helper, cow, 2)
+              .thenExecute(() -> {
+                  check(cow.getMaxHeightFluidType() == brineType(), "the cow's tallest fluid type is " + cow.getMaxHeightFluidType());
+                  check(cow.isInFluidType(brineType()), "the cow is not in brine's fluid type");
+                  check(cow.isEyeInFluidType(brineType()), "the cow's eyes are not in brine's fluid type");
+              })
+              .thenSucceed();
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
@@ -96,20 +103,6 @@ public class FluidEntityGameTests {
               // Exactly one tick of the cow's in brine, which halves the fall distance once.
               .thenWaitUntil(() -> check(cow.tickCount > setAt[0], "the cow was not ticked"))
               .thenExecute(() -> check(Math.abs(cow.fallDistance - 5.0F) < 0.01F, "brine's fall distance modifier gave " + cow.fallDistance))
-              .thenSucceed();
-    }
-
-    /**
-     * Runs {@code check} once {@code entity} has been ticked {@code ticks} times by its level. Counting the test's own
-     * ticks raced the world: an entity in a freshly placed GameTest area is ticked only once that area's chunk is
-     * entity-ticking, which on a loaded server can come a few ticks after the test starts. The cow in
-     * {@link #entityTracksBrineFluidType} was then still untracked ({@code minecraft:empty}) after two test ticks.
-     * The test's timeout bounds the wait.
-     */
-    private static void afterOwnTicks(GameTestHelper helper, Entity entity, int ticks, Runnable check) {
-        helper.startSequence()
-              .thenWaitUntil(() -> check(entity.tickCount >= ticks, "the entity was ticked " + entity.tickCount + " of " + ticks + " times"))
-              .thenExecute(check)
               .thenSucceed();
     }
 

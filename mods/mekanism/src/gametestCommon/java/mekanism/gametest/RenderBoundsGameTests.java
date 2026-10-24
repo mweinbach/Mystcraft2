@@ -57,6 +57,7 @@ public class RenderBoundsGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    @LevelTickingOnly
     public static void followingRobitHoldsItsChunkWhenRemoved(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ServerPlayer owner = new ServerPlayer(level.getServer(), level, Mekanism.gameProfile, null);
