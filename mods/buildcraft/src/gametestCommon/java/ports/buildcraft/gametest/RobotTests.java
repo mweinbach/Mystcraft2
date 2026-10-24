@@ -345,18 +345,15 @@ public final class RobotTests {
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
         confine(helper, pipe, Direction.NORTH);
-        // Placing neighbouring tests may clear this arena's floor, and their drops may land in it: give the items a
-        // floor and a name, and count only the named ones.
-        for (int x = 1; x <= 7; x++) {
-            for (int z = 1; z <= 7; z++) {
-                if (x != 4 || z != 4) helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
-            }
-        }
+        // The arena floor is at y = 1: the items rest on it (an item spawned inside the floor may be pushed out below
+        // it, out of the work area). Neighbouring tests' drops may land here too, so count only the named items.
+        helper.setBlock(new BlockPos(2, 1, 2), Blocks.STONE);
+        helper.setBlock(new BlockPos(6, 1, 6), Blocks.STONE);
         Component name = Component.literal("picker test");
-        ItemStack cobblestone = helper.spawnItem(Items.COBBLESTONE, 2.5F, 1.2F, 2.5F).getItem();
+        ItemStack cobblestone = helper.spawnItem(Items.COBBLESTONE, 2.5F, 2.1F, 2.5F).getItem();
         cobblestone.setCount(8);
         cobblestone.setHoverName(name);
-        helper.spawnItem(Items.DIAMOND, 6.5F, 1.2F, 6.5F).getItem().setHoverName(name);
+        helper.spawnItem(Items.DIAMOND, 6.5F, 2.1F, 6.5F).getItem().setHoverName(name);
         RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
         helper.succeedWhen(() -> {
             require(helper, countNamed(chest, Items.COBBLESTONE, name) == 8 && countNamed(chest, Items.DIAMOND, name) == 1,
