@@ -149,7 +149,7 @@ jobs:
             fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender -PwithFluxNetworks
             # CraftTweaker's test scripts change recipes, so it runs on its own, apart from the other integrations.
             crafttweaker_props: -PwithCraftTweaker
-            fabric_portinglib_props: -PwithPortingLib
+            fabric_portinglib_props: -PwithPortingLib -PwithCraftTweaker
             jars: |
               mods/mekanism/build/libs/*.jar
               mods/mekanism/fabric/build/libs/*.jar
@@ -274,7 +274,7 @@ jobs:
           read -r -a extra <<< "$CRAFTTWEAKER_PROPS"
           ./gradlew --no-daemon ":${PORT}:runGameTestServer" "${extra[@]}"
           ./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"
-      # Fabric GameTests beside Porting Lib (Create Fabric's nested modules), which Fabric packs often carry.
+      # Fabric GameTests beside Porting Lib (Create Fabric's nested modules), which Fabric packs often carry, with CraftTweaker.
       # The optional-integration run above already covers the older Porting Lib nested in Flux Networks.
       - name: Run Fabric GameTests beside Porting Lib
         if: ${{ matrix.fabric_portinglib_props }}

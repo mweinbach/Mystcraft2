@@ -80,7 +80,7 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertIn("fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender"
                       " -PwithFluxNetworks\n",
                       mekanism)
-        self.assertIn("fabric_portinglib_props: -PwithPortingLib\n", mekanism)
+        self.assertIn("fabric_portinglib_props: -PwithPortingLib -PwithCraftTweaker\n", mekanism)
         self.assertIn("name: Run Fabric GameTests beside Porting Lib", self.text)
         self.assertIn('./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"', self.text)
         extremereactors = matrix_entry(self.text, "extremereactors")

@@ -59,7 +59,15 @@ Mekanism integration does not call them.
 - `-PwithPortingLib` runs the Fabric GameTests with Porting Lib 2.1.1453 as Create nests it, without Create, which
   registers GameTests of its own. `-PwithFluxNetworks` runs them with Flux Networks and its Porting Lib 2.1.1177, so
   `FluxNetworksGameTests` takes its Flux-present branch on Fabric too: a Flux Plug and Point carry energy between two
-  Mekanism energy cubes over Team Reborn Energy. CI runs both, in the optional-integration step and a Porting Lib step.
+  Mekanism energy cubes over Team Reborn Energy. CI runs both, in the optional-integration step and a Porting Lib step;
+  the Porting Lib step adds `-PwithCraftTweaker`, so the CraftTweaker GameTests also run beside Porting Lib.
+
+Porting Lib's serialization_hooks reads a string at the head of every `Ingredient.fromNetwork` to look for its own
+ingredient ids and rewinds otherwise, but it catches only `DecoderException`. CraftTweaker's IngredientExtensionAPI
+starts each ingredient with the int `601817315`, whose first byte reads as a 35-byte string, so a buffer that ends less
+than 35 bytes after such an ingredient throws `IndexOutOfBoundsException`. This is between those two libraries, not
+Mekanism, and a recipe packet normally has more data after an ingredient. `CraftTweakerGameTests` round-trips
+ingredients with data after them and checks that reading stops at the ingredient's end.
 
 Other ports' Fabric variants (BuildCraft, Extreme Reactors, JurassiCraft, Advanced Genetics, Mystcraft, ICBM) add no
 Forge-shaped methods to vanilla classes; `fabric_clashes.py` finds no clashes between their jars and either Porting

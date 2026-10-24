@@ -125,7 +125,7 @@ After Mekanism changes, run:
 - `python3 scripts/emc.py check`
 - `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy`
-- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithPortingLib`
+- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithPortingLib -PwithCraftTweaker`
 
 ## Extreme Reactors loader support
 
