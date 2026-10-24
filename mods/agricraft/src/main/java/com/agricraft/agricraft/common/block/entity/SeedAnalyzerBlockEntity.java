@@ -165,7 +165,7 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 
 	@Override
 	public boolean canPlaceItemThroughFace(int index, ItemStack itemStack, @Nullable Direction direction) {
-		return this.canPlaceItem(index, itemStack);
+		return index == JOURNAL_SLOT && itemStack.getItem() instanceof JournalItem && !this.hasJournal();
 	}
 
 	@Override
@@ -205,7 +205,8 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 
 	@Override
 	public boolean stillValid(Player player) {
-		return this.inventory.stillValid(player);
+		return !this.isRemoved() && this.level != null && this.level.getBlockEntity(this.worldPosition) == this
+				&& player.distanceToSqr(this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.5, this.worldPosition.getZ() + 0.5) < 64.0;
 	}
 
 	@Override

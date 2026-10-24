@@ -2,6 +2,7 @@ package com.agricraft.agricraft.gametest;
 
 import com.agricraft.agricraft.common.block.SeedAnalyzerBlock;
 import com.agricraft.agricraft.common.block.entity.SeedAnalyzerBlockEntity;
+import com.agricraft.agricraft.common.inventory.container.SeedAnalyzerMenu;
 import com.agricraft.agricraft.common.item.AgriSeedItem;
 import com.agricraft.agricraft.common.item.JournalItem;
 import com.agricraft.agricraft.common.registry.ModBlocks;
@@ -13,6 +14,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -88,6 +91,34 @@ public class AnalyzerGameTests {
 		chunk.setUnsaved(false);
 		new Slot(analyzer.getInventory(), SeedAnalyzerBlockEntity.SEED_SLOT, 0, 0).remove(1);
 		check(chunk.isUnsaved(), "a seed taken through the menu should mark the analyzer's chunk for saving");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void analyzerMenuClosesWhenTheAnalyzerIsBroken(GameTestHelper helper) {
+		BlockPos pos = new BlockPos(1, 1, 1);
+		analyzer(helper, pos);
+		Player player = helper.makeMockPlayer();
+		BlockPos abs = helper.absolutePos(pos);
+		player.setPos(abs.getX() + 0.5, abs.getY() + 1, abs.getZ() + 0.5);
+		SeedAnalyzerMenu menu = new SeedAnalyzerMenu(0, player.getInventory(), player, abs);
+		check(menu.stillValid(player), "the menu of a standing analyzer next to the player should be valid");
+		helper.setBlock(pos, Blocks.AIR);
+		check(!menu.stillValid(player), "the menu must close once its analyzer is broken, or items go into a detached inventory");
+		helper.setBlock(pos, ModBlocks.SEED_ANALYZER.get());
+		check(!menu.stillValid(player), "a new analyzer at the same spot is not the menu's analyzer");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void analyzerAcceptsOnlyAJournalFromAutomation(GameTestHelper helper) {
+		SeedAnalyzerBlockEntity analyzer = analyzer(helper, new BlockPos(1, 1, 1));
+		int slot = SeedAnalyzerBlockEntity.JOURNAL_SLOT;
+		check(!analyzer.canPlaceItemThroughFace(slot, new ItemStack(Items.DIRT), Direction.UP), "a hopper must not push dirt into the journal slot");
+		check(!analyzer.canPlaceItemThroughFace(slot, AgriSeedItem.toStack(genome("minecraft:wheat", 3)), Direction.UP), "a hopper must not push seeds into the journal slot");
+		check(analyzer.canPlaceItemThroughFace(slot, new ItemStack(ModItems.JOURNAL.get()), Direction.UP), "a hopper should insert a journal");
+		analyzer.insertJournal(new ItemStack(ModItems.JOURNAL.get()));
+		check(!analyzer.canPlaceItemThroughFace(slot, new ItemStack(ModItems.JOURNAL.get()), Direction.UP), "the analyzer holds one journal");
 		helper.succeed();
 	}
 

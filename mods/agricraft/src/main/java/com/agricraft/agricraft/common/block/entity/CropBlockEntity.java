@@ -64,6 +64,8 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	@Override
 	public void load(CompoundTag tag) {
 		super.load(tag);
+		// The client also loads every block entity update through here, so a tag without a plant or weeds must clear
+		// the cached ones (the clipper, a harvest or the rake removed them), and a changed species must be resolved again.
 		boolean hasPlant = tag.getBoolean("hasPlant");
 		if (hasPlant) {
 			this.genome = AgriGenome.fromNBT(tag);
@@ -75,9 +77,13 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			int growthIndex = tag.getInt("growthIndex");
 			int growthTotal = tag.getInt("growthTotal");
 			this.growthStage = new AgriGrowthStage(growthIndex, growthTotal);
-			if (plant == null && level != null) {
+			if (level != null) {
 				this.plant = AgriApi.getPlant(this.plantId, this.level.registryAccess()).orElse(null);
 			}
+		} else {
+			this.genome = null;
+			this.plantId = "";
+			this.plant = null;
 		}
 		boolean hasWeeds = tag.getBoolean("hasWeeds");
 		if (hasWeeds) {
@@ -85,9 +91,13 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			int weedGrowthIndex = tag.getInt("weedGrowthIndex");
 			int weedGrowthTotal = tag.getInt("weedGrowthTotal");
 			this.weedGrowthStage = new AgriGrowthStage(weedGrowthIndex, weedGrowthTotal);
-			if (weed == null && level != null) {
+			if (level != null) {
 				this.weed = AgriApi.getWeed(this.weedId, this.level.registryAccess()).orElse(null);
 			}
+		} else {
+			this.weedId = "";
+			this.weed = null;
+			this.weedGrowthStage = null;
 		}
 	}
 

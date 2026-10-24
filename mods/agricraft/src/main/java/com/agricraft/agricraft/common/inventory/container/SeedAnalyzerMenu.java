@@ -128,7 +128,11 @@ public class SeedAnalyzerMenu extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return player.distanceToSqr(pos.getX()+0.5, pos.getY()+0.5, pos.getZ()+0.5) < 64.0F;
+		// The slots hold the analyzer's own container, so once the block is broken (or replaced) the menu must close
+		// rather than accept items into an inventory that no longer belongs to the world.
+		return !this.analyzer.isRemoved()
+				&& player.level.getBlockEntity(this.pos) == this.analyzer
+				&& player.distanceToSqr(pos.getX()+0.5, pos.getY()+0.5, pos.getZ()+0.5) < 64.0F;
 	}
 
 	private ItemStack getAgriCraftEquivalent(ItemStack originalStack) {

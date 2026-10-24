@@ -40,6 +40,9 @@ public class MagnifyingHelmetRecipe extends CustomRecipe {
 				} else {
 					glass = true;
 				}
+			} else if (!itemStack.isEmpty()) {
+				// taking the result consumes one item from every occupied slot, so anything else must not match
+				return false;
 			}
 		}
 		return helmet && glass;

@@ -3,6 +3,7 @@ package com.agricraft.agricraft.fabric;
 import com.agricraft.agricraft.AgriCraft;
 import com.agricraft.agricraft.api.config.CoreConfig;
 import com.agricraft.agricraft.common.commands.DumpRegistriesCommand;
+import com.agricraft.agricraft.common.item.SeedBagItem;
 import com.agricraft.agricraft.common.commands.GiveSeedCommand;
 import com.agricraft.agricraft.common.handler.DenyBonemeal;
 import com.agricraft.agricraft.common.handler.VanillaSeedConversion;
@@ -96,6 +97,10 @@ public class AgriCraftFabric implements ModInitializer {
 			}
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sendDataRegistries(handler.player));
+		ServerPlayNetworking.registerGlobalReceiver(SeedBagItem.SORTER_CHANNEL, (server, player, handler, buf, responseSender) -> {
+			int sorter = buf.readVarInt();
+			server.execute(() -> SeedBagItem.selectSorter(player, sorter));
+		});
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
 			if (success) {
 				server.getPlayerList().getPlayers().forEach(AgriCraftFabric::sendDataRegistries);

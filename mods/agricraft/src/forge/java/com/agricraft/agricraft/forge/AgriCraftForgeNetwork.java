@@ -1,5 +1,6 @@
 package com.agricraft.agricraft.forge;
 
+import com.agricraft.agricraft.common.item.SeedBagItem;
 import com.agricraft.agricraft.common.registry.AgriDataRegistries;
 import com.agricraft.agricraft.client.ClientUtil;
 import net.minecraft.core.Registry;
@@ -34,6 +35,13 @@ public final class AgriCraftForgeNetwork {
 	public static void init() {
 		CHANNEL.registerMessage(0, SyncRegistries.class, SyncRegistries::encode, SyncRegistries::decode,
 				SyncRegistries::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+		CHANNEL.registerMessage(1, SelectSorter.class, SelectSorter::encode, SelectSorter::decode,
+				SelectSorter::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+	}
+
+	/** Sends the seed-bag sorter picked by shift-scrolling to the server (see {@link SeedBagItem#selectSorter}). */
+	public static void sendSorter(int sorter) {
+		CHANNEL.sendToServer(new SelectSorter(sorter));
 	}
 
 	public static void send(ServerPlayer player) {
@@ -42,6 +50,27 @@ public final class AgriCraftForgeNetwork {
 			return;
 		}
 		CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SyncRegistries(null));
+	}
+
+	/** The seed-bag sorter a player chose on the client. */
+	public record SelectSorter(int sorter) {
+
+		static void encode(SelectSorter message, FriendlyByteBuf buf) {
+			buf.writeVarInt(message.sorter());
+		}
+
+		static SelectSorter decode(FriendlyByteBuf buf) {
+			return new SelectSorter(buf.readVarInt());
+		}
+
+		static void handle(SelectSorter message, Supplier<NetworkEvent.Context> context) {
+			ServerPlayer player = context.get().getSender();
+			if (player != null) {
+				context.get().enqueueWork(() -> SeedBagItem.selectSorter(player, message.sorter()));
+			}
+			context.get().setPacketHandled(true);
+		}
+
 	}
 
 	/** Encodes the server's current registries; decoded on the client into {@code registries}. */

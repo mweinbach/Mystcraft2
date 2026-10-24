@@ -16,7 +16,7 @@ phase of this port), **absent** (not in 4.0.6).
 | Weeds (spawning, growth, spreading, killing plants), rake | tested (spawning, removal) | |
 | Harvest and clipping products | tested (harvest) | |
 | Seed analyzer and its screen; journal and its pages | tested (analyzer logic, journal research) | Screens are ported but not yet checked in a client. |
-| Trowel, magnifying glass + overlay, magnifying helmet recipe, clipper, rakes, seed bag, debugger | ported | As upstream, sorting the seed bag with the mouse wheel and the soil tooltip under the magnifying glass are Fabric-only. |
+| Trowel, magnifying glass + overlay, magnifying helmet recipe, clipper, rakes, seed bag, debugger | tested (trowel, seed bag, helmet recipe) | Shift-scrolling the seed bag sorts it on both loaders and the server applies the choice (upstream: Fabric client only). As upstream, the soil tooltip under the magnifying glass is Fabric-only. |
 | Vanilla seed conversion, bone meal denial, farmland kept wet under crops | ported | Farmland: see 1.19.2 changes. |
 | Resource items (coal pebble, copper nugget, diamond/emerald/quartz shards, netherite sliver, amathyllis petal) and their 3×3 recipes | ported | |
 | Default plant, soil, mutation, fertilizer and weed data for vanilla | tested (loads with the server) | Taken unchanged from the 4.0.6 jars. |
@@ -70,6 +70,19 @@ phase of this port), **absent** (not in 4.0.6).
 - **Fixes over 4.0.6.** A loaded trowel plants off crop sticks only into empty space above a soil (upstream
   could overwrite the block above whatever was clicked), and seed-analyzer slot edits made through its
   screen mark the block entity for saving (upstream could lose them on chunk reload). Both have GameTests.
+  From review, also with GameTests:
+  - The analyzer menu closes once its analyzer is broken or replaced, so nothing goes into a detached
+    inventory; hoppers put only a journal into the journal slot (upstream accepted any item).
+  - Crop updates without a plant or weeds clear the client's cached ones, so raked weeds and clipped plants
+    stop rendering at once (upstream kept them until the chunk reloaded).
+  - The seed bag takes seeds out only for a slot that accepts them and returns what the slot does not take;
+    it takes seeds in only after the slot gave them up, as vanilla's bundle does (upstream could delete seeds,
+    or copy seeds out of a slot that refuses pickup). It holds seeds only: a loaded trowel was turned into a seed.
+  - Shift-scrolling the seed bag sends the chosen sorter to the server (`agricraft:seed_bag_sorter`), which
+    sorts the real bag. Upstream changed only the Fabric client's copy, so planting kept the old order; Forge
+    had no scroll handler, and now has one.
+  - The magnifying helmet recipe matches only a helmet and a magnifying glass; upstream ignored other items in
+    the grid, and crafting consumed them.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

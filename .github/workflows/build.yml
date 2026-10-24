@@ -108,7 +108,7 @@ jobs:
           - id: agricraft
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             jars: |
               mods/agricraft/build/libs/*.jar
               mods/agricraft/fabric/build/libs/*.jar

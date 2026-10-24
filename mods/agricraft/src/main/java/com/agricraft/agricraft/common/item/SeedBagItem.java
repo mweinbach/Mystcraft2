@@ -4,7 +4,6 @@ import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.api.config.CoreConfig;
 import com.agricraft.agricraft.api.crop.AgriCrop;
 import com.agricraft.agricraft.api.genetic.AgriGenome;
-import com.agricraft.agricraft.api.genetic.AgriGenomeProviderItem;
 import com.agricraft.agricraft.api.stat.AgriStat;
 import com.agricraft.agricraft.api.stat.AgriStatRegistry;
 import com.agricraft.agricraft.common.block.CropBlock;
@@ -86,7 +85,8 @@ public class SeedBagItem extends Item {
 	}
 
 	public static int add(ItemStack seedBag, ItemStack insertedStack) {
-		if (insertedStack.isEmpty() || !(insertedStack.getItem() instanceof AgriGenomeProviderItem seed)) {
+		// seeds only: the trowel also carries a genome, and adding it would turn the trowel into a seed
+		if (insertedStack.isEmpty() || !(insertedStack.getItem() instanceof AgriSeedItem seed)) {
 			return 0;
 		}
 		CompoundTag tag = seedBag.getOrCreateTag();
@@ -168,6 +168,22 @@ public class SeedBagItem extends Item {
 		}
 		sorterIndex %= SORTERS.size();
 		tag.putInt("sorter", sorterIndex);
+		sort(seedBag);
+	}
+
+	/** Client-to-server message: the sorter a player picked by shift-scrolling the seed bag in their main hand. */
+	public static final ResourceLocation SORTER_CHANNEL = new ResourceLocation("agricraft", "seed_bag_sorter");
+
+	/**
+	 * Applies a sorter chosen on the client to the bag in the player's main hand, so planting and extracting on the
+	 * server use the same order. Ignores unknown indices and players not holding a bag.
+	 */
+	public static void selectSorter(Player player, int sorterIndex) {
+		ItemStack seedBag = player.getMainHandItem();
+		if (!(seedBag.getItem() instanceof SeedBagItem) || sorterIndex < 0 || sorterIndex >= SORTERS.size()) {
+			return;
+		}
+		seedBag.getOrCreateTag().putInt("sorter", sorterIndex);
 		sort(seedBag);
 	}
 
@@ -276,21 +292,66 @@ public class SeedBagItem extends Item {
 		if (seedBag.getCount() == 1 && action == ClickAction.SECONDARY) {
 			ItemStack itemStack = slot.getItem();
 			if (itemStack.isEmpty()) {
-				if (!isEmpty(seedBag)) {
-					playRemoveOneSound(player);
+				// only take seeds out once the slot accepts them, and put back whatever it does not take
+				if (!isEmpty(seedBag) && slot.mayPlace(extractFirstItem(seedBag, true))) {
 					ItemStack seed = extractFirstStack(seedBag);
-					slot.safeInsert(seed);
+					int extracted = seed.getCount();
+					// safeInsert shrinks and returns the same stack
+					ItemStack rest = slot.safeInsert(seed);
+					boolean placed = rest.getCount() < extracted;
+					if (!rest.isEmpty()) {
+						restore(seedBag, rest, player);
+					}
+					if (placed) {
+						playRemoveOneSound(player);
+					}
 				}
 			} else if (itemStack.getItem().canFitInsideContainerItems()) {
-				int inserted = add(seedBag, itemStack);
-				slot.safeTake(itemStack.getCount(), inserted, player);
-				if (inserted > 0) {
-					playInsertSound(player);
+				// like vanilla's bundle: take from the slot first, then add only what the slot gave up
+				int room = room(seedBag, itemStack);
+				if (room > 0) {
+					ItemStack taken = slot.safeTake(itemStack.getCount(), room, player);
+					int inserted = add(seedBag, taken);
+					taken.shrink(inserted);
+					if (!taken.isEmpty()) {
+						ItemStack rest = slot.safeInsert(taken);
+						if (!rest.isEmpty()) {
+							player.getInventory().placeItemBackInInventory(rest);
+						}
+					}
+					if (inserted > 0) {
+						playInsertSound(player);
+					}
 				}
 			}
 			return true;
 		}
 		return false;
+	}
+
+	/** How many of {@code stack} the bag can take: seeds of its species, up to its capacity. */
+	private static int room(ItemStack seedBag, ItemStack stack) {
+		if (!(stack.getItem() instanceof AgriSeedItem seed)) {
+			return 0;
+		}
+		Optional<AgriGenome> genome = seed.getGenome(stack);
+		if (genome.isEmpty()) {
+			return 0;
+		}
+		CompoundTag tag = seedBag.getTag();
+		if (tag != null && tag.contains("species") && !genome.get().getSpeciesGene().getTrait().equals(tag.getString("species"))) {
+			return 0;
+		}
+		return Math.max(0, CoreConfig.seedBagCapacity - size(seedBag));
+	}
+
+	/** Puts back seeds that just left the bag; anything the bag cannot hold goes to the player. */
+	private static void restore(ItemStack seedBag, ItemStack seeds, Player player) {
+		int back = add(seedBag, seeds);
+		seeds.shrink(back);
+		if (!seeds.isEmpty()) {
+			player.getInventory().placeItemBackInInventory(seeds);
+		}
 	}
 
 	@Override

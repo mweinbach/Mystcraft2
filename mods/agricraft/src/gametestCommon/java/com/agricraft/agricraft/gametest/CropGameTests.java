@@ -11,17 +11,27 @@ import com.agricraft.agricraft.api.stat.AgriStat;
 import com.agricraft.agricraft.api.stat.AgriStatRegistry;
 import com.agricraft.agricraft.common.block.CropBlock;
 import com.agricraft.agricraft.common.block.CropState;
+import com.agricraft.agricraft.common.block.entity.CropBlockEntity;
 import com.agricraft.agricraft.common.item.AgriSeedItem;
+import com.agricraft.agricraft.common.item.SeedBagItem;
+import com.agricraft.agricraft.common.item.crafting.MagnifyingHelmetRecipe;
 import com.agricraft.agricraft.common.item.TrowelItem;
 import com.agricraft.agricraft.common.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
@@ -184,6 +194,115 @@ public class CropGameTests {
 		useOn(helper, player, trowel, new BlockPos(5, 1, 5));
 		AgriCrop planted = crop(helper, new BlockPos(5, 2, 5));
 		check("minecraft:wheat".equals(planted.getPlantId()) && !item.hasPlant(trowel), "the trowel should plant into the empty space above a soil");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void cropUpdatesWithoutWeedsOrPlantClearThem(GameTestHelper helper) {
+		AgriCrop crop = cropSticks(helper, new BlockPos(1, 1, 1), CropState.SINGLE_STICKS);
+		for (int tick = 0; tick < 2000 && !crop.hasWeeds(); tick++) {
+			crop.applyGrowthTick();
+		}
+		check(crop.hasWeeds(), "empty crop sticks grew no weeds in 2000 growth ticks");
+		CropBlockEntity entity = (CropBlockEntity) crop;
+		// what a client receives after the rake removed the weeds
+		CompoundTag update = entity.saveWithoutMetadata();
+		update.putBoolean("hasWeeds", false);
+		entity.load(update);
+		check(!crop.hasWeeds(), "an update without weeds must clear the cached weeds");
+
+		AgriCrop planted = matureCrop(helper, new BlockPos(3, 1, 3), "minecraft:wheat", 10);
+		CropBlockEntity plantEntity = (CropBlockEntity) planted;
+		CompoundTag noPlant = plantEntity.saveWithoutMetadata();
+		noPlant.putBoolean("hasPlant", false);
+		plantEntity.load(noPlant);
+		check(!planted.hasPlant() && planted.getPlantId().isEmpty(), "an update without a plant must clear the cached plant");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void seedBagNeitherLosesNorDuplicatesSeeds(GameTestHelper helper) {
+		Player player = helper.makeMockPlayer();
+		ItemStack bag = new ItemStack(ModItems.SEED_BAG.get());
+		ItemStack seeds = AgriSeedItem.toStack(genome("minecraft:wheat", 3));
+		seeds.setCount(5);
+		check(SeedBagItem.add(bag, seeds) == 5, "the bag should take five wheat seeds");
+
+		// a slot that refuses seeds (the analyzer's journal slot) leaves them in the bag
+		Slot journalOnly = new Slot(new SimpleContainer(1), 0, 0, 0) {
+			@Override
+			public boolean mayPlace(ItemStack stack) {
+				return stack.is(ModItems.JOURNAL.get());
+			}
+		};
+		bag.getItem().overrideStackedOnOther(bag, journalOnly, ClickAction.SECONDARY, player);
+		check(SeedBagItem.size(bag) == 5 && !journalOnly.hasItem(), "a slot that rejects seeds must not take them out of the bag: bag holds " + SeedBagItem.size(bag));
+
+		// a slot that holds only one item takes one; the rest returns to the bag
+		Slot single = new Slot(new SimpleContainer(1), 0, 0, 0) {
+			@Override
+			public int getMaxStackSize() {
+				return 1;
+			}
+		};
+		bag.getItem().overrideStackedOnOther(bag, single, ClickAction.SECONDARY, player);
+		check(single.getItem().getCount() == 1 && SeedBagItem.size(bag) == 4, "a one-item slot should take one seed and leave four in the bag: bag holds " + SeedBagItem.size(bag));
+
+		// seeds in a slot that refuses pickup are not copied into the bag
+		SimpleContainer locked = new SimpleContainer(1);
+		ItemStack lockedSeeds = AgriSeedItem.toStack(genome("minecraft:wheat", 3));
+		lockedSeeds.setCount(3);
+		locked.setItem(0, lockedSeeds);
+		Slot noPickup = new Slot(locked, 0, 0, 0) {
+			@Override
+			public boolean mayPickup(Player p) {
+				return false;
+			}
+		};
+		bag.getItem().overrideStackedOnOther(bag, noPickup, ClickAction.SECONDARY, player);
+		check(SeedBagItem.size(bag) == 4 && locked.getItem(0).getCount() == 3, "seeds that cannot leave their slot were copied into the bag: bag holds " + SeedBagItem.size(bag));
+
+		// an ordinary slot gives its seeds up to the bag
+		Slot open = new Slot(locked, 0, 0, 0);
+		bag.getItem().overrideStackedOnOther(bag, open, ClickAction.SECONDARY, player);
+		check(SeedBagItem.size(bag) == 7 && locked.isEmpty(), "the bag should take three seeds from an open slot: bag holds " + SeedBagItem.size(bag));
+
+		// a loaded trowel is not a seed
+		ItemStack trowel = new ItemStack(ModItems.TROWEL.get());
+		((TrowelItem) trowel.getItem()).setPlant(trowel, genome("minecraft:wheat", 3), AgriApi.getPlant(GameTestSupport.id("minecraft:wheat")).get().getInitialGrowthStage());
+		check(SeedBagItem.add(bag, trowel) == 0 && trowel.getCount() == 1, "the seed bag must not swallow a loaded trowel");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void seedBagSorterChosenOnTheClientSortsTheServerBag(GameTestHelper helper) {
+		Player player = helper.makeMockPlayer();
+		ItemStack bag = new ItemStack(ModItems.SEED_BAG.get());
+		for (int stat = 1; stat <= 3; stat++) {
+			SeedBagItem.add(bag, AgriSeedItem.toStack(genome("minecraft:wheat", stat)));
+		}
+		player.setItemInHand(InteractionHand.MAIN_HAND, bag);
+		int last = SeedBagItem.SORTERS.size() - 1;
+		SeedBagItem.selectSorter(player, last);
+		check(bag.getOrCreateTag().getInt("sorter") == last, "the server bag should use the sorter the client chose");
+		SeedBagItem.selectSorter(player, SeedBagItem.SORTERS.size());
+		SeedBagItem.selectSorter(player, -1);
+		check(bag.getOrCreateTag().getInt("sorter") == last, "unknown sorter indices must be ignored");
+		check(SeedBagItem.size(bag) == 3, "changing the sorter must keep every seed");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void magnifyingHelmetRecipeRejectsUnrelatedItems(GameTestHelper helper) {
+		Player player = helper.makeMockPlayer();
+		CraftingContainer grid = new CraftingContainer(new CraftingMenu(0, player.getInventory()), 3, 3);
+		MagnifyingHelmetRecipe recipe = new MagnifyingHelmetRecipe(GameTestSupport.id("agricraft:magnifying_helmet"));
+		grid.setItem(0, new ItemStack(Items.IRON_HELMET));
+		grid.setItem(1, new ItemStack(ModItems.MAGNIFYING_GLASS.get()));
+		check(recipe.matches(grid, helper.getLevel()), "a helmet and a magnifying glass should match");
+		check(recipe.assemble(grid).getOrCreateTag().getBoolean("magnifying"), "the result should be a magnifying helmet");
+		grid.setItem(2, new ItemStack(Items.DIAMOND));
+		check(!recipe.matches(grid, helper.getLevel()), "an unrelated item in the grid must stop the recipe, or crafting consumes it");
 		helper.succeed();
 	}
 
