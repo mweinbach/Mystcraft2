@@ -29,7 +29,8 @@ public class AgriHornHarvestable implements HornHarvestable {
 
 	@Override
 	public void harvestByHorn(Level level, BlockPos pos, ItemStack stack, EnumHornType hornType, @Nullable LivingEntity user) {
-		if (hornType == EnumHornType.WILD) {
+		// Botania harvests on the server; never roll drops or reset growth on a client copy
+		if (hornType == EnumHornType.WILD && !level.isClientSide) {
 			AgriApi.getCrop(level, pos).ifPresent(crop -> crop.harvest(drop -> this.spawnEntity(level, pos, drop), null));
 		}
 	}
