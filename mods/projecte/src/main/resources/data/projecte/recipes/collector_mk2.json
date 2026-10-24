@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "P": {
+      "item": "projecte:collector_mk1"
+    },
+    "U": {
+      "item": "projecte:dark_matter"
+    }
+  },
+  "pattern": [
+    "GUG",
+    "GPG",
+    "GGG"
+  ],
+  "result": {
+    "item": "projecte:collector_mk2"
+  }
+}

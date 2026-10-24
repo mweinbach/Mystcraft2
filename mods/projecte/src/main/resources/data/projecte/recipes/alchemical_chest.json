@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": {
+      "tag": "forge:chests/wooden"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "H": {
+      "item": "projecte:high_covalence_dust"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "item": "projecte:low_covalence_dust"
+    },
+    "M": {
+      "item": "projecte:medium_covalence_dust"
+    },
+    "S": {
+      "tag": "forge:stone"
+    }
+  },
+  "pattern": [
+    "LMH",
+    "SDS",
+    "ICI"
+  ],
+  "result": {
+    "item": "projecte:alchemical_chest"
+  }
+}

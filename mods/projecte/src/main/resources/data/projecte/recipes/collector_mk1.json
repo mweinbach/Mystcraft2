@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "tag": "forge:storage_blocks/diamond"
+    },
+    "F": {
+      "item": "minecraft:furnace"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "T": {
+      "item": "minecraft:glass"
+    }
+  },
+  "pattern": [
+    "GTG",
+    "GDG",
+    "GFG"
+  ],
+  "result": {
+    "item": "projecte:collector_mk1"
+  }
+}
