@@ -70,7 +70,9 @@ public class ChunkWardBlockEntity extends GridBlockEntity {
             halt(level, wards, contracted ? Status.NO_OWNER : Status.NO_CONTRACT);
             return;
         }
-        if (!loading && wards.activeFor(owner()) >= ChunkWards.limit(level.getServer())) {
+        // A ward already loading counts itself; one over a lowered limit lets go until the owner is back under it.
+        int limit = ChunkWards.limit(level.getServer());
+        if (wards.activeFor(owner()) > (loading ? limit : limit - 1)) {
             halt(level, wards, Status.LIMIT);
             return;
         }

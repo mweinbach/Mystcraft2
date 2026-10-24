@@ -174,7 +174,10 @@ public class MechanicalCrafterBlockEntity extends WorkerBlockEntity {
     private CraftingRecipe recipe(ServerLevel level, CraftingContainer grid) {
         List<Item> key = new ArrayList<>(GRID);
         for (int i = 0; i < GRID; i++) key.add(grid.getItem(i).getItem());
-        if (key.equals(cachedKey)) {
+        // A datapack reload replaces every recipe object, so a cached one the recipe manager no longer
+        // holds is stale even if it still matches.
+        if (key.equals(cachedKey) && (cachedRecipe == null
+                || level.getRecipeManager().byKey(cachedRecipe.getId()).orElse(null) == cachedRecipe)) {
             if (cachedRecipe == null) return null;
             if (cachedRecipe.matches(grid, level)) return cachedRecipe;
         }

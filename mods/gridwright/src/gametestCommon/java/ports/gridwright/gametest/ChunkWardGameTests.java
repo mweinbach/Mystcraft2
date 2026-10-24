@@ -141,6 +141,13 @@ public class ChunkWardGameTests {
                             "Both wards load past a limit of one: " + first.status() + ", " + second.status());
                     check(ChunkWards.get(level.getServer()).activeFor(owner.id()) == 1, "Active wards");
                 })
+                // Lowering the rule also stops wards that are already loading.
+                .thenExecute(() -> rule.set(0, level.getServer()))
+                .thenWaitUntil(() -> {
+                    check(ChunkWards.get(level.getServer()).activeFor(owner.id()) == 0, "A ward kept loading past a limit of zero");
+                    check(first.status() == Status.LIMIT && second.status() == Status.LIMIT,
+                            "Statuses " + first.status() + ", " + second.status());
+                })
                 .thenExecute(() -> rule.set(before, level.getServer()))
                 .thenSucceed();
     }
