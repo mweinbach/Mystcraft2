@@ -29,9 +29,7 @@ import ports.gridwright.transfer.TransferPlatform;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -80,27 +78,20 @@ final class ForgeTransferPlatform implements TransferPlatform.Backend {
     }
 
     /**
-     * Forge handlers cannot stage several simulated inserts, so this models what the batch has put in
-     * each slot so far on top of the handler's own simulation. Only the first face of each block is
-     * used, since two faces may reach the same slots: that can under-count space, never over-count it.
+     * Forge handlers cannot stage several simulated inserts, so {@link Shadow} models what the batch has
+     * put in each slot on top of one handler's own simulation. Separate handlers may reach the same
+     * slots, which Forge gives no way to detect: each half of a double chest wraps its own view of the
+     * combined inventory, and a block's faces or a mod's multiblock can do the same. So the whole batch
+     * must fit in a single handler. That can under-count space spread over several inventories, never
+     * over-count it.
      */
     @Override
     public boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks) {
-        Map<BlockPos, Shadow> shadows = new LinkedHashMap<>();
         for (PipeNetwork.Target target : targets) {
-            if (shadows.containsKey(target.pos())) continue;
             IItemHandler items = capability(level, target.pos(), target.face(), ForgeCapabilities.ITEM_HANDLER);
-            if (items != null) shadows.put(target.pos(), new Shadow(items));
+            if (items != null && new Shadow(items).takesAll(stacks)) return true;
         }
-        for (ItemStack stack : stacks) {
-            ItemStack left = stack.copy();
-            for (Shadow shadow : shadows.values()) {
-                if (left.isEmpty()) break;
-                left = shadow.insert(left);
-            }
-            if (!left.isEmpty()) return false;
-        }
-        return true;
+        return false;
     }
 
     /** An item handler and what a batch of simulated inserts has added to each of its slots. */
@@ -112,6 +103,14 @@ final class ForgeTransferPlatform implements TransferPlatform.Backend {
             this.items = items;
             this.added = new ItemStack[items.getSlots()];
             Arrays.fill(added, ItemStack.EMPTY);
+        }
+
+        /** Whether this handler alone would take every stack in turn. */
+        boolean takesAll(List<ItemStack> stacks) {
+            for (ItemStack stack : stacks) {
+                if (!insert(stack.copy()).isEmpty()) return false;
+            }
+            return true;
         }
 
         /** As {@link ItemHandlerHelper#insertItemStacked}: slots holding the kind first, then the rest. */

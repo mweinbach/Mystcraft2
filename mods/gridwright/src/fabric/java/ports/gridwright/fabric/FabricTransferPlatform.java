@@ -113,7 +113,8 @@ final class FabricTransferPlatform implements TransferPlatform.Backend {
 
     @Override
     public boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks) {
-        // One transaction for the whole batch, never committed: each insert sees the ones before it.
+        // One transaction for the whole batch, never committed: each insert sees the ones before it,
+        // including through another storage over the same slots (the other half of a double chest).
         try (Transaction transaction = Transaction.openOuter()) {
             for (ItemStack stack : stacks) {
                 long left = stack.getCount();
