@@ -335,6 +335,28 @@ public class CropGameTests {
 		useOn(helper, player, trowel, new BlockPos(5, 1, 5));
 		AgriCrop planted = crop(helper, new BlockPos(5, 2, 5));
 		check("minecraft:wheat".equals(planted.getPlantId()) && !item.hasPlant(trowel), "the trowel should plant into the empty space above a soil");
+		// clicking the soil under a planted crop must not overwrite that plant
+		AgriCrop occupied = matureCrop(helper, new BlockPos(1, 1, 5), "minecraft:potato", 7);
+		useOn(helper, player, trowel, new BlockPos(5, 2, 5));
+		check(item.hasPlant(trowel), "the trowel should pick the wheat back up");
+		useOn(helper, player, trowel, new BlockPos(1, 1, 5));
+		check("minecraft:potato".equals(occupied.getPlantId()) && occupied.getGenome().getGain() == 7, "the trowel overwrote the planted potato with " + occupied.getPlantId());
+		check(item.hasPlant(trowel), "the trowel lost its plant on an occupied crop");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void cropSticksAddedToAPlantKeepTheirMaterial(GameTestHelper helper) {
+		BlockPos soil = new BlockPos(1, 1, 1);
+		helper.setBlock(soil, Blocks.FARMLAND.defaultBlockState().setValue(net.minecraft.world.level.block.FarmBlock.MOISTURE, 7));
+		helper.setBlock(soil.above(), ModBlocks.CROP.get().defaultBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT));
+		crop(helper, soil.above()).plantGenome(genome("minecraft:wheat", 3));
+		BlockPos absolute = helper.absolutePos(soil.above());
+		net.minecraft.world.InteractionResult result = CropBlock.applyCropSticks(helper.getLevel(), absolute, helper.getLevel().getBlockState(absolute), com.agricraft.agricraft.common.block.CropStickVariant.IRON);
+		check(result == net.minecraft.world.InteractionResult.SUCCESS, "adding iron sticks to a plant returned " + result);
+		check(helper.getBlockState(soil.above()).getValue(CropBlock.CROP_STATE) == CropState.PLANT_STICKS, "the plant did not get crop sticks");
+		check(helper.getBlockState(soil.above()).getValue(CropBlock.STICK_VARIANT) == com.agricraft.agricraft.common.block.CropStickVariant.IRON,
+				"iron sticks added to a plant became " + helper.getBlockState(soil.above()).getValue(CropBlock.STICK_VARIANT));
 		helper.succeed();
 	}
 

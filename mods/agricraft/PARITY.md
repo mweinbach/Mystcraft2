@@ -105,6 +105,9 @@ phase of this port), **absent** (not in 4.0.6).
     Loading the analyzer clears slots that are missing from the tag, so clients drop extracted items. A hopper
     taking the journal out updates the analyzer's journal model. A different seed put into an occupied slot is
     handed back; 4.0.6 deleted it, and refused to stack stacks of different sizes.
+  - A loaded trowel used on the soil under a planted crop leaves that plant alone; 4.0.6 overwrote its genome.
+    Iron or obsidian sticks added to a bare plant keep their material; 4.0.6 left them wooden, so they rendered,
+    dropped and burned in lava as wood.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

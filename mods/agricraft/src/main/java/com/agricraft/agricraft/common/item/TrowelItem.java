@@ -83,7 +83,8 @@ public class TrowelItem extends Item implements AgriGenomeProviderItem {
 		if (crop.getLevel() == null || crop.getLevel().isClientSide()) {
 			return InteractionResult.PASS;
 		}
-		if (crop.isCrossCropSticks()) {
+		// tryPlantOnSoil reaches this without tryUseOnCrop's checks: never overwrite a planted (or weedy) crop
+		if (crop.isCrossCropSticks() || crop.hasPlant() || crop.hasWeeds()) {
 			return InteractionResult.FAIL;
 		}
 		if (this.hasPlant(stack)) {
