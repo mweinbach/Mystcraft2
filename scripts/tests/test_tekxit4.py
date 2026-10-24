@@ -29,6 +29,12 @@ class Tekxit4Tests(unittest.TestCase):
         self.assertEqual([jar.name for jar in tekxit4.production_jars(self.tmp)],
                          ["mystcraft-fabric-1.19.2-0.4.0.jar"])
 
+    def test_a_version_ending_in_dev_is_the_production_jar(self):
+        for name in ("mystcraft-fabric-1.19.2-0.4.0-dev.jar", "mystcraft-fabric-1.19.2-0.4.0-dev-sources.jar"):
+            (self.tmp / name).write_text("")
+        self.assertEqual([jar.name for jar in tekxit4.production_jars(self.tmp)],
+                         ["mystcraft-fabric-1.19.2-0.4.0-dev.jar"])
+
     def test_every_dual_port_and_icbm_are_known(self):
         self.assertIn("mystcraft", tekxit4.all_ports())
         self.assertIn("icbm_port", tekxit4.all_ports())

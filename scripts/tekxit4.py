@@ -39,7 +39,7 @@ GAMETEST_API = {
 }
 PROBE_LIBS = ROOT / "tools/tekxit4-probe/build/libs"
 ICBM_LIBS = ROOT / "mods/icbm_port/build/libs"
-NOT_PRODUCTION = ("-sources", "-dev", "-named", "-javadoc", "-tests", "smoke")
+NOT_PRODUCTION = ("-sources", "-named", "-javadoc", "-tests", "smoke")
 SERVER_PROPERTIES = {
     "online-mode": "false",
     "server-ip": "127.0.0.1",
@@ -153,7 +153,11 @@ def command_build(args):
 
 
 def production_jars(libs):
-    return sorted(jar for jar in libs.glob("*.jar") if not any(tag in jar.stem for tag in NOT_PRODUCTION))
+    jars = [jar for jar in libs.glob("*.jar") if not any(tag in jar.stem for tag in NOT_PRODUCTION)]
+    names = {jar.name for jar in jars}
+    # A "-dev" jar is a development twin only when the plain jar sits beside it; versions such as 0.4.0-dev
+    # (Mystcraft, Advanced Genetics) end in "-dev" themselves and are the production jar.
+    return sorted(jar for jar in jars if not (jar.stem.endswith("-dev") and jar.stem[:-4] + ".jar" in names))
 
 
 def eula_accepted():
