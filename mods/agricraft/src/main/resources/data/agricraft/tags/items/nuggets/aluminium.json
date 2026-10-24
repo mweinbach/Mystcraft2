@@ -1,0 +1,20 @@
+{
+  "values": [
+    {
+      "id": "#c:aluminum_nuggets",
+      "required": false
+    },
+    {
+      "id": "#c:aluminium_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/aluminum",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/aluminium",
+      "required": false
+    }
+  ]
+}

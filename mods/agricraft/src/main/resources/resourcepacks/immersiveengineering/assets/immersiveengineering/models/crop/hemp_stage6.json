@@ -1,0 +1,6 @@
+{
+  "parent": "agricraft:crop/crop_hash",
+  "textures": {
+    "crop": "immersiveengineering:block/hemp/bottom3"
+  }
+}

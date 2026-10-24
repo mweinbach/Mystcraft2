@@ -1,0 +1,13 @@
+{
+  "values": [
+    "agricraft:coal_pebble",
+    {
+      "id": "#c:coal_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/coal",
+      "required": false
+    }
+  ]
+}

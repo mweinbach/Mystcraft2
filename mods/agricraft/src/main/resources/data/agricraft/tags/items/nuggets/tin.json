@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:tin_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/tin",
+      "required": false
+    }
+  ]
+}

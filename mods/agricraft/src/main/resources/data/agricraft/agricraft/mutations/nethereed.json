@@ -1,0 +1,6 @@
+{
+  "chance": 0.25,
+  "child": "agricraft:nethereed",
+  "parent1": "agricraft:emeryllis",
+  "parent2": "agricraft:diamahlia"
+}

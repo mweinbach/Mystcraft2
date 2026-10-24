@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:osmium_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/osmium",
+      "required": false
+    }
+  ]
+}

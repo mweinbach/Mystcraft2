@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:wooden_fences",
+      "required": false
+    },
+    {
+      "id": "#c:wooden_fences",
+      "required": false
+    },
+    {
+      "id": "#forge:fences/wooden",
+      "required": false
+    }
+  ]
+}

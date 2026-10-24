@@ -90,6 +90,26 @@ After Advanced Genetics changes, run:
 - `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy`
 
+## AgriCraft loader support
+
+AgriCraft (`mods/agricraft`) is a backport of upstream AgriCraft's `1.20.1` branch
+(4.0.6, MIT) with upstream's packages and mod id. Upstream's `common/` module is
+`src/main`, `forge/` is `src/forge` and `fabric/` is `src/fabric`; the Loom build is
+`mods/agricraft/fabric`. Keep upstream code, assets and data; record every 1.19.2
+change and gap in `mods/agricraft/PARITY.md` and provenance in `NOTICE.md`. Plants,
+weeds, soils, mutations and fertilizers load through `AgriDataRegistries` (no
+datapack registries on 1.19.2). Shared GameTests live in `src/gametestCommon`, run by
+`ForgeGameTests` and the Fabric `fabric-gametest` entrypoints, and stay out of
+production JARs. The mixin package may contain only mixins. After AgriCraft
+changes, run:
+
+- `./scripts/gradle.sh :agricraft:build`
+- `./scripts/gradle.sh -p mods/agricraft/fabric build`
+- `python3 mods/agricraft/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :agricraft:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/agricraft/fabric runGametest -PwithItemAlchemy`
+
 ## Gridwright loader support
 
 Gridwright (`mods/gridwright`) is a clean-room, Extra Utilities 2–style mod. Never
