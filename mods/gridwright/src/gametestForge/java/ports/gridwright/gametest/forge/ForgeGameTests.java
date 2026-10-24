@@ -25,6 +25,11 @@ import ports.gridwright.gametest.UtilityBlockGameTests;
 import ports.gridwright.gametest.UtilityItemGameTests;
 import ports.gridwright.gametest.WardGameTests;
 import ports.gridwright.gametest.TestProtection;
+import ports.gridwright.gametest.PowerGameTests;
+import ports.gridwright.gametest.MillGameTests;
+import ports.gridwright.gametest.RainbowGameTests;
+import ports.gridwright.gametest.GeneratorUpgradeGameTests;
+import ports.gridwright.gametest.ViewerGameTests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,7 +52,9 @@ public class ForgeGameTests {
             GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
             UtilityItemGameTests.class, UtilityBlockGameTests.class,
             WardGameTests.class, TransferGameTests.class, QuarryGameTests.class, MechanicalGameTests.class,
-            DeepDarkGameTests.class);
+            DeepDarkGameTests.class,
+            PowerGameTests.class, MillGameTests.class, RainbowGameTests.class, GeneratorUpgradeGameTests.class,
+            ViewerGameTests.class);
     private static boolean protectionInstalled;
 
     @GameTestGenerator

@@ -6,7 +6,8 @@ player-owned, cable-free power grid ("Grid Power", GP), the GP producers, a fami
 that make the pack's normal energy, and the resonator, the first GP consumer. Phase 2a adds transfer
 nodes and pipes for items and fluids, their upgrades, retrieval nodes and filters. Phase 2c adds the
 quantum and ender quarries, the mechanical miner and user, and the **Deep Dark**, a dark, ore-rich
-cave dimension reached through a portal block.
+cave dimension reached through a portal block. Phase 2d adds a lossy GP ↔ energy converter, more GP
+producers, overclock upgrades and recipe-viewer categories.
 
 Read [`NOTICE.md`](NOTICE.md) first: Gridwright contains no Extra Utilities 2 code, art, sounds or
 language files, and is not affiliated with it. Every number below is Gridwright's own.
@@ -41,8 +42,9 @@ language files, and is not affiliated with it. Every number below is Gridwright'
 **Forge Energy** (Forge) or **Team Reborn Energy** (Fabric), and let other mods extract up to
 2,000/t. They never accept energy. A generator pauses (keeping its fuel) while its store is full, and
 only starts an item whose container (bucket, bowl, bottle) fits in its output slot. Hoppers and pipes
-may insert fuel on any face and take only containers. Energy and GP are deliberately separate: there is
-no GP↔energy conversion in phase 1.
+may insert fuel on any face and take only containers. Energy and GP are deliberately separate: the
+phase 2d power converter is the only bridge between them, and every round trip through it loses three
+quarters of the power (see below).
 
 ## Quarries and mechanical blocks (phase 2c)
 
@@ -150,6 +152,45 @@ Transfer API on Fabric (droplets are converted to whole millibuckets).
 | World interaction upgrade | diamond pickaxe, pistons, grid crystal, redstone block |
 | Item filter | string, paper, redstone |
 
+## Features (phase 2d: power extras)
+
+| Feature | Blocks/items | Behaviour |
+| --- | --- | --- |
+| Power converter | `power_converter` | Gridwright's only bridge between GP and **Forge Energy** (Forge) / **Team Reborn Energy** (Fabric), and a deliberately lossy one. Sneak-use it with an empty hand to switch mode; use it to see what it is doing. **Making energy** (default): while it has room for 64 energy it asks its owner's grid for 16 GP as a normal consumer, and on every tick the grid is powered it makes 64 energy (4 per GP), pushes up to 1,024/t into its neighbours and lets other mods extract; it never accepts energy. **Making GP**: it accepts up to 1,024 energy/t and never gives any out; while its grid has any demand it burns up to 256/t into GP at **16 energy per GP** (at most 16 GP), as a producer with the usual diminishing returns. Stores 16,000. |
+| Fire mill | `fire_mill` | 8 GP while fire, soul fire or a lit campfire is directly below it. |
+| Lava mill | `lava_mill` | 4 GP per horizontal side touching a lava **source**, up to 16 GP. |
+| Manual mill | `manual_mill` | 16 GP while wound. Each use (holding use repeats it about every 4 ticks) adds 10 ticks of turning, up to 40, and costs the player 0.025 exhaustion. Only a real player can crank it: a connected, living, non-spectator player in the server's player list, so fake players, machines and deployers cannot. |
+| Dragon egg mill | `dragon_egg_mill` | 64 GP while a dragon egg sits on top of it. |
+| Rainbow generator | `rainbow_generator` | 128 GP while one generator of **every** kind (all seven) is running within 4 blocks (a 9x9x9 cube centred on it). "Running" means the generator stored energy in the last second, so a full or unfuelled generator does not count. Another rainbow generator within 8 blocks stops both, so one set of generators never feeds two. Use it to see which kinds are missing. |
+| Lava generator input | — | The lava generator now also takes **lava piped in** through Forge `IFluidHandler` or Fabric `Storage<FluidVariant>` on any face (insert-only, 4-bucket tank, lava only). Each bucket's worth burns like a lava bucket, leaving no bucket behind; fuel in the slot is used first. Other generators refuse fluid. |
+| Overclock upgrade | `overclock_upgrade` | Use on any generator to install (up to 4, stacks to 4); sneak-use the generator with an empty hand to take them back; breaking it drops them. Each upgrade adds the fuel's base rate again but costs a tenth of its total: with 4 a fuel burns 5x as fast for 60% of its energy. Speed is bought with efficiency, never made from nothing. |
+
+**Why the converter cannot loop.** One GP drawn becomes 4 energy per tick, and 4 energy per tick burned
+becomes a quarter of a GP; going the other way, 16 energy becomes 1 GP and 1 GP becomes 4 energy. Every
+round trip, through any number of converters, keeps at most 25%. Gridwright's generators never accept
+energy and overclocking only trades efficiency for speed, so the only way from energy back to GP is the
+converter. A loop through another mod's machines (GP → energy → their generator or storage → energy →
+GP) would need those machines to multiply energy by four just to break even. `PowerGameTests` checks
+that 16 GP in returns 4 GP, that a primed converter loop with no other producer runs down to zero
+without its stored energy ever rising, and that a generator's 10 energy/t becomes 0.625 GP.
+
+### Recipe viewers (JEI, REI, EMI)
+
+The resonator's recipes have a **Resonating** category (input, output, GP and time, with the resonator as
+its workstation) in JEI (Forge and Fabric), REI and EMI. All three are optional: Gridwright compiles
+against their APIs only and ships none of them. JEI finds the plugin by `@JeiPlugin` on Forge and the
+`jei_mod_plugin` entrypoint on Fabric; EMI by `@EmiEntrypoint` / the `emi` entrypoint; REI by
+`@REIPluginClient` on a small Forge subclass / the `rei_client` entrypoint. With EMI and JEI both
+installed, the JEI plugin stays quiet so EMI does not list the category twice. All three plugins draw
+from one viewer-independent list ([`ResonatingDisplays`](src/main/java/ports/gridwright/compat/ResonatingDisplays.java)).
+`-PwithJei`, `-PwithRei` and `-PwithEmi` add the viewers to the development runs, alone or together.
+
+Recipes: the fire mill is bricks, iron, flint and a machine frame; the lava mill obsidian, iron, a
+bucket and a frame; the manual mill planks, sticks, a lever and iron; the dragon egg mill end stone,
+obsidian, eyes of ender and a frame (the egg itself is not consumed); the rainbow generator diamonds,
+grid crystals, glowstone and a frame; the power converter iron, copper, grid crystals and a frame; the
+overclock upgrade redstone, gold and a grid crystal.
+
 ### EMC
 
 Generated by `python3 scripts/emc.py generate gridwright` from [`emc/policy.json`](emc/policy.json)
@@ -233,11 +274,15 @@ Mystcraft without changes:
 python3 mods/gridwright/scripts/check_loader_parity.py
 ./scripts/gradle.sh :gridwright:runGameTestServer -PwithProjectE
 ./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithItemAlchemy
+# Optional recipe viewers, alone or together (CI runs all three on both loaders):
+./scripts/gradle.sh :gridwright:runGameTestServer -PwithJei -PwithEmi -PwithRei
+./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithJei -PwithEmi -PwithRei
 python3 scripts/emc.py check
 ```
 
 Textures are regenerated with `python3 mods/gridwright/scripts/generate_textures.py` and
-`python3 mods/gridwright/scripts/generate_transfer_textures.py` (need Pillow).
+`python3 mods/gridwright/scripts/generate_transfer_textures.py` (need Pillow); `generate_textures.py` also
+draws the phase 2d tiles from `power_textures.py`.
 
 ## Phase 2+ plan
 
@@ -245,24 +290,24 @@ In order of usefulness to the pack; each is a separate PR with survival recipes,
 both loaders.
 
 Phase 2b (the Angel Ring, lasso, wands, watering can, bag, workbench, drums, trash cans, compressed
-blocks, spikes, sound muffler and wards) is done; see above.
+blocks, spikes, sound muffler and wards), phase 2c (items 3 to 5) and phase 2d (items 2 and 8, plus
+the JEI/REI/EMI resonating category) are done; see above.
 
 1. ~~**Transfer nodes and pipes** (item and fluid) with speed, stack, filter and world-interaction upgrades~~ — phase 2a, above.
-2. **GP ↔ energy converter** block, deliberately lossy, so GP can feed FE/TR machines and vice versa.
+2. ~~**GP ↔ energy converter** block, deliberately lossy, so GP can feed FE/TR machines and vice versa~~ — phase 2d, above.
 3. ~~**Quantum Quarry**~~ — done in phase 2c (virtual table rather than a void dimension).
 4. ~~**Ender Quarry**~~ — done in phase 2c.
 5. ~~**Mechanical User / Mechanical Miner**~~ — done in phase 2c.
 6. ~~**Deep Dark** dimension.~~ Done in phase 2c (see [Deep Dark](#deep-dark-phase-2c)).
 7. **Wards** (mob-spawn control); an optional Curios/Trinkets slot for the Angel Ring.
-8. More GP producers (fire, lava, manual, dragon-egg mills) and the **Rainbow generator**; lava
-    fluid input for the lava generator; overclocking upgrades.
+8. ~~More GP producers (fire, lava, manual, dragon-egg mills) and the **Rainbow generator**; lava
+    fluid input for the lava generator; overclocking upgrades~~ — phase 2d, above.
 
 ## Known gaps
 
 - Client-side rendering (block models, screens, creative tab) is untested; only compiled.
 - Phase 2b has no cursed lasso, creative wands or drum, wing cosmetics or spike enchantments. Wards
   cover natural spawns and enderman teleports only (no per-mob filters or other behaviours).
-- No JEI/REI/EMI category for resonating recipes yet.
 - Transfer nodes do not yet move energy or use Mekanism chemicals; there is no round-robin per item
   type, no redstone control and no node-to-node ender links.
 - The quarries do not chunk-load; the ender quarry waits while the chunks it mines are unloaded, and
@@ -276,5 +321,9 @@ blocks, spikes, sound muffler and wards) is done; see above.
   also tested in real terrain. The teleport itself (vanilla `teleportTo`) is not run end to end, since
   test players have no network connection.
 - No damage-over-time "darkness" effect in the Deep Dark (see [`docs/PARITY.md`](docs/PARITY.md)).
+- The JEI, REI and EMI categories are compiled and their plugins checked on a server (REI's displays
+  in full; EMI's stacks need a client, so only its wiring), but their screens have not been looked at
+  in a client.
+- The power converter has no screen and no redstone control; the manual mill has no animation.
 - GP state is recomputed every tick from loaded blocks; unloaded producers stop counting, so a grid
   spread across unloaded chunks reports only what is loaded (by design, but worth knowing).

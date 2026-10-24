@@ -162,5 +162,22 @@
   "message.gridwright.deep_dark.missing": "The Deep Dark is not available on this server",
   "message.gridwright.deep_dark.no_arrival": "No safe place to arrive in the Deep Dark was found here",
   "message.gridwright.deep_dark.blocked": "Something stopped the trip",
-  "message.gridwright.deep_dark.no_return": "No safe place to return to was found; try again later"
+  "message.gridwright.deep_dark.no_return": "No safe place to return to was found; try again later",
+  "block.gridwright.fire_mill": "Fire Mill",
+  "block.gridwright.lava_mill": "Lava Mill",
+  "block.gridwright.manual_mill": "Manual Mill",
+  "block.gridwright.dragon_egg_mill": "Dragon Egg Mill",
+  "block.gridwright.rainbow_generator": "Rainbow Generator",
+  "block.gridwright.power_converter": "Power Converter",
+  "item.gridwright.overclock_upgrade": "Overclock Upgrade",
+  "item.gridwright.overclock_upgrade.tooltip": "Use on a generator (up to %s): burns fuel faster for less energy in total. Sneak-use the generator with an empty hand to take them back.",
+  "message.gridwright.overclock": "Overclock upgrades: %s / %s",
+  "message.gridwright.manual_mill.refused": "Only a player can turn the crank",
+  "message.gridwright.rainbow.crowded": "Too close to another rainbow generator",
+  "message.gridwright.rainbow.missing": "Needs running: %s",
+  "message.gridwright.converter.to_energy": "Making energy: %s GP -> %s energy/t, stored %s / %s",
+  "message.gridwright.converter.to_grid": "Making Grid Power: %2$s energy/t -> %1$s GP, stored %3$s / %4$s",
+  "gui.gridwright.category.resonating": "Resonating",
+  "gui.gridwright.category.resonating.details": "%s GP, %s s",
+  "emi.category.gridwright.resonating": "Resonating"
 }

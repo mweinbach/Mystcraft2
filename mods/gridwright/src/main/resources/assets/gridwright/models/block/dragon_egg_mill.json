@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "gridwright:block/dragon_egg_mill_side",
+    "top": "gridwright:block/dragon_egg_mill_top",
+    "bottom": "gridwright:block/machine_bottom"
+  }
+}

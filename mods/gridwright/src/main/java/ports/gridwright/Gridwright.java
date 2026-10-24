@@ -6,6 +6,7 @@ import ports.gridwright.registry.ModBlockEntities;
 import ports.gridwright.registry.ModBlocks;
 import ports.gridwright.registry.ModItems;
 import ports.gridwright.registry.ModMenus;
+import ports.gridwright.registry.ModPower;
 import ports.gridwright.registry.ModRecipes;
 import ports.gridwright.registry.ModUtilities;
 import ports.gridwright.transfer.TransferRegistry;
@@ -36,5 +37,6 @@ public final class Gridwright {
         ModRecipes.init();
         ModUtilities.init();
         TransferRegistry.init();
+        ModPower.init();
     }
 }

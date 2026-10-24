@@ -99,6 +99,17 @@ on both loaders by the other tests.
 | Hostile mobs spawn more often. | Monster-only spawn list with weights at or above the overworld's and larger groups; monsters spawn at block light 0, which is everywhere you have not lit. No passive, ambient or water mobs. | Mobs are vanilla mobs with vanilla stats (no strength boost). |
 | Players are hurt by staying in the dark ("the Darkness"). | Not implemented. | Left out on purpose: darkness already means constant spawns; a damage-over-time effect is a later, optional idea. |
 
+## Phase 2d: power extras
+
+| Feature | Public behaviour (see NOTICE) | Forge | Fabric | GameTests |
+| --- | --- | --- | --- | --- |
+| Power converter | Gridwright's own: lossy GP ↔ energy bridge | `IEnergyStorage` capability (`ForgePowerEvents`): extract-only when making energy, receive-only when making GP | Team Reborn `EnergyStorage` (`FabricPower`) with the same one-way rule | `roundTripLosesThreeQuarters`, `closedLoopRunsDown`, `generatorEnergyBecomesGpAtSixteenToOne`, `convertersAndGeneratorsOnlyMoveEnergyOneWay` |
+| Fire, lava, manual, dragon egg mills | GP producers | Shared | Shared | `fireMillNeedsFireBelow`, `lavaMillCountsLavaSources`, `manualMillRunsOnlyWhileWound`, `dragonEggMillNeedsTheEgg` |
+| Rainbow generator | GP while every generator kind runs nearby | Shared | Shared | `rainbowNeedsEveryGeneratorRunning`, `idleGeneratorsDoNotCount`, `neighbouringRainbowsBothStop` |
+| Lava generator input | Lava piped into the lava generator | Insert-only `IFluidHandler` (mB) | `InsertionOnlyStorage<FluidVariant>` (droplets) | `lavaGeneratorBurnsPipedLava` |
+| Overclock upgrade | Faster, less efficient generators | Shared | Shared | `overclockTradesEfficiencyForSpeed`, `upgradesInstallRemoveAndDrop` |
+| JEI / REI / EMI | Resonating category | `@JeiPlugin`, `@EmiEntrypoint`, `@REIPluginClient` (`GridwrightReiForgePlugin`) | `jei_mod_plugin`, `emi`, `rei_client` entrypoints | `resonatingDisplaysCoverEveryRecipe`, `viewerPluginsFollowInstalledViewers` (also run with `-PwithJei`, `-PwithRei`, `-PwithEmi`) |
+
 ## Deliberate loader differences
 
 - **Sound muffling coverage.** Forge muffles on the client, where the level sound event fires for
