@@ -26,21 +26,25 @@
     "icbm_port:antigravitational_missile": {
       "projecte": 17843,
       "itemalchemy": 17794,
+      "projecte_standalone": 18298,
       "source": "recipe"
     },
     "icbm_port:antimatter_bomb_cart": {
       "projecte": 125529,
       "itemalchemy": 100139,
+      "projecte_standalone": 1490270,
       "source": "recipe"
     },
     "icbm_port:antimatter_explosive": {
       "projecte": 124249,
       "itemalchemy": 98879,
+      "projecte_standalone": 1488990,
       "source": "recipe"
     },
     "icbm_port:antimatter_missile": {
       "projecte": 125952,
       "itemalchemy": 100533,
+      "projecte_standalone": 1491148,
       "source": "recipe"
     },
     "icbm_port:anvil_bomb_cart": {
@@ -51,6 +55,7 @@
     "icbm_port:anvil_bomblet": {
       "projecte": 6777,
       "itemalchemy": 6675,
+      "projecte_standalone": 6806,
       "source": "recipe"
     },
     "icbm_port:anvil_explosive": {
@@ -66,6 +71,7 @@
     "icbm_port:anvil_missile": {
       "projecte": 8390,
       "itemalchemy": 8242,
+      "projecte_standalone": 8845,
       "source": "recipe"
     },
     "icbm_port:attractive_bomb_cart": {
@@ -76,6 +82,7 @@
     "icbm_port:attractive_bomblet": {
       "projecte": 3474,
       "itemalchemy": 3471,
+      "projecte_standalone": 3503,
       "source": "recipe"
     },
     "icbm_port:attractive_explosive": {
@@ -91,11 +98,13 @@
     "icbm_port:attractive_missile": {
       "projecte": 5087,
       "itemalchemy": 5038,
+      "projecte_standalone": 5542,
       "source": "recipe"
     },
     "icbm_port:ballistic_launcher": {
       "projecte": 1832,
       "itemalchemy": 1788,
+      "projecte_standalone": 2287,
       "source": "recipe"
     },
     "icbm_port:basic_circuit": {
@@ -106,6 +115,7 @@
     "icbm_port:battery": {
       "projecte": 992,
       "itemalchemy": 988,
+      "projecte_standalone": 1760,
       "source": "recipe"
     },
     "icbm_port:breaching_bomb_cart": {
@@ -121,6 +131,7 @@
     "icbm_port:breaching_missile": {
       "projecte": 4817,
       "itemalchemy": 4768,
+      "projecte_standalone": 5272,
       "source": "recipe"
     },
     "icbm_port:cargo_balloon": {
@@ -136,31 +147,37 @@
     "icbm_port:chemical_bomb_cart": {
       "projecte": 2689,
       "itemalchemy": 2645,
+      "projecte_standalone": 3457,
       "source": "recipe"
     },
     "icbm_port:chemical_bomblet": {
       "projecte": 1499,
       "itemalchemy": 1472,
+      "projecte_standalone": 2296,
       "source": "recipe"
     },
     "icbm_port:chemical_explosive": {
       "projecte": 1409,
       "itemalchemy": 1385,
+      "projecte_standalone": 2177,
       "source": "recipe"
     },
     "icbm_port:chemical_grenade": {
       "projecte": 1421,
       "itemalchemy": 1397,
+      "projecte_standalone": 2189,
       "source": "recipe"
     },
     "icbm_port:chemical_missile": {
       "projecte": 3112,
       "itemalchemy": 3039,
+      "projecte_standalone": 4335,
       "source": "recipe"
     },
     "icbm_port:cluster_missile": {
       "projecte": 1960,
       "itemalchemy": 1911,
+      "projecte_standalone": 2415,
       "source": "recipe"
     },
     "icbm_port:colors_bomb_cart": {
@@ -171,6 +188,7 @@
     "icbm_port:colors_bomblet": {
       "projecte": 3538,
       "itemalchemy": 3599,
+      "projecte_standalone": 3567,
       "source": "recipe"
     },
     "icbm_port:colors_explosive": {
@@ -186,6 +204,7 @@
     "icbm_port:colors_missile": {
       "projecte": 5151,
       "itemalchemy": 5166,
+      "projecte_standalone": 5606,
       "source": "recipe"
     },
     "icbm_port:compact_concrete": {
@@ -206,6 +225,7 @@
     "icbm_port:condensed_bomblet": {
       "projecte": 1782,
       "itemalchemy": 1779,
+      "projecte_standalone": 1811,
       "source": "recipe"
     },
     "icbm_port:condensed_explosive": {
@@ -221,21 +241,25 @@
     "icbm_port:condensed_missile": {
       "projecte": 3395,
       "itemalchemy": 3346,
+      "projecte_standalone": 3850,
       "source": "recipe"
     },
     "icbm_port:contagious_bomb_cart": {
       "projecte": 4114,
       "itemalchemy": 4042,
+      "projecte_standalone": 5650,
       "source": "recipe"
     },
     "icbm_port:contagious_explosive": {
       "projecte": 2834,
       "itemalchemy": 2782,
+      "projecte_standalone": 4370,
       "source": "recipe"
     },
     "icbm_port:contagious_missile": {
       "projecte": 4537,
       "itemalchemy": 4436,
+      "projecte_standalone": 6528,
       "source": "recipe"
     },
     "icbm_port:copper_wire": {
@@ -246,31 +270,37 @@
     "icbm_port:cruise_launcher": {
       "projecte": 3371,
       "itemalchemy": 3290,
+      "projecte_standalone": 4190,
       "source": "recipe"
     },
     "icbm_port:debilitation_bomb_cart": {
       "projecte": 2265,
       "itemalchemy": 2245,
+      "projecte_standalone": 3033,
       "source": "recipe"
     },
     "icbm_port:debilitation_bomblet": {
       "projecte": 1075,
       "itemalchemy": 1072,
+      "projecte_standalone": 1872,
       "source": "recipe"
     },
     "icbm_port:debilitation_explosive": {
       "projecte": 985,
       "itemalchemy": 985,
+      "projecte_standalone": 1753,
       "source": "recipe"
     },
     "icbm_port:debilitation_grenade": {
       "projecte": 997,
       "itemalchemy": 997,
+      "projecte_standalone": 1765,
       "source": "recipe"
     },
     "icbm_port:debilitation_missile": {
       "projecte": 2688,
       "itemalchemy": 2639,
+      "projecte_standalone": 3911,
       "source": "recipe"
     },
     "icbm_port:defuser": {
@@ -286,31 +316,37 @@
     "icbm_port:emp_bomb_cart": {
       "projecte": 5999,
       "itemalchemy": 5975,
+      "projecte_standalone": 6767,
       "source": "recipe"
     },
     "icbm_port:emp_explosive": {
       "projecte": 4719,
       "itemalchemy": 4715,
+      "projecte_standalone": 5487,
       "source": "recipe"
     },
     "icbm_port:emp_missile": {
       "projecte": 6422,
       "itemalchemy": 6369,
+      "projecte_standalone": 7645,
       "source": "recipe"
     },
     "icbm_port:emp_tower": {
       "projecte": 9327,
       "itemalchemy": 6194,
+      "projecte_standalone": 13153,
       "source": "recipe"
     },
     "icbm_port:emp_tower_extension": {
       "projecte": 3839,
       "itemalchemy": 3794,
+      "projecte_standalone": 5739,
       "source": "recipe"
     },
     "icbm_port:empty_bomblet": {
       "projecte": 90,
       "itemalchemy": 87,
+      "projecte_standalone": 119,
       "source": "recipe"
     },
     "icbm_port:ender_bomb_cart": {
@@ -326,6 +362,7 @@
     "icbm_port:ender_missile": {
       "projecte": 12259,
       "itemalchemy": 12210,
+      "projecte_standalone": 12714,
       "source": "recipe"
     },
     "icbm_port:endothermic_bomb_cart": {
@@ -341,41 +378,49 @@
     "icbm_port:endothermic_missile": {
       "projecte": 5107,
       "itemalchemy": 5058,
+      "projecte_standalone": 5562,
       "source": "recipe"
     },
     "icbm_port:exothermic_bomb_cart": {
       "projecte": 26977,
       "itemalchemy": 26957,
+      "projecte_standalone": 48481,
       "source": "recipe"
     },
     "icbm_port:exothermic_explosive": {
       "projecte": 25697,
       "itemalchemy": 25697,
+      "projecte_standalone": 47201,
       "source": "recipe"
     },
     "icbm_port:exothermic_missile": {
       "projecte": 27400,
       "itemalchemy": 27351,
+      "projecte_standalone": 49359,
       "source": "recipe"
     },
     "icbm_port:fire_spikes": {
       "projecte": 324,
       "itemalchemy": 322,
+      "projecte_standalone": 708,
       "source": "recipe"
     },
     "icbm_port:fragmentation_bomb_cart": {
       "projecte": 11708,
       "itemalchemy": 11688,
+      "projecte_standalone": 14396,
       "source": "recipe"
     },
     "icbm_port:fragmentation_explosive": {
       "projecte": 10428,
       "itemalchemy": 10428,
+      "projecte_standalone": 13116,
       "source": "recipe"
     },
     "icbm_port:fragmentation_missile": {
       "projecte": 12131,
       "itemalchemy": 12082,
+      "projecte_standalone": 15274,
       "source": "recipe"
     },
     "icbm_port:glass_button": {
@@ -401,31 +446,37 @@
     "icbm_port:held_item_missile": {
       "projecte": 2221,
       "itemalchemy": 2168,
+      "projecte_standalone": 2676,
       "source": "recipe"
     },
     "icbm_port:incendiary_bomb_cart": {
       "projecte": 4492,
       "itemalchemy": 4472,
+      "projecte_standalone": 7180,
       "source": "recipe"
     },
     "icbm_port:incendiary_bomblet": {
       "projecte": 3302,
       "itemalchemy": 3299,
+      "projecte_standalone": 6019,
       "source": "recipe"
     },
     "icbm_port:incendiary_explosive": {
       "projecte": 3212,
       "itemalchemy": 3212,
+      "projecte_standalone": 5900,
       "source": "recipe"
     },
     "icbm_port:incendiary_grenade": {
       "projecte": 3224,
       "itemalchemy": 3224,
+      "projecte_standalone": 5912,
       "source": "recipe"
     },
     "icbm_port:incendiary_missile": {
       "projecte": 4915,
       "itemalchemy": 4866,
+      "projecte_standalone": 8058,
       "source": "recipe"
     },
     "icbm_port:iron_plate": {
@@ -436,6 +487,7 @@
     "icbm_port:laser_designator": {
       "projecte": 8305,
       "itemalchemy": 5149,
+      "projecte_standalone": 10868,
       "source": "recipe"
     },
     "icbm_port:launcher": {
@@ -446,21 +498,25 @@
     "icbm_port:launcher_base_tier_1": {
       "projecte": 1443,
       "itemalchemy": 1398,
+      "projecte_standalone": 1898,
       "source": "recipe"
     },
     "icbm_port:launcher_base_tier_2": {
       "projecte": 2406,
       "itemalchemy": 2352,
+      "projecte_standalone": 2952,
       "source": "recipe"
     },
     "icbm_port:launcher_base_tier_3": {
       "projecte": 8219,
       "itemalchemy": 5068,
+      "projecte_standalone": 10782,
       "source": "recipe"
     },
     "icbm_port:launcher_connector": {
       "projecte": 640,
       "itemalchemy": 626,
+      "projecte_standalone": 731,
       "source": "recipe"
     },
     "icbm_port:launcher_frame": {
@@ -471,31 +527,37 @@
     "icbm_port:launcher_screen": {
       "projecte": 443,
       "itemalchemy": 434,
+      "projecte_standalone": 534,
       "source": "recipe"
     },
     "icbm_port:launcher_support": {
       "projecte": 1296,
       "itemalchemy": 1283,
+      "projecte_standalone": 2155,
       "source": "recipe"
     },
     "icbm_port:missile_module": {
       "projecte": 1703,
       "itemalchemy": 1654,
+      "projecte_standalone": 2158,
       "source": "recipe"
     },
     "icbm_port:nuclear_bomb_cart": {
       "projecte": 102897,
       "itemalchemy": 92883,
+      "projecte_standalone": 376158,
       "source": "recipe"
     },
     "icbm_port:nuclear_explosive": {
       "projecte": 101617,
       "itemalchemy": 91623,
+      "projecte_standalone": 374878,
       "source": "recipe"
     },
     "icbm_port:nuclear_missile": {
       "projecte": 103320,
       "itemalchemy": 93277,
+      "projecte_standalone": 377036,
       "source": "recipe"
     },
     "icbm_port:poison_powder": {
@@ -511,16 +573,19 @@
     "icbm_port:radar_gun": {
       "projecte": 409,
       "itemalchemy": 401,
+      "projecte_standalone": 500,
       "source": "recipe"
     },
     "icbm_port:radar_station": {
       "projecte": 4417,
       "itemalchemy": 4385,
+      "projecte_standalone": 4690,
       "source": "recipe"
     },
     "icbm_port:radio_detonator": {
       "projecte": 2344,
       "itemalchemy": 2284,
+      "projecte_standalone": 2890,
       "source": "recipe"
     },
     "icbm_port:radioactive_dirt": {
@@ -536,16 +601,19 @@
     "icbm_port:redmatter_bomb_cart": {
       "projecte": 148161,
       "itemalchemy": 107395,
+      "projecte_standalone": 2604382,
       "source": "recipe"
     },
     "icbm_port:redmatter_explosive": {
       "projecte": 146881,
       "itemalchemy": 106135,
+      "projecte_standalone": 2603102,
       "source": "recipe"
     },
     "icbm_port:redmatter_missile": {
       "projecte": 148584,
       "itemalchemy": 107789,
+      "projecte_standalone": 2605260,
       "source": "recipe"
     },
     "icbm_port:reinforced_concrete": {
@@ -566,6 +634,7 @@
     "icbm_port:repulsive_bomblet": {
       "projecte": 3474,
       "itemalchemy": 3471,
+      "projecte_standalone": 3503,
       "source": "recipe"
     },
     "icbm_port:repulsive_explosive": {
@@ -581,11 +650,13 @@
     "icbm_port:repulsive_missile": {
       "projecte": 5087,
       "itemalchemy": 5038,
+      "projecte_standalone": 5542,
       "source": "recipe"
     },
     "icbm_port:rocket_launcher": {
       "projecte": 1389,
       "itemalchemy": 1354,
+      "projecte_standalone": 1753,
       "source": "recipe"
     },
     "icbm_port:saltpeter_ball": {
@@ -606,6 +677,7 @@
     "icbm_port:sam_missile": {
       "projecte": 3533,
       "itemalchemy": 3484,
+      "projecte_standalone": 3988,
       "source": "recipe"
     },
     "icbm_port:shrapnel_bomb_cart": {
@@ -616,6 +688,7 @@
     "icbm_port:shrapnel_bomblet": {
       "projecte": 1894,
       "itemalchemy": 1891,
+      "projecte_standalone": 1923,
       "source": "recipe"
     },
     "icbm_port:shrapnel_explosive": {
@@ -631,6 +704,7 @@
     "icbm_port:shrapnel_missile": {
       "projecte": 3507,
       "itemalchemy": 3458,
+      "projecte_standalone": 3962,
       "source": "recipe"
     },
     "icbm_port:smoke_bomb_cart": {
@@ -641,6 +715,7 @@
     "icbm_port:smoke_bomblet": {
       "projecte": 317,
       "itemalchemy": 314,
+      "projecte_standalone": 346,
       "source": "recipe"
     },
     "icbm_port:smoke_explosive": {
@@ -656,6 +731,7 @@
     "icbm_port:smoke_missile": {
       "projecte": 1930,
       "itemalchemy": 1881,
+      "projecte_standalone": 2385,
       "source": "recipe"
     },
     "icbm_port:sonic_bomb_cart": {
@@ -671,6 +747,7 @@
     "icbm_port:sonic_missile": {
       "projecte": 6623,
       "itemalchemy": 6558,
+      "projecte_standalone": 7078,
       "source": "recipe"
     },
     "icbm_port:spikes": {
@@ -691,6 +768,7 @@
     "icbm_port:steel_plate": {
       "projecte": 261,
       "itemalchemy": 252,
+      "projecte_standalone": 352,
       "source": "recipe"
     },
     "icbm_port:sulfur_dust": {
@@ -701,16 +779,19 @@
     "icbm_port:thermobaric_bomb_cart": {
       "projecte": 23148,
       "itemalchemy": 23032,
+      "projecte_standalone": 36972,
       "source": "recipe"
     },
     "icbm_port:thermobaric_explosive": {
       "projecte": 21868,
       "itemalchemy": 21772,
+      "projecte_standalone": 35692,
       "source": "recipe"
     },
     "icbm_port:thermobaric_missile": {
       "projecte": 23571,
       "itemalchemy": 23426,
+      "projecte_standalone": 37850,
       "source": "recipe"
     }
   },

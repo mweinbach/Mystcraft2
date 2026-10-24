@@ -14,14 +14,18 @@ Upstream attribution and every edit to upstream files are in [UPSTREAM.md](UPSTR
 | Forge | Forge 43.1.3+ (built against 43.5.0) | ProjectE's API and capabilities | Curios (optional) |
 
 The two builds cannot be mixed in one game, and worlds do not migrate between them. Item Alchemy keeps its own EMC
-values and player knowledge; running it beside the Fabric build is checked in phase 4.
+values and player knowledge. The Fabric build runs beside it in Tekxit 4, and also with it removed
+([tekxit4-testing.md](../../docs/tekxit4-testing.md#projecte-fabric-port-in-tekxit-4-2026-10-24)).
 
 ## Status
 
-Phases 1 to 3 of 4 are verified: every upstream item, block and mechanic, from the EMC mapper and transmutation to
-the matter tools, rings, amulets, pedestal, explosives and fuels, has a GameTest of its core effect on both loaders
-(Trinkets slots on Fabric too). [PARITY.md](PARITY.md) has the phase plan and the test list. No client has been
-launched yet, so screens, HUD, key bindings and the EMI/JEI/Jade plugins are unverified until phase 4.
+All four phases are done. Every upstream item, block and mechanic, from the EMC mapper and transmutation to the matter
+tools, rings, amulets, pedestal, explosives and fuels, has a GameTest of its core effect on both loaders. On Fabric,
+the Trinkets slots have GameTests too. Every Fabric port's CI GameTests compare live ProjectE EMC with the port's
+expected values. In Tekxit 4 the Fabric jar boots on the dedicated server and in the client, with and without Item
+Alchemy. The client opens ProjectE's screens and shows its EMI recipes, EMC tooltips and key bindings.
+[PARITY.md](PARITY.md) has the phase plan, the test list and what remains unverified: in-screen interaction, HUD,
+renderers and the Forge client.
 
 Do not install either JAR in a world you care about.
 

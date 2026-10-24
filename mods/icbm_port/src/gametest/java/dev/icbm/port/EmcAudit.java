@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,6 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -22,7 +26,8 @@ import org.slf4j.LoggerFactory;
  * EMC coverage check (see docs/emc.md). Every registered item must have a decision in
  * emc/values.json and the shipped data must load. With Item Alchemy installed, its live values
  * must equal the expected ones, including the vanilla pack overrides listed under itemalchemy_overrides.
- * ProjectE has no Fabric build, so it is not consulted here.
+ * With this repository's ProjectE Fabric port installed (-PwithProjectE), its live values must equal the expected
+ * ones too, and the wither skeleton skull must carry the loop fix.
  */
 public final class EmcAudit {
   private static final Logger LOGGER = LoggerFactory.getLogger("icbm_port/emc");
@@ -83,7 +88,47 @@ public final class EmcAudit {
       write("emc-actual-itemalchemy.json", new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(actual) + "\n");
       LOGGER.info("EMC audit compared {} items with itemalchemy", actual.size());
     }
+    Function<Item, Long> projectE = projectE();
+    if (projectE != null) {
+      boolean mekanism = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("mekanism");
+      Map<String, Long> actual = new TreeMap<>();
+      for (String id : registered) {
+        long value = projectE.apply(Registry.ITEM.get(new Identifier(id)));
+        actual.put(id, value);
+        if (!items.has(id)) continue;
+        JsonObject expected = items.getAsJsonObject(id);
+        // values.json prices with Mekanism's recipes too; ProjectE only sees the recipes that load, so a run
+        // without Mekanism reads the standalone value emc.py records where it differs.
+        String key = !mekanism && expected.has("projecte_standalone") ? "projecte_standalone" : "projecte";
+        long want = expected.has(key) ? expected.get(key).getAsLong() : 0L;
+        if (value != want) failures.add("projecte value for " + id + " is " + value + ", expected " + want);
+      }
+      // ICBM's conversion file fills the skull at a third of a nether star, which closes the Wither loop.
+      long skull = projectE.apply(Items.WITHER_SKELETON_SKULL);
+      long star = projectE.apply(Items.NETHER_STAR);
+      if (skull != 46_422L || 3 * skull < star)
+        failures.add("projecte wither skeleton skull is " + skull + " against a nether star of " + star + ", expected 46422");
+      write("emc-actual-projecte.json", new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(actual) + "\n");
+      LOGGER.info("EMC audit compared {} items with projecte", actual.size());
+    }
     return report(failures);
+  }
+
+  /** ProjectE's API, when this repository's ProjectE Fabric port is loaded; 0 means no EMC. */
+  private static Function<Item, Long> projectE() {
+    try {
+      Object proxy = Class.forName("moze_intel.projecte.api.ProjectEAPI").getMethod("getEMCProxy").invoke(null);
+      Method value = Class.forName("moze_intel.projecte.api.proxy.IEMCProxy").getMethod("getValue", Item.class);
+      return item -> {
+        try {
+          return (Long) value.invoke(proxy, item);
+        } catch (ReflectiveOperationException e) {
+          throw new IllegalStateException(e);
+        }
+      };
+    } catch (ReflectiveOperationException e) {
+      return null;
+    }
   }
 
   /** Item Alchemy stores excluded items as 0 and has no entry for items it never valued. */

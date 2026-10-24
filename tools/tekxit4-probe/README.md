@@ -37,7 +37,10 @@ failed to apply in Tekxit 4. `scripts/tests/test_check_mixin_member_names.py` ru
 `build/libs/tekxit4-probe-fabric-1.19.2-1.0.0.jar`. Install it only in a disposable instance or server.
 
 **Server.** On server start it checks the port namespaces: registries, recipes, tags, loot tables, and Item Alchemy
-EMC values when `tekxit-probe/emc/` holds the expected values. It writes `tekxit-probe/server-report-*.json`. With
+EMC values when `tekxit-probe/emc/` holds the expected values. With the ProjectE Fabric port installed it also checks
+ProjectE's anchor values (vanilla items, the Philosopher's Stone and the wither skeleton skull loop fix are failures if
+wrong) and compares the ports' expected `projecte` values (differences are warnings, because pack recipes legitimately
+change derived values). It writes `tekxit-probe/server-report-*.json`. With
 `-Dtekxitprobe.runTests=<GameTest classes>` and `-Dfabric-api.gametest.command=true` on a dedicated server, it runs
 those GameTests after `Done`, logs `[TEKXIT_PROBE] TEST PASS/FAIL` and writes `gametests.json`. With
 `-Dtekxitprobe.stopAfterTests=true` it then stops the server and writes `server-stopped.txt`. The Tekxit pack blocks
@@ -54,7 +57,10 @@ sets.
    one EMI recipe page per port;
 4. runs the client checks: missing block and item models or textures, missing names, key binding conflicts and
    MetalRender status;
-5. runs the GameTests on the integrated server and collects every result, then saves and quits.
+5. with this repository's ProjectE Fabric port installed, checks a client-side EMC value and tooltip and ProjectE's
+   key bindings. It then places the Transmutation Table, Alchemical Chest, Energy Condenser, Energy Collector and
+   Dark Matter Furnace, opens each one's screen and takes a screenshot of it;
+6. runs the GameTests on the integrated server and collects every result, then saves and quits.
 
 The result goes to `tekxit-probe/client-report.json`, and the log carries a
 `[TEKXIT_PROBE] client result PASSED|FAILED` line. The verdict is PASSED only if all of these hold:

@@ -68,11 +68,11 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertNotIn("fabric_props", fluidphysics)
         jurassicraft = matrix_entry(self.text, "jurassicraft")
         self.assertIn("forge_props: -PwithProjectE -PwithJade -PwithJei\n", jurassicraft)
-        self.assertIn("fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy", jurassicraft)
+        self.assertIn("fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy -PwithProjectE\n", jurassicraft)
         for port in ("advancedgenetics", "mystcraft", "buildcraft", "extremereactors", "mekanism"):
             entry = matrix_entry(self.text, port)
             self.assertIn("forge_props: -PwithProjectE\n", entry)
-            self.assertIn("fabric_props: -PwithItemAlchemy\n", entry)
+            self.assertIn("fabric_props: -PwithItemAlchemy -PwithProjectE\n", entry)
 
     def test_optional_integrations_and_smoke_suite_run(self):
         """Optional integrations get their own GameTest runs, apart from the EMC runs; Mystcraft runs its smoke suite."""
@@ -116,7 +116,8 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertIn('./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"', self.text)
 
     def test_every_emc_port_compares_live_values_with_both_emc_mods(self):
-        """Each port's GameTest EmcAudit compares the shipped values with the live EMC mod when it is loaded."""
+        """Each port's GameTest EmcAudit compares the shipped values with the live EMC mods: ProjectE (published on Forge,
+        this repository's port on Fabric) and Item Alchemy on Fabric."""
         dual = [path.parent.parent.name for path in (ROOT / "mods").glob("*/emc/policy.json")
                 if (path.parent.parent / "fabric").is_dir()]
         self.assertTrue(dual)
@@ -125,9 +126,10 @@ class CiWorkflowTests(unittest.TestCase):
             self.assertIn("kind: dual", entry, port)
             self.assertRegex(entry, r"forge_props: [^\n]*-PwithProjectE", port)
             self.assertRegex(entry, r"fabric_props: [^\n]*-PwithItemAlchemy", port)
+            self.assertRegex(entry, r"fabric_props: [^\n]*-PwithProjectE", port)
         self.assertIn('gradle_with_props "$FORGE_PROPS" ":${PORT}:runGameTestServer"', self.text)
         self.assertIn('gradle_with_props "$FABRIC_PROPS" -p "mods/${PORT}/fabric" runGametest', self.text)
-        self.assertIn('gradle_with_props "-PwithItemAlchemy" :icbm_port:runGametest', self.text)
+        self.assertIn('gradle_with_props "-PwithItemAlchemy -PwithProjectE" :icbm_port:runGametest', self.text)
 
 
 if __name__ == "__main__":
