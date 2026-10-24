@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.material.Fluids;
@@ -458,9 +457,10 @@ public class TransferGameTests {
     public static void worldInteractionMinesOnlyWhenEveryDropFits(GameTestHelper helper) {
         Owner owner = Owner.random("gwF");
         mill(helper, owner);
-        // Ripe wheat always drops wheat and seeds: two kinds that need two free slots between them.
-        helper.setBlock(FRONT.below(), Blocks.FARMLAND);
-        helper.setBlock(FRONT, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, CropBlock.MAX_AGE));
+        // A potted dandelion always drops the pot and the flower: two kinds that need two free slots.
+        // (Not ripe wheat: crops pop off on the next shape update when the arena is dark, which on
+        // Forge's underground GameTest arenas raced the light engine and made this test flaky.)
+        helper.setBlock(FRONT, Blocks.POTTED_DANDELION);
         NodeBlockEntity node = owned(node(helper, NodeKind.ITEM_TRANSFER, NODE, Direction.WEST), owner);
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         pipe(helper, PIPE);
@@ -470,14 +470,14 @@ public class TransferGameTests {
         helper.startSequence()
                 .thenWaitUntil(() -> check(node.power() == Power.POWERED, "Node power " + node.power()))
                 .thenExecuteFor(60, () -> {
-                    check(helper.getBlockState(FRONT).is(Blocks.WHEAT), "Mined with room for only one of two drops");
-                    check(count(target, Items.WHEAT) + count(target, Items.WHEAT_SEEDS) == 0, "A drop arrived early");
+                    check(helper.getBlockState(FRONT).is(Blocks.POTTED_DANDELION), "Mined with room for only one of two drops");
+                    check(count(target, Items.FLOWER_POT) + count(target, Items.DANDELION) == 0, "A drop arrived early");
                 })
                 .thenExecute(() -> target.setItem(0, ItemStack.EMPTY))
                 .thenWaitUntil(() -> {
-                    check(!helper.getBlockState(FRONT).is(Blocks.WHEAT), "Wheat not mined once both drops fit");
-                    check(count(target, Items.WHEAT) == 1 && count(target, Items.WHEAT_SEEDS) >= 1,
-                            "Expected wheat and seeds in the chest");
+                    check(!helper.getBlockState(FRONT).is(Blocks.POTTED_DANDELION), "Potted dandelion not mined once both drops fit");
+                    check(count(target, Items.FLOWER_POT) == 1 && count(target, Items.DANDELION) == 1,
+                            "Expected the pot and the dandelion in the chest");
                 })
                 .thenSucceed();
     }
@@ -486,8 +486,7 @@ public class TransferGameTests {
     public static void worldInteractionCountsDoubleChestSpaceOnce(GameTestHelper helper) {
         Owner owner = Owner.random("gwC");
         mill(helper, owner);
-        helper.setBlock(FRONT.below(), Blocks.FARMLAND);
-        helper.setBlock(FRONT, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, CropBlock.MAX_AGE));
+        helper.setBlock(FRONT, Blocks.POTTED_DANDELION);
         NodeBlockEntity node = owned(node(helper, NodeKind.ITEM_TRANSFER, NODE, Direction.WEST), owner);
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         // Pipes touch both halves of one double chest, so the network reaches its 54 slots twice.
@@ -505,21 +504,21 @@ public class TransferGameTests {
         Container combined = ChestBlock.getContainer((ChestBlock) Blocks.CHEST, helper.getLevel().getBlockState(absolute),
                 helper.getLevel(), absolute, true);
         check(combined != null && combined.getContainerSize() == 54, "Not a double chest");
-        // One free slot in the whole double chest: room for the wheat or the seeds, not both.
+        // One free slot in the whole double chest: room for the pot or the dandelion, not both.
         for (int i = 0; i < 27; i++) first.setItem(i, new ItemStack(Items.STONE, 64));
         for (int i = 1; i < 27; i++) second.setItem(i, new ItemStack(Items.STONE, 64));
         helper.startSequence()
                 .thenWaitUntil(() -> check(node.power() == Power.POWERED, "Node power " + node.power()))
                 .thenExecuteFor(60, () -> {
-                    check(helper.getBlockState(FRONT).is(Blocks.WHEAT), "Mined with room for only one of two drops");
-                    check(count(first, Items.WHEAT) + count(second, Items.WHEAT) == 0, "A drop arrived early");
+                    check(helper.getBlockState(FRONT).is(Blocks.POTTED_DANDELION), "Mined with room for only one of two drops");
+                    check(count(first, Items.FLOWER_POT) + count(second, Items.FLOWER_POT) == 0, "A drop arrived early");
                 })
                 .thenExecute(() -> first.setItem(0, ItemStack.EMPTY))
                 .thenWaitUntil(() -> {
-                    check(!helper.getBlockState(FRONT).is(Blocks.WHEAT), "Wheat not mined once both drops fit");
-                    check(count(first, Items.WHEAT) + count(second, Items.WHEAT) == 1
-                            && count(first, Items.WHEAT_SEEDS) + count(second, Items.WHEAT_SEEDS) >= 1,
-                            "Expected wheat and seeds in the double chest");
+                    check(!helper.getBlockState(FRONT).is(Blocks.POTTED_DANDELION), "Potted dandelion not mined once both drops fit");
+                    check(count(first, Items.FLOWER_POT) + count(second, Items.FLOWER_POT) == 1
+                            && count(first, Items.DANDELION) + count(second, Items.DANDELION) == 1,
+                            "Expected the pot and the dandelion in the double chest");
                 })
                 .thenSucceed();
     }
