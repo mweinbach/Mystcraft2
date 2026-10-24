@@ -367,6 +367,7 @@ public class DockingStationPluggable extends PipePluggable {
     public InteractionResult onActivate(Player player, InteractionHand hand, Vec3 hit) {
         ItemStack held = player.getItemInHand(hand);
         if (!(held.getItem() instanceof RobotItem)) return InteractionResult.PASS;
+        if (holder.getLevel() instanceof ServerLevel server) applyPendingUnlink(server);
         // A station stays its robot's home while that robot is away, even in unloaded chunks.
         if (isLinked() || hasDockedRobot()) return InteractionResult.FAIL;
         if (holder.getLevel().isClientSide) return InteractionResult.SUCCESS;
@@ -377,6 +378,12 @@ public class DockingStationPluggable extends PipePluggable {
         return InteractionResult.CONSUME;
     }
 
+    /** Drops the link to a robot that was picked up, killed or rehomed while this station was unloaded. */
+    private void applyPendingUnlink(ServerLevel level) {
+        UUID robot = PendingUnlinks.get(level).take(ref());
+        if (robot != null && robot.equals(linked)) link(null);
+    }
+
     // Lifecycle and sync.
 
     @Override
@@ -384,6 +391,7 @@ public class DockingStationPluggable extends PipePluggable {
         Level level = holder.getLevel();
         if (level == null || level.isClientSide) return;
         RobotWorld.get(level).addStation(ref());
+        applyPendingUnlink((ServerLevel) level);
     }
 
     @Override

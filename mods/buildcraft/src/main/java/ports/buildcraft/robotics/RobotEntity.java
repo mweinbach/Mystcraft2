@@ -153,7 +153,12 @@ public class RobotEntity extends Entity {
     public void setHome(@Nullable StationRef ref) {
         if (home != null && !home.equals(ref)) {
             DockingStationPluggable old = home.resolve(level);
-            if (old != null && getUUID().equals(old.linkedRobotId())) old.link(null);
+            if (old != null) {
+                if (getUUID().equals(old.linkedRobotId())) old.link(null);
+            } else if (level instanceof ServerLevel server && !server.isLoaded(home.pos())) {
+                // The old home cannot be told now; it drops the link when it next loads.
+                PendingUnlinks.get(server).add(home, getUUID());
+            }
         }
         home = ref;
         if (ref != null) {

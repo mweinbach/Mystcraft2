@@ -39,8 +39,10 @@ import ports.buildcraft.core.statements.BCCoreStatements;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.robotics.BCRobotics;
 import ports.buildcraft.robotics.DockingStationPluggable;
+import ports.buildcraft.robotics.PendingUnlinks;
 import ports.buildcraft.robotics.RobotEntity;
 import ports.buildcraft.robotics.RobotItem;
+import ports.buildcraft.robotics.StationRef;
 import ports.buildcraft.robotics.WorkArea;
 import ports.buildcraft.robotics.board.BreakerBoard;
 import ports.buildcraft.robotics.board.RobotBoardType;
@@ -200,6 +202,48 @@ public final class RobotTests {
         blank.setItem(1, new ItemStack(BCRobotics.REDSTONE_BOARD.get()));
         require(helper, !boardRecipe.matches(blank, helper.getLevel()), "a clean redstone board is not a programmed board");
         helper.succeed();
+    }
+
+    /**
+     * A robot that stops calling a station home while that station's chunk is unloaded (here, picked up after moving
+     * its home to a station in a far unloaded chunk) leaves a pending unlink, saved with the level. A station named in
+     * one drops the link on its next tick, so a new robot can be deployed there instead of the station staying
+     * reserved forever.
+     */
+    public static void stationForgetsRobotsTakenWhileUnloaded(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(4, 2, 4);
+        PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
+        DockingStationPluggable station = station(pipe, Direction.UP);
+        Player player = helper.makeMockPlayer();
+        PendingUnlinks pending = PendingUnlinks.get(helper.getLevel());
+
+        RobotEntity robot = deploy(helper, player, pos, station, RobotBoardType.PICKER);
+        StationRef far = new StationRef(helper.absolutePos(pos).offset(100_000, 0, 100_000), Direction.UP);
+        require(helper, !helper.getLevel().isLoaded(far.pos()), "the far station's chunk is unloaded");
+        robot.setHome(far);
+        require(helper, !station.isLinked() && far.equals(robot.home()), "moving the robot's home frees its loaded old station");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        player.setShiftKeyDown(true);
+        require(helper, robot.interact(player, InteractionHand.MAIN_HAND) == InteractionResult.CONSUME && robot.isRemoved(),
+                "the owner picks the robot up");
+        require(helper, robot.getUUID().equals(pending.peek(far)), "picking up a robot whose home is unloaded leaves a pending unlink");
+        player.setShiftKeyDown(false);
+
+        RobotEntity away = deploy(helper, player, pos, station, RobotBoardType.PICKER);
+        away.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+        require(helper, station.isLinked(), "the station stays linked to its unloaded robot");
+        pending.add(station.ref(), away.getUUID());
+        PendingUnlinks saved = PendingUnlinks.load(pending.save(new CompoundTag()));
+        require(helper, away.getUUID().equals(saved.peek(station.ref())) && robot.getUUID().equals(saved.peek(far)),
+                "pending unlinks are saved with the level");
+
+        helper.startSequence()
+                .thenExecuteAfter(2, () -> {
+                    require(helper, !station.isLinked() && pending.peek(station.ref()) == null,
+                            "the station drops the link its robot gave up and forgets the pending unlink");
+                    deploy(helper, player, pos, station, RobotBoardType.PICKER).discard();
+                })
+                .thenSucceed();
     }
 
     /**

@@ -468,6 +468,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void stationDeploysAndReturnsRobots(GameTestHelper helper) { RobotTests.stationDeploysAndReturnsRobots(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void stationForgetsRobotsTakenWhileUnloaded(GameTestHelper helper) { RobotTests.stationForgetsRobotsTakenWhileUnloaded(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 300)
     public void robotRechargesAtItsStation(GameTestHelper helper) { RobotTests.robotRechargesAtItsStation(helper); }
 

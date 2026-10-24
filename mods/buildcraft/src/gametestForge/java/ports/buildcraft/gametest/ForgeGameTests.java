@@ -478,6 +478,9 @@ public final class ForgeGameTests {
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
     public static void stationDeploysAndReturnsRobots(GameTestHelper helper) { RobotTests.stationDeploysAndReturnsRobots(helper); }
 
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 20)
+    public static void stationForgetsRobotsTakenWhileUnloaded(GameTestHelper helper) { RobotTests.stationForgetsRobotsTakenWhileUnloaded(helper); }
+
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
     public static void robotRechargesAtItsStation(GameTestHelper helper) { RobotTests.robotRechargesAtItsStation(helper); }
 
