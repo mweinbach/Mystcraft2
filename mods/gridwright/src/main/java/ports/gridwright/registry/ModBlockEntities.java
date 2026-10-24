@@ -5,6 +5,7 @@ import ports.gridwright.machine.GeneratorBlockEntity;
 import ports.gridwright.machine.ResonatorBlockEntity;
 import ports.gridwright.platform.Platform;
 import ports.gridwright.worker.EnderQuarryBlockEntity;
+import ports.gridwright.worker.MechanicalCrafterBlockEntity;
 import ports.gridwright.worker.MechanicalMinerBlockEntity;
 import ports.gridwright.worker.MechanicalUserBlockEntity;
 import ports.gridwright.worker.QuantumQuarryBlockEntity;
@@ -42,6 +43,10 @@ public final class ModBlockEntities {
     public static final Supplier<BlockEntityType<MechanicalUserBlockEntity>> MECHANICAL_USER = Platform.register(
             Registry.BLOCK_ENTITY_TYPE_REGISTRY, "mechanical_user", () -> BlockEntityType.Builder.of(MechanicalUserBlockEntity::new,
                     ModBlocks.MECHANICAL_USER.get()).build(null));
+    // Phase 3
+    public static final Supplier<BlockEntityType<MechanicalCrafterBlockEntity>> MECHANICAL_CRAFTER = Platform.register(
+            Registry.BLOCK_ENTITY_TYPE_REGISTRY, "mechanical_crafter", () -> BlockEntityType.Builder.of(MechanicalCrafterBlockEntity::new,
+                    ModBlocks.MECHANICAL_CRAFTER.get()).build(null));
 
     private ModBlockEntities() { }
 

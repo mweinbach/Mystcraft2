@@ -72,8 +72,26 @@ public final class TransferScreens {
     }
 
     static final class NodeScreen extends FlatScreen<NodeMenu> {
+        private Button redstone;
+
         NodeScreen(NodeMenu menu, Inventory inventory, Component title) {
             super(menu, inventory, title);
+        }
+
+        @Override
+        protected void init() {
+            super.init();
+            redstone = addRenderableWidget(new Button(leftPos + 92, topPos + 54, 76, 16, Component.empty(), button -> {
+                if (minecraft != null && minecraft.gameMode != null) {
+                    minecraft.gameMode.handleInventoryButtonClick(menu.containerId, NodeMenu.BUTTON_REDSTONE);
+                }
+            }));
+        }
+
+        @Override
+        public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
+            redstone.setMessage(Component.translatable("screen.gridwright.node.redstone." + menu.redstone().name().toLowerCase(Locale.ROOT)));
+            super.render(pose, mouseX, mouseY, partialTick);
         }
 
         @Override

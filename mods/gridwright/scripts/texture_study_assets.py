@@ -17,8 +17,11 @@ P = {
     'fluid_dark': '#294962', 'fluid': '#5d9dc4', 'fluid_light': '#b1d6dd',
     'violet_dark': '#4a3f61', 'violet': '#9885b8', 'violet_light': '#e0c8e6',
     'leaf': '#8cae64', 'red': '#c56950',
+    # Phase 3 fuel accents: same shading steps as the materials above.
+    'leaf_dark': '#4f6e3c', 'pink_dark': '#8a4a63', 'pink': '#cf7f9c', 'pink_light': '#f0c3d2',
 }
-GENS = ['survivalist', 'furnace', 'culinary', 'lava', 'potion', 'ender', 'redstone']
+GENS = ['survivalist', 'furnace', 'culinary', 'lava', 'potion', 'ender', 'redstone',
+        'tnt', 'pink', 'nether_star', 'death', 'enchant', 'slime', 'frosty', 'halitosis']
 
 
 def c(key):
@@ -143,6 +146,67 @@ def generator(kind, active):
         rect(d, (15, 12, 17, 20), 'ink')
         rect(d, (19, 14, 20, 15), 'gp_light' if active else 'steel')
         line(d, [(11, 23), (13, 23)], 'copper')
+    elif kind == 'tnt':
+        # A bundled charge: three sticks, a strap and a fuse that sparks when burning.
+        for x in (10, 14, 18):
+            rect(d, (x, 13, x+3, 23), 'red' if active else 'copper_dark')
+            line(d, [(x, 13), (x, 23)], 'energy_light' if active else 'copper')
+        rect(d, (9, 17, 22, 18), 'steel_light')
+        line(d, [(16, 13), (16, 11), (19, 9)], 'stone_light')
+        rect(d, (19, 8, 20, 9), high if active else 'steel')
+    elif kind == 'pink':
+        # A five-petal flower on a short stem.
+        petal, centre = ('pink', 'pink_light') if active else ('pink_dark', 'steel')
+        for box in [(14, 9, 18, 13), (9, 13, 13, 17), (19, 13, 23, 17), (11, 18, 15, 22), (17, 18, 21, 22)]:
+            d.ellipse(box, fill=c(petal))
+        rect(d, (15, 15, 17, 17), centre)
+        line(d, [(16, 22), (16, 24)], 'leaf' if active else 'steel_dark')
+    elif kind == 'nether_star':
+        # A four-pointed star with a bright core.
+        star = 'edge' if active else 'steel'
+        poly(d, [(16, 8), (18, 14), (24, 16), (18, 18), (16, 24), (14, 18), (8, 16), (14, 14)], star)
+        rect(d, (15, 15, 17, 17), 'energy_light' if active else 'steel_light')
+        line(d, [(16, 9), (16, 13)], 'steel_light')
+    elif kind == 'death':
+        # A skull: dome, two eye sockets and a row of teeth.
+        bone = 'edge' if active else 'stone_light'
+        d.ellipse((10, 9, 22, 20), fill=c(bone))
+        rect(d, (12, 18, 20, 22), bone)
+        rect(d, (12, 13, 14, 15), 'ink'); rect(d, (18, 13, 20, 15), 'ink')
+        rect(d, (15, 17, 16, 18), 'recess')
+        for x in (13, 15, 17, 19):
+            line(d, [(x, 21), (x, 22)], 'recess')
+    elif kind == 'enchant':
+        # An open book with glyph lines; the glyphs glow while it burns.
+        rect(d, (9, 12, 15, 22), 'stone_light'); rect(d, (17, 12, 23, 22), 'stone_light')
+        line(d, [(16, 11), (16, 23)], 'copper_dark', 2)
+        glyph = 'violet_light' if active else 'violet_dark'
+        for y in (14, 17, 20):
+            line(d, [(10, y), (14, y)], glyph); line(d, [(18, y), (22, y)], glyph)
+        rect(d, (15, 9, 17, 10), 'violet' if active else 'steel')
+    elif kind == 'slime':
+        # A cube within a cube, with two eyes.
+        outer, inner = ('leaf', 'leaf_dark') if active else ('leaf_dark', 'steel_dark')
+        rect(d, (9, 10, 22, 23), outer)
+        rect(d, (12, 13, 19, 20), inner)
+        rect(d, (13, 14, 14, 15), 'ink'); rect(d, (17, 14, 18, 15), 'ink')
+        line(d, [(10, 11), (13, 11)], 'edge')
+    elif kind == 'frosty':
+        # A six-armed snowflake.
+        flake = 'fluid_light' if active else 'steel'
+        line(d, [(16, 8), (16, 24)], flake, 2)
+        line(d, [(9, 12), (23, 20)], flake, 2)
+        line(d, [(9, 20), (23, 12)], flake, 2)
+        for x, y in [(16, 8), (16, 24), (9, 12), (23, 20), (9, 20), (23, 12)]:
+            rect(d, (x-1, y-1, x+1, y+1), 'edge' if active else 'steel_light')
+    elif kind == 'halitosis':
+        # A breath cloud rising out of a stoppered bottle.
+        rect(d, (14, 18, 18, 19), 'copper_dark', 'copper')
+        poly(d, [(14, 20), (12, 22), (12, 24), (20, 24), (20, 22), (18, 20)], 'steel_light')
+        cloud = 'violet' if active else 'violet_dark'
+        for box in [(9, 10, 15, 16), (13, 8, 20, 15), (18, 10, 23, 16)]:
+            d.ellipse(box, fill=c(cloud))
+        rect(d, (14, 10, 15, 11), 'violet_light' if active else 'steel')
     else:
         for points in [[(10, 10), (10, 16), (16, 16), (16, 22)], [(22, 10), (22, 19), (16, 19)]]:
             line(d, points, 'red' if active else 'copper_dark', 2)
@@ -263,10 +327,10 @@ def mill(kind, top=False):
     return im
 
 
-def node(fluid=False, retrieval=False):
+def node(fluid=False, retrieval=False, energy=False):
     im = metal('front'); d = ImageDraw.Draw(im)
     rect(d, (7, 7, 24, 24), 'ink')
-    accent = 'fluid' if fluid else 'copper_light'
+    accent = 'fluid' if fluid else 'energy' if energy else 'copper_light'
     pts = [(13, 10), (19, 16), (13, 22), (13, 18), (9, 18), (9, 14), (13, 14)]
     if retrieval:
         pts = [(31-x, y) for x, y in pts]
@@ -274,8 +338,34 @@ def node(fluid=False, retrieval=False):
     line(d, [(9, 25), (22, 25)], 'steel_light')
     if fluid:
         poly(d, [(22, 8), (20, 11), (22, 13), (24, 11)], 'fluid_light')
+    elif energy:
+        # The FE/TR bolt, not the GP crystal: the node moves stored energy, never Grid Power.
+        poly(d, [(23, 8), (20, 11), (22, 11), (20, 14), (24, 10), (22, 10)], 'energy_light')
     else:
         rect(d, (20, 9, 23, 12), 'copper', 'copper_light')
+    return im
+
+
+def crafter(top=False):
+    """Timber body on an iron band; the top is a 3x3 grid of wells with a crate mark for items."""
+    im = wood(); d = ImageDraw.Draw(im)
+    if top:
+        rect(d, (3, 3, 28, 28), 'ink')
+        for row in range(3):
+            for column in range(3):
+                x, y = 4+column*8, 4+row*8
+                rect(d, (x, y, x+7, y+7), 'recess')
+                line(d, [(x, y+7), (x+7, y+7)], 'wood_dark')
+        rect(d, (14, 14, 17, 17), 'copper', 'copper_light')
+    else:
+        rect(d, (0, 13, 31, 18), 'steel_dark')
+        line(d, [(0, 13), (31, 13)], 'steel_light')
+        for x in (3, 28):
+            rivet(d, x, 15)
+        # Item crate mark on the band, and a small GP crystal: it is a Grid Power consumer.
+        rect(d, (11, 11, 18, 20), 'copper_dark', 'copper')
+        line(d, [(12, 12), (17, 19)], 'copper_light')
+        diamond(d, (21, 11, 26, 20), 'gp')
     return im
 
 
@@ -449,6 +539,8 @@ def samples():
         add(f'{kind}_mill_side', mill(kind)); add(f'{kind}_mill_top', mill(kind, True))
     for name in ['transfer_node', 'retrieval_node', 'fluid_transfer_node', 'fluid_retrieval_node']:
         add(f'{name}_front', node(name.startswith('fluid'), 'retrieval' in name))
+    add('energy_transfer_node_front', node(energy=True))
+    add('mechanical_crafter_side', crafter()); add('mechanical_crafter_top', crafter(True))
     add('node_side', metal('front')); add('transfer_pipe', pipe())
     add('power_converter_to_grid', converter(True)); add('power_converter_to_energy', converter())
     add('power_converter_top', converter(top=True))
@@ -501,7 +593,7 @@ def proposed_models():
                    box((2, 13, 2), (14, 14, 14), 'trim')]
             if kind in ('survivalist', 'furnace'):
                 els += [box((10, 14, 7), (13, 16, 12), 'side')]
-            elif kind == 'potion':
+            elif kind in ('potion', 'halitosis'):
                 els += [box((6, 14, 6), (10, 16, 10), 'top')]
             add(name, tex, els)
     tex = {**base, 'front': 'gridwright:block/resonator_front', 'top': 'gridwright:block/resonator_top',
@@ -549,7 +641,7 @@ def proposed_models():
             for x in (3, 7, 11):
                 els.append(box((x, 11, 2), (x+1, 12, 14), 'trim'))
         add(kind+'_mill', tex, els)
-    for name in ('transfer_node', 'retrieval_node', 'fluid_transfer_node', 'fluid_retrieval_node'):
+    for name in ('transfer_node', 'retrieval_node', 'fluid_transfer_node', 'fluid_retrieval_node', 'energy_transfer_node'):
         tex = {**base, 'front': f'gridwright:block/{name}_front', 'side': 'gridwright:block/node_side'}
         plate = box((1, 1, 0), (15, 15, 3), 'side')
         plate['faces']['north'].update(texture='#front', uv=[0, 0, 16, 16])

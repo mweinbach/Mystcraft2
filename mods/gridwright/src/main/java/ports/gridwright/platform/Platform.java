@@ -16,6 +16,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -94,6 +95,12 @@ public final class Platform {
 
         /** Fires the loader's after-break notification, if it has one (Fabric {@code PlayerBlockBreakEvents.AFTER}). */
         void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player);
+
+        /**
+         * Registers a whole-number game rule (at least 0) that server operators set with {@code /gamerule}.
+         * Vanilla keeps the rule factory private: Fabric has {@code GameRuleFactory}, Forge reaches it by name.
+         */
+        GameRules.Key<GameRules.IntegerValue> intGameRule(String name, GameRules.Category category, int defaultValue);
     }
 
     @FunctionalInterface
@@ -169,5 +176,9 @@ public final class Platform {
 
     public static void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
         backend().afterBreak(level, pos, state, blockEntity, player);
+    }
+
+    public static GameRules.Key<GameRules.IntegerValue> intGameRule(String name, GameRules.Category category, int defaultValue) {
+        return backend().intGameRule(name, category, defaultValue);
     }
 }

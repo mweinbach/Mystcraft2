@@ -25,7 +25,11 @@
       "ports.gridwright.gametest.MillGameTests",
       "ports.gridwright.gametest.RainbowGameTests",
       "ports.gridwright.gametest.GeneratorUpgradeGameTests",
-      "ports.gridwright.gametest.ViewerGameTests"
+      "ports.gridwright.gametest.ViewerGameTests",
+      "ports.gridwright.gametest.GeneratorFamilyGameTests",
+      "ports.gridwright.gametest.ChunkWardGameTests",
+      "ports.gridwright.gametest.CrafterGameTests",
+      "ports.gridwright.gametest.NodeControlGameTests"
     ]
   },
   "depends": {

@@ -110,6 +110,26 @@ on both loaders by the other tests.
 | Overclock upgrade | Faster, less efficient generators | Shared | Shared | `overclockTradesEfficiencyForSpeed`, `upgradesInstallRemoveAndDrop` |
 | JEI / REI / EMI | Resonating category | `@JeiPlugin`, `@EmiEntrypoint`, `@REIPluginClient` (`GridwrightReiForgePlugin`) | `jei_mod_plugin`, `emi`, `rei_client` entrypoints | `resonatingDisplaysCoverEveryRecipe`, `viewerPluginsFollowInstalledViewers` (also run with `-PwithJei`, `-PwithRei`, `-PwithEmi`) |
 
+## Phase 3: generator family and automation
+
+| Feature | Public behaviour (see NOTICE) | Forge | Fabric | GameTests |
+| --- | --- | --- | --- | --- |
+| TNT, pink, nether star, death, enchantment, slime, frosty and halitosis generators | One generator per class of fuel | Shared `GeneratorKind`; Forge Energy out | Shared; Team Reborn Energy out | `phaseThreeFuelTable`, `enchantGeneratorBurnsOffEnchantmentsOnly`, `enchantGeneratorReturnsBooks`, `halitosisGeneratorReturnsBottles`, `pinkGeneratorReadsItsTag`, and the rainbow tests with all fifteen |
+| Chunk loading ward | Loads chunks for GP; a villager under contract | Shared: a custom chunk ticket per ward and saved data restored on the first server tick (`TickEvent.ServerTickEvent`); game rule registered through vanilla's private factory by reflection | Shared ticket and saved data, restored from `END_SERVER_TICK`; game rule through `GameRuleRegistry` | `wardNeedsAVillagerContractAndPower`, `unpaidWardLetsGoAfterItsGrace`, `wardsPerPlayerFollowTheGameRule`, `droppedWardKeepsItsContract`, `savedWardsSurviveARestart` |
+| Mechanical crafter | Autocrafter on Grid Power | `SidedInvWrapper` over the crafter's face rules | `InventoryStorage` over the same rules | `crafterKeepsOneOfEachAsThePattern`, `crafterRefillsUnstackablesAndKeepsLeftovers`, `crafterNeedsPowerARecipeAndNoSignal` |
+| Energy transfer node | Moves energy along pipes | `IEnergyStorage` capability, simulate then commit | Team Reborn `EnergyStorage` in transactions | `energyNodeMovesGeneratorOutput`, `energyNodeKeepsToItsRate`, `energyNodeFillsEveryTargetInOneTick` |
+| Node redstone control | Gridwright's own | Shared; the button is vanilla's container-button packet | Shared | `nodesFollowTheirRedstoneMode` |
+| Cursed lasso | A lasso for hostile creatures | Shared | Shared | `cursedLassoTakesHostilesButNotBosses` |
+
+### Differences from the public descriptions
+
+| Block | Public behaviour | Gridwright | Deliberate differences |
+| --- | --- | --- | --- |
+| Chunk loading ward | A crafted ward that keeps chunks loaded; its recipe needs a villager under contract caught with the golden lasso. | Loads the 3x3 chunks around it for 36 GP once a lassoed villager signs its contract by hand. | The contract is signed on the placed ward rather than in the recipe (no NBT-matching recipe needed); a per-player game rule caps how many run; an unpaid ward lets go after 10 seconds. |
+| Mechanical crafter | Autocrafter on Grid Power. | The grid is both pattern and store; stackables keep their last item, unstackables are remembered. | No separate pattern slots and no speed upgrades. |
+| Enchantment generator | Burns enchantments for power. | Energy per enchantment level; the item comes back without its enchantments. | The item is never destroyed, and curses neither burn nor come off. |
+| Rainbow generator | Needs every generator kind running. | Fifteen kinds since phase 3, 512 GP. | Same 9x9x9 area and crowding rule as phase 2d. |
+
 ## Deliberate loader differences
 
 - **Sound muffling coverage.** Forge muffles on the client, where the level sound event fires for
@@ -126,6 +146,10 @@ on both loaders by the other tests.
   standard break / place hooks so claim mods can cancel per block; the Fabric builder's wand uses
   `UseBlockCallback` because Fabric has no place event.
 - **Fluid units.** Drum capacities are whole buckets on both loaders; only the API units differ.
+- **Game rules.** Fabric registers `gridwrightChunkWardsPerPlayer` with Fabric API's `GameRuleRegistry`;
+  Forge calls vanilla's `GameRules.register` directly and builds the integer rule type through
+  `ObfuscationReflectionHelper` (`GameRules.IntegerValue.create` is package-private). The rule behaves
+  the same on both.
 - **Fake players.** Spikes use a fixed-profile player named `[Gridwright]` on both loaders; it never
   joins the world, so mobs hit by it are told not to retaliate. Quarries and mechanical blocks use a
   fake player with their owner's profile instead (Forge `FakePlayerFactory`, Fabric `FabricFakePlayer`),

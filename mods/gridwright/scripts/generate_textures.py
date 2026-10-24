@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw
 
 import utility_textures
 import power_textures
+import phase3_textures
 
 ROOT = Path(__file__).resolve().parents[1] / 'src/main/resources/assets/gridwright'
 BLOCKS = ROOT / 'textures/block'
@@ -298,6 +299,7 @@ def main():
         textures[BLOCKS / f'{kind}_generator_front_on.png'] = generator_front(kind, True, 100 + index)
     textures.update(utility_textures.textures(BLOCKS, ITEMS))
     textures.update(power_textures.textures(BLOCKS, ITEMS))
+    textures.update(phase3_textures.textures(BLOCKS, ITEMS))
     for path, image in textures.items():
         image.save(path, optimize=True)
     print(f'Wrote {len(textures)} textures.')

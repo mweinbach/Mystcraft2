@@ -58,7 +58,8 @@ def main():
                     require(len(face['uv']) == 4 and all(0 <= v <= 16 for v in face['uv']),
                             f'{name}: invalid UVs, Minecraft keeps UV units at 16 for 32px textures')
     # Changing only the lit model would regress the machine when its fuel runs out.
-    for kind in ['survivalist', 'furnace', 'culinary', 'lava', 'potion', 'ender', 'redstone']:
+    for kind in ['survivalist', 'furnace', 'culinary', 'lava', 'potion', 'ender', 'redstone',
+                 'tnt', 'pink', 'nether_star', 'death', 'enchant', 'slime', 'frosty', 'halitosis']:
         require(kind+'_generator' in models and kind+'_generator_on' in models,
                 f'{kind}: both generator states need model replacements')
         require((ART/'textures/block'/f'{kind}_generator_front.png').read_bytes() !=

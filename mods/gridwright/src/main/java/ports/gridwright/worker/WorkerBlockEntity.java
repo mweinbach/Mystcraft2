@@ -36,7 +36,7 @@ public abstract class WorkerBlockEntity extends InventoryBlockEntity implements 
     /** What a worker is doing, as shown on its screen. */
     public enum Status {
         IDLE, RUNNING, OVERLOADED, NO_OWNER, BLOCKED, INCOMPLETE, NO_BOUNDARY, OPEN_BOUNDARY, TOO_LARGE,
-        NO_ENERGY, WAITING, FINISHED, PAUSED, PROTECTED
+        NO_ENERGY, WAITING, FINISHED, PAUSED, PROTECTED, NO_RECIPE, SHORT
     }
 
     private final WorkerLayout layout;

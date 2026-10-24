@@ -1,9 +1,10 @@
 # Minecraft 1.19.2 ports
 
 A workspace for bringing older Minecraft mods to **Minecraft 1.19.2**.
-Each port lives in `mods/<mod-id>` and produces its own JAR. The default Forge
-tooling pins Java 17, Forge 43.5.0, ForgeGradle 6.0.54, and Gradle 8.8. Fabric
-ports use independent Gradle builds so their loader tooling stays isolated.
+Each port lives in `mods/<mod-id>` and produces its own JAR. **Fabric is the primary loader for
+every port**; Forge variants are optional and kept where they are cheap. Fabric builds are independent
+Loom builds (Fabric Loader 0.16.14, Fabric API 0.77.0+1.19.2). The root Gradle build compiles the
+Forge variants and pins Java 17, Forge 43.5.0, ForgeGradle 6.0.54, and Gradle 8.8.
 
 | Port | Status | Notes |
 | --- | --- | --- |
@@ -15,7 +16,7 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [BuildCraft](mods/buildcraft/) | In progress | Fabric + Forge port of BuildCraft 8.0.x: engines, item/fluid/kinesis pipes, tank, pump, mining well, quarry, oil wells and the distiller/heat exchanger fuel chain, with Team Reborn Energy/Forge Energy at 1 MJ = 10 units. |
 | [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge + Fabric port of the 1.0.3 release with shared gameplay: all genes, six machines, Forge Energy or Team Reborn Energy, and server GameTests on both loaders. Survival and multiplayer play-testing remain. |
 | [Extreme Reactors](mods/extremereactors/) | In progress | Fabric + Forge alpha of Extreme Reactors 2 with shared gameplay: reactors, turbines, reprocessor and fluidizer with the upstream simulation and screens, Team Reborn Energy/Forge Energy, and server GameTests on both loaders. The ComputerCraft, JEI and Patchouli integrations are not ported yet. |
-| [Gridwright](mods/gridwright/) | In progress | Clean-room, Extra Utilities 2–style Forge + Fabric mod (no upstream code or art): player/team Grid Power with solar, lunar, water and wind producers, the resonator, and seven fuel generators making Forge Energy or Team Reborn Energy, with server GameTests on both loaders. Transfer nodes, quarries, tools and the rest are planned. |
+| [Gridwright](mods/gridwright/) | In progress | Clean-room, Extra Utilities 2–style Fabric mod (Forge optional) (no upstream code or art): player/team Grid Power with its producers and fifteen fuel generators making Forge Energy or Team Reborn Energy, the resonator, transfer nodes and pipes, quantum and ender quarries, mechanical miner/user/crafter, utility items and wards, a chunk loading ward and the Deep Dark dimension, with server GameTests on both loaders. Screens and phase 3 art are unverified in a client. |
 | [ProjectE](mods/projecte/) | In progress | Fabric + Forge port of ProjectE 1.1.0 from upstream's own MIT sources, mod id `projecte`. Every upstream item and mechanic passes server GameTests on both loaders: the EMC mapper and transmutation, collectors, condensers and the chest, matter tools and armour, rings, amulets, the pedestal, explosives and fuels. The Fabric jar boots in the Tekxit 4 client and server, with and without Item Alchemy, and opens its screens there. Every Fabric port's CI GameTests audit its live ProjectE EMC. |
 
 Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme Reactors, Gridwright, Mekanism and ProjectE support Forge

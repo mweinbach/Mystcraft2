@@ -3,6 +3,8 @@ package ports.gridwright.fabric;
 import ports.gridwright.Gridwright;
 import ports.gridwright.platform.Platform;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -36,6 +38,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -210,5 +213,10 @@ final class FabricPlatform implements Platform.Backend {
     @Override
     public void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
         PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
+    }
+
+    @Override
+    public GameRules.Key<GameRules.IntegerValue> intGameRule(String name, GameRules.Category category, int defaultValue) {
+        return GameRuleRegistry.register(name, category, GameRuleFactory.createIntRule(defaultValue, 0));
     }
 }

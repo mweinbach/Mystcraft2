@@ -39,7 +39,8 @@ import java.util.UUID;
 /**
  * Carries one passive creature. Right-click a creature to capture it and a block to let it go.
  * Hostile creatures, bosses, players, creatures in {@code #gridwright:lasso_immune} and other players'
- * pets are refused. The released creature is a fresh copy (new UUID) of the captured one.
+ * pets are refused. The released creature is a fresh copy (new UUID) of the captured one. The cursed
+ * lasso (phase 3) is the same item that also takes hostile creatures; bosses and the rest stay refused.
  */
 public class GoldenLassoItem extends Item {
 
@@ -51,8 +52,15 @@ public class GoldenLassoItem extends Item {
     /** Why a creature cannot be captured, or {@code null} if it can. */
     public enum Refusal { HOSTILE, BOSS, OWNED, NOT_A_CREATURE }
 
+    private final boolean hostiles;
+
     public GoldenLassoItem(Properties properties) {
+        this(properties, false);
+    }
+
+    public GoldenLassoItem(Properties properties, boolean hostiles) {
         super(properties);
+        this.hostiles = hostiles;
     }
 
     public static boolean holdsMob(ItemStack stack) {
@@ -60,11 +68,29 @@ public class GoldenLassoItem extends Item {
         return tag != null && tag.contains(MOB, Tag.TAG_COMPOUND);
     }
 
+    /** The type of creature {@code stack} carries, if any. */
+    public static Optional<EntityType<?>> heldType(ItemStack stack) {
+        return holdsMob(stack) ? EntityType.by(stack.getOrCreateTag().getCompound(MOB)) : Optional.empty();
+    }
+
+    /** Lets go of the carried creature without releasing it (it is used up). */
+    public static void empty(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return;
+        tag.remove(MOB);
+        if (tag.isEmpty()) stack.setTag(null);
+    }
+
     @Nullable
     public static Refusal refusal(LivingEntity target, Player player) {
+        return refusal(target, player, false);
+    }
+
+    @Nullable
+    public static Refusal refusal(LivingEntity target, Player player, boolean hostiles) {
         if (!(target instanceof Mob) || !target.isAlive() || !target.getType().canSerialize()) return Refusal.NOT_A_CREATURE;
         if (target instanceof EnderDragon || target instanceof WitherBoss || target.getType().is(IMMUNE)) return Refusal.BOSS;
-        if (target instanceof Enemy) return Refusal.HOSTILE;
+        if (target instanceof Enemy && !hostiles) return Refusal.HOSTILE;
         if (target instanceof OwnableEntity pet) {
             UUID owner = pet.getOwnerUUID();
             if (owner != null && !owner.equals(player.getUUID())) return Refusal.OWNED;
@@ -75,7 +101,7 @@ public class GoldenLassoItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (holdsMob(stack)) return InteractionResult.PASS;
-        Refusal refusal = refusal(target, player);
+        Refusal refusal = refusal(target, player, hostiles);
         if (refusal != null) {
             if (!player.level.isClientSide) {
                 player.displayClientMessage(Component.translatable("message.gridwright.lasso.refused."
@@ -92,7 +118,8 @@ public class GoldenLassoItem extends Item {
 
     /** Stores {@code target} in {@code stack} and removes it from the world. */
     public static boolean capture(ItemStack stack, Player player, Mob target) {
-        if (holdsMob(stack) || refusal(target, player) != null) return false;
+        boolean hostiles = stack.getItem() instanceof GoldenLassoItem lasso && lasso.hostiles;
+        if (holdsMob(stack) || refusal(target, player, hostiles) != null) return false;
         target.ejectPassengers();
         target.stopRiding();
         if (target.isLeashed()) target.dropLeash(true, !player.getAbilities().instabuild);
@@ -133,11 +160,7 @@ public class GoldenLassoItem extends Item {
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0;
         if (!level.noCollision(entity) || !level.addFreshEntity(entity)) return null;
-        CompoundTag tag = stack.getTag();
-        if (tag != null) {
-            tag.remove(MOB);
-            if (tag.isEmpty()) stack.setTag(null);
-        }
+        empty(stack);
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 1.2F);
         return entity;
     }
@@ -150,7 +173,8 @@ public class GoldenLassoItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         if (!holdsMob(stack)) {
-            tooltip.add(Component.translatable("tooltip.gridwright.golden_lasso.empty").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable(hostiles ? "tooltip.gridwright.cursed_lasso.empty" : "tooltip.gridwright.golden_lasso.empty")
+                    .withStyle(ChatFormatting.GRAY));
             return;
         }
         CompoundTag saved = stack.getOrCreateTag().getCompound(MOB);

@@ -5,6 +5,7 @@
     "gridwright:wind_mill",
     "gridwright:wooden_spike",
     "gridwright:sound_muffler",
-    "gridwright:manual_mill"
+    "gridwright:manual_mill",
+    "gridwright:mechanical_crafter"
   ]
 }

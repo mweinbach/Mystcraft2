@@ -50,6 +50,9 @@ public final class ModBlocks {
     public static final Supplier<MechanicalBlock> MECHANICAL_USER = register("mechanical_user", () -> new MechanicalBlock(
             WorkerBlock.Kind.MECHANICAL_USER, BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).sound(SoundType.STONE)
                     .requiresCorrectToolForDrops()));
+    /** Phase 3: an autocrafter on Grid Power. */
+    public static final Supplier<WorkerBlock> MECHANICAL_CRAFTER = register("mechanical_crafter", () -> new WorkerBlock(
+            WorkerBlock.Kind.MECHANICAL_CRAFTER, BlockBehaviour.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
     /** Right-click travel to and from the Deep Dark; glows so a return portal is easy to find in the dark. */
     public static final Supplier<DeepDarkPortalBlock> DEEP_DARK_PORTAL = register("deep_dark_portal", () -> new DeepDarkPortalBlock(
             BlockBehaviour.Properties.of(Material.STONE).strength(5.0F, 1200.0F).requiresCorrectToolForDrops()

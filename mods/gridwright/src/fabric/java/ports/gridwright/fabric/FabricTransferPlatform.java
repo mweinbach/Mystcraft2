@@ -27,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import team.reborn.energy.api.EnergyStorage;
 import ports.gridwright.transfer.FluidAmount;
 import ports.gridwright.transfer.PipeNetwork;
 import ports.gridwright.transfer.TransferPlatform;
@@ -42,7 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Transfer services on Fabric: Transfer API item and fluid storages (millibuckets converted to
+ * Transfer services on Fabric: Transfer API item and fluid storages and Team Reborn Energy (millibuckets converted to
  * droplets, only whole millibuckets are moved), a cached stand-in {@link ServerPlayer} per level and
  * owner for {@link PlayerBlockBreakEvents#BEFORE}, and extended screen handler factories.
  */
@@ -249,5 +250,36 @@ final class FabricTransferPlatform implements TransferPlatform.Backend {
                 return provider.createMenu(id, inventory, opener);
             }
         });
+    }
+
+    @Override
+    public boolean hasEnergy(Level level, BlockPos pos, Direction face) {
+        return level.hasChunkAt(pos) && EnergyStorage.SIDED.find(level, pos, face) != null;
+    }
+
+    @Override
+    public long extractEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        // Like the item and fluid lookups: never load a chunk just to reach a cached target.
+        if (!level.hasChunkAt(pos)) return 0;
+        EnergyStorage energy = EnergyStorage.SIDED.find(level, pos, face);
+        if (energy == null || !energy.supportsExtraction()) return 0;
+        try (Transaction transaction = Transaction.openOuter()) {
+            long extracted = energy.extract(max, transaction);
+            if (!simulate) transaction.commit();
+            return extracted;
+        }
+    }
+
+    @Override
+    public long insertEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        // Like the item and fluid lookups: never load a chunk just to reach a cached target.
+        if (!level.hasChunkAt(pos)) return 0;
+        EnergyStorage energy = EnergyStorage.SIDED.find(level, pos, face);
+        if (energy == null || !energy.supportsInsertion()) return 0;
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = energy.insert(max, transaction);
+            if (!simulate) transaction.commit();
+            return inserted;
+        }
     }
 }
