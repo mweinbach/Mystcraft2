@@ -16,6 +16,9 @@ language files, and is not affiliated with it. Every number below is Gridwright'
 - Status: **in progress** — logic and GameTests on both loaders; the machine screens and block
   models have not been looked at in a client yet.
 
+Read [DESIGN.md](DESIGN.md) when adding content. It records the approved 32x32 art direction,
+materials, compact model patterns, interaction guidance and visual review expectations.
+
 ## Features (phase 1)
 
 | Feature | Blocks/items | Behaviour |

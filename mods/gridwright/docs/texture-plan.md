@@ -1,5 +1,8 @@
 # Gridwright texture and model proposal
 
+The native 32x32 art and compact 3D direction was approved on 2026-10-24. The lasting guidance for
+new content is in [DESIGN.md](../DESIGN.md). This page records the study's scope and implementation work.
+
 Use native 32x32 pixel art and compact, visible machinery. The extra resolution should buy material
 detail and readable controls. A water mill should have a wheel with gaps around its spokes. A hand
 mill should have a handle. Solar panels should sit close to the floor.
@@ -117,8 +120,8 @@ and Fabric with default lighting before promoting the assets.
 
 ## Implementation sequence
 
-1. Review this pack's materials, machine symbols and silhouettes. Rework the sprites or geometry
-   here until the direction is settled. The study files are outside production resource roots.
+1. Use the approved materials, machine symbols and silhouettes as the baseline. Refine individual
+   assets as needed and compare new families against the study. Its files are outside production resource roots.
 2. Ship the 32px texture pass on existing shapes. Move the agreed drawing functions into the current
    texture generators so regeneration cannot overwrite the new art. Include both generator states,
    shared faces, item sprites and a real client screenshot on each loader.
