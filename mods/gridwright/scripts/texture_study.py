@@ -191,9 +191,8 @@ def render_model(name, art, proposed=False):
 def block_sheet(art):
     names = ['resonator', 'furnace_generator_on', 'culinary_generator_on', 'potion_generator_on',
              'solar_panel', 'water_mill', 'wind_mill', 'manual_mill', 'transfer_node', 'power_converter_to_grid',
-             'quantum_quarry', 'iron_drum', 'deep_dark_portal', 'octuple_compressed_cobblestone',
-             'nether_star_generator_on', 'energy_transfer_node', 'halitosis_generator_on']
-    im = Image.new('RGB', (1400, 1636), '#f2f0e7'); d = ImageDraw.Draw(im)
+             'quantum_quarry', 'iron_drum', 'deep_dark_portal', 'octuple_compressed_cobblestone']
+    im = Image.new('RGB', (1400, 1390), '#f2f0e7'); d = ImageDraw.Draw(im)
     label(d, (36, 22), 'Smaller machines, visible mechanisms', 32)
     label(d, (36, 65), 'Current 16px models left / proposed 32px art and 3D models right. Offline renders, not game screenshots.', 18)
     for i, name in enumerate(names):
@@ -202,7 +201,7 @@ def block_sheet(art):
         for j, source in enumerate([{}, art]):
             block = render_model(name, source, proposed=j == 1)
             im.paste(block, (x+j*224, y+16), block)
-    label(d, (36, 1596), 'Actual JSON geometry and UVs. Fixed shading. Static models. Collision, occlusion and in-game lighting need review.', 16)
+    label(d, (36, 1350), 'Actual JSON geometry and UVs. Fixed shading. Static models. Collision, occlusion and in-game lighting need review.', 16)
     im.save(OUT/'blocks.png')
 
 

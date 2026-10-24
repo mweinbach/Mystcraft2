@@ -150,11 +150,15 @@ Phase 3 extended existing families rather than adding casings, so it needs no ne
 - **Mechanical crafter.** Timber body on an iron band with the item crate mark and a GP crystal (it is
   a Grid Power consumer); the top is the 3x3 grid of wells. Textures only: the worker blocks have no
   study model yet.
-- The chunk loading ward and cursed lasso wait for the ward and tool pass in step 4 below, like the
-  other wards and lassos.
+- **Chunk loading ward and cursed lasso.** Drawn for production only, in
+  [`phase3_textures.py`](../scripts/phase3_textures.py): a stone ward in a copper frame with a 3x3 chunk
+  map and a GP crystal on the middle chunk, and the lasso's loop in dark violet with a red-bound knot.
+  The other wards and lassos join them in the ward and tool pass (step 4 below).
 
-The phase 3 blocks ship with 16px placeholders that match the rest of the installed art until the
-32px pass is promoted.
+Phase 3 **ships** these 32px textures: `phase3_textures.py` calls the study's drawing functions, so the
+production art and the study cannot drift apart. They sit on the existing full-block models (the
+compact models are still study-only), and the shared machine casing beside them stays 16px until it
+is promoted.
 
 ## Sources and ownership
 

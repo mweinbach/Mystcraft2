@@ -319,8 +319,9 @@ python3 scripts/emc.py check
 
 Textures are regenerated with `python3 mods/gridwright/scripts/generate_textures.py` and
 `python3 mods/gridwright/scripts/generate_transfer_textures.py` (need Pillow); `generate_textures.py` also
-draws the phase 2d tiles from `power_textures.py` and the phase 3 tiles from `phase3_textures.py`. All of
-it is placeholder programmer art.
+draws the phase 2d tiles from `power_textures.py` and the phase 3 tiles from `phase3_textures.py`. Phase 3
+is the first content drawn natively at 32x32, in the approved direction of [DESIGN.md](DESIGN.md), from the
+study's drawing source; the older blocks keep their 16px programmer art until the study is promoted.
 
 The [32px texture and compact-model proposal](docs/texture-plan.md) includes before/after sheets,
 an offline review page and an optional preview resource pack. It is a partial art study outside the

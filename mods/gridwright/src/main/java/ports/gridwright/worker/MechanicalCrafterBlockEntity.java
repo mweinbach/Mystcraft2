@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -53,6 +54,7 @@ public class MechanicalCrafterBlockEntity extends WorkerBlockEntity {
     /** The grid contents the cached recipe was found for, so the recipe book is searched only when they change. */
     @Nullable private List<Item> cachedKey;
     @Nullable private CraftingRecipe cachedRecipe;
+    @Nullable private RecipeManager cachedManager;
 
     public MechanicalCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MECHANICAL_CRAFTER.get(), pos, state, WorkerLayout.MECHANICAL_CRAFTER);
@@ -174,14 +176,15 @@ public class MechanicalCrafterBlockEntity extends WorkerBlockEntity {
     private CraftingRecipe recipe(ServerLevel level, CraftingContainer grid) {
         List<Item> key = new ArrayList<>(GRID);
         for (int i = 0; i < GRID; i++) key.add(grid.getItem(i).getItem());
-        // A datapack reload replaces every recipe object, so a cached one the recipe manager no longer
-        // holds is stale even if it still matches.
-        if (key.equals(cachedKey) && (cachedRecipe == null
-                || level.getRecipeManager().byKey(cachedRecipe.getId()).orElse(null) == cachedRecipe)) {
+        // A datapack reload installs a new recipe manager, which makes every cached answer stale, a
+        // failed search included.
+        RecipeManager manager = level.getRecipeManager();
+        if (key.equals(cachedKey) && manager == cachedManager) {
             if (cachedRecipe == null) return null;
             if (cachedRecipe.matches(grid, level)) return cachedRecipe;
         }
-        Optional<CraftingRecipe> found = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, grid, level);
+        Optional<CraftingRecipe> found = manager.getRecipeFor(RecipeType.CRAFTING, grid, level);
+        cachedManager = manager;
         cachedKey = key;
         cachedRecipe = found.orElse(null);
         return cachedRecipe;

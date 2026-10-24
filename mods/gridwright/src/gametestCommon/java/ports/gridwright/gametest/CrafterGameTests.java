@@ -109,6 +109,22 @@ public class CrafterGameTests {
                 .thenSucceed();
     }
 
+    /** A failed search cached before a datapack reload (an older recipe manager) is searched again. */
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void crafterSearchesAgainAfterARecipeReload(GameTestHelper helper) {
+        MechanicalCrafterBlockEntity crafter = crafter(helper, Owner.random("gwMr"));
+        crafter.setItem(0, new ItemStack(Items.OAK_PLANKS, 3));
+        crafter.setItem(3, new ItemStack(Items.OAK_PLANKS, 3));
+        // As if this layout had found nothing under the recipe manager a reload since replaced.
+        java.util.List<net.minecraft.world.item.Item> key = new java.util.ArrayList<>();
+        for (int slot = 0; slot < 9; slot++) key.add(crafter.getItem(slot).getItem());
+        GameTestSupport.setField(MechanicalCrafterBlockEntity.class, "cachedKey", crafter, key);
+        GameTestSupport.setField(MechanicalCrafterBlockEntity.class, "cachedRecipe", crafter, null);
+        GameTestSupport.setField(MechanicalCrafterBlockEntity.class, "cachedManager", crafter,
+                new net.minecraft.world.item.crafting.RecipeManager());
+        helper.succeedWhen(() -> check(output(crafter, Items.STICK) > 0, "No sticks after the reload: " + crafter.status()));
+    }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public static void crafterNeedsPowerARecipeAndNoSignal(GameTestHelper helper) {
         Owner owner = Owner.random("gwMp");
