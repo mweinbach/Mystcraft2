@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:prismarine_shard",
+    {
+      "id": "#c:prismarine_dusts",
+      "required": false
+    }
+  ]
+}

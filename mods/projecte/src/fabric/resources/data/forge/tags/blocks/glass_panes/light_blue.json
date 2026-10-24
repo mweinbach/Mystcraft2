@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:light_blue_stained_glass_pane",
+    {
+      "id": "#c:light_blue_glass_panes",
+      "required": false
+    }
+  ]
+}

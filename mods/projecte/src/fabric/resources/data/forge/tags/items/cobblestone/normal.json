@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cobblestone",
+    {
+      "id": "#c:cobblestone",
+      "required": false
+    }
+  ]
+}

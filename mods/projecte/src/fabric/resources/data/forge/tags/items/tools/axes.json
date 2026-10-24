@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:tools/axes/dark_matter",
+    "#forge:tools/axes/red_matter",
+    "minecraft:wooden_axe",
+    "minecraft:stone_axe",
+    "minecraft:iron_axe",
+    "minecraft:golden_axe",
+    "minecraft:diamond_axe",
+    "minecraft:netherite_axe",
+    {
+      "id": "#c:axes",
+      "required": false
+    }
+  ]
+}

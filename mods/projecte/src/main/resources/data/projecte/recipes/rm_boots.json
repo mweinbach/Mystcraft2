@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "projecte:dm_boots"
+    },
+    "M": {
+      "item": "projecte:red_matter"
+    }
+  },
+  "pattern": [
+    "MDM",
+    "M M"
+  ],
+  "result": {
+    "item": "projecte:rm_boots"
+  }
+}

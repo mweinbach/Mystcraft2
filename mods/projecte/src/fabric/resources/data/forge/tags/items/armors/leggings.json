@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "projecte:gem_leggings",
+    "#forge:armors/leggings/dark_matter",
+    "#forge:armors/leggings/red_matter",
+    "minecraft:leather_leggings",
+    "minecraft:chainmail_leggings",
+    "minecraft:iron_leggings",
+    "minecraft:golden_leggings",
+    "minecraft:diamond_leggings",
+    "minecraft:netherite_leggings"
+  ]
+}

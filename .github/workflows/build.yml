@@ -46,6 +46,8 @@ jobs:
         run: python3 -m unittest discover -s mods/jurassicraft/tools/tests -v
       - name: Check Mekanism's Fabric tag bridges are up to date
         run: python3 mods/mekanism/scripts/generate_fabric_tags.py --check
+      - name: Check ProjectE's Fabric tag bridges are up to date
+        run: python3 mods/projecte/scripts/generate_fabric_tags.py --check
       - name: List Gradle ports
         run: ./gradlew --no-daemon listPorts
 
@@ -155,6 +157,18 @@ jobs:
               mods/jurassicraft/run/gameTestServer/logs/latest.log
               mods/jurassicraft/fabric/build/gametest-results.xml
               mods/jurassicraft/fabric/build/gametest/logs/latest.log
+          - id: projecte
+            kind: dual
+            # The GameTests again beside the other Forge-to-Fabric layers a pack carries: the Mekanism port and
+            # Porting Lib (as Create nests it). checkFabricClashes in the Fabric build compares the jars statically.
+            fabric_compat_props: -PwithMekanism -PwithPortingLib
+            jars: |
+              mods/projecte/build/libs/*.jar
+              mods/projecte/fabric/build/libs/*.jar
+            reports: |
+              mods/projecte/run/gameTestServer/logs/latest.log
+              mods/projecte/fabric/build/gametest-results.xml
+              mods/projecte/fabric/build/gametest/logs/latest.log
           - id: mekanism
             kind: dual
             forge_props: -PwithProjectE

@@ -16,8 +16,10 @@ ports use independent Gradle builds so their loader tooling stays isolated.
 | [Advanced Genetics](mods/advancedgenetics/) | In progress | Forge + Fabric port of the 1.0.3 release with shared gameplay: all genes, six machines, Forge Energy or Team Reborn Energy, and server GameTests on both loaders. Survival and multiplayer play-testing remain. |
 | [Extreme Reactors](mods/extremereactors/) | In progress | Fabric + Forge alpha of Extreme Reactors 2 with shared gameplay: reactors, turbines, reprocessor and fluidizer with the upstream simulation and screens, Team Reborn Energy/Forge Energy, and server GameTests on both loaders. The ComputerCraft, JEI and Patchouli integrations are not ported yet. |
 | [Gridwright](mods/gridwright/) | In progress | Clean-room, Extra Utilities 2–style Forge + Fabric mod (no upstream code or art): player/team Grid Power with solar, lunar, water and wind producers, the resonator, and seven fuel generators making Forge Energy or Team Reborn Energy, with server GameTests on both loaders. Transfer nodes, quarries, tools and the rest are planned. |
+| [ProjectE](mods/projecte/) | In progress | Fabric + Forge port of ProjectE 1.1.0 from upstream's own MIT sources, mod id `projecte`: the EMC mapper, transmutation, the Philosopher's Stone, collectors, relays, condensers and the Alchemical Chest pass server GameTests on both loaders; matter tools, rings, amulets and the rest are registered but not yet verified. |
 
-Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme Reactors and Gridwright support Forge and Fabric;
+Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme Reactors, Gridwright, Mekanism and ProjectE support Forge
+and Fabric;
 ICBM, Fluid Physics and MetalRender target Fabric. Install the variant matching your game loader;
 a mod's Forge and Fabric JARs cannot be installed together.
 
@@ -74,10 +76,14 @@ python3 scripts/ports.py list
 ./scripts/gradle.sh -p mods/gridwright/fabric build
 ./scripts/gradle.sh :gridwright:runGameTestServer
 ./scripts/gradle.sh -p mods/gridwright/fabric runGametest
+./scripts/gradle.sh :projecte:build
+./scripts/gradle.sh -p mods/projecte/fabric build
+./scripts/gradle.sh :projecte:runGameTestServer
+./scripts/gradle.sh -p mods/projecte/fabric runGametest
 ```
 
 JARs land in `mods/<mod-id>/build/libs/`; Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme
-Reactors and Gridwright Fabric JARs
+Reactors, Gridwright, Mekanism and ProjectE Fabric JARs
 land in `mods/<mod-id>/fabric/build/libs/`. Fabric also requires Fabric API on server
 and clients. Client, server, and data runs use
 separate directories under that mod's `run/`. A graphical display is required
@@ -123,11 +129,11 @@ job keeps the existing check name and passes only when every port job passes:
 
 - checks metadata, EMC coverage, and the port-management, EMC, ICBM, and JurassiCraft tooling tests;
 - builds ICBM and both variants of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics,
-  Extreme Reactors, Gridwright, and Mekanism;
+  Extreme Reactors, Gridwright, Mekanism, and ProjectE;
 - verifies loader parity for each dual-loader port;
 - runs ICBM's dedicated-server GameTests and the Forge and Fabric GameTest
   suites of Mystcraft, JurassiCraft, BuildCraft, Advanced Genetics, Extreme
-  Reactors, Gridwright, and Mekanism;
+  Reactors, Gridwright, Mekanism, and ProjectE;
 - uploads the resulting JARs.
 
 Add mod-specific dependencies and tests to that port's `build.gradle` and source

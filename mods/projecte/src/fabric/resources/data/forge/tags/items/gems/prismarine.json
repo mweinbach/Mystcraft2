@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:prismarine_crystals",
+    {
+      "id": "#c:prismarine_gems",
+      "required": false
+    }
+  ]
+}

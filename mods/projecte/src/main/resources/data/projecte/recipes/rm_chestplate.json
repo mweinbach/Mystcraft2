@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "projecte:dm_chestplate"
+    },
+    "M": {
+      "item": "projecte:red_matter"
+    }
+  },
+  "pattern": [
+    "MDM",
+    "MMM",
+    "MMM"
+  ],
+  "result": {
+    "item": "projecte:rm_chestplate"
+  }
+}

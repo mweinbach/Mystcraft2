@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+issueTrackerURL="https://github.com/sinkillerj/ProjectE/issues"
+license="MIT"
+
+[[mods]]
+  modId="projecte"
+  version="${mod_version}"
+  displayName="ProjectE"
+  displayURL="https://github.com/sinkillerj/ProjectE"
+  logoFile="logo.png"
+  authors="SinKillerJ, MaPePeR, williewillus, Lilylicious, pupnewfster"
+  credits="EE2 creator - x3n0ph0b3, EE2 GUI Textures - MidnightLightning, Former Texture Artist - Magic Banana"
+  description='''A complete rewrite of EE2 for modern Minecraft versions.'''
+
+[[dependencies.projecte]]
+  modId="minecraft"
+  mandatory=true
+  versionRange="[1.19.2]"
+  side="BOTH"
+[[dependencies.projecte]]
+  modId="forge"
+  mandatory=true
+  versionRange="[43.1.3,)"
+  side="BOTH"

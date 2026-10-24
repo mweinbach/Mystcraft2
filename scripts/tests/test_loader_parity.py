@@ -593,7 +593,7 @@ class RepositoryGateTests(unittest.TestCase):
 
     def test_every_dual_port_has_a_gate(self):
         self.assertEqual(DUAL_PORTS, ['advancedgenetics', 'buildcraft', 'extremereactors', 'gridwright',
-                                      'jurassicraft', 'mekanism', 'mystcraft'])
+                                      'jurassicraft', 'mekanism', 'mystcraft', 'projecte'])
 
     def test_every_gate_calls_the_shared_checks(self):
         for port in DUAL_PORTS:

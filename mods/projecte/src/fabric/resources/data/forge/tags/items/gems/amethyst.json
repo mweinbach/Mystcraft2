@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:amethyst_shard",
+    {
+      "id": "#c:amethysts",
+      "required": false
+    }
+  ]
+}
