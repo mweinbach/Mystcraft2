@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ECE",
+    "OFO",
+    "ECE"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    }
+  },
+  "result": {
+    "item": "gridwright:chunk_loading_ward",
+    "count": 1
+  }
+}

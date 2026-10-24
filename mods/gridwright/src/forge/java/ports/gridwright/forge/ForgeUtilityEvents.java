@@ -1,6 +1,7 @@
 package ports.gridwright.forge;
 
 import ports.gridwright.Gridwright;
+import ports.gridwright.automation.ChunkWards;
 import ports.gridwright.item.AngelRingFlight;
 import ports.gridwright.storage.DrumBlockEntity;
 import ports.gridwright.storage.FluidTank;
@@ -53,7 +54,10 @@ public final class ForgeUtilityEvents {
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) AngelRingFlight.tick(event.getServer());
+        if (event.phase == TickEvent.Phase.END) {
+            AngelRingFlight.tick(event.getServer());
+            ChunkWards.tick(event.getServer());
+        }
     }
 
     // The event fires twice for a broadcast sound: once when the server sends it and again when the

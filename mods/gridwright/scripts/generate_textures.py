@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw
 
 import utility_textures
 import power_textures
+import phase3_textures
 
 ROOT = Path(__file__).resolve().parents[1] / 'src/main/resources/assets/gridwright'
 BLOCKS = ROOT / 'textures/block'
@@ -28,6 +29,15 @@ GENERATOR_COLOURS = {
     'potion': ((150, 70, 190), (230, 140, 255)),
     'ender': ((30, 140, 120), (90, 240, 200)),
     'redstone': ((170, 20, 20), (255, 60, 50)),
+    # Phase 3
+    'tnt': ((150, 40, 30), (240, 230, 220)),
+    'pink': ((200, 90, 140), (255, 170, 210)),
+    'nether_star': ((150, 150, 170), (250, 250, 210)),
+    'death': ((70, 80, 50), (200, 200, 180)),
+    'enchant': ((70, 40, 140), (160, 230, 255)),
+    'slime': ((60, 140, 50), (130, 230, 110)),
+    'frosty': ((90, 140, 200), (210, 240, 255)),
+    'halitosis': ((120, 40, 120), (240, 140, 230)),
 }
 
 
@@ -298,6 +308,7 @@ def main():
         textures[BLOCKS / f'{kind}_generator_front_on.png'] = generator_front(kind, True, 100 + index)
     textures.update(utility_textures.textures(BLOCKS, ITEMS))
     textures.update(power_textures.textures(BLOCKS, ITEMS))
+    textures.update(phase3_textures.textures(BLOCKS, ITEMS))
     for path, image in textures.items():
         image.save(path, optimize=True)
     print(f'Wrote {len(textures)} textures.')

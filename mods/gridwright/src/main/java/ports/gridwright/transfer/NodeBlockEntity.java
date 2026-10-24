@@ -42,7 +42,8 @@ import java.util.function.Predicate;
  * With a world-interaction upgrade and nothing to serve at its front, a node acts on that block
  * instead: an item transfer node mines it, an item retrieval node places a block from the network,
  * a fluid transfer node pumps a source and a fluid retrieval node pours one, each only where the
- * loader's block-break event lets the node's owner change that block.
+ * loader's block-break event lets the node's owner change that block. The energy transfer node moves
+ * energy every tick instead, and any node can be set to work only with, or only without, a redstone signal.
  */
 public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
 
@@ -52,13 +53,26 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
     /** Ticks per operation without speed upgrades; each speed upgrade adds one operation per interval. */
     public static final int INTERVAL = 20;
     public static final int MAX_OPERATIONS_PER_TICK = 4;
-    public static final int DATA_COUNT = 3;
+    public static final int DATA_COUNT = 4;
     private static final int NETWORK_REFRESH_TICKS = 100;
     /** What world interaction mines with: harvests what a diamond pickaxe harvests, without enchantments. */
     private static final ItemStack TOOL = new ItemStack(Items.DIAMOND_PICKAXE);
 
     /** Whether the node's upgrades are powered, as shown on its screen. */
     public enum Power { NONE, POWERED, UNPOWERED, NO_OWNER }
+
+    /** When a redstone signal lets the node work (phase 3). */
+    public enum Redstone {
+        IGNORED, WITH_SIGNAL, WITHOUT_SIGNAL;
+
+        public boolean allows(boolean signal) {
+            return this == IGNORED || (this == WITH_SIGNAL) == signal;
+        }
+
+        public Redstone next() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
 
     private final SimpleContainer inventory = new SimpleContainer(SLOTS) {
         @Override
@@ -72,6 +86,7 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
     private boolean active;
     private Power power = Power.NONE;
     private long operations;
+    private Redstone redstone = Redstone.IGNORED;
     @Nullable private ItemFilter filter;
     @Nullable private List<PipeNetwork.Target> targets;
     private long targetsEpoch;
@@ -85,6 +100,7 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
                 case 0 -> (int) Math.min(0xFFFF, Math.round(upgradeCost() * 10));
                 case 1 -> power.ordinal();
                 case 2 -> targets == null ? 0 : Math.min(0xFFFF, targets.size());
+                case 3 -> redstone.ordinal();
                 default -> 0;
             };
         }
@@ -124,6 +140,16 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         return power;
     }
 
+    public Redstone redstone() {
+        return redstone;
+    }
+
+    /** Switches to the next redstone mode, as the screen's button does. */
+    public void cycleRedstone() {
+        redstone = redstone.next();
+        setChanged();
+    }
+
     /** Successful operations since the node was placed or loaded. */
     public long operations() {
         return operations;
@@ -156,7 +182,16 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
     }
 
     private void tick(ServerLevel level, BlockState state) {
+        if (!redstone.allows(level.hasNeighborSignal(worldPosition))) {
+            // Switched off: no work and no Grid Power drawn for upgrades.
+            draw(level, 0);
+            return;
+        }
         boolean powered = draw(level, upgradeCost());
+        if (kind().energy()) {
+            if (moveEnergy(level, state.getValue(NodeBlock.FACING), powered)) operations++;
+            return;
+        }
         int speed = powered ? upgrades(UpgradeKind.SPEED) : 0;
         boolean stack = powered && upgrades(UpgradeKind.STACK) > 0;
         boolean world = powered && upgrades(UpgradeKind.WORLD_INTERACTION) > 0;
@@ -215,10 +250,41 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         return kind.retrieval() ? place(level, target, front, network) : mine(level, target, network);
     }
 
+    /**
+     * Moves energy from the store the node faces to the stores on its network, every tick: up to
+     * {@link NodeKind#ENERGY} per tick plus as much again per powered speed upgrade, times
+     * {@link NodeKind#ENERGY_STACK_FACTOR} with a powered stack upgrade, taking turns through the targets.
+     * Only what the targets accept is taken from the source.
+     */
+    private boolean moveEnergy(ServerLevel level, Direction front, boolean powered) {
+        long rate = NodeKind.ENERGY * (1 + (powered ? upgrades(UpgradeKind.SPEED) : 0));
+        if (powered && upgrades(UpgradeKind.STACK) > 0) rate *= NodeKind.ENERGY_STACK_FACTOR;
+        BlockPos source = worldPosition.relative(front);
+        Direction face = front.getOpposite();
+        long available = TransferPlatform.extractEnergy(level, source, face, rate, true);
+        if (available <= 0) return false;
+        List<PipeNetwork.Target> network = network(level, front);
+        long moved = 0;
+        for (int k = 0; k < network.size() && moved < available; k++) {
+            int index = (cursor + k) % network.size();
+            PipeNetwork.Target other = network.get(index);
+            long accepted = TransferPlatform.insertEnergy(level, other.pos(), other.face(), available - moved, true);
+            if (accepted <= 0) continue;
+            long taken = TransferPlatform.extractEnergy(level, source, face, accepted, false);
+            if (taken <= 0) break;
+            long given = TransferPlatform.insertEnergy(level, other.pos(), other.face(), taken, false);
+            // A target that took less than it promised: offer the rest back to the source.
+            if (given < taken) TransferPlatform.insertEnergy(level, source, face, taken - given, false);
+            moved += given;
+            cursor = (index + 1) % network.size();
+        }
+        return moved > 0;
+    }
+
     private List<PipeNetwork.Target> network(ServerLevel level, Direction front) {
         long epoch = PipeNetwork.epoch();
         if (targets == null || targetsEpoch != epoch || targetsFront != front || level.getGameTime() - targetsTick >= NETWORK_REFRESH_TICKS) {
-            targets = PipeNetwork.targets(level, worldPosition, front, kind().fluid());
+            targets = PipeNetwork.targets(level, worldPosition, front, kind().resource());
             targetsEpoch = epoch;
             targetsTick = level.getGameTime();
             targetsFront = front;
@@ -414,7 +480,7 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
 
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new NodeMenu(containerId, playerInventory, inventory, data, this::stillValid);
+        return new NodeMenu(containerId, playerInventory, inventory, data, this::stillValid, this::cycleRedstone);
     }
 
     private boolean stillValid(Player player) {
@@ -430,6 +496,7 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         ContainerHelper.saveAllItems(tag, items);
         tag.putInt("Progress", progress);
         tag.putInt("Cursor", cursor);
+        if (redstone != Redstone.IGNORED) tag.putInt("Redstone", redstone.ordinal());
     }
 
     @Override
@@ -440,6 +507,8 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         for (int slot = 0; slot < SLOTS; slot++) inventory.setItem(slot, items.get(slot));
         progress = Math.max(0, tag.getInt("Progress")) % INTERVAL;
         cursor = Math.max(0, tag.getInt("Cursor"));
+        Redstone[] modes = Redstone.values();
+        redstone = modes[Math.floorMod(tag.getInt("Redstone"), modes.length)];
         filter = null;
         targets = null;
     }

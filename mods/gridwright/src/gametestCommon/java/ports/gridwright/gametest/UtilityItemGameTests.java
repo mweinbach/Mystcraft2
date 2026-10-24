@@ -31,6 +31,7 @@ import ports.gridwright.item.DestructionWandItem;
 import ports.gridwright.item.GoldenLassoItem;
 import ports.gridwright.item.PocketWorkbenchItem;
 import ports.gridwright.item.WateringCanItem;
+import ports.gridwright.registry.ModAutomation;
 import ports.gridwright.registry.ModUtilities;
 
 import java.util.UUID;
@@ -136,6 +137,25 @@ public class UtilityItemGameTests {
         check(!released.getUUID().equals(original), "A released creature gets a fresh UUID");
         check("Bessie".equals(released.getCustomName().getString()), "The creature keeps its data");
         check(!GoldenLassoItem.holdsMob(lasso) && !lasso.hasTag(), "The lasso is empty again");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void cursedLassoTakesHostilesButNotBosses(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = connectedPlayer(helper, Owner.random("gwCl"));
+        ItemStack lasso = new ItemStack(ModAutomation.CURSED_LASSO.get());
+        check(GoldenLassoItem.refusal(EntityType.WITHER.create(level), player, true) == GoldenLassoItem.Refusal.BOSS, "Wither");
+        check(GoldenLassoItem.refusal(EntityType.ELDER_GUARDIAN.create(level), player, true) == GoldenLassoItem.Refusal.BOSS, "Elder guardian");
+        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, 3, 1, 3);
+        zombie.setCustomName(net.minecraft.network.chat.Component.literal("Shambles"));
+        check(GoldenLassoItem.capture(lasso, player, zombie), "The cursed lasso should take a zombie");
+        check(zombie.isRemoved() && GoldenLassoItem.heldType(lasso).orElse(null) == EntityType.ZOMBIE, "Zombie not inside");
+        Entity released = GoldenLassoItem.release(lasso, level, helper.absolutePos(new BlockPos(2, 1, 5)));
+        check(released instanceof Zombie && "Shambles".equals(released.getCustomName().getString()), "Released " + released);
+        released.discard();
+        Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 5, 1, 5);
+        check(GoldenLassoItem.capture(lasso, player, cow), "The cursed lasso also takes passive creatures");
         helper.succeed();
     }
 

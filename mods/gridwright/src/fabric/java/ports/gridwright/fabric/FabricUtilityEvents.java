@@ -1,5 +1,6 @@
 package ports.gridwright.fabric;
 
+import ports.gridwright.automation.ChunkWards;
 import ports.gridwright.item.AngelRingFlight;
 import ports.gridwright.registry.ModUtilities;
 import ports.gridwright.storage.DrumBlockEntity;
@@ -30,6 +31,7 @@ final class FabricUtilityEvents {
 
     static void register() {
         ServerTickEvents.END_SERVER_TICK.register(AngelRingFlight::tick);
+        ServerTickEvents.END_SERVER_TICK.register(ChunkWards::tick);
         ServerWorldEvents.UNLOAD.register((server, level) -> FabricFakePlayer.unload(level));
         FluidStorage.SIDED.registerForBlockEntity((drum, side) -> new TankStorage(drum.tank()), ModUtilities.DRUM.get());
         ItemStorage.SIDED.registerForBlockEntity((can, side) -> switch (can.kind()) {

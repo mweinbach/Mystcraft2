@@ -103,7 +103,8 @@ public class TransferPipeBlock extends Block {
         if (state.getBlock() instanceof NodeBlock) return state.getValue(NodeBlock.FACING) != direction.getOpposite();
         if (level.isClientSide) return false;
         Direction face = direction.getOpposite();
-        return TransferPlatform.hasItems(level, neighbour, face) || TransferPlatform.hasFluids(level, neighbour, face);
+        return TransferPlatform.hasItems(level, neighbour, face) || TransferPlatform.hasFluids(level, neighbour, face)
+                || TransferPlatform.hasEnergy(level, neighbour, face);
     }
 
     private static VoxelShape[] shapes() {

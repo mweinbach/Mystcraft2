@@ -16,6 +16,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-/** Transfer services on Forge: item and fluid handler capabilities, Forge fake players and break events. */
+/** Transfer services on Forge: item, fluid and energy capabilities, Forge fake players and break events. */
 final class ForgeTransferPlatform implements TransferPlatform.Backend {
 
     @Nullable
@@ -183,5 +184,22 @@ final class ForgeTransferPlatform implements TransferPlatform.Backend {
 
     private static IFluidHandler.FluidAction action(boolean simulate) {
         return simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
+    }
+
+    @Override
+    public boolean hasEnergy(Level level, BlockPos pos, Direction face) {
+        return capability(level, pos, face, ForgeCapabilities.ENERGY) != null;
+    }
+
+    @Override
+    public long extractEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        IEnergyStorage energy = capability(level, pos, face, ForgeCapabilities.ENERGY);
+        return energy == null || !energy.canExtract() ? 0 : energy.extractEnergy((int) Math.min(Integer.MAX_VALUE, max), simulate);
+    }
+
+    @Override
+    public long insertEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        IEnergyStorage energy = capability(level, pos, face, ForgeCapabilities.ENERGY);
+        return energy == null || !energy.canReceive() ? 0 : energy.receiveEnergy((int) Math.min(Integer.MAX_VALUE, max), simulate);
     }
 }

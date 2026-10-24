@@ -27,7 +27,7 @@ final class FabricTransfer {
         ItemStorage.SIDED.registerForBlockEntities((blockEntity, side) -> blockEntity instanceof WorldlyContainer container
                 ? InventoryStorage.of(container, side) : null, ModBlockEntities.GENERATOR.get(), ModBlockEntities.RESONATOR.get(),
                 ModBlockEntities.QUANTUM_QUARRY.get(), ModBlockEntities.ENDER_QUARRY.get(), ModBlockEntities.MECHANICAL_MINER.get(),
-                ModBlockEntities.MECHANICAL_USER.get());
+                ModBlockEntities.MECHANICAL_USER.get(), ModBlockEntities.MECHANICAL_CRAFTER.get());
     }
 
     /** Team Reborn Energy view of a store; other mods may move energy only in the directions it allows. */

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "AXA",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:bone_block"
+    },
+    "A": {
+      "item": "minecraft:rotten_flesh"
+    },
+    "X": {
+      "item": "gridwright:machine_frame"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "gridwright:death_generator",
+    "count": 1
+  }
+}

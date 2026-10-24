@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SBS",
+    "TLT",
+    "SBS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:soul_sand"
+    },
+    "B": {
+      "item": "minecraft:blaze_powder"
+    },
+    "T": {
+      "item": "minecraft:ghast_tear"
+    },
+    "L": {
+      "item": "gridwright:golden_lasso"
+    }
+  },
+  "result": {
+    "item": "gridwright:cursed_lasso",
+    "count": 1
+  }
+}

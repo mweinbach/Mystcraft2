@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "AXA",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:blue_ice"
+    },
+    "A": {
+      "item": "minecraft:snow_block"
+    },
+    "X": {
+      "item": "gridwright:machine_frame"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "gridwright:frosty_generator",
+    "count": 1
+  }
+}

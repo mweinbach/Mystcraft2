@@ -2,6 +2,7 @@ package ports.gridwright;
 
 import com.mojang.logging.LogUtils;
 import ports.gridwright.platform.Platform;
+import ports.gridwright.registry.ModAutomation;
 import ports.gridwright.registry.ModBlockEntities;
 import ports.gridwright.registry.ModBlocks;
 import ports.gridwright.registry.ModItems;
@@ -38,5 +39,6 @@ public final class Gridwright {
         ModUtilities.init();
         TransferRegistry.init();
         ModPower.init();
+        ModAutomation.init();
     }
 }

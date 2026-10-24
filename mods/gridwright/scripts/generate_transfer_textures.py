@@ -18,6 +18,7 @@ NODE_ACCENTS = {
     'retrieval_node': (170, 90, 20),
     'fluid_transfer_node': (60, 140, 230),
     'fluid_retrieval_node': (30, 70, 160),
+    'energy_transfer_node': (220, 40, 40),
 }
 
 
