@@ -67,6 +67,9 @@ phase of this port), **absent** (not in 4.0.6).
   `Registry.*`, `Entity.level`).
 - **Model loading.** Fabric uses Fabric API 0.77's `ModelLoadingRegistry` and Forge
   `ModelEvent.RegisterAdditional` to load the seed, crop and weed models that no block state references.
+- **Fixes over 4.0.6.** A loaded trowel plants off crop sticks only into empty space above a soil (upstream
+  could overwrite the block above whatever was clicked), and seed-analyzer slot edits made through its
+  screen mark the block entity for saving (upstream could lose them on chunk reload). Both have GameTests.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

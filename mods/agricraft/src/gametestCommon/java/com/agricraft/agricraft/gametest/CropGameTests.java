@@ -12,6 +12,8 @@ import com.agricraft.agricraft.api.stat.AgriStatRegistry;
 import com.agricraft.agricraft.common.block.CropBlock;
 import com.agricraft.agricraft.common.block.CropState;
 import com.agricraft.agricraft.common.item.AgriSeedItem;
+import com.agricraft.agricraft.common.item.TrowelItem;
+import com.agricraft.agricraft.common.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -151,6 +153,39 @@ public class CropGameTests {
 		check(!crop.hasWeeds(), "removeWeeds left weeds behind");
 		check(crop(helper, new BlockPos(1, 2, 1)).hasCropSticks(), "removing weeds removed the crop sticks");
 		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void trowelMovesPlantsWithoutOverwritingBlocks(GameTestHelper helper) {
+		AgriCrop source = matureCrop(helper, new BlockPos(1, 1, 1), "minecraft:wheat", 3);
+		ItemStack trowel = new ItemStack(ModItems.TROWEL.get());
+		TrowelItem item = (TrowelItem) trowel.getItem();
+		Player player = helper.makeMockPlayer();
+		player.setItemInHand(InteractionHand.MAIN_HAND, trowel);
+		useOn(helper, player, trowel, new BlockPos(1, 2, 1));
+		check(!source.hasPlant() && item.hasPlant(trowel), "the trowel should pick the plant up");
+		// a block above the clicked soil is never replaced
+		helper.setBlock(new BlockPos(3, 1, 3), Blocks.FARMLAND);
+		helper.setBlock(new BlockPos(3, 2, 3), Blocks.STONE);
+		useOn(helper, player, trowel, new BlockPos(3, 1, 3));
+		helper.assertBlockPresent(Blocks.STONE, new BlockPos(3, 2, 3));
+		check(item.hasPlant(trowel), "the trowel should keep its plant when the space above the soil is taken");
+		// a block that is not a soil gets no plant
+		helper.setBlock(new BlockPos(5, 1, 1), Blocks.STONE);
+		useOn(helper, player, trowel, new BlockPos(5, 1, 1));
+		helper.assertBlockPresent(Blocks.AIR, new BlockPos(5, 2, 1));
+		check(item.hasPlant(trowel), "the trowel should keep its plant when the clicked block is not a soil");
+		// empty space above a soil takes the plant
+		helper.setBlock(new BlockPos(5, 1, 5), Blocks.FARMLAND);
+		useOn(helper, player, trowel, new BlockPos(5, 1, 5));
+		AgriCrop planted = crop(helper, new BlockPos(5, 2, 5));
+		check("minecraft:wheat".equals(planted.getPlantId()) && !item.hasPlant(trowel), "the trowel should plant into the empty space above a soil");
+		helper.succeed();
+	}
+
+	private static void useOn(GameTestHelper helper, Player player, ItemStack stack, BlockPos relative) {
+		BlockPos abs = helper.absolutePos(relative);
+		stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false)));
 	}
 
 }
