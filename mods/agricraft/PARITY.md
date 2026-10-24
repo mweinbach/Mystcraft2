@@ -164,7 +164,9 @@ and the `@REIPluginClient` subclass `forge/compat/AgriCraftReiForgePlugin`; Fabr
   equivalent, and neither does this port's Forge build.
 - **Block properties.** `Material.PLANT` (crop) and `Material.WOOD` (analyzer) replace 1.20's map
   colour/push reaction builders. `noParticlesOnBreak()` does not exist before 1.19.4, so breaking crop
-  sticks shows break particles.
+  sticks shows break particles; the crop block state points at particle-only models (`block/crop_particle/*`:
+  oak planks, iron block, obsidian, the textures upstream's stick models name) instead of `minecraft:block/air`,
+  so those particles are not the missing texture.
 - **Compat packs.** 1.19.2 enables newly found data packs automatically, so
   `register_packs_by_default = false` cannot keep the compat datapacks off; disable them in the pack screen.
 - **Recipes, loot, commands, damage sources, entity level access, registries** use their 1.19.2 forms
