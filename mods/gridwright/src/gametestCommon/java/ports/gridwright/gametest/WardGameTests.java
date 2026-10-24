@@ -146,6 +146,19 @@ public class WardGameTests {
         Cow cow = unspawned(helper, EntityType.COW, start, 0);
         check(!Wards.deniesTeleport(level, cow, before.x, before.y, before.z), "Only endermen are held");
 
+        // From far away to a spot high above the ward: both ends are outside its cube, but a teleport
+        // drops to the first solid block below the target, which is the ward itself.
+        BlockPos above = wardPos.above(WardKind.ENDER.radius() + 4);
+        for (int y = wardPos.getY() + 1; y <= above.getY(); y++) {
+            helper.setBlock(new BlockPos(wardPos.getX(), y, wardPos.getZ()), Blocks.AIR);
+        }
+        EnderMan stranger = unspawned(helper, EntityType.ENDERMAN, start, 60);
+        BlockPos top = helper.absolutePos(above);
+        double tx = top.getX() + 0.5, ty = top.getY(), tz = top.getZ() + 0.5;
+        check(!Wards.covered(level, WardKind.Effect.TELEPORTS, stranger.getX(), stranger.getY(), stranger.getZ()), "The start is outside");
+        check(!Wards.covered(level, WardKind.Effect.TELEPORTS, tx, ty, tz), "The requested target is outside");
+        check(Wards.deniesTeleport(level, stranger, tx, ty, tz), "Landing on the ward is refused");
+
         helper.setBlock(wardPos, Blocks.AIR);
         check(teleport(enderman, absoluteStart), "Breaking the ward frees the enderman");
         enderman.discard();
