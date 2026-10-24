@@ -265,8 +265,10 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         if (available <= 0) return false;
         List<PipeNetwork.Target> network = network(level, front);
         long moved = 0;
+        // Walk the targets from a fixed start; the cursor only moves on for the next tick.
+        int start = cursor;
         for (int k = 0; k < network.size() && moved < available; k++) {
-            int index = (cursor + k) % network.size();
+            int index = (start + k) % network.size();
             PipeNetwork.Target other = network.get(index);
             long accepted = TransferPlatform.insertEnergy(level, other.pos(), other.face(), available - moved, true);
             if (accepted <= 0) continue;

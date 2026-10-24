@@ -11,6 +11,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.gridwright.machine.GeneratorBlockEntity;
 import ports.gridwright.machine.GeneratorKind;
+import ports.gridwright.power.ConverterBlock;
+import ports.gridwright.power.ConverterBlockEntity;
+import ports.gridwright.power.ConverterMode;
+import ports.gridwright.registry.ModPower;
 import ports.gridwright.transfer.NodeBlock;
 import ports.gridwright.transfer.NodeBlockEntity;
 import ports.gridwright.transfer.NodeKind;
@@ -77,6 +81,36 @@ public class NodeControlGameTests {
                     long ticks = helper.getTick() - placed;
                     long moved = platform().sunk(sink);
                     check(moved > 0 && moved <= (ticks + 1) * NodeKind.ENERGY, "Moved " + moved + " in " + ticks + " ticks");
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * A target that takes only part of the tick's energy must not stop the rest reaching the next one:
+     * a converter with room for 300 comes first on the network and a barrel second, so every tick still
+     * moves the node's full 1,000.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void energyNodeFillsEveryTargetInOneTick(GameTestHelper helper) {
+        GeneratorBlockEntity source = generator(helper, GeneratorKind.REDSTONE, FRONT);
+        net.minecraft.nbt.CompoundTag full = source.saveWithoutMetadata();
+        full.putLong("Energy", GeneratorKind.CAPACITY);
+        source.load(full);
+        node(helper, NodeKind.ENERGY_TRANSFER);
+        // North of the pipe is searched before east, so the nearly full converter is the first target.
+        BlockPos converterPos = PIPE.north();
+        helper.setBlock(converterPos, ModPower.POWER_CONVERTER.get().defaultBlockState()
+                .setValue(ConverterBlock.MODE, ConverterMode.TO_GRID));
+        ConverterBlockEntity converter = (ConverterBlockEntity) helper.getBlockEntity(converterPos);
+        net.minecraft.nbt.CompoundTag almost = converter.saveWithoutMetadata();
+        almost.putLong("Energy", ConverterBlockEntity.CAPACITY - 300);
+        converter.load(almost);
+        helper.setBlock(END, Blocks.BARREL);
+        helper.startSequence()
+                .thenWaitUntil(() -> check(converter.stored() == ConverterBlockEntity.CAPACITY, "Converter not filled"))
+                .thenExecuteFor(10, () -> {
+                    long taken = GeneratorKind.CAPACITY - source.energy().stored();
+                    check(taken % NodeKind.ENERGY == 0, "A tick moved less than the node's rate: " + taken + " taken in total");
                 })
                 .thenSucceed();
     }
