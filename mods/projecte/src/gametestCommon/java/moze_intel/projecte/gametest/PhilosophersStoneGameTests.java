@@ -42,14 +42,16 @@ public class PhilosophersStoneGameTests {
         helper.succeed();
     }
 
+    /**
+     * The back-and-forth pairs registered in code (crimson and warped planks here). Upstream 1.1.0's
+     * {@code registerDefault} drops the sneaking alternate, so sneaking is not tested.
+     */
     @GameTest(template = TEMPLATE)
-    public static void sneakingTransmutesToTheAlternate(GameTestHelper helper) {
-        helper.setBlock(TARGET, Blocks.STONE);
-        ServerPlayer player = PEGameTestSupport.player(helper, "philo_sneak");
-        player.setShiftKeyDown(true);
+    public static void transmutesCrimsonPlanksIntoWarped(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.CRIMSON_PLANKS);
+        ServerPlayer player = PEGameTestSupport.player(helper, "philo_planks");
         use(helper, player, TARGET);
-        player.setShiftKeyDown(false);
-        helper.assertBlockPresent(Blocks.GRASS_BLOCK, TARGET);
+        helper.assertBlockPresent(Blocks.WARPED_PLANKS, TARGET);
         helper.succeed();
     }
 

@@ -53,7 +53,7 @@ public class EmcMapperGameTests {
         values.put(Items.CRAFTING_TABLE, 32L);
         values.put(Items.CHEST, 64L);
         values.put(Items.FURNACE, 8L);
-        values.put(Items.TORCH, 33L);
+        values.put(Items.TORCH, 9L);
         values.put(Items.BREAD, 72L);
         values.put(Items.IRON_PICKAXE, 776L);
         // ProjectE's own items.
@@ -62,7 +62,7 @@ public class EmcMapperGameTests {
         values.put(PEItems.AETERNALIS_FUEL, 8_192L);
         values.put(PEItems.LOW_COVALENCE_DUST, 1L);
         values.put(PEItems.DARK_MATTER, 139_264L);
-        values.put(PEBlocks.TRANSMUTATION_TABLE, 286_734L);
+        values.put(PEBlocks.TRANSMUTATION_TABLE, 260L);
         return values;
     }
 

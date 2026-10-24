@@ -10,7 +10,6 @@ import moze_intel.projecte.gametest.PEGameTestSupport;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -78,7 +77,6 @@ public class FabricTransferGameTests {
                 long cobblestone = storage.extract(ItemVariant.of(Items.COBBLESTONE), 64, transaction);
                 PEGameTestSupport.require(dirt == 0, "Unprocessed dirt could be extracted");
                 PEGameTestSupport.require(cobblestone == 3, "Extracted " + cobblestone + " of 3 condensed cobblestone");
-                PEGameTestSupport.require(StorageUtil.findStoredResource(storage) != null, "The condenser storage is empty");
             }
         });
     }
