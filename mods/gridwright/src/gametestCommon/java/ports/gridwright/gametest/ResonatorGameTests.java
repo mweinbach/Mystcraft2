@@ -5,10 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import ports.gridwright.Gridwright;
 import ports.gridwright.machine.ResonatorBlockEntity;
 import ports.gridwright.machine.ResonatorBlockEntity.Status;
@@ -82,6 +84,54 @@ public class ResonatorGameTests {
                         "Expected BLOCKED, got " + resonator.status()))
                 .thenExecute(() -> resonator.setItem(1, ItemStack.EMPTY))
                 .thenWaitUntil(() -> check(resonator.status() != Status.BLOCKED, "Still blocked: " + resonator.status()))
+                .thenSucceed();
+    }
+
+    /** Saved progress and the recipe it belongs to survive a reload; a different recipe starts over. */
+    @GameTest(template = TEMPLATE)
+    public static void progressSurvivesReload(GameTestHelper helper) {
+        Owner owner = Owner.random("gwO");
+        ResonatorBlockEntity source = resonator(helper, POS, owner);
+        source.setItem(0, new ItemStack(Items.REDSTONE));
+        CompoundTag saved = source.saveWithoutMetadata();
+        saved.putInt("Progress", 50);
+        saved.putString("Recipe", Gridwright.MOD_ID + ":resonating/grid_crystal");
+        // Owned but with no producers, so the grid is overloaded and progress must neither move nor reset.
+        ResonatorBlockEntity same = resonator(helper, new BlockPos(4, 2, 2), null);
+        same.load(saved.copy());
+        CompoundTag other = saved.copy();
+        other.putString("Recipe", Gridwright.MOD_ID + ":resonating/flint");
+        ResonatorBlockEntity changed = resonator(helper, new BlockPos(6, 2, 2), null);
+        changed.load(other);
+        helper.startSequence()
+                .thenIdle(3)
+                .thenExecuteFor(10, () -> {
+                    check(same.recipe() != null && same.recipe().output().is(ModItems.GRID_CRYSTAL.get()), "Recipe not resolved");
+                    check(same.status() == Status.OVERLOADED && same.progress() == 50,
+                            "Restored progress lost: " + same.progress() + " (" + same.status() + ")");
+                    check(changed.progress() == 0, "Progress from another recipe kept: " + changed.progress());
+                })
+                .thenExecute(() -> check(same.saveWithoutMetadata().getString("Recipe").equals(Gridwright.MOD_ID + ":resonating/grid_crystal"),
+                        "Recipe id not saved"))
+                .thenSucceed();
+    }
+
+    /** A cached recipe the recipe manager no longer holds (a datapack reload) is looked up again. */
+    @GameTest(template = TEMPLATE)
+    public static void staleCachedRecipeIsReplaced(GameTestHelper helper) {
+        ResonatorBlockEntity resonator = resonator(helper, POS, Owner.random("gwP"));
+        resonator.setItem(0, new ItemStack(Items.REDSTONE));
+        ResonatingRecipe live = recipe(helper, "resonating/grid_crystal");
+        ResonatingRecipe stale = new ResonatingRecipe(live.getId(), Ingredient.of(Items.REDSTONE), 1,
+                new ItemStack(Items.DIAMOND), 0.0, 1);
+        helper.startSequence()
+                .thenWaitUntil(() -> check(resonator.recipe() == live, "Recipe not resolved"))
+                .thenExecute(() -> GameTestSupport.setField(ResonatorBlockEntity.class, "recipe", resonator, stale))
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    check(resonator.recipe() == live, "Kept a recipe the manager no longer holds: " + resonator.recipe());
+                    check(!resonator.getItem(1).is(Items.DIAMOND), "The stale recipe ran");
+                })
                 .thenSucceed();
     }
 

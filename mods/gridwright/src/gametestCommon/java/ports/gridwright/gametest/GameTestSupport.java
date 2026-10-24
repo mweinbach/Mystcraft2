@@ -101,6 +101,16 @@ public final class GameTestSupport {
         helper.setBlock(source, Blocks.WATER);
     }
 
+    static void setField(Class<?> owner, String name, Object target, Object value) {
+        try {
+            java.lang.reflect.Field field = owner.getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Cannot write " + owner.getSimpleName() + "." + name, e);
+        }
+    }
+
     /** A server player who is never added to the level, for placement hooks. */
     static ServerPlayer player(GameTestHelper helper, Owner owner) {
         ServerLevel level = helper.getLevel();

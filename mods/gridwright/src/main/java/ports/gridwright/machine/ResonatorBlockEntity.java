@@ -7,6 +7,8 @@ import ports.gridwright.registry.ModRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +33,8 @@ public class ResonatorBlockEntity extends MachineBlockEntity {
     public enum Status { IDLE, RUNNING, OVERLOADED, NO_OWNER, BLOCKED }
 
     @Nullable private ResonatingRecipe recipe;
+    /** The recipe a loaded save was working on, until the first tick resolves it again. */
+    @Nullable private ResourceLocation savedRecipe;
     private int progress;
     /** Whether it asked for power last tick, so the grid totals it reads include its own demand. */
     private boolean active;
@@ -93,8 +97,12 @@ public class ResonatorBlockEntity extends MachineBlockEntity {
     private void tick(ServerLevel level) {
         ResonatingRecipe found = findRecipe(level);
         if (found != recipe) {
+            // Progress carries over when the same recipe comes back: after a load, or a datapack reload
+            // that replaced the recipe object. Any other change starts again.
+            ResourceLocation previous = recipe != null ? recipe.getId() : savedRecipe;
+            if (found == null || !found.getId().equals(previous)) progress = 0;
             recipe = found;
-            progress = 0;
+            savedRecipe = null;
         }
         if (recipe == null || !fits(recipe.output())) {
             stop(recipe == null ? Status.IDLE : Status.BLOCKED);
@@ -135,7 +143,10 @@ public class ResonatorBlockEntity extends MachineBlockEntity {
     @Nullable
     private ResonatingRecipe findRecipe(ServerLevel level) {
         if (items.get(INPUT).isEmpty()) return null;
-        if (recipe != null && recipe.matches(this, level)) return recipe;
+        // Reuse the cached recipe only while the recipe manager still holds that exact object; a
+        // datapack reload replaces or removes it.
+        if (recipe != null && level.getRecipeManager().byKey(recipe.getId()).orElse(null) == recipe
+                && recipe.matches(this, level)) return recipe;
         return level.getRecipeManager().getRecipeFor(ModRecipes.RESONATING.get(), this, level).orElse(null);
     }
 
@@ -170,11 +181,15 @@ public class ResonatorBlockEntity extends MachineBlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Progress", progress);
+        ResourceLocation working = recipe != null ? recipe.getId() : savedRecipe;
+        if (working != null) tag.putString("Recipe", working.toString());
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         progress = tag.getInt("Progress");
+        recipe = null;
+        savedRecipe = tag.contains("Recipe", Tag.TAG_STRING) ? ResourceLocation.tryParse(tag.getString("Recipe")) : null;
     }
 }

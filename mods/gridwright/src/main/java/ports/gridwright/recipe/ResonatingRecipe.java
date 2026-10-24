@@ -80,8 +80,8 @@ public record ResonatingRecipe(ResourceLocation id, Ingredient ingredient, int a
             ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
             double gp = GsonHelper.getAsDouble(json, "gp");
             int time = GsonHelper.getAsInt(json, "time");
-            if (amount < 1 || amount > 64 || gp < 0 || time < 1) {
-                throw new IllegalArgumentException(id + ": amount must be 1-64, gp at least 0 and time at least 1");
+            if (amount < 1 || amount > 64 || !Double.isFinite(gp) || gp < 0 || time < 1) {
+                throw new IllegalArgumentException(id + ": amount must be 1-64, gp a finite number at least 0 and time at least 1");
             }
             return new ResonatingRecipe(id, ingredient, amount, output, gp, time);
         }
