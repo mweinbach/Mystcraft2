@@ -1,0 +1,125 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "gridwright:block/node_side",
+    "side": "gridwright:block/node_side",
+    "front": "gridwright:block/fluid_retrieval_node_front"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        1,
+        0
+      ],
+      "to": [
+        15,
+        15,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            3,
+            14
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            3,
+            14
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            1,
+            0,
+            15,
+            3
+          ]
+        },
+        "down": {
+          "texture": "#side",
+          "uv": [
+            1,
+            0,
+            15,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        3
+      ],
+      "to": [
+        12,
+        12,
+        16
+      ],
+      "faces": {
+        "south": {
+          "texture": "#front",
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            3,
+            4,
+            16,
+            12
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            3,
+            4,
+            16,
+            12
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            4,
+            3,
+            12,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#side",
+          "uv": [
+            4,
+            3,
+            12,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

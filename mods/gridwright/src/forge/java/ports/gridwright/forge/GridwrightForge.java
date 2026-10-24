@@ -3,6 +3,7 @@ package ports.gridwright.forge;
 import ports.gridwright.Gridwright;
 import ports.gridwright.forge.client.GridwrightForgeClient;
 import ports.gridwright.platform.Platform;
+import ports.gridwright.transfer.TransferPlatform;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -15,6 +16,7 @@ public class GridwrightForge {
     public GridwrightForge() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         Platform.install(new ForgePlatform(modBus));
+        TransferPlatform.install(new ForgeTransferPlatform());
         Gridwright.init();
         ForgeCapabilityEvents.register();
         ForgeUtilityEvents.register();

@@ -37,6 +37,11 @@
     "gridwright:energy_trash_can",
     "gridwright:spawn_ward",
     "gridwright:greater_spawn_ward",
-    "gridwright:ender_ward"
+    "gridwright:ender_ward",
+    "gridwright:transfer_pipe",
+    "gridwright:transfer_node",
+    "gridwright:fluid_transfer_node",
+    "gridwright:retrieval_node",
+    "gridwright:fluid_retrieval_node"
   ]
 }

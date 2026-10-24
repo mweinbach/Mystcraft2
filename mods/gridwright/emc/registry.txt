@@ -17,6 +17,8 @@ gridwright:double_compressed_sand
 gridwright:ender_generator
 gridwright:ender_ward
 gridwright:energy_trash_can
+gridwright:fluid_retrieval_node
+gridwright:fluid_transfer_node
 gridwright:fluid_trash_can
 gridwright:furnace_generator
 gridwright:gargantuan_drum
@@ -26,6 +28,7 @@ gridwright:greater_spawn_ward
 gridwright:grid_crystal
 gridwright:iron_drum
 gridwright:iron_spike
+gridwright:item_filter
 gridwright:lava_generator
 gridwright:lunar_panel
 gridwright:machine_frame
@@ -40,14 +43,19 @@ gridwright:quintuple_compressed_netherrack
 gridwright:redstone_generator
 gridwright:reinforced_drum
 gridwright:resonator
+gridwright:retrieval_node
 gridwright:septuple_compressed_cobblestone
 gridwright:sextuple_compressed_cobblestone
 gridwright:sextuple_compressed_netherrack
 gridwright:solar_panel
 gridwright:sound_muffler
 gridwright:spawn_ward
+gridwright:speed_upgrade
+gridwright:stack_upgrade
 gridwright:stone_drum
 gridwright:survivalist_generator
+gridwright:transfer_node
+gridwright:transfer_pipe
 gridwright:trash_can
 gridwright:triple_compressed_cobblestone
 gridwright:triple_compressed_dirt
@@ -56,3 +64,4 @@ gridwright:water_mill
 gridwright:watering_can
 gridwright:wind_mill
 gridwright:wooden_spike
+gridwright:world_interaction_upgrade

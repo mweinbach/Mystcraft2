@@ -19,6 +19,21 @@ is empty.
 | Resonator | Shared recipe type and menu | Shared recipe type and menu | `ResonatorGameTests` |
 | EMC | ProjectE data | Item Alchemy data | `EmcGameTests` |
 
+## Phase 2a: transfer
+
+Shared logic lives in `ports.gridwright.transfer`; each loader supplies only
+[`TransferPlatform`](../src/main/java/ports/gridwright/transfer/TransferPlatform.java) (inventory and tank
+access, plus the block-break permission check). All 23 `TransferGameTests` run on both loaders.
+
+| Feature | Forge | Fabric | GameTests |
+| --- | --- | --- | --- |
+| Item transfer/retrieval nodes | `IItemHandler` capability, simulate then commit | `Storage<ItemVariant>` in transactions; each stored kind is tried until one leaves the source | `itemNodeMovesOneItemPerSecond`, `roundRobinAcrossTargets`, `retrievalNodePullsFromNetwork`, `rejectedItemsDoNotStallTheNode`, `lockedSlotsDoNotHideOutput`, `sidedInventoriesOfferEveryConnectedFace` |
+| Fluid transfer/retrieval nodes | `IFluidHandler` capability (mB) | `Storage<FluidVariant>`; droplets converted to whole mB | `fluidNodesMoveFluid` |
+| Pipes and networks | Shared | Shared | `pipesShowConnections` |
+| Speed / stack upgrades (GP) | Shared | Shared | `upgradesNeedOwnerAndPower`, `poweredSpeedUpgradesMoveFaster`, `stackUpgradeMovesStacks` |
+| World interaction upgrade | Owner checked with a `FakePlayer` through `BlockEvent.BreakEvent` | A stand-in `ServerPlayer` through `PlayerBlockBreakEvents.BEFORE` | `worldInteractionMinesIntoNetwork`, `worldInteractionRespectsProtection`, `worldInteractionPlacesBlocks`, `worldInteractionPlacesDirectionalBlocks`, `worldInteractionPumpsSources`, `worldInteractionPoursSources`, `worldInteractionStaysInsideBuildHeight` |
+| Item filter and menus | Shared | Shared | `filtersAllowAndDeny`, `filterMatchesNbtAndFluids`, `filterMenuEditsHeldFilter`, `nodeMenuSortsShiftClicks`, `nodeStatePersists` |
+
 ## Phase 2b: utility items and blocks
 
 | Feature | Public behaviour (see NOTICE) | Forge | Fabric | GameTests |

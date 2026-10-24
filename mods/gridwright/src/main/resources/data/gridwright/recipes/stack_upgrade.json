@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IRI",
+    "HCH",
+    "IRI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "H": {
+      "item": "minecraft:chest"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    }
+  },
+  "result": {
+    "item": "gridwright:stack_upgrade"
+  }
+}

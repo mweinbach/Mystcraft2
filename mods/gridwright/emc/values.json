@@ -98,6 +98,16 @@
       "itemalchemy": 605,
       "source": "recipe"
     },
+    "gridwright:fluid_retrieval_node": {
+      "projecte": 2059,
+      "itemalchemy": 2060,
+      "source": "recipe"
+    },
+    "gridwright:fluid_transfer_node": {
+      "projecte": 907,
+      "itemalchemy": 908,
+      "source": "recipe"
+    },
     "gridwright:fluid_trash_can": {
       "projecte": 134,
       "itemalchemy": 605,
@@ -141,6 +151,11 @@
     "gridwright:iron_spike": {
       "projecte": 643,
       "itemalchemy": 633,
+      "source": "recipe"
+    },
+    "gridwright:item_filter": {
+      "projecte": 240,
+      "itemalchemy": 240,
       "source": "recipe"
     },
     "gridwright:lava_generator": {
@@ -213,6 +228,11 @@
       "itemalchemy": 827,
       "source": "recipe"
     },
+    "gridwright:retrieval_node": {
+      "projecte": 2635,
+      "itemalchemy": 2616,
+      "source": "recipe"
+    },
     "gridwright:septuple_compressed_cobblestone": {
       "projecte": 4782969,
       "itemalchemy": 4782969,
@@ -243,6 +263,16 @@
       "itemalchemy": 9744,
       "source": "recipe"
     },
+    "gridwright:speed_upgrade": {
+      "projecte": 4256,
+      "itemalchemy": 4246,
+      "source": "recipe"
+    },
+    "gridwright:stack_upgrade": {
+      "projecte": 1344,
+      "itemalchemy": 1328,
+      "source": "recipe"
+    },
     "gridwright:stone_drum": {
       "projecte": 1799,
       "itemalchemy": 1786,
@@ -251,6 +281,16 @@
     "gridwright:survivalist_generator": {
       "projecte": 79,
       "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "gridwright:transfer_node": {
+      "projecte": 1483,
+      "itemalchemy": 1464,
+      "source": "recipe"
+    },
+    "gridwright:transfer_pipe": {
+      "projecte": 8,
+      "itemalchemy": 9,
       "source": "recipe"
     },
     "gridwright:trash_can": {
@@ -291,6 +331,11 @@
     "gridwright:wooden_spike": {
       "projecte": 23,
       "itemalchemy": 23,
+      "source": "recipe"
+    },
+    "gridwright:world_interaction_upgrade": {
+      "projecte": 25920,
+      "itemalchemy": 7480,
       "source": "recipe"
     }
   }
