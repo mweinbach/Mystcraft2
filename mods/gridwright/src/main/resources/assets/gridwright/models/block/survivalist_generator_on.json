@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "front": "gridwright:block/survivalist_generator_front_on",
+    "side": "gridwright:block/survivalist_side",
+    "top": "gridwright:block/survivalist_top",
+    "bottom": "gridwright:block/survivalist_top"
+  }
+}

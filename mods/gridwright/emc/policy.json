@@ -1,0 +1,16 @@
+{
+  "namespace": "gridwright",
+  "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources", "src/forge/resources"],
+    "itemalchemy": ["src/main/resources", "src/fabric/resources"]
+  },
+  "output": "src/main/resources",
+  "conversions": [
+    {"name": "resonate_grid_crystal", "why": "The resonator turns one redstone dust into one grid crystal using Grid Power, which has no EMC (a custom recipe type the EMC mods cannot map).", "output": "gridwright:grid_crystal", "ingredients": {"minecraft:redstone": 1}}
+  ],
+  "recipe_processes": [
+    {"name": "resonating", "why": "Every resonating recipe, including datapack additions, must not create EMC: Grid Power is free once built, so a recipe worth more out than in would be an infinite EMC loop.", "type": "gridwright:resonating", "items": ["input"], "outputs": ["output"]}
+  ],
+  "notes": "Generators turn items into Forge Energy / Team Reborn Energy, not items, so they need no EMC process. Grid Power is a rate shared per player or team and is never stored in an item."
+}

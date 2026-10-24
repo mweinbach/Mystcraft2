@@ -1,0 +1,15 @@
+{
+  "type": "gridwright:resonating",
+  "input": {
+    "ingredient": {
+      "item": "minecraft:redstone"
+    },
+    "amount": 1
+  },
+  "output": {
+    "item": "gridwright:grid_crystal",
+    "count": 1
+  },
+  "gp": 4.0,
+  "time": 100
+}

@@ -8,6 +8,7 @@ in each mod's shared resources. No port depends on an EMC mod, so nothing change
 | Advanced Genetics | Forge, Fabric | 94 | 39 | 0 | [`mods/advancedgenetics/emc`](../mods/advancedgenetics/emc/README.md) |
 | BuildCraft | Forge, Fabric | 212 | 1 | 34 | [`mods/buildcraft/emc`](../mods/buildcraft/emc/README.md) |
 | Extreme Reactors | Forge, Fabric | 113 | 6 | 6 | [`mods/extremereactors/emc`](../mods/extremereactors/emc/README.md) |
+| Gridwright | Forge, Fabric | 14 | 0 | 0 | [`mods/gridwright/emc`](../mods/gridwright/emc/README.md) |
 | ICBM | Fabric | 142 | 3 | 0 | [`mods/icbm_port/emc`](../mods/icbm_port/emc/README.md) |
 | JurassiCraft | Forge, Fabric | 626 | 326 | 55 | [`mods/jurassicraft/emc`](../mods/jurassicraft/emc/README.md) |
 | Mekanism | Forge, Fabric | 779 | 15 | 27 | [`mods/mekanism/emc`](../mods/mekanism/emc/README.md) |
@@ -270,6 +271,7 @@ Villager trades, loot and mob drop rates are not mapped, as in ProjectE.
 | ICBM | `./scripts/gradle.sh :icbm_port:runGametest -PwithItemAlchemy` |
 | Advanced Genetics | `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy` |
 | Mekanism | `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy` |
+| Gridwright | `./scripts/gradle.sh :gridwright:runGameTestServer -PwithProjectE`, `./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithItemAlchemy` |
 
 CI runs every audit in the table against its real EMC mod: each port's matrix entry passes `-PwithProjectE` to the
 Forge GameTest run and `-PwithItemAlchemy` to the Fabric one, so there is no separate EMC job, and
