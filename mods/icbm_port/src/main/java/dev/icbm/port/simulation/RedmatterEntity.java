@@ -373,13 +373,19 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
 
   private int merge(RedmatterEntity other, double distance) {
     if (distance < Math.max(1, size() * .3) && getId() < other.getId()) {
+      // This is the only place one core absorbs another. The absorbed core's deferred crater work
+      // (chunks its horizon passed while they were unloaded) is handed to a scar centred on the
+      // absorbed core's own anchor with its own horizon radius, exactly as collapse() and
+      // reanchor() do, because the survivor's sphere has a different anchor and an already-grown
+      // survivor never revisits its inner shells. If the scar list is full of active work the
+      // merge waits for a later tick rather than dropping that work.
+      if (other.anchor != null
+          && world instanceof ServerWorld server
+          && !Payloads.registerScar(server, other.anchor, other.horizonRadius(), other.deferred))
+        return 0;
+      other.deferred.clear();
       setSize((float) Math.cbrt(Math.pow(size(), 3) + Math.pow(other.size(), 3)));
       maxHorizon = Math.max(horizonLimit(), other.horizonLimit());
-      // The survivor's sphere has another anchor, so it would never redo the chunks the absorbed
-      // core's horizon passed while they were unloaded; finish that crater as a scar instead.
-      if (other.anchor != null && world instanceof ServerWorld server)
-        Payloads.registerScar(server, other.anchor, other.horizonRadius(), other.deferred);
-      other.deferred.clear();
       other.discard();
       return 1;
     }

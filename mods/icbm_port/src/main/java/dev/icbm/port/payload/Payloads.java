@@ -238,12 +238,14 @@ public final class Payloads {
   public static int removeNear(ServerWorld world, Vec3d center, double radius) {
     if (!Double.isFinite(radius) || radius < 0 || radius > 10000) return 0;
     QueueState queue = state(world);
-    int before = queue.jobs.size() + queue.pending.size() + queue.scars.size();
+    int before = queue.jobs.size() + queue.pending.size() + queue.legacy.size() + queue.scars.size();
     queue.jobs.removeIf(j -> j.center.squaredDistanceTo(center) <= radius * radius);
     queue.pending.removeIf(j -> j.center.squaredDistanceTo(center) <= radius * radius);
+    queue.legacy.removeIf(j -> j.center.squaredDistanceTo(center) <= radius * radius);
     queue.scars.removeIf(s -> s.center.squaredDistanceTo(center) <= radius * radius);
     queue.markDirty();
-    int removed = before - queue.jobs.size() - queue.pending.size() - queue.scars.size();
+    int removed =
+        before - queue.jobs.size() - queue.pending.size() - queue.legacy.size() - queue.scars.size();
     for (Entity entity :
         world.getOtherEntities(
             null,
@@ -259,22 +261,27 @@ public final class Payloads {
 
   public static int queuedCount(ServerWorld world) {
     QueueState queue = state(world);
-    return queue.jobs.size() + queue.pending.size() + (int) queue.scars.stream().filter(Scar::active).count();
+    return queue.jobs.size()
+        + queue.pending.size()
+        + queue.legacy.size()
+        + (int) queue.scars.stream().filter(Scar::active).count();
   }
 
   /**
    * Erases the solid sphere in the given chunks, now if loaded or else when each next loads. Red
-   * matter uses this for chunks its horizon passed while they were unloaded.
+   * matter uses this for chunks its horizon passed while they were unloaded. Returns false only
+   * when the scar list is full of active work, in which case nothing was taken and the caller
+   * still owns the chunks.
    */
-  public static void registerScar(
+  public static boolean registerScar(
       ServerWorld world, Vec3d center, int radius, it.unimi.dsi.fastutil.longs.LongCollection chunks) {
-    if (chunks.isEmpty() || radius <= 0) return;
+    if (chunks.isEmpty() || radius <= 0) return true;
     Scar scar = new Scar(center, Math.min(PayloadType.MAX_EXTREME_RADIUS, radius));
     scar.reported = true;
     chunks.forEach((long pos) -> {
       if (scar.pending.size() < Scar.MAX_CHUNKS) scar.pending.add(pos);
     });
-    state(world).addScar(scar);
+    return state(world).addScar(scar);
   }
 
   private static void antimatterFlash(ServerWorld world, Vec3d center, int radius) {
@@ -458,6 +465,12 @@ public final class Payloads {
     final List<Job> jobs = new ArrayList<>();
     final List<Job> pending = new ArrayList<>();
     final List<Scar> scars = new ArrayList<>();
+    /**
+     * Antimatter cube sweeps saved by older versions (up to 256 of them), waiting to become scars.
+     * They stay here, and are saved, until {@link #addScar} has room, so none is lost when more
+     * than {@link #MAX_SCARS} were pending at upgrade.
+     */
+    final List<Job> legacy = new ArrayList<>();
     int nextJob;
 
     boolean enqueue(Job job, boolean deferred) {
@@ -504,6 +517,16 @@ public final class Payloads {
       scars.add(scar);
       markDirty();
       return true;
+    }
+
+    /** Turns waiting legacy antimatter sweeps into scars, oldest first, while scars have room. */
+    private void convertLegacy(ServerWorld world) {
+      while (!legacy.isEmpty()) {
+        Job job = legacy.get(0);
+        if (!addScar(Scar.of(world, job.center, job.radius))) return;
+        legacy.remove(0);
+        markDirty();
+      }
     }
 
     void chunkLoaded(long pos) {
@@ -575,6 +598,7 @@ public final class Payloads {
       NbtList list = new NbtList();
       List<Job> saved = new ArrayList<>(jobs);
       saved.addAll(pending);
+      saved.addAll(legacy);
       for (Job j : saved) {
         NbtCompound n = new NbtCompound();
         n.putString("type", j.type.name());
@@ -603,13 +627,14 @@ public final class Payloads {
     }
 
     void tick(ServerWorld w) {
-      tickScars(w);
       jobs.addAll(pending);
       pending.clear();
-      // Worlds saved by older versions may hold an antimatter cube sweep; finish it as a scar.
-      if (jobs.removeIf(
-          j -> j.type == PayloadType.ANTIMATTER && (addScar(Scar.of(w, j.center, j.radius)) || true)))
-        markDirty();
+      // Worlds saved by older versions may hold antimatter cube sweeps; each becomes a scar once
+      // there is room. Convert into free slots first, then again into slots this tick's scars free.
+      if (jobs.removeIf(j -> j.type == PayloadType.ANTIMATTER && legacy.add(j))) markDirty();
+      convertLegacy(w);
+      tickScars(w);
+      convertLegacy(w);
       if (jobs.isEmpty()) return;
       for (Job job : jobs) job.elapsedTicks = Math.min(72000, job.elapsedTicks + 1);
       int served = 0, slots = Math.min(8, jobs.size());

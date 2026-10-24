@@ -197,7 +197,7 @@ Craters are now cut by direct chunk-section writes. Alpha.4 used `removeBlock`, 
 
 ## Alpha.4 validation status
 
-Local alpha.4 build, 16 JUnit tests, the 92 gameplay GameTests of that time (108 in the current tree; see VALIDATION.md), the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
+Local alpha.4 build, 16 JUnit tests, the 92 gameplay GameTests of that time (109 in the current tree; see VALIDATION.md), the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
 
 The runtime results below were recorded for **alpha.3** and are retained as a historical compatibility baseline. They do not establish alpha.4 visual correctness or revalidate every new change.
 

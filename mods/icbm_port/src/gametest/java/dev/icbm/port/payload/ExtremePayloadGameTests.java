@@ -411,4 +411,62 @@ public final class ExtremePayloadGameTests implements FabricGameTest {
           c.complete();
         });
   }
+
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      tickLimit = 40,
+      batchId = "icbmExtremeLegacyAntimatter")
+  public void legacyAntimatterSweepsWaitForScarRoom(TestContext c) {
+    ServerWorld world = c.getWorld();
+    Vec3d base = new Vec3d(6664.5, 200, 4104.5);
+    List<ChunkPos> chunks = forceLoad(world, base.x, base.z, 2);
+    long budget = Scar.tickBudgetNanos;
+    // With no budget each world tick advances a single scar by a single chunk, so scars stay busy.
+    Scar.tickBudgetNanos = 0;
+    try {
+      // An older save: more unfinished antimatter cube sweeps than there are scar slots.
+      int saved = Payloads.QueueState.MAX_SCARS + 6;
+      net.minecraft.nbt.NbtList jobs = new net.minecraft.nbt.NbtList();
+      for (int i = 0; i < saved; i++) {
+        net.minecraft.nbt.NbtCompound job = new net.minecraft.nbt.NbtCompound();
+        job.putString("type", PayloadType.ANTIMATTER.name());
+        job.putDouble("x", base.x);
+        job.putDouble("y", base.y);
+        job.putDouble("z", base.z);
+        job.putInt("radius", 20);
+        jobs.add(job);
+      }
+      net.minecraft.nbt.NbtCompound nbt = new net.minecraft.nbt.NbtCompound();
+      nbt.put("jobs", jobs);
+      Payloads.QueueState state = Payloads.QueueState.read(nbt);
+      state.tick(world);
+      check(
+          c,
+          state.scars.size() == Payloads.QueueState.MAX_SCARS && state.legacy.size() == 6,
+          "Sweeps beyond the scar limit must wait, not vanish (scars "
+              + state.scars.size()
+              + ", waiting "
+              + state.legacy.size()
+              + ")");
+      Payloads.QueueState reloaded =
+          Payloads.QueueState.read(state.writeNbt(new net.minecraft.nbt.NbtCompound()));
+      reloaded.tick(world);
+      check(
+          c,
+          reloaded.legacy.size() + reloaded.scars.size() == saved,
+          "Waiting sweeps must survive a save");
+      int converted = 0;
+      for (int i = 0; i < 4000 && !(state.legacy.isEmpty() && state.scars.isEmpty()); i++) {
+        int waiting = state.legacy.size();
+        state.tick(world);
+        converted += waiting - state.legacy.size();
+      }
+      check(c, state.legacy.isEmpty() && state.scars.isEmpty(), "Every sweep must finish");
+      check(c, converted == 6, "The waiting sweeps must become scars as slots free up");
+    } finally {
+      Scar.tickBudgetNanos = budget;
+      release(world, chunks);
+    }
+    c.complete();
+  }
 }
