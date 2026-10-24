@@ -57,6 +57,31 @@ no GP↔energy conversion in phase 1.
 
 Every block and item has a survival recipe in [`src/main/resources/data/gridwright/recipes`](src/main/resources/data/gridwright/recipes).
 
+## Features (phase 2b: utility items and blocks)
+
+| Feature | Blocks/items | Behaviour |
+| --- | --- | --- |
+| Angel Ring | `angel_ring` | Carried anywhere in the inventory (Gridwright has no Curios/Trinkets dependency), it lets a survival or adventure player fly while their grid (their own, or their team's) has 16 GP to spare. It draws those 16 GP only while the player is actually flying, as a consumer, so an overloaded grid grounds them. Flight the ring granted is marked on the player and taken back when the ring leaves the inventory or the grid cannot pay, with 10 s of Slow Falling if they were in the air; flight from creative mode or another mod is never touched. |
+| Golden Lasso | `golden_lasso` | Right-click a passive creature to carry it (one at a time; the lasso glints), right-click a block to let it out where you clicked. Hostile creatures, players, bosses (ender dragon, wither, elder guardian, warden and anything in `#gridwright:lasso_immune`, which also pulls in `#forge:bosses` / `#c:bosses` when present) and other players' pets are refused. A released creature keeps its data (name, age, health) but gets a fresh UUID. |
+| Builder's Wand | `builders_wand` | Right-click a block: up to 9 copies of it go on the clicked face of the connected same-type blocks in that plane, nearest first, taken from the inventory (free in creative). Each placement goes through `ItemStack.useOn`, so Forge's `EntityPlaceEvent`, spawn protection, world border and adventure rules apply; Fabric has no place event, so the wand first asks `UseBlockCallback` (which claim mods hook) for each block. |
+| Destruction Wand | `destruction_wand` | Right-click a block: up to 9 matching blocks on that face with open space in front break as if the player mined them with an iron tool, through `ServerPlayerGameMode.destroyBlock`, so Forge's `BreakEvent` and Fabric's `PlayerBlockBreakEvents` (claim mods) can cancel each one. Blocks harder than 5 (obsidian), unbreakable blocks and blocks with block entities are left alone. Main hand only. |
+| Watering Can | `watering_can` | Right-click water to fill (400 uses). Hold right-click on a block: every 4 ticks, each plant in the 3x3x3 area around it has a 25% chance of a random growth tick, farmland there is fully wetted and fire is put out. |
+| Bag of Holding | `bag_of_holding` | A 54-slot portable chest whose contents live in the item. Bags, shulker boxes and anything else that may not go in a shulker box are refused; the open bag's own inventory slot is locked against clicks, number-key and offhand swaps, throwing and double-click collecting, and the screen closes if that slot stops holding the bag. |
+| Pocket Workbench | `pocket_workbench` | Right-click for a 3x3 crafting grid anywhere; it stays open while the workbench is in the inventory and returns the grid's items on close. (Gridwright's reading of the plan's "crafting table-style items".) |
+| Drums | `stone_drum`, `iron_drum`, `reinforced_drum`, `gargantuan_drum` | One fluid each: 16, 256, 4,096 and 65,536 buckets. Forge `IFluidHandler` and Fabric `Storage<FluidVariant>` (transactional) on every side; buckets and other containers fill and empty them by hand; an empty hand shows the contents. Broken drums keep their fluid (empty ones stay stackable); the comparator reads 1 to 15 by fill. Stored amounts convert between Forge millibuckets and Fabric droplets on load. |
+| Trash cans | `trash_can`, `fluid_trash_can`, `energy_trash_can` | Destroy everything given to them and hold nothing. The item can is a one-row screen and takes hopper, pipe and Forge item handler / Fabric item storage input; the fluid can accepts any fluid through either loader's fluid API (and buckets by hand); the energy can accepts any Forge Energy / Team Reborn Energy. |
+| Compressed blocks | `compressed_<kind>` up to `octuple_compressed_cobblestone` | Nine of a tier craft into one of the next and one crafts back into nine: cobblestone to octuple (9^8), dirt to quadruple, gravel and sand to double, netherrack to sextuple. Each tier is harder to break than the last. EMC is exactly 9^tier of the base block, so compressing never gains EMC. |
+| Spikes | `wooden_spike`, `iron_spike`, `golden_spike`, `diamond_spike` | Hurt any creature standing on them (one hit per invulnerability window): wooden 1 damage and never kills, iron 4, golden 2 and diamond 7. Golden and diamond kills count as a player's (a no-client stand-in player takes the credit), so they drop experience and player-only loot; iron kills do not. |
+| Sound Muffler | `sound_muffler` | Sounds played within 8 blocks are played at 10% volume; several mufflers do not stack. Forge muffles through `PlayLevelSoundEvent` (server and client sounds); Fabric, which has no sound event, uses one small mixin on the server's sound broadcast. |
+
+Recipes (all survival): spikes are three swords of the material over four of the material (four
+spikes); drums are a cauldron wrapped in stone, iron, diamond and iron blocks, or netherite and crying
+obsidian; trash cans are cobblestone and stone slabs around a cactus, sponge or redstone block; the
+Angel Ring is gold, feathers, ghast tears, a diamond and a grid crystal; the lasso gold, string and an
+ender pearl; the wands two sticks with gold or a diamond; the watering can iron around a bowl; the bag
+leather, gold, two chests and an ender pearl; the muffler wool and a note block; the pocket workbench
+a crafting table and leather. See [`docs/PARITY.md`](docs/PARITY.md) for the loader-by-loader detail.
+
 ### EMC
 
 Generated by `python3 scripts/emc.py generate gridwright` from [`emc/policy.json`](emc/policy.json)
@@ -92,23 +117,23 @@ Textures are regenerated with `python3 mods/gridwright/scripts/generate_textures
 In order of usefulness to the pack; each is a separate PR with survival recipes, EMC and GameTests on
 both loaders.
 
+Phase 2b (the Angel Ring, lasso, wands, watering can, bag, workbench, drums, trash cans, compressed
+blocks, spikes and sound muffler) is done; see above.
+
 1. **Transfer nodes and pipes** (item and fluid) with speed, stack, filter and world-interaction upgrades.
 2. **GP ↔ energy converter** block, deliberately lossy, so GP can feed FE/TR machines and vice versa.
-3. **Angel Ring** (GP-powered creative flight; Trinkets/Curios slot).
-4. **Quantum Quarry** (GP-powered void-dimension quarry) — respects claim/protection mods.
-5. **Ender Quarry** — area quarry that checks block-break permission for its owner.
-6. **Bag of Holding**, **Drum** (single-fluid tank), **Trash cans** (item, fluid, energy).
-7. **Builder's and Destruction wands**, **Golden Lasso**, **Watering can**.
-8. **Compressed blocks** (cobblestone, dirt, sand, gravel… up to octuple), EMC-checked.
-9. **Mechanical User / Mechanical Miner** (fake-player blocks; protection-aware).
-10. **Deep Dark** dimension.
-11. **Crafting and sound muffler** blocks, **Spikes**, **Wards** (mob-spawn control).
-12. More GP producers (fire, lava, manual, dragon-egg mills) and the **Rainbow generator**; lava
+3. **Quantum Quarry** (GP-powered void-dimension quarry) — respects claim/protection mods.
+4. **Ender Quarry** — area quarry that checks block-break permission for its owner.
+5. **Mechanical User / Mechanical Miner** (fake-player blocks; protection-aware).
+6. **Deep Dark** dimension.
+7. **Wards** (mob-spawn control); an optional Curios/Trinkets slot for the Angel Ring.
+8. More GP producers (fire, lava, manual, dragon-egg mills) and the **Rainbow generator**; lava
     fluid input for the lava generator; overclocking upgrades.
 
 ## Known gaps
 
 - Client-side rendering (block models, screens, creative tab) is untested; only compiled.
+- Phase 2b has no cursed lasso, creative wands or drum, wing cosmetics or spike enchantments.
 - No JEI/REI/EMI category for resonating recipes yet.
 - GP state is recomputed every tick from loaded blocks; unloaded producers stop counting, so a grid
   spread across unloaded chunks reports only what is loaded (by design, but worth knowing).

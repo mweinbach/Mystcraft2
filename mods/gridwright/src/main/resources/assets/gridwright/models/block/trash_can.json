@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "gridwright:block/trash_can_top",
+    "side": "gridwright:block/trash_can_side"
+  }
+}

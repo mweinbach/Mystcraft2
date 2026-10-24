@@ -24,12 +24,23 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import team.reborn.energy.api.EnergyStorage;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -134,5 +145,47 @@ final class FabricPlatform implements Platform.Backend {
             transaction.commit();
             return inserted;
         }
+    }
+
+    @Override
+    public void openMenu(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data) {
+        player.openMenu(new ExtendedScreenHandlerFactory() {
+            @Override
+            public void writeScreenOpeningData(ServerPlayer target, FriendlyByteBuf buf) {
+                data.accept(buf);
+            }
+
+            @Override
+            public Component getDisplayName() {
+                return provider.getDisplayName();
+            }
+
+            @Override
+            public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player opener) {
+                return provider.createMenu(containerId, inventory, opener);
+            }
+        });
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level) {
+        return FabricFakePlayer.get(level);
+    }
+
+    @Override
+    public boolean mayUseBlock(ServerPlayer player, InteractionHand hand, BlockHitResult hit) {
+        // Claim mods cancel UseBlockCallback; any answer but PASS means another mod handled or refused it.
+        return UseBlockCallback.EVENT.invoker().interact(player, player.level, hand, hit) == InteractionResult.PASS;
+    }
+
+    @Override
+    public long bucketVolume() {
+        return FluidConstants.BUCKET;
+    }
+
+    @Override
+    public boolean interactWithFluidStorage(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
+        Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos, side);
+        return storage != null && FluidStorageUtil.interactWithFluidStorage(storage, player, hand);
     }
 }

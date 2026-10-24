@@ -9,5 +9,6 @@ public class FabricTestSetup implements ModInitializer {
     public void onInitialize() {
         TestPlatform.Holder.install(new FabricTestPlatform());
         FabricTestPlatform.registerEnergySink();
+        FabricTestPlatform.registerClaims();
     }
 }

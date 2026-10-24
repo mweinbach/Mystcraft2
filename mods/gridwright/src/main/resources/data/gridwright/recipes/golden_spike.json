@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SMS",
+    "MMM"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:golden_sword"
+    },
+    "M": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "item": "gridwright:golden_spike",
+    "count": 4
+  }
+}

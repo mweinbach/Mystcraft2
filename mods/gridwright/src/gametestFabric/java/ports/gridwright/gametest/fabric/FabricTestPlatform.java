@@ -15,8 +15,20 @@ import ports.gridwright.gametest.TestPlatform;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /** Team Reborn Energy and the Fabric Transfer API, plus a test-only energy sink on vanilla barrels. */
@@ -24,6 +36,19 @@ import java.util.WeakHashMap;
 final class FabricTestPlatform implements TestPlatform {
 
     private static final Map<BlockEntity, SimpleEnergyStorage> SINKS = Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final Set<BlockPos> CLAIMED = Collections.synchronizedSet(new HashSet<>());
+
+    /**
+     * A stand-in claim mod: refuses breaking at claimed positions, and using a block whose clicked side
+     * opens onto a claimed position (Fabric has no place event).
+     */
+    static void registerClaims() {
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> !CLAIMED.contains(pos));
+        UseBlockCallback.EVENT.register((player, level, hand, hit) ->
+                CLAIMED.contains(hit.getBlockPos()) || CLAIMED.contains(hit.getBlockPos().relative(hit.getDirection()))
+                        ? InteractionResult.FAIL : InteractionResult.PASS);
+    }
 
     static void registerEnergySink() {
         EnergyStorage.SIDED.registerForBlockEntity((barrel, side) -> SINKS.computeIfAbsent(barrel,
@@ -93,5 +118,68 @@ final class FabricTestPlatform implements TestPlatform {
         SimpleEnergyStorage sink = SINKS.get(barrel);
         if (sink == null) throw new GameTestAssertException("No test energy sink on " + barrel);
         return sink.amount;
+    }
+
+    @Override
+    public FluidAccess fluids(BlockEntity blockEntity, Direction side) {
+        Storage<FluidVariant> fluids = FluidStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, side);
+        if (fluids == null) throw new GameTestAssertException("Missing fluid storage on " + side);
+        return new FluidAccess() {
+            @Override
+            public long fill(Fluid fluid, long amount, boolean simulate) {
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long inserted = fluids.insert(FluidVariant.of(fluid), amount, transaction);
+                    if (!simulate) transaction.commit();
+                    return inserted;
+                }
+            }
+
+            @Override
+            public long drain(long amount, boolean simulate) {
+                StorageView<FluidVariant> view = first();
+                if (view == null) return 0;
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long extracted = fluids.extract(view.getResource(), amount, transaction);
+                    if (!simulate) transaction.commit();
+                    return extracted;
+                }
+            }
+
+            @Override
+            public long amount() {
+                StorageView<FluidVariant> view = first();
+                return view == null ? 0 : view.getAmount();
+            }
+
+            @Override
+            public Fluid fluid() {
+                StorageView<FluidVariant> view = first();
+                return view == null ? Fluids.EMPTY : view.getResource().getFluid();
+            }
+
+            private StorageView<FluidVariant> first() {
+                for (StorageView<FluidVariant> view : fluids) {
+                    if (!view.isResourceBlank() && view.getAmount() > 0) return view;
+                }
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public long offerItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
+        Storage<ItemVariant> items = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, side);
+        if (items == null) throw new GameTestAssertException("Missing item storage on " + side);
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = items.insert(ItemVariant.of(stack), stack.getCount(), transaction);
+            transaction.commit();
+            return inserted;
+        }
+    }
+
+    @Override
+    public void protect(BlockPos pos, boolean claimed) {
+        if (claimed) CLAIMED.add(pos.immutable());
+        else CLAIMED.remove(pos);
     }
 }

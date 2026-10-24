@@ -19,6 +19,7 @@
     "main": ["ports.gridwright.fabric.GridwrightFabric"],
     "client": ["ports.gridwright.fabric.client.GridwrightFabricClient"]
   },
+  "mixins": ["gridwright.fabric.mixins.json"],
   "depends": {
     "fabricloader": ">=0.16.14",
     "fabric-api": ">=0.77.0",

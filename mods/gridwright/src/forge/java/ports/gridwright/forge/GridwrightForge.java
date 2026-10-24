@@ -17,6 +17,7 @@ public class GridwrightForge {
         Platform.install(new ForgePlatform(modBus));
         Gridwright.init();
         ForgeCapabilityEvents.register();
+        ForgeUtilityEvents.register();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> GridwrightForgeClient.init(modBus));
     }
 }

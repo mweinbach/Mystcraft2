@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate both built Gridwright artifacts and the resources they must share."""
 from pathlib import Path
+import json
 import sys
 import zipfile
 
@@ -16,6 +17,7 @@ fabric = MOD / 'fabric/build/libs' / f'gridwright-fabric-1.19.2-{version}.jar'
 # Team Reborn Energy carries generator output to other Fabric mods; Forge Energy is built into Forge.
 FABRIC_NESTED = ('META-INF/jars/energy-2.3.0.jar',)
 NOTICE = 'META-INF/Gridwright-NOTICE.md'
+FABRIC_MIXINS = 'gridwright.fabric.mixins.json'
 
 GAMETEST_SOURCES = [MOD / 'src' / name / 'java' for name in ('gametestCommon', 'gametestForge', 'gametestFabric')]
 
@@ -48,9 +50,16 @@ with zipfile.ZipFile(forge) as a, zipfile.ZipFile(fabric) as b:
                                 and '/forge/' not in n and '/fabric/' not in n}
     parity.require(shared_classes(a) == shared_classes(b),
                    'Shared class mismatch: ' + ', '.join(sorted(shared_classes(a) ^ shared_classes(b))))
-    # No mixins: every loader hook goes through the Platform bridge.
-    parity.require('mixins' not in fabric_mod, 'Fabric descriptor names a mixin config')
+    # Loader hooks go through the Platform bridge. The one exception is Fabric's Sound Muffler hook, which
+    # has no Fabric event (Forge fires PlayLevelSoundEvent); Forge has no mixins at all.
+    parity.require(fabric_mod.get('mixins') == [FABRIC_MIXINS], f'Fabric descriptor must name only {FABRIC_MIXINS}')
+    fabric_mixins = json.loads(b.read(FABRIC_MIXINS))
+    parity.require(fabric_mixins.get('package') == 'ports.gridwright.fabric.mixin'
+                   and fabric_mixins.get('mixins') == ['ServerLevelMixin']
+                   and not fabric_mixins.get('client') and not fabric_mixins.get('server'),
+                   f'{FABRIC_MIXINS} may hold only the Sound Muffler hook')
     parity.require('MixinConfigs' not in a.read('META-INF/MANIFEST.MF').decode(), 'Forge manifest names a mixin config')
+    parity.require(not any(n.endswith('mixins.json') for n in a.namelist()), 'Forge jar carries a mixin config')
 
     resources = len([n for n in shared_paths if not n.endswith('/')])
     print(f'PASS: {resources} identical gameplay resources, {len(shared_classes(a))} shared classes; '

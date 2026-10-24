@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "CXC",
+    "CCC"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:smooth_stone_slab"
+    },
+    "C": {
+      "item": "minecraft:cobblestone"
+    },
+    "X": {
+      "item": "minecraft:cactus"
+    }
+  },
+  "result": {
+    "item": "gridwright:trash_can",
+    "count": 1
+  }
+}

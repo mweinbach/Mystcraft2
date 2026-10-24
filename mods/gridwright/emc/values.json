@@ -3,9 +3,84 @@
   "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
   "ignored": [],
   "items": {
+    "gridwright:angel_ring": {
+      "projecte": 24688,
+      "itemalchemy": 18524,
+      "source": "recipe"
+    },
+    "gridwright:bag_of_holding": {
+      "projecte": 3520,
+      "itemalchemy": 3515,
+      "source": "recipe"
+    },
+    "gridwright:builders_wand": {
+      "projecte": 2056,
+      "itemalchemy": 2051,
+      "source": "recipe"
+    },
+    "gridwright:compressed_cobblestone": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "gridwright:compressed_dirt": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "gridwright:compressed_gravel": {
+      "projecte": 36,
+      "itemalchemy": 36,
+      "source": "recipe"
+    },
+    "gridwright:compressed_netherrack": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
+    "gridwright:compressed_sand": {
+      "projecte": 9,
+      "itemalchemy": 9,
+      "source": "recipe"
+    },
     "gridwright:culinary_generator": {
       "projecte": 1548,
       "itemalchemy": 1532,
+      "source": "recipe"
+    },
+    "gridwright:destruction_wand": {
+      "projecte": 8200,
+      "itemalchemy": 2056,
+      "source": "recipe"
+    },
+    "gridwright:diamond_spike": {
+      "projecte": 20483,
+      "itemalchemy": 5123,
+      "source": "recipe"
+    },
+    "gridwright:double_compressed_cobblestone": {
+      "projecte": 81,
+      "itemalchemy": 81,
+      "source": "recipe"
+    },
+    "gridwright:double_compressed_dirt": {
+      "projecte": 81,
+      "itemalchemy": 81,
+      "source": "recipe"
+    },
+    "gridwright:double_compressed_gravel": {
+      "projecte": 324,
+      "itemalchemy": 324,
+      "source": "recipe"
+    },
+    "gridwright:double_compressed_netherrack": {
+      "projecte": 81,
+      "itemalchemy": 81,
+      "source": "recipe"
+    },
+    "gridwright:double_compressed_sand": {
+      "projecte": 81,
+      "itemalchemy": 81,
       "source": "recipe"
     },
     "gridwright:ender_generator": {
@@ -13,15 +88,50 @@
       "itemalchemy": 3060,
       "source": "recipe"
     },
+    "gridwright:energy_trash_can": {
+      "projecte": 582,
+      "itemalchemy": 605,
+      "source": "recipe"
+    },
+    "gridwright:fluid_trash_can": {
+      "projecte": 134,
+      "itemalchemy": 605,
+      "source": "recipe"
+    },
     "gridwright:furnace_generator": {
       "projecte": 1180,
       "itemalchemy": 1164,
+      "source": "recipe"
+    },
+    "gridwright:gargantuan_drum": {
+      "projecte": 234240,
+      "itemalchemy": 234212,
+      "source": "recipe"
+    },
+    "gridwright:golden_lasso": {
+      "projecte": 9264,
+      "itemalchemy": 9244,
+      "source": "recipe"
+    },
+    "gridwright:golden_spike": {
+      "projecte": 5123,
+      "itemalchemy": 5110,
       "source": "recipe"
     },
     "gridwright:grid_crystal": {
       "projecte": 64,
       "itemalchemy": 64,
       "source": "conversion resonate_grid_crystal"
+    },
+    "gridwright:iron_drum": {
+      "projecte": 4352,
+      "itemalchemy": 4284,
+      "source": "recipe"
+    },
+    "gridwright:iron_spike": {
+      "projecte": 643,
+      "itemalchemy": 633,
+      "source": "recipe"
     },
     "gridwright:lava_generator": {
       "projecte": 1412,
@@ -38,9 +148,44 @@
       "itemalchemy": 1076,
       "source": "recipe"
     },
+    "gridwright:octuple_compressed_cobblestone": {
+      "projecte": 43046721,
+      "itemalchemy": 43046721,
+      "source": "recipe"
+    },
+    "gridwright:pocket_workbench": {
+      "projecte": 96,
+      "itemalchemy": 96,
+      "source": "recipe"
+    },
     "gridwright:potion_generator": {
       "projecte": 2697,
       "itemalchemy": 2775,
+      "source": "recipe"
+    },
+    "gridwright:quadruple_compressed_cobblestone": {
+      "projecte": 6561,
+      "itemalchemy": 6561,
+      "source": "recipe"
+    },
+    "gridwright:quadruple_compressed_dirt": {
+      "projecte": 6561,
+      "itemalchemy": 6561,
+      "source": "recipe"
+    },
+    "gridwright:quadruple_compressed_netherrack": {
+      "projecte": 6561,
+      "itemalchemy": 6561,
+      "source": "recipe"
+    },
+    "gridwright:quintuple_compressed_cobblestone": {
+      "projecte": 59049,
+      "itemalchemy": 59049,
+      "source": "recipe"
+    },
+    "gridwright:quintuple_compressed_netherrack": {
+      "projecte": 59049,
+      "itemalchemy": 59049,
       "source": "recipe"
     },
     "gridwright:redstone_generator": {
@@ -48,9 +193,29 @@
       "itemalchemy": 1844,
       "source": "recipe"
     },
+    "gridwright:reinforced_drum": {
+      "projecte": 43776,
+      "itemalchemy": 19028,
+      "source": "recipe"
+    },
     "gridwright:resonator": {
       "projecte": 835,
       "itemalchemy": 827,
+      "source": "recipe"
+    },
+    "gridwright:septuple_compressed_cobblestone": {
+      "projecte": 4782969,
+      "itemalchemy": 4782969,
+      "source": "recipe"
+    },
+    "gridwright:sextuple_compressed_cobblestone": {
+      "projecte": 531441,
+      "itemalchemy": 531441,
+      "source": "recipe"
+    },
+    "gridwright:sextuple_compressed_netherrack": {
+      "projecte": 531441,
+      "itemalchemy": 531441,
       "source": "recipe"
     },
     "gridwright:solar_panel": {
@@ -58,9 +223,39 @@
       "itemalchemy": 1798,
       "source": "recipe"
     },
+    "gridwright:sound_muffler": {
+      "projecte": 176,
+      "itemalchemy": 176,
+      "source": "recipe"
+    },
+    "gridwright:stone_drum": {
+      "projecte": 1799,
+      "itemalchemy": 1786,
+      "source": "recipe"
+    },
     "gridwright:survivalist_generator": {
       "projecte": 79,
       "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "gridwright:trash_can": {
+      "projecte": 14,
+      "itemalchemy": 37,
+      "source": "recipe"
+    },
+    "gridwright:triple_compressed_cobblestone": {
+      "projecte": 729,
+      "itemalchemy": 729,
+      "source": "recipe"
+    },
+    "gridwright:triple_compressed_dirt": {
+      "projecte": 729,
+      "itemalchemy": 729,
+      "source": "recipe"
+    },
+    "gridwright:triple_compressed_netherrack": {
+      "projecte": 729,
+      "itemalchemy": 729,
       "source": "recipe"
     },
     "gridwright:water_mill": {
@@ -68,9 +263,19 @@
       "itemalchemy": 360,
       "source": "recipe"
     },
+    "gridwright:watering_can": {
+      "projecte": 1030,
+      "itemalchemy": 1014,
+      "source": "recipe"
+    },
     "gridwright:wind_mill": {
       "projecte": 1300,
       "itemalchemy": 1284,
+      "source": "recipe"
+    },
+    "gridwright:wooden_spike": {
+      "projecte": 23,
+      "itemalchemy": 23,
       "source": "recipe"
     }
   }

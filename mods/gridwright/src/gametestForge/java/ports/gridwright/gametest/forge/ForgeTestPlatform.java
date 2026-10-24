@@ -19,8 +19,17 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import ports.gridwright.Gridwright;
 import ports.gridwright.gametest.TestPlatform;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /** Forge Energy and item handler capabilities, plus a test-only Forge Energy sink on vanilla barrels. */
@@ -28,6 +37,22 @@ final class ForgeTestPlatform implements TestPlatform {
 
     private static final Map<BlockEntity, EnergyStorage> SINKS = Collections.synchronizedMap(new WeakHashMap<>());
     private static boolean sinkRegistered;
+
+    private static final Set<BlockPos> CLAIMED = Collections.synchronizedSet(new HashSet<>());
+
+    /** A stand-in claim mod: cancels breaking and placing at claimed positions. */
+    private static boolean claimsRegistered;
+
+    static synchronized void registerClaims() {
+        if (claimsRegistered) return;
+        claimsRegistered = true;
+        MinecraftForge.EVENT_BUS.addListener((BlockEvent.BreakEvent event) -> {
+            if (CLAIMED.contains(event.getPos())) event.setCanceled(true);
+        });
+        MinecraftForge.EVENT_BUS.addListener((BlockEvent.EntityPlaceEvent event) -> {
+            if (CLAIMED.contains(event.getPos())) event.setCanceled(true);
+        });
+    }
 
     static synchronized void registerEnergySink() {
         if (sinkRegistered) return;
@@ -74,5 +99,45 @@ final class ForgeTestPlatform implements TestPlatform {
         EnergyStorage sink = SINKS.get(barrel);
         if (sink == null) throw new GameTestAssertException("No test energy sink on " + barrel);
         return sink.getEnergyStored();
+    }
+
+    @Override
+    public FluidAccess fluids(BlockEntity blockEntity, Direction side) {
+        IFluidHandler fluids = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side)
+                .orElseThrow(() -> new GameTestAssertException("Missing fluid handler on " + side));
+        return new FluidAccess() {
+            @Override
+            public long fill(Fluid fluid, long amount, boolean simulate) {
+                return fluids.fill(new FluidStack(fluid, (int) Math.min(Integer.MAX_VALUE, amount)),
+                        simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+            }
+
+            @Override
+            public long drain(long amount, boolean simulate) {
+                return fluids.drain((int) Math.min(Integer.MAX_VALUE, amount),
+                        simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE).getAmount();
+            }
+
+            @Override public long amount() { return fluids.getFluidInTank(0).getAmount(); }
+
+            @Override
+            public Fluid fluid() {
+                FluidStack stack = fluids.getFluidInTank(0);
+                return stack.isEmpty() ? Fluids.EMPTY : stack.getFluid();
+            }
+        };
+    }
+
+    @Override
+    public long offerItems(BlockEntity blockEntity, Direction side, ItemStack stack) {
+        IItemHandler items = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
+                .orElseThrow(() -> new GameTestAssertException("Missing item handler on " + side));
+        return stack.getCount() - ItemHandlerHelper.insertItem(items, stack.copy(), false).getCount();
+    }
+
+    @Override
+    public void protect(BlockPos pos, boolean claimed) {
+        if (claimed) CLAIMED.add(pos.immutable());
+        else CLAIMED.remove(pos);
     }
 }

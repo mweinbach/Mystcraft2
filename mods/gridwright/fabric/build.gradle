@@ -77,6 +77,8 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 loom {
+    // Fabric-only: the Sound Muffler's hook (Forge fires PlayLevelSoundEvent instead).
+    mixin { defaultRefmapName = 'gridwright.fabric.refmap.json' }
     mods {
         gridwright { sourceSet sourceSets.main }
         gridwright_gametest { sourceSet sourceSets.gametest }

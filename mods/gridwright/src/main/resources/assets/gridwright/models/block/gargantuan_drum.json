@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "gridwright:block/gargantuan_drum_top",
+    "side": "gridwright:block/gargantuan_drum_side"
+  }
+}

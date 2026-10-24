@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SMS",
+    "MMM"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:diamond_sword"
+    },
+    "M": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "item": "gridwright:diamond_spike",
+    "count": 4
+  }
+}
