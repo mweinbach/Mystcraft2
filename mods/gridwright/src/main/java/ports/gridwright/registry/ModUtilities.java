@@ -9,6 +9,8 @@ import ports.gridwright.block.SpikeBlock;
 import ports.gridwright.block.SpikeKind;
 import ports.gridwright.block.TrashCanBlock;
 import ports.gridwright.block.TrashKind;
+import ports.gridwright.block.WardBlock;
+import ports.gridwright.block.WardKind;
 import ports.gridwright.item.AngelRingItem;
 import ports.gridwright.item.BagMenu;
 import ports.gridwright.item.BagOfHoldingItem;
@@ -21,6 +23,7 @@ import ports.gridwright.platform.Platform;
 import ports.gridwright.storage.DrumBlockEntity;
 import ports.gridwright.storage.SoundMufflerBlockEntity;
 import ports.gridwright.storage.TrashCanBlockEntity;
+import ports.gridwright.storage.WardBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -43,7 +46,7 @@ import java.util.function.Supplier;
 
 /**
  * Phase 2b: the utility items and blocks (Angel Ring, lasso, wands, watering can, bag, workbench,
- * drums, trash cans, compressed blocks, spikes and the sound muffler). Kept apart from the phase 1
+ * drums, trash cans, compressed blocks, spikes, the sound muffler and wards). Kept apart from the phase 1
  * registries so later phases can add their own without touching these lines.
  */
 public final class ModUtilities {
@@ -59,6 +62,7 @@ public final class ModUtilities {
             BlockBehaviour.Properties.of(Material.WOOL).strength(0.8F).sound(SoundType.WOOL)));
     public static final Map<DrumTier, Supplier<DrumBlock>> DRUMS = drums();
     public static final Map<TrashKind, Supplier<TrashCanBlock>> TRASH_CANS = trashCans();
+    public static final Map<WardKind, Supplier<WardBlock>> WARDS = wards();
 
     // Items
     public static final Supplier<AngelRingItem> ANGEL_RING = item("angel_ring",
@@ -91,6 +95,9 @@ public final class ModUtilities {
     public static final Supplier<BlockEntityType<SoundMufflerBlockEntity>> SOUND_MUFFLER_ENTITY = Platform.register(
             Registry.BLOCK_ENTITY_TYPE_REGISTRY, "sound_muffler", () -> BlockEntityType.Builder.of(SoundMufflerBlockEntity::new,
                     SOUND_MUFFLER.get()).build(null));
+    public static final Supplier<BlockEntityType<WardBlockEntity>> WARD = Platform.register(
+            Registry.BLOCK_ENTITY_TYPE_REGISTRY, "ward", () -> BlockEntityType.Builder.of(WardBlockEntity::new,
+                    WARDS.values().stream().map(Supplier::get).toArray(Block[]::new)).build(null));
     public static final Supplier<MenuType<BagMenu>> BAG_MENU = Platform.menu("bag_of_holding", BagMenu::client);
 
     private ModUtilities() { }
@@ -137,6 +144,16 @@ public final class ModUtilities {
                     BlockBehaviour.Properties.of(Material.STONE).strength(2.0F).sound(SoundType.STONE).requiresCorrectToolForDrops())));
         }
         return Collections.unmodifiableMap(cans);
+    }
+
+    private static Map<WardKind, Supplier<WardBlock>> wards() {
+        Map<WardKind, Supplier<WardBlock>> wards = new EnumMap<>(WardKind.class);
+        for (WardKind kind : WardKind.values()) {
+            wards.put(kind, block(kind.registryName(), () -> new WardBlock(kind,
+                    BlockBehaviour.Properties.of(Material.STONE).strength(3.0F, 9.0F).sound(SoundType.STONE)
+                            .lightLevel(state -> 7).requiresCorrectToolForDrops())));
+        }
+        return Collections.unmodifiableMap(wards);
     }
 
     private static Item.Properties properties() {

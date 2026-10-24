@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WLW",
+    "LCL",
+    "WLW"
+  ],
+  "key": {
+    "W": {
+      "item": "gridwright:spawn_ward"
+    },
+    "L": {
+      "item": "minecraft:glowstone"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    }
+  },
+  "result": {
+    "item": "gridwright:greater_spawn_ward",
+    "count": 1
+  }
+}

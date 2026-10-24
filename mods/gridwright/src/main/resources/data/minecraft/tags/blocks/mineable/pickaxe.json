@@ -34,6 +34,9 @@
     "gridwright:gargantuan_drum",
     "gridwright:trash_can",
     "gridwright:fluid_trash_can",
-    "gridwright:energy_trash_can"
+    "gridwright:energy_trash_can",
+    "gridwright:spawn_ward",
+    "gridwright:greater_spawn_ward",
+    "gridwright:ender_ward"
   ]
 }

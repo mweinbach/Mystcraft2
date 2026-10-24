@@ -2,6 +2,8 @@ package ports.gridwright.gametest;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
@@ -36,6 +38,13 @@ public interface TestPlatform {
      * lifts the claim.
      */
     void protect(BlockPos pos, boolean claimed);
+
+    /**
+     * Whether this loader's natural-spawn check would let {@code mob} (not yet added to the level)
+     * spawn where it stands: Forge's {@code LivingSpawnEvent.CheckSpawn}, or on Fabric the vanilla
+     * position check the ward mixin hooks.
+     */
+    boolean naturalSpawnAllowed(ServerLevel level, Mob mob);
 
     interface FluidAccess {
         /** Returns how much of {@code fluid} was (or would be) accepted, in loader units. */

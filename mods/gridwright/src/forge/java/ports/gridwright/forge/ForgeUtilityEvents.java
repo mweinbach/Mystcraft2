@@ -6,10 +6,13 @@ import ports.gridwright.storage.DrumBlockEntity;
 import ports.gridwright.storage.FluidTank;
 import ports.gridwright.storage.SoundMuffling;
 import ports.gridwright.storage.TrashCanBlockEntity;
+import ports.gridwright.storage.Wards;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +24,9 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -29,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Forge side of the phase 2b utilities: the Angel Ring's per-tick flight check, sound muffling, a fluid
- * handler on drums and the void handlers on trash cans.
+ * handler on drums, the void handlers on trash cans and the ward checks.
  */
 public final class ForgeUtilityEvents {
 
@@ -42,6 +48,8 @@ public final class ForgeUtilityEvents {
         MinecraftForge.EVENT_BUS.addListener(ForgeUtilityEvents::onSoundAtPosition);
         MinecraftForge.EVENT_BUS.addListener(ForgeUtilityEvents::onSoundAtEntity);
         MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeUtilityEvents::onAttachBlockEntity);
+        MinecraftForge.EVENT_BUS.addListener(ForgeUtilityEvents::onCheckSpawn);
+        MinecraftForge.EVENT_BUS.addListener(ForgeUtilityEvents::onEnderTeleport);
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -82,6 +90,21 @@ public final class ForgeUtilityEvents {
         Provider provider = new Provider(capability, handler);
         event.addCapability(STORAGE_ID, provider);
         event.addListener(provider::invalidate);
+    }
+
+    // Fabric hooks the same two vanilla checks with NaturalSpawnerMixin and EnderManMixin.
+    private static void onCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
+        if (event.getSpawnReason() == MobSpawnType.NATURAL && event.getLevel() instanceof Level level
+                && Wards.deniesNaturalSpawn(level, event.getEntity())) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+    private static void onEnderTeleport(EntityTeleportEvent.EnderEntity event) {
+        Entity entity = event.getEntity();
+        if (Wards.deniesTeleport(entity.level, entity, event.getTargetX(), event.getTargetY(), event.getTargetZ())) {
+            event.setCanceled(true);
+        }
     }
 
     /** Offers one handler for one capability on every side. */

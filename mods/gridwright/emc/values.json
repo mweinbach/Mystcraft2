@@ -88,6 +88,11 @@
       "itemalchemy": 3060,
       "source": "recipe"
     },
+    "gridwright:ender_ward": {
+      "projecte": 3072,
+      "itemalchemy": 3056,
+      "source": "recipe"
+    },
     "gridwright:energy_trash_can": {
       "projecte": 582,
       "itemalchemy": 605,
@@ -116,6 +121,11 @@
     "gridwright:golden_spike": {
       "projecte": 5123,
       "itemalchemy": 5110,
+      "source": "recipe"
+    },
+    "gridwright:greater_spawn_ward": {
+      "projecte": 45264,
+      "itemalchemy": 45184,
       "source": "recipe"
     },
     "gridwright:grid_crystal": {
@@ -226,6 +236,11 @@
     "gridwright:sound_muffler": {
       "projecte": 176,
       "itemalchemy": 176,
+      "source": "recipe"
+    },
+    "gridwright:spawn_ward": {
+      "projecte": 9764,
+      "itemalchemy": 9744,
       "source": "recipe"
     },
     "gridwright:stone_drum": {

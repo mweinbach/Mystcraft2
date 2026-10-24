@@ -89,5 +89,14 @@
   "message.gridwright.lasso.refused.hostile": "The lasso cannot hold hostile creatures",
   "message.gridwright.lasso.refused.boss": "The lasso cannot hold that creature",
   "message.gridwright.lasso.refused.owned": "That is someone else's pet",
-  "message.gridwright.lasso.refused.not_a_creature": "The lasso cannot hold that"
+  "message.gridwright.lasso.refused.not_a_creature": "The lasso cannot hold that",
+  "block.gridwright.spawn_ward": "Spawn Ward",
+  "block.gridwright.greater_spawn_ward": "Greater Spawn Ward",
+  "block.gridwright.ender_ward": "Ender Ward",
+  "tooltip.gridwright.ward.spawns": "Hostile creatures do not spawn naturally within %s blocks",
+  "tooltip.gridwright.ward.teleports": "Endermen cannot teleport within %s blocks",
+  "tooltip.gridwright.ward.gp": "Uses %s GP of your grid",
+  "message.gridwright.ward.active": "Ward active: %s blocks around it",
+  "message.gridwright.ward.unpowered": "Ward inactive: its grid cannot spare %s GP",
+  "message.gridwright.ward.no_owner": "Ward inactive: it has no owner to draw Grid Power from"
 }

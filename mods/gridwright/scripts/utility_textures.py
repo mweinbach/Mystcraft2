@@ -206,6 +206,25 @@ def pocket_workbench():
     return image
 
 
+WARDS = {
+    # name: (frame colour, emblem colour)
+    'spawn_ward': ((214, 178, 70), (255, 236, 150)),
+    'greater_spawn_ward': ((150, 110, 220), (255, 236, 150)),
+    'ender_ward': ((30, 26, 40), (60, 200, 150)),
+}
+
+
+def ward(frame, emblem, seed):
+    """A framed tile with a diamond-shaped emblem and a dot in the middle."""
+    image = noisy(shade(frame, 0.55)[:3], 6, seed)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=shade(frame, 1.0))
+    draw.rectangle([1, 1, 14, 14], outline=shade(frame, 0.8))
+    draw.polygon([(7, 3), (12, 8), (8, 12), (3, 7)], outline=shade(emblem, 1.0))
+    draw.rectangle([7, 7, 8, 8], fill=shade(emblem, 1.1))
+    return image
+
+
 def textures(blocks, items):
     """Every phase 2b texture, keyed by output path."""
     out = {}
@@ -234,4 +253,7 @@ def textures(blocks, items):
     out[items / 'watering_can.png'] = watering_can()
     out[items / 'bag_of_holding.png'] = bag()
     out[items / 'pocket_workbench.png'] = pocket_workbench()
+    for name, (frame, emblem) in WARDS.items():
+        seed += 4
+        out[blocks / f'{name}.png'] = ward(frame, emblem, seed)
     return out
