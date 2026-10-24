@@ -38,7 +38,7 @@ AgriCraft 4 has no irrigation. The irrigation blocks are ported from AgriCraft 3
 
 - **Tank** (`irrigation_tank`, 8,000 mB per block): fills from water buckets and rain, empties into empty
   buckets. Touching tanks that fill a cuboid merge into one multi-block that pools the water; breaking a block
-  splits it and keeps the water level. A ladder can be fitted to a tank wall and climbed. A sufficiently full
+  splits it and shares the water out by amount, filling from the bottom layer up. A ladder can be fitted to a tank wall and climbed. A sufficiently full
   tank leaves a water source when broken (configurable). Water evaporates in ultra-warm dimensions.
 - **Channel** (`irrigation_channel`, 500 mB) and **hollow channel** (`irrigation_channel_hollow`): water
   levels balance between connected tanks and channels. The **channel valve** (`agri_channel_valve`) is fitted
@@ -62,8 +62,11 @@ Differences from AgriCraft 3:
   custom particle; the client particle setting (off/decreased/all) is respected.
 - **Block hardness and sounds** are this port's choice (wood: hardness 2 for tanks and channels, 1 for sprinklers; axe-mineable).
 - AgriCraft 3's unused irrigation network classes (`IrrigationNetworkLayer` and friends) are not ported.
-- Fixes: toggling a valve no longer breaks the sprinkler below; un-forming a multi-block takes the water level
-  from the structure's origin; buckets use the vanilla filled-bucket logic, so a stack of empty buckets is not
+- Fixes: toggling a valve no longer breaks the sprinkler below; un-forming a multi-block shares out the
+  origin's stored amount from the bottom layer up instead of converting its level (AgriCraft 3 kept the level,
+  and since a multi-block's height excludes one tank floor while each single tank excludes its own, stacking
+  and removing an empty tank made water), and first loads members in unloaded chunks so they keep their part
+  (they store no water and would come back empty); buckets use the vanilla filled-bucket logic, so a stack of empty buckets is not
   consumed; the valve wheel animates from block-state changes; clients are synced when a component becomes
   empty or full, not only on large changes.
 

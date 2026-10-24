@@ -17,8 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -308,7 +310,15 @@ public class IrrigationTankBlockEntity extends IrrigationComponentBlockEntity {
 	}
 
 	/**
-	 * Splits the multi-block into single tanks that keep the current water level.
+	 * Splits the multi-block into single tanks and hands each one its part of the stored water.
+	 * <p>
+	 * The water is shared out by amount, not by level: it fills the structure from the bottom layer up, each layer
+	 * holding one tank's capacity per position, and every position takes an even part of its layer. Converting the
+	 * structure's level instead made or destroyed water, because the multi-block's height excludes one tank floor and
+	 * each single tank excludes its own. The part that belongs to the excluded (removed) position leaves with it.
+	 * <p>
+	 * Members in unloaded chunks are loaded first, so their part is not lost: they store no water of their own and
+	 * would otherwise come back later as empty tanks.
 	 *
 	 * @param excluded a position that is being removed and must not be touched (may be null)
 	 */
@@ -316,37 +326,58 @@ public class IrrigationTankBlockEntity extends IrrigationComponentBlockEntity {
 		if (this.level == null || this.level.isClientSide || !this.isMultiBlock()) {
 			return;
 		}
-		float level = this.getFluidLevel();
+		Level level = this.level;
 		BlockPos oldMin = this.min;
 		BlockPos oldMax = this.max;
-		List<IrrigationTankBlockEntity> tanks = new ArrayList<>();
+		// Level#getBlockEntity loads the chunk on the server thread, which brings unloaded members (and the origin) in
+		int total = level.getBlockEntity(oldMin) instanceof IrrigationTankBlockEntity origin
+				&& origin.min.equals(oldMin) && origin.max.equals(oldMax) ? origin.getStoredContent() : 0;
+		Map<BlockPos, IrrigationTankBlockEntity> tanks = new HashMap<>();
 		for (BlockPos pos : BlockPos.betweenClosed(oldMin, oldMax)) {
-			if (pos.equals(excluded) || !this.level.isLoaded(pos)) {
+			if (pos.equals(excluded)) {
 				continue;
 			}
-			if (this.level.getBlockEntity(pos) instanceof IrrigationTankBlockEntity tank && tank.min.equals(oldMin) && tank.max.equals(oldMax)) {
-				tanks.add(tank);
+			if (level.getBlockEntity(pos) instanceof IrrigationTankBlockEntity tank && tank.min.equals(oldMin) && tank.max.equals(oldMax)) {
+				tanks.put(pos.immutable(), tank);
 			}
 		}
 		// detach every member first, so block updates below do not trigger nested un-forming
-		for (IrrigationTankBlockEntity tank : tanks) {
+		for (IrrigationTankBlockEntity tank : tanks.values()) {
 			tank.min = tank.worldPosition;
 			tank.max = tank.worldPosition;
 		}
-		for (IrrigationTankBlockEntity tank : tanks) {
-			tank.applySingleLevel(level);
+		int width = (oldMax.getX() - oldMin.getX() + 1) * (oldMax.getZ() - oldMin.getZ() + 1);
+		int remaining = total;
+		for (int y = oldMin.getY(); y <= oldMax.getY(); y++) {
+			int layer = Math.min(remaining, this.getBlockCapacity() * width);
+			remaining -= layer;
+			int index = 0;
+			for (int x = oldMin.getX(); x <= oldMax.getX(); x++) {
+				for (int z = oldMin.getZ(); z <= oldMax.getZ(); z++) {
+					int part = layer / width + (index < layer % width ? 1 : 0);
+					index++;
+					IrrigationTankBlockEntity tank = tanks.get(new BlockPos(x, y, z));
+					if (tank != null) {
+						tank.applySingleContent(part);
+					}
+				}
+			}
 		}
 	}
 
 	private void resetToSingle(float level) {
 		this.min = this.worldPosition;
 		this.max = this.worldPosition;
-		this.applySingleLevel(level);
-	}
-
-	private void applySingleLevel(float level) {
 		this.resetStoredWater();
 		super.setFluidLevel(level);
+		this.setChanged();
+		this.updateMultiBlockState();
+		this.sync();
+	}
+
+	private void applySingleContent(int content) {
+		this.resetStoredWater();
+		super.setContent(content);
 		this.setChanged();
 		this.updateMultiBlockState();
 		this.sync();

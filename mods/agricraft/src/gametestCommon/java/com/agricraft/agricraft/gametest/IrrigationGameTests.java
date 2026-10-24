@@ -105,6 +105,35 @@ public class IrrigationGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(template = TEMPLATE)
+	public static void stackedTanksSplitWithoutMakingOrLosingWater(GameTestHelper helper) {
+		BlockPos bottom = new BlockPos(1, 1, 1);
+		BlockPos top = new BlockPos(1, 2, 1);
+		IrrigationTankBlockEntity lower = tank(helper, bottom);
+		lower.pushWater(4000, true);
+		// adding and removing an empty tank on top must leave exactly the water there was
+		for (int round = 0; round < 3; round++) {
+			IrrigationTankBlockEntity upper = tank(helper, top);
+			check(upper.isMultiBlock() && upper.getContent() == 4000, "round " + round + ": the stacked tanks should pool 4000 mB, got " + upper.getContent());
+			helper.setBlock(top, Blocks.AIR);
+			check(!lower.isMultiBlock() && lower.getContent() == 4000, "round " + round + ": removing the empty top tank left " + lower.getContent() + " mB instead of 4000");
+		}
+		// water fills from the bottom: with 12000 mB the bottom tank is full and the top one holds the rest
+		IrrigationTankBlockEntity upper = tank(helper, top);
+		upper.pushWater(8000, true);
+		check(upper.getContent() == 12000, "the stacked tanks should pool 12000 mB, got " + upper.getContent());
+		helper.setBlock(top, Blocks.AIR);
+		check(lower.getContent() == IrrigationConfig.tankCapacity, "the bottom tank should keep a full tank, got " + lower.getContent());
+		// and the top tank keeps its own part when the bottom one is removed
+		upper = tank(helper, top);
+		IrrigationTankBlockEntity origin = component(helper, bottom, IrrigationTankBlockEntity.class);
+		origin.setContent(12000);
+		helper.setBlock(bottom, Blocks.AIR);
+		check(!upper.isMultiBlock() && upper.getContent() == 12000 - IrrigationConfig.tankCapacity,
+				"the top tank should keep the water above the removed bottom tank, got " + upper.getContent());
+		helper.succeed();
+	}
+
 	@GameTest(template = TEMPLATE, timeoutTicks = 200)
 	public static void channelsSpreadWaterFromATank(GameTestHelper helper) {
 		IrrigationTankBlockEntity tank = tank(helper, new BlockPos(1, 1, 1));
