@@ -17,9 +17,11 @@ import com.agricraft.agricraft.common.block.CropBlock;
 import com.agricraft.agricraft.common.block.CropState;
 import com.agricraft.agricraft.common.block.SimpleFluidloggedBlock;
 import com.agricraft.agricraft.common.registry.ModBlockEntityTypes;
+import com.agricraft.agricraft.common.registry.ModBlocks;
 import com.agricraft.agricraft.common.util.LangUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -56,6 +58,8 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	private String weedId = "";
 	private AgriWeed weed;
 	private AgriGrowthStage weedGrowthStage = null;
+	/** Redstone power last announced to neighbours; not saved, power is recomputed from the plant on the next sync. */
+	private int announcedRedstonePower = 0;
 
 	public CropBlockEntity(BlockPos blockPos, BlockState blockState) {
 		super(ModBlockEntityTypes.CROP.get(), blockPos, blockState);
@@ -159,7 +163,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	public boolean removeGenome() {
 		if (this.hasPlant()) {
 			if (this.getBlockState().getValue(CropBlock.CROP_STATE) == CropState.PLANT_STICKS) {
-				this.level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(CropBlock.CROP_STATE, CropState.SINGLE_STICKS));
+				this.level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(CropBlock.CROP_STATE, CropState.SINGLE_STICKS).setValue(CropBlock.LIGHT, 0));
 			} else {
 				if (this.getBlockState().getValue(SimpleFluidloggedBlock.LAVALOGGED)) {
 					level.setBlockAndUpdate(this.getBlockPos(), Fluids.LAVA.defaultFluidState().createLegacyBlock());
@@ -174,6 +178,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			this.plant = null;
 			this.plantId = "";
 			this.growthStage = null;
+			this.announceRedstonePower(0, ModBlocks.CROP.get());
 			return true;
 		}
 		return false;
@@ -195,9 +200,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 		if (this.plant != null) {
 			this.growthStage = this.plant.getInitialGrowthStage();
 		}
-		level.setBlock(this.getBlockPos(), this.hasCropSticks() ?
-				this.getBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT_STICKS).setValue(CropBlock.LIGHT, this.plant.getBrightness(this))
-				: this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)), 3);
+		this.syncCropState(this.hasCropSticks() ? this.getBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT_STICKS) : this.getBlockState());
 		this.plant.onPlanted(this, null);
 	}
 
@@ -255,14 +258,14 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 	public void setGrowthStage(AgriGrowthStage stage) {
 		this.growthStage = stage;
 		this.setChanged();
-		this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)), Block.UPDATE_ALL);
+		this.syncCropState(this.getBlockState());
 	}
 
 	@Override
 	public void setWeedGrowthStage(AgriGrowthStage stage) {
 		this.weedGrowthStage = stage;
 		this.setChanged();
-		this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.hasPlant() ? this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)) : this.getBlockState(), Block.UPDATE_ALL);
+		this.syncCropState(this.getBlockState());
 	}
 
 	@Override
@@ -272,7 +275,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			this.weedId = "";
 			this.weedGrowthStage = null;
 			this.setChanged();
-			this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.hasPlant() ? this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)) : this.getBlockState(), Block.UPDATE_ALL);
+			this.syncCropState(this.getBlockState());
 		}
 	}
 
@@ -402,7 +405,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 					if (this.level.getRandom().nextDouble() < f * this.weed.getGrowthChance(this.weedGrowthStage)) {
 						this.weedGrowthStage = this.weedGrowthStage.getNext(this, this.level.getRandom());
 						this.setChanged();
-						this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.hasPlant()?this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)):this.getBlockState(), Block.UPDATE_ALL);
+						this.syncCropState(this.getBlockState());
 					}
 				}
 			}
@@ -414,7 +417,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			this.weedId = weedId;
 			this.weed = weed;
 			this.weedGrowthStage = weed.getInitialGrowthStage();
-			this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.hasPlant()?this.getBlockState().setValue(CropBlock.LIGHT, this.plant.getBrightness(this)):this.getBlockState(), Block.UPDATE_ALL);
+			this.syncCropState(this.getBlockState());
 		}
 	}
 	protected void tryWeedKillPlant() {
@@ -459,6 +462,54 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 				.map(pos -> AgriApi.getCrop(this.level, pos))
 				.filter(Optional::isPresent)
 				.map(Optional::get);
+	}
+
+	/**
+	 * Installs {@code base} with the plant's light level in the level and syncs the block entity to clients.
+	 * <p>
+	 * CropBlock emits light from the stored LIGHT property, so the state has to be set in the level: passing a modified
+	 * state to {@code sendBlockUpdated} (as 4.0.6 does) only re-sends the old one. Redstone power is read from the block
+	 * entity rather than the state, so neighbours are updated separately whenever it changes.
+	 */
+	private void syncCropState(BlockState base) {
+		if (this.level == null) {
+			return;
+		}
+		BlockPos pos = this.getBlockPos();
+		if (this.level.isClientSide) {
+			// the server installs the real state; like 4.0.6, the client only predicts a planted state and re-renders
+			if (base != this.getBlockState()) {
+				this.level.setBlock(pos, base, Block.UPDATE_ALL);
+			} else {
+				this.level.sendBlockUpdated(pos, base, base, Block.UPDATE_ALL);
+			}
+			return;
+		}
+		boolean planted = base.getValue(CropBlock.CROP_STATE).hasPlant() && this.plant != null && this.growthStage != null;
+		BlockState state = base.setValue(CropBlock.LIGHT, planted ? Mth.clamp(this.plant.getBrightness(this), 0, 15) : 0);
+		if (state != this.getBlockState()) {
+			// flag 3: notify neighbours and send the new state (and with it this block entity's data) to clients
+			this.level.setBlock(pos, state, Block.UPDATE_ALL);
+		} else {
+			this.level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+		}
+		this.announceRedstonePower(planted ? this.plant.getRedstonePower(this) : 0, state.getBlock());
+	}
+
+	/**
+	 * Updates the neighbours, and the blocks around them, when the power emitted by the crop changes. CropBlock is a
+	 * direct (strong) signal source on every side, so the blocks it powers pass the signal on to their own neighbours.
+	 */
+	private void announceRedstonePower(int power, Block block) {
+		if (this.level == null || this.level.isClientSide || power == this.announcedRedstonePower) {
+			return;
+		}
+		this.announcedRedstonePower = power;
+		BlockPos pos = this.getBlockPos();
+		this.level.updateNeighborsAt(pos, block);
+		for (Direction direction : Direction.values()) {
+			this.level.updateNeighborsAt(pos.relative(direction), block);
+		}
 	}
 
 	protected void revertGrowthStage() {

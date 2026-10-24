@@ -34,6 +34,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -153,6 +155,59 @@ public class CropGameTests {
 			crop.getHarvestProducts(products::add);
 		}
 		check(products.stream().anyMatch(stack -> stack.is(net.minecraft.world.item.Items.WHEAT)), "20 harvests of wheat produced no wheat: " + products);
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void grownNitorWartRaisesItsLight(GameTestHelper helper) {
+		BlockPos soil = new BlockPos(1, 1, 1);
+		BlockPos cropPos = soil.above();
+		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
+		crop.plantGenome(genome("agricraft:nitor_wart", 10));
+		check(crop.hasPlant(), "nitor wart was not planted");
+		int initial = helper.getBlockState(cropPos).getValue(CropBlock.LIGHT);
+		while (!crop.isFullyGrown()) {
+			crop.setGrowthStage(crop.getGrowthStage().getNext(crop, helper.getLevel().random));
+		}
+		// read the state from the level: the light engine uses the installed state, not the block entity
+		BlockState grown = helper.getBlockState(cropPos);
+		int light = grown.getValue(CropBlock.LIGHT);
+		check(light > initial, "grown nitor wart LIGHT " + light + " is not above its initial " + initial);
+		check(light == 15, "grown nitor wart LIGHT is " + light + ", expected 15");
+		check(grown.getLightEmission() == 15, "grown nitor wart emits light " + grown.getLightEmission() + ", expected 15");
+		crop.removeGenome();
+		check(helper.getBlockState(cropPos).getValue(CropBlock.LIGHT) == 0, "crop sticks kept glowing after the nitor wart was removed");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void grownRedstodendronEmitsASignal(GameTestHelper helper) {
+		BlockPos soil = new BlockPos(2, 1, 2);
+		BlockPos cropPos = soil.above();
+		BlockPos lamp = cropPos.east();
+		BlockPos wall = cropPos.south();
+		BlockPos lampBehindWall = wall.south();
+		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
+		helper.setBlock(lamp, Blocks.REDSTONE_LAMP);
+		helper.setBlock(wall, Blocks.STONE);
+		helper.setBlock(lampBehindWall, Blocks.REDSTONE_LAMP);
+		crop.plantGenome(genome("agricraft:redstodendron", 10));
+		check(crop.hasPlant(), "redstodendron was not planted");
+		BlockPos absolute = helper.absolutePos(cropPos);
+		int initial = helper.getLevel().getBlockState(absolute).getDirectSignal(helper.getLevel(), absolute, Direction.WEST);
+		while (!crop.isFullyGrown()) {
+			crop.setGrowthStage(crop.getGrowthStage().getNext(crop, helper.getLevel().random));
+		}
+		BlockState grown = helper.getLevel().getBlockState(absolute);
+		check(grown.isSignalSource(), "a planted redstodendron is not a signal source");
+		int signal = grown.getSignal(helper.getLevel(), absolute, Direction.WEST);
+		int direct = grown.getDirectSignal(helper.getLevel(), absolute, Direction.WEST);
+		check(signal > 0 && direct > 0, "grown redstodendron emits signal " + signal + " / direct " + direct + ", expected > 0");
+		check(direct > initial, "redstodendron power " + direct + " did not rise with growth from " + initial);
+		check(helper.getLevel().getSignal(helper.absolutePos(lamp), Direction.EAST) > 0, "the block next to the crop is not powered");
+		// growth must update neighbours: the lamp beside the crop and the one behind the strongly powered stone light up
+		helper.assertBlockProperty(lamp, RedstoneLampBlock.LIT, true);
+		helper.assertBlockProperty(lampBehindWall, RedstoneLampBlock.LIT, true);
 		helper.succeed();
 	}
 

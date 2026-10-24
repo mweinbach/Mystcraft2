@@ -83,6 +83,13 @@ phase of this port), **absent** (not in 4.0.6).
     had no scroll handler, and now has one.
   - The magnifying helmet recipe matches only a helmet and a magnifying glass; upstream ignored other items in
     the grid, and crafting consumed them.
+  - Light-emitting plants (Nitor Wart, `agricraft:brightness`) set the crop's `LIGHT` state in the level as
+    they grow; upstream only passed the new state to `sendBlockUpdated`, so they kept their planting light.
+    Light is capped at 15, and crop sticks go dark when the plant is removed.
+  - `agricraft:redstone` (Redstodendron) overrides `getRedstonePower`; upstream overrode `getBrightness`, so it
+    glowed and never emitted a signal. When the power changes, the crop updates its neighbours and the blocks
+    around them (it is a strong source), and comparators read the same power (upstream's analog output was always 0).
+    The other `MinecraftPlantModifiers` already use the hook their names describe.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

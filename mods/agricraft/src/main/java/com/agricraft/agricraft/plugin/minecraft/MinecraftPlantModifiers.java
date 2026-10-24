@@ -76,7 +76,8 @@ public class MinecraftPlantModifiers {
 
 		@Override
 		public int getBrightness(AgriCrop crop) {
-			return (int) (16 * crop.getGrowthPercent());
+			// 4.0.6 returns up to 16; light levels stop at 15
+			return Math.min(15, (int) (16 * crop.getGrowthPercent()));
 		}
 
 	}
@@ -169,8 +170,9 @@ public class MinecraftPlantModifiers {
 
 		public static final String ID = "agricraft:redstone";
 
+		// 4.0.6 overrides getBrightness here, so Redstodendron glowed instead of emitting a signal
 		@Override
-		public int getBrightness(AgriCrop crop) {
+		public int getRedstonePower(AgriCrop crop) {
 			return (int) (15 * crop.getGrowthPercent());
 		}
 

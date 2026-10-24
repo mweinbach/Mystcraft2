@@ -92,7 +92,7 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 				.isRedstoneConductor((state, getter, pos) -> false)
 				.randomTicks()
 				.noOcclusion()
-				.lightLevel(blockState -> Math.max(blockState.getValue(LIGHT), blockState.getValue(SimpleFluidloggedBlock.LAVALOGGED) ? 15 : 0))
+				.lightLevel(blockState -> Math.min(15, Math.max(blockState.getValue(LIGHT), blockState.getValue(SimpleFluidloggedBlock.LAVALOGGED) ? 15 : 0)))
 				.sound(SoundType.CROP));
 		this.registerDefaultState(this.stateDefinition.any().setValue(SimpleFluidloggedBlock.LAVALOGGED, false)
 				.setValue(SimpleFluidloggedBlock.WATERLOGGED, false)
@@ -469,7 +469,8 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 
 	@Override
 	public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-		return super.getDirectSignal(state, level, pos, null);
+		// 4.0.6 returns super.getDirectSignal (always 0); comparators read the plant's power like dust does
+		return this.getDirectSignal(state, level, pos, Direction.UP);
 	}
 
 	@Override
