@@ -18,6 +18,7 @@ import ports.gridwright.machine.GeneratorKind;
 import ports.gridwright.platform.Platform;
 import ports.gridwright.power.Overclock;
 import ports.gridwright.registry.ModPower;
+import ports.gridwright.transfer.TransferPlatform;
 
 import static ports.gridwright.gametest.GameTestSupport.Owner;
 import static ports.gridwright.gametest.GameTestSupport.TEMPLATE;
@@ -26,7 +27,7 @@ import static ports.gridwright.gametest.GameTestSupport.connectedPlayer;
 import static ports.gridwright.gametest.GameTestSupport.generator;
 import static ports.gridwright.gametest.GameTestSupport.platform;
 
-/** Phase 2d generator additions: overclock upgrades and piped lava for the lava generator. */
+/** Phase 2d generator additions: overclock upgrades and piped lava (including from transfer nodes) for the lava generator. */
 public class GeneratorUpgradeGameTests {
 
     private static final BlockPos POS = new BlockPos(2, 1, 2);
@@ -109,5 +110,24 @@ public class GeneratorUpgradeGameTests {
                     check(generator.getItem(1).isEmpty(), "Piped lava leaves no bucket behind");
                 })
                 .thenSucceed();
+    }
+
+    /**
+     * Fluid transfer nodes (phase 2a) fill tanks through {@link TransferPlatform}, which reaches the
+     * same loader API the lava generator exposes; millibuckets on both loaders.
+     */
+    @GameTest(template = TEMPLATE)
+    public static void transferNodesCanFeedTheLavaGenerator(GameTestHelper helper) {
+        GeneratorBlockEntity generator = generator(helper, GeneratorKind.LAVA, POS);
+        BlockPos pos = helper.absolutePos(POS);
+        check(TransferPlatform.hasFluids(helper.getLevel(), pos, Direction.WEST), "Transfer nodes do not see the lava tank");
+        check(TransferPlatform.insertFluid(helper.getLevel(), pos, Direction.WEST, Fluids.WATER, 1000, false) == 0,
+                "Transfer nodes could pipe water into a lava generator");
+        check(TransferPlatform.insertFluid(helper.getLevel(), pos, Direction.WEST, Fluids.LAVA, 1500, false) == 1500,
+                "Transfer nodes could not pipe lava in");
+        check(generator.lavaTank().amount() == Platform.bucketVolume() * 3 / 2, "Tank " + generator.lavaTank().amount());
+        check(TransferPlatform.extractFluid(helper.getLevel(), pos, Direction.WEST, fluid -> true, 1000, true).isEmpty(),
+                "Transfer nodes could pull lava back out");
+        helper.succeed();
     }
 }

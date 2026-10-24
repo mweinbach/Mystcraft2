@@ -106,7 +106,7 @@ on both loaders by the other tests.
 | Power converter | Gridwright's own: lossy GP ↔ energy bridge | `IEnergyStorage` capability (`ForgePowerEvents`): extract-only when making energy, receive-only when making GP | Team Reborn `EnergyStorage` (`FabricPower`) with the same one-way rule | `roundTripLosesThreeQuarters`, `closedLoopRunsDown`, `generatorEnergyBecomesGpAtSixteenToOne`, `convertersAndGeneratorsOnlyMoveEnergyOneWay` |
 | Fire, lava, manual, dragon egg mills | GP producers | Shared | Shared | `fireMillNeedsFireBelow`, `lavaMillCountsLavaSources`, `manualMillRunsOnlyWhileWound`, `dragonEggMillNeedsTheEgg` |
 | Rainbow generator | GP while every generator kind runs nearby | Shared | Shared | `rainbowNeedsEveryGeneratorRunning`, `idleGeneratorsDoNotCount`, `neighbouringRainbowsBothStop` |
-| Lava generator input | Lava piped into the lava generator | Insert-only `IFluidHandler` (mB) | `InsertionOnlyStorage<FluidVariant>` (droplets) | `lavaGeneratorBurnsPipedLava` |
+| Lava generator input | Lava piped into the lava generator | Insert-only `IFluidHandler` (mB) | `InsertionOnlyStorage<FluidVariant>` (droplets) | `lavaGeneratorBurnsPipedLava`, `transferNodesCanFeedTheLavaGenerator` (through 2a's `TransferPlatform`) |
 | Overclock upgrade | Faster, less efficient generators | Shared | Shared | `overclockTradesEfficiencyForSpeed`, `upgradesInstallRemoveAndDrop` |
 | JEI / REI / EMI | Resonating category | `@JeiPlugin`, `@EmiEntrypoint`, `@REIPluginClient` (`GridwrightReiForgePlugin`) | `jei_mod_plugin`, `emi`, `rei_client` entrypoints | `resonatingDisplaysCoverEveryRecipe`, `viewerPluginsFollowInstalledViewers` (also run with `-PwithJei`, `-PwithRei`, `-PwithEmi`) |
 
