@@ -19,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -330,6 +331,10 @@ public final class RobotBoardTests {
         Husk husk = mob(helper, EntityType.HUSK, new BlockPos(2, 1, 6));
         require(helper, FighterBoard.isLivestock(adult) && !FighterBoard.isLivestock(calf) && !FighterBoard.isLivestock(husk),
                 "the butcher knows livestock");
+        Horse horse = EntityType.HORSE.create(helper.getLevel());
+        require(helper, FighterBoard.isLivestock(horse), "an untamed horse is livestock");
+        horse.setTamed(true);
+        require(helper, !FighterBoard.isLivestock(horse), "a tamed horse is spared");
         RobotEntity robot = deploy(helper, helper.makeMockPlayer(), HOME, station, RobotBoardType.BUTCHER);
         helper.succeedWhen(() -> {
             require(helper, !adult.isAlive(), "the butcher kills the cow, health " + adult.getHealth() + "; " + describe(helper, robot));

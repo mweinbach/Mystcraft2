@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
@@ -72,9 +73,10 @@ public class FighterBoard extends RobotBoard {
         return entity instanceof Enemy && !entity.hasCustomName();
     }
 
-    /** Adult animals that nobody has tamed or named. */
+    /** Adult animals that nobody has tamed or named (horses, donkeys, mules and llamas keep their own tamed flag). */
     public static boolean isLivestock(LivingEntity entity) {
         if (!(entity instanceof Animal animal) || animal.isBaby() || animal.hasCustomName()) return false;
+        if (animal instanceof AbstractHorse horse && horse.isTamed()) return false;
         return !(animal instanceof TamableAnimal tamable && tamable.isTame());
     }
 
