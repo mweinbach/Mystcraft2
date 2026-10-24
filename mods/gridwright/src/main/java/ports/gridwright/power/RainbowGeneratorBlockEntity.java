@@ -24,11 +24,12 @@ import java.util.Set;
  * every Gridwright kind is running within {@link #RANGE} blocks. "Running" means the generator turned
  * fuel into energy in the last second, so a full generator that is only holding its flame does not
  * count. Two rainbow generators whose ranges overlap both stop, so one set of generators can never
- * feed more than one of them.
+ * feed more than one of them. Since phase 3 that means all fifteen kinds, a nether star generator
+ * included, so the output is sized for an endgame build.
  */
 public class RainbowGeneratorBlockEntity extends GridBlockEntity {
 
-    public static final double OUTPUT = 128.0;
+    public static final double OUTPUT = 512.0;
     /** Half the side of the cube searched for generators, centred on the rainbow generator. */
     public static final int RANGE = 4;
     public static final int REFRESH_TICKS = 20;

@@ -27,14 +27,14 @@ public class GeneratorGameTests {
 
     private static final BlockPos POS = new BlockPos(2, 2, 2);
 
-    private static void fuel(GeneratorKind kind, ItemStack stack, int perTick, int ticks) {
+    static void fuel(GeneratorKind kind, ItemStack stack, int perTick, int ticks) {
         GeneratorKind.Fuel fuel = kind.fuel(stack);
         check(fuel != null, kind + " should burn " + stack);
         check(fuel.perTick() == perTick && fuel.ticks() == ticks,
                 kind + " burning " + stack + ": expected " + perTick + "/t for " + ticks + ", got " + fuel);
     }
 
-    private static void rejects(GeneratorKind kind, ItemStack stack) {
+    static void rejects(GeneratorKind kind, ItemStack stack) {
         check(kind.fuel(stack) == null, kind + " should not burn " + stack);
     }
 
@@ -76,7 +76,7 @@ public class GeneratorGameTests {
      * Inserts {@code fuel} through the loader's item API and checks the generator banks exactly its rate
      * for every tick it has burned, and that the energy can be taken through the loader's energy API.
      */
-    private static void burns(GameTestHelper helper, GeneratorKind kind, ItemStack fuel, int perTick, ItemStack remainder) {
+    static void burns(GameTestHelper helper, GeneratorKind kind, ItemStack fuel, int perTick, ItemStack remainder) {
         GeneratorBlockEntity generator = generator(helper, kind, POS);
         TestPlatform.ItemAccess items = platform().items(generator, Direction.UP);
         check(!items.insert(new ItemStack(Items.DIRT)).isEmpty(), kind + " accepted dirt");

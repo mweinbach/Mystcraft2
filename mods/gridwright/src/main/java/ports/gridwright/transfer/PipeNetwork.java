@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Finds what a node's pipes reach. Starting from the pipes on the node's back and sides, it walks
  * connected transfer pipes (up to {@link #MAX_PIPES}) and collects every inventory or tank touching
- * them, nearest first. Nodes are never targets, and neither is the block the node itself faces.
+ * them (or tank, or energy store, depending on the node), nearest first. Nodes are never targets, and neither is the block the node itself faces.
  *
  * <p>Nodes cache the result until any pipe, node or block beside a pipe changes ({@link #changed()})
  * or a few seconds pass, which also catches inventories whose capabilities change in place.
@@ -41,6 +41,10 @@ public final class PipeNetwork {
     }
 
     public static List<Target> targets(ServerLevel level, BlockPos node, Direction front, boolean fluid) {
+        return targets(level, node, front, fluid ? NodeKind.Resource.FLUIDS : NodeKind.Resource.ITEMS);
+    }
+
+    public static List<Target> targets(ServerLevel level, BlockPos node, Direction front, NodeKind.Resource resource) {
         BlockPos attached = node.relative(front);
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         Set<BlockPos> pipes = new HashSet<>();
@@ -68,7 +72,12 @@ public final class PipeNetwork {
                 Direction face = direction.getOpposite();
                 Target target = new Target(next.immutable(), face);
                 if (found.contains(target)) continue;
-                if (fluid ? TransferPlatform.hasFluids(level, next, face) : TransferPlatform.hasItems(level, next, face)) {
+                boolean serves = switch (resource) {
+                    case ITEMS -> TransferPlatform.hasItems(level, next, face);
+                    case FLUIDS -> TransferPlatform.hasFluids(level, next, face);
+                    case ENERGY -> TransferPlatform.hasEnergy(level, next, face);
+                };
+                if (serves) {
                     found.add(target);
                 }
             }

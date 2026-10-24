@@ -10,14 +10,13 @@ from pathlib import Path
 import zipfile
 
 from PIL import Image, ImageDraw, ImageFont
-from texture_study_assets import samples, proposed_models
+from texture_study_assets import GENS, samples, proposed_models
 
 MOD = Path(__file__).resolve().parents[1]
 ASSETS = MOD / 'src/main/resources/assets/gridwright'
 OUT = MOD / 'docs/texture-study'
 PACK = OUT / 'preview-pack'
 TEXTURES = PACK / 'assets/gridwright/textures'
-GENS = ['survivalist', 'furnace', 'culinary', 'lava', 'potion', 'ender', 'redstone']
 
 
 def font(size):
@@ -72,26 +71,27 @@ def comparison(art):
 
 
 def family_sheet(art):
-    im = Image.new('RGB', (1200, 850), '#f2f0e7'); d = ImageDraw.Draw(im)
+    im = Image.new('RGB', (1200, 1150), '#f2f0e7'); d = ImageDraw.Draw(im)
     label(d, (36, 22), '32 pixels, with a different symbol for every fuel', 27)
     label(d, (36, 64), 'Idle above, active below. Extra resolution adds plate seams, rivets and material detail.', 18)
     for i, kind in enumerate(GENS):
-        x = 36+i*164
-        label(d, (x, 108), kind.capitalize(), 16)
+        x, y = 36+(i % 8)*144, (i // 8)*320
+        label(d, (x, 108+y), 'TNT' if kind == 'tnt' else kind.replace('_', ' ').capitalize(), 16)
         for active in (False, True):
             key = f'block/{kind}_generator_front'+('_on' if active else '')+'.png'
-            tile(im, art[key], (x, 140+int(active)*140), 96)
-            label(d, (x, 256+int(active)*140), 'Active' if active else 'Idle', 14)
-    label(d, (36, 444), 'Compressed cobblestone / count the tier pips', 23)
+            tile(im, art[key], (x, 140+y+int(active)*140), 96)
+            label(d, (x, 256+y+int(active)*140), 'Active' if active else 'Idle', 14)
+    top = 744
+    label(d, (36, top), 'Compressed cobblestone / count the tier pips', 23)
     for i, prefix in enumerate(['', 'double_', 'triple_', 'quadruple_', 'quintuple_', 'sextuple_', 'septuple_', 'octuple_']):
         x = 36+i*144
-        tile(im, art[f'block/{prefix}compressed_cobblestone.png'], (x, 490), 96)
-        label(d, (x, 598), f'Tier {i+1}', 16)
-    label(d, (36, 655), 'Inventory / transparent sprites at 2x', 23)
+        tile(im, art[f'block/{prefix}compressed_cobblestone.png'], (x, top+46), 96)
+        label(d, (x, top+154), f'Tier {i+1}', 16)
+    label(d, (36, top+211), 'Inventory / transparent sprites at 2x', 23)
     for i, name in enumerate(['grid_crystal', 'machine_frame', 'angel_ring', 'speed_upgrade', 'stack_upgrade', 'world_interaction_upgrade', 'overclock_upgrade']):
         x = 36+i*164
-        tile(im, art[f'item/{name}.png'], (x, 706), 64)
-        label(d, (x, 785), name.replace('_', '\n'), 13)
+        tile(im, art[f'item/{name}.png'], (x, top+262), 64)
+        label(d, (x, top+341), name.replace('_', '\n'), 13)
     im.save(OUT/'families.png')
 
 

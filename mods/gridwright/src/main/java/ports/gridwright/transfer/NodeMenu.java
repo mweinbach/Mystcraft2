@@ -20,15 +20,26 @@ public class NodeMenu extends AbstractContainerMenu {
     public static final int UPGRADE_X = 26;
     public static final int FILTER_X = 134;
 
+    /** The menu button that switches the node's redstone mode. */
+    public static final int BUTTON_REDSTONE = 0;
+
     private final ContainerData data;
     private final Predicate<Player> valid;
+    private final Runnable cycleRedstone;
 
     public NodeMenu(int containerId, Inventory inventory, Container node, ContainerData data, Predicate<Player> valid) {
+        this(containerId, inventory, node, data, valid, () -> { });
+    }
+
+    /** {@code cycleRedstone} runs on the server when the screen's redstone button is pressed. */
+    public NodeMenu(int containerId, Inventory inventory, Container node, ContainerData data, Predicate<Player> valid,
+                    Runnable cycleRedstone) {
         super(TransferRegistry.NODE_MENU.get(), containerId);
         checkContainerSize(node, NodeBlockEntity.SLOTS);
         checkContainerDataCount(data, NodeBlockEntity.DATA_COUNT);
         this.data = data;
         this.valid = valid;
+        this.cycleRedstone = cycleRedstone;
         for (int slot = 0; slot < NodeBlockEntity.UPGRADE_SLOTS; slot++) addSlot(rule(node, slot, UPGRADE_X + slot * 18));
         addSlot(rule(node, NodeBlockEntity.FILTER_SLOT, FILTER_X));
         for (int row = 0; row < 3; row++) {
@@ -74,6 +85,19 @@ public class NodeMenu extends AbstractContainerMenu {
     /** Inventories or tanks the node's pipes reached when it last looked. */
     public int targets() {
         return data.get(2) & 0xFFFF;
+    }
+
+    public NodeBlockEntity.Redstone redstone() {
+        NodeBlockEntity.Redstone[] values = NodeBlockEntity.Redstone.values();
+        int index = data.get(3);
+        return index >= 0 && index < values.length ? values[index] : NodeBlockEntity.Redstone.IGNORED;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id != BUTTON_REDSTONE) return false;
+        cycleRedstone.run();
+        return true;
     }
 
     @Override

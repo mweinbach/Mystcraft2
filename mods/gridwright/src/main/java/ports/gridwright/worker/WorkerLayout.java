@@ -19,7 +19,9 @@ public enum WorkerLayout {
     /** The tool it mines with, output. */
     MECHANICAL_MINER(List.of(new Slot(Role.TOOL, 26, 36)), false),
     /** Nine items it uses, then output for whatever the use gives back. */
-    MECHANICAL_USER(grid(Role.INPUT, 8), false);
+    MECHANICAL_USER(grid(Role.INPUT, 8), false),
+    /** The 3x3 crafting grid (pattern and ingredients at once), then output for results and leftovers. */
+    MECHANICAL_CRAFTER(grid(Role.INPUT, 8), false);
 
     public enum Role { MARKER, UPGRADE, TOOL, INPUT, OUTPUT }
 

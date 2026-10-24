@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * The loader services the transfer nodes need: Forge item and fluid handlers or the Fabric Transfer
- * API, the loader's block-break event as a permission check for world interaction, and menus that
- * carry their own opening data. Each loader entrypoint installs a backend next to {@code Platform}'s.
+ * The loader services the transfer nodes need: Forge item, fluid and energy handlers or the Fabric
+ * Transfer API and Team Reborn Energy, the loader's block-break event as a permission check for world
+ * interaction, and menus that carry their own opening data. Each loader entrypoint installs a backend next to {@code Platform}'s.
  *
  * <p>Fluid amounts are millibuckets on both loaders; the Fabric backend converts to droplets.
  */
@@ -70,6 +70,15 @@ public final class TransferPlatform {
 
         /** Opens a menu whose client factory reads what {@code data} writes. */
         void openMenu(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data);
+
+        /** Whether the block at {@code pos} exposes Forge Energy / Team Reborn Energy on {@code face}. */
+        boolean hasEnergy(Level level, BlockPos pos, Direction face);
+
+        /** Takes up to {@code max} energy; returns how much was (or would be) taken. */
+        long extractEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate);
+
+        /** Gives up to {@code max} energy; returns how much was (or would be) accepted. */
+        long insertEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate);
     }
 
     private static Backend backend;
@@ -125,5 +134,17 @@ public final class TransferPlatform {
 
     public static void openMenu(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data) {
         backend().openMenu(player, provider, data);
+    }
+
+    public static boolean hasEnergy(Level level, BlockPos pos, Direction face) {
+        return backend().hasEnergy(level, pos, face);
+    }
+
+    public static long extractEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        return max <= 0 ? 0 : backend().extractEnergy(level, pos, face, max, simulate);
+    }
+
+    public static long insertEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        return max <= 0 ? 0 : backend().insertEnergy(level, pos, face, max, simulate);
     }
 }

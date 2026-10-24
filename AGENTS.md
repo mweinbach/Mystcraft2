@@ -1,11 +1,18 @@
 # Workspace instructions
 
 This repository is a collection of independent ports targeting Minecraft 1.19.2.
-Use Java 17 and the checked-in Gradle wrapper. Forge 43.5.0 is the default;
-`mods/icbm_port` explicitly targets Fabric and uses an independent included
-build. Mystcraft, JurassiCraft and Advanced Genetics support both Forge and
-Fabric; their Fabric variants use Loader 0.16.14 and Fabric API 0.77.0+1.19.2. Respect each port's loader. Do not upgrade
-Minecraft as part of a port.
+Use Java 17 and the checked-in Gradle wrapper. Do not upgrade Minecraft as part of a port.
+
+**Fabric first.** Fabric is the primary loader for every port in this workspace, and Forge support is
+optional. Build, test and verify on Fabric first; nothing is done until it works on Fabric. Keep a
+port's Forge variant working where that is cheap, but a Forge-only difficulty never blocks or reshapes
+Fabric work: ship it on Fabric, record the Forge gap in the port's README or PARITY file, and list any
+Fabric-only GameTest in `mods/<mod>/gametest-loader-only.txt` with its reason. New ports start on
+Fabric. In the command lists below, run the Fabric commands first.
+
+Fabric variants use Loader 0.16.14 and Fabric API 0.77.0+1.19.2 in independent Loom builds
+(`mods/<mod>/fabric`, or the port's own build for Fabric-only ports such as `mods/icbm_port`). The
+root Gradle build compiles the optional Forge variants with Forge 43.5.0.
 
 - Read the target mod's README, `port.properties`, and upstream attribution.
 - Keep mod-specific work under `mods/<mod-id>`. Shared configuration lives in

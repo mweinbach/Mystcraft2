@@ -23,6 +23,11 @@
       "itemalchemy": 2051,
       "source": "recipe"
     },
+    "gridwright:chunk_loading_ward": {
+      "projecte": 8516,
+      "itemalchemy": 8500,
+      "source": "recipe"
+    },
     "gridwright:compressed_cobblestone": {
       "projecte": 9,
       "itemalchemy": 9,
@@ -51,6 +56,16 @@
     "gridwright:culinary_generator": {
       "projecte": 1548,
       "itemalchemy": 1532,
+      "source": "recipe"
+    },
+    "gridwright:cursed_lasso": {
+      "projecte": 19188,
+      "itemalchemy": 18400,
+      "source": "recipe"
+    },
+    "gridwright:death_generator": {
+      "projecte": 1652,
+      "itemalchemy": 1620,
       "source": "recipe"
     },
     "gridwright:deep_dark_portal": {
@@ -98,6 +113,11 @@
       "itemalchemy": 3064,
       "source": "recipe"
     },
+    "gridwright:enchant_generator": {
+      "projecte": 18276,
+      "itemalchemy": 5972,
+      "source": "recipe"
+    },
     "gridwright:ender_generator": {
       "projecte": 3076,
       "itemalchemy": 3060,
@@ -111,6 +131,11 @@
     "gridwright:ender_ward": {
       "projecte": 3072,
       "itemalchemy": 3056,
+      "source": "recipe"
+    },
+    "gridwright:energy_transfer_node": {
+      "projecte": 715,
+      "itemalchemy": 716,
       "source": "recipe"
     },
     "gridwright:energy_trash_can": {
@@ -143,6 +168,11 @@
       "itemalchemy": 39350,
       "source": "recipe"
     },
+    "gridwright:frosty_generator": {
+      "projecte": 1245,
+      "itemalchemy": 1932,
+      "source": "recipe"
+    },
     "gridwright:furnace_generator": {
       "projecte": 1180,
       "itemalchemy": 1164,
@@ -172,6 +202,11 @@
       "projecte": 64,
       "itemalchemy": 64,
       "source": "conversion resonate_grid_crystal"
+    },
+    "gridwright:halitosis_generator": {
+      "projecte": 7372,
+      "itemalchemy": 8371,
+      "source": "recipe"
     },
     "gridwright:iron_drum": {
       "projecte": 4352,
@@ -213,6 +248,11 @@
       "itemalchemy": 305,
       "source": "recipe"
     },
+    "gridwright:mechanical_crafter": {
+      "projecte": 1596,
+      "itemalchemy": 1576,
+      "source": "recipe"
+    },
     "gridwright:mechanical_miner": {
       "projecte": 965,
       "itemalchemy": 953,
@@ -223,6 +263,11 @@
       "itemalchemy": 533,
       "source": "recipe"
     },
+    "gridwright:nether_star_generator": {
+      "projecte": 142468,
+      "itemalchemy": 142452,
+      "source": "recipe"
+    },
     "gridwright:octuple_compressed_cobblestone": {
       "projecte": 43046721,
       "itemalchemy": 43046721,
@@ -231,6 +276,11 @@
     "gridwright:overclock_upgrade": {
       "projecte": 8512,
       "itemalchemy": 8492,
+      "source": "recipe"
+    },
+    "gridwright:pink_generator": {
+      "projecte": 1236,
+      "itemalchemy": 1220,
       "source": "recipe"
     },
     "gridwright:pocket_workbench": {
@@ -328,6 +378,11 @@
       "itemalchemy": 2160,
       "source": "recipe"
     },
+    "gridwright:slime_generator": {
+      "projecte": 1508,
+      "itemalchemy": 1492,
+      "source": "recipe"
+    },
     "gridwright:solar_panel": {
       "projecte": 1798,
       "itemalchemy": 1798,
@@ -361,6 +416,11 @@
     "gridwright:survivalist_generator": {
       "projecte": 79,
       "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "gridwright:tnt_generator": {
+      "projecte": 2504,
+      "itemalchemy": 2488,
       "source": "recipe"
     },
     "gridwright:transfer_node": {

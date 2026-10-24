@@ -3,6 +3,7 @@ package ports.gridwright.block;
 import ports.gridwright.platform.Platform;
 import ports.gridwright.registry.ModBlockEntities;
 import ports.gridwright.worker.EnderQuarryBlockEntity;
+import ports.gridwright.worker.MechanicalCrafterBlockEntity;
 import ports.gridwright.worker.MechanicalMinerBlockEntity;
 import ports.gridwright.worker.MechanicalUserBlockEntity;
 import ports.gridwright.worker.QuantumQuarryBlockEntity;
@@ -24,10 +25,10 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-/** A quarry or (through {@link MechanicalBlock}) a mechanical miner or user: a worker with a screen. */
+/** A quarry, the mechanical crafter or (through {@link MechanicalBlock}) a mechanical miner or user: a worker with a screen. */
 public class WorkerBlock extends GridMemberBlock {
 
-    public enum Kind { QUANTUM_QUARRY, ENDER_QUARRY, MECHANICAL_MINER, MECHANICAL_USER }
+    public enum Kind { QUANTUM_QUARRY, ENDER_QUARRY, MECHANICAL_MINER, MECHANICAL_USER, MECHANICAL_CRAFTER }
 
     private final Kind kind;
 
@@ -48,6 +49,7 @@ public class WorkerBlock extends GridMemberBlock {
             case ENDER_QUARRY -> new EnderQuarryBlockEntity(pos, state);
             case MECHANICAL_MINER -> new MechanicalMinerBlockEntity(pos, state);
             case MECHANICAL_USER -> new MechanicalUserBlockEntity(pos, state);
+            case MECHANICAL_CRAFTER -> new MechanicalCrafterBlockEntity(pos, state);
         };
     }
 
@@ -60,6 +62,8 @@ public class WorkerBlock extends GridMemberBlock {
             case ENDER_QUARRY -> createTickerHelper(type, ModBlockEntities.ENDER_QUARRY.get(), EnderQuarryBlockEntity::serverTick);
             case MECHANICAL_MINER -> createTickerHelper(type, ModBlockEntities.MECHANICAL_MINER.get(), MechanicalMinerBlockEntity::serverTick);
             case MECHANICAL_USER -> createTickerHelper(type, ModBlockEntities.MECHANICAL_USER.get(), MechanicalUserBlockEntity::serverTick);
+            case MECHANICAL_CRAFTER -> createTickerHelper(type, ModBlockEntities.MECHANICAL_CRAFTER.get(),
+                    MechanicalCrafterBlockEntity::serverTick);
         };
     }
 

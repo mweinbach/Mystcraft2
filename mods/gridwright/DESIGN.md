@@ -19,7 +19,7 @@ Building materials and compressed blocks can remain full cubes.
 
 Extend the nearest existing family before inventing a new casing. Generators share a chassis but
 have different fuel symbols. Drums share their body and fittings but have recognizable tiers.
-Nodes share their attachment hardware and distinguish items, fluids, pushing and retrieval.
+Nodes share their attachment hardware and distinguish items, fluids, energy, pushing and retrieval.
 A new material or mechanism can extend these patterns; record the reason and an example here.
 
 ## Textures and materials

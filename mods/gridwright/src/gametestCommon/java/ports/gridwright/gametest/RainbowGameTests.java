@@ -3,10 +3,13 @@ package ports.gridwright.gametest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.Enchantments;
 import ports.gridwright.machine.GeneratorBlockEntity;
 import ports.gridwright.machine.GeneratorKind;
 import ports.gridwright.power.RainbowGeneratorBlockEntity;
@@ -45,14 +48,28 @@ public class RainbowGameTests {
             case POTION -> PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD);
             case ENDER -> new ItemStack(Items.ENDER_PEARL, 8);
             case REDSTONE -> new ItemStack(Items.REDSTONE_BLOCK, 2);
+            case TNT -> new ItemStack(Items.TNT, 4);
+            case PINK -> new ItemStack(Items.PINK_WOOL, 4);
+            case NETHER_STAR -> new ItemStack(Items.NETHER_STAR);
+            case DEATH -> new ItemStack(Items.BONE_BLOCK, 2);
+            case ENCHANT -> EnchantedBookItem.createForEnchantment(new EnchantmentInstance(Enchantments.SHARPNESS, 2));
+            case SLIME -> new ItemStack(Items.SLIME_BLOCK);
+            case FROSTY -> new ItemStack(Items.PACKED_ICE, 2);
+            case HALITOSIS -> new ItemStack(Items.DRAGON_BREATH, 4);
         };
     }
 
-    /** One fuelled generator of every kind in a row three blocks from the rainbow generator. */
+    /** Fifteen generators fit in two rows of seven and a spare, all within range of {@link #RAINBOW}. */
+    static BlockPos slot(GeneratorKind kind) {
+        int index = kind.ordinal();
+        return new BlockPos(1 + index % 7, 3, index < 7 ? 1 : index < 14 ? 2 : 6);
+    }
+
+    /** One fuelled generator of every kind, all within range of the rainbow generator. */
     private static Map<GeneratorKind, GeneratorBlockEntity> generators(GameTestHelper helper) {
         Map<GeneratorKind, GeneratorBlockEntity> generators = new EnumMap<>(GeneratorKind.class);
         for (GeneratorKind kind : GeneratorKind.values()) {
-            GeneratorBlockEntity generator = generator(helper, kind, new BlockPos(1 + kind.ordinal(), 3, 1));
+            GeneratorBlockEntity generator = generator(helper, kind, slot(kind));
             generator.setItem(0, fuel(kind));
             generators.put(kind, generator);
         }
@@ -64,7 +81,7 @@ public class RainbowGameTests {
         Owner owner = Owner.random("gwRb");
         RainbowGeneratorBlockEntity rainbow = rainbow(helper, RAINBOW, owner);
         Map<GeneratorKind, GeneratorBlockEntity> generators = generators(helper);
-        BlockPos ender = new BlockPos(1 + GeneratorKind.ENDER.ordinal(), 3, 1);
+        BlockPos ender = slot(GeneratorKind.ENDER);
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     check(rainbow.status() == Status.RUNNING, "Status " + rainbow.status() + ", missing " + rainbow.missing());

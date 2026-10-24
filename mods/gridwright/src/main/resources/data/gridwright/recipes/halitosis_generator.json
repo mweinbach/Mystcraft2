@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "AXA",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:dragon_breath"
+    },
+    "A": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "gridwright:machine_frame"
+    },
+    "R": {
+      "item": "minecraft:end_crystal"
+    }
+  },
+  "result": {
+    "item": "gridwright:halitosis_generator",
+    "count": 1
+  }
+}

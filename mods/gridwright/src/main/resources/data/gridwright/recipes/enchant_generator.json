@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "AXA",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:enchanting_table"
+    },
+    "A": {
+      "item": "minecraft:book"
+    },
+    "X": {
+      "item": "gridwright:machine_frame"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "gridwright:enchant_generator",
+    "count": 1
+  }
+}

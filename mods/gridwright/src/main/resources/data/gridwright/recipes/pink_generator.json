@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "AXA",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:pink_wool"
+    },
+    "A": {
+      "item": "minecraft:pink_dye"
+    },
+    "X": {
+      "item": "gridwright:machine_frame"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "gridwright:pink_generator",
+    "count": 1
+  }
+}

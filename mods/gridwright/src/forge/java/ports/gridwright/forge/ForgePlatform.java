@@ -28,10 +28,12 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.FakePlayerFactory;
@@ -39,6 +41,7 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -145,5 +148,17 @@ final class ForgePlatform implements Platform.Backend {
     @Override
     public void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
         // Forge's BreakEvent is the only break hook; there is no separate after-break event.
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public GameRules.Key<GameRules.IntegerValue> intGameRule(String name, GameRules.Category category, int defaultValue) {
+        try {
+            // GameRules.IntegerValue.create(int) is package-private; m_46312_ is its SRG name.
+            Method create = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "m_46312_", int.class);
+            return GameRules.register(name, category, (GameRules.Type<GameRules.IntegerValue>) create.invoke(null, defaultValue));
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Cannot register game rule " + name, e);
+        }
     }
 }
