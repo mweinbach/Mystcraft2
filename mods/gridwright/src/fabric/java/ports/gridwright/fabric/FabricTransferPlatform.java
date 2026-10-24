@@ -259,6 +259,8 @@ final class FabricTransferPlatform implements TransferPlatform.Backend {
 
     @Override
     public long extractEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        // Like the item and fluid lookups: never load a chunk just to reach a cached target.
+        if (!level.hasChunkAt(pos)) return 0;
         EnergyStorage energy = EnergyStorage.SIDED.find(level, pos, face);
         if (energy == null || !energy.supportsExtraction()) return 0;
         try (Transaction transaction = Transaction.openOuter()) {
@@ -270,6 +272,8 @@ final class FabricTransferPlatform implements TransferPlatform.Backend {
 
     @Override
     public long insertEnergy(ServerLevel level, BlockPos pos, Direction face, long max, boolean simulate) {
+        // Like the item and fluid lookups: never load a chunk just to reach a cached target.
+        if (!level.hasChunkAt(pos)) return 0;
         EnergyStorage energy = EnergyStorage.SIDED.find(level, pos, face);
         if (energy == null || !energy.supportsInsertion()) return 0;
         try (Transaction transaction = Transaction.openOuter()) {
