@@ -74,5 +74,13 @@ minecraft.runs {
 }
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     dependsOn tasks.named('gametestClasses')
-    doFirst { delete file('run/gameTestServer/world') }
+    // Forge's GameTest server takes its world type from server.properties, which defaults to a normal world, so the
+    // arenas at y = -60 were cut into deepslate: gravel in the ceiling fell into tests (and aquifers could flow in).
+    // Fabric's runner uses vanilla's flat test world without structures; match it.
+    doFirst {
+        delete file('run/gameTestServer/world')
+        def serverProperties = file('run/gameTestServer/server.properties')
+        serverProperties.parentFile.mkdirs()
+        serverProperties.text = 'level-type=minecraft\\:flat\ngenerate-structures=false\nmax-tick-time=-1\n'
+    }
 }
