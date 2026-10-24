@@ -34,12 +34,14 @@ is empty.
 | Trash cans | Void items, fluids or energy | Item handler, fluid handler or Forge Energy capability that accepts everything | Insertion-only item / fluid storage and Team Reborn Energy storage that accept everything | `trashCanDestroysHopperInput`, `trashCansDestroyThroughLoaderApis` |
 | Compressed blocks | 9:1 tiers of common blocks | Shared recipes; EMC 9^tier | Shared recipes; EMC 9^tier | `compressedBlocksCraftNineToOneAndBack` |
 | Spikes | Hurt mobs; better spikes kill as a player | Forge `FakePlayerFactory` player takes the kill credit | `FabricFakePlayer` (a `ServerPlayer` with a packet-dropping connection) takes it | `woodenSpikesNeverKill`, `goldenSpikesDropExperienceIronSpikesDoNot`, `spikesHurtCreaturesStandingOnThem` |
-| Sound Muffler | Quieter sounds nearby | `PlayLevelSoundEvent` (position and entity variants) on server and client | No sound event: `ServerLevelMixin` replays both `playSeededSound` overloads at the muffled volume; sounds a client plays only for itself are not muffled | `soundMufflerQuietsNearbySounds` |
+| Sound Muffler | Quieter sounds nearby | `PlayLevelSoundEvent` (position and entity variants), applied on the client only so a broadcast sound is muffled once | No sound event: `ServerLevelMixin` replays both `playSeededSound` overloads at the muffled volume; sounds a client plays only for itself are not muffled | `soundMufflerQuietsNearbySounds` |
 
 ## Deliberate loader differences
 
-- **Sound muffling coverage.** Forge muffles every sound that goes through the level sound event,
-  including client-only ones. Fabric muffles every sound the server broadcasts; it has no client hook.
+- **Sound muffling coverage.** Forge muffles on the client, where the level sound event fires for
+  every sound the server sends and for the client's own predicted sounds (the server-side firing is
+  skipped so nothing is muffled twice). Fabric muffles every sound the server broadcasts; it has no
+  client hook, so a player's own predicted sounds stay at full volume for that player.
   This is Gridwright's only mixin, and `scripts/check_loader_parity.py` fails if any other appears.
 - **Claim checks.** Gridwright has no protection API of its own. Both wands fire each loader's
   standard break / place hooks so claim mods can cancel per block; the Fabric builder's wand uses

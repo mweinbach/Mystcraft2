@@ -48,12 +48,17 @@ public final class ForgeUtilityEvents {
         if (event.phase == TickEvent.Phase.END) AngelRingFlight.tick(event.getServer());
     }
 
+    // The event fires twice for a broadcast sound: once when the server sends it and again when the
+    // client plays the packet. Muffling only on the client applies the factor once and still covers the
+    // sounds a client predicts for itself, which never come from the server.
     private static void onSoundAtPosition(PlayLevelSoundEvent.AtPosition event) {
+        if (!event.getLevel().isClientSide()) return;
         Vec3 at = event.getPosition();
         event.setNewVolume(SoundMuffling.volume(event.getLevel(), at.x, at.y, at.z, event.getNewVolume()));
     }
 
     private static void onSoundAtEntity(PlayLevelSoundEvent.AtEntity event) {
+        if (!event.getLevel().isClientSide()) return;
         Entity entity = event.getEntity();
         event.setNewVolume(SoundMuffling.volume(event.getLevel(), entity.getX(), entity.getY(), entity.getZ(), event.getNewVolume()));
     }
