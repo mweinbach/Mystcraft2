@@ -343,11 +343,25 @@ jobs:
           echo "port=$PORT"
           test "$TOOLING" = success
           test "$PORT" = success
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/tekxit4-probe
+            scripts/check_unmapped_overrides.py
+          sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v4
         with:
           pattern: port-jars-*
           path: collected-jars
           merge-multiple: true
+      # Redirect/ModifyConstant pairs and wraps inside overwritten methods crash the game at load. The target list is
+      # Tekxit 4 20.0.4's own exclusive injectors and overwrites; ports are also checked against each other.
+      - name: Check port mixins against Tekxit 4 and each other
+        run: python3 tools/tekxit4-probe/mixin_audit.py --targets tools/tekxit4-probe/tekxit4-exclusive-mixins.json --ports collected-jars
+      # Dev runs use Mojang names, so only the remapped jars show an interface method that a Minecraft superclass no
+      # longer implements (Extreme Reactors' AbstractMethodError in the Tekxit 4 client).
+      - name: Check remapped jars for interface methods lost in production names
+        run: python3 scripts/check_unmapped_overrides.py collected-jars
       - uses: actions/upload-artifact@v4
         with:
           name: minecraft-1.19.2-ports

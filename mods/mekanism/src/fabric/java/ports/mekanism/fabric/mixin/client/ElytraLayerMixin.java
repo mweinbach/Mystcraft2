@@ -4,7 +4,11 @@
  */
 package ports.mekanism.fabric.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +21,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.mekanism.lib.client.extensions.IForgeElytraLayer;
 
@@ -38,10 +41,28 @@ public abstract class ElytraLayerMixin<T extends LivingEntity> implements IForge
         mekanism$entity = entity;
     }
 
-    @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+    /** Whether a layer class overrides {@link IForgeElytraLayer#shouldRender}; the default is the vanilla elytra check. */
+    @Unique
+    private static final Map<Class<?>, Boolean> mekanism$customShouldRender = new ConcurrentHashMap<>();
+
+    @Unique
+    private static boolean mekanism$overridesShouldRender(Class<?> type) {
+        try {
+            return type.getMethod("shouldRender", ItemStack.class, LivingEntity.class).getDeclaringClass() != IForgeElytraLayer.class;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Wrapped, not redirected: Origins' Apoli redirects the same call in Tekxit 4, and two redirects of one instruction
+     * crash the game. Layers that keep the default {@code shouldRender} (the same elytra check) run the original call, so
+     * other mods' wrappers still apply; layers that override it, such as Mekanism's HDPE elytra, decide alone.
+     */
+    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
           at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
-    private boolean mekanism$shouldRender(ItemStack stack, Item elytra) {
-        return shouldRender(stack, mekanism$entity);
+    private boolean mekanism$shouldRender(ItemStack stack, Item elytra, Operation<Boolean> original) {
+        return mekanism$customShouldRender.computeIfAbsent(getClass(), ElytraLayerMixin::mekanism$overridesShouldRender) ? shouldRender(stack, mekanism$entity) : original.call(stack, elytra);
     }
 
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",

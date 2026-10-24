@@ -214,9 +214,9 @@ Resources:
   resolve on both loaders.
 - EMC data for ProjectE and Item Alchemy, generated from `emc/policy.json` by
   `scripts/emc.py`.
-- Fabric-only `assets/forge/models/item/bucket_drip.json` and
-  `assets/bigreactors/textures/item/bucket_fluid_overlay.png` stand in for
-  Forge's dynamic bucket model. The overlay is the port's own texture.
+- Fabric-only `assets/bigreactors/textures/item/bucket_fluid_overlay.png`, the
+  overlay of the bucket model `FabricClientMod` supplies in place of Forge's
+  dynamic bucket model. The overlay is the port's own texture.
 - The multiblock validation messages, the effect sound subtitles and names for
   the four `casing_user` item tags, which EMI shows, appended to `en_us.json`.
 - The port's own effect assets: `sounds.json`, `sounds/effects/alarm.ogg` and

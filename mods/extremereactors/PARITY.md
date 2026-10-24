@@ -142,10 +142,13 @@ the library pushes item entities and applies the fall distance modifier, but
 they do not bob. Fog, underwater overlays and other visual water effects are not
 reproduced, and none of this claims pixel parity with Forge.
 
-**Fabric bucket models.** The shared bucket item models use
-`forge:item/bucket_drip` as their parent. Fabric gets a stand-in with that id:
-the vanilla bucket with a fluid overlay tinted per fluid. It matches Forge's
-look closely but not pixel for pixel.
+**Fabric bucket models.** The shared bucket item models use Forge's
+`forge:bucket` loader. On Fabric, `FabricClientMod` supplies those model ids
+itself before their JSON is read: the vanilla bucket with a fluid overlay tinted
+per fluid. It matches Forge's look closely but not pixel for pixel. The port
+used to ship a `forge:item/bucket_drip` stand-in instead; in Tekxit 4, Porting
+Lib reads the `loader` key, has no `forge:bucket` loader and dropped all ten
+bucket models, and the Mekanism port ships a different file with the same id.
 
 <a id="api-dispatcher"></a>**API dispatcher.** Upstream ran its own registrations directly and other mods'
 calls through Forge IMC, dropping calls made after loading. The port queues

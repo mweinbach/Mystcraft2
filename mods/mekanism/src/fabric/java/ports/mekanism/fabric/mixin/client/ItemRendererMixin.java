@@ -8,8 +8,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.List;
+import mekanism.common.Mekanism;
 import mekanism.common.item.ItemRobit;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -18,8 +21,10 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Registry;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -85,14 +90,32 @@ public abstract class ItemRendererMixin {
         original.call(IClientItemExtensions.of(stack).getCustomRenderer(), stack, transformType, poseStack, buffers, light, overlay);
     }
 
+    @Shadow
+    @Final
+    private ItemColors itemColors;
+
     /**
      * Forge's item quad pass keeps the light and colour baked into the quad. Vanilla's pass replaces both, so an
-     * emissive face on an item (an energy cube's corners, a charged machine face) stays dark.
+     * emissive face on an item (an energy cube's corners, a charged machine face) stays dark. This runs at the head of
+     * the pass, for Mekanism's own items only, and draws their quads the Forge way. It does not wrap the
+     * {@code putBulkData} call inside the method: Sodium (in Tekxit 4) overwrites {@code renderQuadList}, so that call
+     * is gone and a required wrap crashes the game at the first item render. Other items keep whatever renderer the
+     * pack uses.
      */
-    @WrapOperation(method = "renderQuadList", at = @At(value = "INVOKE",
-          target = "Lcom/mojang/blaze3d/vertex/VertexConsumer;putBulkData(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/renderer/block/model/BakedQuad;FFFII)V"))
-    private void mekanism$emissiveItemQuads(VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int light,
-          int overlay, Operation<Void> original) {
-        ((IForgeVertexConsumer) consumer).mekanism$putBulkData(pose, quad, red, green, blue, 1.0F, light, overlay, true);
+    @Inject(method = "renderQuadList", at = @At("HEAD"), cancellable = true)
+    private void mekanism$emissiveItemQuads(PoseStack poseStack, VertexConsumer consumer, List<BakedQuad> quads, ItemStack stack, int light,
+          int overlay, CallbackInfo ci) {
+        if (stack.isEmpty() || !Registry.ITEM.getKey(stack.getItem()).getNamespace().startsWith(Mekanism.MODID)) {
+            return;
+        }
+        PoseStack.Pose pose = poseStack.last();
+        for (BakedQuad quad : quads) {
+            int color = quad.isTinted() ? itemColors.getColor(stack, quad.getTintIndex()) : -1;
+            float red = (color >> 16 & 255) / 255.0F;
+            float green = (color >> 8 & 255) / 255.0F;
+            float blue = (color & 255) / 255.0F;
+            ((IForgeVertexConsumer) consumer).mekanism$putBulkData(pose, quad, red, green, blue, 1.0F, light, overlay, true);
+        }
+        ci.cancel();
     }
 }

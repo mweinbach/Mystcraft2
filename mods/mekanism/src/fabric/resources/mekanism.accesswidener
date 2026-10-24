@@ -156,7 +156,7 @@ accessible field net/minecraft/world/inventory/MenuType constructor Lnet/minecra
 accessible method net/minecraft/client/gui/screens/MenuScreens getConstructor (Lnet/minecraft/world/inventory/MenuType;)Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;
 # EnchantmentHelper.EnchantmentVisitor is package-private. The enchantment mixin iterates it.
 accessible class net/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor
-# Worldgen registries are frozen during bootstrap, before mods register. Ore features are written into them.
+# Worldgen registries may already be frozen when Mekanism writes its ore features; they are reopened, then their state is restored.
 accessible field net/minecraft/core/MappedRegistry frozen Z
 # Fog distances are read after vanilla setup so a canceled fog event can replace them.
 accessible class net/minecraft/client/renderer/FogRenderer$FogData

@@ -55,6 +55,8 @@ class CiWorkflowTests(unittest.TestCase):
             "runGametest",
             "test_built_jar.py",
             "minecraft-1.19.2-ports",
+            "tools/tekxit4-probe/mixin_audit.py --targets tools/tekxit4-probe/tekxit4-exclusive-mixins.json",
+            "python3 scripts/check_unmapped_overrides.py collected-jars",
             "gametest-reports-",
             "cache-read-only:",
         ):

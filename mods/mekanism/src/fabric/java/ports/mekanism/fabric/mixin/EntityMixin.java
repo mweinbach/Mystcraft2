@@ -4,6 +4,7 @@
  */
 package ports.mekanism.fabric.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -35,11 +36,12 @@ public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.
 
     /**
      * Forge steps up by {@code maxUpStep} plus the step-height attribute. Free runners and the MekaSuit write that
-     * attribute; vanilla only reads the field.
+     * attribute; vanilla only reads the field. This must not be a {@code @Redirect}: other mods (Tekxit's Step Height
+     * Entity Attribute) redirect the same read, and two redirects of one instruction crash the game at startup.
      */
-    @Redirect(method = "collide", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/Entity;maxUpStep:F", opcode = Opcodes.GETFIELD))
-    private float mekanism$stepHeight(Entity entity) {
-        float step = entity.maxUpStep;
+    @ModifyExpressionValue(method = "collide", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/Entity;maxUpStep:F", opcode = Opcodes.GETFIELD))
+    private float mekanism$stepHeight(float step) {
+        Entity entity = (Entity) (Object) this;
         if (entity instanceof LivingEntity living) {
             AttributeInstance attribute = living.getAttribute(ForgeMod.STEP_HEIGHT_ADDITION.get());
             if (attribute != null) {

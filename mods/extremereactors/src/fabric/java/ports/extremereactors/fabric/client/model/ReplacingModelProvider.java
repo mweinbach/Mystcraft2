@@ -19,14 +19,12 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -42,17 +40,28 @@ public final class ReplacingModelProvider
         implements ModelVariantProvider {
 
     public ReplacingModelProvider(final ModelReplacements replacements, final ResourceManager resources) {
+        this(replacements, blockId -> Registry.BLOCK.getOptional(blockId)
+                .map(block -> BlockStateModels.load(resources, blockId, block))
+                .orElse(Map.of()));
+    }
+
+    /**
+     * @param blockModels loads every block state model of a block, as vanilla would
+     */
+    ReplacingModelProvider(final ModelReplacements replacements,
+                           final Function<ResourceLocation, Map<ModelResourceLocation, UnbakedModel>> blockModels) {
 
         this._replacements = replacements;
-        this._resources = resources;
+        this._blockModels = blockModels;
         this._loadedBlocks = new HashMap<>();
         this._originals = new HashMap<>();
         this._bakedOriginals = new HashMap<>();
     }
 
+    // ModernFix's dynamic resources (on in Tekxit 4) loads and bakes models lazily, from more than one thread
     @Nullable
     @Override
-    public UnbakedModel loadModelVariant(final ModelResourceLocation id, final ModelProviderContext context) {
+    public synchronized UnbakedModel loadModelVariant(final ModelResourceLocation id, final ModelProviderContext context) {
 
         final ResourceLocation blockId = new ResourceLocation(id.getNamespace(), id.getPath());
 
@@ -74,13 +83,26 @@ public final class ReplacingModelProvider
     private Map<ModelResourceLocation, UnbakedModel> loadBlock(final ResourceLocation blockId) {
         return this._loadedBlocks.computeIfAbsent(blockId, key -> {
 
-            final Optional<Block> block = Registry.BLOCK.getOptional(key);
-            final Map<ModelResourceLocation, UnbakedModel> models = block.isPresent() ?
-                    BlockStateModels.load(this._resources, key, block.get()) : Map.of();
+            final Map<ModelResourceLocation, UnbakedModel> models = this._blockModels.apply(key);
 
             this._originals.putAll(models);
             return models;
         });
+    }
+
+    /**
+     * @return the unbaked original of a replaced model, loading its block first if Minecraft has not asked for it yet.
+     * Vanilla loads every model before baking any, but ModernFix's dynamic resources loads them on demand, so a builder
+     * can ask for the original of a block nothing has loaded yet.
+     */
+    @Nullable
+    synchronized UnbakedModel originalOf(final ResourceLocation id) {
+
+        if (id instanceof ModelResourceLocation model) {
+            this.loadBlock(new ResourceLocation(model.getNamespace(), model.getPath()));
+        }
+
+        return this._originals.get(id);
     }
 
     private ModelReplacements.Session session(final ModelBakery bakery,
@@ -101,13 +123,15 @@ public final class ReplacingModelProvider
 
         if (null == model) {
 
-            final UnbakedModel original = this._originals.get(id);
+            final UnbakedModel original = this.originalOf(id);
 
-            // vanilla loaded this one: it is the original
             model = null != original ? original.bake(bakery, sprites, BlockModelRotation.X0_Y0, id) : null;
 
             if (null == model) {
-                model = bakeOrMissing(bakery, id);
+                // Asking the bakery for a replaced id would come back here through ReplacedModel and run the same
+                // builder again ("Model builder N depends on itself").
+                model = this._replacements.replaces(id) ?
+                        bakeOrMissing(bakery, ModelBakery.MISSING_MODEL_LOCATION) : bakeOrMissing(bakery, id);
             }
 
             this._bakedOriginals.put(id, model);
@@ -163,7 +187,7 @@ public final class ReplacingModelProvider
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final ModelReplacements _replacements;
-    private final ResourceManager _resources;
+    private final Function<ResourceLocation, Map<ModelResourceLocation, UnbakedModel>> _blockModels;
     private final Map<ResourceLocation, Map<ModelResourceLocation, UnbakedModel>> _loadedBlocks;
     private final Map<ResourceLocation, UnbakedModel> _originals;
     private final Map<ResourceLocation, BakedModel> _bakedOriginals;

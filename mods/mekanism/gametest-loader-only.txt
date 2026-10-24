@@ -19,6 +19,8 @@ fabric FabricForeignInteropGameTests.foreignGasItemAnswersTheGasCapability  # Fa
 fabric FabricForeignInteropGameTests.foreignItemStorageAnswersTheItemCapability  # Fabric Transfer API interop; Forge reaches other mods through capabilities
 fabric FabricForeignInteropGameTests.recipeTagsReachFabricConventionTags  # c: convention tag bridges; Forge recipes use forge: tags directly
 fabric FabricPermissionGameTests.permissionModDecidesMekanismNodes  # fabric-permissions-api bridge for Forge PermissionAPI
+fabric FabricRegistryStateGameTests.worldgenRegistrationRestoresFrozenState  # Fabric lifecycle opens vanilla worldgen registries; Forge registers through its own registry events
+fabric FabricModelJsonGameTests.unknownModelLoadersAreLeftToOtherMods  # Forge reads the loader key itself and owns every model loader; on Fabric the port shares model JSON with other mods' loaders
 forge ForgeCraftTweakerGameTests.contentScriptsRegisterChemicals  # CraftTweaker content loader needs Forge registry events; CraftTweaker for Fabric has no hook yet
 forge ForgeCraftTweakerGameTests.fluidStackOverloadsAddRecipes  # IFluidStack overloads (evaporating, rotary gas to fluid); CraftTweaker for Fabric 1.19.2 has no fluid stack API
 forge ForgeFluxCapabilityGameTests.mekanismOffersFluxsLongEnergyCapability  # Flux Networks' long FN energy capability exists only in Flux for Forge; Flux for Fabric uses Team Reborn Energy (FluxNetworksGameTests covers it, parity/18)

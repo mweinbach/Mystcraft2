@@ -30,11 +30,10 @@ NESTED = parity.included_libraries(MOD / 'fabric')
 
 # Resources only one loader reads: Forge biome modifiers (Fabric adds the same features in FabricMod), the bridges
 # between the two loaders' steel tags (one per loader, as both would form a cycle), the Fabric bridges that give forge:
-# tags their vanilla members and c: equivalents, and the Fabric stand-in for Forge's dynamic bucket model that the
-# shared bucket item models use as their parent.
+# tags their vanilla members and c: equivalents, and the overlay texture of the Fabric stand-in for Forge's dynamic
+# bucket model (FabricClientMod supplies the model itself).
 FORGE_ONLY = ('data/bigreactors/forge/biome_modifier/', 'data/c/tags/items/steel_ingots.json')
-FABRIC_ONLY = ('data/forge/tags/', 'assets/forge/models/item/bucket_drip.json',
-               'assets/bigreactors/textures/item/bucket_fluid_overlay.png')
+FABRIC_ONLY = ('data/forge/tags/', 'assets/bigreactors/textures/item/bucket_fluid_overlay.png')
 # Referenced by upstream with a typo (storage_block, not storage_blocks): they never match on Forge either.
 UPSTREAM_UNDEFINED_TAGS = {('blocks', 'storage_block/apatite'), ('blocks', 'storage_block/cinnabar')}
 

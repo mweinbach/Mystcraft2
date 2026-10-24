@@ -4,7 +4,7 @@
  */
 package ports.extremereactors.corelib.block.multiblock;
 
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.extremereactors.multiblock.variant.IMultiblockVariant;
 
 import java.util.Optional;
@@ -14,11 +14,15 @@ import java.util.Optional;
  */
 public interface IMultiblockVariantProvider<Variant extends IMultiblockVariant> {
 
-    BlockState getBlockState();
-
+    /**
+     * The state comes from {@link BlockEntity#getBlockState()} rather than an abstract {@code getBlockState()} here: on
+     * Fabric, Loom renames the vanilla method in production but not one declared by this interface, so implementations
+     * inherited from {@code BlockEntity} do not satisfy it and the call throws {@code AbstractMethodError} (Sodium's
+     * chunk rebuild in Tekxit 4 reached it through the model data).
+     */
     @SuppressWarnings("unchecked")
     default Optional<Variant> getMultiblockVariant() {
-        return this.getBlockState().getBlock() instanceof MultiblockPartBlock<?, ?> block ?
+        return this instanceof BlockEntity entity && entity.getBlockState().getBlock() instanceof MultiblockPartBlock<?, ?> block ?
                 block.getMultiblockVariant().map(variant -> (Variant) variant) : Optional.empty();
     }
 }

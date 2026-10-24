@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.tekxitprobe.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "GameTestRegistryMixin"
+  ],
+  "client": [
+    "CreateWorldScreenAccessor",
+    "CreativeModeInventoryScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

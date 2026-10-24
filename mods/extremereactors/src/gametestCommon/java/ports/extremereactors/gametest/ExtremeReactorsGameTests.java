@@ -726,6 +726,33 @@ public final class ExtremeReactorsGameTests {
     }
 
     //endregion
+    //region loot
+
+    /**
+     * Every block that has an item drops through a loaded loot table. The reinforced Mekanism gas port had none, so
+     * breaking it destroyed the block; the Tekxit 4 boot probe found it.
+     */
+    public static void everyBlockWithAnItemHasALootTable(final GameTestHelper helper) {
+
+        final var loaded = helper.getLevel().getServer().getLootTables().getIds();
+        final List<String> missing = new java.util.ArrayList<>();
+
+        for (final Block block : Registry.BLOCK) {
+
+            final ResourceLocation id = Registry.BLOCK.getKey(block);
+
+            if (Platform.MOD_ID.equals(id.getNamespace()) && Items.AIR != block.asItem()
+                    && !net.minecraft.world.level.storage.loot.BuiltInLootTables.EMPTY.equals(block.getLootTable())
+                    && !loaded.contains(block.getLootTable())) {
+                missing.add(id.toString());
+            }
+        }
+
+        check(missing.isEmpty(), "blocks with an item but no loaded loot table: " + missing);
+        helper.succeed();
+    }
+
+    //endregion
     //region fluid physics
 
     /**
