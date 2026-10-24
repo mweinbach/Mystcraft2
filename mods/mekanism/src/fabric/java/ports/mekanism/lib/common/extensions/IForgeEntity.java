@@ -49,7 +49,7 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
         return ((AttachedCapabilities.Holder) this).mekanism$capabilities().getCapability(cap, side);
     }
 
-    default void invalidateCaps() {
+    default void mekanism$invalidateCaps() {
         ((AttachedCapabilities.Holder) this).mekanism$capabilities().invalidate();
     }
 
@@ -58,12 +58,12 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
     }
 
     @Override
-    default void deserializeNBT(CompoundTag nbt) {
+    default void mekanism$deserializeNBT(CompoundTag nbt) {
         self().load(nbt);
     }
 
     @Override
-    default CompoundTag serializeNBT() {
+    default CompoundTag mekanism$serializeNBT() {
         CompoundTag tag = new CompoundTag();
         String id = self().getEncodeId();
         if (id != null) {

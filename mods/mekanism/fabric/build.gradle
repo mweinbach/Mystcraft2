@@ -109,33 +109,64 @@ dependencies {
     }
     // Flux Networks for Fabric 1.19.2-7.2.1.16 (Modrinth 1HFd7hEa) is shurik204's MIT port. It moves energy through Team
     // Reborn Energy, which Mekanism already offers, so nothing compiles against it. -PwithFluxNetworks adds it to a
-    // development run. Loom's development copy drops its nested jars, so Porting Lib and Simple Chunk Manager are added too.
-    // The run does not start yet: Porting Lib adds Forge-style default methods to the same vanilla classes as this port's
-    // Forge API layer (parity/18-flux-recipe-stages-oc2.md), and the JVM rejects BlockEntity. The flag reproduces that.
-    if (providers.gradleProperty('withFluxNetworks').isPresent()) {
-        def flux = 'maven.modrinth:flux-network-fabric:1HFd7hEa'
-        modRuntimeOnly(flux) { transitive = false }
-        // Loom remaps mod dependencies while configuring, so the nested jars are unpacked here, recursively. Team Reborn
-        // Energy, Night Config and MixinExtras are already on the classpath.
-        def nestedDir = layout.buildDirectory.dir('flux-nested').get().asFile
-        def unpack
-        unpack = { File jar ->
+    // development run, with the Porting Lib 2.1.1177 and Simple Chunk Manager it nests. -PwithPortingLib adds Porting Lib
+    // 2.1.1453 as Create for Fabric 0.5.1-i build 1630 (Modrinth XMiAOQvM), the newest 1.19.2 Create, nests it; Create
+    // itself is left out because it registers GameTests of its own. Both runs check that Porting Lib's methods on vanilla
+    // classes no longer clash with the port's Forge API layer (parity/20-porting-lib.md).
+    def portingLibMods = [
+        withFluxNetworks: ['maven.modrinth:flux-network-fabric:1HFd7hEa', true],
+        withPortingLib  : ['maven.modrinth:create-fabric:XMiAOQvM', false],
+    ].findAll { providers.gradleProperty(it.key).isPresent() }.values()
+    if (!portingLibMods.isEmpty()) {
+        // Loom remaps mod dependencies while configuring, and its development copy drops nested jars, so they are unpacked
+        // here, recursively, and added once per mod id: the newest, as Fabric Loader picks in a normal install. Mods the run
+        // already has (Fabric API, Team Reborn Energy, Night Config, MixinExtras) are left out.
+        def nestedDir = layout.buildDirectory.dir('nested-mods').get().asFile
+        def slurper = new groovy.json.JsonSlurper().setType(groovy.json.JsonParserType.LAX)
+        def provided = ~/fabric.*|team_reborn_energy|com_electronwill_night-config_.*|mixinextras|com_github_llamalad7_mixinextras/
+        def versionParts = { String version -> (version ?: '0').split('\\+')[0].findAll(/\d+/).collect { it as long } }
+        def isNewer = { List<Long> a, List<Long> b ->
+            def difference = [a, b].transpose().find { it[0] != it[1] }
+            difference ? difference[0] > difference[1] : a.size() > b.size()
+        }
+        def nestedJars = { File jar ->
             new java.util.zip.ZipFile(jar).withCloseable { zip ->
-                zip.entries().toList().findAll { !it.directory && it.name ==~ /META-INF\/jars\/[^\/]+\.jar/ }.each { entry ->
+                zip.entries().toList().findAll { !it.directory && it.name ==~ /META-INF\/jars\/[^\/]+\.jar/ }.collect { entry ->
                     def out = new File(nestedDir, entry.name.substring('META-INF/jars/'.length()))
                     if (!out.isFile()) {
                         out.parentFile.mkdirs()
                         zip.getInputStream(entry).withCloseable { input -> out.bytes = input.bytes }
                     }
-                    unpack(out)
+                    out
                 }
             }
         }
-        unpack(configurations.detachedConfiguration(dependencies.create(flux) { transitive = false }).singleFile)
-        modRuntimeOnly fileTree(nestedDir) {
-            include '*.jar'
-            exclude 'energy-*.jar', 'core-*.jar', 'toml-*.jar', 'MixinExtras-*.jar', 'mixinextras-*.jar'
+        def chosen = [:]
+        def visit
+        visit = { File jar, Closure<Boolean> accept ->
+            def meta = new java.util.zip.ZipFile(jar).withCloseable { zip ->
+                def entry = zip.getEntry('fabric.mod.json')
+                entry ? zip.getInputStream(entry).withCloseable { slurper.parse(it) } : [:]
+            }
+            String id = meta.id ?: jar.name
+            if (!accept(id) || id ==~ provided) {
+                return
+            }
+            def version = versionParts(meta.version as String)
+            if (!chosen[id] || isNewer(version, chosen[id].version)) {
+                chosen[id] = [version: version, file: jar]
+            }
+            nestedJars(jar).each { visit(it, { true }) }
         }
+        portingLibMods.each { String notation, boolean withMod ->
+            if (withMod) {
+                modRuntimeOnly(notation) { transitive = false }
+            }
+            File modJar = configurations.detachedConfiguration(dependencies.create(notation) { transitive = false }).singleFile
+            Closure<Boolean> accept = withMod ? { true } : { String id -> id.startsWith('porting_lib') || id == 'forge_tags' }
+            nestedJars(modJar).each { visit(it, accept) }
+        }
+        modRuntimeOnly files(chosen.values().collect { it.file })
     }
     // CraftTweaker 10.1.44, the version upstream Mekanism 10.3.9 compiled against on Forge, is optional. CraftTweaker
     // finds the integration by scanning for its annotations, so nothing loads those classes when the mod is absent.
@@ -190,8 +221,31 @@ def forgeOnlyVanillaMembers = [
     [~/\.restoringBlockSnapshots = (true|false)\b/, '.setRestoringBlockSnapshots($1)'],
     [~/\.customData\b/, '.getCustomData()'],
 ]
-def rewriteForFabric = { String line ->
-    forgeOnlyVanillaMembers.inject(line) { String result, rule -> result.replaceAll(rule[0], rule[1].toString()) }
+// Porting Lib, which Create, Flux Networks and many other Fabric mods nest, adds its own Forge-shaped methods to vanilla
+// classes. Where the port's Forge API layer added a method with the same name and descriptor to the same class, the JVM
+// refused the call ("Conflicting default methods") or one mod's mixin replaced the other's method, so each mod's hooks
+// ran the other's code. On Fabric the port names those methods mekanism$<name>: in the API layer and its mixins, and in
+// the shared sources through these rules (parity/20-porting-lib.md). scripts/fabric_clashes.py checks the built
+// jars against the Porting Lib versions Create and Flux Networks nest.
+// These names mean only the Forge methods in the shared sources, so every occurrence is renamed.
+def portingLibClashes = ['onLoad', 'invalidateCaps', 'serializeNBT', 'deserializeNBT', 'getCreatorModId',
+                         'getDefaultTooltipHideFlags', 'onBlockStartBreak', 'getSlotIndex', 'isCurativeItem', 'getExpDrop',
+                         'isShearable', 'onSheared', 'rotateTransform', 'isIdentity', 'updateSprite']
+def mekanismName = 'mekanism\\$'
+forgeOnlyVanillaMembers += [
+    [java.util.regex.Pattern.compile('(?<![\\w$])(' + portingLibClashes.join('|') + ')\\b'), "${mekanismName}\$1"],
+    // These names also mean vanilla or Mekanism methods, so only the Forge overloads, or the files that use them, change.
+    // Forge's VertexConsumer.putBulkData with alpha and readExistingColor; vanilla's overloads take no alpha.
+    [~/\.putBulkData\((?=[^;]*,\s*(true|false)\)\s*;)/, ".${mekanismName}putBulkData("],
+    [~/\bsetBackground\(/, "${mekanismName}setBackground(", ~/\/inventory\/container\/slot\/(ArmorSlot|OffhandSlot)\.java$/],
+    [~/\.set([XYZ])\(/, ".${mekanismName}set\$1(", ~/\/client\/render\/RenderResizableCuboid\.java$/],
+    // Tier.getTag: Mekanism Tools' materials are its only users.
+    [~/\bgetTag\(\)/, "${mekanismName}getTag()", ~/^mekanism\/tools\/common\/material\//],
+]
+def rewriteForFabric = { String path, String line ->
+    forgeOnlyVanillaMembers.inject(line) { String result, rule ->
+        rule.size() > 2 && !(path =~ rule[2]) ? result : result.replaceAll(rule[0], rule[1].toString())
+    }
 }
 // Shared code that needs an API Fabric's build of a library does not have (CraftTweaker for Fabric 1.19.2 has no fluid
 // stacks) sits between '// region forge-only' and '// endregion forge-only' lines. The Fabric copy blanks those lines,
@@ -230,39 +284,32 @@ class StripForgeOnlyRegions extends FilterReader {
 def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
 def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
 def rewrittenGametest = layout.buildDirectory.dir('generated/sources/fabricShared/gametest')
-def rewriteRules = forgeOnlyVanillaMembers.collect { "${it[0]} -> ${it[1]}" }
-def rewriteMain = tasks.register('rewriteSharedSources', Sync) {
-    inputs.property 'rewriteRules', rewriteRules
-    from '../src/main/java'
-    into rewrittenMain
-    filter StripForgeOnlyRegions
-    filter rewriteForFabric
+def rewriteRules = forgeOnlyVanillaMembers.collect { it.join(' -> ') }
+def rewriteShared = { Sync task, Object sources, Object into, boolean stripForgeOnly = true ->
+    task.inputs.property 'rewriteRules', rewriteRules
+    task.from sources
+    task.into into
+    if (stripForgeOnly) {
+        task.filter StripForgeOnlyRegions
+    }
+    task.eachFile { FileCopyDetails details ->
+        String path = details.path
+        details.filter { String line -> rewriteForFabric(path, line) }
+    }
 }
-def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) {
-    inputs.property 'rewriteRules', rewriteRules
-    from '../src/test/java'
-    into rewrittenTest
-    filter rewriteForFabric
-}
+def rewriteMain = tasks.register('rewriteSharedSources', Sync) { rewriteShared(it, '../src/main/java', rewrittenMain) }
+def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) { rewriteShared(it, '../src/test/java', rewrittenTest, false) }
 // Generators, Tools and Additions are separate mod jars. Their shared sources are rewritten like the core module.
 def rewriteModule = { String name ->
     tasks.register("rewrite${name.capitalize()}Sources", Sync) {
-        inputs.property 'rewriteRules', rewriteRules
-        from "../src/${name}/java"
-        into layout.buildDirectory.dir("generated/sources/fabricShared/${name}")
-        filter StripForgeOnlyRegions
-        filter rewriteForFabric
+        rewriteShared(it, "../src/${name}/java", layout.buildDirectory.dir("generated/sources/fabricShared/${name}"))
     }
 }
 def rewriteGenerators = rewriteModule('generators')
 def rewriteTools = rewriteModule('tools')
 def rewriteAdditions = rewriteModule('additions')
 def rewriteGametest = tasks.register('rewriteSharedGametestSources', Sync) {
-    inputs.property 'rewriteRules', rewriteRules
-    from '../src/gametestCommon/java'
-    into rewrittenGametest
-    filter StripForgeOnlyRegions
-    filter rewriteForFabric
+    rewriteShared(it, '../src/gametestCommon/java', rewrittenGametest)
 }
 sourceSets {
     main {
@@ -365,6 +412,27 @@ def remapGenerators = remapModule('generators', 'mekanismgenerators')
 def remapTools = remapModule('tools', 'mekanismtools')
 def remapAdditions = remapModule('additions', 'mekanismadditions')
 tasks.named('assemble') { dependsOn remapGenerators, remapTools, remapAdditions }
+// The port's Forge API layer must not add methods Porting Lib also adds to vanilla classes, or redirect calls Porting Lib
+// redirects (parity/20-porting-lib.md). scripts/fabric_clashes.py compares the built jars with the Porting Lib versions
+// Flux Networks 1.19.2-7.2.1.16 and Create 0.5.1-i build 1630 nest.
+def portingLibReference = configurations.detachedConfiguration(
+      dependencies.create('maven.modrinth:flux-network-fabric:1HFd7hEa') { transitive = false },
+      dependencies.create('maven.modrinth:create-fabric:XMiAOQvM') { transitive = false })
+def checkPortingLibClashes = tasks.register('checkPortingLibClashes', Exec) {
+    group = 'verification'
+    description = "Checks the jars against Porting Lib's methods on vanilla classes and its redirects."
+    def ours = files([tasks.named('remapJar'), remapGenerators, remapTools, remapAdditions].collect { jar -> jar.flatMap { it.archiveFile } })
+    def script = file('../../../scripts/fabric_clashes.py')
+    inputs.files(ours, portingLibReference, script)
+    executable 'python3'
+    argumentProviders.add({
+        def intermediary = net.fabricmc.loom.api.mappings.layered.MappingsNamespace.INTERMEDIARY
+        [script.path, '--minecraft', *loom.getMinecraftJars(intermediary).collect { it.toString() },
+         '--mappings', loom.mappingConfiguration.tinyMappings.toString(),
+         '--ours', *ours.files.collect { it.path }, '--theirs', *portingLibReference.files.collect { it.path }]
+    } as CommandLineArgumentProvider)
+}
+tasks.named('check') { dependsOn checkPortingLibClashes }
 tasks.named('sourcesJar', Jar) { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false

@@ -13,11 +13,11 @@ import net.minecraft.world.inventory.Slot;
  */
 public interface IForgeSlot {
 
-    default int getSlotIndex() {
+    default int mekanism$getSlotIndex() {
         return ((Slot) this).getContainerSlot();
     }
 
-    default Slot setBackground(ResourceLocation atlas, ResourceLocation sprite) {
+    default Slot mekanism$setBackground(ResourceLocation atlas, ResourceLocation sprite) {
         throw new IllegalStateException("Slot mixin not applied");
     }
 }

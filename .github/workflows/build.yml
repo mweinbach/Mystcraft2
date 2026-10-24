@@ -146,9 +146,10 @@ jobs:
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
             forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender -PwithFluxNetworks -PwithRecipeStages
-            fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender
+            fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender -PwithFluxNetworks
             # CraftTweaker's test scripts change recipes, so it runs on its own, apart from the other integrations.
             crafttweaker_props: -PwithCraftTweaker
+            fabric_portinglib_props: -PwithPortingLib -PwithCraftTweaker
             jars: |
               mods/mekanism/build/libs/*.jar
               mods/mekanism/fabric/build/libs/*.jar
@@ -166,6 +167,7 @@ jobs:
       FORGE_COMPAT_PROPS: ${{ matrix.forge_compat_props }}
       FABRIC_COMPAT_PROPS: ${{ matrix.fabric_compat_props }}
       CRAFTTWEAKER_PROPS: ${{ matrix.crafttweaker_props }}
+      FABRIC_PORTINGLIB_PROPS: ${{ matrix.fabric_portinglib_props }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
@@ -271,6 +273,20 @@ jobs:
           fi
           read -r -a extra <<< "$CRAFTTWEAKER_PROPS"
           ./gradlew --no-daemon ":${PORT}:runGameTestServer" "${extra[@]}"
+          ./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"
+      # Fabric GameTests beside Porting Lib (Create Fabric's nested modules), which Fabric packs often carry, with CraftTweaker.
+      # The optional-integration run above already covers the older Porting Lib nested in Flux Networks.
+      - name: Run Fabric GameTests beside Porting Lib
+        if: ${{ matrix.fabric_portinglib_props }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT="${PORT:-}"
+          if [[ ! "$PORT" =~ ^[a-z][a-z0-9_]{1,63}$ ]]; then
+            echo "Unexpected port id: $PORT" >&2
+            exit 1
+          fi
+          read -r -a extra <<< "$FABRIC_PORTINGLIB_PROPS"
           ./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"
       # Mystcraft's dedicated-server smoke suite (mystcraft_smoke) runs as one GameTest on each loader's headless
       # GameTest server, the same server the GameTest runs use. It does not read eula.txt, so no EULA is accepted.

@@ -15,15 +15,15 @@ public interface IForgeVector3f {
         return (Vector3f) this;
     }
 
-    default void setX(float x) {
+    default void mekanism$setX(float x) {
         self().set(x, self().y(), self().z());
     }
 
-    default void setY(float y) {
+    default void mekanism$setY(float y) {
         self().set(self().x(), y, self().z());
     }
 
-    default void setZ(float z) {
+    default void mekanism$setZ(float z) {
         self().set(self().x(), self().y(), z);
     }
 }

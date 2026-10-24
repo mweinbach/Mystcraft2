@@ -68,7 +68,7 @@ public final class ForgeHooks {
     }
 
     /**
-     * Experience a break would drop, from the block's {@code getExpDrop}, or zero when the tool cannot harvest it.
+     * Experience a break would drop, from the block's {@code getExpDrop} ({@code mekanism$getExpDrop} here), or zero when the tool cannot harvest it.
      */
     public static int getExpDrop(Level level, BlockPos pos, BlockState state, Player player) {
         if (!player.hasCorrectToolForDrops(state)) {
@@ -77,7 +77,7 @@ public final class ForgeHooks {
         ItemStack tool = player.getMainHandItem();
         int fortune = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, tool);
         int silk = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool);
-        return state.getExpDrop(level, level.random, pos, fortune, silk);
+        return state.mekanism$getExpDrop(level, level.random, pos, fortune, silk);
     }
 
     public static void captureBreakExp(int exp) {

@@ -68,7 +68,7 @@ public abstract class BlockModelMixin implements IForgeBlockModel {
     @ModifyVariable(method = BAKE, at = @At("HEAD"), argsOnly = true)
     private ModelState mekanism$applyRootTransform(ModelState modelState) {
         var rootTransform = getCustomData().getRootTransform();
-        if (rootTransform.isIdentity() || getCustomData().hasCustomGeometry()) {
+        if (rootTransform.mekanism$isIdentity() || getCustomData().hasCustomGeometry()) {
             return modelState;
         }
         return new SimpleModelState(modelState.getRotation().compose(rootTransform), modelState.isUvLocked());

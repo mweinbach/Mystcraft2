@@ -30,7 +30,7 @@ import ports.mekanism.lib.common.ForgeHooks;
 import ports.mekanism.lib.common.extensions.IForgeItem;
 
 /**
- * Breaks and item use follow Forge's {@code ServerPlayerGameMode} patch: break experience, {@code onBlockStartBreak},
+ * Breaks and item use follow Forge's {@code ServerPlayerGameMode} patch: break experience, {@code mekanism$onBlockStartBreak},
  * {@code onDestroyedByPlayer}, {@code onItemUseFirst} and sneak bypass. Fabric's break and use callbacks stay on their
  * own injects.
  */
@@ -48,7 +48,7 @@ public abstract class ServerPlayerGameModeMixin {
           cancellable = true)
     private void mekanism$onBlockStartBreak(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         ItemStack stack = this.player.getMainHandItem();
-        if (((IForgeItem) stack.getItem()).onBlockStartBreak(stack, pos, this.player)) {
+        if (((IForgeItem) stack.getItem()).mekanism$onBlockStartBreak(stack, pos, this.player)) {
             cir.setReturnValue(false);
         }
     }

@@ -82,7 +82,7 @@ public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.
 
     @Inject(method = "remove", at = @At("TAIL"))
     private void mekanism$invalidateCapabilities(Entity.RemovalReason reason, CallbackInfo ci) {
-        invalidateCaps();
+        mekanism$invalidateCaps();
     }
 
     @Inject(method = "unsetRemoved", at = @At("TAIL"))

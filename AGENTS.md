@@ -114,6 +114,9 @@ Mekanism uses the same layout: gameplay, registries, recipes, assets and EMC dat
 in `mods/mekanism/src/main`; Forge metadata in `src/forge`, Fabric adapters in
 `src/fabric`, and the Loom build in `mods/mekanism/fabric`. Fabric rewrites
 `net.minecraftforge` references in the shared sources onto `ports.mekanism.lib`.
+Forge methods that Porting Lib also adds to vanilla classes are named
+`mekanism$<name>` on Fabric (`mods/mekanism/parity/20-porting-lib.md`); the
+Fabric `build` fails if a new one clashes.
 After Mekanism changes, run:
 
 - `./scripts/gradle.sh :mekanism:build`
@@ -122,6 +125,7 @@ After Mekanism changes, run:
 - `python3 scripts/emc.py check`
 - `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy`
+- `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithPortingLib -PwithCraftTweaker`
 
 ## Extreme Reactors loader support
 

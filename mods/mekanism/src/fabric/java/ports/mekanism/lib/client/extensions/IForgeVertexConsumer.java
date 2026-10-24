@@ -19,7 +19,7 @@ import net.minecraft.core.Vec3i;
  */
 public interface IForgeVertexConsumer {
 
-    default void putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay,
+    default void mekanism$putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay,
           boolean readExistingColor) {
         VertexConsumer self = (VertexConsumer) this;
         int[] vertices = quad.getVertices();

@@ -23,10 +23,10 @@ public interface IForgeLevel {
     }
 
     /**
-     * Queues block entities loaded with their chunk; their {@code onLoad} runs before the level next ticks block
+     * Queues block entities loaded with their chunk; their {@code mekanism$onLoad} runs before the level next ticks block
      * entities.
      */
-    default void addFreshBlockEntities(Collection<BlockEntity> blockEntities) {
+    default void mekanism$addFreshBlockEntities(Collection<BlockEntity> blockEntities) {
         throw new IllegalStateException("Level mixin not applied");
     }
 }

@@ -77,8 +77,12 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertIn("forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender"
                       " -PwithFluxNetworks -PwithRecipeStages\n",
                       mekanism)
-        self.assertIn("fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender\n",
+        self.assertIn("fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender"
+                      " -PwithFluxNetworks\n",
                       mekanism)
+        self.assertIn("fabric_portinglib_props: -PwithPortingLib -PwithCraftTweaker\n", mekanism)
+        self.assertIn("name: Run Fabric GameTests beside Porting Lib", self.text)
+        self.assertIn('./gradlew --no-daemon -p "mods/${PORT}/fabric" runGametest "${extra[@]}"', self.text)
         extremereactors = matrix_entry(self.text, "extremereactors")
         self.assertIn("forge_compat_props: -PwithCompat\n", extremereactors)
         self.assertIn("fabric_compat_props: -PwithCompat -PwithMekanism\n", extremereactors)

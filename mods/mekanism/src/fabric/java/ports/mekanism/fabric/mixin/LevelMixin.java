@@ -24,7 +24,7 @@ import ports.mekanism.lib.common.extensions.IForgeLevel;
 
 /**
  * Holds the state Forge adds to levels: whether block snapshots are being restored, and the block entities whose
- * {@code onLoad} is still to run.
+ * {@code mekanism$onLoad} is still to run.
  */
 @Mixin(Level.class)
 public abstract class LevelMixin implements IForgeLevel {
@@ -47,7 +47,7 @@ public abstract class LevelMixin implements IForgeLevel {
     }
 
     @Override
-    public void addFreshBlockEntities(Collection<BlockEntity> blockEntities) {
+    public void mekanism$addFreshBlockEntities(Collection<BlockEntity> blockEntities) {
         mekanism$freshBlockEntities.addAll(blockEntities);
     }
 
@@ -61,7 +61,7 @@ public abstract class LevelMixin implements IForgeLevel {
         mekanism$freshBlockEntities.clear();
         mekanism$loadingFreshBlockEntities = true;
         try {
-            fresh.forEach(BlockEntity::onLoad);
+            fresh.forEach(BlockEntity::mekanism$onLoad);
         } finally {
             mekanism$loadingFreshBlockEntities = false;
         }

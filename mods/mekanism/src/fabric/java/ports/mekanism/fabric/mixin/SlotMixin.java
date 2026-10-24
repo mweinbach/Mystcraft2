@@ -26,7 +26,7 @@ public abstract class SlotMixin implements IForgeSlot {
     private Pair<ResourceLocation, ResourceLocation> mekanism$background;
 
     @Override
-    public Slot setBackground(ResourceLocation atlas, ResourceLocation sprite) {
+    public Slot mekanism$setBackground(ResourceLocation atlas, ResourceLocation sprite) {
         mekanism$background = Pair.of(atlas, sprite);
         return (Slot) (Object) this;
     }

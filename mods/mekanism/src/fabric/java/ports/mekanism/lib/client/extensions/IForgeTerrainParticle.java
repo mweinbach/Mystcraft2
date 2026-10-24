@@ -10,12 +10,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Forge's {@code TerrainParticle.updateSprite}, injected into {@link TerrainParticle} on Fabric: the particle takes
+ * Forge's {@code TerrainParticle.mekanism$updateSprite}, injected into {@link TerrainParticle} on Fabric: the particle takes
  * the sprite of the given block.
  */
 public interface IForgeTerrainParticle {
 
-    default TerrainParticle updateSprite(BlockState state, BlockPos pos) {
+    default TerrainParticle mekanism$updateSprite(BlockState state, BlockPos pos) {
         TerrainParticle self = (TerrainParticle) this;
         self.setSprite(Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state));
         return self;

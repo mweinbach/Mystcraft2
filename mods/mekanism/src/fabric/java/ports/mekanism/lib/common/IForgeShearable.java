@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IForgeShearable {
 
-    default boolean isShearable(ItemStack item, Level level, BlockPos pos) {
+    default boolean mekanism$isShearable(ItemStack item, Level level, BlockPos pos) {
         return true;
     }
 
-    default List<ItemStack> onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
+    default List<ItemStack> mekanism$onSheared(@Nullable Player player, ItemStack item, Level level, BlockPos pos, int fortune) {
         return Collections.emptyList();
     }
 }

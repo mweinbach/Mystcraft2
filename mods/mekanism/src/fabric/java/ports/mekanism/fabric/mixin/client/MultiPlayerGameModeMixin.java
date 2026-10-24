@@ -46,7 +46,7 @@ public abstract class MultiPlayerGameModeMixin {
             return;
         }
         ItemStack stack = player.getMainHandItem();
-        if (((IForgeItem) stack.getItem()).onBlockStartBreak(stack, pos, player)) {
+        if (((IForgeItem) stack.getItem()).mekanism$onBlockStartBreak(stack, pos, player)) {
             cir.setReturnValue(false);
         }
     }

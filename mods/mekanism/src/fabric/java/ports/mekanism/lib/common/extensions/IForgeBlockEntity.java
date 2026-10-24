@@ -26,7 +26,7 @@ import ports.mekanism.platform.Platform;
 
 /**
  * Methods Forge adds to {@link BlockEntity}, including those of its capability provider base class, injected into it
- * on Fabric. Mixins call {@link #onLoad}, {@link #onChunkUnloaded}, {@link #invalidateCaps} and {@link #reviveCaps} at
+ * on Fabric. Mixins call {@link #mekanism$onLoad}, {@link #onChunkUnloaded}, {@link #mekanism$invalidateCaps} and {@link #reviveCaps} at
  * the points Forge does, and the client networking mixin hands update packets and tags to {@link #onDataPacket} and
  * {@link #handleUpdateTag}. The model data reaches Fabric's renderer as the block entity's render attachment.
  * Capabilities nothing attached fall back to the loader's API, so other mods' storages answer Forge's item, fluid,
@@ -48,7 +48,7 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
         return attached.isPresent() ? attached : Platform.foreignCapability(this, cap, side);
     }
 
-    default void invalidateCaps() {
+    default void mekanism$invalidateCaps() {
         ((AttachedCapabilities.Holder) this).mekanism$capabilities().invalidate();
     }
 
@@ -57,12 +57,12 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
     }
 
     @Override
-    default void deserializeNBT(CompoundTag nbt) {
+    default void mekanism$deserializeNBT(CompoundTag nbt) {
         self().load(nbt);
     }
 
     @Override
-    default CompoundTag serializeNBT() {
+    default CompoundTag mekanism$serializeNBT() {
         return self().saveWithFullMetadata();
     }
 
@@ -78,10 +78,10 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
     }
 
     default void onChunkUnloaded() {
-        invalidateCaps();
+        mekanism$invalidateCaps();
     }
 
-    default void onLoad() {
+    default void mekanism$onLoad() {
         requestModelDataUpdate();
     }
 

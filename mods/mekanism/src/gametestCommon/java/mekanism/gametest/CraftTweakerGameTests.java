@@ -114,10 +114,21 @@ public class CraftTweakerGameTests {
         helper.succeed();
     }
 
+    /**
+     * Writes the ingredient the way a recipe packet does, with more data after it, and checks that reading it back
+     * consumes exactly its own bytes. Porting Lib's serialization_hooks first tries to read a string at the head of
+     * every ingredient and rewinds when that is not one of its ids, but it catches only DecoderException; in a buffer
+     * that ends at an IngredientExtensionAPI ingredient, that guess reads past the end (parity/20-porting-lib.md).
+     */
     private static Ingredient roundTrip(Ingredient ingredient) {
+        String trailer = "mekanism:gametest_trailing_recipe_data";
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         ingredient.toNetwork(buffer);
+        buffer.writeUtf(trailer);
+        buffer.writeVarInt(1234);
         Ingredient read = Ingredient.fromNetwork(buffer);
+        check(trailer.equals(buffer.readUtf()) && buffer.readVarInt() == 1234,
+              "Reading " + ingredient + " did not stop at the end of its own data");
         check(buffer.readableBytes() == 0, buffer.readableBytes() + " bytes left after reading " + ingredient);
         return read;
     }

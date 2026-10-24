@@ -62,7 +62,7 @@ public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCap
 
     @Inject(method = "setRemoved", at = @At("TAIL"))
     private void mekanism$invalidateCapabilities(CallbackInfo ci) {
-        invalidateCaps();
+        mekanism$invalidateCaps();
         requestModelDataUpdate();
     }
 
