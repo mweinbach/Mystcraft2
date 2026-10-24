@@ -42,4 +42,12 @@ public interface SchematicEntity {
     CompoundTag serializeNBT();
 
     void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException;
+
+    /**
+     * Not upstream: the schematic a scan of the entity this one describes would record, with saved data that
+     * no scan could produce refused or removed (see {@link SchematicSafety}).
+     */
+    default SchematicEntity canonicalize() throws InvalidSnapshotException {
+        return this;
+    }
 }

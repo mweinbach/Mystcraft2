@@ -12,6 +12,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -20,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.BlockUpdateListeners;
 import ports.buildcraft.lib.BlockUtil;
 import ports.buildcraft.lib.MjBattery;
@@ -29,9 +31,19 @@ import ports.buildcraft.lib.Power;
  * Upstream {@code SnapshotBuilder}: scans its box a few blocks per tick against a snapshot, queues up to
  * 16 blocks to break and 16 to place, and spends power on each until it is done. Block changes in the
  * box are rechecked as they happen.
+ *
+ * <p>Upstream broke blocks through the owner's fake player ({@code BlockUtil.breakBlock}, which posted Forge's
+ * break event). Here every block is checked with {@link BlockProtection} for the {@linkplain SnapshotHost#owner
+ * owner}'s fake player: before it is queued (the answer is kept for {@value #PROTECTION_RECHECK_TICKS} ticks) and
+ * again just before it is broken or placed. A refused block is left alone, and what was spent on it is given back.
  */
 public abstract class SnapshotBuilder<H extends SnapshotHost> {
     private static final int MAX_QUEUE_SIZE = 16;
+    /** How long a protection answer is kept for queueing; breaking and placing always ask again. */
+    static final int PROTECTION_RECHECK_TICKS = 100;
+    private static final byte PROTECTION_UNKNOWN = 0;
+    private static final byte PROTECTION_ALLOWED = 1;
+    private static final byte PROTECTION_REFUSED = 2;
     protected static final byte CHECK_RESULT_UNKNOWN = 0;
     protected static final byte CHECK_RESULT_CORRECT = 1;
     protected static final byte CHECK_RESULT_TO_BREAK = 2;
@@ -54,6 +66,10 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
     public final Queue<PlaceTask> prevClientPlaceTasks = new ArrayDeque<>();
     @Nullable protected byte[] checkResults;
     @Nullable private byte[] requiredCache;
+    /** Not upstream: the owner's protection answers by index, cleared every {@link #PROTECTION_RECHECK_TICKS}. */
+    @Nullable private byte[] breakProtection;
+    @Nullable private byte[] placeProtection;
+    private int protectionAge;
     @Nullable private int[] breakOrder;
     @Nullable private int[] placeOrder;
     @Nullable private int[] checkOrder;
@@ -126,6 +142,38 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         battery().addPower(Math.min(placeTask.power, battery().space()));
     }
 
+    /** Not upstream: whether the owner's fake player may break the block at {@code pos} now. */
+    protected boolean mayBreak(BlockPos pos) {
+        if (!(level() instanceof ServerLevel server)) return false;
+        return BlockProtection.mayBreak(server, pos, BlockProtection.fakePlayer(server, host.owner(), pos));
+    }
+
+    /** Not upstream: whether the owner's fake player may place a block at {@code pos} now, on top of the block below. */
+    protected boolean mayPlace(BlockPos pos) {
+        if (!(level() instanceof ServerLevel server)) return false;
+        return BlockProtection.mayPlace(server, pos, Direction.UP, server.getBlockState(pos.below()),
+                BlockProtection.fakePlayer(server, host.owner(), pos));
+    }
+
+    private boolean mayBreakCached(BlockPos pos) {
+        return cachedProtection(breakProtection, pos, true);
+    }
+
+    private boolean mayPlaceCached(BlockPos pos) {
+        return cachedProtection(placeProtection, pos, false);
+    }
+
+    private boolean cachedProtection(@Nullable byte[] cache, BlockPos pos, boolean breaking) {
+        if (cache == null) return breaking ? mayBreak(pos) : mayPlace(pos);
+        int i = posToIndex(pos);
+        if (cache[i] == PROTECTION_UNKNOWN) cache[i] = (breaking ? mayBreak(pos) : mayPlace(pos)) ? PROTECTION_ALLOWED : PROTECTION_REFUSED;
+        return cache[i] == PROTECTION_ALLOWED;
+    }
+
+    private void refuse(@Nullable byte[] cache, BlockPos pos) {
+        if (cache != null) cache[posToIndex(pos)] = PROTECTION_REFUSED;
+    }
+
     /** Where a flying item should be drawn. */
     public Vec3 getPlaceTaskItemPos(PlaceTask placeTask) {
         BlockPos builderPos = host.builderPos();
@@ -148,6 +196,9 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         if (info == null) return;
         checkResults = new byte[info.volume()];
         requiredCache = new byte[info.volume()];
+        breakProtection = new byte[info.volume()];
+        placeProtection = new byte[info.volume()];
+        protectionAge = 0;
         BlockPos center = info.box.center();
         BlockPos builderPos = host.builderPos();
         breakOrder = order(info, p -> Math.pow(p.getX() - center.getX(), 2) + Math.pow(p.getZ() - center.getZ(), 2)
@@ -173,6 +224,8 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
         prevClientPlaceTasks.clear();
         checkResults = null;
         requiredCache = null;
+        breakProtection = null;
+        placeProtection = null;
         breakOrder = null;
         placeOrder = null;
         checkOrder = null;
@@ -221,6 +274,11 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
     public boolean tick() {
         if (checkResults == null || checkOrder == null || checkOrder.length == 0) return true;
         boolean checkResultsChanged = false;
+        if (++protectionAge >= PROTECTION_RECHECK_TICKS) {
+            protectionAge = 0;
+            if (breakProtection != null) Arrays.fill(breakProtection, PROTECTION_UNKNOWN);
+            if (placeProtection != null) Arrays.fill(placeProtection, PROTECTION_UNKNOWN);
+        }
 
         for (int i = 0; i < CHECKS_PER_TICK; i++) {
             if (check(indexToPos(currentCheckIndex))) checkResultsChanged = true;
@@ -254,6 +312,7 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
             Arrays.stream(blocks)
                     .mapToObj(this::indexToPos)
                     .filter(pos -> BlockUtil.fluidWithFlowing(level(), pos) == null)
+                    .filter(this::mayBreakCached)
                     .map(pos -> new BreakTask(pos, 0))
                     .limit(MAX_QUEUE_SIZE - breakTasks.size())
                     .forEach(breakTasks::add);
@@ -277,6 +336,7 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
                     })
                     .mapToObj(this::indexToPos)
                     .filter(this::isReadyToPlace)
+                    .filter(this::mayPlaceCached)
                     .limit(MAX_QUEUE_SIZE - placeTasks.size())
                     .filter(this::canPlace)
                     .map(pos -> {
@@ -298,9 +358,14 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
                 breakTask.power += battery.extractPower(0, Math.min(target - breakTask.power, share));
                 if (breakTask.power >= target) {
                     level().destroyBlockProgress(breakTask.pos.hashCode(), breakTask.pos, -1);
+                    iterator.remove();
+                    if (!mayBreak(breakTask.pos)) {
+                        refuse(breakProtection, breakTask.pos);
+                        cancelBreakTask(breakTask);
+                        continue;
+                    }
                     BlockUtil.breakBlockAndGetDrops((ServerLevel) level(), breakTask.pos);
                     if (check(breakTask.pos)) checkResultsChanged = true;
-                    iterator.remove();
                 } else {
                     level().destroyBlockProgress(breakTask.pos.hashCode(), breakTask.pos, (int) ((breakTask.power * 9) / target));
                 }
@@ -313,7 +378,12 @@ public abstract class SnapshotBuilder<H extends SnapshotHost> {
                 long target = placeTask.getTarget();
                 placeTask.power += battery.extractPower(0, Math.min(target - placeTask.power, share));
                 if (placeTask.power >= target) {
-                    if (!doPlaceTask(placeTask)) cancelPlaceTask(placeTask);
+                    if (!mayPlace(placeTask.pos)) {
+                        refuse(placeProtection, placeTask.pos);
+                        cancelPlaceTask(placeTask);
+                    } else if (!doPlaceTask(placeTask)) {
+                        cancelPlaceTask(placeTask);
+                    }
                     if (check(placeTask.pos)) checkResultsChanged = true;
                     iterator.remove();
                 }

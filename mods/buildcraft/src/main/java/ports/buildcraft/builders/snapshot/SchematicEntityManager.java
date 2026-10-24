@@ -71,6 +71,7 @@ public final class SchematicEntityManager {
         return tag;
     }
 
+    /** Reads a schematic from untrusted data and returns its {@linkplain SchematicEntity#canonicalize canonical} form. */
     public static SchematicEntity readFromNBT(CompoundTag tag) throws InvalidSnapshotException {
         ResourceLocation name = ResourceLocation.tryParse(tag.getString("name"));
         Factory<?> factory = name == null ? null : getFactoryByName(name);
@@ -79,9 +80,9 @@ public final class SchematicEntityManager {
         CompoundTag data = tag.getCompound("data");
         try {
             schematicEntity.deserializeNBT(data);
+            return schematicEntity.canonicalize();
         } catch (InvalidSnapshotException e) {
             throw new InvalidSnapshotException("Failed to load the schematic from " + data, e);
         }
-        return schematicEntity;
     }
 }

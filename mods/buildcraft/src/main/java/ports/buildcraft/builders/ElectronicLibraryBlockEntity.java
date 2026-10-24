@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ports.buildcraft.BuildCraft;
 import ports.buildcraft.builders.snapshot.InvalidSnapshotException;
+import ports.buildcraft.builders.snapshot.SchematicSafety;
 import ports.buildcraft.builders.snapshot.Snapshot;
 import ports.buildcraft.builders.snapshot.SnapshotPackets;
 import ports.buildcraft.builders.snapshot.SnapshotStorage;
@@ -55,8 +57,8 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
     public static final int UPLOAD_PART_BYTES = 4 * 1024;
     /** The most an upload may send in all, well past what any blueprint compresses to. */
     private static final int MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
-    /** The most blocks an upload may span: a blueprint's data alone takes 4 bytes a block of the 64 MiB the server reads. */
-    private static final long MAX_UPLOAD_VOLUME = 1 << 24;
+    /** Not upstream: how long after asking for an upload its parts are still taken. */
+    public static final int UPLOAD_TIMEOUT_TICKS = 30 * 20;
     public static final ResourceLocation DOWN_CHANNEL = BuildCraft.id("library_down");
     public static final ResourceLocation UP_REQUEST_CHANNEL = BuildCraft.id("library_up_request");
     public static final ResourceLocation UP_CHANNEL = BuildCraft.id("library_up");
@@ -72,6 +74,9 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
     public final DeltaInt deltaProgressUp = new DeltaInt();
     /** Each player's upload in progress; a part of another snapshot starts it over. */
     private final Map<UUID, Upload> uploads = new HashMap<>();
+    /** Not upstream: the snapshot the server last asked its viewers for, and the game time it asked; null once answered. */
+    @Nullable private Snapshot.Key requested;
+    private long requestedAt;
 
     private record Upload(Snapshot.Key key, ByteArrayOutputStream bytes) {}
 
@@ -110,7 +115,7 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
                 startProgress(deltaProgressUp, now);
             }
             if (progressUp >= TRANSFER_TICKS) {
-                for (ServerPlayer viewer : viewers()) Platform.get().sendToPlayer(viewer, UP_REQUEST_CHANNEL, buffer -> buffer.writeBlockPos(worldPosition));
+                askForUpload();
                 progressUp = -1;
             } else {
                 progressUp++;
@@ -119,7 +124,34 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
             progressUp = -1;
             stopProgress(deltaProgressUp);
         }
+        if (requested != null && !uploadWanted(requested)) endUpload();
         flushSync();
+    }
+
+    /**
+     * Upstream's {@code NET_UP} request: asks the clients with this library's GUI open for the selected snapshot.
+     * Not upstream: the server remembers what it asked for, and takes upload parts only for that snapshot, only
+     * for {@link #UPLOAD_TIMEOUT_TICKS} and only while {@code upIn} holds an item and {@code upOut} is empty. One
+     * upload is read per request, so with {@link UploadQuota} a player cannot make the server buffer or read
+     * uploads it did not ask for. While a request for the selected snapshot is still open, asking again does
+     * nothing, so the parts of an upload slower than one transfer cycle are kept until it ends or times out.
+     */
+    public void askForUpload() {
+        if (selected == null || level == null || uploadWanted(selected)) return;
+        endUpload();
+        requested = selected;
+        requestedAt = level.getGameTime();
+        for (ServerPlayer viewer : viewers()) Platform.get().sendToPlayer(viewer, UP_REQUEST_CHANNEL, buffer -> buffer.writeBlockPos(worldPosition));
+    }
+
+    private boolean uploadWanted(Snapshot.Key key) {
+        return key.equals(requested) && level != null && level.getGameTime() - requestedAt <= UPLOAD_TIMEOUT_TICKS
+                && !items.get(SLOT_UP_IN).isEmpty() && items.get(SLOT_UP_OUT).isEmpty();
+    }
+
+    private void endUpload() {
+        requested = null;
+        uploads.clear();
     }
 
     void clientTick() {
@@ -219,9 +251,20 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
 
     /**
      * Upstream stored any upload and filled {@code upOut} with it even when {@code upIn} was empty, which made
-     * recordings from nothing; here an upload only counts while {@code upIn} holds an item to replace.
+     * recordings from nothing; here an upload only counts while {@code upIn} holds an item to replace. Not
+     * upstream either: parts are taken only for what {@link #askForUpload} asked for, within {@link UploadQuota},
+     * and an upload is stored only while {@link SnapshotStorage#hasRoomForUploads}.
      */
     private void receiveUpPart(UUID player, Snapshot.Key key, boolean last, byte[] part) {
+        if (!uploadWanted(key)) {
+            uploads.remove(player);
+            return;
+        }
+        if (!UploadQuota.tryReceive(player, part.length, Util.getMillis())) {
+            LOGGER.warn("Refused an upload to the electronic library at {} from {}: over the upload quota", worldPosition.toShortString(), player);
+            uploads.remove(player);
+            return;
+        }
         Upload upload = uploads.get(player);
         if (upload == null || !upload.key().equals(key)) {
             upload = new Upload(key, new ByteArrayOutputStream());
@@ -233,10 +276,19 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
             return;
         }
         if (!last) return;
-        uploads.remove(player);
+        byte[] bytes = upload.bytes().toByteArray();
+        endUpload();
+        if (!UploadQuota.tryRead(player, Util.getMillis())) {
+            LOGGER.warn("Refused an upload to the electronic library at {} from {}: over the upload quota", worldPosition.toShortString(), player);
+            return;
+        }
+        if (!SnapshotStorage.get(SnapshotStorage.Side.SERVER).hasRoomForUploads()) {
+            LOGGER.warn("Refused an upload to the electronic library: the stored snapshots have reached {} bytes", SnapshotStorage.MAX_UPLOAD_STORAGE_BYTES);
+            return;
+        }
         try {
-            Snapshot uploaded = SnapshotPackets.decompress(upload.bytes().toByteArray());
-            if (Snapshot.getVolume(uploaded.size) > MAX_UPLOAD_VOLUME) {
+            Snapshot uploaded = SchematicSafety.readInLevel(level, () -> SnapshotPackets.decompress(bytes));
+            if (!Snapshot.isAllowedSize(uploaded.size)) {
                 LOGGER.warn("Refused a snapshot of {} blocks uploaded to the electronic library", uploaded.size.toShortString());
                 return;
             }
@@ -245,12 +297,16 @@ public class ElectronicLibraryBlockEntity extends SyncedBlockEntity implements W
             Snapshot snapshot = uploaded.copy();
             snapshot.key = new Snapshot.Key(snapshot.key, (Snapshot.Header) null);
             snapshot.computeKey();
+            // Reading canonicalized the upload, and the client's header names whatever hash it liked: the
+            // recording must name what is stored.
+            if (!Arrays.equals(header.key.hash, snapshot.key.hash)) header = new Snapshot.Header(snapshot.key, header.owner, header.created, header.name);
             SnapshotStorage.get(SnapshotStorage.Side.SERVER).addSnapshot(snapshot);
             items.set(SLOT_UP_OUT, SnapshotItem.getUsed(snapshot.getType(), header));
             items.set(SLOT_UP_IN, ItemStack.EMPTY);
             setChanged();
-        } catch (IOException | InvalidSnapshotException | RuntimeException e) {
-            // NbtAccounter reports a tag past its limit with a bare RuntimeException.
+        } catch (IOException | InvalidSnapshotException | RuntimeException | StackOverflowError e) {
+            // NbtAccounter reports a tag past its limit with a bare RuntimeException; data nested deeply enough
+            // to overflow the stack anywhere in reading is refused the same way.
             LOGGER.error("Failed to read a snapshot uploaded to the electronic library", e);
         }
     }

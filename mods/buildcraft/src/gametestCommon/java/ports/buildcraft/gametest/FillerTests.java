@@ -3,8 +3,11 @@ package ports.buildcraft.gametest;
 import static ports.buildcraft.gametest.BCTests.require;
 import static ports.buildcraft.gametest.BCTests.tile;
 
+import com.mojang.authlib.GameProfile;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -41,6 +44,7 @@ public final class FillerTests {
     private static final BlockPos BOX_CENTRE = new BlockPos(5, 3, 5);
     /** West of {@link #BOX_MIN} and facing west, so the box is behind it. */
     private static final BlockPos FILLER = new BlockPos(3, 2, 4);
+    private static final GameProfile OWNER = new GameProfile(UUID.nameUUIDFromBytes("filler_owner".getBytes(StandardCharsets.UTF_8)), "filler_owner");
 
     private FillerTests() {}
 
@@ -314,6 +318,41 @@ public final class FillerTests {
                     }
                     require(helper, filler.getCountToBreak() == 0 && filler.getCountToPlace() == 0, "a built box leaves nothing to do");
                 })
+                .thenExecute(() -> removeVolumeBoxes(helper))
+                .thenSucceed();
+    }
+
+    /**
+     * Upstream broke blocks through the owner's fake player, posting the loader's break event. While the loader
+     * refuses the break at the box's centre, clearing the box breaks every other block and leaves that one (the
+     * event naming the filler's owner, who stays recorded across a save); once allowed, it is broken too.
+     */
+    public static void fillerRespectsRefusedBreaks(GameTestHelper helper) {
+        FillerBlockEntity filler = fillerOnVolumeBox(helper);
+        filler.setOwner(OWNER);
+        CompoundTag saved = filler.saveWithoutMetadata();
+        filler.setOwner(null);
+        filler.load(saved);
+        require(helper, OWNER.getId().equals(filler.owner().getId()), "the owner must be saved, got " + filler.owner());
+        List<BlockPos> positions = boxPositions();
+        for (BlockPos pos : positions) helper.setBlock(pos, Blocks.DIRT);
+        TestProtection.refuse(helper, BOX_CENTRE);
+        setPattern(filler, FillerPatterns.CLEAR);
+        helper.onEachTick(() -> filler.battery().set(filler.battery().capacity()));
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    for (BlockPos pos : positions) {
+                        if (!pos.equals(BOX_CENTRE)) require(helper, helper.getBlockState(pos).isAir(), "the filler must clear " + pos);
+                    }
+                })
+                .thenExecuteAfter(20, () -> {
+                    require(helper, OWNER.getName().equals(TestProtection.refusedPlayer(helper, BOX_CENTRE)),
+                            "the break event must be fired for the filler's owner, was " + TestProtection.refusedPlayer(helper, BOX_CENTRE));
+                    require(helper, helper.getBlockState(BOX_CENTRE).is(Blocks.DIRT), "a refused break must leave the block");
+                    require(helper, filler.getCountToBreak() == 1, "the refused block is still left to break, count " + filler.getCountToBreak());
+                    TestProtection.allow(helper, BOX_CENTRE);
+                })
+                .thenWaitUntil(() -> require(helper, helper.getBlockState(BOX_CENTRE).isAir(), "once allowed, the filler must clear the centre"))
                 .thenExecute(() -> removeVolumeBoxes(helper))
                 .thenSucceed();
     }

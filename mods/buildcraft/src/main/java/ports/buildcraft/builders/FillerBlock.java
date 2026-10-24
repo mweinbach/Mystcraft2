@@ -1,20 +1,15 @@
 package ports.buildcraft.builders;
 
-import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -50,7 +45,10 @@ public class FillerBlock extends BaseEntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof FillerBlockEntity filler) filler.onPlaced();
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof FillerBlockEntity filler) {
+            if (placer instanceof Player player) filler.setOwner(player.getGameProfile());
+            filler.onPlaced();
+        }
     }
 
     @Override
@@ -58,12 +56,6 @@ public class FillerBlock extends BaseEntityBlock {
         if (!(level.getBlockEntity(pos) instanceof FillerBlockEntity filler) || !filler.hasBox()) return InteractionResult.PASS;
         if (!level.isClientSide) Platform.openMenu((ServerPlayer) player, filler, pos);
         return InteractionResult.sidedSuccess(level.isClientSide);
-    }
-
-    /** Upstream {@code ItemBlockBC_Neptune} showed {@code tile.fillerBlock.tip} under the name. */
-    @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("block.buildcraft.filler.tip").withStyle(ChatFormatting.GRAY));
     }
 
     @Override

@@ -63,6 +63,12 @@ public final class NbtPath {
         }
     }
 
+    /** The first key of the path, or null for an empty path. */
+    @Nullable
+    public String first() {
+        return elements.isEmpty() ? null : elements.get(0);
+    }
+
     @Override
     public String toString() {
         return "NbtPath{" + elements + "}";

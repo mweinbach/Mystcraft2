@@ -45,6 +45,13 @@ except the builder rules and the EMC data:
 - Block and item models, blockstates, language entries, loot tables, recipes and tags are generated
   from upstream's JSON definitions and recipe registrations, translated to 1.19.2 formats with both
   `c:` and `forge:` tags.
+- Upstream 8.0 has no recipes for the filler, builder, electronic library and replacer. The generator
+  writes the BuildCraft 7.1 shapes for the first three (recipe data only; no 7.1 code is used) and a
+  recipe in the same style for the replacer, plus upstream 8.0's commented-out single block schematic
+  recipe (`BCBuildersRecipes`). It no longer writes upstream's "Not usable in survival" tips for the
+  filler, builder, electronic library and architect table.
+- `data/buildcraft/tags/blocks/schematic_blacklist.json` is not upstream: blocks no builder places from a
+  blueprint, whatever it says (see `SchematicSafety` and PARITY's "Untrusted snapshots").
 - The silicon chipsets' assembly recipes restate upstream `BCSiliconRecipes`' code registrations (also shipped as
   upstream's `assembly_recipes_examples`) as `buildcraft:assembly` datapack recipes.
 - The pipe wire's assembly recipes restate upstream `BCTransportRecipes`' code registrations the same way, and the

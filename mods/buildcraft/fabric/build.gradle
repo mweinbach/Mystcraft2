@@ -96,6 +96,7 @@ loom {
             vmArg '-Dfabric-api.gametest'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('../emc/values.json')}"
+            vmArg "-Dbuildcraft.uncraftable=${file('../uncraftable.txt')}"
         }
         // A client with the development-only /bcshowcase command, for screenshots.
         showcaseClient {

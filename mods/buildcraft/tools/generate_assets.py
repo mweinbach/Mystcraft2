@@ -61,6 +61,10 @@ UPSTREAM_BUCKETS = {"oil": "bucketOil", "fuel_light": "bucketFuel"}
 ENGINES = [("redstone_engine", "wood", "Redstone Engine"), ("stirling_engine", "stone", "Stirling Engine"),
            ("combustion_engine", "iron", "Combustion Engine")]
 GEARS = [("wood", "Wood Gear"), ("stone", "Stone Gear"), ("iron", "Iron Gear"), ("gold", "Gold Gear"), ("diamond", "Diamond Gear")]
+# Operator, technical and survival-unobtainable blocks; must match SchematicSafety.BUILT_IN_BLACKLIST.
+SCHEMATIC_BLACKLIST = ["command_block", "chain_command_block", "repeating_command_block", "structure_block", "structure_void", "jigsaw",
+                       "barrier", "light", "bedrock", "end_portal", "end_portal_frame", "end_gateway", "nether_portal", "spawner",
+                       "reinforced_deepslate", "budding_amethyst", "moving_piston", "petrified_oak_slab", "frosted_ice", "bubble_column"]
 
 MATERIAL_NAMES = {"wood": "Wooden", "cobblestone": "Cobblestone", "stone": "Stone", "quartz": "Quartz", "gold": "Golden",
                   "sandstone": "Sandstone", "iron": "Iron", "diamond": "Diamond", "clay": "Clay", "void": "Void"}
@@ -725,7 +729,6 @@ class Generator:
             self.lang[f"buildcraft.param.facing.{face}"] = face.capitalize()
         self.lang.update({
             f"block.{MOD}.filler": "Filler",
-            f"block.{MOD}.filler.tip": "Not usable in survival.",
             f"gui.{MOD}.locked": "Locked",
             "gui.filling.resources": "Filling Resources",
             "gui.progress": "Progress",
@@ -758,7 +761,6 @@ class Generator:
                 self.generated_item(f"{kind}_{state}", f"{kind}/{state}")
         self.lang.update({
             f"block.{MOD}.architect_table": "Architect Table",
-            f"block.{MOD}.architect_table.tip": "Not usable in survival",
             f"item.{MOD}.template_clean": "Template",
             f"item.{MOD}.template_used": "Template",
             f"item.{MOD}.blueprint_clean": "Blueprint",
@@ -791,7 +793,7 @@ class Generator:
                                   "apply": dict({"model": rl(f"block/builder/{slot}")}, **rotation)})
         self.blockstate("builder", {"multipart": multipart})
         self.item_model("builder", rl("block/builder/main"))
-        self.lang.update({f"block.{MOD}.builder": "Builder", f"block.{MOD}.builder.tip": "Not usable in survival"})
+        self.lang.update({f"block.{MOD}.builder": "Builder"})
 
     def library(self) -> None:
         for block, parts in [("library", ["back", "bottom", "front", "left", "right", "top"]),
@@ -816,7 +818,6 @@ class Generator:
         # Upstream's lang named no replacer.
         self.lang.update({
             f"block.{MOD}.electronic_library": "Electronic Library",
-            f"block.{MOD}.electronic_library.tip": "Not usable in survival",
             f"block.{MOD}.replacer": "Replacer",
             f"item.{MOD}.schematic_single_clean": "Single Block Schematic",
             f"item.{MOD}.schematic_single_used": "Single Block Schematic",
@@ -1281,6 +1282,19 @@ class Generator:
         self.shaped("architect_table", "architect_table", ["bmb", "ycy", "dsd"], {
             "b": tags("black_dyes", "dyes/black"), "m": {"item": rl("marker_volume")}, "y": tags("yellow_dyes", "dyes/yellow"),
             "c": {"item": "minecraft:crafting_table"}, "d": gear("diamond"), "s": {"item": rl("blueprint_clean")}})
+        # Upstream 8.0 gives these no recipe: the filler, builder and electronic library (7.1's blueprint library)
+        # take BuildCraft 7.1's shapes, the replacer one in the same style, and the single block schematic
+        # upstream's commented-out recipe. See docs/PARITY.md.
+        black, yellow, mark = tags("black_dyes", "dyes/black"), tags("yellow_dyes", "dyes/yellow"), {"item": rl("marker_volume")}
+        table, blueprint = {"item": "minecraft:crafting_table"}, {"item": rl("blueprint_clean")}
+        for machine, machine_gear in [("filler", "gold"), ("builder", "diamond")]:
+            self.shaped(machine, machine, ["btb", "ycy", "gCg"], {
+                "b": black, "t": mark, "y": yellow, "c": table, "g": gear(machine_gear), "C": {"item": "minecraft:chest"}})
+        self.shaped("electronic_library", "electronic_library", ["igi", "bBb", "iri"], {
+            "i": IRON, "g": gear("iron"), "b": {"item": "minecraft:bookshelf"}, "B": blueprint, "r": REDSTONE})
+        self.shaped("replacer", "replacer", ["btb", "scs", "gBg"], {
+            "b": black, "t": mark, "s": {"item": rl("schematic_single_clean")}, "c": table, "g": gear("gold"), "B": blueprint})
+        self.shapeless("schematic_single", "schematic_single_clean", [paper, paper, tags("lapis", "gems/lapis")], count=4)
 
         structure = {"item": rl("pipe_structure")}
         self.shaped("plug_blocker", "plug_blocker", ["s"], {"s": structure}, count=4)
@@ -1399,6 +1413,8 @@ class Generator:
             self.tag("items", "forge", forge, values)
         self.tag("fluids", "c", "oil", [rl("oil"), rl("flowing_oil")])
         self.tag("fluids", "forge", "oil", [rl("oil"), rl("flowing_oil")])
+        # Not upstream: blocks no builder places, whatever a blueprint says (SchematicSafety also checks this list).
+        self.tag("blocks", MOD, "schematic_blacklist", [f"minecraft:{b}" for b in SCHEMATIC_BLACKLIST])
 
         machines = [e for e, _, _ in ENGINES] + ["pump", "mining_well", "distiller", "heat_exchange", "quarry", "frame", "filler", "architect_table", "builder", "electronic_library", "replacer",
                                                     "laser"] + [t for t, _, _, _ in LASER_TABLES] + ["pipe_" + d["name"] for d in PIPES]

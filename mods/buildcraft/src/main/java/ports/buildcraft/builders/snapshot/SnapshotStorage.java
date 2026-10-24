@@ -30,6 +30,8 @@ import ports.buildcraft.platform.Platform;
 public final class SnapshotStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger("BuildCraft");
     private static final String SNAPSHOT_FILE_EXTENSION = ".bcnbt";
+    /** Not upstream: past this many bytes of stored snapshots, uploads are refused. */
+    public static final long MAX_UPLOAD_STORAGE_BYTES = 1024L * 1024 * 1024;
     private static final Map<Side, SnapshotStorage> INSTANCES = new EnumMap<>(Side.class);
 
     public enum Side { CLIENT, SERVER }
@@ -101,6 +103,23 @@ public final class SnapshotStorage {
             if (snapshot != null && file.getFileName().toString().startsWith(snapshot.key.toString())) keys.add(snapshot.key);
         }
         return List.copyOf(keys);
+    }
+
+    /**
+     * Not upstream: whether the stored snapshots take less than {@value #MAX_UPLOAD_STORAGE_BYTES} bytes, so that
+     * an upload may be stored. Snapshots the server makes itself, by scanning, are always stored.
+     */
+    public synchronized boolean hasRoomForUploads() {
+        long total = 0;
+        for (Path file : files()) {
+            try {
+                total += Files.size(file);
+            } catch (IOException e) {
+                LOGGER.error("Failed to measure the snapshot file {}", file, e);
+            }
+            if (total >= MAX_UPLOAD_STORAGE_BYTES) return false;
+        }
+        return true;
     }
 
     public synchronized void addSnapshot(Snapshot snapshot) {

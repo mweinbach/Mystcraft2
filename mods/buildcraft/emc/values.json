@@ -26,10 +26,12 @@
     "buildcraft:blueprint_used": {
       "projecte": 1120,
       "itemalchemy": 1120,
-      "source": "conversion architect_table_records"
+      "source": "conversion recordings_are_worth_their_blanks"
     },
     "buildcraft:builder": {
-      "excluded": "Creative-only: upstream has no recipe for the builder, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+      "projecte": 85100,
+      "itemalchemy": 35876,
+      "source": "recipe"
     },
     "buildcraft:combustion_engine": {
       "projecte": 3205,
@@ -47,10 +49,14 @@
       "source": "recipe"
     },
     "buildcraft:electronic_library": {
-      "excluded": "Creative-only: upstream has no recipe for the electronic library, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+      "projecte": 4308,
+      "itemalchemy": 4276,
+      "source": "recipe"
     },
     "buildcraft:filler": {
-      "excluded": "Creative-only: upstream has no recipe for the filler, whose tooltip reads \"Not usable in survival\", so a value would only make a creative machine transmutable."
+      "projecte": 19564,
+      "itemalchemy": 19492,
+      "source": "recipe"
     },
     "buildcraft:filter_black": {
       "projecte": 99,
@@ -874,13 +880,19 @@
       "source": "recipe"
     },
     "buildcraft:replacer": {
-      "excluded": "Creative-only: upstream has no recipe for the replacer, which only edits blueprints for the creative builder, so a value would only make a creative machine transmutable."
+      "projecte": 21052,
+      "itemalchemy": 20980,
+      "source": "recipe"
     },
     "buildcraft:schematic_single_clean": {
-      "excluded": "Creative-only: upstream commented out the single block schematic's recipe, so a value would only make a creative item transmutable."
+      "projecte": 232,
+      "itemalchemy": 232,
+      "source": "recipe"
     },
     "buildcraft:schematic_single_used": {
-      "excluded": "Creative-only and NBT item: a recorded single block schematic is a blank one holding a block's schematic, which upstream gave no recipe; transmutation never copies NBT."
+      "projecte": 232,
+      "itemalchemy": 232,
+      "source": "conversion recordings_are_worth_their_blanks"
     },
     "buildcraft:stirling_engine": {
       "projecte": 392,
@@ -900,7 +912,7 @@
     "buildcraft:template_used": {
       "projecte": 272,
       "itemalchemy": 272,
-      "source": "conversion architect_table_records"
+      "source": "conversion recordings_are_worth_their_blanks"
     },
     "buildcraft:volume_box": {
       "excluded": "Creative-only: upstream has no recipe for the volume box, and its boxes are free-standing marks rather than material, so a value would only make a creative item transmutable."

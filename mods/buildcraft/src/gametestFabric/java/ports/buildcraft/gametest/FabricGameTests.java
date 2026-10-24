@@ -6,7 +6,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests} and {@link ZonePlannerTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests} and {@link RecipeAuditTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
@@ -119,6 +119,9 @@ public final class FabricGameTests implements FabricGameTest {
     @GameTest(template = TEMPLATE, timeoutTicks = 600)
     public void fillerKeepsToItsPowerAndCountsQueuedWork(GameTestHelper helper) { FillerTests.fillerKeepsToItsPowerAndCountsQueuedWork(helper); }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void fillerRespectsRefusedBreaks(GameTestHelper helper) { FillerTests.fillerRespectsRefusedBreaks(helper); }
+
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void architectScansTemplate(GameTestHelper helper) { ArchitectTests.architectScansTemplate(helper); }
 
@@ -166,6 +169,33 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 100)
     public void libraryCopiesSnapshotsDownAndUp(GameTestHelper helper) { LibraryTests.libraryCopiesSnapshotsDownAndUp(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void libraryRefusesForgedUploads(GameTestHelper helper) { LibraryTests.libraryRefusesForgedUploads(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void libraryTakesOnlyAskedForUploadsWithinQuota(GameTestHelper helper) { LibraryTests.libraryTakesOnlyAskedForUploadsWithinQuota(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedBlocksAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedBlocksAreRefused(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedBlockEntityDataIsSanitized(GameTestHelper helper) { SchematicSafetyTests.forgedBlockEntityDataIsSanitized(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void forgedEntitiesAreRefused(GameTestHelper helper) { SchematicSafetyTests.forgedEntitiesAreRefused(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void schematicDataIsBounded(GameTestHelper helper) { SchematicSafetyTests.schematicDataIsBounded(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void snapshotsAndAreasAreSizeBounded(GameTestHelper helper) { SchematicSafetyTests.snapshotsAndAreasAreSizeBounded(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void blueprintCountsAreBounded(GameTestHelper helper) { SchematicSafetyTests.blueprintCountsAreBounded(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void resourceStateBuildsEmpty(GameTestHelper helper) { SchematicSafetyTests.resourceStateBuildsEmpty(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void libraryMenuSidesSavingAndDrops(GameTestHelper helper) { LibraryTests.libraryMenuSidesSavingAndDrops(helper); }
@@ -380,6 +410,12 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 20)
     public void paintbrushAndZonePlannerRecipes(GameTestHelper helper) { ZonePlannerTests.paintbrushAndZonePlannerRecipes(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void buildersMachineRecipes(GameTestHelper helper) { RecipeAuditTests.buildersMachineRecipes(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public void everyItemCraftableOrListed(GameTestHelper helper) { RecipeAuditTests.everyItemCraftableOrListed(helper); }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public void lapisPipePaintsItemsAndWrenchCyclesColour(GameTestHelper helper) { SortingPipeTests.lapisPipePaintsItemsAndWrenchCyclesColour(helper); }

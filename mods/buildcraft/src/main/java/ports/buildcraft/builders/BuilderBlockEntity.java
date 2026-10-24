@@ -1,5 +1,6 @@
 package ports.buildcraft.builders;
 
+import com.mojang.authlib.GameProfile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,7 @@ import ports.buildcraft.builders.snapshot.SnapshotStorage;
 import ports.buildcraft.builders.snapshot.Template;
 import ports.buildcraft.builders.snapshot.TemplateBuilder;
 import ports.buildcraft.core.MarkerPathBlockEntity;
+import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.Box;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.lib.InventoryUtil;
@@ -72,6 +74,8 @@ public class BuilderBlockEntity extends SyncedBlockEntity implements PortHolder,
     final List<Tank> tanks = IntStream.rangeClosed(1, TANKS).mapToObj(i -> new Tank("tank" + i, TANK_CAPACITY)).toList();
     private final FluidPort fluidPort = new BuilderTanks();
     private boolean canExcavate = true;
+    /** The player who placed the machine, if known; see {@link #owner()}. */
+    @Nullable private GameProfile owner;
 
     /** The real path, just a few block positions. */
     @Nullable public List<BlockPos> path;
@@ -304,6 +308,18 @@ public class BuilderBlockEntity extends SyncedBlockEntity implements PortHolder,
     }
 
     // Hosts
+
+    /** Upstream {@code TileBC_Neptune.getOwner}: the player who placed the machine, or the machine profile. */
+    @Override
+    public GameProfile owner() {
+        return owner == null ? BlockProtection.NULL_PROFILE : owner;
+    }
+
+    /** Set when a player places the machine (upstream {@code onPlacedBy}); the machine profile counts as no owner. */
+    public void setOwner(@Nullable GameProfile profile) {
+        owner = profile == null || profile.getId() == null || profile.getId().equals(BlockProtection.NULL_PROFILE.getId()) ? null : profile;
+        setChanged();
+    }
 
     @Override
     public Level hostLevel() {
@@ -588,6 +604,7 @@ public class BuilderBlockEntity extends SyncedBlockEntity implements PortHolder,
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("battery", battery.save());
+        if (owner != null) tag.put("owner", NbtUtils.writeGameProfile(new CompoundTag(), owner));
         ListTag tanksTag = new ListTag();
         for (Tank tank : tanks) tanksTag.add(tank.save());
         tag.put("tanks", tanksTag);
@@ -604,6 +621,7 @@ public class BuilderBlockEntity extends SyncedBlockEntity implements PortHolder,
     @Override
     protected void loadServer(CompoundTag tag) {
         battery.load(tag.getCompound("battery"));
+        owner = tag.contains("owner", Tag.TAG_COMPOUND) ? NbtUtils.readGameProfile(tag.getCompound("owner")) : null;
         ListTag tanksTag = tag.getList("tanks", Tag.TAG_COMPOUND);
         for (int i = 0; i < TANKS; i++) {
             if (i < tanksTag.size()) tanks.get(i).load(tanksTag.getCompound(i));

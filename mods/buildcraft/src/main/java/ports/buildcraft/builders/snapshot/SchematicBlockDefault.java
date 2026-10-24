@@ -54,18 +54,30 @@ public class SchematicBlockDefault implements SchematicBlock {
     protected final Set<BlockPos> updateBlockOffsets = new HashSet<>();
     protected final Set<Block> canBeReplacedWithBlocks = new HashSet<>();
 
+    /**
+     * The block entity data a scan records, read from the world or, for a detached context, given with it;
+     * either way {@linkplain SchematicSafety#sanitizeTileNbt sanitized}, so a scan and a reload agree.
+     */
     @Nullable
     static CompoundTag tileNbt(SchematicBlockContext context) {
         if (!context.blockState().hasBlockEntity()) return null;
-        BlockEntity blockEntity = context.level().getBlockEntity(context.pos());
-        return blockEntity == null ? null : blockEntity.saveWithFullMetadata();
+        CompoundTag raw;
+        if (context.level() == null) {
+            raw = context.storedTileNbt();
+        } else {
+            BlockEntity blockEntity = context.level().getBlockEntity(context.pos());
+            raw = blockEntity == null ? null : blockEntity.saveWithId();
+        }
+        return SchematicSafety.sanitizeTileNbt(context.blockState(), raw);
     }
 
+    /** Upstream's test, plus {@link SchematicSafety}: forbidden blocks and blocks that would cost nothing are recorded as air. */
     public static boolean predicate(SchematicBlockContext context) {
-        if (context.blockState().isAir()) return false;
+        if (context.blockState().isAir() || SchematicSafety.isForbidden(context.blockState())) return false;
         ResourceLocation registryName = Registry.BLOCK.getKey(context.block());
-        return RulesLoader.readDomains().contains(registryName.getNamespace())
-                && RulesLoader.getRules(context.blockState(), tileNbt(context)).stream().noneMatch(rule -> rule.ignore);
+        if (!RulesLoader.readDomains().contains(registryName.getNamespace())) return false;
+        Set<JsonRule> rules = RulesLoader.getRules(context.blockState(), tileNbt(context));
+        return rules.stream().noneMatch(rule -> rule.ignore) && SchematicSafety.hasCost(context.blockState(), rules);
     }
 
     protected void setRequiredBlockOffsets(SchematicBlockContext context, Set<JsonRule> rules) {
@@ -298,6 +310,32 @@ public class SchematicBlockDefault implements SchematicBlock {
         for (Tag name : tag.getList("canBeReplacedWithBlocks", Tag.TAG_STRING)) {
             canBeReplacedWithBlocks.add(Registry.BLOCK.get(ResourceLocation.tryParse(name.getAsString())));
         }
+    }
+
+    /**
+     * Only the recorded state and block entity data are taken from saved data; everything else, including the
+     * block that is placed and what it costs, is derived from them by the rules, exactly as a scan does. A
+     * saved placed block that differs from the derived one is refused rather than corrected, as is a block
+     * the builder may not place or a scan would not record, or block entity data over
+     * {@link SchematicSafety#MAX_SCHEMATIC_NBT_BYTES}. Blocks that no longer exist load as air.
+     */
+    @Override
+    public SchematicBlock canonicalize() throws InvalidSnapshotException {
+        if (blockState.isAir()) return SchematicBlockManager.canonical(blockState, null);
+        if (SchematicSafety.isForbidden(blockState) || placeBlock != Blocks.AIR && SchematicSafety.isForbidden(placeBlock.defaultBlockState())) {
+            throw new InvalidSnapshotException("A builder may not place " + blockState + " (placing " + Registry.BLOCK.getKey(placeBlock) + ")");
+        }
+        SchematicBlock canonical = SchematicBlockManager.canonical(blockState, tileNbt);
+        if (canonical.getClass() != getClass()) {
+            throw new InvalidSnapshotException("A scan of " + blockState + " does not record " + getClass().getSimpleName());
+        }
+        SchematicBlockDefault schematicBlock = (SchematicBlockDefault) canonical;
+        if (schematicBlock.placeBlock != placeBlock) {
+            throw new InvalidSnapshotException("The rules place " + Registry.BLOCK.getKey(schematicBlock.placeBlock) + " for " + blockState
+                    + ", not " + Registry.BLOCK.getKey(placeBlock));
+        }
+        SchematicSafety.requireBounded(schematicBlock.tileNbt, "block entity data of " + blockState);
+        return schematicBlock;
     }
 
     @Override

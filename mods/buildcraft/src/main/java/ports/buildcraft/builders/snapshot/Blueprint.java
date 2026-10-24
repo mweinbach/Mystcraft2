@@ -7,12 +7,21 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Upstream {@code Blueprint}: a palette of block schematics, the palette index of every block in the box, and
  * the entities found in it.
  */
 public class Blueprint extends Snapshot {
+    /** A scan records entities whose bounds touch the box; the largest it captures, paintings, reach 2 blocks from their centre. */
+    private static final double ENTITY_MARGIN = 4;
+    /**
+     * The most entities a blueprint may carry. Upstream had no limit; each one is costed, merged and checked every
+     * builder tick, so an uploaded blueprint with thousands of distinct armour stands could stall the server. An
+     * architect table records at most this many.
+     */
+    public static final int MAX_ENTITIES = 1024;
     public final List<SchematicBlock> palette = new ArrayList<>();
     public int[] data = new int[0];
     public final List<SchematicEntity> entities = new ArrayList<>();
@@ -61,8 +70,16 @@ public class Blueprint extends Snapshot {
     @Override
     public void deserializeNBT(CompoundTag tag) throws InvalidSnapshotException {
         super.deserializeNBT(tag);
+        ListTag paletteTags = tag.getList("palette", Tag.TAG_COMPOUND);
+        if (paletteTags.size() > Math.max(1, getDataSize())) {
+            throw new InvalidSnapshotException("A palette of " + paletteTags.size() + " is larger than the " + getDataSize() + " blocks it could index");
+        }
+        ListTag entityTags = tag.getList("entities", Tag.TAG_COMPOUND);
+        if (entityTags.size() > MAX_ENTITIES) {
+            throw new InvalidSnapshotException(entityTags.size() + " entities is more than the " + MAX_ENTITIES + " a blueprint may carry");
+        }
         palette.clear();
-        for (Tag schematicBlockTag : tag.getList("palette", Tag.TAG_COMPOUND)) palette.add(SchematicBlockManager.readFromNBT((CompoundTag) schematicBlockTag));
+        for (Tag schematicBlockTag : paletteTags) palette.add(SchematicBlockManager.readFromNBT((CompoundTag) schematicBlockTag));
         ListTag dataList = tag.contains("data", Tag.TAG_LIST) ? tag.getList("data", Tag.TAG_INT) : null;
         int[] dataArray = tag.contains("data", Tag.TAG_INT_ARRAY) ? tag.getIntArray("data") : null;
         if (dataList == null && dataArray == null) throw new InvalidSnapshotException("Can't read a blueprint with no data!");
@@ -77,7 +94,15 @@ public class Blueprint extends Snapshot {
             data[i] = index;
         }
         entities.clear();
-        for (Tag schematicEntityTag : tag.getList("entities", Tag.TAG_COMPOUND)) entities.add(SchematicEntityManager.readFromNBT((CompoundTag) schematicEntityTag));
+        for (Tag schematicEntityTag : entityTags) {
+            SchematicEntity schematicEntity = SchematicEntityManager.readFromNBT((CompoundTag) schematicEntityTag);
+            Vec3 pos = schematicEntity.getPos();
+            if (pos.x < -ENTITY_MARGIN || pos.y < -ENTITY_MARGIN || pos.z < -ENTITY_MARGIN || pos.x > size.getX() + ENTITY_MARGIN
+                    || pos.y > size.getY() + ENTITY_MARGIN || pos.z > size.getZ() + ENTITY_MARGIN) {
+                throw new InvalidSnapshotException("Entity at " + pos + " is outside the blueprint of " + size.toShortString());
+            }
+            entities.add(schematicEntity);
+        }
     }
 
     @Override

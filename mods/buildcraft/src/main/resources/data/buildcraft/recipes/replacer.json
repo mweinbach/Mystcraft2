@@ -1,0 +1,41 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "btb",
+    "scs",
+    "gBg"
+  ],
+  "key": {
+    "b": [
+      {
+        "tag": "c:black_dyes"
+      },
+      {
+        "tag": "forge:dyes/black"
+      }
+    ],
+    "t": {
+      "item": "buildcraft:marker_volume"
+    },
+    "s": {
+      "item": "buildcraft:schematic_single_clean"
+    },
+    "c": {
+      "item": "minecraft:crafting_table"
+    },
+    "g": [
+      {
+        "tag": "c:gold_gears"
+      },
+      {
+        "tag": "forge:gears/gold"
+      }
+    ],
+    "B": {
+      "item": "buildcraft:blueprint_clean"
+    }
+  },
+  "result": {
+    "item": "buildcraft:replacer"
+  }
+}
