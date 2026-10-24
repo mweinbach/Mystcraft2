@@ -1,0 +1,182 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": true,
+  "textures": {
+    "particle": "gridwright:block/machine_side",
+    "side": "gridwright:block/machine_side",
+    "top": "gridwright:block/power_converter_top",
+    "trim": "gridwright:block/study_trim",
+    "wood": "gridwright:block/study_timber",
+    "mode": "gridwright:block/power_converter_to_grid"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        1,
+        2
+      ],
+      "to": [
+        14,
+        12,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#mode",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#mode",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#mode",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#mode",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        1,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#trim"
+        },
+        "south": {
+          "texture": "#trim"
+        },
+        "east": {
+          "texture": "#trim"
+        },
+        "west": {
+          "texture": "#trim"
+        },
+        "up": {
+          "texture": "#trim"
+        },
+        "down": {
+          "texture": "#trim"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        12,
+        4
+      ],
+      "to": [
+        12,
+        14,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

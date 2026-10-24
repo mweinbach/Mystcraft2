@@ -1,0 +1,2 @@
+# Pin the renderer dependency so PNG compression and embedded font output reproduce the study.
+Pillow==12.3.0

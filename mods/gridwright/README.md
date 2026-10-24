@@ -284,6 +284,10 @@ Textures are regenerated with `python3 mods/gridwright/scripts/generate_textures
 `python3 mods/gridwright/scripts/generate_transfer_textures.py` (need Pillow); `generate_textures.py` also
 draws the phase 2d tiles from `power_textures.py`.
 
+The [32px texture and compact-model proposal](docs/texture-plan.md) includes before/after sheets,
+an offline review page and an optional preview resource pack. It is a partial art study outside the
+production assets; smaller models still need matching collision and occlusion changes before shipping.
+
 ## Phase 2+ plan
 
 In order of usefulness to the pack; each is a separate PR with survival recipes, EMC and GameTests on
