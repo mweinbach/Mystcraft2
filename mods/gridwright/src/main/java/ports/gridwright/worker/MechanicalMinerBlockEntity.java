@@ -24,7 +24,8 @@ import java.util.List;
  * tool slot (or bare-handed): the block takes as long as it would take that player, drops only what
  * that tool harvests, and the tool wears and can break. Drops go to its output; any that do not fit
  * are held (and saved) and it waits until they do. It needs {@link #GP} Grid Power while working and
- * pauses on a redstone signal.
+ * pauses on a redstone signal. Changing the tool (or its enchantments) part-way restarts the break, so
+ * the tool that finishes a block is the one that did all the work.
  *
  * <p>Each break goes through {@link MachinePlayer#mayBreak}, so it cannot mine where its owner may
  * not. Like the quarries it leaves air, fluids, unbreakable and {@code #gridwright:unminable} blocks
@@ -36,6 +37,7 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
 
     private float progress;
     private BlockState target = Blocks.AIR.defaultBlockState();
+    private ItemStack targetTool = ItemStack.EMPTY;
     private int broken;
     @Nullable private List<ItemStack> pending;
 
@@ -75,8 +77,12 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
         Direction facing = getBlockState().getValue(MechanicalBlock.FACING);
         BlockPos pos = worldPosition.relative(facing);
         BlockState state = level.getBlockState(pos);
-        if (state != target) {
+        int toolSlot = layout().first(WorkerLayout.Role.TOOL);
+        ItemStack tool = items.get(toolSlot);
+        // Progress belongs to one block and one tool (enchantments included): a swap starts over.
+        if (state != target || !ItemStack.isSameItemSameTags(tool, targetTool)) {
             target = state;
+            targetTool = tool.copy();
             progress = 0;
         }
         if (state.hasBlockEntity() || !MachinePlayer.minable(level, pos, state)) {
@@ -89,8 +95,6 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
             stop(Status.NO_OWNER);
             return;
         }
-        int toolSlot = layout().first(WorkerLayout.Role.TOOL);
-        ItemStack tool = items.get(toolSlot);
         player.setItemInHand(InteractionHand.MAIN_HAND, tool);
         try {
             progress = Math.min(1, progress + state.getDestroyProgress(player, level, pos));

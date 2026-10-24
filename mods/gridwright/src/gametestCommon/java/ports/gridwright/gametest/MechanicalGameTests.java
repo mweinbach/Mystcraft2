@@ -8,6 +8,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import ports.gridwright.block.MechanicalBlock;
 import ports.gridwright.registry.ModBlocks;
@@ -97,6 +98,30 @@ public class MechanicalGameTests {
                 .thenWaitUntil(() -> check(miner.status() == Status.PROTECTED, "Expected PROTECTED, got " + miner.status()))
                 .thenIdle(20)
                 .thenExecute(() -> check(helper.getBlockState(FRONT).is(Blocks.DIRT), "Mined a protected block"))
+                .thenSucceed();
+    }
+
+    /** Swapping the tool, even for the same pickaxe with another enchantment, or removing it restarts the break. */
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void minerRestartsWhenTheToolChanges(GameTestHelper helper) {
+        Owner owner = Owner.random("gwMf");
+        MechanicalMinerBlockEntity miner = machine(helper, ModBlocks.MECHANICAL_MINER, owner);
+        int toolSlot = WorkerLayout.MECHANICAL_MINER.first(WorkerLayout.Role.TOOL);
+        miner.setItem(toolSlot, new ItemStack(Items.DIAMOND_PICKAXE));
+        helper.setBlock(FRONT, Blocks.OBSIDIAN);
+        TestProtection.power(helper, owner, MechanicalMinerBlockEntity.GP);
+        ItemStack silkTouch = new ItemStack(Items.DIAMOND_PICKAXE);
+        silkTouch.enchant(Enchantments.SILK_TOUCH, 1);
+        helper.startSequence()
+                .thenWaitUntil(() -> check(miner.data().get(2) > 300, "Progress " + miner.data().get(2) + " (" + miner.status() + ")"))
+                .thenExecute(() -> miner.setItem(toolSlot, silkTouch))
+                .thenExecuteAfter(2, () -> check(miner.data().get(2) < 100, "A tool swap kept progress " + miner.data().get(2)))
+                .thenWaitUntil(() -> check(miner.data().get(2) > 300, "Progress " + miner.data().get(2) + " (" + miner.status() + ")"))
+                .thenExecute(() -> miner.setItem(toolSlot, ItemStack.EMPTY))
+                .thenExecuteAfter(2, () -> {
+                    check(miner.data().get(2) < 100, "Removing the tool kept progress " + miner.data().get(2));
+                    check(helper.getBlockState(FRONT).is(Blocks.OBSIDIAN), "Obsidian broke early");
+                })
                 .thenSucceed();
     }
 
