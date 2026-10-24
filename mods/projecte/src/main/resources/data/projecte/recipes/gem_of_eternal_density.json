@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "M": {
+      "item": "projecte:dark_matter"
+    },
+    "O": {
+      "tag": "forge:obsidian"
+    }
+  },
+  "pattern": [
+    "DOD",
+    "MDM",
+    "DOD"
+  ],
+  "result": {
+    "item": "projecte:gem_of_eternal_density"
+  }
+}

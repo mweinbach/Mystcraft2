@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": {
+      "item": "minecraft:clock"
+    },
+    "D": {
+      "item": "projecte:dark_matter"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "O": {
+      "tag": "forge:obsidian"
+    }
+  },
+  "pattern": [
+    "DGD",
+    "OCO",
+    "DGD"
+  ],
+  "result": {
+    "item": "projecte:watch_of_flowing_time"
+  }
+}

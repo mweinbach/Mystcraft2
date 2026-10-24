@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'projecte-fabric'
+
+// -PwithMekanism runs the GameTests beside the Mekanism port's Fabric jar, the other Forge API layer in this repository,
+// so both layers' methods on vanilla classes and their mixins load together. Only that run configures Mekanism's build.
+if (providers.gradleProperty('withMekanism').isPresent()) {
+    includeBuild('../../mekanism/fabric') {
+        dependencySubstitution {
+            substitute module('ports.mekanism:mekanism-fabric') using project(':')
+        }
+    }
+}

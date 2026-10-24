@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:wooden_fences",
+    {
+      "id": "#c:wooden_fences",
+      "required": false
+    }
+  ]
+}

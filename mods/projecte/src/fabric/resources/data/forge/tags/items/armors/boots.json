@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "projecte:gem_boots",
+    "#forge:armors/boots/dark_matter",
+    "#forge:armors/boots/red_matter",
+    "minecraft:leather_boots",
+    "minecraft:chainmail_boots",
+    "minecraft:iron_boots",
+    "minecraft:golden_boots",
+    "minecraft:diamond_boots",
+    "minecraft:netherite_boots"
+  ]
+}

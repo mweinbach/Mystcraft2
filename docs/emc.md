@@ -25,13 +25,19 @@ newer, and it has no `fabric.mod.json` or Quilt metadata. Tekxit 4 runs on Fabri
 exists for 1.19.2 (Sinytra Connector starts at 1.20.1). So this ProjectE cannot load in Tekxit 4, and it would
 never see the Fabric builds of these mods. It only reads our data in Forge instances.
 
+**ProjectE for Fabric (this repository).** [`mods/projecte`](../mods/projecte/README.md) ports that same ProjectE
+1.1.0 to Fabric from upstream's sources, with mod id `projecte` and upstream's data loading, so it reads every port's
+`pe_custom_conversions` file unchanged. Its own vanilla values match upstream's (a GameTest checks them on both
+loaders). Live EMC audits of the ports under it on Fabric, and the Tekxit 4 check with and without Item Alchemy, are
+phase 4 of that port and not done yet; until then the Fabric audits below run against Item Alchemy only.
+
 **Item Alchemy.** The Fabric EMC system available to Tekxit 4 is Item Alchemy 1.1.3 (pitan76), which offers
 ProjectE-style transmutation. It is what actually reads EMC data on Fabric.
 
 Each port therefore ships two files in its shared `src/main/resources`, which both loader jars contain:
 
-- `data/<ns>/pe_custom_conversions/<ns>.json` is a ProjectE 1.1.0 custom-conversion file, used by Forge builds
-  and by any future Fabric ProjectE port that keeps the same data format. It has three parts:
+- `data/<ns>/pe_custom_conversions/<ns>.json` is a ProjectE 1.1.0 custom-conversion file, used by ProjectE on
+  Forge and by the ProjectE Fabric port in this repository. It has three parts:
   - `values.before` holds the explicit values, except for items ProjectE's ore blacklists zero (a `before` value
     would race those mappers, which run at the same priority).
   - `groups` holds the machine conversions ProjectE cannot see.

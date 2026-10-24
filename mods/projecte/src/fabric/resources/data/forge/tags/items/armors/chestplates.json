@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "projecte:gem_chestplate",
+    "#forge:armors/chestplates/dark_matter",
+    "#forge:armors/chestplates/red_matter",
+    "minecraft:leather_chestplate",
+    "minecraft:chainmail_chestplate",
+    "minecraft:iron_chestplate",
+    "minecraft:golden_chestplate",
+    "minecraft:diamond_chestplate",
+    "minecraft:netherite_chestplate"
+  ]
+}

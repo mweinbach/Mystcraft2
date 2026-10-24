@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:gray_stained_glass",
+    {
+      "id": "#c:gray_glass_blocks",
+      "required": false
+    }
+  ]
+}

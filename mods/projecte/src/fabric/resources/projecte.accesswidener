@@ -1,0 +1,193 @@
+accessWidener v2 named
+
+# Translated from src/forge/resources/META-INF/accesstransformer.cfg (upstream ProjectE) to named mappings.
+accessible field net/minecraft/client/KeyMapping isDown Z
+
+accessible field net/minecraft/client/gui/components/EditBox frame I
+accessible field net/minecraft/client/gui/components/EditBox canLoseFocus Z
+accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z
+
+accessible method net/minecraft/client/gui/screens/Screen init (Lnet/minecraft/client/Minecraft;II)V
+extendable method net/minecraft/client/gui/screens/Screen init (Lnet/minecraft/client/Minecraft;II)V
+
+#Client stuff that needs to be ATd to make "virtual" slots possible
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen quickCraftingType I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen quickCraftingButton I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen snapbackEnd Lnet/minecraft/world/inventory/Slot;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen snapbackTime J
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen snapbackItem Lnet/minecraft/world/item/ItemStack;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastClickButton I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen doubleclick Z
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastQuickMoved Lnet/minecraft/world/item/ItemStack;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen skipNextRelease Z
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastClickTime J
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastClickSlot Lnet/minecraft/world/inventory/Slot;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isSplittingStack Z
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen clickedSlot Lnet/minecraft/world/inventory/Slot;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen snapbackStartY I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen snapbackStartX I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen draggingItem Lnet/minecraft/world/item/ItemStack;
+accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen recalculateQuickCraftRemaining ()V
+accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen checkHotbarMouseClicked (I)V
+
+accessible field net/minecraft/client/model/AgeableListModel scaleHead Z
+accessible field net/minecraft/client/model/AgeableListModel babyHeadScale F
+accessible field net/minecraft/client/model/AgeableListModel babyBodyScale F
+accessible field net/minecraft/client/model/AgeableListModel bodyYOffset F
+accessible field net/minecraft/client/model/AgeableListModel babyYHeadOffset F
+accessible field net/minecraft/client/model/AgeableListModel babyZHeadOffset F
+
+accessible field net/minecraft/client/model/ArmorStandModel shoulderStick Lnet/minecraft/client/model/geom/ModelPart;
+accessible field net/minecraft/client/model/ArmorStandModel rightBodyStick Lnet/minecraft/client/model/geom/ModelPart;
+accessible field net/minecraft/client/model/ArmorStandModel leftBodyStick Lnet/minecraft/client/model/geom/ModelPart;
+
+accessible field net/minecraft/client/model/PlayerModel cloak Lnet/minecraft/client/model/geom/ModelPart;
+accessible field net/minecraft/client/model/PlayerModel ear Lnet/minecraft/client/model/geom/ModelPart;
+
+accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/minecraft/client/model/geom/ModelPart$Polygon;
+accessible class net/minecraft/client/model/geom/ModelPart$Vertex
+accessible class net/minecraft/client/model/geom/ModelPart$Polygon
+
+accessible method net/minecraft/client/particle/BubbleParticle <init> (Lnet/minecraft/client/multiplayer/ClientLevel;DDDDDD)V
+accessible method net/minecraft/client/particle/FlameParticle <init> (Lnet/minecraft/client/multiplayer/ClientLevel;DDDDDD)V
+
+accessible field net/minecraft/client/renderer/LevelRenderer ticks I
+accessible field net/minecraft/client/renderer/chunk/RenderChunkRegion level Lnet/minecraft/world/level/Level;
+
+accessible field net/minecraft/client/renderer/entity/LivingEntityRenderer layers Ljava/util/List;
+accessible field net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer innerModel Lnet/minecraft/client/model/HumanoidModel;
+accessible field net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer outerModel Lnet/minecraft/client/model/HumanoidModel;
+
+accessible method net/minecraft/client/renderer/LevelRenderer renderHitOutline (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;DDDLnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V
+
+accessible field net/minecraft/client/sounds/SoundManager soundEngine Lnet/minecraft/client/sounds/SoundEngine;
+accessible field net/minecraft/client/sounds/SoundEngine listeners Ljava/util/List;
+accessible field net/minecraft/client/sounds/SoundEngine instanceToChannel Ljava/util/Map;
+
+accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I
+
+accessible field net/minecraft/world/effect/MobEffectInstance hiddenEffect Lnet/minecraft/world/effect/MobEffectInstance;
+accessible method net/minecraft/world/effect/MobEffectInstance setDetailsFrom (Lnet/minecraft/world/effect/MobEffectInstance;)V
+accessible method net/minecraft/world/effect/MobEffectInstance tickDownDuration ()I
+
+accessible method net/minecraft/world/entity/decoration/ArmorStand setNoBasePlate (Z)V
+accessible method net/minecraft/world/entity/Entity isInRain ()Z
+accessible field net/minecraft/world/entity/LivingEntity effectsDirty Z
+accessible field net/minecraft/world/entity/item/ItemEntity age I
+accessible field net/minecraft/world/entity/item/PrimedTnt owner Lnet/minecraft/world/entity/LivingEntity;
+extendable method net/minecraft/world/entity/item/PrimedTnt explode ()V
+
+accessible method net/minecraft/world/inventory/AbstractContainerMenu synchronizeCarriedToRemote ()V
+
+accessible field net/minecraft/world/item/ArmorItem ARMOR_MODIFIER_UUID_PER_SLOT [Ljava/util/UUID;
+
+accessible field net/minecraft/world/level/Explosion blockInteraction Lnet/minecraft/world/level/Explosion$BlockInteraction;
+accessible field net/minecraft/world/level/Explosion radius F
+accessible method net/minecraft/world/level/biome/Biome getTemperature (Lnet/minecraft/core/BlockPos;)F
+accessible field net/minecraft/world/level/block/entity/BlockEntity blockState Lnet/minecraft/world/level/block/state/BlockState;
+accessible field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase destroySpeed F
+accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties lightEmission Ljava/util/function/ToIntFunction;
+accessible field net/minecraft/world/level/chunk/ChunkGenerator featuresPerStep Ljava/util/function/Supplier;
+accessible method net/minecraft/world/level/levelgen/placement/PlacedFeature placeWithContext (Lnet/minecraft/world/level/levelgen/placement/PlacementContext;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Z
+
+accessible method net/minecraft/world/phys/AABB getDirection (Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/phys/Vec3;[DLnet/minecraft/core/Direction;DDD)Lnet/minecraft/core/Direction;
+
+# Widened by Forge's own access transformer, which ProjectE relies on.
+accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
+accessible class net/minecraft/client/renderer/block/model/ItemOverrides$BakedOverride
+
+# Read by the Fabric FluidBucketWrapper; Forge exposes it as BucketItem.getFluid().
+accessible field net/minecraft/world/item/BucketItem content Lnet/minecraft/world/level/material/Fluid;
+
+# Forge model loading on Fabric (BlockGeometryBakingContext, port BlockModel mixin).
+accessible field net/minecraft/client/renderer/block/model/BlockModel parent Lnet/minecraft/client/renderer/block/model/BlockModel;
+accessible method net/minecraft/client/renderer/block/model/BlockModel getItemOverrides (Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;)Lnet/minecraft/client/renderer/block/model/ItemOverrides;
+
+# Read by the port's Forge extension interfaces injected into vanilla classes.
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageWidth I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageHeight I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen hoveredSlot Lnet/minecraft/world/inventory/Slot;
+accessible field net/minecraft/client/renderer/block/model/ItemOverrides overrides [Lnet/minecraft/client/renderer/block/model/ItemOverrides$BakedOverride;
+accessible field net/minecraft/world/level/Explosion source Lnet/minecraft/world/entity/Entity;
+accessible method net/minecraft/client/particle/TextureSheetParticle setSprite (Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V
+accessible method net/minecraft/world/level/block/FireBlock getBurnOdds (Lnet/minecraft/world/level/block/state/BlockState;)I
+accessible method net/minecraft/world/level/block/FireBlock getIgniteOdds (Lnet/minecraft/world/level/block/state/BlockState;)I
+accessible field net/minecraft/world/item/AxeItem STRIPPABLES Ljava/util/Map;
+accessible field net/minecraft/world/item/ShovelItem FLATTENABLES Ljava/util/Map;
+accessible method net/minecraft/world/entity/Entity findDimensionEntryPoint (Lnet/minecraft/server/level/ServerLevel;)Lnet/minecraft/world/level/portal/PortalInfo;
+
+# Opened by Forge's own access transformer or by Forge patches that ProjectE relies on.
+accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible class net/minecraft/client/renderer/RenderType$CompositeRenderType
+accessible class net/minecraft/client/renderer/RenderType$CompositeState
+accessible method net/minecraft/client/renderer/block/model/ItemModelGenerator processFrames (ILjava/lang/String;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)Ljava/util/List;
+accessible field net/minecraft/client/renderer/entity/ItemRenderer blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
+accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher renderers Ljava/util/Map;
+accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
+accessible field net/minecraft/commands/CommandSourceStack source Lnet/minecraft/commands/CommandSource;
+accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/util/stream/Stream;)V
+accessible class net/minecraft/client/particle/ParticleEngine$SpriteParticleRegistration
+accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V
+accessible method net/minecraft/world/entity/player/Player closeContainer ()V
+accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer addLayer (Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z
+accessible method net/minecraft/world/level/block/Block popExperience (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;I)V
+accessible method net/minecraft/resources/ResourceLocation isValidNamespace (Ljava/lang/String;)Z
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderFloatingItem (Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen findSlot (DD)Lnet/minecraft/world/inventory/Slot;
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/inventory/Slot;)V
+accessible field net/minecraft/world/level/block/LiquidBlock fluid Lnet/minecraft/world/level/material/FlowingFluid;
+extendable class net/minecraft/world/item/crafting/Ingredient
+accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadList (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Ljava/util/List;Lnet/minecraft/world/item/ItemStack;II)V
+accessible method net/minecraft/resources/ResourceLocation validNamespaceChar (C)Z
+accessible field net/minecraft/client/renderer/item/ItemProperties PROPERTIES Ljava/util/Map;
+accessible field net/minecraft/client/renderer/entity/layers/ElytraLayer WINGS_LOCATION Lnet/minecraft/resources/ResourceLocation;
+accessible method net/minecraft/client/renderer/block/model/BlockModel bakeFace (Lnet/minecraft/client/renderer/block/model/BlockElement;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/block/model/BakedQuad;
+accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
+mutable field net/minecraft/world/item/CreativeModeTab TABS [Lnet/minecraft/world/item/CreativeModeTab;
+# Fabric adapter: Forge-style menu opening with extra data.
+accessible method net/minecraft/server/level/ServerPlayer nextContainerCounter ()V
+accessible field net/minecraft/server/level/ServerPlayer containerCounter I
+accessible method net/minecraft/server/level/ServerPlayer initMenu (Lnet/minecraft/world/inventory/AbstractContainerMenu;)V
+accessible field net/minecraft/world/inventory/MenuType constructor Lnet/minecraft/world/inventory/MenuType$MenuSupplier;
+accessible method net/minecraft/client/gui/screens/MenuScreens getConstructor (Lnet/minecraft/world/inventory/MenuType;)Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;
+# EnchantmentHelper.EnchantmentVisitor is package-private. The enchantment mixin iterates it.
+accessible class net/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor
+# Registries may already be frozen when the port registers into them (Forge attributes); they are reopened, then their state is restored.
+accessible field net/minecraft/core/MappedRegistry frozen Z
+# Fog distances are read after vanilla setup so a canceled fog event can replace them.
+accessible class net/minecraft/client/renderer/FogRenderer$FogData
+accessible field net/minecraft/client/renderer/FogRenderer$FogData start F
+accessible field net/minecraft/client/renderer/FogRenderer$FogData end F
+accessible field net/minecraft/client/renderer/FogRenderer$FogData shape Lcom/mojang/blaze3d/shaders/FogShape;
+# Baby creepers and parrot imitations. The additions jar ships the same Forge access transformer.
+accessible field net/minecraft/world/entity/animal/Parrot MOB_SOUND_MAP Ljava/util/Map;
+accessible field net/minecraft/world/entity/monster/Creeper explosionRadius I
+accessible method net/minecraft/world/level/biome/MobSpawnSettings$MobSpawnCost <init> (DD)V
+extendable method net/minecraft/world/entity/monster/Creeper explodeCreeper ()V
+accessible method net/minecraft/world/entity/monster/Creeper spawnLingeringCloud ()V
+
+# Translated from upstream ProjectE's src/forge/resources/META-INF/accesstransformer.cfg to named mappings.
+accessible field net/minecraft/world/item/crafting/UpgradeRecipe base Lnet/minecraft/world/item/crafting/Ingredient;
+accessible field net/minecraft/world/item/crafting/UpgradeRecipe addition Lnet/minecraft/world/item/crafting/Ingredient;
+accessible field net/minecraft/world/item/alchemy/PotionBrewing POTION_MIXES Ljava/util/List;
+accessible field net/minecraft/world/item/alchemy/PotionBrewing CONTAINER_MIXES Ljava/util/List;
+accessible field net/minecraft/world/item/alchemy/PotionBrewing ALLOWED_CONTAINERS Ljava/util/List;
+accessible field net/minecraft/world/level/chunk/LevelChunk tickersInLevel Ljava/util/Map;
+accessible method net/minecraft/world/level/chunk/LevelChunk isTicking (Lnet/minecraft/core/BlockPos;)Z
+accessible class net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity
+accessible field net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity ticker Lnet/minecraft/world/level/block/entity/BlockEntityTicker;
+accessible class net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper
+accessible field net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper ticker Lnet/minecraft/world/level/block/entity/TickingBlockEntity;
+# Forge's own access transformer opens PotionBrewing.Mix, which upstream's brewing mapper reads.
+accessible class net/minecraft/world/item/alchemy/PotionBrewing$Mix
+accessible field net/minecraft/world/item/alchemy/PotionBrewing$Mix from Ljava/lang/Object;
+accessible field net/minecraft/world/item/alchemy/PotionBrewing$Mix ingredient Lnet/minecraft/world/item/crafting/Ingredient;
+accessible field net/minecraft/world/item/alchemy/PotionBrewing$Mix to Ljava/lang/Object;
+
+# ProjectE: Mind Stone drains orbs; argument infos are recorded by class as Forge does.
+accessible field net/minecraft/world/entity/ExperienceOrb value I
+accessible field net/minecraft/commands/synchronization/ArgumentTypeInfos BY_CLASS Ljava/util/Map;

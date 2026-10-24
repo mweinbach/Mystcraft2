@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "projecte:gem_helmet",
+    "#forge:armors/armors/dark_matter",
+    "#forge:armors/armors/red_matter",
+    "minecraft:leather_helmet",
+    "minecraft:turtle_helmet",
+    "minecraft:chainmail_helmet",
+    "minecraft:iron_helmet",
+    "minecraft:golden_helmet",
+    "minecraft:diamond_helmet",
+    "minecraft:netherite_helmet"
+  ]
+}

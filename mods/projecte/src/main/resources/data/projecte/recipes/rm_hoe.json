@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "H": {
+      "item": "projecte:dm_hoe"
+    },
+    "M": {
+      "item": "projecte:dark_matter"
+    },
+    "R": {
+      "item": "projecte:red_matter"
+    }
+  },
+  "pattern": [
+    "RR",
+    " H",
+    " M"
+  ],
+  "result": {
+    "item": "projecte:rm_hoe"
+  }
+}

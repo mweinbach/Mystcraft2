@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:tools/shovels/dark_matter",
+    "#forge:tools/shovels/red_matter",
+    "minecraft:wooden_shovel",
+    "minecraft:stone_shovel",
+    "minecraft:iron_shovel",
+    "minecraft:golden_shovel",
+    "minecraft:diamond_shovel",
+    "minecraft:netherite_shovel",
+    {
+      "id": "#c:shovels",
+      "required": false
+    }
+  ]
+}

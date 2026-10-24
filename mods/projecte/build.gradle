@@ -1,0 +1,153 @@
+plugins {
+    // Upstream shades and relocates Apache Commons Math (BigFraction) the same way.
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+// ProjectE for Forge: upstream's shared sources in src/main plus the Forge metadata and access transformer in
+// src/forge. The Fabric variant builds from the same shared sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'projecte-forge-1.19.2'
+
+minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
+
+repositories {
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroupByRegex 'com\\.blamejared.*'
+            includeGroup 'mezz.jei'
+            includeGroup 'org.openzen.zencode'
+        }
+    }
+    maven {
+        url = 'https://maven.theillusivec4.top/'
+        content { includeGroup 'top.theillusivec4.curios' }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
+}
+
+// The optional integrations upstream compiles against, at upstream's versions where they are still published.
+// None is required at runtime; -PwithJei, -PwithCurios, -PwithJade, -PwithTop, -PwithEmi and -PwithCraftTweaker add
+// them to a development run.
+def commonsMath = 'org.apache.commons:commons-math3:3.6.1'
+dependencies {
+    implementation commonsMath
+    minecraftLibrary commonsMath
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1018')
+    compileOnly fg.deobf('mezz.jei:jei-1.19.2-forge-api:11.6.0.1018')
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1018')
+    }
+    compileOnly('top.theillusivec4.curios:curios-forge:1.19.2-5.1.4.1:api') { transitive = false }
+    if (providers.gradleProperty('withCurios').isPresent()) {
+        runtimeOnly(fg.deobf('top.theillusivec4.curios:curios-forge:1.19.2-5.1.4.1')) { transitive = false }
+    }
+    compileOnly(fg.deobf('maven.modrinth:the-one-probe:1.19-6.2.2')) { transitive = false }
+    if (providers.gradleProperty('withTop').isPresent()) {
+        runtimeOnly(fg.deobf('maven.modrinth:the-one-probe:1.19-6.2.2')) { transitive = false }
+    }
+    compileOnly(fg.deobf('curse.maven:jade-api-324717:4800905')) { transitive = false }
+    if (providers.gradleProperty('withJade').isPresent()) {
+        runtimeOnly(fg.deobf('curse.maven:jade-324717:4800904')) { transitive = false }
+    }
+    compileOnly(fg.deobf('curse.maven:wthit-455982:4727694')) { transitive = false }
+    compileOnly(fg.deobf('com.blamejared.crafttweaker:CraftTweaker-forge-1.19.2:10.1.50')) { transitive = false }
+    if (providers.gradleProperty('withCraftTweaker').isPresent()) {
+        runtimeOnly(fg.deobf('com.blamejared.crafttweaker:CraftTweaker-forge-1.19.2:10.1.50')) { transitive = false }
+    }
+    // EMI replaces JEI in Tekxit 4; the port's EMI plugin (phase 3) compiles against this API.
+    compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
+    }
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Curios', CraftTweaker's, Jade's and EMI's mixins carry SRG refmaps; the development runs use official names.
+minecraft.runs.configureEach {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
+tasks.named('test', Test) { useJUnitPlatform() }
+
+// Upstream's data generators. They only run through runData and never enter the JAR.
+sourceSets {
+    datagen {
+        java.srcDirs = ['src/datagen/java']
+        resources.srcDirs = []
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    // GameTests are merged into the mod only for the GameTest server run, never into the JAR.
+    gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = []
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.named('assemble') { dependsOn tasks.named('datagenClasses') }
+minecraft.runs {
+    data {
+        mods { projecte { source sourceSets.datagen } }
+    }
+    gameTestServer {
+        property 'forge.enableGameTest', 'true'
+        property 'forge.enabledGameTestNamespaces', 'projecte'
+        mods { projecte { source sourceSets.gametest } }
+    }
+}
+def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
+    from 'src/gametestCommon/structures'
+    into 'run/gameTestServer/gameteststructures'
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn copyGameTestStructures, tasks.named('gametestClasses')
+}
+
+tasks.withType(Jar).configureEach {
+    from('NOTICE.md') { into 'META-INF'; rename { 'ProjectE-NOTICE.md' } }
+    from('UPSTREAM.md') { into 'META-INF'; rename { 'ProjectE-UPSTREAM.md' } }
+    // Forge-LICENSE.txt covers the forge: tag values only the Fabric jar's tag bridges repeat.
+    from('licenses') { into 'META-INF/licenses/projecte'; exclude 'Forge-LICENSE.txt' }
+}
+// The shaded JAR is the published artifact, as upstream's: Commons Math is relocated into ProjectE's package so it
+// cannot clash with another mod's copy. The plain JAR keeps a classifier.
+tasks.named('jar', Jar) { archiveClassifier = 'slim' }
+tasks.named('shadowJar') {
+    archiveClassifier = ''
+    configurations = [project.configurations.runtimeClasspath]
+    dependencies {
+        include dependency(commonsMath)
+    }
+    exclude 'assets/org/**', 'META-INF/maven/**', 'META-INF/*.txt'
+    relocate 'org.apache.commons.math3', 'moze_intel.projecte.shaded.org.apache.commons.math3'
+    minimize {
+        include dependency(commonsMath)
+    }
+    manifest.attributes('Implementation-Title': portMetadata.mod_name,
+                        'Implementation-Version': portMetadata.mod_version,
+                        'Automatic-Module-Name': 'projecte')
+    from('LICENSE')
+    finalizedBy 'reobfShadowJar'
+}
+reobf { shadowJar {} }
+tasks.named('assemble') { dependsOn tasks.named('shadowJar') }

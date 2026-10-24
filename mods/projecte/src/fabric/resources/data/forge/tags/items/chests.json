@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "projecte:alchemical_chest",
+    "#forge:chests/ender",
+    "#forge:chests/trapped",
+    "#forge:chests/wooden"
+  ]
+}

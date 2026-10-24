@@ -68,18 +68,13 @@ public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.
     @Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V",
                                                  shift = At.Shift.AFTER))
     private void mekanism$saveCapabilities(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
-        CompoundTag capabilities = mekanism$capabilities().serialize();
-        if (capabilities != null) {
-            tag.put(AttachedCapabilities.TAG_KEY, capabilities);
-        }
+        mekanism$capabilities().saveInto(tag);
     }
 
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V",
                                         shift = At.Shift.AFTER))
     private void mekanism$loadCapabilities(CompoundTag tag, CallbackInfo ci) {
-        if (tag.contains(AttachedCapabilities.TAG_KEY, CompoundTag.TAG_COMPOUND)) {
-            mekanism$capabilities().deserialize(tag.getCompound(AttachedCapabilities.TAG_KEY));
-        }
+        mekanism$capabilities().loadFrom(tag);
     }
 
     @Inject(method = "remove", at = @At("TAIL"))

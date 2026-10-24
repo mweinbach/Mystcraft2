@@ -1,0 +1,278 @@
+/*
+ * ProjectE 1.19.2 port, adapted from the Mekanism 1.19.2 port - Fabric loader adapter.
+ * Copyright (c) 2026 Mekanism 1.19.2 port contributors. MIT License, see licenses/PORT-LICENSE.txt.
+ */
+package ports.projecte.fabric;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.resources.ResourceKey;
+import org.objectweb.asm.Type;
+import ports.projecte.lib.api.distmarker.Dist;
+import ports.projecte.lib.common.MinecraftForge;
+import ports.projecte.lib.eventbus.api.Event;
+import ports.projecte.lib.fluids.FluidTypes;
+import ports.projecte.lib.fml.ModContainer;
+import ports.projecte.lib.fml.ModList;
+import ports.projecte.lib.fml.ModLoadingContext;
+import ports.projecte.lib.fml.common.Mod;
+import ports.projecte.lib.fml.config.ConfigTracker;
+import ports.projecte.lib.fml.config.ModConfig;
+import ports.projecte.lib.fml.event.lifecycle.FMLClientSetupEvent;
+import ports.projecte.lib.fml.event.lifecycle.FMLCommonSetupEvent;
+import ports.projecte.lib.fml.event.lifecycle.InterModEnqueueEvent;
+import ports.projecte.lib.fml.event.lifecycle.InterModProcessEvent;
+import ports.projecte.lib.fml.loading.FMLPaths;
+import ports.projecte.lib.fml.loading.moddiscovery.ModAnnotation;
+import ports.projecte.lib.forgespi.language.ModFileScanData;
+import ports.projecte.lib.common.capabilities.RegisterCapabilitiesEvent;
+import ports.projecte.lib.event.entity.EntityAttributeCreationEvent;
+import ports.projecte.lib.registries.ForgeRegistries;
+import ports.projecte.lib.registries.IForgeRegistry;
+import ports.projecte.lib.registries.NewRegistryEvent;
+import ports.projecte.lib.registries.RegisterEvent;
+import ports.projecte.lib.registries.RegistryManager;
+import ports.projecte.lib.registries.SimpleForgeRegistry;
+import ports.projecte.lib.registries.VanillaForgeRegistry;
+import ports.projecte.platform.Platform;
+
+/**
+ * Drives the port's mods through Forge's loading stages: construction, registry creation, registration, config
+ * loading, common setup, client setup and inter-mod messages.
+ */
+public final class FabricLifecycle {
+
+    private record OwnMod(String modId, Supplier<Object> constructor) {
+    }
+
+    /**
+     * Module ids built from this port. A loaded jar must register before common setup runs.
+     */
+    public static final List<String> OWN_MODS = List.of("projecte");
+
+    private static final List<OwnMod> MODS = new ArrayList<>();
+    private static final List<ModContainer> CONTAINERS = new ArrayList<>();
+    private static boolean started;
+
+    private FabricLifecycle() {
+    }
+
+    /**
+     * Adds one of the port's mods. Mods are constructed in the order they are added, once every loaded module has
+     * registered.
+     */
+    public static void addMod(String modId, Supplier<Object> constructor) {
+        if (started) {
+            throw new IllegalStateException("Mod " + modId + " registered after loading started");
+        }
+        if (MODS.stream().anyMatch(mod -> mod.modId().equals(modId))) {
+            throw new IllegalStateException("Mod " + modId + " is already registered");
+        }
+        MODS.add(new OwnMod(modId, constructor));
+    }
+
+    /**
+     * Starts common setup once every installed module jar has called {@link #addMod}. Further calls do nothing.
+     */
+    public static void tryStart() {
+        if (started) {
+            return;
+        }
+        long expected = OWN_MODS.stream().filter(id -> FabricLoader.getInstance().isModLoaded(id)).count();
+        if (MODS.size() != expected) {
+            return;
+        }
+        // Entrypoints can run in any order. Own mods construct in OWN_MODS order.
+        MODS.sort(Comparator.comparingInt(mod -> {
+            int index = OWN_MODS.indexOf(mod.modId());
+            return index < 0 ? OWN_MODS.size() : index;
+        }));
+        started = true;
+        startCommon();
+    }
+
+    private static void startCommon() {
+        for (OwnMod mod : MODS) {
+            ModContainer container = ModList.get().addOwnContainer(mod.modId());
+            ModLoadingContext.get().setActiveContainer(container);
+            try {
+                mod.constructor().get();
+            } finally {
+                ModLoadingContext.get().setActiveContainer(null);
+            }
+            CONTAINERS.add(container);
+        }
+        registerAutomaticSubscribers();
+        postToMods(new NewRegistryEvent(builder -> Platform.backend().createRegistry(builder)));
+        registerContent();
+        FabricTransfer.registerBlockEntityLookups(MODS.stream().map(OwnMod::modId).collect(Collectors.toSet()));
+        postToMods(new EntityAttributeCreationEvent());
+        // Capabilities are name-keyed here and created on first use; the event only lets mods name theirs, as on Forge.
+        postToMods(new RegisterCapabilitiesEvent());
+        if (Platform.dist() == Dist.CLIENT) {
+            ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get());
+        }
+        ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.COMMON, FMLPaths.CONFIGDIR.get());
+        forEachMod(container -> container.getEventBus().post(new FMLCommonSetupEvent(container)));
+        if (Platform.dist() == Dist.DEDICATED_SERVER) {
+            finishLoading();
+        }
+    }
+
+    public static void startClient() {
+        forEachMod(container -> container.getEventBus().post(new FMLClientSetupEvent(container)));
+        finishLoading();
+    }
+
+    public static void postToMods(Event event) {
+        for (ModContainer container : CONTAINERS) {
+            container.getEventBus().post(event);
+        }
+    }
+
+    public static void forEachMod(Consumer<ModContainer> action) {
+        CONTAINERS.forEach(action);
+    }
+
+    /**
+     * Registers the classes annotated with {@link Mod.EventBusSubscriber} for the running side, as Forge's
+     * {@code AutomaticEventSubscriber} does before any registration event.
+     */
+    private static void registerAutomaticSubscribers() {
+        Type subscriberType = Type.getType(Mod.EventBusSubscriber.class);
+        String dist = Platform.dist().name();
+        for (ModFileScanData scanData : ModList.get().getAllScanData()) {
+            for (ModFileScanData.AnnotationData annotation : scanData.getAnnotations()) {
+                if (!annotation.annotationType().equals(subscriberType)) {
+                    continue;
+                }
+                Map<String, Object> values = annotation.annotationData();
+                List<?> dists = (List<?>) values.get("value");
+                if (dists != null && dists.stream().noneMatch(holder -> ((ModAnnotation.EnumHolder) holder).getValue().equals(dist))) {
+                    continue;
+                }
+                String modId = (String) values.getOrDefault("modid", "");
+                ModContainer container = CONTAINERS.stream()
+                      .filter(candidate -> modId.isEmpty() || candidate.getModId().equals(modId))
+                      .findFirst()
+                      .orElseThrow(() -> new IllegalStateException("No mod " + modId + " for subscriber " + annotation.clazz().getClassName()));
+                Class<?> subscriber;
+                try {
+                    subscriber = Class.forName(annotation.clazz().getClassName(), true, FabricLifecycle.class.getClassLoader());
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("Failed to load event subscriber " + annotation.clazz().getClassName(), e);
+                }
+                ModAnnotation.EnumHolder bus = (ModAnnotation.EnumHolder) values.get("bus");
+                if (bus != null && bus.getValue().equals(Mod.EventBusSubscriber.Bus.MOD.name())) {
+                    container.getEventBus().register(subscriber);
+                } else {
+                    MinecraftForge.EVENT_BUS.register(subscriber);
+                }
+            }
+        }
+    }
+
+    private static void finishLoading() {
+        forEachMod(container -> container.getEventBus().post(new InterModEnqueueEvent(container)));
+        forEachMod(container -> container.getEventBus().post(new InterModProcessEvent(container)));
+    }
+
+    /**
+     * Fires one {@link RegisterEvent} per registry. Fluid types, fluids, blocks and items go first, in that order,
+     * because the port's buckets and liquid blocks look their fluid up when they are created; the rest follow sorted
+     * by name, as on Forge. Configured and placed features live in {@link BuiltinRegistries}; they are filled after the
+     * static registries and opened only if something already froze them.
+     */
+    private static void registerContent() {
+        Map<ResourceKey<? extends Registry<?>>, RegisterEvent.Registrar> registrars = new LinkedHashMap<>();
+        registrars.put(ForgeRegistries.Keys.FLUID_TYPES, (name, value) -> FluidTypes.REGISTRY.register(name, cast(value)));
+        registrars.put(Registry.FLUID_REGISTRY, vanilla(Registry.FLUID));
+        registrars.put(Registry.BLOCK_REGISTRY, vanilla(Registry.BLOCK));
+        registrars.put(Registry.ITEM_REGISTRY, vanilla(Registry.ITEM));
+
+        Map<ResourceKey<? extends Registry<?>>, RegisterEvent.Registrar> rest = new LinkedHashMap<>();
+        for (Registry<?> registry : Registry.REGISTRY) {
+            rest.putIfAbsent(registry.key(), vanilla(registry));
+        }
+        RegisterEvent.Registrar serializers = forgeOnly(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS);
+        rest.put(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, (name, value) -> {
+            serializers.register(name, value);
+            EntityDataSerializers.registerSerializer((EntityDataSerializer<?>) value);
+        });
+        rest.put(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, forgeOnly(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS));
+        rest.put(ForgeRegistries.Keys.STRUCTURE_MODIFIER_SERIALIZERS, forgeOnly(ForgeRegistries.Keys.STRUCTURE_MODIFIER_SERIALIZERS));
+        rest.keySet().removeAll(registrars.keySet());
+        rest.entrySet().stream()
+              .sorted(Comparator.comparing(entry -> entry.getKey().location().toString()))
+              .forEachOrdered(entry -> registrars.put(entry.getKey(), entry.getValue()));
+
+        registrars.forEach((key, registrar) -> postToMods(new RegisterEvent(key, registrar)));
+        registerWorldgen();
+    }
+
+    /**
+     * Configured and placed features are not in {@link Registry#REGISTRY}. Forge still fires their registration events.
+     * Configured features are registered first: a placed feature holds the configured feature's registry holder.
+     */
+    private static void registerWorldgen() {
+        registerWorldgen(BuiltinRegistries.CONFIGURED_FEATURE);
+        registerWorldgen(BuiltinRegistries.PLACED_FEATURE);
+    }
+
+    private static void registerWorldgen(Registry<?> registry) {
+        RegistryManager.ACTIVE.add(new VanillaForgeRegistry<>(registry));
+        whileWritable(registry, () -> postToMods(new RegisterEvent(registry.key(), vanilla(registry))));
+    }
+
+    /**
+     * Runs {@code action} with {@code registry} writable, then restores its previous frozen state. The worldgen registries
+     * may still be open here: other mods initialised after ProjectE register their own features into them, and in
+     * Tekxit 4 freezing them unconditionally crashed every later mod with "Registry is already frozen".
+     */
+    public static void whileWritable(Registry<?> registry, Runnable action) {
+        if (!(registry instanceof MappedRegistry<?> mapped) || !mapped.frozen) {
+            action.run();
+            return;
+        }
+        mapped.frozen = false;
+        try {
+            action.run();
+        } finally {
+            mapped.freeze();
+        }
+    }
+
+    private static RegisterEvent.Registrar vanilla(Registry<?> registry) {
+        return (name, value) -> Registry.register(FabricLifecycle.<Registry<Object>>cast(registry), name, value);
+    }
+
+    /**
+     * Registries Forge adds that have no vanilla counterpart; the port keeps their entries for its own adapters.
+     */
+    private static <T> RegisterEvent.Registrar forgeOnly(ResourceKey<Registry<T>> key) {
+        IForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(key);
+        if (registry == null) {
+            registry = new SimpleForgeRegistry<>(key, null, null);
+            RegistryManager.ACTIVE.add(registry);
+        }
+        SimpleForgeRegistry<T> simple = (SimpleForgeRegistry<T>) registry;
+        return (name, value) -> simple.register(name, cast(value));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T cast(Object value) {
+        return (T) value;
+    }
+}
