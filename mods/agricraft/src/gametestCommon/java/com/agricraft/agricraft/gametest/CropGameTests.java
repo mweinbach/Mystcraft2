@@ -66,16 +66,20 @@ public class CropGameTests {
 		int expected = player.isCreative() ? 2 : 1;
 		check(seed.getCount() == expected, "planting left " + seed.getCount() + " seeds, expected " + expected);
 		check(helper.getBlockState(soil.above()).getValue(CropBlock.CROP_STATE) == CropState.PLANT_STICKS, "crop sticks did not switch to the planted state");
-		check(crop.isFertile(), "wheat on wet farmland in daylight should be fertile: " + crop.getFertilityResponse());
-		int ticks = 0;
-		while (!crop.isFullyGrown() && ticks < 2000) {
-			crop.applyGrowthTick();
-			ticks++;
-		}
-		check(crop.isFullyGrown(), "wheat did not reach its final stage after 2000 growth ticks (stage " + crop.getGrowthStage().index() + ")");
-		check(!crop.hasWeeds(), "weeds grew on a resistance-10 plant");
-		check(helper.getBlockState(soil).is(Blocks.FARMLAND), "farmland under crop sticks turned into dirt");
-		helper.succeed();
+		// the light engine relights the freshly placed test area off-thread, so wait for daylight to reach the crop
+		helper.startSequence()
+				.thenWaitUntil(() -> check(crop.isFertile(), "wheat on wet farmland in daylight should be fertile: " + crop.getFertilityResponse()))
+				.thenExecute(() -> {
+					int ticks = 0;
+					while (!crop.isFullyGrown() && ticks < 2000) {
+						crop.applyGrowthTick();
+						ticks++;
+					}
+					check(crop.isFullyGrown(), "wheat did not reach its final stage after 2000 growth ticks (stage " + crop.getGrowthStage().index() + ")");
+					check(!crop.hasWeeds(), "weeds grew on a resistance-10 plant");
+					check(helper.getBlockState(soil).is(Blocks.FARMLAND), "farmland under crop sticks turned into dirt");
+				})
+				.thenSucceed();
 	}
 
 	@GameTest(template = TEMPLATE)
