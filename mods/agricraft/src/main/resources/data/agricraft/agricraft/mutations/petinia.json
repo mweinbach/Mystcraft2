@@ -1,0 +1,6 @@
+{
+  "chance": 0.25,
+  "child": "agricraft:petinia",
+  "parent1": "agricraft:ferranium",
+  "parent2": "minecraft:wheat"
+}

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:nickel_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/nickel",
+      "required": false
+    }
+  ]
+}

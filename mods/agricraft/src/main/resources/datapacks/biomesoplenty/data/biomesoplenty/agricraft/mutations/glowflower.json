@@ -1,0 +1,6 @@
+{
+  "chance": 0.5,
+  "child": "biomesoplenty:glowflower",
+  "parent1": "minecraft:lily_of_the_valley",
+  "parent2": "minecraft:blue_orchid"
+}

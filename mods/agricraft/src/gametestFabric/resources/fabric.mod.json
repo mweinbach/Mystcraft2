@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "agricraft_gametest",
+  "version": "1.0.0",
+  "name": "AgriCraft Game Tests",
+  "description": "Development-only server tests for the Fabric build of AgriCraft.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.agricraft.agricraft.gametest.CropGameTests",
+      "com.agricraft.agricraft.gametest.AnalyzerGameTests",
+      "com.agricraft.agricraft.gametest.EmcGameTests"
+    ]
+  },
+  "depends": {
+    "agricraft": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

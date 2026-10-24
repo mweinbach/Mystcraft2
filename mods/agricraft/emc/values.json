@@ -1,0 +1,101 @@
+{
+  "namespace": "agricraft",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "agricraft:amathyllis_petal": {
+      "projecte": 4,
+      "itemalchemy": 4,
+      "source": "explicit"
+    },
+    "agricraft:clipper": {
+      "projecte": 776,
+      "itemalchemy": 764,
+      "source": "recipe"
+    },
+    "agricraft:coal_pebble": {
+      "projecte": 15,
+      "itemalchemy": 434,
+      "source": "explicit"
+    },
+    "agricraft:copper_nugget": {
+      "projecte": 15,
+      "itemalchemy": 15,
+      "source": "explicit"
+    },
+    "agricraft:debugger": {
+      "excluded": "Creative-only developer tool with no recipe."
+    },
+    "agricraft:diamond_shard": {
+      "projecte": 911,
+      "itemalchemy": 228,
+      "source": "explicit"
+    },
+    "agricraft:emerald_shard": {
+      "projecte": 1821,
+      "itemalchemy": 57,
+      "source": "explicit"
+    },
+    "agricraft:iron_crop_sticks": {
+      "projecte": 7,
+      "itemalchemy": 7,
+      "source": "recipe"
+    },
+    "agricraft:iron_rake": {
+      "projecte": 100,
+      "itemalchemy": 64,
+      "source": "recipe"
+    },
+    "agricraft:journal": {
+      "excluded": "Crafted from a writable book and any seed, and records researched plants in NBT; a transmuted copy would be a blank journal, and pricing it on the seed tag would price AgriCraft seeds through the back door."
+    },
+    "agricraft:magnifying_glass": {
+      "projecte": 16,
+      "itemalchemy": 17,
+      "source": "recipe"
+    },
+    "agricraft:netherite_sliver": {
+      "projecte": 1366,
+      "itemalchemy": 1366,
+      "source": "explicit"
+    },
+    "agricraft:obsidian_crop_sticks": {
+      "projecte": 16,
+      "itemalchemy": 16,
+      "source": "recipe"
+    },
+    "agricraft:quartz_shard": {
+      "projecte": 29,
+      "itemalchemy": 29,
+      "source": "explicit"
+    },
+    "agricraft:seed": {
+      "excluded": "One item for every plant: the species and six stats live in NBT, which transmutation does not copy, and mutations breed rare plants from common seeds, so any value would let cheap seeds be bred into EMC."
+    },
+    "agricraft:seed_analyzer": {
+      "projecte": 32,
+      "itemalchemy": 38,
+      "source": "recipe"
+    },
+    "agricraft:seed_bag": {
+      "projecte": 204,
+      "itemalchemy": 204,
+      "source": "recipe"
+    },
+    "agricraft:trowel": {
+      "projecte": 516,
+      "itemalchemy": 508,
+      "source": "recipe"
+    },
+    "agricraft:wooden_crop_sticks": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "agricraft:wooden_rake": {
+      "projecte": 17,
+      "itemalchemy": 36,
+      "source": "recipe"
+    }
+  }
+}

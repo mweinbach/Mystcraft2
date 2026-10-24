@@ -1,0 +1,7 @@
+{
+  "parent": "agricraft:crop/crop_gourd",
+  "textures": {
+    "crop": "agricraft:plant/pumpkin_stage3",
+    "gourd": "minecraft:block/pumpkin_side"
+  }
+}

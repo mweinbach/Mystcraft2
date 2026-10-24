@@ -1,0 +1,6 @@
+{
+  "parent": "agricraft:crop/crop_hash",
+  "textures": {
+    "crop": "minecraft:block/nether_wart_stage2"
+  }
+}

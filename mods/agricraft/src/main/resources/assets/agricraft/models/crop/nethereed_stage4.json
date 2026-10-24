@@ -1,0 +1,7 @@
+{
+  "parent": "agricraft:crop/tall_crop_hash",
+  "textures": {
+    "crop": "agricraft:plant/nethereed_base_stage2",
+    "crop_top": "agricraft:plant/nethereed_stage2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "values": [
+    "minecraft:coal_ore",
+    "minecraft:deepslate_coal_ore",
+    {
+      "id": "#minecraft:coal_ores",
+      "required": false
+    },
+    {
+      "id": "#c:coal_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/coal",
+      "required": false
+    }
+  ]
+}

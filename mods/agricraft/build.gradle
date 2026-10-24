@@ -1,0 +1,83 @@
+// AgriCraft for Forge: the shared core in src/main plus the Forge adapters in src/forge. The Fabric
+// variant builds from the same sources in fabric/.
+sourceSets.main.java.srcDir 'src/forge/java'
+sourceSets.main.resources.srcDir 'src/forge/resources'
+base.archivesName = 'agricraft-forge-1.19.2'
+
+minecraft.accessTransformer = file('src/forge/resources/META-INF/accesstransformer.cfg')
+
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        // ResourcefulConfig, AgriCraft's config library (Tekxit 4's Fabric side ships 1.0.20).
+        url = 'https://nexus.resourcefulbees.com/repository/maven-public/'
+        content { includeGroup 'com.teamresourceful.resourcefulconfig' }
+    }
+}
+dependencies {
+    implementation fg.deobf('com.teamresourceful.resourcefulconfig:resourcefulconfig-forge-1.19.2:1.0.20')
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
+    if (providers.gradleProperty('withProjectE').isPresent()) {
+        runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
+    }
+}
+
+// Map official-name mixin targets to SRG names for the reobfuscated JAR.
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+def mixinRefmap = layout.buildDirectory.file('generated/mixin/agricraft.forge.refmap.json')
+tasks.named('compileJava', JavaCompile) {
+    dependsOn tasks.named('createMcpToSrg')
+    outputs.file(mixinRefmap)
+    doFirst { mixinRefmap.get().asFile.parentFile.mkdirs() }
+    options.compilerArgs += [
+        '-AmappingTypes=tsrg',
+        "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile}",
+        "-AoutRefMapFile=${mixinRefmap.get().asFile}",
+        '-AdefaultObfuscationEnv=searge'
+    ]
+}
+tasks.named('processResources', ProcessResources) {
+    dependsOn tasks.named('compileJava')
+    from(mixinRefmap)
+}
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'agricraft.forge.mixins.json')
+    from('NOTICE.md') { into 'META-INF'; rename { 'AgriCraft-NOTICE.md' } }
+}
+minecraft.runs.configureEach {
+    args '--mixin.config', 'agricraft.forge.mixins.json'
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
+
+// GameTests are merged into the mod only for the GameTest server run, never into the JAR.
+sourceSets {
+    gametest {
+        java.srcDirs = ['src/gametestCommon/java', 'src/gametestForge/java']
+        resources.srcDirs = []
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+minecraft.runs {
+    gameTestServer {
+        property 'forge.enableGameTest', 'true'
+        property 'forge.enabledGameTestNamespaces', portMetadata.mod_id
+        property 'emc.values', file('emc/values.json').absolutePath
+        mods {
+            "${portMetadata.mod_id}" { source sourceSets.gametest }
+        }
+    }
+}
+def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
+    from 'src/gametestCommon/structures'
+    into 'run/gameTestServer/gameteststructures'
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn copyGameTestStructures, tasks.named('gametestClasses')
+}

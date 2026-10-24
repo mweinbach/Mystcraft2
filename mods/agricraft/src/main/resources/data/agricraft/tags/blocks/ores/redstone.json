@@ -1,0 +1,14 @@
+{
+  "values": [
+    "minecraft:redstone_ore",
+    "minecraft:deepslate_redstone_ore",
+    {
+      "id": "#c:redstone_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/redstone",
+      "required": false
+    }
+  ]
+}

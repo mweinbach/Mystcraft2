@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "agricraft",
+  "version": "${version}",
+  "name": "AgriCraft",
+  "description": "${mod_description}",
+  "authors": [
+    "InfinityRaider",
+    "Ketheroth",
+    "AgriCraft contributors",
+    "1.19.2 port contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/mweinbach/Mystcraft2/tree/main/mods/agricraft",
+    "sources": "https://github.com/mweinbach/Mystcraft2",
+    "issues": "https://github.com/mweinbach/Mystcraft2/issues"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.agricraft.agricraft.fabric.AgriCraftFabric"],
+    "client": ["com.agricraft.agricraft.client.fabric.AgriCraftFabricClient"]
+  },
+  "mixins": ["agricraft.fabric.mixins.json"],
+  "accessWidener": "agricraft.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.77.0",
+    "minecraft": "1.19.2",
+    "java": ">=17",
+    "resourcefulconfig": ">=1.0.20"
+  },
+  "suggests": {
+    "itemalchemy": "*"
+  }
+}

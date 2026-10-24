@@ -1,0 +1,18 @@
+{
+  "values": [
+    "minecraft:diamond_ore",
+    "minecraft:deepslate_diamond_ore",
+    {
+      "id": "#minecraft:diamond_ores",
+      "required": false
+    },
+    {
+      "id": "#c:diamond_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/diamond",
+      "required": false
+    }
+  ]
+}
