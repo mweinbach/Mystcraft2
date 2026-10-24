@@ -11,9 +11,12 @@
   "block.gridwright.potion_generator": "Potion Generator",
   "block.gridwright.ender_generator": "Ender Generator",
   "block.gridwright.redstone_generator": "Redstone Generator",
+  "block.gridwright.deep_dark_portal": "Deep Dark Portal",
   "item.gridwright.grid_crystal": "Grid Crystal",
   "item.gridwright.machine_frame": "Machine Frame",
   "itemGroup.gridwright.tab": "Gridwright",
+  "biome.gridwright.deep_caverns": "Deep Caverns",
+  "dimension.gridwright.deep_dark": "Deep Dark",
   "message.gridwright.producer.output": "Producing %s GP",
   "message.gridwright.grid.no_owner": "Not on any grid (no owner)",
   "message.gridwright.grid.team": "team %s",
@@ -155,5 +158,9 @@
   "screen.gridwright.worker.status.finished": "Finished",
   "screen.gridwright.worker.status.paused": "Paused by redstone",
   "screen.gridwright.worker.status.protected": "Protected: not allowed here",
-  "tooltip.gridwright.speed_upgrade.quarry": "Quarries: each one mines faster, for more power; counts up to %s"
+  "tooltip.gridwright.speed_upgrade.quarry": "Quarries: each one mines faster, for more power; counts up to %s",
+  "message.gridwright.deep_dark.missing": "The Deep Dark is not available on this server",
+  "message.gridwright.deep_dark.no_arrival": "No safe place to arrive in the Deep Dark was found here",
+  "message.gridwright.deep_dark.blocked": "Something stopped the trip",
+  "message.gridwright.deep_dark.no_return": "No safe place to return to was found; try again later"
 }

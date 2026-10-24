@@ -53,6 +53,11 @@
       "itemalchemy": 1532,
       "source": "recipe"
     },
+    "gridwright:deep_dark_portal": {
+      "projecte": 3146,
+      "itemalchemy": 3130,
+      "source": "recipe"
+    },
     "gridwright:destruction_wand": {
       "projecte": 8200,
       "itemalchemy": 2056,

@@ -79,6 +79,26 @@ Both mechanical blocks and both quarries act only as their owner, through a fake
 owner's profile, and fire the loaders' own break and right-click events before acting, so claim and
 protection mods can refuse them exactly as they would refuse the player. Unowned machines do nothing.
 
+## Phase 2c: Deep Dark
+
+Entirely shared: the dimension, biome and ore features are datapack JSON in `src/main/resources`, and
+travel uses vanilla `ServerPlayer#teleportTo`, which fires Forge's `PlayerChangedDimensionEvent` and
+Fabric's `AFTER_PLAYER_CHANGE_WORLD`. GameTests: `DeepDarkGameTests` (both loaders). Forge's GameTest
+server loads datapack dimensions, so `arrivalInGeneratedDeepDark` also arrives in real generated
+terrain there; Fabric's GameTest server is built from built-in registries and has no Deep Dark, so that
+test only checks the missing-dimension path on Fabric, and the datapack itself is decoded and checked
+on both loaders by the other tests.
+
+| XU2 public behaviour | Gridwright implementation | Deliberate differences |
+| --- | --- | --- |
+| A portal block is right-clicked to travel to the Deep Dark. | `gridwright:deep_dark_portal`, a crafted block (no GUI). Right-click on the server schedules the trip for straight after the current tick. 1:1 x/z. | A 3-second per-player cooldown stops double-click ping-pong. Machines and fake players never travel. |
+| Using a portal in the Deep Dark returns you to the Overworld. | Returns you to the exact dimension and position you entered from (saved per player in overworld `SavedData`, so it survives restarts on both loaders). | If that spot is now blocked, unsafe or no longer has a floor within a block (water and ladders count), a clear spot nearby is used; if the dimension is gone or there is no record, the overworld surface at your x/z (MOTION_BLOCKING heightmap), else world spawn. Surface fallbacks use the nearest column inside the world border and never put you on or in something harmful (magma, cactus, berry bushes, fire, lava, powder snow). If no safe destination exists at all, the trip is cancelled with a message. |
+| A portal appears where you arrive so you can get back. | Arrival searches a 7×7×25 box for two blocks of air over a sturdy floor with no lava or fire within a block; failing that it digs a 3×3×3 room, gives it a floor and seals fluids and falling blocks around it. A glowing (light 10) return portal is placed beside you, or reused if one already touches your standing space. | Arrivals stay inside the world border. Bedrock, unbreakable blocks and block entities are never removed. Return portals the mod places drop nothing when broken, so trips cannot mint portals. |
+| An underground, cave-like dimension with no natural light. | Datapack dimension `gridwright:deep_dark` (type `gridwright:deep_dark`): no skylight, a ceiling, ambient light 0, y 0–127 between a bedrock floor (y 0–4) and roof (y 123–127); stone above y≈48, deepslate below; large caverns plus noodle tunnels; a fixed night clock. | Beds and respawn anchors do not work there (no respawning in the Deep Dark); compasses and clocks spin. |
+| More ores than normal. | Biome `gridwright:deep_caverns` places vanilla ore features about 2–2.5× vanilla's per-chunk counts (diamonds ≈1.7× and only below y 48). | Other mods' ores are not copied in automatically; packs add them via biome modifiers / `BiomeModifications` targeting `#gridwright:is_deep_dark`. |
+| Hostile mobs spawn more often. | Monster-only spawn list with weights at or above the overworld's and larger groups; monsters spawn at block light 0, which is everywhere you have not lit. No passive, ambient or water mobs. | Mobs are vanilla mobs with vanilla stats (no strength boost). |
+| Players are hurt by staying in the dark ("the Darkness"). | Not implemented. | Left out on purpose: darkness already means constant spawns; a damage-over-time effect is a later, optional idea. |
+
 ## Deliberate loader differences
 
 - **Sound muffling coverage.** Forge muffles on the client, where the level sound event fires for
@@ -103,5 +123,5 @@ protection mods can refuse them exactly as they would refuse the player. Unowned
 
 ## Not implemented
 
-See the README's plan and known gaps: transfer nodes and the Deep Dark are other phases; there is no
-cursed lasso, creative wand or drum, Angel Ring wings or Curios/Trinkets slot, or spike enchantment.
+See the README's plan and known gaps: there is no cursed lasso, creative wand or drum, Angel Ring
+wings or Curios/Trinkets slot, or spike enchantment, and no damage-over-time darkness in the Deep Dark.

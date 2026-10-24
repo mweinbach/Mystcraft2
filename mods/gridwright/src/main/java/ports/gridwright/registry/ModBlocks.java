@@ -1,5 +1,6 @@
 package ports.gridwright.registry;
 
+import ports.gridwright.block.DeepDarkPortalBlock;
 import ports.gridwright.block.MachineBlock;
 import ports.gridwright.block.MechanicalBlock;
 import ports.gridwright.block.ProducerBlock;
@@ -49,6 +50,10 @@ public final class ModBlocks {
     public static final Supplier<MechanicalBlock> MECHANICAL_USER = register("mechanical_user", () -> new MechanicalBlock(
             WorkerBlock.Kind.MECHANICAL_USER, BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).sound(SoundType.STONE)
                     .requiresCorrectToolForDrops()));
+    /** Right-click travel to and from the Deep Dark; glows so a return portal is easy to find in the dark. */
+    public static final Supplier<DeepDarkPortalBlock> DEEP_DARK_PORTAL = register("deep_dark_portal", () -> new DeepDarkPortalBlock(
+            BlockBehaviour.Properties.of(Material.STONE).strength(5.0F, 1200.0F).requiresCorrectToolForDrops()
+                    .sound(SoundType.DEEPSLATE).lightLevel(state -> 10)));
 
     private ModBlocks() { }
 

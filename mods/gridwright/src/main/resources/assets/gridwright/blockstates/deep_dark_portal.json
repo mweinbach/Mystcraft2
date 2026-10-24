@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "generated=false": {
+      "model": "gridwright:block/deep_dark_portal"
+    },
+    "generated=true": {
+      "model": "gridwright:block/deep_dark_portal"
+    }
+  }
+}

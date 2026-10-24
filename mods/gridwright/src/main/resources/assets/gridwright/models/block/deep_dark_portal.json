@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "gridwright:block/deep_dark_portal_top",
+    "side": "gridwright:block/deep_dark_portal_side"
+  }
+}

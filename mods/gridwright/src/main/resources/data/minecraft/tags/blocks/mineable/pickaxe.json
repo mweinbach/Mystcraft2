@@ -47,6 +47,7 @@
     "gridwright:quarry_actuator",
     "gridwright:ender_quarry",
     "gridwright:mechanical_miner",
-    "gridwright:mechanical_user"
+    "gridwright:mechanical_user",
+    "gridwright:deep_dark_portal"
   ]
 }

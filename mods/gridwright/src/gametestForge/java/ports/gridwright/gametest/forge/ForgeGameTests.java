@@ -10,6 +10,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import ports.gridwright.Gridwright;
+import ports.gridwright.gametest.DeepDarkGameTests;
 import ports.gridwright.gametest.EmcGameTests;
 import ports.gridwright.gametest.GeneratorGameTests;
 import ports.gridwright.gametest.GridGameTests;
@@ -45,7 +46,8 @@ public class ForgeGameTests {
     private static final List<Class<?>> SHARED_TESTS = List.of(GridGameTests.class, ProducerGameTests.class,
             GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
             UtilityItemGameTests.class, UtilityBlockGameTests.class,
-            WardGameTests.class, TransferGameTests.class, QuarryGameTests.class, MechanicalGameTests.class);
+            WardGameTests.class, TransferGameTests.class, QuarryGameTests.class, MechanicalGameTests.class,
+            DeepDarkGameTests.class);
     private static boolean protectionInstalled;
 
     @GameTestGenerator
