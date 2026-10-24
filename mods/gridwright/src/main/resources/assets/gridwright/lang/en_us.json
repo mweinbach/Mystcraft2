@@ -108,7 +108,7 @@
   "item.gridwright.stack_upgrade": "Stack Upgrade",
   "item.gridwright.world_interaction_upgrade": "World Interaction Upgrade",
   "item.gridwright.item_filter": "Item Filter",
-  "tooltip.gridwright.speed_upgrade": "Each one adds an operation per second",
+  "tooltip.gridwright.speed_upgrade": "Transfer nodes: each one adds an operation per second",
   "tooltip.gridwright.stack_upgrade": "Moves a stack or 1000 mB per operation",
   "tooltip.gridwright.world_interaction_upgrade": "Mines, places, pumps or pours at the node's front",
   "tooltip.gridwright.upgrade.cost": "%s GP each, counts up to %s",
@@ -154,5 +154,6 @@
   "screen.gridwright.worker.status.waiting": "Waiting for chunks to load",
   "screen.gridwright.worker.status.finished": "Finished",
   "screen.gridwright.worker.status.paused": "Paused by redstone",
-  "screen.gridwright.worker.status.protected": "Protected: not allowed here"
+  "screen.gridwright.worker.status.protected": "Protected: not allowed here",
+  "tooltip.gridwright.speed_upgrade.quarry": "Quarries: each one mines faster, for more power; counts up to %s"
 }

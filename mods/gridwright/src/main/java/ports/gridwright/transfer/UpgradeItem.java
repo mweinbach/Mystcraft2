@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import ports.gridwright.grid.GridBlockEntity;
+import ports.gridwright.worker.Upgrades;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -30,5 +31,10 @@ public class UpgradeItem extends Item {
         tooltip.add(Component.translatable("tooltip.gridwright." + kind.id()).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.gridwright.upgrade.cost", GridBlockEntity.format(kind.gp()),
                 kind.maxCounted()).withStyle(ChatFormatting.DARK_AQUA));
+        // The quarries take the same speed upgrade, with their own cap.
+        if (kind == UpgradeKind.SPEED) {
+            tooltip.add(Component.translatable("tooltip.gridwright.speed_upgrade.quarry", Upgrades.MAX_SPEED)
+                    .withStyle(ChatFormatting.GRAY));
+        }
     }
 }
