@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "gridwright:block/quantum_quarry_side",
+    "top": "gridwright:block/quantum_quarry_top",
+    "bottom": "gridwright:block/machine_bottom"
+  }
+}

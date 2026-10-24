@@ -4,12 +4,18 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestGenerator;
 import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.gametest.framework.TestFunction;
+import net.minecraft.world.InteractionResult;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import ports.gridwright.Gridwright;
 import ports.gridwright.gametest.EmcGameTests;
 import ports.gridwright.gametest.GeneratorGameTests;
 import ports.gridwright.gametest.GridGameTests;
+import ports.gridwright.gametest.MechanicalGameTests;
 import ports.gridwright.gametest.ProducerGameTests;
+import ports.gridwright.gametest.QuarryGameTests;
 import ports.gridwright.gametest.ResonatorGameTests;
 import ports.gridwright.gametest.TestPlatform;
 import ports.gridwright.gametest.TransferGameTests;
@@ -17,6 +23,7 @@ import ports.gridwright.gametest.TransferTestPlatform;
 import ports.gridwright.gametest.UtilityBlockGameTests;
 import ports.gridwright.gametest.UtilityItemGameTests;
 import ports.gridwright.gametest.WardGameTests;
+import ports.gridwright.gametest.TestProtection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,7 +45,8 @@ public class ForgeGameTests {
     private static final List<Class<?>> SHARED_TESTS = List.of(GridGameTests.class, ProducerGameTests.class,
             GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
             UtilityItemGameTests.class, UtilityBlockGameTests.class,
-            WardGameTests.class, TransferGameTests.class);
+            WardGameTests.class, TransferGameTests.class, QuarryGameTests.class, MechanicalGameTests.class);
+    private static boolean protectionInstalled;
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
@@ -47,6 +55,7 @@ public class ForgeGameTests {
         ForgeTestPlatform.registerClaims();
         TransferTestPlatform.Holder.install(new ForgeTransferTestPlatform());
         ForgeTransferTestPlatform.register();
+        installProtection();
         List<TestFunction> functions = new ArrayList<>();
         for (Class<?> testClass : SHARED_TESTS) {
             Arrays.stream(testClass.getDeclaredMethods())
@@ -55,6 +64,21 @@ public class ForgeGameTests {
                     .forEach(method -> functions.add(function(testClass, method)));
         }
         return functions;
+    }
+
+    /** A stand-in claim mod: refuses breaks and right-clicks at positions the tests protect. */
+    private static synchronized void installProtection() {
+        if (protectionInstalled) return;
+        protectionInstalled = true;
+        MinecraftForge.EVENT_BUS.addListener((BlockEvent.BreakEvent event) -> {
+            if (TestProtection.isProtected(event.getPos())) event.setCanceled(true);
+        });
+        MinecraftForge.EVENT_BUS.addListener((PlayerInteractEvent.RightClickBlock event) -> {
+            if (TestProtection.isUseDenied(event.getPos())) {
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.FAIL);
+            }
+        });
     }
 
     private static TestFunction function(Class<?> testClass, Method method) {

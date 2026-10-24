@@ -4,7 +4,8 @@ A clean-room, Extra Utilities 2–style utility mod for Minecraft 1.19.2 on **Fo
 **Fabric (Loader 0.16.14, Fabric API 0.77.0+1.19.2)**, built from one shared core. Phase 1 adds a
 player-owned, cable-free power grid ("Grid Power", GP), the GP producers, a family of fuel generators
 that make the pack's normal energy, and the resonator, the first GP consumer. Phase 2a adds transfer
-nodes and pipes for items and fluids, their upgrades, retrieval nodes and filters.
+nodes and pipes for items and fluids, their upgrades, retrieval nodes and filters. Phase 2c adds the
+quantum and ender quarries and the mechanical miner and user.
 
 Read [`NOTICE.md`](NOTICE.md) first: Gridwright contains no Extra Utilities 2 code, art, sounds or
 language files, and is not affiliated with it. Every number below is Gridwright's own.
@@ -40,6 +41,31 @@ only starts an item whose container (bucket, bowl, bottle) fits in its output sl
 may insert fuel on any face and take only containers. Energy and GP are deliberately separate: there is
 no GP↔energy conversion in phase 1.
 
+## Quarries and mechanical blocks (phase 2c)
+
+| Feature | Blocks/items | Behaviour |
+| --- | --- | --- |
+| Quantum quarry | `quantum_quarry`, `quarry_actuator` | Mines a **virtual** world, never real terrain: one block every 40 ticks (divided by 1 + speed level), drawn from a weighted worldgen-style table (about 2.5% vanilla ore in the overworld) and dropped through the block's real loot table. Needs a quarry actuator on each of its four horizontal sides and **32 GP + 16 GP per upgrade level**. The n-th block depends only on the world seed, the quarry's position, n, the marker and the upgrades. Modded ores in `c:ores` / `forge:ores` join the table at a small weight (ids naming the nether or the end go to those tables, `deepslate_` ids to the deep layers); `#gridwright:quantum_quarry_excluded` removes blocks (including the base stone). Waits, holding the mined block and drawing nothing, while its output is full; breaking a quarry drops what it holds. |
+| Biome marker | `biome_marker` | Use it to record the biome you stand in; in the quantum quarry's marker slot it picks the table: nether and end biomes mine those dimensions' blocks, badlands have four times the gold, mountains emeralds, oceans clay and gravel, deserts sand. Plains without one. |
+| Ender quarry | `ender_quarry` | Mines real terrain inside a closed loop of fences or walls (`#gridwright:quarry_boundary`, any shape, at most 1,024 boundary blocks and 128 blocks across) that touches it, layer by layer from its own height to the bottom of the world, at 0.25 blocks/t (× 1 + speed). Runs on **Forge Energy / Team Reborn Energy** (100,000 store, accepts 10,000 per transfer) at 400 per block + 100 per speed, 200 per fortune level, 200 for silk touch. Skips air, fluids, unbreakable blocks, `#gridwright:unminable` (wither-immune blocks and spawners by default), block entities, and every block its owner may not break; works only in loaded chunks. |
+| Mechanical miner | `mechanical_miner` | Breaks the block in front of it as its owner would with the tool in its tool slot (or bare-handed): a player's break time, only the drops that tool harvests, tool wear. 4 GP while working; pauses on redstone. |
+| Mechanical user | `mechanical_user` | Every 20 ticks right-clicks the block in front with the next stack from its nine input slots (places blocks, flips levers, fills buckets, uses bone meal…); if that does nothing, uses the item in the air. Same-item leftovers go back to the input; anything else to its output (overflow drops in front). 2 GP while working; waits while no output slot is free; pauses on redstone. |
+| Upgrades | `speed_upgrade` (the transfer nodes' speed upgrade), `fortune_upgrade`, `silk_touch_upgrade` | Go in a quarry's three upgrade slots: speed counts up to 8 in a quarry, fortune up to 3, silk touch replaces fortune. Quarries mine with a netherite pickaxe carrying these enchantments. |
+
+**Protection.** Machines act only as their owner, through a fake player with the owner's name and
+UUID; a machine placed without an owner does nothing. Before any break the quarries and the miner
+check spawn protection, the world border and adventure-mode rules, then fire the loader's break event
+(Forge `BlockEvent.BreakEvent`, Fabric `PlayerBlockBreakEvents.BEFORE`), so claim mods can refuse it;
+refused blocks are skipped (ender quarry) or retried (miner, shown as *Protected*). The user's click goes
+through Forge `RightClickBlock` / Fabric `UseBlockCallback`; a refused click ends the action, and its use
+in the air happens only where the owner may also break the block in front and every block the item
+could aim at. GameTests on both loaders install a stand-in claim listener and check that protected
+blocks are neither mined nor used.
+
+All four have nine output slots that hoppers and pipes may empty from any face; their other slots
+accept only what they use. See [`docs/PARITY.md`](docs/PARITY.md) for how they compare with the
+public descriptions of the originals.
+
 ### Resonating recipes
 
 | Input | Output | GP | Ticks |
@@ -55,6 +81,11 @@ no GP↔energy conversion in phase 1.
 2. Resonate redstone into **grid crystals**; craft a **machine frame** (iron, smooth stone, crystal).
 3. Frames make the specialised generators and the **wind mill**; a crystal makes the **lunar panel**.
    The **survivalist generator** (cobblestone around a furnace, redstone) needs nothing from Gridwright.
+4. The **mechanical miner** and **user** are cobblestone, a dispenser, redstone and an iron pickaxe or a
+   piston. The **ender quarry** is a frame with obsidian, ender pearls, a diamond pickaxe and a hopper.
+5. The **quantum quarry** (frame, crystals, eyes of ender, two diamond blocks) and its four **actuators**
+   (frame, obsidian, diamond pickaxe each) are the late game; **upgrades** use a crystal with sugar and
+   redstone (speed), lapis blocks, gold and diamonds (fortune) or emeralds and string (silk touch).
 
 Every block and item has a survival recipe in [`src/main/resources/data/gridwright/recipes`](src/main/resources/data/gridwright/recipes).
 
@@ -157,9 +188,9 @@ blocks, spikes, sound muffler and wards) is done; see above.
 
 1. ~~**Transfer nodes and pipes** (item and fluid) with speed, stack, filter and world-interaction upgrades~~ — phase 2a, above.
 2. **GP ↔ energy converter** block, deliberately lossy, so GP can feed FE/TR machines and vice versa.
-3. **Quantum Quarry** (GP-powered void-dimension quarry) — respects claim/protection mods.
-4. **Ender Quarry** — area quarry that checks block-break permission for its owner.
-5. **Mechanical User / Mechanical Miner** (fake-player blocks; protection-aware).
+3. ~~**Quantum Quarry**~~ — done in phase 2c (virtual table rather than a void dimension).
+4. ~~**Ender Quarry**~~ — done in phase 2c.
+5. ~~**Mechanical User / Mechanical Miner**~~ — done in phase 2c.
 6. **Deep Dark** dimension.
 7. **Wards** (mob-spawn control); an optional Curios/Trinkets slot for the Angel Ring.
 8. More GP producers (fire, lava, manual, dragon-egg mills) and the **Rainbow generator**; lava
@@ -173,5 +204,8 @@ blocks, spikes, sound muffler and wards) is done; see above.
 - No JEI/REI/EMI category for resonating recipes yet.
 - Transfer nodes do not yet move energy or use Mekanism chemicals; there is no round-robin per item
   type, no redstone control and no node-to-node ender links.
+- The quarries do not chunk-load; the ender quarry waits while the chunks it mines are unloaded, and
+  re-reads its boundary only when it is broken and placed again.
+- The mechanical user does not attack or interact with entities (no shearing sheep or milking cows).
 - GP state is recomputed every tick from loaded blocks; unloaded producers stop counting, so a grid
   spread across unloaded chunks reports only what is loaded (by design, but worth knowing).

@@ -3,7 +3,7 @@ package ports.gridwright.forge;
 import ports.gridwright.Gridwright;
 import ports.gridwright.machine.EnergyBuffer;
 import ports.gridwright.machine.EnergyHolder;
-import ports.gridwright.machine.MachineBlockEntity;
+import ports.gridwright.machine.InventoryBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,8 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Forge capabilities on the machines: item handlers that follow each machine's face rules, and an
- * extract-only Forge Energy view of each generator's store.
+ * Forge capabilities on every Gridwright block with an inventory: item handlers that follow each
+ * block's face rules, and a Forge Energy view of energy stores that allows only the directions the
+ * store does (generators give, the ender quarry takes).
  */
 public final class ForgeCapabilityEvents {
 
@@ -35,7 +36,7 @@ public final class ForgeCapabilityEvents {
     }
 
     private static void onAttachBlockEntity(AttachCapabilitiesEvent<BlockEntity> event) {
-        if (event.getObject() instanceof MachineBlockEntity machine) {
+        if (event.getObject() instanceof InventoryBlockEntity machine) {
             MachineProvider provider = new MachineProvider(machine);
             event.addCapability(MACHINE_ID, provider);
             event.addListener(provider::invalidate);
@@ -44,11 +45,11 @@ public final class ForgeCapabilityEvents {
 
     private static final class MachineProvider implements ICapabilityProvider {
 
-        private final MachineBlockEntity machine;
+        private final InventoryBlockEntity machine;
         private LazyOptional<IEnergyStorage> energy;
         private final LazyOptional<?>[] items = new LazyOptional<?>[Direction.values().length + 1];
 
-        MachineProvider(MachineBlockEntity machine) {
+        MachineProvider(InventoryBlockEntity machine) {
             this.machine = machine;
         }
 
@@ -80,13 +81,13 @@ public final class ForgeCapabilityEvents {
         }
     }
 
-    /** Generators only give energy: other mods may extract, never insert. */
+    /** Other mods may move energy only in the directions the store allows. */
     private record EnergyView(EnergyBuffer energy) implements IEnergyStorage {
-        @Override public int receiveEnergy(int maxReceive, boolean simulate) { return 0; }
+        @Override public int receiveEnergy(int maxReceive, boolean simulate) { return (int) energy.receive(maxReceive, simulate); }
         @Override public int extractEnergy(int maxExtract, boolean simulate) { return (int) energy.extract(maxExtract, simulate); }
         @Override public int getEnergyStored() { return (int) Math.min(Integer.MAX_VALUE, energy.stored()); }
         @Override public int getMaxEnergyStored() { return (int) Math.min(Integer.MAX_VALUE, energy.capacity()); }
-        @Override public boolean canExtract() { return true; }
-        @Override public boolean canReceive() { return false; }
+        @Override public boolean canExtract() { return energy.maxExtract() > 0; }
+        @Override public boolean canReceive() { return energy.maxReceive() > 0; }
     }
 }

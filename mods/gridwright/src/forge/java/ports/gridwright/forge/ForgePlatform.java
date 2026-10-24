@@ -16,9 +16,15 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.authlib.GameProfile;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
@@ -32,6 +38,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 
+import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -121,4 +128,22 @@ final class ForgePlatform implements Platform.Backend {
 
     private static final GameProfile FAKE_PROFILE =
             new GameProfile(UUID.fromString("5f0c3e1a-8d2b-4c6e-9a47-6b1d2e3f4a5b"), "[Gridwright]");
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        FakePlayer player = FakePlayerFactory.get(level, profile);
+        // The factory keys players by profile only, so a player made in another dimension is moved here.
+        if (player.level != level) player.setLevel(level);
+        return player;
+    }
+
+    @Override
+    public boolean mayBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player));
+    }
+
+    @Override
+    public void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
+        // Forge's BreakEvent is the only break hook; there is no separate after-break event.
+    }
 }

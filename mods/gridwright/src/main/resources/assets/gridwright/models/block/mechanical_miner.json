@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "front": "gridwright:block/mechanical_miner_front",
+    "side": "gridwright:block/mechanical_side",
+    "top": "gridwright:block/mechanical_side",
+    "bottom": "gridwright:block/mechanical_side"
+  }
+}

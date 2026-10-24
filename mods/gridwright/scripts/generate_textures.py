@@ -165,6 +165,74 @@ def icon():
     return image
 
 
+def quarry_side(seed, glow, dark):
+    image = casing(seed, (70, 72, 82))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 3, 12, 12], fill=dark + (255,), outline=(40, 40, 46, 255))
+    draw.ellipse([5, 5, 10, 10], outline=glow + (255,))
+    draw.point((7, 7), fill=(255, 255, 255, 255))
+    draw.point((8, 8), fill=glow + (255,))
+    return image
+
+
+def quarry_top(seed, glow):
+    image = casing(seed, (80, 82, 92))
+    draw = ImageDraw.Draw(image)
+    draw.line([(3, 8), (12, 8)], fill=glow + (255,))
+    draw.line([(8, 3), (8, 12)], fill=glow + (255,))
+    draw.rectangle([6, 6, 9, 9], outline=glow + (255,))
+    return image
+
+
+def actuator_side(seed):
+    image = casing(seed, (96, 98, 106))
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(5, 3), (10, 3), (8, 12), (7, 12)], fill=(150, 220, 230, 255), outline=(60, 120, 130, 255))
+    draw.line([(3, 13), (12, 13)], fill=(60, 62, 66, 255))
+    return image
+
+
+def mechanical_front(seed, kind):
+    image = stone_casing(seed)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 3, 12, 12], fill=(40, 40, 44, 255), outline=(30, 30, 34, 255))
+    if kind == 'miner':
+        draw.line([(5, 11), (10, 6)], fill=(150, 100, 50, 255), width=2)
+        draw.arc([4, 3, 13, 10], 200, 340, fill=(200, 200, 210, 255), width=2)
+    else:
+        draw.rectangle([6, 7, 9, 11], fill=(230, 180, 140, 255))
+        for x in (5, 7, 9):
+            draw.line([(x, 4), (x, 7)], fill=(230, 180, 140, 255))
+        draw.line([(10, 7), (11, 6)], fill=(230, 180, 140, 255))
+    return image
+
+
+def upgrade(colour, mark):
+    image = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([2, 3, 13, 12], fill=(60, 64, 72, 255), outline=(30, 32, 36, 255))
+    draw.line([(4, 13), (4, 14)], fill=(200, 170, 60, 255))
+    draw.line([(7, 13), (7, 14)], fill=(200, 170, 60, 255))
+    draw.line([(10, 13), (10, 14)], fill=(200, 170, 60, 255))
+    if mark == 'fortune':
+        draw.polygon([(8, 4), (11, 8), (8, 11), (5, 8)], fill=colour + (255,), outline=(255, 255, 255, 255))
+    else:
+        draw.arc([4, 4, 11, 11], 0, 360, fill=colour + (255,))
+        draw.line([(4, 8), (11, 8)], fill=colour + (255,))
+    return image
+
+
+def biome_marker():
+    image = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 2, 12, 13], fill=(225, 215, 180, 255), outline=(120, 100, 70, 255))
+    draw.rectangle([5, 4, 10, 8], fill=(70, 150, 70, 255))
+    draw.rectangle([5, 8, 10, 9], fill=(60, 110, 200, 255))
+    draw.point((7, 6), fill=(200, 40, 40, 255))
+    draw.line([(5, 11), (10, 11)], fill=(120, 100, 70, 255))
+    return image
+
+
 def main():
     BLOCKS.mkdir(parents=True, exist_ok=True)
     ITEMS.mkdir(parents=True, exist_ok=True)
@@ -186,6 +254,18 @@ def main():
         BLOCKS / 'wind_mill_top.png': planks(15, (190, 160, 110)),
         ITEMS / 'grid_crystal.png': crystal(),
         ITEMS / 'machine_frame.png': frame(),
+        BLOCKS / 'quantum_quarry_side.png': quarry_side(20, (190, 90, 255), (40, 20, 60)),
+        BLOCKS / 'quantum_quarry_top.png': quarry_top(21, (190, 90, 255)),
+        BLOCKS / 'quarry_actuator_side.png': actuator_side(22),
+        BLOCKS / 'quarry_actuator_top.png': casing(23, (96, 98, 106)),
+        BLOCKS / 'ender_quarry_side.png': quarry_side(24, (60, 230, 190), (10, 50, 44)),
+        BLOCKS / 'ender_quarry_top.png': quarry_top(25, (60, 230, 190)),
+        BLOCKS / 'mechanical_side.png': stone_casing(26),
+        BLOCKS / 'mechanical_miner_front.png': mechanical_front(27, 'miner'),
+        BLOCKS / 'mechanical_user_front.png': mechanical_front(28, 'user'),
+        ITEMS / 'fortune_upgrade.png': upgrade((60, 90, 220), 'fortune'),
+        ITEMS / 'silk_touch_upgrade.png': upgrade((240, 240, 250), 'silk'),
+        ITEMS / 'biome_marker.png': biome_marker(),
         ROOT / 'icon.png': icon(),
     }
     for index, kind in enumerate(GENERATOR_COLOURS):

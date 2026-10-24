@@ -11,10 +11,11 @@ public final class GridwrightClient {
 
     private GridwrightClient() { }
 
-    /** Registers the machine and Bag of Holding screens; run on the client main thread. */
+    /** Registers the machine, worker and Bag of Holding screens; run on the client main thread. */
     public static void registerScreens() {
         MenuScreens.register(ModMenus.MACHINE.get(), MachineScreen::new);
         MenuScreens.<ChestMenu, ContainerScreen>register(ModUtilities.BAG_MENU.get(), ContainerScreen::new);
         TransferScreens.register();
+        MenuScreens.register(ModMenus.WORKER.get(), WorkerScreen::new);
     }
 }

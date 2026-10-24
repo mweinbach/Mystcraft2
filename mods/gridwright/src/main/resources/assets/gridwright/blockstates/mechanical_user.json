@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "gridwright:block/mechanical_user"
+    },
+    "facing=east": {
+      "model": "gridwright:block/mechanical_user",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "gridwright:block/mechanical_user",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gridwright:block/mechanical_user",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "gridwright:block/mechanical_user",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "gridwright:block/mechanical_user",
+      "x": 90
+    }
+  }
+}

@@ -12,5 +12,5 @@
   "recipe_processes": [
     {"name": "resonating", "why": "Every resonating recipe, including datapack additions, must not create EMC: Grid Power is free once built, so a recipe worth more out than in would be an infinite EMC loop.", "type": "gridwright:resonating", "items": ["input"], "outputs": ["output"]}
   ],
-  "notes": "Generators turn items into Forge Energy / Team Reborn Energy, not items, so they need no EMC process. Grid Power is a rate shared per player or team and is never stored in an item."
+  "notes": "Generators turn items into Forge Energy / Team Reborn Energy, not items, so they need no EMC process. Grid Power is a rate shared per player or team and is never stored in an item. The quantum quarry, ender quarry and mechanical miner/user make no new item kinds: they yield ordinary blocks and their vanilla loot (already valued by the EMC mods) at a rate bounded by Grid Power or energy, so they need no EMC process either. The quantum quarry's table is about 2.5% ore at 0.5 blocks/s base (5 blocks/s with eight speed upgrades for 160 GP), so it is a slow ore source, not an EMC fountain."
 }

@@ -23,6 +23,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.authlib.GameProfile;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import team.reborn.energy.api.EnergyStorage;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -35,6 +39,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -187,5 +192,23 @@ final class FabricPlatform implements Platform.Backend {
     public boolean interactWithFluidStorage(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
         Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos, side);
         return storage != null && FluidStorageUtil.interactWithFluidStorage(storage, player, hand);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return FabricFakePlayer.get(level, profile);
+    }
+
+    @Override
+    public boolean mayBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, blockEntity)) return true;
+        PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(level, player, pos, state, blockEntity);
+        return false;
+    }
+
+    @Override
+    public void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
+        PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
     }
 }

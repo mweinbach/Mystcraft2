@@ -18,7 +18,11 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.authlib.GameProfile;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -74,6 +78,22 @@ public final class Platform {
          * {@code pos}, as a bucket would. Returns whether anything moved.
          */
         boolean interactWithFluidStorage(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side);
+        /**
+         * A server-side fake player for {@code profile} in {@code level}, with a connection that drops
+         * packets, so vanilla interaction code (and the loader events it fires) can run for a machine.
+         * Forge uses its {@code FakePlayerFactory}; the instance may be shared and reused.
+         */
+        ServerPlayer fakePlayer(ServerLevel level, GameProfile profile);
+
+        /**
+         * Fires the loader's block-break permission event for {@code player} breaking {@code state} at
+         * {@code pos} (Forge {@code BlockEvent.BreakEvent}, Fabric {@code PlayerBlockBreakEvents.BEFORE}),
+         * which claim and protection mods listen to. Returns false if any listener vetoed the break.
+         */
+        boolean mayBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player);
+
+        /** Fires the loader's after-break notification, if it has one (Fabric {@code PlayerBlockBreakEvents.AFTER}). */
+        void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player);
     }
 
     @FunctionalInterface
@@ -137,5 +157,17 @@ public final class Platform {
 
     public static boolean interactWithFluidStorage(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
         return backend().interactWithFluidStorage(player, hand, level, pos, side);
+    }
+
+    public static ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {
+        return backend().fakePlayer(level, profile);
+    }
+
+    public static boolean mayBreak(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return backend().mayBreak(level, pos, state, player);
+    }
+
+    public static void afterBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
+        backend().afterBreak(level, pos, state, blockEntity, player);
     }
 }
