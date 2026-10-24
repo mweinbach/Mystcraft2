@@ -14,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import ports.gridwright.grid.ProducerBlockEntity;
@@ -448,6 +449,50 @@ public class TransferGameTests {
         helper.succeedWhen(() -> {
             check(helper.getBlockState(FRONT).is(Blocks.COBBLESTONE), "Nothing placed; power " + node.power());
             check(count(network, Items.COBBLESTONE) == 2 && count(network, Items.STICK) == 4, "Network chest contents");
+        });
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public static void worldInteractionMinesOnlyWhenEveryDropFits(GameTestHelper helper) {
+        Owner owner = Owner.random("gwF");
+        mill(helper, owner);
+        // Ripe wheat always drops wheat and seeds: two kinds that need two free slots between them.
+        helper.setBlock(FRONT.below(), Blocks.FARMLAND);
+        helper.setBlock(FRONT, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, CropBlock.MAX_AGE));
+        NodeBlockEntity node = owned(node(helper, NodeKind.ITEM_TRANSFER, NODE, Direction.WEST), owner);
+        node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
+        pipe(helper, PIPE);
+        ItemStack[] full = new ItemStack[26];
+        for (int i = 0; i < full.length; i++) full[i] = new ItemStack(Items.STONE, 64);
+        Container target = chest(helper, END, full);
+        helper.startSequence()
+                .thenWaitUntil(() -> check(node.power() == Power.POWERED, "Node power " + node.power()))
+                .thenExecuteFor(60, () -> {
+                    check(helper.getBlockState(FRONT).is(Blocks.WHEAT), "Mined with room for only one of two drops");
+                    check(count(target, Items.WHEAT) + count(target, Items.WHEAT_SEEDS) == 0, "A drop arrived early");
+                })
+                .thenExecute(() -> target.setItem(0, ItemStack.EMPTY))
+                .thenWaitUntil(() -> {
+                    check(!helper.getBlockState(FRONT).is(Blocks.WHEAT), "Wheat not mined once both drops fit");
+                    check(count(target, Items.WHEAT) == 1 && count(target, Items.WHEAT_SEEDS) >= 1,
+                            "Expected wheat and seeds in the chest");
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 500)
+    public static void worldInteractionSkipsUnplaceableBlocks(GameTestHelper helper) {
+        Owner owner = Owner.random("gwK");
+        mill(helper, owner);
+        // A sapling cannot stand on stone; it comes first in the chest and must not hide the cobblestone.
+        helper.setBlock(FRONT.below(), Blocks.STONE);
+        NodeBlockEntity node = owned(node(helper, NodeKind.ITEM_RETRIEVAL, NODE, Direction.WEST), owner);
+        node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
+        pipe(helper, PIPE);
+        Container network = chest(helper, END, new ItemStack(Items.OAK_SAPLING, 4), new ItemStack(Items.COBBLESTONE, 3));
+        helper.succeedWhen(() -> {
+            check(helper.getBlockState(FRONT).is(Blocks.COBBLESTONE), "Nothing placed; power " + node.power());
+            check(count(network, Items.COBBLESTONE) == 2 && count(network, Items.OAK_SAPLING) == 4, "Network chest contents");
         });
     }
 

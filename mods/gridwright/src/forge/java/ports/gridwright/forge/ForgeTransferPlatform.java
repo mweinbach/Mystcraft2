@@ -24,9 +24,14 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
 import ports.gridwright.transfer.FluidAmount;
+import ports.gridwright.transfer.PipeNetwork;
 import ports.gridwright.transfer.TransferPlatform;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -72,6 +77,67 @@ final class ForgeTransferPlatform implements TransferPlatform.Backend {
     public ItemStack insertItems(ServerLevel level, BlockPos pos, Direction face, ItemStack stack, boolean simulate) {
         IItemHandler items = capability(level, pos, face, ForgeCapabilities.ITEM_HANDLER);
         return items == null ? stack : ItemHandlerHelper.insertItemStacked(items, stack.copy(), simulate);
+    }
+
+    /**
+     * Forge handlers cannot stage several simulated inserts, so this models what the batch has put in
+     * each slot so far on top of the handler's own simulation. Only the first face of each block is
+     * used, since two faces may reach the same slots: that can under-count space, never over-count it.
+     */
+    @Override
+    public boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks) {
+        Map<BlockPos, Shadow> shadows = new LinkedHashMap<>();
+        for (PipeNetwork.Target target : targets) {
+            if (shadows.containsKey(target.pos())) continue;
+            IItemHandler items = capability(level, target.pos(), target.face(), ForgeCapabilities.ITEM_HANDLER);
+            if (items != null) shadows.put(target.pos(), new Shadow(items));
+        }
+        for (ItemStack stack : stacks) {
+            ItemStack left = stack.copy();
+            for (Shadow shadow : shadows.values()) {
+                if (left.isEmpty()) break;
+                left = shadow.insert(left);
+            }
+            if (!left.isEmpty()) return false;
+        }
+        return true;
+    }
+
+    /** An item handler and what a batch of simulated inserts has added to each of its slots. */
+    private static final class Shadow {
+        private final IItemHandler items;
+        private final ItemStack[] added;
+
+        Shadow(IItemHandler items) {
+            this.items = items;
+            this.added = new ItemStack[items.getSlots()];
+            Arrays.fill(added, ItemStack.EMPTY);
+        }
+
+        /** As {@link ItemHandlerHelper#insertItemStacked}: slots holding the kind first, then the rest. */
+        ItemStack insert(ItemStack stack) {
+            ItemStack left = stack;
+            for (int pass = 0; pass < 2 && !left.isEmpty(); pass++) {
+                for (int slot = 0; slot < added.length && !left.isEmpty(); slot++) {
+                    boolean holds = ItemHandlerHelper.canItemStacksStack(items.getStackInSlot(slot), left)
+                            || ItemHandlerHelper.canItemStacksStack(added[slot], left);
+                    if (holds == (pass == 0)) left = insert(slot, left);
+                }
+            }
+            return left;
+        }
+
+        private ItemStack insert(int slot, ItemStack stack) {
+            ItemStack before = added[slot];
+            if (!before.isEmpty() && !ItemHandlerHelper.canItemStacksStack(before, stack)) return stack;
+            // Ask for what is already added plus this stack, so the handler's own limits cover both.
+            ItemStack asked = ItemHandlerHelper.copyStackWithSize(stack, before.getCount() + stack.getCount());
+            int total = asked.getCount() - items.insertItem(slot, asked, true).getCount();
+            int accepted = Math.max(0, Math.min(stack.getCount(), total - before.getCount()));
+            if (accepted == 0) return stack;
+            added[slot] = ItemHandlerHelper.copyStackWithSize(stack, before.getCount() + accepted);
+            return ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - accepted);
+        }
     }
 
     @Override

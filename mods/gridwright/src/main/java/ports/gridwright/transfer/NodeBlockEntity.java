@@ -31,7 +31,9 @@ import ports.gridwright.grid.GridBlockEntity;
 import ports.gridwright.grid.GridManager;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * A node's state and behaviour. Every {@link #INTERVAL} ticks (sooner with speed upgrades) it makes
@@ -264,9 +266,11 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         if (state.requiresCorrectToolForDrops() && !TOOL.isCorrectToolForDrops(state)) return false;
         ItemFilter filter = filter();
         if (filter != ItemFilter.NONE && !filter.test(new ItemStack(state.getBlock()))) return false;
-        List<ItemStack> drops = Block.getDrops(state, level, target, null, null, TOOL.copy());
+        List<ItemStack> drops = new ArrayList<>(Block.getDrops(state, level, target, null, null, TOOL.copy()));
+        drops.removeIf(ItemStack::isEmpty);
         if (drops.isEmpty() || network.isEmpty()) return false;
-        for (ItemStack drop : drops) if (!Transfers.fits(level, network, drop)) return false;
+        // Together, not one by one: wheat and its seeds must not both count on one free slot.
+        if (!TransferPlatform.fitsAll(level, network, drops)) return false;
         if (!mayChange(level, target)) return false;
         level.destroyBlock(target, false);
         for (ItemStack drop : drops) {
@@ -276,30 +280,41 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         return true;
     }
 
-    /** Places a block item from the network at the front, if the space is free and the owner may build. */
+    /**
+     * Places a block item from the network at the front, if the space is free and the owner may build.
+     * A kind that will not place here (a sapling over stone) is skipped for the rest of the operation,
+     * so it cannot hide placeable kinds stored after it.
+     */
     private boolean place(ServerLevel level, BlockPos target, Direction front, List<PipeNetwork.Target> network) {
         if (network.isEmpty() || !level.getBlockState(target).getMaterial().isReplaceable()) return false;
         if (!mayChange(level, target)) return false;
         ItemFilter filter = filter();
+        List<ItemStack> rejected = new ArrayList<>();
+        Predicate<ItemStack> wanted = stack -> stack.getItem() instanceof BlockItem && filter.test(stack)
+                && rejected.stream().noneMatch(kind -> ItemStack.isSameItemSameTags(kind, stack));
         for (int k = 0; k < network.size(); k++) {
             int index = (cursor + k) % network.size();
             PipeNetwork.Target other = network.get(index);
-            ItemStack probe = TransferPlatform.extractItems(level, other.pos(), other.face(),
-                    stack -> stack.getItem() instanceof BlockItem && filter.test(stack), 1, true);
-            if (probe.isEmpty()) continue;
-            // Take the item first so a block is never placed without its item leaving the network.
-            ItemStack taken = TransferPlatform.extractItems(level, other.pos(), other.face(),
-                    stack -> ItemStack.isSameItemSameTags(stack, probe), 1, false);
-            if (taken.isEmpty()) continue;
-            // A playerless context that still answers "which way is the placer looking": the node's front.
-            BlockPlaceContext context = new DirectionalPlaceContext(level, target, front, taken.copy(), front.getOpposite());
-            if (!tryPlace((BlockItem) taken.getItem(), context)) {
+            while (true) {
+                ItemStack probe = TransferPlatform.extractItems(level, other.pos(), other.face(), wanted, 1, true);
+                if (probe.isEmpty()) break;
+                // Take the item first so a block is never placed without its item leaving the network.
+                ItemStack taken = TransferPlatform.extractItems(level, other.pos(), other.face(),
+                        stack -> ItemStack.isSameItemSameTags(stack, probe), 1, false);
+                if (taken.isEmpty()) {
+                    rejected.add(probe);
+                    continue;
+                }
+                // A playerless context that still answers "which way is the placer looking": the node's front.
+                BlockPlaceContext context = new DirectionalPlaceContext(level, target, front, taken.copy(), front.getOpposite());
+                if (tryPlace((BlockItem) taken.getItem(), context)) {
+                    cursor = (index + 1) % network.size();
+                    return true;
+                }
+                rejected.add(taken.copy());
                 ItemStack left = TransferPlatform.insertItems(level, other.pos(), other.face(), taken, false);
                 if (!left.isEmpty()) Block.popResource(level, worldPosition, left);
-                continue;
             }
-            cursor = (index + 1) % network.size();
-            return true;
         }
         return false;
     }

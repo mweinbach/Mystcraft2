@@ -66,14 +66,6 @@ public final class Transfers {
         return filled;
     }
 
-    /** Whether some target would take all of {@code stack}. */
-    static boolean fits(ServerLevel level, List<PipeNetwork.Target> targets, ItemStack stack) {
-        for (PipeNetwork.Target target : targets) {
-            if (TransferPlatform.insertItems(level, target.pos(), target.face(), stack, true).isEmpty()) return true;
-        }
-        return false;
-    }
-
     /** Inserts {@code stack} into the targets in order and returns what none of them took. */
     static ItemStack deliver(ServerLevel level, List<PipeNetwork.Target> targets, ItemStack stack) {
         ItemStack left = stack;

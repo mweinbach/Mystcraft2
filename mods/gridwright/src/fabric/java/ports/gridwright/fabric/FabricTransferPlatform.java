@@ -28,11 +28,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import ports.gridwright.transfer.FluidAmount;
+import ports.gridwright.transfer.PipeNetwork;
 import ports.gridwright.transfer.TransferPlatform;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -106,6 +108,24 @@ final class FabricTransferPlatform implements TransferPlatform.Backend {
             ItemStack rest = stack.copy();
             rest.shrink((int) inserted);
             return rest;
+        }
+    }
+
+    @Override
+    public boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks) {
+        // One transaction for the whole batch, never committed: each insert sees the ones before it.
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (ItemStack stack : stacks) {
+                long left = stack.getCount();
+                ItemVariant variant = ItemVariant.of(stack);
+                for (PipeNetwork.Target target : targets) {
+                    if (left <= 0) break;
+                    Storage<ItemVariant> storage = items(level, target.pos(), target.face());
+                    if (storage != null && storage.supportsInsertion()) left -= storage.insert(variant, left, transaction);
+                }
+                if (left > 0) return false;
+            }
+            return true;
         }
     }
 

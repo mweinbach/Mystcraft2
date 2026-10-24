@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -40,6 +41,13 @@ public final class TransferPlatform {
 
         /** Inserts {@code stack} and returns what did not (or would not) fit. */
         ItemStack insertItems(ServerLevel level, BlockPos pos, Direction face, ItemStack stack, boolean simulate);
+
+        /**
+         * Whether {@code targets}, filled in order, would take all of {@code stacks} together: space one
+         * stack would use is not offered to the next. Changes nothing. May answer {@code false} when
+         * the stacks would in fact just fit, never {@code true} when they would not.
+         */
+        boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks);
 
         /**
          * Drains up to {@code millibuckets} of the first stored fluid {@code filter} accepts. Fluids
@@ -92,6 +100,10 @@ public final class TransferPlatform {
 
     public static ItemStack insertItems(ServerLevel level, BlockPos pos, Direction face, ItemStack stack, boolean simulate) {
         return stack.isEmpty() ? ItemStack.EMPTY : backend().insertItems(level, pos, face, stack, simulate);
+    }
+
+    public static boolean fitsAll(ServerLevel level, List<PipeNetwork.Target> targets, List<ItemStack> stacks) {
+        return backend().fitsAll(level, targets, stacks);
     }
 
     public static FluidAmount extractFluid(ServerLevel level, BlockPos pos, Direction face, Predicate<Fluid> filter, long millibuckets, boolean simulate) {
