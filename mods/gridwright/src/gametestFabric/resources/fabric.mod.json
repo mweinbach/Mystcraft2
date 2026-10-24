@@ -13,7 +13,9 @@
       "ports.gridwright.gametest.ProducerGameTests",
       "ports.gridwright.gametest.GeneratorGameTests",
       "ports.gridwright.gametest.ResonatorGameTests",
-      "ports.gridwright.gametest.EmcGameTests"
+      "ports.gridwright.gametest.EmcGameTests",
+      "ports.gridwright.gametest.UtilityItemGameTests",
+      "ports.gridwright.gametest.UtilityBlockGameTests"
     ]
   },
   "depends": {

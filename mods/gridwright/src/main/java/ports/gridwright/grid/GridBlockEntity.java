@@ -7,7 +7,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.scores.PlayerTeam;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -49,8 +48,7 @@ public abstract class GridBlockEntity extends BlockEntity {
     @Nullable
     public String gridKey(MinecraftServer server) {
         if (owner == null) return null;
-        PlayerTeam team = ownerName.isEmpty() ? null : server.getScoreboard().getPlayersTeam(ownerName);
-        return team != null ? "team:" + team.getName() : "player:" + owner;
+        return GridKeys.of(server, owner, ownerName);
     }
 
     /** A one-line description of this block's grid for the action bar. */

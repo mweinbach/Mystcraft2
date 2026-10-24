@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "gridwright:double_compressed_dirt"
+    }
+  },
+  "result": {
+    "item": "gridwright:triple_compressed_dirt",
+    "count": 1
+  }
+}

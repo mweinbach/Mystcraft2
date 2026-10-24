@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "gridwright:compressed_gravel"
+    }
+  },
+  "result": {
+    "item": "gridwright:double_compressed_gravel",
+    "count": 1
+  }
+}

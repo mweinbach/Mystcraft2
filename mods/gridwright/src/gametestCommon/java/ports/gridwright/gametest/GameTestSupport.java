@@ -7,6 +7,12 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,6 +25,7 @@ import ports.gridwright.machine.GeneratorKind;
 import ports.gridwright.machine.ResonatorBlockEntity;
 import ports.gridwright.registry.ModBlocks;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -115,5 +122,19 @@ public final class GameTestSupport {
     static ServerPlayer player(GameTestHelper helper, Owner owner) {
         ServerLevel level = helper.getLevel();
         return new ServerPlayer(level.getServer(), level, new GameProfile(owner.id(), owner.name()), null);
+    }
+
+    /**
+     * A survival player with a connection that drops every packet, for code that answers the player
+     * (block breaking and placing, menus). Never added to the level or the player list.
+     */
+    static ServerPlayer connectedPlayer(GameTestHelper helper, Owner owner) {
+        ServerPlayer player = player(helper, owner);
+        new ServerGamePacketListenerImpl(helper.getLevel().getServer(), new Connection(PacketFlow.CLIENTBOUND), player) {
+            @Override public void send(Packet<?> packet) { }
+            @Override public void send(Packet<?> packet, @Nullable PacketSendListener listener) { }
+        };
+        player.setGameMode(GameType.SURVIVAL);
+        return player;
     }
 }

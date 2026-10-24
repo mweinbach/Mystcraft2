@@ -13,5 +13,6 @@ public class GridwrightFabric implements ModInitializer {
         Gridwright.init();
         platform.flush();
         FabricTransfer.register();
+        FabricUtilityEvents.register();
     }
 }

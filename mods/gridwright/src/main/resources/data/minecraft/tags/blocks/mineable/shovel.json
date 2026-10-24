@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "gridwright:compressed_dirt",
+    "gridwright:double_compressed_dirt",
+    "gridwright:triple_compressed_dirt",
+    "gridwright:quadruple_compressed_dirt",
+    "gridwright:compressed_gravel",
+    "gridwright:double_compressed_gravel",
+    "gridwright:compressed_sand",
+    "gridwright:double_compressed_sand"
+  ]
+}

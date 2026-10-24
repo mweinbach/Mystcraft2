@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "gridwright:double_compressed_gravel"
+    }
+  ],
+  "result": {
+    "item": "gridwright:compressed_gravel",
+    "count": 9
+  }
+}

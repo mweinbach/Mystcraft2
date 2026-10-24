@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "CXC",
+    "CCC"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:smooth_stone_slab"
+    },
+    "C": {
+      "item": "minecraft:cobblestone"
+    },
+    "X": {
+      "item": "minecraft:sponge"
+    }
+  },
+  "result": {
+    "item": "gridwright:fluid_trash_can",
+    "count": 1
+  }
+}

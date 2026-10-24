@@ -22,9 +22,20 @@ import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.FluidUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /** Forge services: deferred registers on the mod bus, extended menus, Forge fuel times and Forge Energy. */
@@ -81,4 +92,33 @@ final class ForgePlatform implements Platform.Backend {
                 .map(storage -> storage.canReceive() ? (long) storage.receiveEnergy((int) Math.min(amount, Integer.MAX_VALUE), false) : 0L)
                 .orElse(0L);
     }
+
+    @Override
+    public void openMenu(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data) {
+        NetworkHooks.openScreen(player, provider, data);
+    }
+
+    @Override
+    public ServerPlayer fakePlayer(ServerLevel level) {
+        return FakePlayerFactory.get(level, FAKE_PROFILE);
+    }
+
+    @Override
+    public boolean mayUseBlock(ServerPlayer player, InteractionHand hand, BlockHitResult hit) {
+        // The placement itself fires BlockEvent.EntityPlaceEvent (ForgeHooks.onPlaceItemIntoWorld).
+        return true;
+    }
+
+    @Override
+    public long bucketVolume() {
+        return FluidType.BUCKET_VOLUME;
+    }
+
+    @Override
+    public boolean interactWithFluidStorage(Player player, InteractionHand hand, Level level, BlockPos pos, Direction side) {
+        return FluidUtil.interactWithFluidHandler(player, hand, level, pos, side);
+    }
+
+    private static final GameProfile FAKE_PROFILE =
+            new GameProfile(UUID.fromString("5f0c3e1a-8d2b-4c6e-9a47-6b1d2e3f4a5b"), "[Gridwright]");
 }

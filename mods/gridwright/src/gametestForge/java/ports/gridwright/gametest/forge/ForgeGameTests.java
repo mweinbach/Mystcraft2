@@ -12,6 +12,8 @@ import ports.gridwright.gametest.GridGameTests;
 import ports.gridwright.gametest.ProducerGameTests;
 import ports.gridwright.gametest.ResonatorGameTests;
 import ports.gridwright.gametest.TestPlatform;
+import ports.gridwright.gametest.UtilityBlockGameTests;
+import ports.gridwright.gametest.UtilityItemGameTests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,12 +33,14 @@ import java.util.Locale;
 public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(GridGameTests.class, ProducerGameTests.class,
-            GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class);
+            GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
+            UtilityItemGameTests.class, UtilityBlockGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
         TestPlatform.Holder.install(new ForgeTestPlatform());
         ForgeTestPlatform.registerEnergySink();
+        ForgeTestPlatform.registerClaims();
         List<TestFunction> functions = new ArrayList<>();
         for (Class<?> testClass : SHARED_TESTS) {
             Arrays.stream(testClass.getDeclaredMethods())

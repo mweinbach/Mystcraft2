@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "gridwright:water_mill",
-    "gridwright:wind_mill"
+    "gridwright:wind_mill",
+    "gridwright:wooden_spike",
+    "gridwright:sound_muffler"
   ]
 }

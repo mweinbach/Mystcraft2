@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ports.gridwright.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "gridwright.fabric.refmap.json",
+  "mixins": [
+    "ServerLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

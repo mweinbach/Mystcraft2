@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "gridwright:sextuple_compressed_netherrack"
+    }
+  ],
+  "result": {
+    "item": "gridwright:quintuple_compressed_netherrack",
+    "count": 9
+  }
+}

@@ -7,6 +7,7 @@ import ports.gridwright.registry.ModBlocks;
 import ports.gridwright.registry.ModItems;
 import ports.gridwright.registry.ModMenus;
 import ports.gridwright.registry.ModRecipes;
+import ports.gridwright.registry.ModUtilities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -32,5 +33,6 @@ public final class Gridwright {
         ModBlockEntities.init();
         ModMenus.init();
         ModRecipes.init();
+        ModUtilities.init();
     }
 }

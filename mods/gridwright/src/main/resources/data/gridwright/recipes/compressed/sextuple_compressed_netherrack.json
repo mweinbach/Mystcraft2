@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "gridwright:quintuple_compressed_netherrack"
+    }
+  },
+  "result": {
+    "item": "gridwright:sextuple_compressed_netherrack",
+    "count": 1
+  }
+}

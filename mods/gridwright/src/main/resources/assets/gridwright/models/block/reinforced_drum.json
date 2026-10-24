@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "gridwright:block/reinforced_drum_top",
+    "side": "gridwright:block/reinforced_drum_side"
+  }
+}

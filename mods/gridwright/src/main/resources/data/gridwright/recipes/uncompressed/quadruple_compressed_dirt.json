@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "gridwright:quadruple_compressed_dirt"
+    }
+  ],
+  "result": {
+    "item": "gridwright:triple_compressed_dirt",
+    "count": 9
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SMS",
+    "MMM"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:wooden_sword"
+    },
+    "M": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "gridwright:wooden_spike",
+    "count": 4
+  }
+}

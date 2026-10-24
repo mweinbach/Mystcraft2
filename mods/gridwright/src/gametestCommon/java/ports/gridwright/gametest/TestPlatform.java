@@ -1,8 +1,10 @@
 package ports.gridwright.gametest;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * The loader APIs the shared GameTests observe: Forge Energy or Team Reborn Energy, Forge item handlers
@@ -18,6 +20,31 @@ public interface TestPlatform {
 
     /** How much energy the test sink on {@code barrel} has accepted through this loader's energy API. */
     long sunk(BlockEntity barrel);
+
+    /** The block's fluid storage as other mods see it: a Forge fluid handler or a Fabric fluid storage. */
+    FluidAccess fluids(BlockEntity blockEntity, Direction side);
+
+    /**
+     * Offers {@code stack} to whatever item storage the block exposes on {@code side} (not only
+     * container-backed ones) and returns how many items it accepted.
+     */
+    long offerItems(BlockEntity blockEntity, Direction side, ItemStack stack);
+
+    /**
+     * Makes {@code pos} (an absolute position) behave like a claimed block another player owns: this
+     * loader's break and place hooks refuse every player there, as protection mods do. {@code false}
+     * lifts the claim.
+     */
+    void protect(BlockPos pos, boolean claimed);
+
+    interface FluidAccess {
+        /** Returns how much of {@code fluid} was (or would be) accepted, in loader units. */
+        long fill(Fluid fluid, long amount, boolean simulate);
+        /** Returns how much fluid was (or would be) removed, in loader units. */
+        long drain(long amount, boolean simulate);
+        long amount();
+        Fluid fluid();
+    }
 
     interface EnergyAccess {
         long stored();
