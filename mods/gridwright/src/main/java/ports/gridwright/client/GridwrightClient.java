@@ -15,5 +15,6 @@ public final class GridwrightClient {
     public static void registerScreens() {
         MenuScreens.register(ModMenus.MACHINE.get(), MachineScreen::new);
         MenuScreens.<ChestMenu, ContainerScreen>register(ModUtilities.BAG_MENU.get(), ContainerScreen::new);
+        TransferScreens.register();
     }
 }

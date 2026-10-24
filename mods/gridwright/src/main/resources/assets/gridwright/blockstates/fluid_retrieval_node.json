@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "gridwright:block/fluid_retrieval_node"
+    },
+    "facing=east": {
+      "model": "gridwright:block/fluid_retrieval_node",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "gridwright:block/fluid_retrieval_node",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gridwright:block/fluid_retrieval_node",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "gridwright:block/fluid_retrieval_node",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "gridwright:block/fluid_retrieval_node",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " K ",
+    "PCP",
+    " R "
+  ],
+  "key": {
+    "K": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "item": "gridwright:world_interaction_upgrade"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " P ",
+    "RBR",
+    "SSS"
+  ],
+  "key": {
+    "P": {
+      "item": "gridwright:transfer_pipe"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "S": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "item": "gridwright:fluid_transfer_node"
+  }
+}

@@ -12,6 +12,8 @@ import ports.gridwright.gametest.GridGameTests;
 import ports.gridwright.gametest.ProducerGameTests;
 import ports.gridwright.gametest.ResonatorGameTests;
 import ports.gridwright.gametest.TestPlatform;
+import ports.gridwright.gametest.TransferGameTests;
+import ports.gridwright.gametest.TransferTestPlatform;
 import ports.gridwright.gametest.UtilityBlockGameTests;
 import ports.gridwright.gametest.UtilityItemGameTests;
 import ports.gridwright.gametest.WardGameTests;
@@ -36,13 +38,15 @@ public class ForgeGameTests {
     private static final List<Class<?>> SHARED_TESTS = List.of(GridGameTests.class, ProducerGameTests.class,
             GeneratorGameTests.class, ResonatorGameTests.class, EmcGameTests.class,
             UtilityItemGameTests.class, UtilityBlockGameTests.class,
-            WardGameTests.class);
+            WardGameTests.class, TransferGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
         TestPlatform.Holder.install(new ForgeTestPlatform());
         ForgeTestPlatform.registerEnergySink();
         ForgeTestPlatform.registerClaims();
+        TransferTestPlatform.Holder.install(new ForgeTransferTestPlatform());
+        ForgeTransferTestPlatform.register();
         List<TestFunction> functions = new ArrayList<>();
         for (Class<?> testClass : SHARED_TESTS) {
             Arrays.stream(testClass.getDeclaredMethods())
