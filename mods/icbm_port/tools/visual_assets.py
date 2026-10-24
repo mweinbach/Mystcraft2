@@ -9,6 +9,9 @@ from payload_visuals import (
     catalog,
     core_pixels,
     disc_pixels,
+    explosive_bottom_pixels,
+    paint_explosive_side,
+    paint_explosive_top,
     paint_label,
     radiation_pixels,
 )
@@ -148,11 +151,10 @@ def generate(root):
   m.save('item/'+profile.id+'_missile',True)
  for profile in PROFILES:
   png(assets/f'textures/block/payload_{profile.id}.png',16,16,paint_label(profile))
-  m=Model();m.tex['label']=NS+':block/payload_'+profile.id
-  m.box([1,0,1],[15,16,15],face={'north':'label','south':'label','east':'label','west':'label','up':'warning','down':'casing'},uv=GLYPH)
-  for x in [0,14]:
-   for z in [0,14]:m.box([x,0,z],[x+2,16,z+2],'carbon')
-  m.box([0,0,0],[16,2,16],'alloy').box([0,14,0],[16,16,16],'alloy');m.box([4,16,6],[12,16.5,10],'carbon');m.save('block/'+profile.id+'_explosive')
+  # A plain full cube with flat TNT-style faces, like vanilla TNT; the item model inherits it.
+  png(assets/f'textures/block/{profile.id}_explosive_side.png',16,16,paint_explosive_side(profile))
+  png(assets/f'textures/block/{profile.id}_explosive_top.png',16,16,paint_explosive_top(profile))
+  put('models/block/'+profile.id+'_explosive.json',{'parent':'minecraft:block/cube_bottom_top','textures':{'side':NS+':block/'+profile.id+'_explosive_side','top':NS+':block/'+profile.id+'_explosive_top','bottom':NS+':block/explosive_bottom'}})
   missile(profile)
   if profile.id in GRENADE_IDS:
    for suffix in ['_grenade','_bomblet']:
@@ -224,6 +226,7 @@ def generate(root):
   png(assets/f'textures/item/{id}.png',16,16,canvas)
   put('models/item/'+id+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':NS+':item/'+id}})
  png(assets/'textures/block/radiation.png',16,16,radiation_pixels())
+ png(assets/'textures/block/explosive_bottom.png',16,16,explosive_bottom_pixels())
  png(assets/'textures/entity/redmatter_core.png',16,16,core_pixels())
  png(assets/'textures/entity/redmatter_disc.png',16,16,disc_pixels())
  put('payload_visuals.json',catalog())
@@ -244,7 +247,7 @@ def generate(root):
  # Practical family guidance is part of the reproducible visual/content layer.
  lang_path=assets/'lang/en_us.json'
  lang=json.loads(lang_path.read_text())
- lang.update({'tooltip.icbm_port.payload.condensed': 'A compact terrain blast for straightforward demolition.', 'tooltip.icbm_port.payload.shrapnel': 'Scatters burning projectiles to strike exposed targets around the impact.', 'tooltip.icbm_port.payload.incendiary': 'Ignites nearby targets and scatters fire across exposed ground.', 'tooltip.icbm_port.payload.debilitation': 'Leaves poisonous gas that slows unprotected targets and causes mining fatigue.', 'tooltip.icbm_port.payload.chemical': 'Lingering toxic gas builds up damage through repeated unprotected exposure.', 'tooltip.icbm_port.payload.anvil': 'Showers the area with falling anvils that damage creatures below.', 'tooltip.icbm_port.payload.repulsive': 'Pushes nearby entities away; use it to shove a redmatter core off course.', 'tooltip.icbm_port.payload.attractive': 'Pulls nearby entities inward to bunch targets together for an area attack.', 'tooltip.icbm_port.payload.fragmentation': 'Scatters explosive fragments and projectiles across the surrounding area.', 'tooltip.icbm_port.payload.contagious': 'Spreads viral exposure between nearby creatures and can mutate pigs or villagers.', 'tooltip.icbm_port.payload.sonic': 'A force wave tears up terrain and throws loose blocks outward.', 'tooltip.icbm_port.payload.breaching': 'Cuts a narrow tunnel toward the most resistant wall beside the blast.', 'tooltip.icbm_port.payload.thermobaric': 'A large, destructive terrain blast for clearing a wide area.', 'tooltip.icbm_port.payload.nuclear': 'A massive blast leaves radioactive fallout and can mutate nearby creatures.', 'tooltip.icbm_port.payload.emp': 'Disrupts powered ICBM machines and disables nearby missiles without a terrain blast.', 'tooltip.icbm_port.payload.exothermic': 'Evaporates water and ice, turning common terrain into lava, magma or netherrack.', 'tooltip.icbm_port.payload.endothermic': 'Freezes water, solidifies lava and extinguishes fire across the affected terrain.', 'tooltip.icbm_port.payload.antigravitational': 'Lifts terrain and nearby entities into a sustained low-gravity field.', 'tooltip.icbm_port.payload.ender': 'Targeted missiles relocate terrain and entities; other forms scatter nearby entities.', 'tooltip.icbm_port.payload.antimatter': 'Erases a large area and annihilates redmatter cores caught in the blast.', 'tooltip.icbm_port.payload.redmatter': 'A hungry core pulls in terrain to grow and merges with other redmatter cores.', 'tooltip.icbm_port.payload.colors': 'Leaves a harmless colored particle cloud to mark an impact or celebrate.', 'tooltip.icbm_port.payload.smoke': 'A short-lived smoke plume marks the impact without a terrain blast.', 'tooltip.icbm_port.redmatter_counter': 'Use antimatter to collapse the core. Repulsive blasts can push it away.', 'death.attack.icbm_port.redmatter': '%1$s was consumed by a redmatter core', 'death.attack.icbm_port.redmatter.player': "%1$s was consumed by %2$s's redmatter core"})
+ lang.update({'tooltip.icbm_port.payload.condensed': 'A compact terrain blast for straightforward demolition.', 'tooltip.icbm_port.payload.shrapnel': 'Scatters burning projectiles to strike exposed targets around the impact.', 'tooltip.icbm_port.payload.incendiary': 'Ignites nearby targets and scatters fire across exposed ground.', 'tooltip.icbm_port.payload.debilitation': 'Leaves poisonous gas that slows unprotected targets and causes mining fatigue.', 'tooltip.icbm_port.payload.chemical': 'Lingering toxic gas builds up damage through repeated unprotected exposure.', 'tooltip.icbm_port.payload.anvil': 'Showers the area with falling anvils that damage creatures below.', 'tooltip.icbm_port.payload.repulsive': 'Pushes nearby entities away; use it to shove a redmatter core off course.', 'tooltip.icbm_port.payload.attractive': 'Pulls nearby entities inward to bunch targets together for an area attack.', 'tooltip.icbm_port.payload.fragmentation': 'Scatters explosive fragments and projectiles across the surrounding area.', 'tooltip.icbm_port.payload.contagious': 'Spreads viral exposure between nearby creatures and can mutate pigs or villagers.', 'tooltip.icbm_port.payload.sonic': 'A force wave tears up terrain and throws loose blocks outward.', 'tooltip.icbm_port.payload.breaching': 'Cuts a narrow tunnel toward the most resistant wall beside the blast.', 'tooltip.icbm_port.payload.thermobaric': 'A large, destructive terrain blast for clearing a wide area.', 'tooltip.icbm_port.payload.nuclear': 'A massive blast leaves radioactive fallout and can mutate nearby creatures.', 'tooltip.icbm_port.payload.emp': 'Disrupts powered ICBM machines and disables nearby missiles without a terrain blast.', 'tooltip.icbm_port.payload.exothermic': 'Evaporates water and ice, turning common terrain into lava, magma or netherrack.', 'tooltip.icbm_port.payload.endothermic': 'Freezes water, solidifies lava and extinguishes fire across the affected terrain.', 'tooltip.icbm_port.payload.antigravitational': 'Lifts terrain and nearby entities into a sustained low-gravity field.', 'tooltip.icbm_port.payload.ender': 'Targeted missiles relocate terrain and entities; other forms scatter nearby entities.', 'tooltip.icbm_port.payload.antimatter': 'Instantly erases a huge sphere of terrain and annihilates redmatter cores caught in it.', 'tooltip.icbm_port.payload.redmatter': 'A growing spherical event horizon devours terrain and drags in creatures and players to die at its core.', 'tooltip.icbm_port.payload.colors': 'Leaves a harmless colored particle cloud to mark an impact or celebrate.', 'tooltip.icbm_port.payload.smoke': 'A short-lived smoke plume marks the impact without a terrain blast.', 'tooltip.icbm_port.redmatter_counter': 'Use antimatter to collapse the core. Repulsive blasts can push it away.', 'death.attack.icbm_port.redmatter': '%1$s was consumed by red matter', 'death.attack.icbm_port.redmatter.player': "%1$s was consumed by %2$s's red matter"})
  put('lang/en_us.json',lang)
  icon(assets/'icon.png')
 def icon(path,size=128):

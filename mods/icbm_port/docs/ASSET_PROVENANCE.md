@@ -15,7 +15,7 @@ and vanilla sound. Nuclear, chemical, incendiary, and redmatter missiles do not 
 a body. Label faces use an explicit full-texture uv so a short sleeve still shows the
 glyph. Redmatter core and disc textures, and the radioactive top mark, are original
 pixels on the same ordinary layers.
-New geometry covers the explosive casings, missiles, grenade/bomblet forms,
+New geometry covers missiles, grenade/bomblet forms,
 launcher tiers and components, radar, SAM, EMP hardware and major handheld tools.
 Physical projectile models retain the renderer's +Y flight axis.
 The 128×128 mod icon `assets/icbm_port/icon.png` (referenced by `fabric.mod.json`)
@@ -40,3 +40,21 @@ vanilla block textures by design. This work is a cohesive original
 interpretation, not a recreation of upstream artwork or a claim that every item
 has finished bespoke art. Selected models, held launcher transforms and moving-head alignment were reviewed
 in the full Tekxit client alongside the renderer changes.
+
+## Flat explosive faces (after alpha.4)
+
+The 14×16×14 explosive casing model, whose painted bevels pretended to be a
+3D frame on what the game treats as a full opaque cube, is replaced by a plain
+`minecraft:block/cube_bottom_top` model per payload. It follows a TNT-like
+layout: a side, a top and a bottom texture. `paint_explosive_side`,
+`paint_explosive_top` and `explosive_bottom_pixels` in `tools/payload_visuals.py`
+paint them from flat colour rules. The side has casing bands, payload-coloured
+charge sticks and a dark label band carrying the family glyph. The top shows
+four stick ends around a detonator. The bottom is shared by all payloads. No
+shading gradients or perspective are drawn. Item models still parent the block
+model, so the icons match. The pixels are original, MIT-licensed work generated
+by the script. Neither the upstream ICBM textures nor its models were consulted
+or derived from. `tools/check_payload_visuals.py` enforces the flat rules and
+face uniqueness. `tools/render_contact_sheet.py` rasterizes the faces and
+isometric icons, without a game client, into the before/after sheets
+in `docs/images/`.

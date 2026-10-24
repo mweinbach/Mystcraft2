@@ -197,8 +197,20 @@ public final class SimulationAssertions {
       item.setNoGravity(true);
       c.getWorld().spawnEntity(item);
     }
+    // A floor below the core gives the horizon terrain to consume and debris to lift. Its corners
+    // lie outside the capped horizon, so they must survive.
+    BlockPos floor = pos.down(3);
+    for (int x = -6; x <= 6; x++)
+      for (int z = -6; z <= 6; z++)
+        c.getWorld().setBlockState(floor.add(x, 0, z), Blocks.STONE.getDefaultState(), 2);
     check(c, block.prime(c.getWorld(), pos, 1), "Placed redmatter block must prime");
     c.getWorld().removeBlock(pos, false);
+    // The configured horizon is hundreds of blocks; cap it so the shared test world survives.
+    c.runAtEveryTick(
+        () ->
+            c.getWorld()
+                .getEntitiesByType(SimulationContent.REDMATTER, new Box(pos).expand(4), e -> true)
+                .forEach(core -> core.setHorizonLimit(8)));
     c.runAtTick(
         200,
         () -> {
@@ -212,7 +224,13 @@ public final class SimulationAssertions {
             check(
                 c,
                 c.getWorld().isAir(target),
-                "Redmatter must find terrain six blocks away after its inner shells are empty");
+                "Redmatter's horizon must consume terrain six blocks away");
+            check(
+                c,
+                core.horizonRadius() == 8
+                    && !c.getWorld().isAir(floor.add(6, 0, 6))
+                    && c.getWorld().isAir(floor.add(4, 0, 4)),
+                "The horizon must grow to its cap as a sphere, leaving the floor's far corners");
             check(
                 c,
                 core.capturedBlocks() > 0 && core.consumedBlocks() > 0,
@@ -227,15 +245,18 @@ public final class SimulationAssertions {
             restored.readNbt(saved);
             check(
                 c,
-                restored.searchRadius() == core.searchRadius()
+                restored.horizonRadius() == core.horizonRadius()
+                    && restored.horizonLimit() == 8
                     && restored.consumedBlocks() == core.consumedBlocks(),
-                "Scan progress and consumption counters must survive reload");
+                "Horizon progress, cap and consumption counters must survive reload");
             restored.discard();
           } finally {
             Payloads.removeNear(c.getWorld(), Vec3d.ofCenter(pos), 12);
             items.forEach(ItemEntity::discard);
             c.getWorld().removeBlock(pos.down(), false);
             c.getWorld().removeBlock(target, false);
+            for (int x = -6; x <= 6; x++)
+              for (int z = -6; z <= 6; z++) c.getWorld().removeBlock(floor.add(x, 0, z), false);
           }
           c.complete();
         });

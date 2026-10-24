@@ -15,7 +15,74 @@ class PayloadConfigTest {
     assertFalse(config.get(PayloadType.NUCLEAR).enabled());
     assertEquals(42, config.get(PayloadType.CONDENSED).blockFuseTicks());
     assertEquals(100, config.get(PayloadType.CONDENSED).cartFuseTicks());
-    assertEquals(55, config.get(PayloadType.ANTIMATTER).radius());
+    assertEquals(PayloadDefaults.ANTIMATTER_RADIUS, config.get(PayloadType.ANTIMATTER).radius());
+  }
+
+  @Test
+  void antimatterAndRedmatterDefaultsAreDeliberatelyLarger() {
+    var config = PayloadConfig.parse("{}");
+    // Five times upstream's 55, the radius the measured tick cost allows (see PORTING-NOTES).
+    assertEquals(275, PayloadDefaults.ANTIMATTER_RADIUS);
+    assertEquals(275, config.get(PayloadType.ANTIMATTER).radius());
+    assertEquals(300, config.get(PayloadType.REDMATTER).radius());
+    assertTrue(
+        config.get(PayloadType.REDMATTER).radius() >= config.get(PayloadType.ANTIMATTER).radius(),
+        "Red matter's horizon must reach at least as far as antimatter");
+    assertEquals(6000, config.get(PayloadType.REDMATTER).durationTicks());
+    assertEquals(2000, config.get(PayloadType.REDMATTER).entityDamage());
+    assertEquals(50, config.get(PayloadType.NUCLEAR).radius(), "Other families are unchanged");
+  }
+
+  @Test
+  void onlyAntimatterAndRedmatterMayExceedEighty() {
+    assertEquals(384, PayloadType.ANTIMATTER.maxRadius());
+    assertEquals(384, PayloadType.REDMATTER.maxRadius());
+    assertEquals(80, PayloadType.NUCLEAR.maxRadius());
+    assertEquals(
+        384,
+        PayloadConfig.parse("{\"antimatter\":{\"radius\":384}}").get(PayloadType.ANTIMATTER).radius());
+    assertEquals(
+        40,
+        PayloadConfig.parse("{\"redmatter\":{\"radius\":40}}").get(PayloadType.REDMATTER).radius());
+    for (String json :
+        new String[] {
+          "{\"antimatter\":{\"radius\":385}}",
+          "{\"redmatter\":{\"radius\":385}}",
+          "{\"thermobaric\":{\"radius\":81}}",
+          "{\"config_version\":3}",
+          "{\"config_version\":0}",
+          "{\"config_version\":\"2\"}"
+        }) assertThrows(RuntimeException.class, () -> PayloadConfig.parse(json), json);
+  }
+
+  @Test
+  void versionOneFilesMigrateOnlyUntouchedOldDefaults() {
+    var old =
+        PayloadConfig.parseAll(
+            "{\"antimatter\":{\"radius\":55},\"redmatter\":{\"radius\":12,\"durationTicks\":2400},"
+                + "\"nuclear\":{\"radius\":50}}");
+    assertTrue(old.migrated());
+    assertEquals(275, old.payloads().get(PayloadType.ANTIMATTER).radius());
+    assertEquals(300, old.payloads().get(PayloadType.REDMATTER).radius());
+    assertEquals(6000, old.payloads().get(PayloadType.REDMATTER).durationTicks());
+    assertEquals(50, old.payloads().get(PayloadType.NUCLEAR).radius());
+
+    var custom =
+        PayloadConfig.parseAll(
+            "{\"antimatter\":{\"radius\":30},\"redmatter\":{\"radius\":20,\"durationTicks\":600}}");
+    assertTrue(custom.migrated(), "The file is still rewritten with a version");
+    assertEquals(30, custom.payloads().get(PayloadType.ANTIMATTER).radius());
+    assertEquals(20, custom.payloads().get(PayloadType.REDMATTER).radius());
+    assertEquals(600, custom.payloads().get(PayloadType.REDMATTER).durationTicks());
+
+    var current =
+        PayloadConfig.parseAll("{\"config_version\":2,\"antimatter\":{\"radius\":55}}");
+    assertFalse(current.migrated());
+    assertEquals(55, current.payloads().get(PayloadType.ANTIMATTER).radius(), "v2 values are kept");
+
+    var rewritten = PayloadConfig.parseAll(PayloadConfig.serialize(old));
+    assertFalse(rewritten.migrated());
+    assertEquals(old.payloads(), rewritten.payloads());
   }
 
   @Test

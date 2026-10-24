@@ -1,5 +1,22 @@
 # Validation — 0.2.0-alpha.4
 
+## Extreme payloads and flat explosive art (October 24, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` | Passed; JUnit **21** passed (`PayloadConfigTest` now covers the 275/300/6,000 defaults, the 384 cap and `config_version` 1→2 migration); Tekxit/EMI test source sets compile |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy` (CI command) | All **109** required GameTests passed, including the new `ExtremePayloadGameTests`: an r=40 antimatter sphere cleared in one tick with bedrock and outside-sphere blocks intact, a red matter footprint that is a sphere (bounding-cube corners survive, interior points cleared), a pig and a survival player pulled in and killed by `icbm_port.redmatter` with the "consumed by red matter" message, creative/spectator immunity, a merged core's deferred crater still being erased once its chunk loads, and 70 legacy antimatter sweeps from an older save all becoming scars (64 at once, the other 6 kept and saved until slots free, and a full 256-job regular queue saved beside them without losing either). The Item Alchemy audit compared all 142 values |
+| Same with `-PwithEmi -PwithJei -PwithRei` (CI compat run) | All 107 passed (before the merge test was added) |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed |
+| `./gradlew :icbm_port:runGametest -PicbmBenchmark` | r=275 antimatter: 1,004 chunks and 28.0 M blocks in one tick, 375–717 ms; crater light drained by the light thread in 2.8 s; red matter reached its 300 horizon in about 1,190 ticks at a mean tick of about 7 ms (longest 51 ms). See the payload porting notes |
+| `python3 tools/validate_resources.py <client jar>` | 673 JSON files, 1,894 references, 97 original PNG textures, 140 enabled fixed recipes |
+| `python3 tools/check_payload_visuals.py` | Passed, including the new flat-explosive and face-uniqueness checks |
+| `python3 -m unittest discover -s tools/tests` | 10 passed |
+| Repository `ports.py check`, `scripts/tests` (147), `emc.py check`, `check_unmapped_overrides.py`, Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+| Art | `tools/render_contact_sheet.py` rendered `docs/images/explosives-before.png`, `explosives-after.png` and `explosives-compare.png` offline |
+
 ## Current tree (October 23, 2026)
 
 Dedicated-server checks only; no client was launched for this pass.

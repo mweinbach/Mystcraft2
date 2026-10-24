@@ -12,6 +12,8 @@
       "dev.icbm.port.IcbmGameTests",
       "dev.icbm.port.LauncherGameTests",
       "dev.icbm.port.PayloadGameTests",
+      "dev.icbm.port.payload.ExtremePayloadGameTests",
+      "dev.icbm.port.payload.ExtremeBenchmarkGameTests",
       "dev.icbm.port.delivery.DeliveryGameTests",
       "dev.icbm.port.defense.DefenseGameTests",
       "dev.icbm.port.MissileGameTests",

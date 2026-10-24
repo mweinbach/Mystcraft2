@@ -189,9 +189,15 @@ The ICBM tests separately check its own recipes through EMI's baked input/output
 indexes, including cargo NBT and empty carrier remainders. The port does not patch
 or disable other mods' recipe integrations.
 
+## Post-alpha.4 extreme payloads in an existing Tekxit world
+
+Antimatter (radius 275) and red matter (horizon up to 300) are deliberate departures from upstream ICBM; see the payload porting notes. An existing `config/icbm_port/payloads.json` from alpha.4 has no `config_version`. On first load, any of antimatter radius 55, red matter radius 12 or red matter duration 2,400 that is still at its old default is moved to 275, 300 or 6,000, and the file is rewritten with `config_version: 2`. Values a server owner changed are kept. To keep the old scale, set the radii back after the upgrade. Both families accept up to 384.
+
+Craters are now cut by direct chunk-section writes. Alpha.4 used `removeBlock`, and neither path fires block-break events, so claim and protection mods were never consulted per block and still are not. They can still cancel the blast as a whole through the ICBM API `BEFORE_ACTION` event, and the config, bounds and admission checks are unchanged. Unlike alpha.4 antimatter, unbreakable blocks such as bedrock now survive. Tekxit's chunk-claim setup should treat these two payloads as world-editing tools. The changes add no mixins (an access widener exposes `Heightmap.set`), so the Tekxit mixin audit is unchanged. No Tekxit client run was repeated for this change.
+
 ## Alpha.4 validation status
 
-Local alpha.4 build, 16 JUnit tests, the 92 gameplay GameTests of that time (102 in the current tree; see VALIDATION.md), the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
+Local alpha.4 build, 16 JUnit tests, the 92 gameplay GameTests of that time (109 in the current tree; see VALIDATION.md), the five-reload material suite and resource validation passed. The final alpha.4 production JAR passed ordinary client/world startup, all six actual-provider integration tests and 285,316 live EMI assertions both before and after `/reload`. Direct inspection confirmed redmatter terrain consumption and rotating core/rings, antimatter removal, moving radar/EMP hardware and upright launcher models. The run retained all 308 official mod JARs. Shaders were off; ordinary-layer rendering does not by itself establish shader-pack appearance. No upstream artist assets were copied.
 
 The runtime results below were recorded for **alpha.3** and are retained as a historical compatibility baseline. They do not establish alpha.4 visual correctness or revalidate every new change.
 

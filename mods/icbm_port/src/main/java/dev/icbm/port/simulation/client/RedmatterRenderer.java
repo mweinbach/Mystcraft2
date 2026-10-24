@@ -29,7 +29,13 @@ public final class RedmatterRenderer extends EntityRenderer<RedmatterEntity> {
   public boolean shouldRender(
       RedmatterEntity entity, Frustum frustum, double x, double y, double z) {
     return entity.shouldRender(x, y, z)
-        && frustum.isVisible(entity.getBoundingBox().expand(Math.max(3, entity.size() * 1.6)));
+        && frustum.isVisible(
+            entity.getBoundingBox().expand(Math.max(Math.max(3, entity.size() * 1.6), halo(entity))));
+  }
+
+  /** Outer accretion halo, growing with the event horizon so a large core reads from afar. */
+  private static float halo(RedmatterEntity entity) {
+    return Math.min(48, 2 + entity.horizonRadius() * .25f);
   }
 
   @Override
@@ -62,6 +68,20 @@ public final class RedmatterRenderer extends EntityRenderer<RedmatterEntity> {
           outer,
           time * .07f + ring,
           ring);
+      matrices.pop();
+    }
+    float halo = halo(entity);
+    if (halo > radius * 2.2f) {
+      matrices.push();
+      matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(time * .25f));
+      matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(12));
+      disc(
+          matrices,
+          consumers.getBuffer(RenderLayer.getEntityTranslucent(GLOW)),
+          radius * 2.1f,
+          halo,
+          time * .03f,
+          4);
       matrices.pop();
     }
     matrices.pop();

@@ -18,7 +18,7 @@ public final class PayloadConfig {
       int cartFuseTicks,
       int grenadeFuseTicks) {
     public Settings {
-      range("radius", radius, 0, 80);
+      range("radius", radius, 0, PayloadType.MAX_EXTREME_RADIUS);
       range("entityDamage", entityDamage, 0, Integer.MAX_VALUE);
       range("fragments", fragments, 0, 128);
       range("durationTicks", durationTicks, 0, 72000);
@@ -51,7 +51,20 @@ public final class PayloadConfig {
   /** Top-level key of the EMP energy drain section in {@code payloads.json}. */
   public static final String EMP_ENERGY_DRAIN = "emp_energy_drain";
 
-  record Parsed(Map<PayloadType, Settings> payloads, EmpEnergyDrain empEnergyDrain) {}
+  /**
+   * Top-level schema version. Files without it were written before the antimatter/red matter
+   * rework; their untouched old defaults are migrated once and the file is rewritten.
+   */
+  public static final String CONFIG_VERSION = "config_version";
+
+  public static final int CURRENT_VERSION = 2;
+
+  record Parsed(
+      Map<PayloadType, Settings> payloads, EmpEnergyDrain empEnergyDrain, boolean migrated) {
+    Parsed(Map<PayloadType, Settings> payloads, EmpEnergyDrain empEnergyDrain) {
+      this(payloads, empEnergyDrain, false);
+    }
+  }
 
   private static volatile Parsed active = new Parsed(defaults(), EmpEnergyDrain.DEFAULT);
   private static Path path;
@@ -73,25 +86,35 @@ public final class PayloadConfig {
 
   public static synchronized void reload() throws IOException {
     if (path == null) throw new IOException("Payload configuration path is not initialized");
-    if (!Files.exists(path)) {
-      Files.createDirectories(path.getParent());
-      JsonObject root = new JsonObject();
-      defaults().forEach((type, settings) -> root.add(type.id(), new Gson().toJsonTree(settings)));
-      root.add(EMP_ENERGY_DRAIN, new Gson().toJsonTree(EmpEnergyDrain.DEFAULT));
-      Path temporary = Files.createTempFile(path.getParent(), "payloads-", ".json.tmp");
-      try {
-        Files.writeString(temporary, new GsonBuilder().setPrettyPrinting().create().toJson(root));
-        Files.move(temporary, path, StandardCopyOption.REPLACE_EXISTING);
-      } finally {
-        Files.deleteIfExists(temporary);
-      }
-    }
+    if (!Files.exists(path)) write(new Parsed(defaults(), EmpEnergyDrain.DEFAULT));
     if (Files.size(path) > 1024 * 1024) throw new IOException("payloads.json exceeds 1 MiB");
     String text = Files.readString(path);
+    Parsed parsed;
     try {
-      active = parseAll(text);
+      parsed = parseAll(text);
     } catch (RuntimeException e) {
       throw new IOException("Invalid payloads.json: " + e.getMessage(), e);
+    }
+    active = parsed;
+    if (parsed.migrated()) write(parsed);
+  }
+
+  static String serialize(Parsed parsed) {
+    JsonObject root = new JsonObject();
+    root.addProperty(CONFIG_VERSION, CURRENT_VERSION);
+    parsed.payloads().forEach((type, settings) -> root.add(type.id(), new Gson().toJsonTree(settings)));
+    root.add(EMP_ENERGY_DRAIN, new Gson().toJsonTree(parsed.empEnergyDrain()));
+    return new GsonBuilder().setPrettyPrinting().create().toJson(root);
+  }
+
+  private static void write(Parsed parsed) throws IOException {
+    Files.createDirectories(path.getParent());
+    Path temporary = Files.createTempFile(path.getParent(), "payloads-", ".json.tmp");
+    try {
+      Files.writeString(temporary, serialize(parsed));
+      Files.move(temporary, path, StandardCopyOption.REPLACE_EXISTING);
+    } finally {
+      Files.deleteIfExists(temporary);
     }
   }
 
@@ -105,7 +128,11 @@ public final class PayloadConfig {
     JsonObject root = element.getAsJsonObject();
     Map<PayloadType, Settings> next = defaults();
     EmpEnergyDrain drain = EmpEnergyDrain.DEFAULT;
+    int version = root.has(CONFIG_VERSION) ? integer(root, CONFIG_VERSION, 1) : 1;
+    if (version < 1 || version > CURRENT_VERSION)
+      throw new IllegalArgumentException(CONFIG_VERSION + " must be between 1 and " + CURRENT_VERSION);
     for (String key : root.keySet()) {
+      if (key.equals(CONFIG_VERSION)) continue;
       if (key.equals(EMP_ENERGY_DRAIN)) {
         drain = parseDrain(root.getAsJsonObject(key));
         continue;
@@ -131,8 +158,7 @@ public final class PayloadConfig {
       for (String field : value.keySet())
         if (!fields.contains(field))
           throw new IllegalArgumentException("Unknown setting " + key + "." + field);
-      next.put(
-          type,
+      Settings parsed =
           new Settings(
               bool(value, "enabled", d.enabled),
               integer(value, "radius", d.radius),
@@ -142,9 +168,36 @@ public final class PayloadConfig {
               number(value, "energy", d.energy),
               integer(value, "blockFuseTicks", d.blockFuseTicks),
               integer(value, "cartFuseTicks", d.cartFuseTicks),
-              integer(value, "grenadeFuseTicks", d.grenadeFuseTicks)));
+              integer(value, "grenadeFuseTicks", d.grenadeFuseTicks));
+      if (parsed.radius() > type.maxRadius())
+        throw new IllegalArgumentException(
+            key + ".radius must be between 0 and " + type.maxRadius());
+      next.put(type, version < CURRENT_VERSION ? migrate(type, parsed) : parsed);
     }
-    return new Parsed(Collections.unmodifiableMap(next), drain);
+    return new Parsed(
+        Collections.unmodifiableMap(next), drain, version < CURRENT_VERSION);
+  }
+
+  /** Version 1 wrote the old defaults explicitly; only exact old defaults move to new ones. */
+  private static Settings migrate(PayloadType type, Settings s) {
+    int radius = s.radius(), duration = s.durationTicks();
+    if (type == PayloadType.ANTIMATTER && radius == PayloadDefaults.LEGACY_ANTIMATTER_RADIUS)
+      radius = PayloadDefaults.ANTIMATTER_RADIUS;
+    if (type == PayloadType.REDMATTER) {
+      if (radius == PayloadDefaults.LEGACY_REDMATTER_RADIUS) radius = PayloadDefaults.REDMATTER_RADIUS;
+      if (duration == PayloadDefaults.LEGACY_REDMATTER_DURATION)
+        duration = PayloadDefaults.REDMATTER_DURATION;
+    }
+    return new Settings(
+        s.enabled(),
+        radius,
+        s.entityDamage(),
+        s.fragments(),
+        duration,
+        s.energy(),
+        s.blockFuseTicks(),
+        s.cartFuseTicks(),
+        s.grenadeFuseTicks());
   }
 
   private static EmpEnergyDrain parseDrain(JsonObject value) {
@@ -185,16 +238,14 @@ public final class PayloadConfig {
     Map<PayloadType, Settings> map = new EnumMap<>(PayloadType.class);
     for (PayloadType type : PayloadType.values()) {
       PayloadDefaults d = PayloadDefaults.forType(type);
-      int radius = type == PayloadType.REDMATTER ? 12 : d.radius();
-      int duration = type == PayloadType.REDMATTER ? 2400 : d.durationTicks();
       map.put(
           type,
           new Settings(
               true,
-              radius,
+              d.radius(),
               d.entityDamage(),
               d.fragments(),
-              duration,
+              d.durationTicks(),
               d.energy(),
               type.defaultBlockFuseTicks(),
               type.defaultCartFuseTicks(),

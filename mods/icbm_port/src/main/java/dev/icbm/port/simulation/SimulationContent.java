@@ -21,7 +21,7 @@ public final class SimulationContent {
           new Identifier("icbm_port", "redmatter_singularity"),
           FabricEntityTypeBuilder.<RedmatterEntity>create(SpawnGroup.MISC, RedmatterEntity::new)
               .dimensions(EntityDimensions.fixed(1, 1))
-              .trackRangeBlocks(128)
+              .trackRangeBlocks(256)
               .trackedUpdateRate(2)
               .build());
 

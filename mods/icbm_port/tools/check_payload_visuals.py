@@ -90,6 +90,33 @@ def label_is_clear(path):
                     fail(path.name + " " + side + " glyph is covered")
 
 
+EXPLOSIVE_FACES = ("side", "top")
+
+
+def flat_explosive(payload):
+    """Explosive blocks are plain full cubes with flat side/top/bottom faces, like vanilla TNT.
+
+    Extra geometry over an opaque full block was what made the old faces read as fake depth, so
+    the block model must not add elements, and the item model must inherit the block model.
+    """
+    path = ROOT / "models/block" / f"{payload}_explosive.json"
+    model = json.loads(path.read_text())
+    if model.get("parent") != "minecraft:block/cube_bottom_top" or "elements" in model:
+        fail(path.name + " must be a plain minecraft:block/cube_bottom_top cube")
+    expected = {face: f"icbm_port:block/{payload}_explosive_{face}" for face in EXPLOSIVE_FACES}
+    expected["bottom"] = "icbm_port:block/explosive_bottom"
+    if model.get("textures") != expected:
+        fail(path.name + " textures drifted: " + str(model.get("textures")))
+    for texture in expected.values():
+        png = ROOT / "textures" / (texture.split(":", 1)[1] + ".png")
+        png_bytes(png)
+        if png_size(png) != (16, 16):
+            fail(png.name + " must be a single 16x16 face")
+    item = json.loads((ROOT / "models/item" / f"{payload}_explosive.json").read_text())
+    if item != {"parent": f"icbm_port:block/{payload}_explosive"}:
+        fail(payload + "_explosive item model must inherit the block model")
+
+
 def flight_axis(path):
     model = json.loads(path.read_text())
     exhaust_at_tail = False
@@ -137,9 +164,7 @@ def main():
         label_uvs(missile)
         flight_axis(missile)
         label_is_clear(missile)
-        explosive = ROOT / "models/block" / f"{profile.id}_explosive.json"
-        label_uvs(explosive)
-        label_is_clear(explosive)
+        flat_explosive(profile.id)
         cart = ROOT / "models/item" / f"{profile.id}_bomb_cart.json"
         label_uvs(cart)
         label_is_clear(cart)
@@ -161,6 +186,14 @@ def main():
         shape = geometry(ROOT / "models/item" / f"{profile.id}_missile.json")
         shapes.setdefault(shape, []).append(profile.id)
         bodies[profile.id] = profile.body
+    for face in EXPLOSIVE_FACES:
+        faces = {}
+        for profile in PROFILES:
+            raw = png_bytes(ROOT / "textures/block" / f"{profile.id}_explosive_{face}.png")
+            faces.setdefault(raw, []).append(profile.id)
+        twins = [group for group in faces.values() if len(group) > 1]
+        if twins:
+            fail("pixel-identical explosive " + face + " faces: " + str(twins))
     twins = [group for group in pixels.values() if len(group) > 1]
     if twins:
         fail("pixel-identical labels: " + str(twins))
@@ -178,7 +211,7 @@ def main():
     width, height = png_size(exhaust)
     if height != width * 4 or meta["animation"]["frametime"] < 1:
         fail("exhaust strip is not a four-frame animation")
-    print(f"PASS: {len(PROFILES)} payload visuals, flight axis, and client token parity.")
+    print(f"PASS: {len(PROFILES)} payload visuals, flat explosive cubes, flight axis, and client token parity.")
 
 
 def png_size(path):
