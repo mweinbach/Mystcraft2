@@ -128,19 +128,25 @@ public class UtilityBlockGameTests {
         ServerLevel level = helper.getLevel();
         Cow iron = cow(helper, 1, 1);
         Cow golden = cow(helper, 6, 6);
+        // Orbs fly off with a random velocity and the arena has no floor, so look across the whole arena
+        // and well below it; the iron kill is checked first so its area is free of the golden kill's orbs.
+        AABB arena = new AABB(helper.absolutePos(BlockPos.ZERO), helper.absolutePos(new BlockPos(8, 8, 8)))
+                .inflate(4, 0, 4).expandTowards(0, -24, 0);
         hitUntilDead(level, iron, SpikeKind.IRON);
-        golden.invulnerableTime = 0;
-        SpikeBlock.hurt(level, golden, SpikeKind.GOLDEN);
-        check(golden.getKillCredit() instanceof ServerPlayer, "A golden spike credits its kills to a player");
-        hitUntilDead(level, golden, SpikeKind.GOLDEN);
-        check(!iron.isAlive() && !golden.isAlive(), "Iron and golden spikes kill");
-        AABB ironArea = new AABB(helper.absolutePos(new BlockPos(1, 1, 1))).inflate(1.5);
-        AABB goldenArea = new AABB(helper.absolutePos(new BlockPos(6, 1, 6))).inflate(2.5);
-        helper.succeedWhen(() -> {
-            check(golden.isRemoved() && iron.isRemoved(), "Waiting for the death animations");
-            check(!level.getEntitiesOfClass(ExperienceOrb.class, goldenArea).isEmpty(), "A golden spike kill drops experience");
-            check(level.getEntitiesOfClass(ExperienceOrb.class, ironArea).isEmpty(), "An iron spike kill drops none");
-        });
+        check(!iron.isAlive(), "Iron spikes kill");
+        helper.startSequence()
+                .thenWaitUntil(() -> check(iron.isRemoved(), "Waiting for the iron spike kill's death animation"))
+                .thenExecute(() -> {
+                    check(level.getEntitiesOfClass(ExperienceOrb.class, arena).isEmpty(), "An iron spike kill drops none");
+                    golden.invulnerableTime = 0;
+                    SpikeBlock.hurt(level, golden, SpikeKind.GOLDEN);
+                    check(golden.getKillCredit() instanceof ServerPlayer, "A golden spike credits its kills to a player");
+                    hitUntilDead(level, golden, SpikeKind.GOLDEN);
+                    check(!golden.isAlive(), "Golden spikes kill");
+                })
+                .thenWaitUntil(() -> check(!level.getEntitiesOfClass(ExperienceOrb.class, arena).isEmpty(),
+                        "A golden spike kill drops experience"))
+                .thenSucceed();
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)

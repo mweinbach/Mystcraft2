@@ -15,13 +15,16 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The mechanical miner breaks the block in front of it as its owner would, holding the tool in its
  * tool slot (or bare-handed): the block takes as long as it would take that player, drops only what
- * that tool harvests, and the tool wears and can break. Drops go to its output; while they do not fit,
- * it waits. It needs {@link #GP} Grid Power while working and pauses on a redstone signal.
+ * that tool harvests, and the tool wears and can break. Drops go to its output; any that do not fit
+ * are held (and saved) and it waits until they do. It needs {@link #GP} Grid Power while working and
+ * pauses on a redstone signal.
  *
  * <p>Each break goes through {@link MachinePlayer#mayBreak}, so it cannot mine where its owner may
  * not. Like the quarries it leaves air, fluids, unbreakable and {@code #gridwright:unminable} blocks
@@ -34,6 +37,7 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
     private float progress;
     private BlockState target = Blocks.AIR.defaultBlockState();
     private int broken;
+    @Nullable private List<ItemStack> pending;
 
     public MechanicalMinerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MECHANICAL_MINER.get(), pos, state, WorkerLayout.MECHANICAL_MINER);
@@ -57,6 +61,16 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
         if (level.hasNeighborSignal(worldPosition)) {
             stop(Status.PAUSED);
             return;
+        }
+        int outputs = layout().firstOutput();
+        if (pending != null) {
+            if (!fits(pending, outputs, layout().size())) {
+                stop(Status.BLOCKED);
+                return;
+            }
+            pending.forEach(stack -> store(stack, outputs, layout().size()));
+            pending = null;
+            setChanged();
         }
         Direction facing = getBlockState().getValue(MechanicalBlock.FACING);
         BlockPos pos = worldPosition.relative(facing);
@@ -88,14 +102,10 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
             }
             List<ItemStack> drops = player.hasCorrectToolForDrops(state)
                     ? Block.getDrops(state, level, pos, null, player, tool) : List.of();
-            int outputs = layout().firstOutput();
-            if (!fits(drops, outputs, layout().size())) {
-                stop(Status.BLOCKED);
-                return;
-            }
             MachinePlayer.destroy(level, pos, state, null, player, tool, true);
             if (tool.isEmpty()) items.set(toolSlot, ItemStack.EMPTY);
-            drops.forEach(stack -> store(stack, outputs, layout().size()));
+            if (fits(drops, outputs, layout().size())) drops.forEach(stack -> store(stack, outputs, layout().size()));
+            else pending = new ArrayList<>(drops);
             progress = 0;
             broken++;
         } finally {
@@ -105,14 +115,21 @@ public class MechanicalMinerBlockEntity extends WorkerBlockEntity {
     }
 
     @Override
+    public List<ItemStack> pendingDrops() {
+        return pending == null ? List.of() : pending;
+    }
+
+    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Broken", broken);
+        if (pending != null) tag.put("Pending", saveStacks(pending));
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         broken = tag.getInt("Broken");
+        pending = tag.contains("Pending") ? loadStacks(tag.getList("Pending", 10)) : null;
     }
 }

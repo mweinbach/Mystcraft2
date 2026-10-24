@@ -101,6 +101,30 @@ public class MechanicalGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public static void minerHoldsItsLootWhileFull(GameTestHelper helper) {
+        Owner owner = Owner.random("gwMe");
+        MechanicalMinerBlockEntity miner = machine(helper, ModBlocks.MECHANICAL_MINER, owner);
+        miner.setItem(WorkerLayout.MECHANICAL_MINER.first(WorkerLayout.Role.TOOL), new ItemStack(Items.DIAMOND_PICKAXE));
+        for (int slot = WorkerLayout.MECHANICAL_MINER.firstOutput(); slot < WorkerLayout.MECHANICAL_MINER.size(); slot++) {
+            miner.setItem(slot, new ItemStack(Items.BEDROCK, 64));
+        }
+        helper.setBlock(FRONT, Blocks.STONE);
+        TestProtection.power(helper, owner, MechanicalMinerBlockEntity.GP);
+        helper.startSequence()
+                .thenWaitUntil(() -> check(miner.status() == Status.BLOCKED, "Expected BLOCKED, got " + miner.status()))
+                .thenExecute(() -> {
+                    check(helper.getBlockState(FRONT).isAir(), "The block was not broken");
+                    check(miner.pendingDrops().size() == 1 && miner.pendingDrops().get(0).is(Items.COBBLESTONE),
+                            "Held loot: " + miner.pendingDrops());
+                    check(miner.saveWithoutMetadata().contains("Pending"), "Held loot is not saved");
+                    miner.removeItem(WorkerLayout.MECHANICAL_MINER.firstOutput(), 64);
+                })
+                .thenWaitUntil(() -> check(output(miner, WorkerLayout.MECHANICAL_MINER, Items.COBBLESTONE) == 1
+                        && miner.pendingDrops().isEmpty(), "Held loot not delivered"))
+                .thenSucceed();
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void minerNeedsOwnerPowerAndNoSignal(GameTestHelper helper) {
         MechanicalMinerBlockEntity unowned = machine(helper, ModBlocks.MECHANICAL_MINER, null);
         helper.setBlock(FRONT, Blocks.DIRT);
