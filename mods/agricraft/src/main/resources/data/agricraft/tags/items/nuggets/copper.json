@@ -1,0 +1,13 @@
+{
+  "values": [
+    "agricraft:copper_nugget",
+    {
+      "id": "#c:copper_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/copper",
+      "required": false
+    }
+  ]
+}

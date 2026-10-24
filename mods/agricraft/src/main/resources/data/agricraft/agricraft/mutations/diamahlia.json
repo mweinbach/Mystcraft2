@@ -1,0 +1,6 @@
+{
+  "chance": 0.25,
+  "child": "agricraft:diamahlia",
+  "parent1": "agricraft:amathyllis",
+  "parent2": "agricraft:nitor_wart"
+}

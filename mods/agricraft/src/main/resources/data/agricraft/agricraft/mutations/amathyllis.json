@@ -1,0 +1,6 @@
+{
+  "chance": 0.25,
+  "child": "agricraft:amathyllis",
+  "parent1": "agricraft:lapender",
+  "parent2": "agricraft:redstodendron"
+}

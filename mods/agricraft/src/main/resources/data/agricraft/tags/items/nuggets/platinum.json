@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:platinum_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/platinum",
+      "required": false
+    }
+  ]
+}

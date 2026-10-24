@@ -1,0 +1,13 @@
+{
+  "values": [
+    "agricraft:diamond_shard",
+    {
+      "id": "#c:diamond_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/diamond",
+      "required": false
+    }
+  ]
+}

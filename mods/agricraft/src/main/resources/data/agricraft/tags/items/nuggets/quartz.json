@@ -1,0 +1,13 @@
+{
+  "values": [
+    "agricraft:quartz_shard",
+    {
+      "id": "#c:quartz_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/quartz",
+      "required": false
+    }
+  ]
+}

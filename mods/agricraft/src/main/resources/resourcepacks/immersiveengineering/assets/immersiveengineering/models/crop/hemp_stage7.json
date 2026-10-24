@@ -1,0 +1,7 @@
+{
+  "parent": "agricraft:crop/tall_crop_hash",
+  "textures": {
+    "crop": "immersiveengineering:block/hemp/bottom4",
+    "crop_top": "immersiveengineering:block/hemp/top0"
+  }
+}

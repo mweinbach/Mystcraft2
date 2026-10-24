@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:tin_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/tin",
+      "required": false
+    }
+  ]
+}

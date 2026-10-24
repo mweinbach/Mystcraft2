@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "i": {
+      "tag": "agricraft:ingots/iron"
+    },
+    "s": {
+      "tag": "agricraft:rods/wooden"
+    }
+  },
+  "pattern": [
+    "  s",
+    "ii "
+  ],
+  "result": {
+    "item": "agricraft:trowel"
+  },
+  "show_notification": true
+}

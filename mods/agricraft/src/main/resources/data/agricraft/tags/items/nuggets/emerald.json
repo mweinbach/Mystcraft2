@@ -1,0 +1,13 @@
+{
+  "values": [
+    "agricraft:emerald_shard",
+    {
+      "id": "#c:emerald_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/emerald",
+      "required": false
+    }
+  ]
+}

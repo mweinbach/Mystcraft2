@@ -1,0 +1,6 @@
+{
+  "parent": "agricraft:crop/crop_cross",
+  "textures": {
+    "crop": "agricraft:plant/biomesoplenty/glowshroom_stage1"
+  }
+}
