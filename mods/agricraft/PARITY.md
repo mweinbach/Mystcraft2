@@ -240,5 +240,9 @@ and the `@REIPluginClient` subclass `forge/compat/AgriCraftReiForgePlugin`; Fabr
   `-PwithEmi -PwithJei -PwithRei`, that each installed viewer's plugin is wired up.
 - `scripts/check_loader_parity.py` compares the two jars (resources, shared classes, mixins and refmaps,
   descriptors, access widener/transformer, nested MixinExtras).
-- Not yet done: a client session (screens, overlay, journal, models, irrigation renderers and particles) and
-  multiplayer play-testing.
+- Tekxit 4 (2026-10-24, [docs/tekxit4-testing.md](../../docs/tekxit4-testing.md#agricraft-in-the-tekxit-4-client-and-server-2026-10-24)):
+  the Fabric jar boots on the dedicated server (probe 0 failures and 0 warnings, Item Alchemy EMC 25/25) and in the
+  Prism client next to every port and the pack's Jade, Botania, Fabric Seasons and EMI. In the client, the creative
+  tab, an EMI page, placed blocks, the GameTests and save/quit all pass.
+- Not yet done: hand play-testing (screens, overlay, journal, irrigation renderers and the Jade/EMI overlays were
+  only seen in the probe's screenshots) and multiplayer play-testing.

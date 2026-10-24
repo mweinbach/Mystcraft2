@@ -11,8 +11,9 @@ Read [`NOTICE.md`](NOTICE.md) for provenance: the code, assets and data are upst
 - Status: **in progress**. Phase 1 ports AgriCraft 4.0.6's gameplay, phase 2 adds irrigation, ported
   from AgriCraft 3 because AgriCraft 4 has none, and phase 3 adds upstream's integrations (EMI, JEI, an
   REI plugin written for the port, Jade, WTHIT, Mod Menu/Forge config screen, Botania, the Fabric Seasons
-  stub). Server GameTests pass on both loaders; the screens, overlay, journal, models, irrigation
-  renderers, recipe-viewer pages and tooltips have not been looked at in a client yet.
+  stub). Server GameTests pass on both loaders, and the Fabric jar boots in the Tekxit 4 server and
+  client with every other port (see [`docs/tekxit4-testing.md`](../../docs/tekxit4-testing.md)); the screens, overlay,
+  journal, irrigation renderers, recipe-viewer pages and tooltips have not been play-tested by hand.
 
 ## Features
 
