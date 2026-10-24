@@ -37,7 +37,6 @@ import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.mixin.DispenserBlockAccessor;
 import ports.buildcraft.transport.PipeDefinition;
 import ports.buildcraft.transport.PipeItem;
-import ports.buildcraft.transport.behaviour.StripesBehaviour;
 
 /**
  * Upstream's {@code StripesHandler*} item handlers, each acting on the block or entities in front of the stripes
@@ -61,7 +60,7 @@ public final class StripesHandlers {
      * other than sugar cane; here they are block items of bushes (crops, saplings, flowers, mushrooms, nether wart,
      * berries) and cactus, planted where the plant could survive, with air above, and not on its own kind.
      */
-    static boolean plant(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean plant(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         BlockPos front = pos.relative(direction);
         return plantCrop(level, player, stack, front.below()) || plantCrop(level, player, stack, front);
     }
@@ -82,7 +81,7 @@ public final class StripesHandlers {
      * drops come back through the pipe. Upstream asked Forge's {@code IShearable}; here a block is shearable when its
      * loot with the shears differs from its loot by hand, as for leaves, grass, vines and cobwebs.
      */
-    static boolean shears(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean shears(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!(stack.getItem() instanceof ShearsItem)) return false;
         BlockPos front = pos.relative(direction);
         BlockState state = level.getBlockState(front);
@@ -118,7 +117,7 @@ public final class StripesHandlers {
      * Upstream {@code StripesHandlerPipes}: an item pipe asks the {@link PipeExtensionManager} to lay itself where the
      * stripes pipe is at the end of the tick, moving the stripes pipe forward (or, for a void pipe, back).
      */
-    static boolean pipes(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean pipes(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!(stack.getItem() instanceof PipeItem item) || item.definition().flow != PipeDefinition.Flow.ITEM) return false;
         if (!PipeExtensionManager.requestPipeExtension(level, pos, direction, stack.copy())) return false;
         // Nothing comes back now; the extension manager returns what it does not use.
@@ -127,7 +126,7 @@ public final class StripesHandlers {
     }
 
     /** Upstream {@code StripesHandlerHoe}: tills the block in front, or else the one below it. */
-    static boolean hoe(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean hoe(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!(stack.getItem() instanceof HoeItem)) return false;
         BlockPos front = pos.relative(direction);
         if (!BlockProtection.mayUse(level, front, Direction.UP, stack, player)) return true;
@@ -139,7 +138,7 @@ public final class StripesHandlers {
 
     /** Upstream {@code StripesHandlerEntityInteract}: the item is used on a random living entity in front. */
     static boolean entityInteract(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player,
-            StripesBehaviour activator) {
+            StripesActivator activator) {
         List<LivingEntity> entities = new ArrayList<>(level.getEntitiesOfClass(LivingEntity.class, new AABB(pos.relative(direction))));
         if (entities.isEmpty()) return false;
         if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
@@ -155,7 +154,7 @@ public final class StripesHandlers {
      * the pipe's place facing forward. One item is dispensed (upstream passed the whole stack, which made vanilla's
      * empty bucket behaviour look for a dispenser inventory); the rest stays with the player and comes back.
      */
-    static boolean dispenser(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean dispenser(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!DispenserBlockAccessor.buildcraft$getRegistry().containsKey(stack.getItem())) return false;
         if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
         DispenseItemBehavior behaviour = DispenserBlockAccessor.buildcraft$getRegistry().get(stack.getItem());
@@ -169,7 +168,7 @@ public final class StripesHandlers {
     }
 
     /** Upstream {@code StripesHandlerPlaceBlock}: a block item is placed in the empty space in front. */
-    static boolean placeBlock(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean placeBlock(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!(stack.getItem() instanceof BlockItem)) return false;
         BlockPos front = pos.relative(direction);
         if (!level.isEmptyBlock(front)) return false;
@@ -179,7 +178,7 @@ public final class StripesHandlers {
     }
 
     /** Upstream {@code StripesHandlerUse}: items in {@link #USE_ITEMS} are used on the block in front. */
-    static boolean use(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesBehaviour activator) {
+    static boolean use(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player, StripesActivator activator) {
         if (!USE_ITEMS.contains(stack.getItem())) return false;
         if (!BlockProtection.mayUse(level, pos.relative(direction), direction.getOpposite(), stack, player)) return true;
         return useItemOnBlock(player, pos.relative(direction), direction.getOpposite());

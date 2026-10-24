@@ -24,6 +24,8 @@ import ports.buildcraft.statement.StatementParameterItemStack;
  * <li>Provide Items: carriers may take items from the inventories beside the pipe (optionally only those matching
  * the item parameters);</li>
  * <li>Accept Items: carriers may deliver here (optionally only matching items);</li>
+ * <li>Provide Fluids and Accept Fluids: the same for tank robots and the tanks beside the pipe, the parameters
+ * being fluid containers (a water bucket lets only water through);</li>
  * <li>Drop Items In Pipe: robots unloading here put everything into the item pipe;</li>
  * <li>Forbid Robot: robots other than the one that lives here may not dock;</li>
  * <li>Wake Up: the robot that lives (or is docked) here stops sleeping;</li>
@@ -34,6 +36,8 @@ public class ActionStation extends BCStatement implements Action.Internal {
     public enum Kind {
         PROVIDE_ITEMS("gate.action.station.provide_items", "action_station_provide_items", 3),
         ACCEPT_ITEMS("gate.action.station.accept_items", "action_station_accept_items", 3),
+        PROVIDE_FLUIDS("gate.action.station.provide_fluids", "action_station_provide_fluids", 3),
+        ACCEPT_FLUIDS("gate.action.station.accept_fluids", "action_station_accept_fluids", 3),
         DROP_IN_PIPE("gate.action.station.drop_items_in_pipe", "action_station_drop_in_pipe", 0),
         FORBID_ROBOT("gate.action.station.forbid_robot", "action_station_robot_forbidden", 0),
         WAKE_UP("gate.action.robot.wakeup", "action_robot_wakeup", 0),
@@ -99,6 +103,8 @@ public class ActionStation extends BCStatement implements Action.Internal {
             switch (kind) {
                 case PROVIDE_ITEMS -> station.actionProvide(stacks);
                 case ACCEPT_ITEMS -> station.actionAccept(stacks);
+                case PROVIDE_FLUIDS -> station.actionProvideFluids(stacks);
+                case ACCEPT_FLUIDS -> station.actionAcceptFluids(stacks);
                 case DROP_IN_PIPE -> station.actionDropInPipe();
                 case FORBID_ROBOT -> station.actionForbid();
                 case WAKE_UP -> station.actionWakeUp();

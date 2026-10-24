@@ -257,4 +257,10 @@ final class ForgePlatform implements Platform.Backend {
 
     @Override
     public void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {}
+
+    /** What Forge's {@code Player.attack} runs first: posts {@code AttackEntityEvent}. */
+    @Override
+    public boolean fireAttack(ServerPlayer player, net.minecraft.world.entity.Entity target) {
+        return ForgeHooks.onPlayerAttackTarget(player, target);
+    }
 }

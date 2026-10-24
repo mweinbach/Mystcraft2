@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import ports.buildcraft.transport.behaviour.StripesBehaviour;
 
 /**
  * Upstream {@code StripesRegistry} with the item handlers {@code BCTransportRegistries} adds, in the same order:
@@ -46,7 +45,7 @@ public final class StripesRegistry {
 
     /** @return true if a handler used the item, false if nothing was done. */
     public static boolean handleItem(ServerLevel level, BlockPos pos, Direction direction, ItemStack stack, ServerPlayer player,
-            StripesBehaviour activator) {
+            StripesActivator activator) {
         for (Priority priority : Priority.values()) {
             for (StripesHandler handler : HANDLERS.get(priority)) {
                 if (handler.handle(level, pos, direction, stack, player, activator)) return true;

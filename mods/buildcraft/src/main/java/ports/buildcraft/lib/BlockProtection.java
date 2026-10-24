@@ -52,6 +52,15 @@ public final class BlockProtection {
     }
 
     /**
+     * Whether {@code player} (a machine owner's fake player) may attack {@code target}: the target must take attacks,
+     * and the loader's attack event must allow it ({@link Platform.Backend#fireAttack}), so claim and protection mods
+     * can refuse a robot fighting for its owner as they refuse the owner.
+     */
+    public static boolean mayAttack(ServerPlayer player, net.minecraft.world.entity.Entity target) {
+        return target.isAttackable() && !target.skipAttackInteraction(player) && Platform.get().fireAttack(player, target);
+    }
+
+    /**
      * Whether {@code player} may place a block at {@code pos}, on {@code face} of the block {@code placedAgainst}
      * beside it, replacing what is there.
      */

@@ -326,4 +326,11 @@ final class FabricPlatform implements Platform.Backend {
     public void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player) {
         PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
     }
+
+    /** What Fabric API's attack packet handling fires before a player attacks: any result but PASS stops it. */
+    @Override
+    public boolean fireAttack(ServerPlayer player, net.minecraft.world.entity.Entity target) {
+        return net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.invoker()
+                .interact(player, player.getLevel(), InteractionHand.MAIN_HAND, target, null) == net.minecraft.world.InteractionResult.PASS;
+    }
 }

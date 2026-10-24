@@ -28,10 +28,45 @@
       "itemalchemy": 1120,
       "source": "conversion recordings_are_worth_their_blanks"
     },
+    "buildcraft:board_breaker": {
+      "projecte": 331,
+      "itemalchemy": 331,
+      "source": "conversion assemble_board_breaker"
+    },
+    "buildcraft:board_butcher": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion assemble_board_butcher"
+    },
     "buildcraft:board_carrier": {
       "projecte": 384,
       "itemalchemy": 384,
       "source": "conversion assemble_board_carrier"
+    },
+    "buildcraft:board_farmer": {
+      "projecte": 840,
+      "itemalchemy": 832,
+      "source": "conversion assemble_board_farmer"
+    },
+    "buildcraft:board_fluid_carrier": {
+      "projecte": 328,
+      "itemalchemy": 328,
+      "source": "conversion assemble_board_fluid_carrier"
+    },
+    "buildcraft:board_harvester": {
+      "projecte": 344,
+      "itemalchemy": 344,
+      "source": "conversion assemble_board_harvester"
+    },
+    "buildcraft:board_knight": {
+      "projecte": 836,
+      "itemalchemy": 828,
+      "source": "conversion assemble_board_knight"
+    },
+    "buildcraft:board_leaf_cutter": {
+      "projecte": 832,
+      "itemalchemy": 824,
+      "source": "conversion assemble_board_leaf_cutter"
     },
     "buildcraft:board_lumberjack": {
       "projecte": 1096,
@@ -47,6 +82,26 @@
       "projecte": 1664,
       "itemalchemy": 1644,
       "source": "conversion assemble_board_picker"
+    },
+    "buildcraft:board_planter": {
+      "projecte": 336,
+      "itemalchemy": 336,
+      "source": "conversion assemble_board_planter"
+    },
+    "buildcraft:board_pump": {
+      "projecte": 1088,
+      "itemalchemy": 1088,
+      "source": "conversion assemble_board_pump"
+    },
+    "buildcraft:board_shovelman": {
+      "projecte": 584,
+      "itemalchemy": 580,
+      "source": "conversion assemble_board_shovelman"
+    },
+    "buildcraft:board_stripes": {
+      "projecte": 2629,
+      "itemalchemy": 2620,
+      "source": "conversion assemble_board_stripes"
     },
     "buildcraft:builder": {
       "projecte": 85100,

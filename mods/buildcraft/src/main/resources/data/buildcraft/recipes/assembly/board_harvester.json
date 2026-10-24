@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:board_harvester"
+  },
+  "MJ": 10000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:redstone_board"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:wheat"
+      }
+    }
+  ]
+}

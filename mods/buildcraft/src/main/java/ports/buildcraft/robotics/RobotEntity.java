@@ -37,6 +37,7 @@ import ports.buildcraft.lib.BlockProtection;
 import ports.buildcraft.lib.BlockUtil;
 import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
+import ports.buildcraft.lib.Tank;
 import ports.buildcraft.robotics.board.RobotBoard;
 import ports.buildcraft.robotics.board.RobotBoardType;
 import ports.buildcraft.silicon.gate.GateLogic;
@@ -50,7 +51,8 @@ import ports.buildcraft.silicon.gate.GateLogic;
  * that player (see {@link BlockProtection}).
  *
  * <p>Players install a board by using it on the robot (the old board comes back), and take the robot back as an item,
- * keeping its board and energy, by sneak-using it with an empty hand or a wrench; its cargo and tool drop.
+ * keeping its board and energy, by sneak-using it with an empty hand or a wrench; its cargo and tool drop (and the
+ * fluid in its tank is lost).
  */
 public class RobotEntity extends Entity {
     public static final float SIZE = 0.5F;
@@ -66,6 +68,8 @@ public class RobotEntity extends Entity {
     public static final int INVENTORY_SIZE = 4;
     /** How far a robot looks for a station to charge at. */
     public static final double CHARGE_RANGE = 64;
+    /** The robot's fluid tank, for the pump and tank boards: eight buckets. */
+    public static final int TANK_CAPACITY = 8 * 1000;
 
     private static final EntityDataAccessor<String> DATA_BOARD = SynchedEntityData.defineId(RobotEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<ItemStack> DATA_HELD = SynchedEntityData.defineId(RobotEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -74,6 +78,7 @@ public class RobotEntity extends Entity {
 
     private final MjBattery battery = new MjBattery(CAPACITY);
     private final SimpleContainer inventory = new SimpleContainer(INVENTORY_SIZE);
+    private final Tank tank = new Tank("robot", TANK_CAPACITY);
     private ItemStack tool = ItemStack.EMPTY;
     @Nullable
     private RobotBoardType boardType;
@@ -110,6 +115,7 @@ public class RobotEntity extends Entity {
 
     public MjBattery battery() { return battery; }
     public SimpleContainer inventory() { return inventory; }
+    public Tank tank() { return tank; }
     public ItemStack tool() { return tool; }
     @Nullable public StationRef home() { return home; }
     @Nullable public StationRef dockedAt() { return dockedAt; }
@@ -418,9 +424,29 @@ public class RobotEntity extends Entity {
     }
 
     private ServerPlayer actor(BlockPos pos) {
+        return actor();
+    }
+
+    /**
+     * The owner's fake player where the robot is, holding a copy of the robot's tool: boards that change the world
+     * or fight act as this player, so protection sees the owner (see {@link BlockProtection}).
+     */
+    public ServerPlayer actor() {
         ServerPlayer player = BlockProtection.fakePlayer((ServerLevel) level, owner, blockPosition());
         player.setItemInHand(InteractionHand.MAIN_HAND, tool.copy());
         return player;
+    }
+
+    /** Wears the robot's tool by {@code amount}; a tool that breaks is gone. */
+    public void damageTool(int amount) {
+        if (tool.isDamageableItem() && tool.hurt(amount, random, null)) tool = ItemStack.EMPTY;
+    }
+
+    /** Takes {@code microJoules} from the battery if it holds that much; false (taking nothing) otherwise. */
+    public boolean spend(long microJoules) {
+        if (battery.stored() < microJoules) return false;
+        battery.extractPower(microJoules, microJoules);
+        return true;
     }
 
     private int breakTicks(BlockState state, BlockPos pos) {
@@ -570,6 +596,7 @@ public class RobotEntity extends Entity {
         battery.load(tag.getCompound("battery"));
         inventory.fromTag(tag.getList("inventory", Tag.TAG_COMPOUND));
         tool = ItemStack.of(tag.getCompound("tool"));
+        tank.load(tag.getCompound("tank"));
         home = tag.contains("home", Tag.TAG_COMPOUND) ? StationRef.load(tag.getCompound("home")) : null;
         dockedAt = tag.contains("docked", Tag.TAG_COMPOUND) ? StationRef.load(tag.getCompound("docked")) : null;
         owner = tag.contains("owner", Tag.TAG_COMPOUND) ? NbtUtils.readGameProfile(tag.getCompound("owner")) : null;
@@ -585,6 +612,7 @@ public class RobotEntity extends Entity {
         ListTag items = inventory.createTag();
         tag.put("inventory", items);
         if (!tool.isEmpty()) tag.put("tool", tool.save(new CompoundTag()));
+        if (!tank.isEmpty()) tag.put("tank", tank.save());
         if (home != null) tag.put("home", home.save());
         if (dockedAt != null) tag.put("docked", dockedAt.save());
         tag.put("owner", NbtUtils.writeGameProfile(new CompoundTag(), owner));

@@ -87,12 +87,14 @@ The robot files are added by hand, not by `tools/generate_assets.py`. They are M
 | Port path (`src/main/resources/assets/buildcraft/`) | Upstream source (`buildcraft_resources/assets/buildcraftrobotics/`) |
 | --- | --- |
 | `textures/entity/robot/{base,picker,carrier,lumberjack,miner}.png` | `textures/entities/robot_{base,picker,carrier,lumberjack,miner}.png` |
+| `textures/entity/robot/{harvester,shovelman,breaker,farmer,planter,pump,knight,butcher,stripes}.png` | `textures/entities/robot_{harvester,shovelman,breaker,farmer,planter,pump,knight,butcher,stripes}.png` |
+| `textures/entity/robot/leaf_cutter.png`, `fluid_carrier.png` | `textures/entities/robot_leaveCutter.png`, `robot_fluidCarrier.png` |
 | `textures/item/board/{clean,red,green,blue,yellow}.png` | `textures/items/board/{clean,red,green,blue,yellow}.png` |
 | `textures/block/robot_station/{base,state_available,state_linked,state_reserved}.png` | `textures/station/{base,state_available,state_linked,state_reserved}.png` |
-| `textures/triggers/trigger_robot_{in_station,linked,reserved,sleep}.png`, `action_station_{provide_items,accept_items,drop_in_pipe,robot_forbidden}.png`, `action_robot_{wakeup,work_in_area}.png` | `textures/triggers/` (same names) |
+| `textures/triggers/trigger_robot_{in_station,linked,reserved,sleep}.png`, `action_station_{provide_items,accept_items,provide_fluids,accept_fluids,drop_in_pipe,robot_forbidden}.png`, `action_robot_{wakeup,work_in_area}.png` | `textures/triggers/` (same names) |
 | `models/item/robot.json`, `robot_skin.json` (cube and face UVs) | `models/robot.json` |
 | `models/item/docking_station.json`, `DockingStationRenderer` boxes (plate and stem sizes) | `models/pluggables/robot_station_base.obj` |
-| `lang/en_us.json` board, robot, docking station and robot gate names | `assets/buildcraft/lang/en_US.lang` (`buildcraft.boardRobot*`, `gate.*.robot.*`, `gate.action.station.*`, `item.robot`, `item.redstone_board`, `item.PipeRobotStation`) |
+| `lang/en_us.json` board, robot, docking station and robot gate names | `assets/buildcraft/lang/en_US.lang` (`buildcraft.boardRobot*`, `gate.*.robot.*`, `gate.action.station.*` (upstream's `gate.action.station.povide_fluids` typo is `provide_fluids` here), `item.robot`, `item.redstone_board`, `item.PipeRobotStation`) |
 
 The robot recipes (`robot`, `redstone_board`, `docking_station`, `robot_board` and `assembly/board_*`) are
 written for this port in the style of BuildCraft 7's recipes.

@@ -17,7 +17,18 @@ public enum RobotBoardType {
     PICKER(Colour.YELLOW, PickerBoard::new),
     CARRIER(Colour.YELLOW, CarrierBoard::new),
     LUMBERJACK(Colour.GREEN, BreakerBoard::lumberjack),
-    MINER(Colour.BLUE, BreakerBoard::miner);
+    MINER(Colour.BLUE, BreakerBoard::miner),
+    HARVESTER(Colour.GREEN, BreakerBoard::harvester),
+    LEAF_CUTTER(Colour.GREEN, BreakerBoard::leafCutter),
+    SHOVELMAN(Colour.BLUE, BreakerBoard::shovelman),
+    BREAKER(Colour.BLUE, BreakerBoard::breaker),
+    FARMER(Colour.GREEN, FarmerBoard::new),
+    PLANTER(Colour.GREEN, PlanterBoard::new),
+    PUMP(Colour.YELLOW, PumpBoard::new),
+    FLUID_CARRIER(Colour.YELLOW, FluidCarrierBoard::new),
+    KNIGHT(Colour.RED, FighterBoard::knight),
+    BUTCHER(Colour.RED, FighterBoard::butcher),
+    STRIPES(Colour.YELLOW, StripesBoard::new);
 
     /** The board item textures upstream ships. */
     public enum Colour { RED, GREEN, BLUE, YELLOW }

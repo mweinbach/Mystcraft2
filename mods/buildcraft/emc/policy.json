@@ -9,7 +9,7 @@
   "notes": [
     "Every survival BuildCraft item in this port apart from fluid buckets and the map location is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller, the heat exchanger and the builders machines: filler, builder, architect table, electronic library and replacer), blank templates, blueprints and single block schematics, the tank, land and path marks, the marker connector, waterproof, paintbrushes, the zone planner, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
     "",
-    "The robot, redstone board and docking station are crafted, so their values come from their recipes; a robot's board and energy are NBT, which transmutation strips, so it pays out an empty robot. The picker, carrier, lumberjack and miner boards are programmed in the assembly table, so each is restated as a conversion from a redstone board and its tool with laser power left unvalued. Installing or removing a board in the crafting grid is a special recipe that moves NBT, which neither EMC mod maps.",
+    "The robot, redstone board and docking station are crafted, so their values come from their recipes; a robot's board and energy are NBT, which transmutation strips, so it pays out an empty robot. The picker, carrier, lumberjack, miner, harvester, leaf cutter, shovelman, breaker, farmer, planter, pump, tank, knight, butcher and stripes boards are programmed in the assembly table, so each is restated as a conversion from a redstone board and its ingredient with laser power left unvalued. Installing or removing a board in the crafting grid is a special recipe that moves NBT, which neither EMC mod maps.",
     "",
     "Gates, the gate copier, pipe wire, lenses and filters, the pipe pulsar, the timer and facades come from the assembly table, which ProjectE and Item Alchemy do not map, so each assembly recipe is restated as a conversion with laser power left unvalued. Basic gates and the iron and nether brick gates and iron lapis and quartz gates also have crafting recipes, and the one-item recipes that swap a gate between AND and OR give both logics the same value; where assembly is cheaper, the conversion sets the value so that assembling a gate and transmuting it gains nothing. A facade is one item for every block: its value is the cheapest full block, dirt, plus three structure pipes, divided by the six facades the recipe makes. That counts the copied block and stays below one, so six facades of a diamond block cannot pay out the diamond block. The crafting swap that flips hollow is the same item, and transmutation strips the block NBT.",
     "",
@@ -162,6 +162,72 @@
       "why": "The assembly table programs a redstone board into the miner robot board with an iron pickaxe and laser power (this port's clean-room robots), which is left unvalued.",
       "output": "buildcraft:board_miner",
       "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_pickaxe": 1}
+    },
+    {
+      "name": "assemble_board_harvester",
+      "why": "The assembly table programs a redstone board into the harvester robot board with wheat and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_harvester",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:wheat": 1}
+    },
+    {
+      "name": "assemble_board_leaf_cutter",
+      "why": "The assembly table programs a redstone board into the leaf cutter robot board with shears and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_leaf_cutter",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:shears": 1}
+    },
+    {
+      "name": "assemble_board_shovelman",
+      "why": "The assembly table programs a redstone board into the shovelman robot board with an iron shovel and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_shovelman",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_shovel": 1}
+    },
+    {
+      "name": "assemble_board_breaker",
+      "why": "The assembly table programs a redstone board into the breaker robot board with a stone pickaxe and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_breaker",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:stone_pickaxe": 1}
+    },
+    {
+      "name": "assemble_board_farmer",
+      "why": "The assembly table programs a redstone board into the farmer robot board with an iron hoe and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_farmer",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_hoe": 1}
+    },
+    {
+      "name": "assemble_board_planter",
+      "why": "The assembly table programs a redstone board into the planter robot board with wheat seeds and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_planter",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:wheat_seeds": 1}
+    },
+    {
+      "name": "assemble_board_pump",
+      "why": "The assembly table programs a redstone board into the pump robot board with a bucket and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_pump",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:bucket": 1}
+    },
+    {
+      "name": "assemble_board_fluid_carrier",
+      "why": "The assembly table programs a redstone board into the tank (fluid carrier) robot board with a BuildCraft tank and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_fluid_carrier",
+      "ingredients": {"buildcraft:redstone_board": 1, "buildcraft:tank": 1}
+    },
+    {
+      "name": "assemble_board_knight",
+      "why": "The assembly table programs a redstone board into the knight robot board with an iron sword and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_knight",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_sword": 1}
+    },
+    {
+      "name": "assemble_board_butcher",
+      "why": "The assembly table programs a redstone board into the butcher robot board with a raw porkchop and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_butcher",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:porkchop": 1}
+    },
+    {
+      "name": "assemble_board_stripes",
+      "why": "The assembly table programs a redstone board into the stripes robot board with a stripes pipe and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_stripes",
+      "ingredients": {"buildcraft:redstone_board": 1, "buildcraft:pipe_stripes_item": 1}
     },
     {
       "name": "assemble_timer",

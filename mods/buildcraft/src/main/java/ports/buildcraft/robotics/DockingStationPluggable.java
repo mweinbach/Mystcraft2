@@ -15,12 +15,18 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import ports.buildcraft.lib.FluidAmount;
+import ports.buildcraft.lib.Fluids2;
 import ports.buildcraft.lib.Ports;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.EnergyPort;
+import ports.buildcraft.platform.FluidPort;
+import ports.buildcraft.platform.ItemFluids;
 import ports.buildcraft.platform.ItemPort;
+import ports.buildcraft.platform.Platform;
 import ports.buildcraft.silicon.gate.GateLogic;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.flow.ItemFlow;
@@ -32,7 +38,8 @@ import ports.buildcraft.transport.pluggable.PluggableDefinition;
  * The docking station, written for this port from BuildCraft 7's documented behaviour: a pipe attachment a robot
  * calls home and docks at. A station on a kinesis pipe charges the robot docked at it from the pipe's power. A
  * station reaches the inventories beside its pipe and, on an item pipe, the pipe itself: robots unload there and
- * carriers load there, as the gate actions on the pipe allow. Gates on the pipe read whether a robot is docked,
+ * carriers load there, as the gate actions on the pipe allow; pumps and tank robots likewise empty into and fill
+ * from the tanks beside the pipe. Gates on the pipe read whether a robot is docked,
  * linked or on its way, and set what the stations on that pipe offer each tick (see {@code statements}).
  */
 public class DockingStationPluggable extends PipePluggable {
@@ -58,7 +65,10 @@ public class DockingStationPluggable extends PipePluggable {
     private static final long NEVER = Long.MIN_VALUE;
     private long provideTick = NEVER, acceptTick = NEVER, dropTick = NEVER;
     private long forbidTick = NEVER, areaTick = NEVER, wakeTick = NEVER;
+    private long provideFluidsTick = NEVER, acceptFluidsTick = NEVER;
     private final List<ItemStack> provideFilters = new ArrayList<>(), acceptFilters = new ArrayList<>();
+    /** The fluids in the fluid actions' filter items; empty lets any fluid through. */
+    private final List<Fluid> provideFluidFilters = new ArrayList<>(), acceptFluidFilters = new ArrayList<>();
     private ItemStack areaMap = ItemStack.EMPTY;
     /** The gate's own parameter stack last handed to {@link #actionWorkInArea}, compared by identity. */
     @Nullable
@@ -237,6 +247,27 @@ public class DockingStationPluggable extends PipePluggable {
         acceptFilters.addAll(filters);
     }
 
+    public void actionProvideFluids(List<ItemStack> filters) {
+        provideFluidsTick = now();
+        fluidFilters(filters, provideFluidFilters);
+    }
+
+    public void actionAcceptFluids(List<ItemStack> filters) {
+        acceptFluidsTick = now();
+        fluidFilters(filters, acceptFluidFilters);
+    }
+
+    /** The fluids the filter items hold (a water bucket stands for water); items holding none are ignored. */
+    private static void fluidFilters(List<ItemStack> filters, List<Fluid> into) {
+        into.clear();
+        for (ItemStack filter : filters) {
+            if (filter.isEmpty()) continue;
+            ItemFluids fluids = Platform.get().itemFluids(filter);
+            FluidAmount held = fluids == null ? FluidAmount.EMPTY : fluids.drain(Long.MAX_VALUE, true);
+            if (!held.isEmpty()) into.add(Fluids2.still(held.fluid()));
+        }
+    }
+
     public void actionDropInPipe() {
         dropTick = now();
     }
@@ -268,6 +299,14 @@ public class DockingStationPluggable extends PipePluggable {
 
     public boolean isAccepting() {
         return held(acceptTick);
+    }
+
+    public boolean isProvidingFluids() {
+        return held(provideFluidsTick);
+    }
+
+    public boolean isAcceptingFluids() {
+        return held(acceptFluidsTick);
     }
 
     public boolean isDroppingInPipe() {
@@ -369,6 +408,76 @@ public class DockingStationPluggable extends PipePluggable {
             if (!taken.isEmpty()) return taken;
         }
         return ItemStack.EMPTY;
+    }
+
+    // Fluids.
+
+    private static boolean passes(List<Fluid> filters, Fluid fluid) {
+        return filters.isEmpty() || filters.contains(Fluids2.still(fluid));
+    }
+
+    /** The fluid faces of the blocks beside the pipe, other than pipes and the station's own side. */
+    public List<FluidPort> tanks() {
+        List<FluidPort> ports = new ArrayList<>();
+        Level level = holder.getLevel();
+        if (level == null) return ports;
+        for (Direction face : Direction.values()) {
+            if (face == side) continue;
+            BlockPos pos = holder.getBlockPos().relative(face);
+            if (level.getBlockEntity(pos) instanceof PipeBlockEntity) continue;
+            FluidPort port = Ports.fluids(level, pos, face.getOpposite());
+            if (port != null) ports.add(port);
+        }
+        return ports;
+    }
+
+    /**
+     * True if a gate lets robots take fluid here ("Provide Fluids") and a tank beside the pipe holds some that passes
+     * the gate's filters and, unless null, is {@code wanted}.
+     */
+    public boolean canProvideFluid(@Nullable Fluid wanted) {
+        return isProvidingFluids() && !takeFluid(wanted, 1, true).isEmpty();
+    }
+
+    /** Takes up to {@code max} mB of fluid passing the gate's filters (and {@code wanted} unless null) from one tank beside the pipe. */
+    public FluidAmount provideFluid(@Nullable Fluid wanted, long max) {
+        if (!isProvidingFluids()) return FluidAmount.EMPTY;
+        return takeFluid(wanted, max, false);
+    }
+
+    private FluidAmount takeFluid(@Nullable Fluid wanted, long max, boolean simulate) {
+        Fluid want = wanted == null ? null : Fluids2.still(wanted);
+        for (FluidPort port : tanks()) {
+            for (FluidAmount held : port.contents()) {
+                if (held.isEmpty() || !passes(provideFluidFilters, held.fluid())) continue;
+                if (want != null && Fluids2.still(held.fluid()) != want) continue;
+                FluidAmount taken = port.drain(held.fluid(), max, simulate);
+                if (!taken.isEmpty()) return taken;
+            }
+            // Ports that do not list their contents can still be drained blind when nothing is filtered.
+            if (port.contents().isEmpty() && provideFluidFilters.isEmpty()) {
+                FluidAmount taken = port.drain(want, max, simulate);
+                if (!taken.isEmpty()) return taken;
+            }
+        }
+        return FluidAmount.EMPTY;
+    }
+
+    /** True if robots may unload {@code fluid} here; a robot's home always takes what it brings back. */
+    public boolean acceptsFluid(RobotEntity robot, Fluid fluid) {
+        if (robot.getUUID().equals(linked)) return true;
+        return isAcceptingFluids() && passes(acceptFluidFilters, fluid);
+    }
+
+    /** Fills the tanks beside the pipe with up to {@code amount} mB of {@code fluid} from a docked robot; returns how much they took. */
+    public long unloadFluid(RobotEntity robot, Fluid fluid, long amount) {
+        if (amount <= 0 || !acceptsFluid(robot, fluid)) return 0;
+        long filled = 0;
+        for (FluidPort port : tanks()) {
+            filled += port.fill(fluid, amount - filled, false);
+            if (filled >= amount) break;
+        }
+        return filled;
     }
 
     // Placement of robots.
