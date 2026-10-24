@@ -20,7 +20,12 @@
       "ports.gridwright.gametest.TransferGameTests",
       "ports.gridwright.gametest.QuarryGameTests",
       "ports.gridwright.gametest.MechanicalGameTests",
-      "ports.gridwright.gametest.DeepDarkGameTests"
+      "ports.gridwright.gametest.DeepDarkGameTests",
+      "ports.gridwright.gametest.PowerGameTests",
+      "ports.gridwright.gametest.MillGameTests",
+      "ports.gridwright.gametest.RainbowGameTests",
+      "ports.gridwright.gametest.GeneratorUpgradeGameTests",
+      "ports.gridwright.gametest.ViewerGameTests"
     ]
   },
   "depends": {

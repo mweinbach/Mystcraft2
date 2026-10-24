@@ -93,6 +93,9 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy
+            # The optional recipe viewers (resonating category), apart from the EMC runs.
+            forge_compat_props: -PwithEmi -PwithJei -PwithRei
+            fabric_compat_props: -PwithEmi -PwithJei -PwithRei
             jars: |
               mods/gridwright/build/libs/*.jar
               mods/gridwright/fabric/build/libs/*.jar

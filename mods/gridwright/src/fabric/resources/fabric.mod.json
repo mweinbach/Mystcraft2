@@ -17,7 +17,10 @@
   "environment": "*",
   "entrypoints": {
     "main": ["ports.gridwright.fabric.GridwrightFabric"],
-    "client": ["ports.gridwright.fabric.client.GridwrightFabricClient"]
+    "client": ["ports.gridwright.fabric.client.GridwrightFabricClient"],
+    "jei_mod_plugin": ["ports.gridwright.compat.jei.GridwrightJeiPlugin"],
+    "emi": ["ports.gridwright.compat.emi.GridwrightEmiPlugin"],
+    "rei_client": ["ports.gridwright.compat.rei.GridwrightReiPlugin"]
   },
   "mixins": ["gridwright.fabric.mixins.json"],
   "depends": {
@@ -27,6 +30,9 @@
     "java": ">=17"
   },
   "suggests": {
-    "itemalchemy": "*"
+    "itemalchemy": "*",
+    "jei": "*",
+    "emi": "*",
+    "roughlyenoughitems": "*"
   }
 }

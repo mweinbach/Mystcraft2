@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "gridwright:block/power_converter_to_grid",
+    "top": "gridwright:block/power_converter_top",
+    "bottom": "gridwright:block/power_converter_top"
+  }
+}

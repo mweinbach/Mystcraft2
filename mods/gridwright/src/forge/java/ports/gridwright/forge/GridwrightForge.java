@@ -20,6 +20,7 @@ public class GridwrightForge {
         Gridwright.init();
         ForgeCapabilityEvents.register();
         ForgeUtilityEvents.register();
+        ForgePowerEvents.register();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> GridwrightForgeClient.init(modBus));
     }
 }

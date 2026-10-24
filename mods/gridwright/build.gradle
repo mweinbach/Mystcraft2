@@ -9,13 +9,60 @@ repositories {
         url = 'https://cursemaven.com'
         content { includeGroup 'curse.maven' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
+    maven {
+        url = 'https://maven.shedaniel.me/'
+        content {
+            includeGroup 'me.shedaniel'
+            includeGroup 'me.shedaniel.cloth'
+        }
+    }
+    maven {
+        url = 'https://maven.architectury.dev/'
+        content { includeGroup 'dev.architectury' }
+    }
 }
+def reiVersion = '9.2.784'
 dependencies {
     // ProjectE 1.1.0 (CurseForge file 4860858) checks the shipped EMC data against real values.
     if (providers.gradleProperty('withProjectE').isPresent()) {
         runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
     }
+    // Recipe viewers (phase 2d): only their APIs are needed to compile. -PwithJei, -PwithEmi and -PwithRei add
+    // each viewer to the development runs; the resonating category loads only when its viewer is installed.
+    compileOnly(fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1024')) { transitive = false }
+    compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
+    compileOnly(fg.deobf("me.shedaniel:RoughlyEnoughItems-api-forge:${reiVersion}")) { transitive = false }
+    // REI's widget API places things with Cloth's Point and Rectangle.
+    compileOnly('me.shedaniel.cloth:basic-math:0.6.1') { transitive = false }
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
+    }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
+    }
+    if (providers.gradleProperty('withRei').isPresent()) {
+        runtimeOnly(fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:${reiVersion}")) { transitive = false }
+        runtimeOnly(fg.deobf('dev.architectury:architectury-forge:6.6.92')) { transitive = false }
+        runtimeOnly(fg.deobf('me.shedaniel.cloth:cloth-config-forge:8.3.134')) { transitive = false }
+    }
 }
+// The viewer flags this run was started with, so the viewer GameTest can tell "missing" from "not asked for".
+def viewerFlags = ['Jei', 'Emi', 'Rei'].findAll { providers.gradleProperty("with${it}").isPresent() }
+        .collect { it.toLowerCase(Locale.ROOT) }.join(',') ?: 'none'
+// EMI's and REI's mixins carry SRG refmaps; the development runs use official names.
+minecraft.runs.configureEach {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+}
+tasks.matching { it.name.startsWith('run') }.configureEach { dependsOn tasks.named('createSrgToMcp') }
 
 tasks.withType(Jar).configureEach {
     from('NOTICE.md') { into 'META-INF'; rename { 'Gridwright-NOTICE.md' } }
@@ -35,6 +82,7 @@ minecraft.runs {
         property 'forge.enableGameTest', 'true'
         property 'forge.enabledGameTestNamespaces', portMetadata.mod_id
         property 'emc.values', file('emc/values.json').absolutePath
+        property 'gridwright.viewers', viewerFlags
         mods {
             "${portMetadata.mod_id}" { source sourceSets.gametest }
         }

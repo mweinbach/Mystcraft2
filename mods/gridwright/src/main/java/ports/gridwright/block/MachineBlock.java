@@ -5,6 +5,7 @@ import ports.gridwright.machine.GeneratorKind;
 import ports.gridwright.machine.MachineBlockEntity;
 import ports.gridwright.machine.ResonatorBlockEntity;
 import ports.gridwright.platform.Platform;
+import ports.gridwright.power.OverclockUpgradeItem;
 import ports.gridwright.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,6 +89,8 @@ public class MachineBlock extends GridMemberBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        InteractionResult upgrade = generator != null ? OverclockUpgradeItem.use(level, pos, player, hand) : null;
+        if (upgrade != null) return upgrade;
         if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof MachineBlockEntity machine) {
             Platform.openMenu(serverPlayer, machine, pos);
         }
@@ -100,6 +103,7 @@ public class MachineBlock extends GridMemberBlock {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof MachineBlockEntity machine) {
                 Containers.dropContents(level, pos, machine);
+                OverclockUpgradeItem.drop(level, pos);
                 level.updateNeighbourForOutputSignal(pos, this);
             }
         }

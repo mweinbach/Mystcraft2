@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EOE",
+    "OFO",
+    "EYE"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:end_stone"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    },
+    "Y": {
+      "item": "minecraft:ender_eye"
+    }
+  },
+  "result": {
+    "item": "gridwright:dragon_egg_mill",
+    "count": 1
+  }
+}

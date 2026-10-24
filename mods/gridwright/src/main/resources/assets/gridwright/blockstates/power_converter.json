@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "mode=to_energy": {
+      "model": "gridwright:block/power_converter_to_energy"
+    },
+    "mode=to_grid": {
+      "model": "gridwright:block/power_converter_to_grid"
+    }
+  }
+}

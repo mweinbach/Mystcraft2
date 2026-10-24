@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RGR",
+    "GCG",
+    "RGR"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "C": {
+      "item": "gridwright:grid_crystal"
+    }
+  },
+  "result": {
+    "item": "gridwright:overclock_upgrade",
+    "count": 1
+  }
+}

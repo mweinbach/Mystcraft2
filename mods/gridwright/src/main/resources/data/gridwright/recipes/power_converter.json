@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ICI",
+    "RFR",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "R": {
+      "item": "gridwright:grid_crystal"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    }
+  },
+  "result": {
+    "item": "gridwright:power_converter",
+    "count": 1
+  }
+}
