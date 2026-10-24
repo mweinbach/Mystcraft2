@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 public class AgriCraftClient {
 
 	public static void init() {
+		IrrigationClient.init();
 		AgriClientApi.registerPageDrawer(FrontPage.ID, new FrontPageDrawer());
 		AgriClientApi.registerPageDrawer(IntroductionPage.ID, new IntroductionPageDrawer());
 		AgriClientApi.registerPageDrawer(GrowthReqsPage.ID, new GrowthReqsPageDrawer());

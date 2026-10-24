@@ -3,6 +3,11 @@
   "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
   "ignored": [],
   "items": {
+    "agricraft:agri_channel_valve": {
+      "projecte": 560,
+      "itemalchemy": 448,
+      "source": "recipe"
+    },
     "agricraft:amathyllis_petal": {
       "projecte": 4,
       "itemalchemy": 4,
@@ -46,6 +51,21 @@
       "itemalchemy": 64,
       "source": "recipe"
     },
+    "agricraft:irrigation_channel": {
+      "projecte": 1,
+      "itemalchemy": 1,
+      "source": "recipe"
+    },
+    "agricraft:irrigation_channel_hollow": {
+      "projecte": 2,
+      "itemalchemy": 2,
+      "source": "recipe"
+    },
+    "agricraft:irrigation_tank": {
+      "projecte": 14,
+      "itemalchemy": 14,
+      "source": "recipe"
+    },
     "agricraft:journal": {
       "excluded": "Crafted from a writable book and any seed, and records researched plants in NBT; a transmuted copy would be a blank journal, and pricing it on the seed tag would price AgriCraft seeds through the back door."
     },
@@ -80,6 +100,11 @@
     "agricraft:seed_bag": {
       "projecte": 204,
       "itemalchemy": 204,
+      "source": "recipe"
+    },
+    "agricraft:sprinkler": {
+      "projecte": 1064,
+      "itemalchemy": 956,
       "source": "recipe"
     },
     "agricraft:trowel": {

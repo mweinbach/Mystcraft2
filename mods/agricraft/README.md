@@ -8,9 +8,10 @@ Read [`NOTICE.md`](NOTICE.md) for provenance: the code, assets and data are upst
 [`LICENSE`](LICENSE)), with the 1.19.2 changes listed in [`PARITY.md`](PARITY.md).
 
 - Mod ID `agricraft`, package `com.agricraft.agricraft` (upstream's), licence MIT.
-- Status: **in progress**. Phase 1 (this) ports AgriCraft 4.0.6's gameplay; irrigation (from AgriCraft 3)
-  and the recipe-viewer, tooltip and other mod integrations follow. Server GameTests pass on both
-  loaders; the screens, overlay, journal and models have not been looked at in a client yet.
+- Status: **in progress**. Phase 1 ports AgriCraft 4.0.6's gameplay and phase 2 adds irrigation, ported
+  from AgriCraft 3 because AgriCraft 4 has none; the recipe-viewer, tooltip and other mod integrations
+  follow. Server GameTests pass on both loaders; the screens, overlay, journal, models and irrigation
+  renderers have not been looked at in a client yet.
 
 ## Features
 
@@ -25,6 +26,7 @@ Read [`NOTICE.md`](NOTICE.md) for provenance: the code, assets and data are upst
 | Journal | `journal` | A book of researched plants: growth requirements, products and mutations. |
 | Tools | `trowel`, `magnifying_glass`, `clipper`, `wooden_rake`, `iron_rake`, `seed_bag`, `debugger` | Move plants between sticks, inspect crops and soils, clip products, remove weeds, carry and sort seeds; a magnifying glass crafted onto any helmet gives the same overlay. |
 | Resource crops | `coal_pebble`, `copper_nugget`, `diamond_shard`, `emerald_shard`, `quartz_shard`, `netherite_sliver`, `amathyllis_petal` | Products of AgriCraft's resource plants; nine craft the vanilla item. |
+| Irrigation (from AgriCraft 3) | `irrigation_tank`, `irrigation_channel`, `irrigation_channel_hollow`, `agri_channel_valve`, `sprinkler` | Tanks fill from buckets and rain and merge into multi-blocks; channels carry the water, valves (by hand, or redstone on hollow channels) stop it; sprinklers under a channel moisten farmland and speed up plants below. Tanks expose their water to pipes (Forge fluid capability, Fabric Transfer). |
 | Mod compatibility data | `datapacks/<modid>`, `resourcepacks/<modid>` | Plant data and models for other mods' crops, registered only when that mod is loaded. |
 
 Configuration uses [ResourcefulConfig](https://modrinth.com/mod/resourceful-config) 1.0.20 (required on

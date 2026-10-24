@@ -1,4 +1,5 @@
 {
+  "agricraft:agri_channel_valve": 448,
   "agricraft:amathyllis_petal": 4,
   "agricraft:clipper": 764,
   "agricraft:coal_pebble": 434,
@@ -8,6 +9,9 @@
   "agricraft:emerald_shard": 57,
   "agricraft:iron_crop_sticks": 7,
   "agricraft:iron_rake": 64,
+  "agricraft:irrigation_channel": 1,
+  "agricraft:irrigation_channel_hollow": 2,
+  "agricraft:irrigation_tank": 14,
   "agricraft:journal": 0,
   "agricraft:magnifying_glass": 17,
   "agricraft:netherite_sliver": 1366,
@@ -16,6 +20,7 @@
   "agricraft:seed": 0,
   "agricraft:seed_analyzer": 38,
   "agricraft:seed_bag": 204,
+  "agricraft:sprinkler": 956,
   "agricraft:trowel": 508,
   "agricraft:wooden_crop_sticks": 2,
   "agricraft:wooden_rake": 36

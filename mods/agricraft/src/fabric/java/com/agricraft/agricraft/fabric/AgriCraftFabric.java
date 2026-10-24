@@ -1,5 +1,7 @@
 package com.agricraft.agricraft.fabric;
 
+import com.agricraft.agricraft.common.util.fabric.FabricTankStorage;
+
 import com.agricraft.agricraft.AgriCraft;
 import com.agricraft.agricraft.api.config.CoreConfig;
 import com.agricraft.agricraft.common.commands.DumpRegistriesCommand;
@@ -43,6 +45,7 @@ public class AgriCraftFabric implements ModInitializer {
 	public void onInitialize() {
 		Platform.setup(new FabricPlatform());
 		AgriCraft.init();
+		FabricTankStorage.register();
 		registerDataRegistries();
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> cachedServer = server);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {

@@ -11,7 +11,13 @@ retained here and in the mod metadata.
 
 - `src/main` is upstream's `common/` module, `src/fabric` its `fabric/` module and `src/forge` its
   `forge/` module, each adapted to Minecraft 1.19.2, Forge 43.5.0 and Fabric API 0.77.0. The changes are
-  listed in `docs/PARITY.md`.
+  listed in `PARITY.md`.
+- Irrigation is not part of AgriCraft 4. The irrigation tank, channels, channel valve and sprinkler
+  (code, models, block states, the `sprinkler` and `valve_wheel` textures, the valve sound and the
+  English strings) are ported from AgriCraft 3, https://github.com/AgriCraft/AgriCraft branch `1.16.5`,
+  revision `4b52a4223b0ad180dfeb0043e62b0a894a1f0e13` (MIT License, Copyright (c) 2014 InfinityRaider,
+  the same license as `LICENSE`). AgriCraft 3 depends on InfinityLib for its dynamic per-wood models and
+  block-entity plumbing; that dependency is removed and replaced by plain 1.19.2 code (see `PARITY.md`).
 - Upstream generates its plant, soil, mutation, fertilizer, recipe, loot, tag and model JSON with a
   Forge datagen run and does not commit the output. The generated `data/`, `datapacks/`,
   `resourcepacks/` and model files here were taken unchanged from the published AgriCraft 4.0.6 jars

@@ -6,7 +6,8 @@
   "refmap": "agricraft.forge.refmap.json",
   "mixins": [
     "FarmBlockMixin",
-    "ItemEntityMixin"
+    "ItemEntityMixin",
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

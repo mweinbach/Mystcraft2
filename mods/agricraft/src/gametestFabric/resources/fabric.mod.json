@@ -10,7 +10,9 @@
     "fabric-gametest": [
       "com.agricraft.agricraft.gametest.CropGameTests",
       "com.agricraft.agricraft.gametest.AnalyzerGameTests",
-      "com.agricraft.agricraft.gametest.EmcGameTests"
+      "com.agricraft.agricraft.gametest.EmcGameTests",
+      "com.agricraft.agricraft.gametest.IrrigationGameTests",
+      "com.agricraft.agricraft.gametest.TankFluidGameTests"
     ]
   },
   "depends": {
