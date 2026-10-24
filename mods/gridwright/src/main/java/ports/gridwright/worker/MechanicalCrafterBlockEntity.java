@@ -227,7 +227,7 @@ public class MechanicalCrafterBlockEntity extends WorkerBlockEntity {
         int first = first();
         if (slot < first || slot >= first + GRID) return;
         for (int i = 0; i < GRID; i++) if (!items.get(first + i).isEmpty()) return;
-        if (Arrays.stream(pattern).anyMatch(stack -> stack.getMaxStackSize() > 1)) Arrays.fill(pattern, ItemStack.EMPTY);
+        if (Arrays.stream(pattern).anyMatch(stack -> !stack.isEmpty() && stack.getMaxStackSize() > 1)) Arrays.fill(pattern, ItemStack.EMPTY);
     }
 
     /**
@@ -240,15 +240,20 @@ public class MechanicalCrafterBlockEntity extends WorkerBlockEntity {
         int index = slot - first;
         if (index < 0 || index >= GRID) return false;
         ItemStack wanted = wanted(index);
-        if (wanted.isEmpty() || !ItemStack.isSameItemSameTags(wanted, stack)) return false;
+        if (wanted.isEmpty() || !sameIngredient(wanted, stack)) return false;
         int held = items.get(slot).getCount();
         if (held >= Math.min(stack.getMaxStackSize(), getMaxStackSize())) return false;
         for (int other = 0; other < GRID; other++) {
-            if (other != index && ItemStack.isSameItemSameTags(wanted(other), wanted) && items.get(first + other).getCount() < held) {
+            if (other != index && sameIngredient(wanted(other), wanted) && items.get(first + other).getCount() < held) {
                 return false;
             }
         }
         return true;
+    }
+
+    /** Same item and NBT, except that a tool's wear (its damage, kept in NBT) does not count. */
+    private static boolean sameIngredient(ItemStack wanted, ItemStack stack) {
+        return wanted.isDamageableItem() ? wanted.is(stack.getItem()) : ItemStack.isSameItemSameTags(wanted, stack);
     }
 
     /** What slot {@code index} of the grid takes: what it holds, or what it is remembered to want. */

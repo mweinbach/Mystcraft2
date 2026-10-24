@@ -109,6 +109,37 @@ public class CrafterGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * A layout of only unstackable ingredients (repairing two swords) empties the grid on every craft.
+     * A rolled-back pipe transfer (Fabric) sets a slot back to empty; the layout must survive it, and a
+     * refill must be accepted whatever its wear.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void crafterKeepsAnAllUnstackableLayout(GameTestHelper helper) {
+        MechanicalCrafterBlockEntity crafter = crafter(helper, Owner.random("gwMu"));
+        crafter.setItem(0, sword(50));
+        crafter.setItem(1, sword(60));
+        helper.startSequence()
+                .thenWaitUntil(() -> check(output(crafter, Items.IRON_SWORD) == 1, "Swords not repaired: " + crafter.status()))
+                .thenExecute(() -> {
+                    check(crafter.getItem(0).isEmpty() && crafter.getItem(1).isEmpty(), "The swords were not used up");
+                    // What a rolled-back insert leaves behind.
+                    crafter.setItem(0, ItemStack.EMPTY);
+                    TestPlatform.ItemAccess pipe = platform().items(crafter, Direction.UP);
+                    check(pipe.insert(sword(100)).isEmpty() && pipe.insert(sword(10)).isEmpty(),
+                            "Refill swords refused: the layout was forgotten or their wear mattered");
+                    check(!pipe.insert(new ItemStack(Items.STICK)).isEmpty(), "A stick went into a sword slot");
+                })
+                .thenWaitUntil(() -> check(output(crafter, Items.IRON_SWORD) == 2, "Refilled swords not repaired"))
+                .thenSucceed();
+    }
+
+    private static ItemStack sword(int damage) {
+        ItemStack sword = new ItemStack(Items.IRON_SWORD);
+        sword.setDamageValue(damage);
+        return sword;
+    }
+
     /** A failed search cached before a datapack reload (an older recipe manager) is searched again. */
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void crafterSearchesAgainAfterARecipeReload(GameTestHelper helper) {
