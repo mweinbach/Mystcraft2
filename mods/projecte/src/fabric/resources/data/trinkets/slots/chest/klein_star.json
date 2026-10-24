@@ -1,0 +1,7 @@
+{
+  "icon": "projecte:curios/empty_klein_star",
+  "order": 0,
+  "validator_predicates": [
+    "trinkets:tag"
+  ]
+}

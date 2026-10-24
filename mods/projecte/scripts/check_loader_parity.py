@@ -38,6 +38,9 @@ FORGE_ONLY = (
 # The Trinkets-backed replacements of the Curios classes keep upstream's names; only their inner classes differ.
 FABRIC_ONLY = ('moze_intel/projecte/integration/curios/',)
 SAME_NAME_REPLACED = ('moze_intel/projecte/integration/curios/',)
+# Fabric-only data besides the tag bridges: the Trinkets slots, entity assignment and item tags that stand in for
+# upstream's Curios IMC and data/curios tags, and the Klein Star slot's name for Trinkets' screen.
+FABRIC_ONLY_RESOURCES = ('data/trinkets/', 'assets/trinkets/lang/')
 require = parity.require
 
 
@@ -128,7 +131,8 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     require(fabric_paths == expected_fabric,
             'Fabric gameplay paths differ from sources: ' + ', '.join(sorted(fabric_paths ^ expected_fabric)[:8]))
     bridges = gameplay(fabric_src)
-    outside = sorted(path for path in bridges if not path.startswith(('data/c/tags/', 'data/forge/tags/')))
+    outside = sorted(path for path in bridges
+                     if not path.startswith(('data/c/tags/', 'data/forge/tags/') + FABRIC_ONLY_RESOURCES))
     require(not outside, 'Fabric-only resources outside the tag bridges: ' + ', '.join(outside[:8]))
     shared_paths = forge_paths & fabric_paths
     overrides = shared_paths & set(fabric_src)

@@ -31,6 +31,15 @@
     ],
     "client": [
       "ports.projecte.fabric.client.FabricClientMod"
+    ],
+    "emi": [
+      "moze_intel.projecte.integration.emi.PEEmiPlugin"
+    ],
+    "jei_mod_plugin": [
+      "moze_intel.projecte.integration.jei.PEJeiPlugin"
+    ],
+    "jade": [
+      "moze_intel.projecte.integration.jade.PEJadePlugin"
     ]
   },
   "suggests": {

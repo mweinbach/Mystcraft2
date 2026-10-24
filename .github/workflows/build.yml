@@ -83,7 +83,7 @@ jobs:
           - id: advancedgenetics
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             jars: |
               mods/advancedgenetics/build/libs/*.jar
               mods/advancedgenetics/fabric/build/libs/*.jar
@@ -94,7 +94,7 @@ jobs:
           - id: gridwright
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             # The optional recipe viewers (resonating category), apart from the EMC runs.
             forge_compat_props: -PwithEmi -PwithJei -PwithRei
             fabric_compat_props: -PwithEmi -PwithJei -PwithRei
@@ -108,7 +108,7 @@ jobs:
           - id: mystcraft
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             smoke: true
             jars: |
               mods/mystcraft/build/libs/*.jar
@@ -123,7 +123,7 @@ jobs:
           - id: buildcraft
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             jars: |
               mods/buildcraft/build/libs/*.jar
               mods/buildcraft/fabric/build/libs/*.jar
@@ -134,7 +134,7 @@ jobs:
           - id: extremereactors
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             # Mekanism enables the steel recipes and so changes derived EMC; it runs apart from the EMC mods.
             # On Forge -PwithCompat also adds Mekanism.
             forge_compat_props: -PwithCompat
@@ -149,7 +149,7 @@ jobs:
           - id: jurassicraft
             kind: dual
             forge_props: -PwithProjectE -PwithJade -PwithJei
-            fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy
+            fabric_props: -PwithJade -PwithEmi -PwithItemAlchemy -PwithProjectE
             jars: |
               mods/jurassicraft/build/libs/*.jar
               mods/jurassicraft/fabric/build/libs/*.jar
@@ -160,8 +160,9 @@ jobs:
           - id: projecte
             kind: dual
             # The GameTests again beside the other Forge-to-Fabric layers a pack carries: the Mekanism port and
-            # Porting Lib (as Create nests it). checkFabricClashes in the Fabric build compares the jars statically.
-            fabric_compat_props: -PwithMekanism -PwithPortingLib
+            # Porting Lib (as Create nests it), plus Trinkets for the trinket-slot tests. checkFabricClashes in the Fabric
+            # build compares the jars statically.
+            fabric_compat_props: -PwithMekanism -PwithPortingLib -PwithTrinkets
             jars: |
               mods/projecte/build/libs/*.jar
               mods/projecte/fabric/build/libs/*.jar
@@ -172,7 +173,7 @@ jobs:
           - id: mekanism
             kind: dual
             forge_props: -PwithProjectE
-            fabric_props: -PwithItemAlchemy
+            fabric_props: -PwithItemAlchemy -PwithProjectE
             forge_compat_props: -PwithJade -PwithTop -PwithComputerCraft -PwithJei -PwithCurios -PwithGender -PwithFluxNetworks -PwithRecipeStages
             fabric_compat_props: -PwithJade -PwithWthit -PwithComputerCraft -PwithJei -PwithTrinkets -PwithGender -PwithFluxNetworks
             # CraftTweaker's test scripts change recipes, so it runs on its own, apart from the other integrations.
@@ -239,7 +240,7 @@ jobs:
             icbm)
               gradle_with_props "" :icbm_port:build
               python3 mods/icbm_port/tools/validate_resources.py "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/fabric-loom/1.19.2/minecraft-client.jar"
-              gradle_with_props "-PwithItemAlchemy" :icbm_port:runGametest
+              gradle_with_props "-PwithItemAlchemy -PwithProjectE" :icbm_port:runGametest
               gradle_with_props "" :icbm_port:runMaterialGametest
               ;;
             dual)

@@ -106,6 +106,9 @@ dependencies {
     }
 }
 
+// -PwithProjectE: this repository's ProjectE Fabric port in development runs, for the live EMC audit.
+apply from: '../../../gradle/projecte-fabric.gradle'
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
     withSourcesJar()
@@ -169,8 +172,9 @@ loom {
             source sourceSets.gametest
             runDir 'build/gametest'
             vmArg '-Dfabric-api.gametest'
-            // FabricGameTestSteel installs a c:steel_ingots provider on this server.
-            vmArg '-Dbigreactors.gametest.steel=true'
+            // FabricGameTestSteel installs a c:steel_ingots provider on this server, except under -PwithProjectE: ProjectE
+            // derives EMC from the loaded recipes and would price the reinforced parts with the stand-in netherite.
+            vmArg "-Dbigreactors.gametest.steel=${!providers.gradleProperty('withProjectE').isPresent()}"
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('../emc/values.json')}"
         }

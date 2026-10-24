@@ -12,7 +12,11 @@
       "moze_intel.projecte.gametest.TransmutationGameTests",
       "moze_intel.projecte.gametest.EmcBlockGameTests",
       "moze_intel.projecte.gametest.PhilosophersStoneGameTests",
+      "moze_intel.projecte.gametest.MatterGameTests",
+      "moze_intel.projecte.gametest.RingGameTests",
+      "moze_intel.projecte.gametest.ItemGameTests",
       "moze_intel.projecte.gametest.fabric.FabricMekanismGameTests",
+      "moze_intel.projecte.gametest.fabric.FabricTrinketsGameTests",
       "moze_intel.projecte.gametest.fabric.FabricTransferGameTests"
     ]
   },

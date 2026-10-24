@@ -27,12 +27,32 @@ never see the Fabric builds of these mods. It only reads our data in Forge insta
 
 **ProjectE for Fabric (this repository).** [`mods/projecte`](../mods/projecte/README.md) ports that same ProjectE
 1.1.0 to Fabric from upstream's sources, with mod id `projecte` and upstream's data loading, so it reads every port's
-`pe_custom_conversions` file unchanged. Its own vanilla values match upstream's (a GameTest checks them on both
-loaders). Live EMC audits of the ports under it on Fabric, and the Tekxit 4 check with and without Item Alchemy, are
-phase 4 of that port and not done yet; until then the Fabric audits below run against Item Alchemy only.
+`pe_custom_conversions` file unchanged. No separate ProjectE output format is needed: `scripts/emc.py` already writes
+exactly the file this ProjectE reads, from the same analysis as the Item Alchemy table. Its own vanilla values match
+upstream's (a GameTest checks them on both loaders).
 
-**Item Alchemy.** The Fabric EMC system available to Tekxit 4 is Item Alchemy 1.1.3 (pitan76), which offers
-ProjectE-style transmutation. It is what actually reads EMC data on Fabric.
+Every Fabric port build takes `-PwithProjectE` ([`gradle/projecte-fabric.gradle`](../gradle/projecte-fabric.gradle)),
+which adds this ProjectE's Fabric jar to the development run. CI runs each port's Fabric GameTests with
+`-PwithItemAlchemy -PwithProjectE`, so `EmcAudit` compares the live values of both EMC mods, loaded together, with
+`emc/values.json`. ICBM's audit also checks the wither skeleton skull under ProjectE (46,422, at least a third of a
+nether star). Values that `optional_mods` lower are an exception. Item Alchemy reads the cheapest value from
+`default_emcs`, but ProjectE derives values only from the recipes that actually load. So when a port runs without its
+optional mods, ProjectE's live value is higher. In that case `values.json` also records `projecte_standalone`, the value
+derived from the standalone recipes alone, and ICBM's audit expects it when Mekanism is absent. A higher value creates
+no loop, because the guard checks already cover the cheaper alternatives. Two port fixtures changed for this:
+
+- Extreme Reactors' Fabric GameTest server normally puts netherite ingots in `c:steel_ingots` to cover the steel
+  recipes. ProjectE derives EMC from loaded recipes and would price every reinforced part with netherite, so the build
+  turns the stand-in off under `-PwithProjectE`. The `-PwithMekanism` run still covers the steel recipes, using
+  Mekanism's real steel.
+- ProjectE, like Mekanism, nests night-config 3.6.6, and a pack loads the newest copy. Its TOML parser does not keep a
+  table's key order (3.6.4 did), so Advanced Genetics' Fabric config correction reordered keys on every rewrite.
+  It now rebuilds each table in declared order. This affected Tekxit 4 with Mekanism before ProjectE was added.
+
+The Tekxit 4 check with and without Item Alchemy is recorded in [tekxit4-testing.md](tekxit4-testing.md).
+
+**Item Alchemy.** The Fabric EMC system Tekxit 4 ships is Item Alchemy 1.1.3 (pitan76), which offers
+ProjectE-style transmutation. Our data supports it alongside the ProjectE Fabric port.
 
 Each port therefore ships two files in its shared `src/main/resources`, which both loader jars contain:
 
