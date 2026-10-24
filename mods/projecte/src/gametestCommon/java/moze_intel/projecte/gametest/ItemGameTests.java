@@ -181,6 +181,25 @@ public class ItemGameTests {
         });
     }
 
+    /** A furnace burning an Aeternalis block (921,600 ticks, more than a short holds) keeps its burn time when saved. */
+    @GameTest(template = TEMPLATE)
+    public static void longBurnTimeSurvivesSaving(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, Blocks.FURNACE);
+        AbstractFurnaceBlockEntity furnace = (AbstractFurnaceBlockEntity) helper.getBlockEntity(pos);
+        furnace.setItem(0, new ItemStack(Items.RAW_IRON));
+        furnace.setItem(1, new ItemStack(PEBlocks.AETERNALIS_FUEL.asItem()));
+        helper.succeedWhen(() -> {
+            int burning = furnace.saveWithoutMetadata().getInt("BurnTime");
+            PEGameTestSupport.require(burning > Short.MAX_VALUE, "The furnace saved a burn time of " + burning);
+            AbstractFurnaceBlockEntity copy = new net.minecraft.world.level.block.entity.FurnaceBlockEntity(
+                    helper.absolutePos(pos), helper.getBlockState(pos));
+            copy.load(furnace.saveWithoutMetadata());
+            int reloaded = copy.saveWithoutMetadata().getInt("BurnTime");
+            PEGameTestSupport.require(Math.abs(reloaded - burning) <= 1, "Reloaded burn time " + reloaded + ", saved " + burning);
+        });
+    }
+
     /** Learning the Tome of Knowledge gives full knowledge: every item with EMC can be withdrawn. */
     @GameTest(template = TEMPLATE)
     public static void tomeOfKnowledgeGivesFullKnowledge(GameTestHelper helper) {

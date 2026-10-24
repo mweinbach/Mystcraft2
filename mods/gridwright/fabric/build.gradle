@@ -74,6 +74,9 @@ dependencies {
 def viewerFlags = ['Jei', 'Emi', 'Rei'].findAll { providers.gradleProperty("with${it}").isPresent() }
         .collect { it.toLowerCase(Locale.ROOT) }.join(',') ?: 'none'
 
+// -PwithProjectE: this repository's ProjectE Fabric port in development runs, for the live EMC audit.
+apply from: '../../../gradle/projecte-fabric.gradle'
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
     withSourcesJar()

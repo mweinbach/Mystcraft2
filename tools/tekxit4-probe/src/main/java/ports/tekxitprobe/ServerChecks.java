@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,13 +38,24 @@ public final class ServerChecks {
     /** Blocks that drop through code rather than a loot table: the action figure keeps its figure NBT, and Mekanism's
      *  bounding block is the filler of multiblock machines, whose main block drops (as upstream). */
     private static final List<String> NO_LOOT_TABLE = List.of("jurassicraft:action_figure", "mekanism:bounding_block");
-    public static final List<String> NAMESPACES = List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
-            "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
-            "gridwright");
+    public static final List<String> NAMESPACES = namespaces();
     public static final String WITHER_SKULL = "minecraft:wither_skeleton_skull";
     public static final long WITHER_SKULL_EMC = 46_422L;
+    /** Upstream ProjectE 1.1.0 values that pack data must not move; nether star anchors the skull. */
+    private static final Map<String, Long> PROJECTE_ANCHORS = Map.of("minecraft:cobblestone", 1L,
+            "minecraft:iron_ingot", 256L, "minecraft:gold_ingot", 2048L, "minecraft:diamond", 8192L,
+            "minecraft:nether_star", 139_264L, "projecte:philosophers_stone", 9984L);
 
     private ServerChecks() {}
+
+    /** The port namespaces, plus this repository's ProjectE Fabric port when the instance has it. */
+    private static List<String> namespaces() {
+        List<String> list = new ArrayList<>(List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
+                "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
+                "gridwright"));
+        if (FabricLoader.getInstance().isModLoaded("projecte")) list.add("projecte");
+        return List.copyOf(list);
+    }
 
     public static boolean ours(ResourceLocation id) {
         return id != null && NAMESPACES.contains(id.getNamespace());
@@ -57,7 +69,7 @@ public final class ServerChecks {
         report.addProperty("modCount", FabricLoader.getInstance().getAllMods().size());
 
         JsonObject mods = new JsonObject();
-        for (String id : List.of("fabricloader", "fabric-api", "minecraft", "itemalchemy", "emi", "sodium", "iris",
+        for (String id : List.of("fabricloader", "fabric-api", "minecraft", "itemalchemy", "projecte", "trinkets", "emi", "sodium", "iris",
                 "distanthorizons", "metalrender", "team_reborn_energy", "mixinextras", "fabric-permissions-api-v0",
                 "fabric-gametest-api-v1", "porting_lib", "cardinal-components-base", "cloth-config")) {
             mods.addProperty(id, FabricLoader.getInstance().getModContainer(id)
@@ -158,14 +170,95 @@ public final class ServerChecks {
         tally(counts, what, server.registryAccess().registry(key).map(r -> List.copyOf(r.keySet())).orElse(List.of()));
     }
 
-    /** Item Alchemy keeps every value in one map keyed by item id; 0 means "no EMC". */
-    @SuppressWarnings("unchecked")
     private static JsonObject emc(List<String> failures, List<String> warnings) {
         JsonObject out = new JsonObject();
-        if (!FabricLoader.getInstance().isModLoaded("itemalchemy")) {
-            out.addProperty("itemalchemy", "absent");
+        out.add("itemalchemy", itemAlchemyEmc(failures, warnings));
+        out.add("projecte", projectEEmc(failures, warnings));
+        return out;
+    }
+
+    /**
+     * ProjectE (this repository's Fabric port) maps values from recipes when the server loads data. The skull must
+     * carry the loop fix (ICBM's and Mekanism's conversion files fill it), and upstream's fixed values must hold.
+     * Port values are compared with the port's own expectations; the pack's extra recipes can make an item cheaper
+     * than our port-only analysis, so differences there are warnings and are listed in the report.
+     */
+    private static JsonObject projectEEmc(List<String> failures, List<String> warnings) {
+        JsonObject out = new JsonObject();
+        out.addProperty("loaded", FabricLoader.getInstance().isModLoaded("projecte"));
+        if (!FabricLoader.getInstance().isModLoaded("projecte")) return out;
+        Function<String, Long> live;
+        try {
+            Object proxy = Class.forName("moze_intel.projecte.api.ProjectEAPI").getMethod("getEMCProxy").invoke(null);
+            Method value = Class.forName("moze_intel.projecte.api.proxy.IEMCProxy").getMethod("getValue", Item.class);
+            out.addProperty("entries", (Integer) Class.forName("moze_intel.projecte.emc.EMCMappingHandler")
+                    .getMethod("getEmcMapSize").invoke(null));
+            live = id -> {
+                try {
+                    return (Long) value.invoke(proxy, Registry.ITEM.get(new ResourceLocation(id)));
+                } catch (ReflectiveOperationException e) {
+                    throw new IllegalStateException(e);
+                }
+            };
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            failures.add("ProjectE loaded but its EMC proxy failed: " + e);
             return out;
         }
+        if (out.get("entries").getAsInt() == 0) failures.add("ProjectE mapped no EMC values");
+        Map<String, Long> anchors = new TreeMap<>(PROJECTE_ANCHORS);
+        anchors.put(WITHER_SKULL, WITHER_SKULL_EMC);
+        JsonObject anchorValues = new JsonObject();
+        anchors.forEach((id, want) -> {
+            long got = live.apply(id);
+            anchorValues.addProperty(id, got);
+            if (got != want) failures.add("ProjectE " + id + " is " + got + ", expected " + want);
+        });
+        out.add("anchors", anchorValues);
+        Path dir = TekxitProbe.outDir().resolve("emc");
+        if (!Files.isDirectory(dir)) {
+            warnings.add("no tekxit-probe/emc/*.json expectations; only ProjectE anchors were compared");
+            return out;
+        }
+        JsonObject perFile = new JsonObject();
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(dir, "*.json")) {
+            for (Path file : files) {
+                JsonObject items = JsonParser.parseString(Files.readString(file)).getAsJsonObject().getAsJsonObject("items");
+                int compared = 0;
+                int unvalued = 0;
+                List<String> wrong = new ArrayList<>();
+                for (Map.Entry<String, JsonElement> e : items.entrySet()) {
+                    if (!Registry.ITEM.containsKey(new ResourceLocation(e.getKey()))) continue;
+                    JsonObject expected = e.getValue().getAsJsonObject();
+                    long want = expected.has("projecte") ? expected.get("projecte").getAsLong() : 0L;
+                    long got = live.apply(e.getKey());
+                    compared++;
+                    if (want > 0 && got == 0) unvalued++;
+                    if (got != want) wrong.add(e.getKey() + "=" + got + " (want " + want + ")");
+                }
+                JsonObject result = new JsonObject();
+                result.addProperty("compared", compared);
+                result.addProperty("mismatches", wrong.size());
+                result.addProperty("lostValue", unvalued);
+                result.add("examples", strings(wrong.subList(0, Math.min(20, wrong.size()))));
+                perFile.add(file.getFileName().toString(), result);
+                if (!wrong.isEmpty()) {
+                    warnings.add("ProjectE: " + wrong.size() + " of " + compared + " values differ from "
+                            + file.getFileName() + " in this pack, e.g. " + wrong.subList(0, Math.min(5, wrong.size())));
+                }
+            }
+        } catch (IOException | RuntimeException e) {
+            failures.add("cannot read EMC expectations in " + dir + ": " + e);
+        }
+        out.add("ports", perFile);
+        return out;
+    }
+
+    /** Item Alchemy keeps every value in one map keyed by item id; 0 means "no EMC". */
+    @SuppressWarnings("unchecked")
+    private static JsonObject itemAlchemyEmc(List<String> failures, List<String> warnings) {
+        JsonObject out = new JsonObject();
+        out.addProperty("loaded", FabricLoader.getInstance().isModLoaded("itemalchemy"));
+        if (!FabricLoader.getInstance().isModLoaded("itemalchemy")) return out;
         Map<String, Object> map;
         try {
             map = (Map<String, Object>) Class.forName("net.pitan76.itemalchemy.EMCManager").getMethod("getMap").invoke(null);

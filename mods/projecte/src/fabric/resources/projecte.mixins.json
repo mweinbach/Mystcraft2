@@ -5,6 +5,7 @@
   "refmap": "projecte.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AbstractFurnaceBurnTimeMixin",
     "AnvilMenuMixin",
     "BlockDropsMixin",
     "BlockEntityMixin",
