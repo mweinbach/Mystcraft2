@@ -9,9 +9,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Loader fixtures for the transfer GameTests: a test-only fluid tank on vanilla jukeboxes (which carry
- * no item or fluid storage of their own in 1.19.2) and a block-break listener that refuses every
- * position in {@link #PROTECTED}, standing in for a claim mod.
+ * Loader fixtures for the transfer GameTests: a test-only fluid tank on vanilla jukeboxes and a
+ * two-tank storage on enchanting tables (neither carries item or fluid storage of its own in 1.19.2),
+ * and a block-break listener that refuses every position in {@link #PROTECTED}, standing in for a
+ * claim mod.
  */
 public interface TransferTestPlatform {
 
@@ -22,6 +23,12 @@ public interface TransferTestPlatform {
     Set<BlockPos> PROTECTED = ConcurrentHashMap.newKeySet();
 
     TankAccess tank(BlockEntity jukebox);
+
+    /**
+     * Tank {@code index} (0 or 1) of the two-tank test storage on enchanting tables, which lists tank 0
+     * first, like a machine with several tanks.
+     */
+    TankAccess multiTank(BlockEntity enchantingTable, int index);
 
     interface TankAccess {
         @Nullable

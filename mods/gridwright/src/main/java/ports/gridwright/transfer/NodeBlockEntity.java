@@ -352,7 +352,11 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         return true;
     }
 
-    /** Pours a bucket of fluid from the network as a source block at the front. */
+    /**
+     * Pours a bucket of fluid from the network as a source block at the front. A fluid kind a storage
+     * cannot give a whole bucket of is skipped for that storage only, so it cannot hide a full tank of
+     * another kind stored after it.
+     */
     private boolean pour(ServerLevel level, BlockPos target, List<PipeNetwork.Target> network) {
         BlockState existing = level.getBlockState(target);
         if (network.isEmpty() || !existing.isAir() && !(existing.getMaterial().isReplaceable() && existing.getFluidState().isEmpty())) return false;
@@ -362,23 +366,31 @@ public class NodeBlockEntity extends GridBlockEntity implements MenuProvider {
         for (int k = 0; k < network.size(); k++) {
             int index = (cursor + k) % network.size();
             PipeNetwork.Target other = network.get(index);
-            FluidAmount probe = TransferPlatform.extractFluid(level, other.pos(), other.face(),
-                    fluid -> filter.testFluid(fluid) && pourable(fluid) && !(ultraWarm && fluid.is(FluidTags.WATER)),
-                    NodeKind.FLUID_STACKED, true);
-            if (probe.millibuckets() < NodeKind.FLUID_STACKED) continue;
-            FluidAmount taken = TransferPlatform.extractFluid(level, other.pos(), other.face(), fluid -> fluid.isSame(probe.fluid()),
-                    NodeKind.FLUID_STACKED, false);
-            if (taken.millibuckets() < NodeKind.FLUID_STACKED) {
-                if (!taken.isEmpty()) TransferPlatform.insertFluid(level, other.pos(), other.face(), taken.fluid(), taken.millibuckets(), false);
-                continue;
+            List<Fluid> partial = new ArrayList<>();
+            Predicate<Fluid> wanted = fluid -> filter.testFluid(fluid) && pourable(fluid)
+                    && !(ultraWarm && fluid.is(FluidTags.WATER)) && partial.stream().noneMatch(fluid::isSame);
+            while (true) {
+                FluidAmount probe = TransferPlatform.extractFluid(level, other.pos(), other.face(), wanted, NodeKind.FLUID_STACKED, true);
+                if (probe.isEmpty()) break;
+                if (probe.millibuckets() < NodeKind.FLUID_STACKED) {
+                    partial.add(probe.fluid());
+                    continue;
+                }
+                FluidAmount taken = TransferPlatform.extractFluid(level, other.pos(), other.face(), fluid -> fluid.isSame(probe.fluid()),
+                        NodeKind.FLUID_STACKED, false);
+                if (taken.millibuckets() < NodeKind.FLUID_STACKED) {
+                    if (!taken.isEmpty()) TransferPlatform.insertFluid(level, other.pos(), other.face(), taken.fluid(), taken.millibuckets(), false);
+                    partial.add(probe.fluid());
+                    continue;
+                }
+                if (!existing.isAir()) level.destroyBlock(target, true);
+                if (!level.setBlock(target, probe.fluid().defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)) {
+                    TransferPlatform.insertFluid(level, other.pos(), other.face(), taken.fluid(), taken.millibuckets(), false);
+                    return false;
+                }
+                cursor = (index + 1) % network.size();
+                return true;
             }
-            if (!existing.isAir()) level.destroyBlock(target, true);
-            if (!level.setBlock(target, probe.fluid().defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)) {
-                TransferPlatform.insertFluid(level, other.pos(), other.face(), taken.fluid(), taken.millibuckets(), false);
-                return false;
-            }
-            cursor = (index + 1) % network.size();
-            return true;
         }
         return false;
     }

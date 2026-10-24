@@ -562,6 +562,28 @@ public class TransferGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 500)
+    public static void worldInteractionPoursFromLaterTanks(GameTestHelper helper) {
+        Owner owner = Owner.random("gwT");
+        mill(helper, owner);
+        enclose(helper, FRONT);
+        NodeBlockEntity node = owned(node(helper, NodeKind.FLUID_RETRIEVAL, NODE, Direction.WEST), owner);
+        node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
+        pipe(helper, PIPE);
+        // One storage with two tanks: less than a bucket of water listed before a full bucket of lava.
+        helper.setBlock(END, Blocks.ENCHANTING_TABLE);
+        TransferTestPlatform.TankAccess water = fixtures().multiTank(helper.getBlockEntity(END), 0);
+        TransferTestPlatform.TankAccess lava = fixtures().multiTank(helper.getBlockEntity(END), 1);
+        water.set(Fluids.WATER, 100);
+        lava.set(Fluids.LAVA, 1000);
+        helper.succeedWhen(() -> {
+            var poured = helper.getLevel().getFluidState(helper.absolutePos(FRONT));
+            check(poured.isSource() && poured.getType() == Fluids.LAVA, "No lava source poured; power " + node.power());
+            check(lava.millibuckets() == 0 && water.millibuckets() == 100,
+                    "Tanks hold " + water.millibuckets() + " mB water, " + lava.millibuckets() + " mB lava");
+        });
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 500)
     public static void worldInteractionStaysInsideBuildHeight(GameTestHelper helper) {
         Owner owner = Owner.random("gwH");
         mill(helper, owner);
