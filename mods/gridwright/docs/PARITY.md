@@ -72,6 +72,9 @@ access, plus the block-break permission check). All 23 `TransferGameTests` run o
 | Mechanical miner | Fake-player block that breaks the block in front of it; enchantments and speed upgrades. | Breaks the block in front with the tool in its slot as the owner would: player break time, tool-dependent drops, tool wear; 4 GP. | The tool itself carries enchantments and efficiency (no separate upgrade slots); skips block entities. |
 | Mechanical user | Fake-player block that right-clicks with its items (bone meal, buckets, placing blocks, seeds…). | Right-clicks the block in front every 20 ticks with each input stack in turn, then uses the item in the air if the click did nothing; 2 GP. | No entity interaction (shears on sheep, buckets on cows) and no speed upgrades yet. |
 
+The quarries take the transfer nodes' `speed_upgrade` item (phase 2a) rather than a separate quarry
+speed upgrade; a quarry counts up to 8 of them, a node up to 64.
+
 Both mechanical blocks and both quarries act only as their owner, through a fake player with the
 owner's profile, and fire the loaders' own break and right-click events before acting, so claim and
 protection mods can refuse them exactly as they would refuse the player. Unowned machines do nothing.

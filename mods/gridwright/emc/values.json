@@ -13,6 +13,11 @@
       "itemalchemy": 3515,
       "source": "recipe"
     },
+    "gridwright:biome_marker": {
+      "projecte": 1216,
+      "itemalchemy": 1200,
+      "source": "recipe"
+    },
     "gridwright:builders_wand": {
       "projecte": 2056,
       "itemalchemy": 2051,
@@ -88,6 +93,11 @@
       "itemalchemy": 3060,
       "source": "recipe"
     },
+    "gridwright:ender_quarry": {
+      "projecte": 29324,
+      "itemalchemy": 10856,
+      "source": "recipe"
+    },
     "gridwright:ender_ward": {
       "projecte": 3072,
       "itemalchemy": 3056,
@@ -111,6 +121,11 @@
     "gridwright:fluid_trash_can": {
       "projecte": 134,
       "itemalchemy": 605,
+      "source": "recipe"
+    },
+    "gridwright:fortune_upgrade": {
+      "projecte": 51648,
+      "itemalchemy": 39350,
       "source": "recipe"
     },
     "gridwright:furnace_generator": {
@@ -173,6 +188,16 @@
       "itemalchemy": 1076,
       "source": "recipe"
     },
+    "gridwright:mechanical_miner": {
+      "projecte": 965,
+      "itemalchemy": 953,
+      "source": "recipe"
+    },
+    "gridwright:mechanical_user": {
+      "projecte": 537,
+      "itemalchemy": 533,
+      "source": "recipe"
+    },
     "gridwright:octuple_compressed_cobblestone": {
       "projecte": 43046721,
       "itemalchemy": 43046721,
@@ -201,6 +226,16 @@
     "gridwright:quadruple_compressed_netherrack": {
       "projecte": 6561,
       "itemalchemy": 6561,
+      "source": "recipe"
+    },
+    "gridwright:quantum_quarry": {
+      "projecte": 155844,
+      "itemalchemy": 45236,
+      "source": "recipe"
+    },
+    "gridwright:quarry_actuator": {
+      "projecte": 25868,
+      "itemalchemy": 7420,
       "source": "recipe"
     },
     "gridwright:quintuple_compressed_cobblestone": {
@@ -246,6 +281,11 @@
     "gridwright:sextuple_compressed_netherrack": {
       "projecte": 531441,
       "itemalchemy": 531441,
+      "source": "recipe"
+    },
+    "gridwright:silk_touch_upgrade": {
+      "projecte": 65648,
+      "itemalchemy": 2160,
       "source": "recipe"
     },
     "gridwright:solar_panel": {
