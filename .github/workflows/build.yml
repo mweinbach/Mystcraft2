@@ -89,6 +89,17 @@ jobs:
               mods/advancedgenetics/run/gameTestServer/logs/latest.log
               mods/advancedgenetics/fabric/build/gametest-results.xml
               mods/advancedgenetics/fabric/build/gametest/logs/latest.log
+          - id: gridwright
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy
+            jars: |
+              mods/gridwright/build/libs/*.jar
+              mods/gridwright/fabric/build/libs/*.jar
+            reports: |
+              mods/gridwright/run/gameTestServer/logs/latest.log
+              mods/gridwright/fabric/build/gametest-results.xml
+              mods/gridwright/fabric/build/gametest/logs/latest.log
           - id: mystcraft
             kind: dual
             forge_props: -PwithProjectE

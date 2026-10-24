@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WSW",
+    "SFS",
+    "WSW"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "F": {
+      "item": "gridwright:machine_frame"
+    }
+  },
+  "result": {
+    "item": "gridwright:wind_mill",
+    "count": 1
+  }
+}

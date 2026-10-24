@@ -90,6 +90,25 @@ After Advanced Genetics changes, run:
 - `./scripts/gradle.sh :advancedgenetics:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/advancedgenetics/fabric runGametest -PwithItemAlchemy`
 
+## Gridwright loader support
+
+Gridwright (`mods/gridwright`) is a clean-room, Extra Utilities 2–style mod. Never
+read, copy, translate or paraphrase Extra Utilities 2 code, art, sounds or lang
+files (all rights reserved), nor unlicensed rewrites of it; work only from public
+behaviour descriptions and record sources in `mods/gridwright/NOTICE.md`. It uses
+the same layout as Advanced Genetics: shared code in `src/main` reaches loader
+services only through `Platform`; Forge adapters in `src/forge`, Fabric adapters in
+`src/fabric`, the Loom build in `mods/gridwright/fabric`. Shared GameTests live in
+`src/gametestCommon`. Grid Power stays separate from Forge Energy / Team Reborn
+Energy except through a deliberate converter block. After Gridwright changes, run:
+
+- `./scripts/gradle.sh :gridwright:build`
+- `./scripts/gradle.sh -p mods/gridwright/fabric build`
+- `python3 mods/gridwright/scripts/check_loader_parity.py`
+- `python3 scripts/emc.py check`
+- `./scripts/gradle.sh :gridwright:runGameTestServer -PwithProjectE`
+- `./scripts/gradle.sh -p mods/gridwright/fabric runGametest -PwithItemAlchemy`
+
 ## BuildCraft loader support
 
 BuildCraft uses the same layout: gameplay, registries, recipes, assets and EMC

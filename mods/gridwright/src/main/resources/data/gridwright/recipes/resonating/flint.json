@@ -1,0 +1,15 @@
+{
+  "type": "gridwright:resonating",
+  "input": {
+    "ingredient": {
+      "item": "minecraft:gravel"
+    },
+    "amount": 1
+  },
+  "output": {
+    "item": "minecraft:flint",
+    "count": 1
+  },
+  "gp": 1.0,
+  "time": 40
+}

@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "gridwright:solar_panel",
+    "gridwright:lunar_panel",
+    "gridwright:resonator",
+    "gridwright:survivalist_generator",
+    "gridwright:furnace_generator",
+    "gridwright:culinary_generator",
+    "gridwright:lava_generator",
+    "gridwright:potion_generator",
+    "gridwright:ender_generator",
+    "gridwright:redstone_generator"
+  ]
+}

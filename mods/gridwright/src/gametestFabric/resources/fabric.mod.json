@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "gridwright_gametest",
+  "version": "1.0.0",
+  "name": "Gridwright Game Tests",
+  "description": "Development-only server tests for the Fabric build of Gridwright.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["ports.gridwright.gametest.fabric.FabricTestSetup"],
+    "fabric-gametest": [
+      "ports.gridwright.gametest.GridGameTests",
+      "ports.gridwright.gametest.ProducerGameTests",
+      "ports.gridwright.gametest.GeneratorGameTests",
+      "ports.gridwright.gametest.ResonatorGameTests",
+      "ports.gridwright.gametest.EmcGameTests"
+    ]
+  },
+  "depends": {
+    "gridwright": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

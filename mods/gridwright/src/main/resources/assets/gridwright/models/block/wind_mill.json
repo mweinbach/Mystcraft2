@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "gridwright:block/wind_mill_side",
+    "top": "gridwright:block/wind_mill_top",
+    "bottom": "gridwright:block/wind_mill_top"
+  }
+}

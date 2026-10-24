@@ -1,0 +1,77 @@
+{
+  "namespace": "gridwright",
+  "generator": "scripts/emc.py from emc/policy.json and emc/registry.txt",
+  "ignored": [],
+  "items": {
+    "gridwright:culinary_generator": {
+      "projecte": 1548,
+      "itemalchemy": 1532,
+      "source": "recipe"
+    },
+    "gridwright:ender_generator": {
+      "projecte": 3076,
+      "itemalchemy": 3060,
+      "source": "recipe"
+    },
+    "gridwright:furnace_generator": {
+      "projecte": 1180,
+      "itemalchemy": 1164,
+      "source": "recipe"
+    },
+    "gridwright:grid_crystal": {
+      "projecte": 64,
+      "itemalchemy": 64,
+      "source": "conversion resonate_grid_crystal"
+    },
+    "gridwright:lava_generator": {
+      "projecte": 1412,
+      "itemalchemy": 1396,
+      "source": "recipe"
+    },
+    "gridwright:lunar_panel": {
+      "projecte": 1798,
+      "itemalchemy": 1798,
+      "source": "recipe"
+    },
+    "gridwright:machine_frame": {
+      "projecte": 1092,
+      "itemalchemy": 1076,
+      "source": "recipe"
+    },
+    "gridwright:potion_generator": {
+      "projecte": 2697,
+      "itemalchemy": 2775,
+      "source": "recipe"
+    },
+    "gridwright:redstone_generator": {
+      "projecte": 1860,
+      "itemalchemy": 1844,
+      "source": "recipe"
+    },
+    "gridwright:resonator": {
+      "projecte": 835,
+      "itemalchemy": 827,
+      "source": "recipe"
+    },
+    "gridwright:solar_panel": {
+      "projecte": 1798,
+      "itemalchemy": 1798,
+      "source": "recipe"
+    },
+    "gridwright:survivalist_generator": {
+      "projecte": 79,
+      "itemalchemy": 79,
+      "source": "recipe"
+    },
+    "gridwright:water_mill": {
+      "projecte": 364,
+      "itemalchemy": 360,
+      "source": "recipe"
+    },
+    "gridwright:wind_mill": {
+      "projecte": 1300,
+      "itemalchemy": 1284,
+      "source": "recipe"
+    }
+  }
+}

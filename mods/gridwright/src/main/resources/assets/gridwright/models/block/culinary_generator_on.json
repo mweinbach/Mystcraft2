@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "front": "gridwright:block/culinary_generator_front_on",
+    "side": "gridwright:block/machine_side",
+    "top": "gridwright:block/machine_top",
+    "bottom": "gridwright:block/machine_bottom"
+  }
+}
