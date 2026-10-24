@@ -1,0 +1,28 @@
+# Forge methods on vanilla classes that the shared sources override or call. On Fabric each is supplied by an
+# interface injected into the vanilla class (src/fabric/java/ports/projecte/lib/.../extensions) under the name
+# projecte$<name>, and fabric/build.gradle renames every use in the shared sources to match.
+#
+# Format: <name> [path regex]. Without a path regex every occurrence of "<name>(" that is not part of a longer
+# identifier is renamed; with one, only in files whose path matches.
+onLoad
+invalidateCaps
+serializeNBT
+deserializeNBT
+getCreatorModId
+getDefaultTooltipHideFlags
+onBlockStartBreak
+getSlotIndex
+isCurativeItem
+getExpDrop
+isShearable
+onSheared
+getShareTag
+readShareTag
+onLeftClickEntity
+getSweepHitBox
+# Vanilla has same-named methods with other parameters; only these files use the Forge overload.
+getTag EnumMatterType\.java
+isCorrectToolForDrops (PESword|PEShears)\.java
+getDamage DamageProcessor\.java
+getPlant
+getPlantType

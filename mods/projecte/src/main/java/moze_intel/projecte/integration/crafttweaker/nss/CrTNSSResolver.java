@@ -1,7 +1,9 @@
 package moze_intel.projecte.integration.crafttweaker.nss;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+// region forge-only CraftTweaker for Fabric 1.19.2 has no fluid stack API
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
+// endregion forge-only
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.api.tag.type.KnownTag;
 import com.blamejared.crafttweaker_annotations.annotations.Document;
@@ -85,6 +87,7 @@ public class CrTNSSResolver {
 		throw new IllegalArgumentException("Item tag " + tag.getCommandString() + " does not exist.");
 	}
 
+	// region forge-only CraftTweaker for Fabric 1.19.2 has no fluid stack API
 	/**
 	 * Creates a {@link NormalizedSimpleStack} that matches the given stack's fluid and NBT.
 	 *
@@ -99,6 +102,7 @@ public class CrTNSSResolver {
 		}
 		return NSSFluid.createFluid(stack.getInternal());
 	}
+	// endregion forge-only
 
 	/**
 	 * Create a {@link NormalizedSimpleStack} representing a given {@link Fluid}.

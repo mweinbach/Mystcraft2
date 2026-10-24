@@ -1,7 +1,9 @@
 package moze_intel.projecte.integration.crafttweaker.nss;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+// region forge-only CraftTweaker for Fabric 1.19.2 has no fluid stack API
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
+// endregion forge-only
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.api.tag.type.KnownTag;
 import com.blamejared.crafttweaker_annotations.annotations.TypedExpansion;
@@ -82,6 +84,7 @@ public class ExpandCrTTypes {
 		}
 	}
 
+	// region forge-only CraftTweaker for Fabric 1.19.2 has no fluid stack API
 	@ZenRegister
 	@TypedExpansion(IFluidStack.class)
 	public static class IFluidStackExpansion {
@@ -97,6 +100,7 @@ public class ExpandCrTTypes {
 			return CrTNSSResolver.fromFluid(_this);
 		}
 	}
+	// endregion forge-only
 
 	@ZenRegister
 	@ZenCodeType.Expansion("crafttweaker.api.tag.type.KnownTag<crafttweaker.api.fluid.Fluid>")

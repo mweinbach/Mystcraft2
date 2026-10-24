@@ -1,13 +1,12 @@
 modLoader="javafml"
-loaderVersion="${loader_version}"
+loaderVersion="[43,)"
 issueTrackerURL="https://github.com/sinkillerj/ProjectE/issues"
 license="MIT"
 
 [[mods]]
   modId="projecte"
-  version="${version}"
+  version="${mod_version}"
   displayName="ProjectE"
-  updateJSONURL="https://raw.githubusercontent.com/sinkillerj/ProjectE/mc1.19.x/update.json"
   displayURL="https://github.com/sinkillerj/ProjectE"
   logoFile="logo.png"
   authors="SinKillerJ, MaPePeR, williewillus, Lilylicious, pupnewfster"
@@ -17,10 +16,10 @@ license="MIT"
 [[dependencies.projecte]]
   modId="minecraft"
   mandatory=true
-  versionRange="${mc_version}"
+  versionRange="[1.19.2]"
   side="BOTH"
 [[dependencies.projecte]]
   modId="forge"
   mandatory=true
-  versionRange="${forge_version}"
+  versionRange="[43.1.3,)"
   side="BOTH"

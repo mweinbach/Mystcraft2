@@ -1,0 +1,73 @@
+/*
+ * ProjectE 1.19.2 port, adapted from the Mekanism 1.19.2 port - Fabric implementation of the Forge API shapes Mekanism uses.
+ * Copyright (c) 2026 Mekanism 1.19.2 port contributors. MIT License, see licenses/PORT-LICENSE.txt.
+ */
+package ports.projecte.lib.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.Nullable;
+import ports.projecte.lib.client.event.InputEvent;
+import ports.projecte.lib.client.event.RecipesUpdatedEvent;
+import ports.projecte.lib.client.event.RenderHighlightEvent;
+import ports.projecte.lib.client.event.sound.PlaySoundEvent;
+import ports.projecte.lib.common.MinecraftForge;
+
+public final class ForgeHooksClient {
+
+    private ForgeHooksClient() {
+    }
+
+    /**
+     * Posts the highlight event for a target.
+     *
+     * @return {@code true} if the event was canceled and vanilla's outline should be skipped
+     */
+    public static boolean onDrawHighlight(LevelRenderer context, Camera camera, HitResult target, float partialTick, PoseStack poseStack,
+          MultiBufferSource bufferSource) {
+        if (target instanceof BlockHitResult blockTarget && target.getType() == HitResult.Type.BLOCK) {
+            return MinecraftForge.EVENT_BUS.post(new RenderHighlightEvent.Block(context, camera, blockTarget, partialTick, poseStack, bufferSource));
+        } else if (target instanceof EntityHitResult entityTarget && target.getType() == HitResult.Type.ENTITY) {
+            return MinecraftForge.EVENT_BUS.post(new RenderHighlightEvent.Entity(context, camera, entityTarget, partialTick, poseStack, bufferSource));
+        }
+        return false;
+    }
+
+    /**
+     * Posts the in-game mouse wheel event. Canceling it stops the hotbar from scrolling.
+     *
+     * @return {@code true} when the event was canceled
+     */
+    public static boolean onMouseScroll(MouseHandler mouse, double scrollDelta) {
+        return MinecraftForge.EVENT_BUS.post(new InputEvent.MouseScrollingEvent(scrollDelta, mouse.isLeftPressed(), mouse.isMiddlePressed(),
+              mouse.isRightPressed(), mouse.xpos(), mouse.ypos()));
+    }
+
+    /**
+     * Posts the recipe update after the client has replaced its recipe book. Mekanism clears its recipe cache here.
+     */
+    public static void onRecipesUpdated(RecipeManager recipeManager) {
+        MinecraftForge.EVENT_BUS.post(new RecipesUpdatedEvent(recipeManager));
+    }
+
+    /**
+     * Posts the play sound event.
+     *
+     * @return the sound to play instead, or {@code null} to play nothing
+     */
+    @Nullable
+    public static SoundInstance playSound(SoundEngine manager, SoundInstance sound) {
+        PlaySoundEvent event = new PlaySoundEvent(manager, sound);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getSound();
+    }
+}

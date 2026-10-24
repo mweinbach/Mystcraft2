@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -75,7 +74,7 @@ public class WorldTransmuteRecipeCategory implements IRecipeCategory<WorldTransm
 				recipeInput.ifLeft(input -> builder.addSlot(RecipeIngredientRole.INPUT, 16, 16)
 						.addItemStack(input)
 				).ifRight(input -> builder.addSlot(RecipeIngredientRole.INPUT, 16, 16)
-						.addIngredient(ForgeTypes.FLUID_STACK, input)
+						.addFluidStack(input.getFluid(), input.getAmount(), input.getTag())
 						.setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 16)
 				)
 		);
@@ -84,7 +83,7 @@ public class WorldTransmuteRecipeCategory implements IRecipeCategory<WorldTransm
 			IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, xPos, 16);
 			output.ifLeft(slot::addItemStack)
 					.ifRight(input -> slot
-							.addIngredient(ForgeTypes.FLUID_STACK, input)
+							.addFluidStack(input.getFluid(), input.getAmount(), input.getTag())
 							.setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 16)
 					);
 			xPos += 16;

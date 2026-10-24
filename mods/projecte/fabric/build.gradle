@@ -1,0 +1,282 @@
+plugins {
+    id 'fabric-loom' version '1.7.4'
+}
+
+def metadata = new Properties()
+file('../port.properties').withInputStream { metadata.load(it) }
+version = metadata.mod_version
+group = metadata.mod_group
+base.archivesName = 'projecte-fabric-1.19.2'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroup 'com.blamejared.crafttweaker'
+            includeGroup 'com.faux.ingredientextension'
+            includeGroup 'com.faux.fauxcustomentitydata'
+        }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
+    maven {
+        url = 'https://maven.ladysnake.org/releases'
+        content { includeGroup 'dev.onyxstudios.cardinal-components-api' }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // fabric-permissions-api is what Fabric permission mods answer; Forge's PermissionAPI defers to the installed
+    // handler the same way. Not transitive: its POM resolves fabric-api-base through a newer Fabric API BOM.
+    include(modImplementation('me.lucko:fabric-permissions-api:0.3.1') { transitive = false })
+    // Forge ships Night Config; Fabric gets the same version bundled for the TOML config files.
+    include(implementation('com.electronwill.night-config:core:3.6.6'))
+    include(implementation('com.electronwill.night-config:toml:3.6.6'))
+    // Forge ships maven-artifact; the Forge API layer compares mod versions with it.
+    include(implementation('org.apache.maven:maven-artifact:3.8.5'))
+    // The EMC mapper's fractions. Upstream shades and relocates this library; on Fabric it is nested.
+    include(implementation('org.apache.commons:commons-math3:3.6.1'))
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+    // Optional integrations. None is required to load; -PwithJei, -PwithEmi, -PwithJade, -PwithTrinkets and
+    // -PwithCraftTweaker add them to a development run.
+    modCompileOnly 'mezz.jei:jei-1.19.2-common-api:11.6.0.1015'
+    modCompileOnly 'mezz.jei:jei-1.19.2-fabric-api:11.6.0.1015'
+    if (providers.gradleProperty('withJei').isPresent()) {
+        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.6.0.1015') { transitive = false }
+    }
+    // EMI 1.1.24 is the recipe viewer Tekxit 4 ships.
+    modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2:api') { transitive = false }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
+    }
+    modCompileOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    if (providers.gradleProperty('withJade').isPresent()) {
+        modRuntimeOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    }
+    modCompileOnly('maven.modrinth:wthit:APJpZnsA') { transitive = false }
+    // Trinkets 3.4.2, which Tekxit 4 ships, is the 1.19.2 Fabric equivalent of Curios. Cardinal Components Base is
+    // nested in that jar and is needed to compile against TrinketComponent.
+    modCompileOnly('maven.modrinth:trinkets:OLwsMJv4') { transitive = false }
+    compileOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1') { transitive = false }
+    if (providers.gradleProperty('withTrinkets').isPresent()) {
+        modRuntimeOnly('maven.modrinth:trinkets:OLwsMJv4') { transitive = false }
+        modRuntimeOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1') { transitive = false }
+        modRuntimeOnly('dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.0-beta.1') { transitive = false }
+    }
+    modCompileOnly('com.blamejared.crafttweaker:CraftTweaker-fabric-1.19.2:10.1.44') { transitive = false }
+    if (providers.gradleProperty('withCraftTweaker').isPresent()) {
+        modRuntimeOnly('com.blamejared.crafttweaker:CraftTweaker-fabric-1.19.2:10.1.44') { transitive = false }
+        modRuntimeOnly('com.faux.ingredientextension:IngredientExtensionAPI-fabric-1.19.2:3.0.5') { transitive = false }
+        modRuntimeOnly('com.faux.fauxcustomentitydata:FauxCustomEntityData-fabric-1.19.2:2.0.2') { transitive = false }
+        runtimeOnly('org.reflections:reflections:0.10.2') { transitive = false }
+        runtimeOnly('org.javassist:javassist:3.29.0-GA') { transitive = false }
+    }
+
+    testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+
+// The shared sources are upstream Forge code. On Fabric their Forge API references point at the port's mirror in
+// src/fabric/java/ports/projecte/lib; the rewrite keeps line numbers unchanged. Methods Forge adds to vanilla classes
+// are injected interfaces, but Java has no way to add constructors, static methods or fields to a vanilla class, so
+// those uses are rewritten to the port's equivalents in ports.projecte.lib.patched or to accessor methods.
+def patched = 'ports.projecte.lib.patched.'
+def forgeOnlyVanillaMembers = [
+    [~/\bnet\.minecraftforge\./, 'ports.projecte.lib.'],
+    [~/\bclass (\w+) extends CreativeModeTab\b/, "class \$1 extends ${patched}ForgeCreativeModeTab"],
+    [~/\bextends AbstractContainerScreen</, "extends ${patched}ForgeAbstractContainerScreen<"],
+    [~/\bItemProperties\.register\(/, "${patched}ForgeItemProperties.register("],
+    [~/\bextends KeyMapping\b/, 'extends ports.projecte.lib.client.settings.ForgeKeyMapping'],
+    [~/\bItemTags\.create\(/, "${patched}ForgeTagKeys.item("],
+    [~/\bBlockTags\.create\(/, "${patched}ForgeTagKeys.block("],
+    [~/\bFluidTags\.create\(/, "${patched}ForgeTagKeys.fluid("],
+    [~/\bItemBlockRenderTypes\.setRenderLayer\(/, "${patched}ForgeRenderLayers.setRenderLayer("],
+    [~/\.restoringBlockSnapshots = (true|false)\b/, '.setRestoringBlockSnapshots($1)'],
+    // Forge runs the logical server in its own thread group; Fabric does not (SidedThreadGroups explains).
+    [~/Thread\.currentThread\(\)\.getThreadGroup\(\) == SidedThreadGroups\.SERVER/, 'SidedThreadGroups.isServerThread()'],
+    [~/Thread\.currentThread\(\)\.getThreadGroup\(\) != SidedThreadGroups\.SERVER/, '!SidedThreadGroups.isServerThread()'],
+    // Forge-only constructors, builder methods and static helpers, rewritten only in the files that use them.
+    [~/\bnew KeyMapping\(/, 'new ports.projecte.lib.client.settings.ForgeKeyMapping(', ~/ClientKeyHelper\.java$/],
+    [~/\bnew CreativeModeTab\(/, "new ${patched}ForgeCreativeModeTab(", ~/ItemDeferredRegister\.java$/],
+    [~/\bArgumentTypeInfos\.registerByClass\(/, "${patched}ForgeArgumentTypeInfos.registerByClass(", ~/ArgumentTypeInfoDeferredRegister\.java$/],
+    // Forge's lootFrom resolves the block lazily; the wall block is created after its floor block, so dropsLike works.
+    [~/\bbaseProperties\.lootFrom\(primaryObject\)/, 'baseProperties.dropsLike(primaryObject.get())', ~/BlockDeferredRegister\.java$/],
+    [~/\.setTrackingRange\(/, '.clientTrackingRange(', ~/PEEntityTypes\.java$/],
+    [~/\.setUpdateInterval\(/, '.updateInterval(', ~/PEEntityTypes\.java$/],
+    // Vanilla already sends velocity updates for these entity types.
+    [~/\.setShouldReceiveVelocityUpdates\(true\)/, '', ~/PEEntityTypes\.java$/],
+    [~/\bthis\(item\.get\(\), nbt\)/, 'this(item.value(), nbt)', ~/NSSItemParser\.java$/],
+]
+// Every method the port's Forge API layer adds to a vanilla class is named projecte$<name> on Fabric, so it can never
+// clash with the same Forge-shaped method another mod's layer adds to that class: Mekanism's port, Porting Lib (which
+// Create and many other Fabric mods nest) or any other. Two default methods with one name and descriptor on a vanilla
+// class make the JVM refuse the call ("Conflicting default methods"). The shared sources reach those methods through
+// these rules; the list is the one in src/fabric/vanilla-extensions.txt.
+def projecteName = 'projecte\\$'
+def extensionNames = file('../src/fabric/vanilla-extensions.txt').readLines()
+      .collect { it.replaceAll(/#.*/, '').trim() }.findAll { !it.isEmpty() }
+extensionNames.each { String line ->
+    // "name" renames every use; "name path-regex" only in matching files.
+    def parts = line.split(/\s+/, 2)
+    def rule = [java.util.regex.Pattern.compile('(?<![\\w$])' + java.util.regex.Pattern.quote(parts[0]) + '(?=\\s*\\()'), "${projecteName}${parts[0]}"]
+    if (parts.length > 1) {
+        rule << java.util.regex.Pattern.compile(parts[1])
+    }
+    forgeOnlyVanillaMembers << rule
+}
+def rewriteForFabric = { String path, String line ->
+    forgeOnlyVanillaMembers.inject(line) { String result, rule ->
+        rule.size() > 2 && !(path =~ rule[2]) ? result : result.replaceAll(rule[0], rule[1].toString())
+    }
+}
+// Shared code that needs an API only Forge has sits between '// region forge-only' and '// endregion forge-only'
+// lines. The Fabric copy blanks those lines, markers included, so line numbers still match the shared source.
+class StripForgeOnlyRegions extends FilterReader {
+    static final java.util.regex.Pattern BEGIN = ~/^\s*\/\/ region forge-only\b.*/
+    static final java.util.regex.Pattern END = ~/^\s*\/\/ endregion forge-only\b.*/
+
+    StripForgeOnlyRegions(Reader input) {
+        super(new StringReader(strip(input.text)))
+    }
+
+    static String strip(String text) {
+        boolean inRegion = false
+        int lineNumber = 0
+        StringBuilder out = new StringBuilder(text.length())
+        for (String line : text.split('\n', -1)) {
+            lineNumber++
+            boolean begin = BEGIN.matcher(line).matches()
+            boolean end = END.matcher(line).matches()
+            if (begin && inRegion || end && !inRegion) {
+                throw new GradleException("Unbalanced forge-only region at line ${lineNumber}")
+            }
+            boolean blank = inRegion || begin
+            if (begin) inRegion = true
+            if (end) inRegion = false
+            if (out.length() > 0 || lineNumber > 1) out.append('\n')
+            out.append(blank ? (line.endsWith('\r') ? '\r' : '') : line)
+        }
+        if (inRegion) {
+            throw new GradleException('Unclosed forge-only region')
+        }
+        return out.toString()
+    }
+}
+def rewrittenMain = layout.buildDirectory.dir('generated/sources/fabricShared/main')
+def rewrittenTest = layout.buildDirectory.dir('generated/sources/fabricShared/test')
+def rewrittenGametest = layout.buildDirectory.dir('generated/sources/fabricShared/gametest')
+def rewriteRules = forgeOnlyVanillaMembers.collect { it.join(' -> ') }
+def rewriteShared = { Sync task, Object sources, Object into, boolean stripForgeOnly = true ->
+    task.inputs.property 'rewriteRules', rewriteRules
+    task.from sources
+    task.into into
+    if (stripForgeOnly) {
+        task.filter StripForgeOnlyRegions
+    }
+    task.eachFile { FileCopyDetails details ->
+        String path = details.path
+        details.filter { String line -> rewriteForFabric(path, line) }
+    }
+}
+def rewriteMain = tasks.register('rewriteSharedSources', Sync) { rewriteShared(it, '../src/main/java', rewrittenMain) }
+def rewriteTest = tasks.register('rewriteSharedTestSources', Sync) { rewriteShared(it, '../src/test/java', rewrittenTest, false) }
+def rewriteGametest = tasks.register('rewriteSharedGametestSources', Sync) {
+    rewriteShared(it, '../src/gametestCommon/java', rewrittenGametest)
+}
+sourceSets {
+    main {
+        java.setSrcDirs([rewriteMain, '../src/fabric/java'])
+        resources.setSrcDirs(['../src/fabric/resources', '../src/main/resources'])
+    }
+    test.java.setSrcDirs([rewriteTest])
+    test.resources.setSrcDirs([])
+    // In-world tests are a separate development-only mod; they never enter the production JAR.
+    gametest {
+        java.setSrcDirs([rewriteGametest, '../src/gametestFabric/java'])
+        resources.setSrcDirs(['../src/gametestFabric/resources'])
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xmaxerrs', '100000']
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+tasks.named('processResources', ProcessResources) {
+    inputs.properties metadata
+    // Literal replacement rather than expand(): injected interface keys contain '$' (nested intermediary classes).
+    def version = project.version.toString()
+    filesMatching('fabric.mod.json') {
+        filter { String line -> line.replace('${version}', version).replace('${mod_description}', metadata.mod_description) }
+    }
+}
+tasks.withType(Jar).configureEach {
+    from('../NOTICE.md') { into 'META-INF'; rename { 'ProjectE-NOTICE.md' } }
+    from('../UPSTREAM.md') { into 'META-INF'; rename { 'ProjectE-UPSTREAM.md' } }
+    from('../licenses') { into 'META-INF/licenses/projecte' }
+}
+tasks.named('jar', Jar) { from('../LICENSE') }
+tasks.named('sourcesJar', Jar) { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+loom {
+    accessWidenerPath = file('../src/fabric/resources/projecte.accesswidener')
+    mixin {
+        defaultRefmapName = 'projecte.refmap.json'
+    }
+    mods {
+        projecte { sourceSet sourceSets.main }
+        projecte_gametest { sourceSet sourceSets.gametest }
+    }
+    runs {
+        client { runDir '../run/fabric-client' }
+        server { runDir '../run/fabric-server'; programArg '--nogui' }
+        gametest {
+            server()
+            name 'ProjectE Fabric Game Tests'
+            source sourceSets.gametest
+            runDir 'build/gametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
+        }
+    }
+}
+tasks.named('processGametestResources', ProcessResources) {
+    from('../src/gametestCommon/structures') { into 'data/projecte/gametest/structures' }
+}
+tasks.named('runGametest') {
+    doFirst {
+        delete layout.buildDirectory.dir('gametest/world'), layout.buildDirectory.dir('gametest/config/ProjectE')
+    }
+}
