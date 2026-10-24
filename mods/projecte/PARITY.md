@@ -17,7 +17,7 @@ The port lands in phases, one pull request each:
 | --- | --- | --- |
 | 1 | EMC core and mapper, player knowledge and EMC sync, Philosopher's Stone, Transmutation Table and Tablet, Alchemical Chest and Bags, Energy Collectors, Antimatter Relays, Energy Condensers, Klein Stars as EMC storage | GameTests below on both loaders |
 | 2 | Dark and Red Matter blocks, furnaces, tools and armour; Gem armour | Verified on both loaders (GameTests below) |
-| 3 | Rings, amulets, Divining Rods, Watch of Flowing Time, Mercurial Eye, lenses, Destruction Catalyst, Interdiction Torch, Nova Catalyst and Cataclysm, the pedestal, key bindings and modes, Trinkets slots, an EMI plugin | Code present on both loaders (EMI plugin not yet written), unverified |
+| 3 | Rings, amulets, Divining Rods, Watch of Flowing Time, Mercurial Eye, lenses, Destruction Catalyst, Interdiction Torch, Nova Catalyst and Cataclysm, the pedestal, key bindings and modes, Trinkets slots, an EMI plugin | Verified on both loaders (GameTests below); EMI, JEI and Jade plugins and key bindings need a client (phase 4) |
 | 4 | ProjectE EMC audits for every port on Fabric; Tekxit 4 server and client check with and without Item Alchemy | Not started |
 
 ## Verified on both loaders
@@ -49,29 +49,64 @@ The port lands in phases, one pull request each:
 | Dark Matter armour takes 80% off damage that bypasses armour (Fabric: the port's `LivingHurtEvent`) | `MatterGameTests.darkMatterArmourReducesDamage` |
 | The Gem Helmet's night vision and the Gem Boots' fall protection act on the armour tick | `MatterGameTests.gemArmourActsOnTheArmourTick` |
 | Gem Boots add movement speed through their attribute modifiers | `MatterGameTests.gemBootsAddMovementSpeed` |
+| Active Soul, Body and Life Stones heal and feed their holder for EMC | `RingGameTests.soulStoneHealsItsHolder`, `bodyStoneFeedsItsHolder`, `lifeStoneHealsAndFeeds` |
+| The Mind Stone stores its holder's experience and gives it back | `RingGameTests.mindStoneStoresAndReturnsExperience` |
+| The Zero Ring freezes water | `RingGameTests.zeroRingFreezesWater` |
+| The Ring of Ignition lights a campfire (upstream's right-click: campfires and flammable blocks in place) | `RingGameTests.ignitionRingLightsCampfires` |
+| The Evertide and Volcanite Amulets place water and lava | `RingGameTests.amuletsPlaceTheirFluids` |
+| The Harvest Goddess Band spends bone meal to grow crops around the clicked block | `RingGameTests.harvestGoddessBandGrowsCrops` |
+| The Black Hole Band and Void Ring pull items toward their holder | `RingGameTests.blackHoleBandAndVoidRingPullItems` |
+| The Swiftwolf's Rending Gale grants flight, which goes when the ring does | `RingGameTests.swiftwolfsRendingGaleGrantsFlight` |
+| The Archangel's Smite fires homing arrows for EMC | `RingGameTests.archangelsSmiteFiresHomingArrows` |
+| The Arcana Ring acts as the ring its mode selects | `RingGameTests.arcanaRingUsesItsSelectedMode` |
+| The Repair Talisman repairs tools in the inventory | `RingGameTests.repairTalismanRepairsTools` |
+| The Gem of Eternal Density condenses cheaper items into iron | `RingGameTests.gemOfEternalDensityCondensesItems` |
+| The Watch of Flowing Time speeds up nearby block entities | `RingGameTests.watchOfFlowingTimeSpeedsUpBlockEntities` |
+| A ring placed on a Dark Matter Pedestal and switched on runs its pedestal effect | `RingGameTests.pedestalRunsItsItem` |
+| Klein Stars store EMC to their capacity through the EMC holder capability | `ItemGameTests.kleinStarStoresEmc` |
+| The Destruction Catalyst clears blocks, paid for by an off-hand Klein Star | `ItemGameTests.destructionCatalystClearsBlocksUsingKleinStarEmc` |
+| The Hyperkinetic and Catalytic Lenses fire explosive projectiles for EMC | `ItemGameTests.lensesFireExplosiveProjectiles` |
+| The Divining Rods read the ground | `ItemGameTests.diviningRodsReadTheGround` |
+| The Mercurial Eye builds its target block with the Klein Star inside it | `ItemGameTests.mercurialEyeBuildsWithItsKleinStar` |
+| The Interdiction Torch pushes mobs away | `ItemGameTests.interdictionTorchRepelsMobs` |
+| A primed Nova Catalyst explodes and destroys nearby blocks | `ItemGameTests.novaCatalystExplodes` |
+| Alchemical Coal, Mobius Fuel, Aeternalis Fuel and their blocks burn in a vanilla furnace (Fabric: Fabric API's fuel registry) | `ItemGameTests.alchemicalFuelsBurnInAFurnace` |
+| The Tome of Knowledge gives full knowledge | `ItemGameTests.tomeOfKnowledgeGivesFullKnowledge` |
+| The mode, charge and projectile keys' actions, through the item capabilities the key packet calls | `ItemGameTests.modeAndChargeKeysWorkThroughCapabilities`, `projectileKeyFiresThroughTheShooterCapability` |
 
 Fabric only (allowlisted in [gametest-loader-only.txt](gametest-loader-only.txt)): the Alchemical Chest is a Transfer
 API `Storage<ItemVariant>`, and condenser output can be extracted through the Transfer API. Transfer API moves act on
 the block entity's own slots at once and are undone if the transaction aborts, so several lookups of one block (or
 faces whose handlers share slots) cannot move the same item twice: `twoLookupsCannotExtractTheSameItemTwice`,
-`furnaceFacesSharingSlotsCannotDoubleExtract` and `abortedTransactionsRestoreTheChest` check it.
+`furnaceFacesSharingSlotsCannotDoubleExtract` and `abortedTransactionsRestoreTheChest` check it. With `-PwithTrinkets`
+(as CI runs): players have the necklace, ring, belt and Klein Star trinket slots, which accept ProjectE's items
+(`FabricTrinketsGameTests.projecteSlotsAcceptProjecteItems`), tick them (`trinketSlotsTickProjecteItems`) and feed EMC
+from a Klein Star (`kleinStarSlotFeedsEmcToItems`).
 
 Upstream's JUnit tests (graph mapper, fractions, custom-conversion serialization) pass on both loaders.
 
-The Fabric GameTests also pass with Porting Lib 2.1.1453 (`-PwithPortingLib`) and with the Mekanism port's Fabric jar
-(`-PwithMekanism`) loaded beside ProjectE. With Mekanism loaded, `FabricMekanismGameTests` also checks that a player's
-ProjectE knowledge and EMC and Mekanism radiation all survive a save and reload, in either save order, and that
-Mekanism's charcoal block (16,000 ticks) and ProjectE's fuels burn for their own times in a vanilla furnace.
+The Fabric GameTests also pass with Porting Lib 2.1.1453 (`-PwithPortingLib`), the Mekanism port's Fabric jar
+(`-PwithMekanism`) and Trinkets 3.4.2 (`-PwithTrinkets`) loaded beside ProjectE, and without any of them. With Mekanism
+loaded, `FabricMekanismGameTests` also checks that a player's ProjectE knowledge and EMC and Mekanism radiation all
+survive a save and reload, in either save order, and that Mekanism's charcoal block (16,000 ticks) and ProjectE's
+fuels burn for their own times in a vanilla furnace.
 
 ## Differences from upstream
 
 - Upstream 1.1.0's `registerDefault` world-transmutation entries have no sneaking alternate, so sneaking with the
   Philosopher's Stone does nothing different for them. This is upstream behaviour, kept.
-- Fabric: Curios slots are Trinkets slots (Trinkets 3.4.2, which Tekxit 4 ships). Unverified until phase 3.
-- Fabric: The One Probe has no Fabric build and is not offered. Jade and WTHIT providers compile on Fabric but are
-  not yet registered there.
-- Fabric: JEI's plugin compiles but is not registered on Fabric yet; Tekxit 4 ships EMI, and the EMI plugin is
-  planned for phase 3.
+- Fabric: Curios slots are Trinkets slots (Trinkets 3.4.2, which Tekxit 4 ships). The Fabric jar ships
+  `data/trinkets` entries that give players upstream's four Curios slot types: necklace (`chest/necklace`), ring
+  (`hand/ring` and `offhand/ring`), belt (`legs/belt`) and Klein Star (a new `chest/klein_star` slot), filled from
+  upstream's Curios item tags.
+- Both loaders: an EMI plugin (`integration/emi`, not upstream) shows upstream's JEI categories, world transmutation
+  and collector fuel upgrades, and adds the Philosopher's Stone and matter furnaces as workstations. Tekxit 4 ships
+  EMI rather than JEI.
+- Fabric: JEI's and Jade's plugins are registered through the `jei_mod_plugin` and `jade` entrypoints. Tekxit 4 ships
+  Jade but not JEI. The One Probe has no Fabric build and is not offered. The WTHIT provider compiles but is not
+  registered; Tekxit 4 does not ship WTHIT.
+- Fabric: `ItemStack.isCorrectToolForDrops`, `getMaxDamage` and `getHideFlags` answer only for ProjectE's items, so
+  another Forge-API layer's (Mekanism Fabric's) identical hooks still answer for its own items.
 - Fabric: CraftTweaker's fluid-stack NSS helpers are absent (CraftTweaker for Fabric 1.19.2 has no fluid stacks).
 - Fabric: entity and block entity capabilities are saved under Forge's `ForgeCaps` key. The Mekanism port's Fabric
   layer uses the same compound, so each layer adds its own keys to it and reads only its own keys back, rather than
@@ -85,7 +120,8 @@ Mekanism's charcoal block (16,000 ticks) and ProjectE's fuels burn for their own
 
 - No client has been launched on either loader. Screens, the transmutation GUI's rendering, HUD overlays, key
   bindings and renderers are unverified.
-- Phase 3 above: registered, untested. Phase 2's Red Matter tool modes, the Katar and Morning Star's combined
+- The EMI, JEI and Jade plugins and the key bindings' client side run only in a client; phase 4's Tekxit client
+  check covers EMI, Jade and the keys. Phase 2's Red Matter tool modes, the Katar and Morning Star's combined
   actions, and Gem armour's key-bound abilities (explosion, flight, fire protection) have no GameTest of their own;
   they reuse the `ToolHelper` and ability code the tests above exercise.
 - Fabric: Forge hooks no ProjectE class uses are not ported (see [UPSTREAM.md](UPSTREAM.md)). Another mod that

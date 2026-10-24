@@ -18,10 +18,10 @@ values and player knowledge; running it beside the Fabric build is checked in ph
 
 ## Status
 
-Phases 1 and 2 of 4 are verified: the EMC mapper, player knowledge, transmutation, the Philosopher's Stone,
-collectors, relays, condensers, the Alchemical Chest, and the Dark/Red Matter tools, armour and furnaces and Gem
-armour pass GameTests on both loaders. Everything else upstream has is registered on both loaders but not yet verified; [PARITY.md](PARITY.md) has the phase plan and the test list. No
-client has been launched yet.
+Phases 1 to 3 of 4 are verified: every upstream item, block and mechanic, from the EMC mapper and transmutation to
+the matter tools, rings, amulets, pedestal, explosives and fuels, has a GameTest of its core effect on both loaders
+(Trinkets slots on Fabric too). [PARITY.md](PARITY.md) has the phase plan and the test list. No client has been
+launched yet, so screens, HUD, key bindings and the EMI/JEI/Jade plugins are unverified until phase 4.
 
 Do not install either JAR in a world you care about.
 
@@ -35,6 +35,7 @@ python3 mods/projecte/scripts/check_loader_parity.py        # after both builds
 ./scripts/gradle.sh -p mods/projecte/fabric runGametest
 ./scripts/gradle.sh -p mods/projecte/fabric runGametest -PwithMekanism   # beside the Mekanism port
 ./scripts/gradle.sh -p mods/projecte/fabric runGametest -PwithPortingLib # beside Porting Lib
+./scripts/gradle.sh -p mods/projecte/fabric runGametest -PwithTrinkets   # adds the trinket-slot tests
 python3 mods/projecte/scripts/generate_fabric_tags.py --check
 ```
 

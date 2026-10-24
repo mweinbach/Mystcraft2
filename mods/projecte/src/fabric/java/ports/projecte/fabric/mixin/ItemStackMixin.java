@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import ports.projecte.fabric.PEHooks;
 import ports.projecte.lib.common.capabilities.AttachedCapabilities;
 import ports.projecte.lib.common.extensions.IForgeItem;
 import ports.projecte.lib.common.extensions.IForgeItemStack;
@@ -53,16 +54,25 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
         return original.call(stack, modified, random, player);
     }
 
-    /** Forge's {@code ItemStack.isCorrectToolForDrops} asks the stack-aware item method. */
+    /**
+     * Forge's {@code ItemStack.isCorrectToolForDrops} asks the stack-aware item method. Only ProjectE's items answer, so
+     * another Forge-API layer's identical hook (Mekanism's, Porting Lib's) still decides for its own items.
+     */
     @Inject(method = "isCorrectToolForDrops", at = @At("HEAD"), cancellable = true)
     private void projecte$correctTool(BlockState state, CallbackInfoReturnable<Boolean> cir) {
         ItemStack self = (ItemStack) (Object) this;
+        if (!PEHooks.ours(self.getItem())) {
+            return;
+        }
         cir.setReturnValue(((IForgeItem) self.getItem()).projecte$isCorrectToolForDrops(self, state));
     }
 
     @Inject(method = "getMaxDamage", at = @At("HEAD"), cancellable = true)
     private void projecte$maxDamage(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
+        if (!PEHooks.ours(self.getItem())) {
+            return;
+        }
         cir.setReturnValue(((IForgeItem) self.getItem()).projecte$getMaxDamage(self));
     }
 
@@ -70,7 +80,7 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
     private void projecte$hideFlags(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
         CompoundTag tag = self.getTag();
-        if (tag != null && tag.contains("HideFlags", 99)) {
+        if (!PEHooks.ours(self.getItem()) || tag != null && tag.contains("HideFlags", 99)) {
             return;
         }
         cir.setReturnValue(((IForgeItem) self.getItem()).projecte$getDefaultTooltipHideFlags(self));
