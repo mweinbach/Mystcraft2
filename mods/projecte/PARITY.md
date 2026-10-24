@@ -6,8 +6,12 @@ them on Forge itself. Fabric runs them on the port's Forge API mirror (`src/fabr
 [UPSTREAM.md](UPSTREAM.md)). Every upstream item, block, menu, command, config and data file is registered on both
 loaders. This file says which of them have been verified, and how.
 
-"Verified" below means a GameTest on a dedicated GameTest server, on the loaders named. Nothing here has been checked
-in a client yet; client-only parts (screens, HUD, key bindings, renderers) compile and register but are unverified.
+"Verified" below means a GameTest on a dedicated GameTest server, on the loaders named. The Fabric jar has also been
+launched in the Tekxit 4 client and dedicated server, with and without Item Alchemy
+([tekxit4-testing.md](../../docs/tekxit4-testing.md#projecte-fabric-port-in-tekxit-4-2026-10-24)). There, the client
+opened the Transmutation Table, Alchemical Chest, Energy Condenser, Energy Collector and Dark Matter Furnace screens,
+showed EMC in item tooltips, registered ProjectE's key bindings and showed ProjectE's EMI recipes. The Forge jar has not
+been launched in a client.
 
 ## Phases
 
@@ -18,7 +22,7 @@ The port lands in phases, one pull request each:
 | 1 | EMC core and mapper, player knowledge and EMC sync, Philosopher's Stone, Transmutation Table and Tablet, Alchemical Chest and Bags, Energy Collectors, Antimatter Relays, Energy Condensers, Klein Stars as EMC storage | GameTests below on both loaders |
 | 2 | Dark and Red Matter blocks, furnaces, tools and armour; Gem armour | Verified on both loaders (GameTests below) |
 | 3 | Rings, amulets, Divining Rods, Watch of Flowing Time, Mercurial Eye, lenses, Destruction Catalyst, Interdiction Torch, Nova Catalyst and Cataclysm, the pedestal, key bindings and modes, Trinkets slots, an EMI plugin | Verified on both loaders (GameTests below); EMI, JEI and Jade plugins and key bindings need a client (phase 4) |
-| 4 | ProjectE EMC audits for every port on Fabric; Tekxit 4 server and client check with and without Item Alchemy | Not started |
+| 4 | ProjectE EMC audits for every port on Fabric; Tekxit 4 server and client check with and without Item Alchemy | Every Fabric port's CI GameTests compare live ProjectE values with `emc/values.json`; Tekxit 4 server and client passed with and without Item Alchemy |
 
 ## Verified on both loaders
 
@@ -71,6 +75,7 @@ The port lands in phases, one pull request each:
 | The Interdiction Torch pushes mobs away | `ItemGameTests.interdictionTorchRepelsMobs` |
 | A primed Nova Catalyst explodes and destroys nearby blocks | `ItemGameTests.novaCatalystExplodes` |
 | Alchemical Coal, Mobius Fuel, Aeternalis Fuel and their blocks burn in a vanilla furnace (Fabric: Fabric API's fuel registry) | `ItemGameTests.alchemicalFuelsBurnInAFurnace` |
+| A furnace burning Aeternalis Fuel (longer than `Short.MAX_VALUE` ticks) keeps its burn time across a save (Fabric: a mixin stores it as an int, as Forge does) | `ItemGameTests.longBurnTimeSurvivesSaving` |
 | The Tome of Knowledge gives full knowledge | `ItemGameTests.tomeOfKnowledgeGivesFullKnowledge` |
 | The mode, charge and projectile keys' actions, through the item capabilities the key packet calls | `ItemGameTests.modeAndChargeKeysWorkThroughCapabilities`, `projectileKeyFiresThroughTheShooterCapability` |
 
@@ -107,6 +112,9 @@ fuels burn for their own times in a vanilla furnace.
   registered; Tekxit 4 does not ship WTHIT.
 - Fabric: `ItemStack.isCorrectToolForDrops`, `getMaxDamage` and `getHideFlags` answer only for ProjectE's items, so
   another Forge-API layer's (Mekanism Fabric's) identical hooks still answer for its own items.
+- Fabric: vanilla saves a furnace's `BurnTime` as a short, which truncates Aeternalis Fuel and the fuel blocks (Forge
+  saves an int). `AbstractFurnaceBurnTimeMixin` writes and reads it as an int only when it exceeds `Short.MAX_VALUE`,
+  so ordinary saves are unchanged.
 - Fabric: CraftTweaker's fluid-stack NSS helpers are absent (CraftTweaker for Fabric 1.19.2 has no fluid stacks).
 - Fabric: entity and block entity capabilities are saved under Forge's `ForgeCaps` key. The Mekanism port's Fabric
   layer uses the same compound, so each layer adds its own keys to it and reads only its own keys back, rather than
@@ -118,10 +126,10 @@ fuels burn for their own times in a vanilla furnace.
 
 ## Known gaps
 
-- No client has been launched on either loader. Screens, the transmutation GUI's rendering, HUD overlays, key
-  bindings and renderers are unverified.
-- The EMI, JEI and Jade plugins and the key bindings' client side run only in a client; phase 4's Tekxit client
-  check covers EMI, Jade and the keys. Phase 2's Red Matter tool modes, the Katar and Morning Star's combined
+- The Tekxit 4 client check opened screens and took screenshots, but no one has played through them. Interaction inside
+  the screens, HUD overlays, renderers, the JEI plugin (Tekxit has no JEI) and the Forge client are unverified.
+  ProjectE's default keys (G, V, C, R, X) collide with other Tekxit keys; rebind them in Controls.
+- Phase 2's Red Matter tool modes, the Katar and Morning Star's combined
   actions, and Gem armour's key-bound abilities (explosion, flight, fire protection) have no GameTest of their own;
   they reuse the `ToolHelper` and ability code the tests above exercise.
 - Fabric: Forge hooks no ProjectE class uses are not ported (see [UPSTREAM.md](UPSTREAM.md)). Another mod that

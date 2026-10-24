@@ -226,19 +226,24 @@ public final class ServerChecks {
                 int compared = 0;
                 int unvalued = 0;
                 List<String> wrong = new ArrayList<>();
+                List<String> lost = new ArrayList<>();
                 for (Map.Entry<String, JsonElement> e : items.entrySet()) {
                     if (!Registry.ITEM.containsKey(new ResourceLocation(e.getKey()))) continue;
                     JsonObject expected = e.getValue().getAsJsonObject();
                     long want = expected.has("projecte") ? expected.get("projecte").getAsLong() : 0L;
                     long got = live.apply(e.getKey());
                     compared++;
-                    if (want > 0 && got == 0) unvalued++;
+                    if (want > 0 && got == 0) {
+                        unvalued++;
+                        lost.add(e.getKey());
+                    }
                     if (got != want) wrong.add(e.getKey() + "=" + got + " (want " + want + ")");
                 }
                 JsonObject result = new JsonObject();
                 result.addProperty("compared", compared);
                 result.addProperty("mismatches", wrong.size());
                 result.addProperty("lostValue", unvalued);
+                result.add("lost", strings(lost));
                 result.add("examples", strings(wrong.subList(0, Math.min(20, wrong.size()))));
                 perFile.add(file.getFileName().toString(), result);
                 if (!wrong.isEmpty()) {
