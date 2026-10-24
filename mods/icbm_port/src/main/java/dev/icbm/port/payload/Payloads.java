@@ -64,7 +64,7 @@ public final class Payloads {
                                 }))));
     ServerTickEvents.END_WORLD_TICK.register(world -> state(world).tick(world));
     net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents.CHUNK_LOAD.register(
-        (world, chunk) -> state(world).chunkLoaded(chunk.getPos().toLong()));
+        (world, chunk) -> state(world).chunkLoaded(world, chunk.getPos().toLong()));
   }
 
   public static void detonate(
@@ -125,7 +125,7 @@ public final class Payloads {
           server.getOtherEntities(
               null, new Box(center, center).expand(size), e -> e instanceof RedmatterEntity)) {
         if (entity.squaredDistanceTo(center) <= (double) size * size) {
-          entity.discard();
+          ((RedmatterEntity) entity).neutralize(server);
           neutralized = true;
         }
       }
@@ -276,6 +276,7 @@ public final class Payloads {
   public static boolean registerScar(
       ServerWorld world, Vec3d center, int radius, it.unimi.dsi.fastutil.longs.LongCollection chunks) {
     if (chunks.isEmpty() || radius <= 0) return true;
+    if (!state(world).hasRoom()) return false;
     Scar scar = new Scar(center, Math.min(PayloadType.MAX_EXTREME_RADIUS, radius));
     scar.reported = true;
     chunks.forEach((long pos) -> {
@@ -461,20 +462,31 @@ public final class Payloads {
   }
 
   static final class QueueState extends PersistentState {
+    /** Scars clearing at once. */
     static final int MAX_SCARS = 64;
+    /** Scars stored at once, including dormant ones waiting for unloaded chunks. */
+    static final int MAX_STORED_SCARS = 512;
+    /** Regular jobs, and separately waiting legacy sweeps, kept (and saved) at once. */
+    static final int MAX_JOBS = 256;
     final List<Job> jobs = new ArrayList<>();
     final List<Job> pending = new ArrayList<>();
     final List<Scar> scars = new ArrayList<>();
     /**
      * Antimatter cube sweeps saved by older versions (up to 256 of them), waiting to become scars.
-     * They stay here, and are saved, until {@link #addScar} has room, so none is lost when more
-     * than {@link #MAX_SCARS} were pending at upgrade.
+     * They stay here, and are saved in their own list, until {@link #addScar} has room, so none is
+     * lost when more than {@link #MAX_SCARS} were pending at upgrade.
      */
     final List<Job> legacy = new ArrayList<>();
+    /**
+     * Chunks whose load event fired, by world time. The event can fire before the chunk is
+     * reachable through getWorldChunk, so scars are only told once it is (see {@link #tick}).
+     */
+    private final it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap loaded =
+        new it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap();
     int nextJob;
 
     boolean enqueue(Job job, boolean deferred) {
-      if (jobs.size() + pending.size() >= 256) return false;
+      if (jobs.size() + pending.size() >= MAX_JOBS) return false;
       (deferred ? pending : jobs).add(job);
       markDirty();
       return true;
@@ -507,15 +519,21 @@ public final class Payloads {
     }
 
     boolean addScar(Scar scar) {
-      if (scars.size() >= MAX_SCARS) {
-        // Forget the oldest crater still waiting on unloaded chunks before refusing new work.
-        int dormant = -1;
-        for (int i = 0; i < scars.size() && dormant < 0; i++) if (scars.get(i).dormant()) dormant = i;
-        if (dormant < 0) return false;
-        scars.remove(dormant);
-      }
+      if (!hasRoom()) return false;
       scars.add(scar);
       markDirty();
+      return true;
+    }
+
+    /**
+     * Accepted crater work is never evicted. New scars are admitted while fewer than {@link
+     * #MAX_SCARS} are actively clearing and fewer than {@link #MAX_STORED_SCARS} are stored in all
+     * (dormant scars wait for unloaded chunks); otherwise callers keep their work and retry.
+     */
+    boolean hasRoom() {
+      if (scars.size() >= MAX_STORED_SCARS) return false;
+      int active = 0;
+      for (Scar scar : scars) if (scar.active() && ++active >= MAX_SCARS) return false;
       return true;
     }
 
@@ -529,9 +547,30 @@ public final class Payloads {
       }
     }
 
-    void chunkLoaded(long pos) {
+    void chunkLoaded(ServerWorld world, long pos) {
+      loaded.put(pos, world.getTime());
+    }
+
+    /**
+     * Routes buffered load events to scars once each chunk is reachable. A chunk that unloads first
+     * is forgotten here after a while but stays in its scar's deferred set (saved), and its next
+     * load event brings it back.
+     */
+    private void routeLoadedChunks(ServerWorld world) {
+      if (loaded.isEmpty()) return;
       boolean changed = false;
-      for (Scar scar : scars) changed |= scar.chunkLoaded(pos);
+      var iterator = loaded.long2LongEntrySet().fastIterator();
+      while (iterator.hasNext()) {
+        var entry = iterator.next();
+        long pos = entry.getLongKey();
+        if (world
+                .getChunkManager()
+                .getWorldChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos))
+            != null) {
+          for (Scar scar : scars) changed |= scar.chunkLoaded(pos);
+          iterator.remove();
+        } else if (world.getTime() - entry.getLongValue() > 200) iterator.remove();
+      }
       if (changed) markDirty();
     }
 
@@ -552,53 +591,59 @@ public final class Payloads {
     static QueueState read(NbtCompound nbt) {
       QueueState state = new QueueState();
       NbtList scarList = nbt.getList("scars", 10);
-      for (int i = 0; i < Math.min(scarList.size(), MAX_SCARS); i++) {
+      for (int i = 0; i < Math.min(scarList.size(), MAX_STORED_SCARS); i++) {
         Scar scar = Scar.read(scarList.getCompound(i));
         if (scar != null) state.scars.add(scar);
       }
       NbtList list = nbt.getList("jobs", 10);
-      for (int i = 0; i < Math.min(list.size(), 4096) && state.jobs.size() < 256; i++) {
-        NbtCompound n = list.getCompound(i);
-        try {
-          Vec3d center = new Vec3d(n.getDouble("x"), n.getDouble("y"), n.getDouble("z"));
-          if (!validCoordinate(center.x)
-              || !validCoordinate(center.y)
-              || !validCoordinate(center.z)) continue;
-          int radius = Math.min(80, Math.max(0, n.getInt("radius")));
-          Job j = new Job(PayloadType.valueOf(n.getString("type")), center, radius);
-          int side = radius * 2 + 1;
-          j.cursor = Math.min(side * side * side, Math.max(0, n.getInt("cursor")));
-          j.age = Math.min(72000, Math.max(0, n.getInt("age")));
-          j.elapsedTicks =
-              n.contains("elapsedTicks")
-                  ? Math.min(72000, Math.max(0, n.getInt("elapsedTicks")))
-                  : j.age;
-          j.suppressEntityDamage = n.getBoolean("suppressEntityDamage");
-          j.source = ActionSource.fromNbt(n.getCompound("source"));
-          if (n.contains("rayWork", 10)) j.rayWork = RayWork.read(n.getCompound("rayWork"));
-          if (n.contains("gasWork", 10))
-            j.gasWork = GasWork.read(n.getCompound("gasWork"), new BlockPos(center));
-          if (n.contains("destinationWorld", 8) && n.contains("destination")) {
-            j.destinationWorld = n.getString("destinationWorld");
-            j.destination = BlockPos.fromLong(n.getLong("destination"));
-          }
-          state.enqueue(j, false);
-        } catch (IllegalArgumentException ignored) {
-        }
+      for (int i = 0; i < Math.min(list.size(), 4096) && state.jobs.size() < MAX_JOBS; i++) {
+        Job j = readJob(list.getCompound(i));
+        if (j != null) state.enqueue(j, false);
+      }
+      // Each list has its own limit, matching what each admits, so everything saved comes back.
+      NbtList waiting = nbt.getList("legacy", 10);
+      for (int i = 0; i < Math.min(waiting.size(), 4096) && state.legacy.size() < MAX_JOBS; i++) {
+        Job j = readJob(waiting.getCompound(i));
+        if (j != null) state.legacy.add(j);
       }
       return state;
+    }
+
+    private static @Nullable Job readJob(NbtCompound n) {
+      try {
+        Vec3d center = new Vec3d(n.getDouble("x"), n.getDouble("y"), n.getDouble("z"));
+        if (!validCoordinate(center.x) || !validCoordinate(center.y) || !validCoordinate(center.z))
+          return null;
+        int radius = Math.min(80, Math.max(0, n.getInt("radius")));
+        Job j = new Job(PayloadType.valueOf(n.getString("type")), center, radius);
+        int side = radius * 2 + 1;
+        j.cursor = Math.min(side * side * side, Math.max(0, n.getInt("cursor")));
+        j.age = Math.min(72000, Math.max(0, n.getInt("age")));
+        j.elapsedTicks =
+            n.contains("elapsedTicks")
+                ? Math.min(72000, Math.max(0, n.getInt("elapsedTicks")))
+                : j.age;
+        j.suppressEntityDamage = n.getBoolean("suppressEntityDamage");
+        j.source = ActionSource.fromNbt(n.getCompound("source"));
+        if (n.contains("rayWork", 10)) j.rayWork = RayWork.read(n.getCompound("rayWork"));
+        if (n.contains("gasWork", 10))
+          j.gasWork = GasWork.read(n.getCompound("gasWork"), new BlockPos(center));
+        if (n.contains("destinationWorld", 8) && n.contains("destination")) {
+          j.destinationWorld = n.getString("destinationWorld");
+          j.destination = BlockPos.fromLong(n.getLong("destination"));
+        }
+        return j;
+      } catch (IllegalArgumentException ignored) {
+        return null;
+      }
     }
 
     private static boolean validCoordinate(double coordinate) {
       return Double.isFinite(coordinate) && Math.abs(coordinate) <= 30000000;
     }
 
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    private static NbtList writeJobs(List<Job> saved) {
       NbtList list = new NbtList();
-      List<Job> saved = new ArrayList<>(jobs);
-      saved.addAll(pending);
-      saved.addAll(legacy);
       for (Job j : saved) {
         NbtCompound n = new NbtCompound();
         n.putString("type", j.type.name());
@@ -619,7 +664,15 @@ public final class Payloads {
         }
         list.add(n);
       }
-      nbt.put("jobs", list);
+      return list;
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+      List<Job> saved = new ArrayList<>(jobs);
+      saved.addAll(pending);
+      nbt.put("jobs", writeJobs(saved));
+      nbt.put("legacy", writeJobs(legacy));
       NbtList scarList = new NbtList();
       for (Scar scar : scars) if (scar.active() || scar.dormant()) scarList.add(scar.write());
       nbt.put("scars", scarList);
@@ -627,11 +680,14 @@ public final class Payloads {
     }
 
     void tick(ServerWorld w) {
+      routeLoadedChunks(w);
       jobs.addAll(pending);
       pending.clear();
       // Worlds saved by older versions may hold antimatter cube sweeps; each becomes a scar once
       // there is room. Convert into free slots first, then again into slots this tick's scars free.
-      if (jobs.removeIf(j -> j.type == PayloadType.ANTIMATTER && legacy.add(j))) markDirty();
+      if (jobs.removeIf(
+          j -> j.type == PayloadType.ANTIMATTER && legacy.size() < MAX_JOBS && legacy.add(j)))
+        markDirty();
       convertLegacy(w);
       tickScars(w);
       convertLegacy(w);

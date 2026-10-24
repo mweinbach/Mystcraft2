@@ -64,6 +64,8 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   private Vec3d anchor;
   /** Set once the core has collapsed but its crater still waits for a free scar slot. */
   private boolean collapsing;
+  /** A band was in progress when this core was saved; see {@link #craterRadius}. */
+  private boolean openShell;
   private LongArrayList band;
   private int bandIndex;
   private final LongOpenHashSet deferred = new LongOpenHashSet();
@@ -222,10 +224,20 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     }
     if (bandIndex >= band.size()) {
       band = null;
+      openShell = false;
       dataTracker.set(HORIZON, horizon + 1);
     }
     budgetNanos += System.nanoTime() - started;
     budgetBlocks += (int) (stats.blocks - before);
+  }
+
+  /**
+   * How far deferred chunks must be erased. While a band is in progress, chunks it already passed
+   * unloaded also miss their part of the shell out to horizon + 1, so that shell is included.
+   * Erasing it in a chunk the band has not reached yet only clears that shell early there.
+   */
+  private int craterRadius() {
+    return horizonRadius() + (band != null || openShell ? 1 : 0);
   }
 
   /** Chunks the horizon passed while unloaded are cleared up to the horizon once they load. */
@@ -241,7 +253,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       if (chunk == null) continue;
       iterator.remove();
       done++;
-      if (SphereEraser.eraseChunk(server, chunk, anchor, -1, horizonRadius(), false, stats) > 0)
+      if (SphereEraser.eraseChunk(server, chunk, anchor, -1, craterRadius(), false, stats) > 0)
         SphereEraser.resend(server, chunk);
     }
   }
@@ -253,11 +265,20 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
    */
   private void reanchor(ServerWorld server) {
     sky.flush(server);
-    if (!Payloads.registerScar(server, anchor, horizonRadius(), deferred)) return;
+    if (!Payloads.registerScar(server, anchor, craterRadius(), deferred)) return;
     deferred.clear();
     anchor = getPos();
     band = null;
+    openShell = false;
     dataTracker.set(HORIZON, 0);
+  }
+
+  /**
+   * Antimatter neutralizes the core: it collapses at once, its unfinished crater handed to a scar
+   * (or, if every slot is busy, kept and retried while the core stays inert).
+   */
+  public void neutralize(ServerWorld server) {
+    collapse(server);
   }
 
   /**
@@ -267,7 +288,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   private void collapse(ServerWorld server) {
     sky.flush(server);
     collapsing = true;
-    if (anchor != null && !Payloads.registerScar(server, anchor, horizonRadius(), deferred)) return;
+    if (anchor != null && !Payloads.registerScar(server, anchor, craterRadius(), deferred)) return;
     deferred.clear();
     server.spawnParticles(
         ParticleTypes.REVERSE_PORTAL, getX(), getY(), getZ(), 200, size() * .3, size() * .3, size() * .3, .4);
@@ -392,7 +413,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       // merge waits for a later tick rather than dropping that work.
       if (other.anchor != null
           && world instanceof ServerWorld server
-          && !Payloads.registerScar(server, other.anchor, other.horizonRadius(), other.deferred))
+          && !Payloads.registerScar(server, other.anchor, other.craterRadius(), other.deferred))
         return 0;
       other.deferred.clear();
       setSize((float) Math.cbrt(Math.pow(size(), 3) + Math.pow(other.size(), 3)));
@@ -482,6 +503,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     }
     n.put("deferred", new NbtLongArray(deferred.toLongArray()));
     if (collapsing) n.putBoolean("collapsing", true);
+    if (band != null || openShell) n.putBoolean("openShell", true);
     n.putInt("captured", capturedBlocks());
     n.putInt("consumed", consumedBlocks());
     if (owner != null) n.putUuid("owner", owner);
@@ -510,6 +532,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     deferred.clear();
     for (long pos : n.getLongArray("deferred")) if (deferred.size() < MAX_DEFERRED) deferred.add(pos);
     collapsing = n.getBoolean("collapsing");
+    openShell = n.getBoolean("openShell");
     band = null;
     dataTracker.set(CAPTURED, Math.max(0, Math.min(1000000, n.getInt("captured"))));
     dataTracker.set(CONSUMED, Math.max(0, Math.min(1000000, n.getInt("consumed"))));

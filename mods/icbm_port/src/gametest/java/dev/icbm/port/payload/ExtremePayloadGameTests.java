@@ -448,6 +448,22 @@ public final class ExtremePayloadGameTests implements FabricGameTest {
               + ", waiting "
               + state.legacy.size()
               + ")");
+      // A full regular queue next to the waiting sweeps must also survive a save, in full.
+      Payloads.QueueState full =
+          Payloads.QueueState.read(state.writeNbt(new net.minecraft.nbt.NbtCompound()));
+      while (full.enqueue(new Payloads.Job(PayloadType.CONDENSED, base, 1), false)) {}
+      Payloads.QueueState fullReloaded =
+          Payloads.QueueState.read(full.writeNbt(new net.minecraft.nbt.NbtCompound()));
+      check(
+          c,
+          fullReloaded.jobs.size() == Payloads.QueueState.MAX_JOBS
+              && fullReloaded.legacy.size() == 6
+              && fullReloaded.scars.size() == Payloads.QueueState.MAX_SCARS,
+          "Every accepted job and waiting sweep must survive a save (jobs "
+              + fullReloaded.jobs.size()
+              + ", waiting "
+              + fullReloaded.legacy.size()
+              + ")");
       Payloads.QueueState reloaded =
           Payloads.QueueState.read(state.writeNbt(new net.minecraft.nbt.NbtCompound()));
       reloaded.tick(world);
