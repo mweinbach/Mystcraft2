@@ -290,7 +290,7 @@ In order of usefulness to the pack; each is a separate PR with survival recipes,
 both loaders.
 
 Phase 2b (the Angel Ring, lasso, wands, watering can, bag, workbench, drums, trash cans, compressed
-blocks, spikes, sound muffler and wards), phase 2c (items 3 to 5) and phase 2d (items 2 and 8, plus
+blocks, spikes, sound muffler and wards), phase 2c (items 3 to 6) and phase 2d (items 2 and 8, plus
 the JEI/REI/EMI resonating category) are done; see above.
 
 1. ~~**Transfer nodes and pipes** (item and fluid) with speed, stack, filter and world-interaction upgrades~~ — phase 2a, above.

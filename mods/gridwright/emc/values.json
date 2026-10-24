@@ -93,6 +93,11 @@
       "itemalchemy": 81,
       "source": "recipe"
     },
+    "gridwright:dragon_egg_mill": {
+      "projecte": 3080,
+      "itemalchemy": 3064,
+      "source": "recipe"
+    },
     "gridwright:ender_generator": {
       "projecte": 3076,
       "itemalchemy": 3060,
@@ -111,6 +116,11 @@
     "gridwright:energy_trash_can": {
       "projecte": 582,
       "itemalchemy": 605,
+      "source": "recipe"
+    },
+    "gridwright:fire_mill": {
+      "projecte": 2120,
+      "itemalchemy": 2092,
       "source": "recipe"
     },
     "gridwright:fluid_retrieval_node": {
@@ -183,6 +193,11 @@
       "itemalchemy": 1396,
       "source": "recipe"
     },
+    "gridwright:lava_mill": {
+      "projecte": 2884,
+      "itemalchemy": 2856,
+      "source": "recipe"
+    },
     "gridwright:lunar_panel": {
       "projecte": 1798,
       "itemalchemy": 1798,
@@ -191,6 +206,11 @@
     "gridwright:machine_frame": {
       "projecte": 1092,
       "itemalchemy": 1076,
+      "source": "recipe"
+    },
+    "gridwright:manual_mill": {
+      "projecte": 309,
+      "itemalchemy": 305,
       "source": "recipe"
     },
     "gridwright:mechanical_miner": {
@@ -208,6 +228,11 @@
       "itemalchemy": 43046721,
       "source": "recipe"
     },
+    "gridwright:overclock_upgrade": {
+      "projecte": 8512,
+      "itemalchemy": 8492,
+      "source": "recipe"
+    },
     "gridwright:pocket_workbench": {
       "projecte": 96,
       "itemalchemy": 96,
@@ -216,6 +241,11 @@
     "gridwright:potion_generator": {
       "projecte": 2697,
       "itemalchemy": 2775,
+      "source": "recipe"
+    },
+    "gridwright:power_converter": {
+      "projecte": 2500,
+      "itemalchemy": 2468,
       "source": "recipe"
     },
     "gridwright:quadruple_compressed_cobblestone": {
@@ -251,6 +281,11 @@
     "gridwright:quintuple_compressed_netherrack": {
       "projecte": 59049,
       "itemalchemy": 59049,
+      "source": "recipe"
+    },
+    "gridwright:rainbow_generator": {
+      "projecte": 35588,
+      "itemalchemy": 10996,
       "source": "recipe"
     },
     "gridwright:redstone_generator": {
