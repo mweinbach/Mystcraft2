@@ -150,10 +150,12 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 					this.growthStage = this.plant.getInitialGrowthStage();
 				}
 				this.weed = AgriApi.getWeed(this.weedId, level.registryAccess()).orElse(null);
-				if (this.weed != null && this.growthStage == null) {
-					// will this happen? I'm not sure
-					this.growthStage = this.weed.getInitialGrowthStage();
+				if (this.weed != null && this.weedGrowthStage == null) {
+					// 4.0.6 filled in the plant's growth stage here
+					this.weedGrowthStage = this.weed.getInitialGrowthStage();
 				}
+				// neighbours already see the loaded plant's power; start from it so a later change is announced
+				this.announcedRedstonePower = this.getEmittedRedstonePower();
 				level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 			}
 		}
@@ -178,6 +180,7 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			this.plant = null;
 			this.plantId = "";
 			this.growthStage = null;
+			this.setChanged();
 			this.announceRedstonePower(0, ModBlocks.CROP.get());
 			return true;
 		}
@@ -476,6 +479,10 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			return;
 		}
 		BlockPos pos = this.getBlockPos();
+		if (!this.level.isClientSide) {
+			// every caller changed saved data (plant, growth, weeds); 4.0.6 missed this for new and spread weeds
+			this.setChanged();
+		}
 		if (this.level.isClientSide) {
 			// the server installs the real state; like 4.0.6, the client only predicts a planted state and re-renders
 			if (base != this.getBlockState()) {
@@ -494,6 +501,16 @@ public class CropBlockEntity extends BlockEntity implements AgriCrop, Magnifying
 			this.level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
 		}
 		this.announceRedstonePower(planted ? this.plant.getRedstonePower(this) : 0, state.getBlock());
+	}
+
+	/**
+	 * @return the redstone power the crop emits right now (what {@link CropBlock#getDirectSignal} reports)
+	 */
+	public int getEmittedRedstonePower() {
+		if (this.plant == null || this.growthStage == null || !this.getBlockState().getValue(CropBlock.CROP_STATE).hasPlant()) {
+			return 0;
+		}
+		return this.plant.getRedstonePower(this);
 	}
 
 	/**

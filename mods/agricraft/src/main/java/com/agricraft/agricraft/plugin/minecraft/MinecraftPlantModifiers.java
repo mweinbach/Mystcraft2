@@ -88,6 +88,9 @@ public class MinecraftPlantModifiers {
 
 		@Override
 		public void onEntityCollision(AgriCrop crop, Entity entity) {
+			if (entity.level.isClientSide) {
+				return;
+			}
 			entity.setSecondsOnFire(((int) crop.getGenome().getStatGenes().stream().map(AgriGenePair::getTrait).mapToInt(i -> i).average().orElse(0.0)));
 		}
 
@@ -99,6 +102,7 @@ public class MinecraftPlantModifiers {
 
 		@Override
 		public void onEntityCollision(AgriCrop crop, Entity entity) {
+			// both sides, like cobwebs: the client predicts the slowed movement
 			entity.makeStuckInBlock(crop.getBlockState(), new Vec3(0.8, 0.75, 0.8));
 		}
 
@@ -141,9 +145,13 @@ public class MinecraftPlantModifiers {
 					|| !fungus.isValidBonemealTarget(level, crop.getBlockPos(), crop.getBlockState(), level.isClientSide)) {
 				return Optional.empty();
 			}
-			if (fungus.isBonemealSuccess(level, level.random, crop.getBlockPos(), crop.getBlockState())) {
-				fungus.performBonemeal(((ServerLevel) level), level.random, crop.getBlockPos(), crop.getBlockState());
-				level.levelEvent(2005, crop.getBlockPos(), 0);
+			if (!(level instanceof ServerLevel serverLevel)) {
+				// the client only swings: 4.0.6 cast the ClientLevel to ServerLevel here and crashed
+				return Optional.of(InteractionResult.SUCCESS);
+			}
+			if (fungus.isBonemealSuccess(serverLevel, serverLevel.random, crop.getBlockPos(), crop.getBlockState())) {
+				fungus.performBonemeal(serverLevel, serverLevel.random, crop.getBlockPos(), crop.getBlockState());
+				serverLevel.levelEvent(2005, crop.getBlockPos(), 0);
 			}
 			stack.shrink(1);
 			return Optional.of(InteractionResult.SUCCESS);
@@ -204,7 +212,7 @@ public class MinecraftPlantModifiers {
 
 		@Override
 		public void onEntityCollision(AgriCrop crop, Entity entity) {
-			if (entity instanceof ItemEntity itemEntity && itemEntity.getAge() < 100) {
+			if (entity.level.isClientSide || entity instanceof ItemEntity itemEntity && itemEntity.getAge() < 100) {
 				return;
 			}
 			double damage = crop.getGrowthPercent() * crop.getGenome().getStatGenes().stream().map(AgriGenePair::getTrait).mapToInt(i -> i).average().orElse(0.0);
@@ -229,9 +237,11 @@ public class MinecraftPlantModifiers {
 					|| stack.getItem() != Items.BONE_MEAL
 					|| crop.getLevel() == null
 					|| !crop.canBeHarvested()
-					|| !(level instanceof ServerLevel serverLevel)
 					|| !sapling.isValidBonemealTarget(level, crop.getBlockPos(), crop.getBlockState(), level.isClientSide)) {
 				return Optional.empty();
+			}
+			if (!(level instanceof ServerLevel serverLevel)) {
+				return Optional.of(InteractionResult.SUCCESS);
 			}
 			if (sapling.isBonemealSuccess(level, level.random, crop.getBlockPos(), crop.getBlockState())) {
 				BlockState state = ((Block) sapling).defaultBlockState();
@@ -261,7 +271,7 @@ public class MinecraftPlantModifiers {
 
 		@Override
 		public void onEntityCollision(AgriCrop crop, Entity entity) {
-			if (entity instanceof LivingEntity) {
+			if (entity instanceof LivingEntity && !entity.level.isClientSide) {
 				MobEffectInstance wither = new MobEffectInstance(MobEffects.WITHER, (int) (10 * crop.getGenome().getStatGenes().stream().map(AgriGenePair::getTrait).mapToInt(i -> i).average().orElse(0.0)));
 				((LivingEntity) entity).addEffect(wither);
 			}

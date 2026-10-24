@@ -49,6 +49,10 @@ public class RakeItem extends Item {
 				return InteractionResult.PASS;
 			}
 			if (crop.hasWeeds()) {
+				if (crop.getLevel().isClientSide) {
+					// the server removes the weeds and rolls the drops
+					return InteractionResult.SUCCESS;
+				}
 				AgriWeed weed = crop.getWeed();
 				AgriGrowthStage stage = crop.getWeedGrowthStage();
 				this.rakeLogic.apply(crop, context.getItemInHand(), context.getPlayer());

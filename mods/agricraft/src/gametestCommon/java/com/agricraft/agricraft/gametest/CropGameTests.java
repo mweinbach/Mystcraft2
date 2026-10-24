@@ -34,6 +34,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
+import com.agricraft.agricraft.common.registry.ModBlocks;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.phys.BlockHitResult;
@@ -208,6 +211,89 @@ public class CropGameTests {
 		// growth must update neighbours: the lamp beside the crop and the one behind the strongly powered stone light up
 		helper.assertBlockProperty(lamp, RedstoneLampBlock.LIT, true);
 		helper.assertBlockProperty(lampBehindWall, RedstoneLampBlock.LIT, true);
+		helper.succeed();
+	}
+
+	/** Sets up a mature redstodendron at (2,2,2) with a lamp beside it and a lamp behind a stone block it powers. */
+	private static AgriCrop poweredRedstodendron(GameTestHelper helper, BlockPos cropPos) {
+		AgriCrop crop = cropSticks(helper, cropPos.below(), CropState.SINGLE_STICKS);
+		helper.setBlock(cropPos.east(), Blocks.REDSTONE_LAMP);
+		helper.setBlock(cropPos.south(), Blocks.STONE);
+		helper.setBlock(cropPos.south().south(), Blocks.REDSTONE_LAMP);
+		crop.plantGenome(genome("agricraft:redstodendron", 10));
+		while (!crop.isFullyGrown()) {
+			crop.setGrowthStage(crop.getGrowthStage().getNext(crop, helper.getLevel().random));
+		}
+		helper.assertBlockProperty(cropPos.east(), RedstoneLampBlock.LIT, true);
+		helper.assertBlockProperty(cropPos.south().south(), RedstoneLampBlock.LIT, true);
+		return crop;
+	}
+
+	private static void lampsGoOff(GameTestHelper helper, BlockPos cropPos, String what) {
+		// a lamp turns off 4 ticks after it loses power
+		helper.startSequence()
+				.thenWaitUntil(() -> {
+					check(!helper.getBlockState(cropPos.east()).getValue(RedstoneLampBlock.LIT), "the lamp beside the crop stayed lit after " + what);
+					check(!helper.getBlockState(cropPos.south().south()).getValue(RedstoneLampBlock.LIT), "the lamp behind the stone stayed lit after " + what);
+				})
+				.thenSucceed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void breakingAPoweredCropTurnsTheLampsOff(GameTestHelper helper) {
+		BlockPos cropPos = new BlockPos(2, 2, 2);
+		poweredRedstodendron(helper, cropPos);
+		helper.getLevel().destroyBlock(helper.absolutePos(cropPos), true);
+		lampsGoOff(helper, cropPos, "the crop was broken");
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void aPoweredCropLosingItsSoilTurnsTheLampsOff(GameTestHelper helper) {
+		BlockPos cropPos = new BlockPos(2, 2, 2);
+		poweredRedstodendron(helper, cropPos);
+		helper.setBlock(cropPos.below(), Blocks.AIR);
+		check(!helper.getBlockState(cropPos).is(ModBlocks.CROP.get()), "the crop survived without soil");
+		lampsGoOff(helper, cropPos, "the soil was removed");
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void removingAReloadedPoweredPlantTurnsTheLampsOff(GameTestHelper helper) {
+		BlockPos cropPos = new BlockPos(2, 2, 2);
+		poweredRedstodendron(helper, cropPos);
+		// reload the block entity from its saved tag, as a chunk load does
+		BlockPos absolute = helper.absolutePos(cropPos);
+		CompoundTag saved = helper.getLevel().getBlockEntity(absolute).saveWithFullMetadata();
+		helper.getLevel().removeBlockEntity(absolute);
+		BlockEntity reloaded = BlockEntity.loadStatic(absolute, helper.getLevel().getBlockState(absolute), saved);
+		check(reloaded != null, "the crop block entity did not load from its tag");
+		helper.getLevel().setBlockEntity(reloaded);
+		AgriCrop crop = crop(helper, cropPos);
+		check(crop.hasPlant() && crop.isFullyGrown(), "the reloaded crop lost its plant or growth");
+		crop.removeGenome();
+		lampsGoOff(helper, cropPos, "the reloaded plant was removed");
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void newWeedsAreSavedAndReload(GameTestHelper helper) {
+		BlockPos soil = new BlockPos(1, 1, 1);
+		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
+		BlockPos absolute = helper.absolutePos(soil.above());
+		LevelChunk chunk = helper.getLevel().getChunkAt(absolute);
+		chunk.setUnsaved(false);
+		String weedId = "agricraft:weed";
+		crop.setWeed(weedId, AgriApi.getWeed(weedId, helper.getLevel().registryAccess()).orElseThrow());
+		check(crop.hasWeeds(), "the weed was not set");
+		check(chunk.isUnsaved(), "spawning weeds did not mark the crop for saving, so they are lost on unload");
+		chunk.setUnsaved(false);
+		crop.setWeedGrowthStage(crop.getWeedGrowthStage().getNext(crop, helper.getLevel().random));
+		check(chunk.isUnsaved(), "growing weeds did not mark the crop for saving");
+		CompoundTag saved = crop.asBlockEntity().saveWithFullMetadata();
+		BlockEntity reloaded = BlockEntity.loadStatic(absolute, helper.getLevel().getBlockState(absolute), saved);
+		check(reloaded instanceof AgriCrop, "the crop block entity did not load from its tag");
+		AgriCrop copy = (AgriCrop) reloaded;
+		check(weedId.equals(copy.getWeedId()), "reloaded weed is '" + copy.getWeedId() + "', expected " + weedId);
+		check(copy.getWeedGrowthStage() != null && copy.getWeedGrowthStage().index() == crop.getWeedGrowthStage().index(),
+				"reloaded weed stage " + copy.getWeedGrowthStage() + " differs from " + crop.getWeedGrowthStage());
 		helper.succeed();
 	}
 

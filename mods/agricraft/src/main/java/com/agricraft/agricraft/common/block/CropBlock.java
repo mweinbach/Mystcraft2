@@ -304,6 +304,9 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 		Optional<AgriGenome> genome = AgriApi.getGenomeAdapter(heldItem).flatMap(adapter -> adapter.valueOf(heldItem));
 		if (genome.isPresent()) {
 			if (!crop.isCrossCropSticks() && !crop.hasPlant()) {
+				if (level.isClientSide) {
+					return InteractionResult.SUCCESS;
+				}
 				crop.plantGenome(genome.get());
 				if (!player.isCreative()) {
 					player.getItemInHand(hand).shrink(1);
@@ -315,6 +318,9 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 		}
 		// harvesting or de-cross-crop'ing if nothing else checks out
 		if (crop.isCrossCropSticks()) {
+			if (level.isClientSide) {
+				return InteractionResult.SUCCESS;
+			}
 			InteractionResultHolder<CropStickVariant> result = removeCropSticks(level, pos, state);
 			if (result.getResult() == InteractionResult.SUCCESS) {
 				if (!player.isCreative()) {
@@ -323,6 +329,9 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 				return InteractionResult.CONSUME;
 			}
 		} else if (crop.hasPlant() && crop.canBeHarvested()) {
+			if (level.isClientSide) {
+				return InteractionResult.SUCCESS;
+			}
 			crop.harvest(itemStack -> spawnItem(level, pos, itemStack), player);
 			return InteractionResult.SUCCESS;
 		}
@@ -455,6 +464,20 @@ public class CropBlock extends Block implements EntityBlock, BonemealableBlock, 
 				crop.getPlant().onEntityCollision(crop, entity);
 			}
 		});
+	}
+
+	@Override
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+		// the new state is already in the chunk here and the block entity is still present: a crop that was powering
+		// its neighbours (it is a strong source) must also update the blocks around them, or a lamp behind a block
+		// stays lit. Breaking, lost soil, explosions and pistons (DESTROY push reaction) all come through here.
+		if (!state.is(newState.getBlock()) && !level.isClientSide && level.getBlockEntity(pos) instanceof CropBlockEntity crop
+				&& crop.getEmittedRedstonePower() > 0) {
+			for (Direction direction : Direction.values()) {
+				level.updateNeighborsAt(pos.relative(direction), this);
+			}
+		}
+		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override

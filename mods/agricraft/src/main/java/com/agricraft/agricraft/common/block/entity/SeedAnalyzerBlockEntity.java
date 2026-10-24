@@ -43,20 +43,19 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 		super(ModBlockEntityTypes.SEED_ANALYZER.get(), blockPos, blockState);
 		this.inventory = new SimpleContainer(2);
 		// the menu edits the container directly, so its changes must mark the block entity for saving
-		this.inventory.addListener(container -> this.setChanged());
+		// hoppers and the menu bypass insertJournal/extractJournal, so the JOURNAL state and clients follow here too
+		this.inventory.addListener(container -> {
+			this.setChanged();
+			this.syncJournalState();
+		});
 	}
 
 	@Override
 	public void load(CompoundTag tag) {
 		super.load(tag);
-		if (tag.contains("journal")) {
-			ItemStack journal = ItemStack.of(tag.getCompound("journal"));
-			this.inventory.setItem(JOURNAL_SLOT, journal);
-		}
-		if (tag.contains("seed")) {
-			ItemStack seed = ItemStack.of(tag.getCompound("seed"));
-			this.inventory.setItem(SEED_SLOT, seed);
-		}
+		// a tag without an item clears the slot: client updates arrive here after an extraction
+		this.inventory.setItem(JOURNAL_SLOT, tag.contains("journal") ? ItemStack.of(tag.getCompound("journal")) : ItemStack.EMPTY);
+		this.inventory.setItem(SEED_SLOT, tag.contains("seed") ? ItemStack.of(tag.getCompound("seed")) : ItemStack.EMPTY);
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 			ItemStack current = this.inventory.getItem(slot);
 			if (current.isEmpty()) {
 				this.inventory.setItem(slot, stack.copy());
-			} else if (ItemStack.matches(current, stack)) {
+			} else if (ItemStack.isSameItemSameTags(current, stack)) {  // 4.0.6 used matches(), which also compares counts
 				int max = stack.getMaxStackSize();
 				int transfer = Math.min(stack.getCount(), max - current.getCount());
 				current.grow(transfer);
@@ -96,6 +95,9 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 					stack.shrink(transfer);
 					result = stack;
 				}
+			} else {
+				// a different item is already there: hand everything back (4.0.6 returned EMPTY and the caller lost it)
+				result = stack;
 			}
 		} else {
 			result = stack;
@@ -103,6 +105,17 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 		this.setChanged();
 		this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 		return result;
+	}
+
+	private void syncJournalState() {
+		if (this.level == null || this.level.isClientSide || this.isRemoved()) {
+			return;
+		}
+		BlockState state = this.getBlockState();
+		if (state.hasProperty(SeedAnalyzerBlock.JOURNAL) && state.getValue(SeedAnalyzerBlock.JOURNAL) != this.hasJournal()) {
+			this.level.setBlock(this.worldPosition, state.setValue(SeedAnalyzerBlock.JOURNAL, this.hasJournal()), Block.UPDATE_ALL);
+		}
+		this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 	}
 
 	public boolean hasSeed() {

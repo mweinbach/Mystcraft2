@@ -72,6 +72,10 @@ public class SeedAnalyzerBlock extends Block implements EntityBlock {
 			return InteractionResult.FAIL;
 		}
 		if (player.isShiftKeyDown()) {
+			if (level.isClientSide) {
+				// the server moves the items; 4.0.6 also ran this on the client and put a ghost copy in the inventory
+				return analyzer.hasSeed() || (analyzer.hasJournal() && heldItem.isEmpty()) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+			}
 			// extract seeds
 			if (analyzer.hasSeed()) {
 				ItemStack seed = analyzer.extractSeed();

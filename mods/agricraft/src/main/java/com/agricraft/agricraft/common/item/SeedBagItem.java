@@ -249,6 +249,10 @@ public class SeedBagItem extends Item {
 			return InteractionResult.PASS;
 		}
 		Level level = context.getLevel();
+		if (level.isClientSide) {
+			// the server plants and takes the seed out of the bag
+			return InteractionResult.PASS;
+		}
 		ItemStack seed = extractFirstItem(seedBag, true);
 		BlockPos pos = context.getClickedPos();
 		Optional<AgriCrop> optional = AgriApi.getCrop(level, pos);

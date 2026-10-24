@@ -70,6 +70,28 @@ public class AnalyzerGameTests {
 	}
 
 	@GameTest(template = TEMPLATE)
+	public static void automationAndClientUpdatesKeepTheAnalyzerInSync(GameTestHelper helper) {
+		BlockPos pos = new BlockPos(1, 1, 1);
+		SeedAnalyzerBlockEntity analyzer = analyzer(helper, pos);
+		// a hopper goes through the container methods, not insertJournal/extractJournal
+		analyzer.setItem(SeedAnalyzerBlockEntity.JOURNAL_SLOT, new ItemStack(ModItems.JOURNAL.get()));
+		check(helper.getBlockState(pos).getValue(SeedAnalyzerBlock.JOURNAL), "a journal inserted by automation is not shown");
+		ItemStack pulled = analyzer.removeItem(SeedAnalyzerBlockEntity.JOURNAL_SLOT, 1);
+		check(pulled.is(ModItems.JOURNAL.get()), "automation did not get the journal back: " + pulled);
+		check(!helper.getBlockState(pos).getValue(SeedAnalyzerBlock.JOURNAL), "the analyzer still shows a journal a hopper took out");
+		// a client update without items must clear the slots (the client loads every update through load())
+		check(analyzer.insertSeed(AgriSeedItem.toStack(genome("minecraft:wheat", 3))).isEmpty(), "the seed was not accepted");
+		analyzer.load(new net.minecraft.nbt.CompoundTag());
+		check(!analyzer.hasSeed() && !analyzer.hasJournal(), "loading an empty tag kept stale items in the analyzer");
+		// a different seed in an occupied slot is handed back, not deleted
+		check(analyzer.insertSeed(AgriSeedItem.toStack(genome("minecraft:wheat", 3))).isEmpty(), "the seed was not accepted");
+		ItemStack other = AgriSeedItem.toStack(genome("minecraft:potato", 3));
+		ItemStack back = analyzer.insertSeed(other);
+		check(back.getCount() == 1 && "minecraft:potato".equals(AgriSeedItem.getSpecies(back)), "inserting a different seed into an occupied slot lost it: " + back);
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
 	public static void analyzerExposesOnlyTheJournalSlotToAutomation(GameTestHelper helper) {
 		SeedAnalyzerBlockEntity analyzer = analyzer(helper, new BlockPos(1, 1, 1));
 		for (Direction side : Direction.values()) {

@@ -139,16 +139,22 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 			heldItem.setCount(remaining.getCount());
 			return InteractionResult.CONSUME;
 		}
-		// if a soil was clicked, check the block above and handle accordingly
-		return AgriApi.getSoil(level, context.getClickedPos()).map(soil -> AgriApi.getCrop(level, context.getClickedPos().above()).map(crop -> {
-			// there is a crop with a plant or is a cross crop stick, do nothing
-			if (crop.hasPlant() || crop.isCrossCropSticks()) {
-				return InteractionResult.PASS;
+		// if a soil with a crop above was clicked, plant in that crop
+		if (AgriApi.getSoil(level, context.getClickedPos()).isPresent()) {
+			Optional<AgriCrop> above = AgriApi.getCrop(level, context.getClickedPos().above());
+			if (above.isPresent()) {
+				AgriCrop crop = above.get();
+				// there is a crop with a plant or is a cross crop stick, do nothing
+				if (crop.hasPlant() || crop.isCrossCropSticks()) {
+					return InteractionResult.PASS;
+				}
+				plantSeed(context.getPlayer(), crop, heldItem);
+				return InteractionResult.CONSUME;
 			}
-			// there is a crop without a plant, plant the seed in the crop
-			plantSeed(context.getPlayer(), crop, heldItem);
-			return InteractionResult.CONSUME;
-		}).orElse(InteractionResult.PASS)).orElse(super.useOn(context));
+		}
+		// 4.0.6 built this fallback with orElse(super.useOn(context)), which placed the seed as a block before the
+		// soil and crop checks above ran; only reach it when nothing else handled the click
+		return super.useOn(context);
 	}
 
 	private void plantSeed(Player player, AgriCrop crop, ItemStack seed) {

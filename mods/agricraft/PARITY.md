@@ -90,6 +90,21 @@ phase of this port), **absent** (not in 4.0.6).
     glowed and never emitted a signal. When the power changes, the crop updates its neighbours and the blocks
     around them (it is a strong source), and comparators read the same power (upstream's analog output was always 0).
     The other `MinecraftPlantModifiers` already use the hook their names describe.
+  - Removing a powering crop by breaking it, losing its soil, an explosion or a piston also updates the blocks
+    around its neighbours (`CropBlock#onRemove`). The emitted power is taken from the loaded plant again when
+    the chunk reloads, so later changes are still announced.
+  - Side safety: only the server changes the world, moves items or rolls drops. This covers crop clicks (planting,
+    harvesting, removing cross sticks), the rake, the trowel's off-stick planting, the seed bag, the analyzer's
+    shift-click and vanilla seed conversion; the client returns the same result and does nothing else. The fungus
+    modifier no longer casts a `ClientLevel` to `ServerLevel`; 4.0.6 crashed the client when bone-mealing a mature
+    crimson or warped fungus crop on nylium. The burn, thorns and wither modifiers act only on the server; bushy
+    still slows entities on both sides, as cobwebs do. The seed falls back to block placement only after the
+    soil and crop checks, where 4.0.6 placed it before them (`orElse(super.useOn(...))`).
+  - Persistence: every crop change marks the block entity for saving; 4.0.6 lost newly spawned and spread weeds
+    on unload. A loaded crop with weeds gets an initial weed growth stage, where 4.0.6 set the plant's stage.
+    Loading the analyzer clears slots that are missing from the tag, so clients drop extracted items. A hopper
+    taking the journal out updates the analyzer's journal model. A different seed put into an occupied slot is
+    handed back; 4.0.6 deleted it, and refused to stack stacks of different sizes.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).
 

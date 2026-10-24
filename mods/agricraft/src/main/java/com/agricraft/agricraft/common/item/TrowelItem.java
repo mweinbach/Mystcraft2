@@ -114,6 +114,9 @@ public class TrowelItem extends Item implements AgriGenomeProviderItem {
 	}
 
 	protected InteractionResult tryNewPlant(Level world, BlockPos pos, ItemStack stack, @Nullable Player player) {
+		if (world.isClientSide()) {
+			return InteractionResult.PASS;
+		}
 		// only plant into an empty space above a soil, so a trowel never overwrites a block
 		if (CoreConfig.plantOffCropSticks && world.getBlockState(pos).isAir() && AgriApi.getSoil(world, pos.below()).isPresent()) {
 			CropBlock cropBlock = (CropBlock) ModBlocks.CROP.get();

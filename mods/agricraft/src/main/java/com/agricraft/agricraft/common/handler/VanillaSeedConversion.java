@@ -45,8 +45,11 @@ public class VanillaSeedConversion {
 				// if the analyzer is empty, convert the item to an agricraft seed and let it handle the rest
 				Optional<AgriGenome> genome = AgriApi.getGenomeAdapter(heldItem).flatMap(adapter -> adapter.valueOf(heldItem));
 				if (genome.isPresent()) {
-					seedAnalyzer.insertSeed(AgriSeedItem.toStack(genome.get()));
-					heldItem.shrink(1);
+					// both sides return the same result so the client also cancels vanilla's handling; only the server acts
+					if (!player.level.isClientSide) {
+						seedAnalyzer.insertSeed(AgriSeedItem.toStack(genome.get()));
+						heldItem.shrink(1);
+					}
 					return InteractionResult.SUCCESS;
 				}
 			}
@@ -68,7 +71,9 @@ public class VanillaSeedConversion {
 					InteractionResult[] consumed = new InteractionResult[]{InteractionResult.FAIL};
 					boolean cropStick = AgriApi.getCrop(player.level, cropPos).map(crop -> {
 						if (!crop.hasPlant() && !crop.isCrossCropSticks()) {
-							plantSeedOnCrop(player, hand, crop, genome);
+							if (!player.level.isClientSide) {
+								plantSeedOnCrop(player, hand, crop, genome);
+							}
 							consumed[0] = InteractionResult.SUCCESS;
 							return true;
 						}
@@ -80,8 +85,10 @@ public class VanillaSeedConversion {
 					}
 					// no crop sticks and is empty, try planting as a plant
 					if (player.level.getBlockState(cropPos).isAir() && CoreConfig.plantOffCropSticks) {
-						player.level.setBlock(cropPos, ModBlocks.CROP.get().defaultBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT), 3);
-						plantSeedOnCrop(player, hand, AgriApi.getCrop(player.level, cropPos).get(), genome);
+						if (!player.level.isClientSide) {
+							player.level.setBlock(cropPos, ModBlocks.CROP.get().defaultBlockState().setValue(CropBlock.CROP_STATE, CropState.PLANT), 3);
+							AgriApi.getCrop(player.level, cropPos).ifPresent(crop -> plantSeedOnCrop(player, hand, crop, genome));
+						}
 						return InteractionResult.SUCCESS;
 					}
 					// nothing should happen, but return true to cancel the vanilla crop to be planted
