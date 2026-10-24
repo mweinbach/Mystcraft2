@@ -22,12 +22,14 @@ public final class BCRoboticsStatements {
 
     public static final ActionStation ACTION_PROVIDE_ITEMS = new ActionStation(ActionStation.Kind.PROVIDE_ITEMS);
     public static final ActionStation ACTION_ACCEPT_ITEMS = new ActionStation(ActionStation.Kind.ACCEPT_ITEMS);
+    public static final ActionStation ACTION_PROVIDE_FLUIDS = new ActionStation(ActionStation.Kind.PROVIDE_FLUIDS);
+    public static final ActionStation ACTION_ACCEPT_FLUIDS = new ActionStation(ActionStation.Kind.ACCEPT_FLUIDS);
     public static final ActionStation ACTION_DROP_IN_PIPE = new ActionStation(ActionStation.Kind.DROP_IN_PIPE);
     public static final ActionStation ACTION_FORBID_ROBOT = new ActionStation(ActionStation.Kind.FORBID_ROBOT);
     public static final ActionStation ACTION_WAKE_UP = new ActionStation(ActionStation.Kind.WAKE_UP);
     public static final ActionStation ACTION_WORK_IN_AREA = new ActionStation(ActionStation.Kind.WORK_IN_AREA);
-    public static final ActionStation[] ACTIONS = {ACTION_PROVIDE_ITEMS, ACTION_ACCEPT_ITEMS, ACTION_DROP_IN_PIPE, ACTION_FORBID_ROBOT,
-            ACTION_WAKE_UP, ACTION_WORK_IN_AREA};
+    public static final ActionStation[] ACTIONS = {ACTION_PROVIDE_ITEMS, ACTION_ACCEPT_ITEMS, ACTION_PROVIDE_FLUIDS, ACTION_ACCEPT_FLUIDS,
+            ACTION_DROP_IN_PIPE, ACTION_FORBID_ROBOT, ACTION_WAKE_UP, ACTION_WORK_IN_AREA};
 
     private BCRoboticsStatements() {}
 

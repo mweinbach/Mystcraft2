@@ -81,10 +81,13 @@ worlds do not migrate between them or from 1.12.
   map location carries a spot, an area, a path or a zone in and out. The block shows that map on its face.
 - Robots (clean-room, see [docs/robots-clean-room.md](docs/robots-clean-room.md)): flying robots that live at
   docking stations on pipes, charge from kinesis pipes and do the job of their redstone board: the picker
-  collects dropped items, the carrier moves items between gated stations, the lumberjack cuts logs and the
-  miner digs open ores, breaking blocks as the player who deployed them. Gates on a station's pipe see
-  whether a robot is docked, linked, on its way or asleep, and tell stations to provide, accept or drop
-  items, forbid other robots, wake their robot or give it a work area from a map location.
+  collects dropped items, the carrier and tank move items and fluids between gated stations, the lumberjack,
+  miner, breaker, shovelman, harvester and leaf cutter cut logs, ores, stone, ground, ripe crops and leaves,
+  the farmer tills, the planter plants, the pump drains fluids, the knight and butcher fight mobs and animals,
+  and the stripes robot uses items like a stripes pipe, all as the player who deployed them. Gates on a
+  station's pipe see whether a robot is docked, linked, on its way or asleep, and tell stations to provide,
+  accept or drop items, provide or accept fluids, forbid other robots, wake their robot or give it a work
+  area from a map location.
 - Machine control: a gate facing the filler can turn it on, off or into a loop and set its pattern.
   The filler's screen stays locked while a gate holds the pattern, and shows the mode's icon when the
   filler is off or looping. Other machines do not take gate control.
@@ -96,7 +99,7 @@ worlds do not migrate between them or from 1.12.
 - Gears, wrench and waterproof; broken fluid holders drop their fluid as fragile fluid shards.
 - Recipes and tags use both `c:` and `forge:` tags, so materials from either loader's mods work.
 
-**This is not full BuildCraft.** Several pipe types and most robot boards (farming, fluids, fighting and others) are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
+**This is not full BuildCraft.** Several pipe types and some robot boards (bomber, builder, crafter and delivery) are not ported. The port has passed GameTests on dedicated servers for both loaders but has not been
 play-tested in survival or in the Tekxit 4 pack. See [docs/PARITY.md](docs/PARITY.md) for the
 details, deliberate differences and the full list of gaps.
 

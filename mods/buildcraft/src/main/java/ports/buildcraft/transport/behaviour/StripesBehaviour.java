@@ -29,6 +29,7 @@ import ports.buildcraft.transport.flow.ItemFlow;
 import ports.buildcraft.transport.pluggable.PipePluggable;
 import ports.buildcraft.transport.statements.ActionPipeDirection;
 import ports.buildcraft.transport.statements.BCTransportStatements;
+import ports.buildcraft.transport.stripes.StripesActivator;
 import ports.buildcraft.transport.stripes.StripesRegistry;
 
 /**
@@ -39,7 +40,7 @@ import ports.buildcraft.transport.stripes.StripesRegistry;
  * the block in front, and its drops come back through the pipe. The pipe acts as its owner's fake player, and
  * breaks, places and uses items only where {@link BlockProtection} allows that player to.
  */
-public class StripesBehaviour extends PipeBehaviour {
+public class StripesBehaviour extends PipeBehaviour implements StripesActivator {
     private static final long MAX_BREAK_POWER_PER_TICK = 10 * Power.MJ;
 
     private final MjBattery battery = new MjBattery(256 * Power.MJ);
@@ -182,6 +183,7 @@ public class StripesBehaviour extends PipeBehaviour {
     }
 
     /** Upstream {@code IStripesActivator.sendItem}: the stack enters the pipe's centre as if it came in from {@code from}. */
+    @Override
     public boolean sendItem(ItemStack stack, Direction from) {
         if (stack.isEmpty()) return true;
         if (pipe.flow() instanceof ItemFlow items) {

@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -129,6 +130,15 @@ public final class Platform {
          * asked for: Fabric fires {@code PlayerBlockBreakEvents.AFTER}; Forge has no such event.
          */
         void afterPlayerBreak(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ServerPlayer player);
+
+        /**
+         * The loader's attack protection check, made before {@code player} (a machine owner's fake player) attacks
+         * {@code target}: false if a handler refused it. Forge posts {@code AttackEntityEvent} (through
+         * {@code ForgeHooks.onPlayerAttackTarget}); Fabric fires {@code AttackEntityCallback}, where any result but
+         * {@code PASS} stops the attack, as it stops a player's. Callers use
+         * {@link ports.buildcraft.lib.BlockProtection#mayAttack}.
+         */
+        boolean fireAttack(ServerPlayer player, Entity target);
     }
 
     /** A client-to-server message, handled on the server thread. */

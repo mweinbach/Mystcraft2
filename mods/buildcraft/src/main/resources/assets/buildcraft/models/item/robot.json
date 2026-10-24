@@ -152,6 +152,72 @@
         "buildcraft:board": 0.2
       },
       "model": "buildcraft:item/robot_miner"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.25
+      },
+      "model": "buildcraft:item/robot_harvester"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.3
+      },
+      "model": "buildcraft:item/robot_leaf_cutter"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.35
+      },
+      "model": "buildcraft:item/robot_shovelman"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.4
+      },
+      "model": "buildcraft:item/robot_breaker"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.45
+      },
+      "model": "buildcraft:item/robot_farmer"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.5
+      },
+      "model": "buildcraft:item/robot_planter"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.55
+      },
+      "model": "buildcraft:item/robot_pump"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.6
+      },
+      "model": "buildcraft:item/robot_fluid_carrier"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.65
+      },
+      "model": "buildcraft:item/robot_knight"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.7
+      },
+      "model": "buildcraft:item/robot_butcher"
+    },
+    {
+      "predicate": {
+        "buildcraft:board": 0.75
+      },
+      "model": "buildcraft:item/robot_stripes"
     }
   ]
 }

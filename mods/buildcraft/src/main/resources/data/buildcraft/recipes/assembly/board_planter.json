@@ -1,0 +1,19 @@
+{
+  "type": "buildcraft:assembly",
+  "result": {
+    "item": "buildcraft:board_planter"
+  },
+  "MJ": 10000,
+  "components": [
+    {
+      "ingredient": {
+        "item": "buildcraft:redstone_board"
+      }
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:wheat_seeds"
+      }
+    }
+  ]
+}

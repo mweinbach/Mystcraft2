@@ -1,19 +1,23 @@
 package ports.buildcraft.gametest;
 
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.InteractionResult;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests} and {@link RobotTests} run on Fabric, with the same timeouts as the Forge wrappers. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests}, {@link RobotTests} and {@link RobotBoardTests} run on Fabric, with the same timeouts as the Forge wrappers. */
 public final class FabricGameTests implements FabricGameTest {
     /** Fabric uses the template name verbatim and reads {@code data/buildcraft/gametest/structures/arena.snbt}. */
     static final String TEMPLATE = BuildCraft.MOD_ID + ":" + BCTests.TEMPLATE;
 
     static {
-        // TestProtection's stand-in protection mod: refuses Fabric's block break event where a test refuses it.
+        // TestProtection's stand-in protection mod: refuses Fabric's block break and attack events where a test refuses them.
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> !TestProtection.refuses(pos, player));
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
+                TestProtection.refusesAttack(entity, player) ? InteractionResult.FAIL : InteractionResult.PASS);
         TestProtection.installed("fabric");
     }
 
@@ -488,4 +492,37 @@ public final class FabricGameTests implements FabricGameTest {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 300)
     public void robotStatements(GameTestHelper helper) { RobotTests.robotStatements(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void harvesterPicksMatureCrops(GameTestHelper helper) { RobotBoardTests.harvesterPicksMatureCrops(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void leafCutterCutsLeaves(GameTestHelper helper) { RobotBoardTests.leafCutterCutsLeaves(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void shovelmanDigsOpenGround(GameTestHelper helper) { RobotBoardTests.shovelmanDigsOpenGround(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void breakerDigsOpenStoneItMayBreak(GameTestHelper helper) { RobotBoardTests.breakerDigsOpenStoneItMayBreak(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void farmerTillsDirtItMayChange(GameTestHelper helper) { RobotBoardTests.farmerTillsDirtItMayChange(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 800)
+    public void planterPlantsSeedsAndSaplings(GameTestHelper helper) { RobotBoardTests.planterPlantsSeedsAndSaplings(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void pumpDrainsSourcesIntoTanksAtHome(GameTestHelper helper) { RobotBoardTests.pumpDrainsSourcesIntoTanksAtHome(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void tankRobotMovesFluidsBetweenStations(GameTestHelper helper) { RobotBoardTests.tankRobotMovesFluidsBetweenStations(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void knightFightsMobsItMayAttack(GameTestHelper helper) { RobotBoardTests.knightFightsMobsItMayAttack(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void butcherFightsAdultAnimals(GameTestHelper helper) { RobotBoardTests.butcherFightsAdultAnimals(helper); }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 600)
+    public void stripesRobotUsesItems(GameTestHelper helper) { RobotBoardTests.stripesRobotUsesItems(helper); }
 }

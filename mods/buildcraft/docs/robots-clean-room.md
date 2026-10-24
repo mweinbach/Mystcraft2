@@ -28,3 +28,25 @@ this port's assets already come from (see [UPSTREAM.md](../UPSTREAM.md#robot-ass
 - the geometry and face UVs of `models/robot.json` and the plate-and-stem dimensions of
   `models/pluggables/robot_station_base.obj`, restated as vanilla item model elements and renderer boxes;
 - the English names of boards, gate statements and items from `lang/en_US.lang`.
+
+## Phase 2 boards
+
+The harvester, leaf cutter, shovelman, breaker, farmer, planter, pump, tank (fluid carrier), knight, butcher and
+stripes boards, and the Provide Fluids and Accept Fluids station actions, were added under the same rules: no
+BuildCraft 7 robot code (in this repository's upstream checkout or anywhere else, including the web) was read. Each
+board was designed from its public name and description (upstream's `buildcraft.boardRobot*` language entries, such
+as "Harvests mature crops" or "Moves fluids between tanks") and written on this port's own phase 1 framework:
+
+- the block boards share `robotics.board.BlockBoard`, phase 1's time-sliced target sweep, claims and unloading lifted
+  out of the lumberjack and miner; the harvester, leaf cutter, shovelman and breaker are `BreakerBoard`s with their
+  own block and tool rules, and the farmer, planter, pump and stripes boards work on blocks without breaking them;
+- the tank board is the phase 1 carrier for fluids, with the station reaching the tanks beside its pipe through the
+  port's `Ports.fluids` API and its fluid actions mirroring the item ones;
+- the knight and butcher (`FighterBoard`) strike as the owner's fake player after the loader's attack event, a new
+  `Platform.Backend.fireAttack` hook beside the existing break and place hooks;
+- the stripes board calls the port's own MPL-2.0 stripes pipe handlers (`StripesRegistry`), which now take upstream's
+  `IStripesActivator` shape as the `StripesActivator` interface so that a robot can stand in for the pipe.
+
+The only upstream material added is MMPL-1.0.1 assets: the eleven robot skins, the two fluid station action icons
+and the board and action names, listed in [UPSTREAM.md](../UPSTREAM.md#robot-assets). BuildCraft 7 had no shear
+board (no name or skin exists for one), so none was added.

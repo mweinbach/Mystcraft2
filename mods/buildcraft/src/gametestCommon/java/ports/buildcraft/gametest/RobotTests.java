@@ -73,23 +73,23 @@ import ports.buildcraft.transport.PipeBlockEntity;
  */
 public final class RobotTests {
     /** How far from a pipe's middle a click lands on a docking station, which reaches 4 pixels in from its face. */
-    private static final double ON_STATION = 0.5 - 2 / 16.0;
-    private static final GateVariant PLAIN = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
-    private static final GateVariant ONE_PARAMETER = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.QUARTZ);
+    static final double ON_STATION = 0.5 - 2 / 16.0;
+    static final GateVariant PLAIN = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.NO_MODIFIER);
+    static final GateVariant ONE_PARAMETER = new GateVariant(EnumGateLogic.AND, EnumGateMaterial.IRON, EnumGateModifier.QUARTZ);
     private static final StatementParameter[] NO_PARAMETERS = new StatementParameter[0];
 
     private RobotTests() {}
 
     // Helpers.
 
-    private static DockingStationPluggable station(PipeBlockEntity pipe, Direction side) {
+    static DockingStationPluggable station(PipeBlockEntity pipe, Direction side) {
         DockingStationPluggable station = (DockingStationPluggable) BCRobotics.DOCKING_STATION.create(pipe, side);
         pipe.replacePluggable(side, station);
         return station;
     }
 
     /** Uses a charged robot item carrying {@code board} on the station, as a player would, and returns the robot. */
-    private static RobotEntity deploy(GameTestHelper helper, Player player, BlockPos pos, DockingStationPluggable station,
+    static RobotEntity deploy(GameTestHelper helper, Player player, BlockPos pos, DockingStationPluggable station,
             RobotBoardType board) {
         ItemStack item = RobotItem.create(board, RobotEntity.CAPACITY);
         require(helper, useAt(helper, player, pos, station.side, ON_STATION, item) == InteractionResult.CONSUME && item.isEmpty(),
@@ -100,7 +100,7 @@ public final class RobotTests {
     }
 
     /** A map location of the area between two corners of the test, in absolute coordinates. */
-    private static ItemStack areaMap(GameTestHelper helper, BlockPos from, BlockPos to) {
+    static ItemStack areaMap(GameTestHelper helper, BlockPos from, BlockPos to) {
         ItemStack map = new ItemStack(BCCore.MAP_LOCATION.get());
         MapLocationItem.Type.AREA.set(map);
         BlockPos a = helper.absolutePos(from), b = helper.absolutePos(to);
@@ -115,7 +115,7 @@ public final class RobotTests {
     }
 
     /** A gate on {@code side} that always runs {@code action} (none if null) with {@code parameters}. */
-    private static PluggableGate gate(PipeBlockEntity pipe, Direction side, GateVariant variant, @Nullable Action action, ItemStack... parameters) {
+    static PluggableGate gate(PipeBlockEntity pipe, Direction side, GateVariant variant, @Nullable Action action, ItemStack... parameters) {
         PluggableGate gate = new PluggableGate(BCSilicon.GATE, pipe, side, variant);
         pipe.replacePluggable(side, gate);
         gate.logic().statements[0].trigger.set(TriggerWrapper.wrap(BCCoreStatements.TRIGGER_TRUE, null));
@@ -129,24 +129,24 @@ public final class RobotTests {
      * Keeps the robots that live on {@code pipe} inside the test's arena with a "Work in Area" gate, configured by
      * {@code owner} as robots only take an area from a gate their owner configured.
      */
-    private static void confine(GameTestHelper helper, PipeBlockEntity pipe, Direction side, Player owner) {
+    static void confine(GameTestHelper helper, PipeBlockEntity pipe, Direction side, Player owner) {
         PluggableGate gate = gate(pipe, side, ONE_PARAMETER, BCRoboticsStatements.ACTION_WORK_IN_AREA,
                 areaMap(helper, new BlockPos(0, 1, 0), new BlockPos(8, 6, 8)));
         gate.logic().setEditor(GateLogic.Editor.of(owner));
     }
 
-    private static void done(GameTestHelper helper, RobotEntity... robots) {
+    static void done(GameTestHelper helper, RobotEntity... robots) {
         for (RobotEntity robot : robots) robot.discard();
         helper.succeed();
     }
 
     /** A position relative to the test; 1.19.2's {@code GameTestHelper.relativePos} mirrors x and z. */
-    private static BlockPos relative(GameTestHelper helper, BlockPos pos) {
+    static BlockPos relative(GameTestHelper helper, BlockPos pos) {
         return pos.subtract(helper.absolutePos(BlockPos.ZERO));
     }
 
     /** The robot's state, for failure messages. */
-    private static String describe(GameTestHelper helper, RobotEntity robot) {
+    static String describe(GameTestHelper helper, RobotEntity robot) {
         StringBuilder text = new StringBuilder("robot at ").append(relative(helper, robot.blockPosition()))
                 .append(robot.dockedAt() != null ? " docked" : "").append(robot.isSleeping() ? " asleep" : "")
                 .append(robot.isRecharging() ? " recharging" : "").append(" energy ").append(Power.formatMj(robot.battery().stored()))
@@ -171,7 +171,7 @@ public final class RobotTests {
 
     /**
      * The robot, redstone board and docking station have survival crafting recipes, each programmed board is a
-     * redstone board and a tool assembled for 10,000 MJ, and a board crafts into a robot (the old board comes back)
+     * redstone board and one ingredient assembled for 10,000 MJ, and a board crafts into a robot (the old board comes back)
      * or out of one. A robot item keeps its board and energy.
      */
     public static void robotRecipesAndItems(GameTestHelper helper) {
@@ -184,7 +184,7 @@ public final class RobotTests {
             require(helper, recipe instanceof AssemblyRecipe assembly && assembly.getResultItem().is(BCRobotics.BOARDS.get(type).get())
                     && assembly.getRequiredMicroJoulesFor(ItemStack.EMPTY) == 10_000 * Power.MJ
                     && assembly.getInputsFor(ItemStack.EMPTY).get(0).ingredient().test(new ItemStack(BCRobotics.REDSTONE_BOARD.get())),
-                    "the " + type.id + " board is a redstone board assembled with a tool for 10,000 MJ");
+                    "the " + type.id + " board is a redstone board and one ingredient assembled for 10,000 MJ");
         }
 
         CraftingRecipe boardRecipe = (CraftingRecipe) recipes.byKey(BuildCraft.id("robot_board")).orElseThrow();
@@ -415,7 +415,7 @@ public final class RobotTests {
         });
     }
 
-    private static int countNamed(ChestBlockEntity chest, Item item, Component name) {
+    static int countNamed(ChestBlockEntity chest, Item item, Component name) {
         int total = 0;
         for (int slot = 0; slot < chest.getContainerSize(); slot++) {
             ItemStack stack = chest.getItem(slot);
@@ -468,7 +468,7 @@ public final class RobotTests {
                 "the lumberjack takes axes, not pickaxes");
         RobotEntity robot = deploy(helper, owner, pos, station, RobotBoardType.LUMBERJACK);
         helper.succeedWhen(() -> {
-            for (BlockPos log : logs) require(helper, helper.getBlockState(log).isAir(), "the lumberjack cuts the log at " + log);
+            for (BlockPos log : logs) require(helper, helper.getBlockState(log).isAir(), "the lumberjack cuts the log at " + log + "; " + describe(helper, robot));
             require(helper, count(chest, Items.OAK_LOG) == 3, "the lumberjack brings the logs home, chest has " + count(chest, Items.OAK_LOG));
             require(helper, count(chest, Items.IRON_AXE) == 0 && robot.tool().is(Items.IRON_AXE), "the lumberjack works with the chest's axe");
             robot.discard();

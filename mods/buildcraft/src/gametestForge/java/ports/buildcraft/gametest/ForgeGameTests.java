@@ -4,23 +4,27 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import ports.buildcraft.BuildCraft;
 
-/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests} and {@link RobotTests} run on Forge. */
+/** The shared {@link BCTests}, {@link FillerTests}, {@link ArchitectTests}, {@link BuilderTests}, {@link LibraryTests}, {@link SiliconTests}, {@link GateTests}, {@link WireTests}, {@link LensTests}, {@link PulsarTimerTests}, {@link SensorControlTests}, {@link FacadeTests}, {@link ZonePlannerTests}, {@link RecipeAuditTests}, {@link RobotTests} and {@link RobotBoardTests} run on Forge. */
 @GameTestHolder(BuildCraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class ForgeGameTests {
     static {
-        // TestProtection's stand-in protection mod: cancels Forge's break and place events where a test refuses them.
+        // TestProtection's stand-in protection mod: cancels Forge's break, place and attack events where a test refuses them.
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, event -> {
             if (TestProtection.refuses(event.getPos(), event.getPlayer())) event.setCanceled(true);
         });
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.EntityPlaceEvent.class, event -> {
             if (TestProtection.refuses(event.getPos(), event.getEntity() instanceof Player player ? player : null)) event.setCanceled(true);
+        });
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AttackEntityEvent.class, event -> {
+            if (TestProtection.refusesAttack(event.getTarget(), event.getEntity())) event.setCanceled(true);
         });
         TestProtection.installed("forge");
     }
@@ -498,4 +502,37 @@ public final class ForgeGameTests {
 
     @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 300)
     public static void robotStatements(GameTestHelper helper) { RobotTests.robotStatements(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void harvesterPicksMatureCrops(GameTestHelper helper) { RobotBoardTests.harvesterPicksMatureCrops(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void leafCutterCutsLeaves(GameTestHelper helper) { RobotBoardTests.leafCutterCutsLeaves(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void shovelmanDigsOpenGround(GameTestHelper helper) { RobotBoardTests.shovelmanDigsOpenGround(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void breakerDigsOpenStoneItMayBreak(GameTestHelper helper) { RobotBoardTests.breakerDigsOpenStoneItMayBreak(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void farmerTillsDirtItMayChange(GameTestHelper helper) { RobotBoardTests.farmerTillsDirtItMayChange(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 800)
+    public static void planterPlantsSeedsAndSaplings(GameTestHelper helper) { RobotBoardTests.planterPlantsSeedsAndSaplings(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void pumpDrainsSourcesIntoTanksAtHome(GameTestHelper helper) { RobotBoardTests.pumpDrainsSourcesIntoTanksAtHome(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void tankRobotMovesFluidsBetweenStations(GameTestHelper helper) { RobotBoardTests.tankRobotMovesFluidsBetweenStations(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void knightFightsMobsItMayAttack(GameTestHelper helper) { RobotBoardTests.knightFightsMobsItMayAttack(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void butcherFightsAdultAnimals(GameTestHelper helper) { RobotBoardTests.butcherFightsAdultAnimals(helper); }
+
+    @GameTest(template = BCTests.TEMPLATE, timeoutTicks = 600)
+    public static void stripesRobotUsesItems(GameTestHelper helper) { RobotBoardTests.stripesRobotUsesItems(helper); }
 }
