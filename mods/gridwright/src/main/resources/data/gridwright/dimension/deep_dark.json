@@ -1,0 +1,11 @@
+{
+  "type": "gridwright:deep_dark",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "gridwright:deep_dark",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "gridwright:deep_caverns"
+    }
+  }
+}

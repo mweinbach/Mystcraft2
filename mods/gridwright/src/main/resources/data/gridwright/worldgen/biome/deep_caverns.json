@@ -1,0 +1,74 @@
+{
+  "precipitation": "none",
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 723730,
+    "sky_color": 0,
+    "water_color": 3355494,
+    "water_fog_color": 1052704,
+    "mood_sound": {
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 3000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    }
+  },
+  "spawners": {
+    "monster": [
+      {"type": "minecraft:zombie", "weight": 140, "minCount": 4, "maxCount": 6},
+      {"type": "minecraft:skeleton", "weight": 140, "minCount": 4, "maxCount": 6},
+      {"type": "minecraft:spider", "weight": 120, "minCount": 4, "maxCount": 6},
+      {"type": "minecraft:creeper", "weight": 120, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:cave_spider", "weight": 60, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:enderman", "weight": 20, "minCount": 1, "maxCount": 2},
+      {"type": "minecraft:zombie_villager", "weight": 10, "minCount": 1, "maxCount": 1},
+      {"type": "minecraft:witch", "weight": 10, "minCount": 1, "maxCount": 1}
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:cave"
+    ]
+  },
+  "features": [
+    [],
+    [
+      "minecraft:lake_lava_underground"
+    ],
+    [],
+    [
+      "minecraft:monster_room"
+    ],
+    [],
+    [],
+    [
+      "gridwright:deep_dark/ore_coal",
+      "gridwright:deep_dark/ore_iron",
+      "gridwright:deep_dark/ore_copper",
+      "gridwright:deep_dark/ore_gold",
+      "gridwright:deep_dark/ore_redstone",
+      "gridwright:deep_dark/ore_lapis",
+      "gridwright:deep_dark/ore_diamond",
+      "gridwright:deep_dark/ore_granite",
+      "gridwright:deep_dark/ore_diorite",
+      "gridwright:deep_dark/ore_andesite",
+      "gridwright:deep_dark/ore_tuff",
+      "gridwright:deep_dark/ore_gravel"
+    ],
+    [],
+    [
+      "minecraft:spring_water"
+    ],
+    [],
+    []
+  ]
+}

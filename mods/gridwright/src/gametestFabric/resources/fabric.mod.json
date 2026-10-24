@@ -19,7 +19,8 @@
       "ports.gridwright.gametest.WardGameTests",
       "ports.gridwright.gametest.TransferGameTests",
       "ports.gridwright.gametest.QuarryGameTests",
-      "ports.gridwright.gametest.MechanicalGameTests"
+      "ports.gridwright.gametest.MechanicalGameTests",
+      "ports.gridwright.gametest.DeepDarkGameTests"
     ]
   },
   "depends": {

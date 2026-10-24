@@ -8,6 +8,7 @@ gridwright:compressed_gravel
 gridwright:compressed_netherrack
 gridwright:compressed_sand
 gridwright:culinary_generator
+gridwright:deep_dark_portal
 gridwright:destruction_wand
 gridwright:diamond_spike
 gridwright:double_compressed_cobblestone

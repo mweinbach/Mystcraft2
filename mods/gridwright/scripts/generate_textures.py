@@ -155,6 +155,28 @@ def frame():
     return image
 
 
+def portal_side(seed):
+    image = bevel(noisy((52, 52, 60), 8, seed), (86, 86, 98, 255), (24, 24, 30, 255))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 3, 12, 12], fill=(12, 8, 22, 255), outline=(70, 40, 120, 255))
+    rng = random.Random(seed)
+    for _ in range(9):
+        x, y = rng.randint(4, 11), rng.randint(4, 11)
+        draw.point((x, y), fill=(150, 90, 230, 255))
+    draw.point((7, 7), fill=(220, 190, 255, 255))
+    draw.point((8, 8), fill=(220, 190, 255, 255))
+    return image
+
+
+def portal_top(seed):
+    image = bevel(noisy((52, 52, 60), 8, seed), (86, 86, 98, 255), (24, 24, 30, 255))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([2, 2, 13, 13], fill=(18, 10, 32, 255), outline=(90, 50, 150, 255))
+    draw.ellipse([5, 5, 10, 10], fill=(60, 30, 110, 255))
+    draw.rectangle([7, 7, 8, 8], fill=(200, 160, 255, 255))
+    return image
+
+
 def icon():
     image = Image.new('RGBA', (64, 64), (34, 38, 46, 255))
     draw = ImageDraw.Draw(image)
@@ -252,6 +274,8 @@ def main():
         BLOCKS / 'water_mill_top.png': planks(13, (150, 110, 60)),
         BLOCKS / 'wind_mill_side.png': mill_side(14, (190, 160, 110), (235, 235, 235)),
         BLOCKS / 'wind_mill_top.png': planks(15, (190, 160, 110)),
+        BLOCKS / 'deep_dark_portal_side.png': portal_side(16),
+        BLOCKS / 'deep_dark_portal_top.png': portal_top(17),
         ITEMS / 'grid_crystal.png': crystal(),
         ITEMS / 'machine_frame.png': frame(),
         BLOCKS / 'quantum_quarry_side.png': quarry_side(20, (190, 90, 255), (40, 20, 60)),
