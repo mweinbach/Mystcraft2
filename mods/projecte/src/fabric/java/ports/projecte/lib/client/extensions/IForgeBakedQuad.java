@@ -10,7 +10,7 @@ package ports.projecte.lib.client.extensions;
  */
 public interface IForgeBakedQuad {
 
-    default boolean hasAmbientOcclusion() {
+    default boolean projecte$hasAmbientOcclusion() {
         return true;
     }
 }

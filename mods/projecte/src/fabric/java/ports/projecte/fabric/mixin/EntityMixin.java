@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -18,7 +17,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.projecte.lib.common.ForgeMod;
@@ -89,13 +87,6 @@ public abstract class EntityMixin implements IForgeEntity, AttachedCapabilities.
 
     @Inject(method = "unsetRemoved", at = @At("TAIL"))
     private void projecte$reviveCapabilities(CallbackInfo ci) {
-        reviveCaps();
-    }
-
-    @Redirect(method = "playStepSound", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"))
-    private SoundType projecte$stepSound(BlockState state, BlockPos pos, BlockState under) {
-        Entity self = (Entity) (Object) this;
-        return state.getSoundType(self.level, pos, self);
+        projecte$reviveCaps();
     }
 }

@@ -17,7 +17,7 @@ import ports.projecte.lib.client.extensions.common.IClientBlockExtensions;
  */
 public interface IForgeParticleEngine {
 
-    default void addBlockHitEffects(BlockPos pos, BlockHitResult target) {
+    default void projecte$addBlockHitEffects(BlockPos pos, BlockHitResult target) {
         ParticleEngine self = (ParticleEngine) this;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {

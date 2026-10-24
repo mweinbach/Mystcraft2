@@ -14,11 +14,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public interface IForgeLevel {
 
-    default boolean isRestoringBlockSnapshots() {
+    default boolean projecte$isRestoringBlockSnapshots() {
         throw new IllegalStateException("Level mixin not applied");
     }
 
-    default void setRestoringBlockSnapshots(boolean restoring) {
+    default void projecte$setRestoringBlockSnapshots(boolean restoring) {
         throw new IllegalStateException("Level mixin not applied");
     }
 

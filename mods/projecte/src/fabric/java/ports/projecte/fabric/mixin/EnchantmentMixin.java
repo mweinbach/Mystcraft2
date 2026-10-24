@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,8 @@ public abstract class EnchantmentMixin {
 
     @Inject(method = "canEnchant", at = @At("HEAD"), cancellable = true)
     private void projecte$canEnchant(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(((IForgeItem) stack.getItem()).canApplyAtEnchantingTable(stack, (Enchantment) (Object) this));
+        if (PEHooks.ours(stack.getItem())) {
+            cir.setReturnValue(((IForgeItem) stack.getItem()).projecte$canApplyAtEnchantingTable(stack, (Enchantment) (Object) this));
+        }
     }
 }

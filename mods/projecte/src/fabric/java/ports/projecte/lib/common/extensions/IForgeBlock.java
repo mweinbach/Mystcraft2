@@ -54,24 +54,24 @@ public interface IForgeBlock {
         return (Block) this;
     }
 
-    default int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+    default int projecte$getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         return state.getLightEmission();
     }
 
-    default boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    default boolean projecte$onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         self().playerWillDestroy(level, pos, state, player);
         return level.setBlock(pos, fluid.createLegacyBlock(), level.isClientSide ? Block.UPDATE_ALL_IMMEDIATE : Block.UPDATE_ALL);
     }
 
-    default float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+    default float projecte$getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
         return self().getExplosionResistance();
     }
 
-    default ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    default ItemStack projecte$getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         return self().getCloneItemStack(level, pos, state);
     }
 
-    default boolean isPortalFrame(BlockState state, BlockGetter level, BlockPos pos) {
+    default boolean projecte$isPortalFrame(BlockState state, BlockGetter level, BlockPos pos) {
         return state.is(Blocks.OBSIDIAN);
     }
 
@@ -79,34 +79,34 @@ public interface IForgeBlock {
         return 0;
     }
 
-    default BlockState rotate(BlockState state, LevelAccessor level, BlockPos pos, Rotation direction) {
+    default BlockState projecte$rotate(BlockState state, LevelAccessor level, BlockPos pos, Rotation direction) {
         return state.rotate(direction);
     }
 
-    default void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+    default void projecte$onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
     }
 
-    default boolean shouldCheckWeakPower(BlockState state, LevelReader level, BlockPos pos, Direction side) {
+    default boolean projecte$shouldCheckWeakPower(BlockState state, LevelReader level, BlockPos pos, Direction side) {
         return state.isRedstoneConductor(level, pos);
     }
 
-    default boolean getWeakChanges(BlockState state, LevelReader level, BlockPos pos) {
+    default boolean projecte$getWeakChanges(BlockState state, LevelReader level, BlockPos pos) {
         return false;
     }
 
-    default SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+    default SoundType projecte$getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return self().getSoundType(state);
     }
 
-    default int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+    default int projecte$getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return ((FireBlock) Blocks.FIRE).getBurnOdds(state);
     }
 
-    default boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getFlammability(level, pos, direction) > 0;
+    default boolean projecte$isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return state.projecte$getFlammability(level, pos, direction) > 0;
     }
 
-    default void onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
+    default void projecte$onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
         // Forge's TntBlock.onCaughtFire is what flint, redstone, fire and projectiles call. Obsidian TNT overrides it.
         if (self() instanceof TntBlock && !level.isClientSide) {
             PrimedTnt tnt = new PrimedTnt(level, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, igniter);
@@ -119,7 +119,7 @@ public interface IForgeBlock {
     /**
      * Forge's block friction, which entity movement reads. The value is the one set on the block properties.
      */
-    default float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+    default float projecte$getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return self().getFriction();
     }
 
@@ -128,27 +128,27 @@ public interface IForgeBlock {
      * means the block does not tint a beacon beam.
      */
     @Nullable
-    default float[] getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+    default float[] projecte$getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
         if (self() instanceof BeaconBeamBlock beam) {
             return beam.getColor().getTextureDiffuseColors();
         }
         return null;
     }
 
-    default int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+    default int projecte$getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return ((FireBlock) Blocks.FIRE).getIgniteOdds(state);
     }
 
-    default boolean canDropFromExplosion(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+    default boolean projecte$canDropFromExplosion(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
         return self().dropFromExplosion(explosion);
     }
 
-    default void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
+    default void projecte$onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         self().wasExploded(level, pos, explosion);
     }
 
-    default boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter level, BlockPos pos, FluidState fluidState) {
+    default boolean projecte$shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter level, BlockPos pos, FluidState fluidState) {
         return false;
     }
 
@@ -191,7 +191,7 @@ public interface IForgeBlock {
      * Whether redstone dust connects to this face. The default matches the blocks vanilla dust connects to, so a wire
      * still climbs a block and meets a repeater or an observer when a block does not override this.
      */
-    default boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
+    default boolean projecte$canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
         if (state.is(Blocks.REDSTONE_WIRE)) {
             return true;
         } else if (state.is(Blocks.REPEATER)) {
@@ -206,6 +206,6 @@ public interface IForgeBlock {
     /**
      * Supplies the block's client behavior; read once through {@link IClientBlockExtensions#of}.
      */
-    default void initializeClient(Consumer<IClientBlockExtensions> consumer) {
+    default void projecte$initializeClient(Consumer<IClientBlockExtensions> consumer) {
     }
 }

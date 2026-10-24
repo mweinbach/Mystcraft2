@@ -27,16 +27,16 @@ public interface IForgeScreen {
         return (Screen) this;
     }
 
-    default Minecraft getMinecraft() {
+    default Minecraft projecte$getMinecraft() {
         return Minecraft.getInstance();
     }
 
-    default void renderTooltip(PoseStack poseStack, List<Component> tooltips, Optional<TooltipComponent> visualTooltipComponent, int mouseX, int mouseY,
+    default void projecte$renderTooltip(PoseStack poseStack, List<Component> tooltips, Optional<TooltipComponent> visualTooltipComponent, int mouseX, int mouseY,
           ItemStack stack) {
         self().renderTooltip(poseStack, tooltips, visualTooltipComponent, mouseX, mouseY);
     }
 
-    default void renderComponentTooltip(PoseStack poseStack, List<? extends FormattedText> tooltips, int mouseX, int mouseY, @Nullable Font font,
+    default void projecte$renderComponentTooltip(PoseStack poseStack, List<? extends FormattedText> tooltips, int mouseX, int mouseY, @Nullable Font font,
           ItemStack stack) {
         self().renderTooltip(poseStack, Language.getInstance().getVisualOrder(List.<FormattedText>copyOf(tooltips)), mouseX, mouseY);
     }

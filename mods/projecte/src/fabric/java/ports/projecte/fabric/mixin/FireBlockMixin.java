@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -31,12 +32,16 @@ public abstract class FireBlockMixin {
           target = "Lnet/minecraft/world/level/block/FireBlock;getBurnOdds(Lnet/minecraft/world/level/block/state/BlockState;)I"))
     private int projecte$burnOdds(FireBlock fire, BlockState state, Operation<Integer> original, @Local(argsOnly = true) Level level,
           @Local(argsOnly = true) BlockPos pos) {
-        return state.getFlammability(level, pos, null);
+        return PEHooks.ours(state.getBlock()) ? state.projecte$getFlammability(level, pos, null) : original.call(fire, state);
     }
 
     @WrapOperation(method = "checkBurnOut", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/block/TntBlock;explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
     private void projecte$primeBurnedTnt(Level level, BlockPos pos, Operation<Void> original, @Local BlockState state) {
-        state.onCaughtFire(level, pos, null, null);
+        if (PEHooks.ours(state.getBlock())) {
+            state.projecte$onCaughtFire(level, pos, null, null);
+        } else {
+            original.call(level, pos);
+        }
     }
 }

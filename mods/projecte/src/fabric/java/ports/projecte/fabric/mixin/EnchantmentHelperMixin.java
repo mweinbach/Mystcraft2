@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -27,25 +28,10 @@ import ports.projecte.lib.common.extensions.IForgeItem;
 @Mixin(EnchantmentHelper.class)
 public abstract class EnchantmentHelperMixin {
 
-    @Inject(method = "getItemEnchantmentLevel", at = @At("HEAD"), cancellable = true)
-    private static void projecte$level(Enchantment enchantment, ItemStack stack, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(stack.getEnchantmentLevel(enchantment));
-    }
-
-    @Inject(method = "runIterationOnItem", at = @At("HEAD"), cancellable = true)
-    private static void projecte$allEnchantments(EnchantmentHelper.EnchantmentVisitor visitor, ItemStack stack, CallbackInfo ci) {
-        if (!stack.isEmpty()) {
-            for (Map.Entry<Enchantment, Integer> entry : stack.getAllEnchantments().entrySet()) {
-                visitor.accept(entry.getKey(), entry.getValue());
-            }
-        }
-        ci.cancel();
-    }
-
     @WrapOperation(method = "getAvailableEnchantmentResults", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/item/enchantment/EnchantmentCategory;canEnchant(Lnet/minecraft/world/item/Item;)Z"))
     private static boolean projecte$enchantingTable(EnchantmentCategory category, Item item, Operation<Boolean> original,
           @Local Enchantment enchantment, @Local ItemStack stack) {
-        return ((IForgeItem) stack.getItem()).canApplyAtEnchantingTable(stack, enchantment);
+        return PEHooks.ours(item) ? ((IForgeItem) item).projecte$canApplyAtEnchantingTable(stack, enchantment) : original.call(category, item);
     }
 }

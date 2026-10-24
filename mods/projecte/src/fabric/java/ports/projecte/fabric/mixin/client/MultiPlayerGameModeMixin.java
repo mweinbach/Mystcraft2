@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin.client;
 
+import ports.projecte.fabric.PEHooks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
@@ -26,7 +27,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ports.projecte.lib.common.extensions.IForgeItem;
 
@@ -51,47 +51,22 @@ public abstract class MultiPlayerGameModeMixin {
         }
     }
 
-    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+    /** As on the server ({@code ServerPlayerGameModeMixin}): only ProjectE's blocks go through {@code onDestroyedByPlayer}. */
+    @WrapOperation(method = "destroyBlock", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/block/Block;playerWillDestroy(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)V"))
-    private void projecte$willDestroyFromHook(Block block, Level level, BlockPos pos, BlockState state, Player player) {
+    private void projecte$willDestroyFromHook(Block block, Level level, BlockPos pos, BlockState state, Player player, Operation<Void> original) {
+        if (!PEHooks.ours(block)) {
+            original.call(block, level, pos, state, player);
+        }
     }
 
-    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+    @WrapOperation(method = "destroyBlock", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
-    private boolean projecte$destroyed(Level level, BlockPos pos, BlockState fluidState, int flags) {
+    private boolean projecte$destroyed(Level level, BlockPos pos, BlockState fluidState, int flags, Operation<Boolean> original) {
         BlockState state = level.getBlockState(pos);
-        Player player = this.minecraft.player;
-        FluidState fluid = level.getFluidState(pos);
-        return state.onDestroyedByPlayer(level, pos, player, false, fluid);
-    }
-
-    @Redirect(method = "continueDestroyBlock", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"))
-    private SoundType projecte$breakSound(BlockState state, BlockPos pos, Direction direction) {
-        return state.getSoundType(this.minecraft.level, pos, this.minecraft.player);
-    }
-
-    @Inject(method = "performUseItemOn", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/client/player/LocalPlayer;isSecondaryUseActive()Z"), cancellable = true)
-    private void projecte$onItemUseFirst(LocalPlayer player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
-        ItemStack stack = player.getItemInHand(hand);
-        InteractionResult result = ((IForgeItem) stack.getItem()).onItemUseFirst(stack, new UseOnContext(player, hand, hit));
-        if (result != InteractionResult.PASS) {
-            cir.setReturnValue(result);
+        if (!PEHooks.ours(state.getBlock())) {
+            return original.call(level, pos, fluidState, flags);
         }
-    }
-
-    @WrapOperation(method = "performUseItemOn", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/client/player/LocalPlayer;isSecondaryUseActive()Z"))
-    private boolean projecte$sneakBypass(LocalPlayer player, Operation<Boolean> original, LocalPlayer ignored, InteractionHand hand, BlockHitResult hit) {
-        if (!original.call(player)) {
-            return false;
-        }
-        BlockPos pos = hit.getBlockPos();
-        ItemStack main = player.getMainHandItem();
-        ItemStack off = player.getOffhandItem();
-        boolean bypass = ((IForgeItem) main.getItem()).doesSneakBypassUse(main, player.level, pos, player)
-              && ((IForgeItem) off.getItem()).doesSneakBypassUse(off, player.level, pos, player);
-        return !bypass;
+        return state.projecte$onDestroyedByPlayer(level, pos, this.minecraft.player, false, level.getFluidState(pos));
     }
 }

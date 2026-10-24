@@ -4,35 +4,30 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import ports.projecte.lib.common.ForgeHooks;
 import ports.projecte.lib.common.extensions.IForgeItem;
 
 /**
- * Breaks and item use follow Forge's {@code ServerPlayerGameMode} patch: break experience, {@code projecte$onBlockStartBreak},
- * {@code onDestroyedByPlayer}, {@code onItemUseFirst} and sneak bypass. Fabric's break and use callbacks stay on their
- * own injects.
+ * The parts of Forge's {@code ServerPlayerGameMode} patch ProjectE relies on: {@code onBlockStartBreak} for the held
+ * item and {@code onDestroyedByPlayer} for ProjectE's own blocks. Everything else stays vanilla so other mods' patches
+ * of the same calls keep working.
  */
 @Mixin(value = ServerPlayerGameMode.class, priority = 500)
 public abstract class ServerPlayerGameModeMixin {
@@ -54,54 +49,26 @@ public abstract class ServerPlayerGameModeMixin {
     }
 
     /**
-     * Fabric fires its break callback at this call. The real {@code playerWillDestroy} runs from
-     * {@code onDestroyedByPlayer}, so this invoke stays in the method and does nothing itself.
+     * Forge removes a broken block through {@code onDestroyedByPlayer}, which runs {@code playerWillDestroy} itself and
+     * may refuse the removal (ProjectE's pedestal does in creative mode, dropping its item instead). Only ProjectE's
+     * blocks are routed there; for every other block both calls stay vanilla.
      */
-    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+    @WrapOperation(method = "destroyBlock", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/world/level/block/Block;playerWillDestroy(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)V"))
-    private void projecte$keepBreakCallback(Block block, Level level, BlockPos pos, BlockState state, Player player) {
+    private void projecte$willDestroyFromHook(Block block, Level level, BlockPos pos, BlockState state, Player player, Operation<Void> original) {
+        if (!PEHooks.ours(block)) {
+            original.call(block, level, pos, state, player);
+        }
     }
 
-    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+    @WrapOperation(method = "destroyBlock", at = @At(value = "INVOKE",
           target = "Lnet/minecraft/server/level/ServerLevel;removeBlock(Lnet/minecraft/core/BlockPos;Z)Z"))
-    private boolean projecte$onDestroyedByPlayer(ServerLevel level, BlockPos pos, boolean moving) {
+    private boolean projecte$onDestroyedByPlayer(ServerLevel level, BlockPos pos, boolean moving, Operation<Boolean> original) {
         BlockState state = level.getBlockState(pos);
+        if (!PEHooks.ours(state.getBlock())) {
+            return original.call(level, pos, moving);
+        }
         boolean harvest = !this.player.isCreative() && this.player.hasCorrectToolForDrops(state);
-        boolean removed = state.onDestroyedByPlayer(level, pos, this.player, harvest, level.getFluidState(pos));
-        if (removed && !this.player.isCreative()) {
-            int exp = ForgeHooks.consumeBreakExp();
-            if (exp > 0) {
-                state.getBlock().popExperience(level, pos, exp);
-            }
-        }
-        return removed;
-    }
-
-    @Inject(method = "destroyBlock", at = @At("RETURN"))
-    private void projecte$clearBreakExp(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        ForgeHooks.consumeBreakExp();
-    }
-
-    @Inject(method = "useItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;isSecondaryUseActive()Z"), cancellable = true)
-    private void projecte$onItemUseFirst(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand, BlockHitResult hit,
-          CallbackInfoReturnable<InteractionResult> cir) {
-        InteractionResult result = ((IForgeItem) stack.getItem()).onItemUseFirst(stack, new UseOnContext(player, hand, hit));
-        if (result != InteractionResult.PASS) {
-            cir.setReturnValue(result);
-        }
-    }
-
-    @WrapOperation(method = "useItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;isSecondaryUseActive()Z"))
-    private boolean projecte$sneakBypass(ServerPlayer player, Operation<Boolean> original, ServerPlayer serverPlayer, Level level, ItemStack stack,
-          InteractionHand hand, BlockHitResult hit) {
-        if (!original.call(player)) {
-            return false;
-        }
-        BlockPos pos = hit.getBlockPos();
-        ItemStack main = player.getMainHandItem();
-        ItemStack off = player.getOffhandItem();
-        boolean bypass = ((IForgeItem) main.getItem()).doesSneakBypassUse(main, level, pos, player)
-              && ((IForgeItem) off.getItem()).doesSneakBypassUse(off, level, pos, player);
-        return !bypass;
+        return state.projecte$onDestroyedByPlayer(level, pos, this.player, harvest, level.getFluidState(pos));
     }
 }

@@ -4,14 +4,12 @@
  */
 package ports.projecte.fabric.client;
 
-import java.util.HashSet;
 import java.util.Set;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.client.Minecraft;
 import ports.projecte.lib.event.entity.player.ItemTooltipEvent;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
@@ -23,7 +21,6 @@ import ports.projecte.fabric.FabricLifecycle;
 import ports.projecte.lib.client.ForgeHooksClient;
 import ports.projecte.lib.client.event.EntityRenderersEvent;
 import ports.projecte.lib.client.event.EntityRenderersEvent.AddLayers;
-import ports.projecte.lib.client.event.ModelEvent;
 import ports.projecte.lib.client.event.RegisterClientReloadListenersEvent;
 import ports.projecte.lib.client.event.RegisterColorHandlersEvent;
 import ports.projecte.lib.client.event.RegisterGuiOverlaysEvent;
@@ -32,11 +29,6 @@ import ports.projecte.lib.client.event.RegisterKeyMappingsEvent;
 import ports.projecte.lib.client.event.RegisterParticleProvidersEvent;
 import ports.projecte.lib.client.event.RenderLevelStageEvent;
 import ports.projecte.lib.client.event.TextureStitchEvent;
-import ports.projecte.lib.client.model.CompositeModel;
-import ports.projecte.lib.client.model.DynamicFluidContainerModel;
-import ports.projecte.lib.client.model.ElementsModel;
-import ports.projecte.lib.client.model.SeparateTransformsModel;
-import ports.projecte.lib.client.model.obj.ObjLoader;
 import ports.projecte.lib.event.TickEvent;
 import ports.projecte.lib.eventbus.api.EventPriority;
 import ports.projecte.lib.fml.LogicalSide;
@@ -59,19 +51,11 @@ public final class FabricClientMod implements ClientModInitializer {
         FabricLifecycle.postToMods(new RegisterColorHandlersEvent.Block());
         FabricLifecycle.postToMods(new RegisterColorHandlersEvent.Item());
         FabricLifecycle.postToMods(new RegisterItemDecorationsEvent());
-        registerForgeGeometryLoaders();
-        FabricLifecycle.forEachMod(container -> {
-            String namespace = container.getNamespace();
-            container.getEventBus().post(new ModelEvent.RegisterGeometryLoaders(namespace));
-            container.getEventBus().post(new RegisterGuiOverlaysEvent(namespace));
-        });
-        ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> {
-            Set<ResourceLocation> models = new HashSet<>();
-            FabricLifecycle.postToMods(new ModelEvent.RegisterAdditional(models));
-            models.forEach(out);
-        });
+        // ProjectE's models are plain vanilla JSON, so Forge's geometry loaders and additional-model registration are
+        // not carried over.
+        FabricLifecycle.forEachMod(container -> container.getEventBus().post(new RegisterGuiOverlaysEvent(container.getNamespace())));
         ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlas, registry) -> {
-            Set<ResourceLocation> sprites = new HashSet<>();
+            Set<ResourceLocation> sprites = new java.util.HashSet<>();
             FabricLifecycle.postToMods(new TextureStitchEvent.Pre(atlas, sprites));
             sprites.forEach(registry::register);
         });
@@ -86,22 +70,11 @@ public final class FabricClientMod implements ClientModInitializer {
         FabricLifecycle.startClient();
     }
 
-    /**
-     * The loaders Forge itself registers. The OBJ loader's caches are cleared on each resource reload.
-     */
-    private static void registerForgeGeometryLoaders() {
-        ModelEvent.RegisterGeometryLoaders forge = new ModelEvent.RegisterGeometryLoaders("forge");
-        forge.register("elements", ElementsModel.Loader.INSTANCE);
-        forge.register("obj", ObjLoader.INSTANCE);
-        forge.register("fluid_container", DynamicFluidContainerModel.Loader.INSTANCE);
-        forge.register("composite", CompositeModel.Loader.INSTANCE);
-        forge.register("separate_transforms", SeparateTransformsModel.Loader.INSTANCE);
-        new RegisterClientReloadListenersEvent("forge").registerReloadListener(ObjLoader.INSTANCE);
-    }
-
     private static void registerGameEvents() {
         ItemTooltipCallback.EVENT.register((stack, flag, lines) ->
               FabricGameEvents.post(new ItemTooltipEvent(stack, Minecraft.getInstance().player, lines, flag)));
+        // Key presses are counted before any tick listener reads them.
+        ClientTickEvents.START_CLIENT_TICK.register(client -> ports.projecte.lib.client.settings.ForgeKeyMapping.tickAll());
         ClientTickEvents.START_CLIENT_TICK.register(client -> FabricGameEvents.post(new TickEvent.ClientTickEvent(TickEvent.Phase.START)));
         ClientTickEvents.END_CLIENT_TICK.register(client -> FabricGameEvents.post(new TickEvent.ClientTickEvent(TickEvent.Phase.END)));
         ClientTickEvents.START_WORLD_TICK.register(level -> FabricGameEvents.post(new TickEvent.LevelTickEvent(LogicalSide.CLIENT, TickEvent.Phase.START, level, () -> true)));

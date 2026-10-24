@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +35,7 @@ public abstract class AnvilMenuMixin {
         ItemStack book = menu.getSlot(1).getItem();
         boolean enchantedBook = book.is(Items.ENCHANTED_BOOK) && !EnchantedBookItem.getEnchantments(book).isEmpty();
         ItemStack result = menu.getSlot(2).getItem();
-        if (enchantedBook && !result.isEmpty() && !((IForgeItem) result.getItem()).isBookEnchantable(result, book)) {
+        if (enchantedBook && !result.isEmpty() && PEHooks.ours(result.getItem()) && !((IForgeItem) result.getItem()).projecte$isBookEnchantable(result, book)) {
             menu.getSlot(2).set(ItemStack.EMPTY);
             this.cost.set(0);
         }

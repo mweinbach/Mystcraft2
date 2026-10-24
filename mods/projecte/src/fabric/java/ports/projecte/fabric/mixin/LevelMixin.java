@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.projecte.lib.common.extensions.IForgeLevel;
 
@@ -37,12 +36,12 @@ public abstract class LevelMixin implements IForgeLevel {
     private boolean projecte$loadingFreshBlockEntities;
 
     @Override
-    public boolean isRestoringBlockSnapshots() {
+    public boolean projecte$isRestoringBlockSnapshots() {
         return projecte$restoringBlockSnapshots;
     }
 
     @Override
-    public void setRestoringBlockSnapshots(boolean restoring) {
+    public void projecte$setRestoringBlockSnapshots(boolean restoring) {
         projecte$restoringBlockSnapshots = restoring;
     }
 
@@ -65,42 +64,5 @@ public abstract class LevelMixin implements IForgeLevel {
         } finally {
             projecte$loadingFreshBlockEntities = false;
         }
-    }
-
-    @Redirect(method = "getSignal", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/state/BlockState;isRedstoneConductor(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Z"))
-    private boolean projecte$weakPower(BlockState state, BlockGetter level, BlockPos pos, BlockPos signalPos, Direction side) {
-        return state.shouldCheckWeakPower((Level) level, pos, side);
-    }
-
-    /**
-     * Every neighbor hears {@code onNeighborChange}. A conductor passes the change one block further, and only a block
-     * that asks for weak changes (a comparator) is told {@code neighborChanged} there.
-     */
-    @Inject(method = "updateNeighbourForOutputSignal", at = @At("HEAD"), cancellable = true)
-    private void projecte$neighborChange(BlockPos pos, Block block, CallbackInfo ci) {
-        Level level = (Level) (Object) this;
-        for (Direction direction : Direction.values()) {
-            BlockPos neighbor = pos.relative(direction);
-            if (!level.hasChunkAt(neighbor)) {
-                continue;
-            }
-            BlockState state = level.getBlockState(neighbor);
-            state.onNeighborChange(level, neighbor, pos);
-            if (state.isRedstoneConductor(level, neighbor)) {
-                neighbor = neighbor.relative(direction);
-                state = level.getBlockState(neighbor);
-                if (state.getWeakChanges(level, neighbor)) {
-                    level.neighborChanged(state, neighbor, block, pos, false);
-                }
-            }
-        }
-        ci.cancel();
-    }
-
-    @Redirect(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
-          at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"))
-    private int projecte$blockLight(BlockState state, BlockPos pos, BlockState replacement, int flags, int recursionLeft) {
-        return state.getLightEmission((Level) (Object) this, pos);
     }
 }

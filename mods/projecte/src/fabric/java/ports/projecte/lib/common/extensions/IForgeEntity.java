@@ -53,7 +53,7 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
         ((AttachedCapabilities.Holder) this).projecte$capabilities().invalidate();
     }
 
-    default void reviveCaps() {
+    default void projecte$reviveCaps() {
         ((AttachedCapabilities.Holder) this).projecte$capabilities().revive();
     }
 
@@ -72,7 +72,7 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
         return self().saveWithoutId(tag);
     }
 
-    default ItemStack getPickedResult(HitResult target) {
+    default ItemStack projecte$getPickedResult(HitResult target) {
         ItemStack result = self().getPickResult();
         if (result == null) {
             SpawnEggItem egg = SpawnEggItem.byId(self().getType());
@@ -81,7 +81,7 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
         return result;
     }
 
-    default void onRemovedFromWorld() {
+    default void projecte$onRemovedFromWorld() {
     }
 
     /**

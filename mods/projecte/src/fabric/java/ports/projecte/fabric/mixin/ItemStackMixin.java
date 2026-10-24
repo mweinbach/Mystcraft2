@@ -49,7 +49,7 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
     private <T extends LivingEntity> boolean projecte$damageItem(ItemStack stack, int amount, RandomSource random, @Nullable ServerPlayer player,
           Operation<Boolean> original, @Local(ordinal = 0) T entity, @Local(ordinal = 0) Consumer<T> onBroken) {
         // The generic signature of hurtAndBreak makes ModifyVariable see an extra int, so the damage hook wraps hurt.
-        int modified = ((IForgeItem) stack.getItem()).damageItem(stack, amount, entity, onBroken);
+        int modified = ((IForgeItem) stack.getItem()).projecte$damageItem(stack, amount, entity, onBroken);
         return original.call(stack, modified, random, player);
     }
 
@@ -63,7 +63,7 @@ public abstract class ItemStackMixin implements IForgeItemStack, AttachedCapabil
     @Inject(method = "getMaxDamage", at = @At("HEAD"), cancellable = true)
     private void projecte$maxDamage(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
-        cir.setReturnValue(((IForgeItem) self.getItem()).getMaxDamage(self));
+        cir.setReturnValue(((IForgeItem) self.getItem()).projecte$getMaxDamage(self));
     }
 
     @Inject(method = "getHideFlags", at = @At("HEAD"), cancellable = true)

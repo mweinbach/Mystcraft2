@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,43 +24,14 @@ public abstract class InventoryMixin {
     @Final
     public Player player;
     @Shadow
-    public int selected;
-    @Shadow
-    @Final
-    public NonNullList<ItemStack> items;
-    @Shadow
     @Final
     public NonNullList<ItemStack> armor;
-
-    /**
-     * The second pass keeps a stack the item says a pick must not replace, enchanted or not.
-     *
-     * @author Mekanism port
-     * @reason Pick actions honor {@code isNotReplaceableByPickAction}
-     */
-    @Overwrite
-    public int getSuitableHotbarSlot() {
-        for (int i = 0; i < 9; ++i) {
-            int slot = (this.selected + i) % 9;
-            if (this.items.get(slot).isEmpty()) {
-                return slot;
-            }
-        }
-        for (int i = 0; i < 9; ++i) {
-            int slot = (this.selected + i) % 9;
-            ItemStack stack = this.items.get(slot);
-            if (!((IForgeItem) stack.getItem()).isNotReplaceableByPickAction(stack, this.player, slot)) {
-                return slot;
-            }
-        }
-        return this.selected;
-    }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void projecte$armorTick(CallbackInfo ci) {
         Level level = this.player.level;
         for (ItemStack stack : this.armor) {
-            ((IForgeItem) stack.getItem()).onArmorTick(stack, level, this.player);
+            ((IForgeItem) stack.getItem()).projecte$onArmorTick(stack, level, this.player);
         }
     }
 }

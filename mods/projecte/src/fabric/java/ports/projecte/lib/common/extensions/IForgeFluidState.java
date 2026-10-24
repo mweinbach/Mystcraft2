@@ -23,7 +23,7 @@ public interface IForgeFluidState {
         return self().getType().getFluidType();
     }
 
-    default float getExplosionResistance(BlockGetter level, BlockPos pos, Explosion explosion) {
-        return self().getType().getExplosionResistance(self(), level, pos, explosion);
+    default float projecte$getExplosionResistance(BlockGetter level, BlockPos pos, Explosion explosion) {
+        return self().getType().projecte$getExplosionResistance(self(), level, pos, explosion);
     }
 }

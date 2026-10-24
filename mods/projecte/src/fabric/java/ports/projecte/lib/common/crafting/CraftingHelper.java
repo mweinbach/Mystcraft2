@@ -245,7 +245,7 @@ public final class CraftingHelper {
      */
     public static boolean writesIngredient(Ingredient ingredient) {
         IForgeIngredient forge = (IForgeIngredient) ingredient;
-        if (forge.isVanilla()) {
+        if (forge.projecte$isVanilla()) {
             return false;
         }
         try {

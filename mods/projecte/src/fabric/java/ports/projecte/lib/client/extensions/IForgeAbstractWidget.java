@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
  */
 public interface IForgeAbstractWidget {
 
-    default int getFGColor() {
+    default int projecte$getFGColor() {
         return ((AbstractWidget) this).active ? 0xFFFFFF : 0xA0A0A0;
     }
 }

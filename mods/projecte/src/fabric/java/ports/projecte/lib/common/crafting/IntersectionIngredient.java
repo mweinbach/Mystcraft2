@@ -35,7 +35,7 @@ public class IntersectionIngredient extends AbstractIngredient {
             throw new IllegalArgumentException("Cannot create an IntersectionIngredient with one or no children");
         }
         this.children = Collections.unmodifiableList(children);
-        this.simple = children.stream().allMatch(Ingredient::isSimple);
+        this.simple = children.stream().allMatch(Ingredient::projecte$isSimple);
     }
 
     public static Ingredient of(Ingredient... ingredients) {
@@ -83,7 +83,7 @@ public class IntersectionIngredient extends AbstractIngredient {
     }
 
     @Override
-    public boolean isSimple() {
+    public boolean projecte$isSimple() {
         return simple;
     }
 

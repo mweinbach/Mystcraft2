@@ -59,7 +59,7 @@ public final class ForgeHooks {
         if (stack.isEmpty()) {
             return 0;
         }
-        int burnTime = stack.getItem().getBurnTime(stack, recipeType);
+        int burnTime = stack.getItem().projecte$getBurnTime(stack, recipeType);
         if (burnTime >= 0) {
             return burnTime;
         }

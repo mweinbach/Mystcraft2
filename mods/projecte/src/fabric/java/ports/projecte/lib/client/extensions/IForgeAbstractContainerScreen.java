@@ -18,23 +18,23 @@ public interface IForgeAbstractContainerScreen {
     }
 
     @Nullable
-    default Slot getSlotUnderMouse() {
+    default Slot projecte$getSlotUnderMouse() {
         return self().hoveredSlot;
     }
 
-    default int getGuiLeft() {
+    default int projecte$getGuiLeft() {
         return self().leftPos;
     }
 
-    default int getGuiTop() {
+    default int projecte$getGuiTop() {
         return self().topPos;
     }
 
-    default int getXSize() {
+    default int projecte$getXSize() {
         return self().imageWidth;
     }
 
-    default int getYSize() {
+    default int projecte$getYSize() {
         return self().imageHeight;
     }
 }

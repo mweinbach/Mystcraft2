@@ -24,27 +24,27 @@ public abstract class ForgeAbstractContainerScreen<T extends AbstractContainerMe
 
     @Nullable
     @Override
-    public Slot getSlotUnderMouse() {
+    public Slot projecte$getSlotUnderMouse() {
         return hoveredSlot;
     }
 
     @Override
-    public int getGuiLeft() {
+    public int projecte$getGuiLeft() {
         return leftPos;
     }
 
     @Override
-    public int getGuiTop() {
+    public int projecte$getGuiTop() {
         return topPos;
     }
 
     @Override
-    public int getXSize() {
+    public int projecte$getXSize() {
         return imageWidth;
     }
 
     @Override
-    public int getYSize() {
+    public int projecte$getYSize() {
         return imageHeight;
     }
 }

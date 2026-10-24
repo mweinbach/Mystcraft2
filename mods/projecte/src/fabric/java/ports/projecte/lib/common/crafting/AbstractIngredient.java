@@ -54,7 +54,7 @@ public abstract class AbstractIngredient extends Ingredient {
     }
 
     @Override
-    public boolean isSimple() {
+    public boolean projecte$isSimple() {
         return false;
     }
 

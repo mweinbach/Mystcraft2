@@ -38,7 +38,7 @@ public interface IClientItemExtensions {
     static IClientItemExtensions of(Item item) {
         return Cache.BY_ITEM.computeIfAbsent(item, i -> {
             IClientItemExtensions[] holder = {DEFAULT};
-            i.initializeClient(extensions -> holder[0] = extensions);
+            i.projecte$initializeClient(extensions -> holder[0] = extensions);
             return holder[0];
         });
     }

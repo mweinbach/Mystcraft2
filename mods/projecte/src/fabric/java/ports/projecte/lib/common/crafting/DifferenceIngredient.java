@@ -52,8 +52,8 @@ public class DifferenceIngredient extends AbstractIngredient {
     }
 
     @Override
-    public boolean isSimple() {
-        return base.isSimple() && subtracted.isSimple();
+    public boolean projecte$isSimple() {
+        return base.projecte$isSimple() && subtracted.projecte$isSimple();
     }
 
     @NotNull

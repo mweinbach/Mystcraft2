@@ -4,7 +4,6 @@
  */
 package ports.projecte.fabric.mixin;
 
-import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +23,7 @@ import ports.projecte.lib.event.AttachCapabilitiesEvent;
  * Fabric's renderer hands it to the port's models.
  */
 @Mixin(value = BlockEntity.class, priority = 1100)
-public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCapabilities.Holder, RenderAttachmentBlockEntity {
+public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCapabilities.Holder {
 
     @Unique
     @Nullable
@@ -40,10 +39,6 @@ public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCap
         return projecte$capabilities;
     }
 
-    @Override
-    public Object getRenderAttachmentData() {
-        return getModelData();
-    }
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void projecte$saveCapabilities(CompoundTag tag, CallbackInfo ci) {
@@ -63,11 +58,11 @@ public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCap
     @Inject(method = "setRemoved", at = @At("TAIL"))
     private void projecte$invalidateCapabilities(CallbackInfo ci) {
         projecte$invalidateCaps();
-        requestModelDataUpdate();
+        projecte$requestModelDataUpdate();
     }
 
     @Inject(method = "clearRemoved", at = @At("TAIL"))
     private void projecte$reviveCapabilities(CallbackInfo ci) {
-        reviveCaps();
+        projecte$reviveCaps();
     }
 }

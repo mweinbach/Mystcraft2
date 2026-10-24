@@ -12,7 +12,7 @@ import net.minecraft.world.level.material.Fluid;
  */
 public interface IForgeBucketItem {
 
-    default Fluid getFluid() {
+    default Fluid projecte$getFluid() {
         return ((BucketItem) this).content;
     }
 }

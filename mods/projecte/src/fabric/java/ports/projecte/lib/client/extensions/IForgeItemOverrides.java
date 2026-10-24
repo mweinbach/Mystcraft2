@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
  */
 public interface IForgeItemOverrides {
 
-    default ImmutableList<ItemOverrides.BakedOverride> getOverrides() {
+    default ImmutableList<ItemOverrides.BakedOverride> projecte$getOverrides() {
         return ImmutableList.copyOf(((ItemOverrides) this).overrides);
     }
 }

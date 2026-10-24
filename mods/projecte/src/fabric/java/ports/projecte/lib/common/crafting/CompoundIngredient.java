@@ -31,7 +31,7 @@ public class CompoundIngredient extends AbstractIngredient {
 
     protected CompoundIngredient(List<Ingredient> children) {
         this.children = Collections.unmodifiableList(children);
-        this.simple = children.stream().allMatch(Ingredient::isSimple);
+        this.simple = children.stream().allMatch(Ingredient::projecte$isSimple);
     }
 
     public static Ingredient of(Ingredient... children) {
@@ -93,7 +93,7 @@ public class CompoundIngredient extends AbstractIngredient {
     }
 
     @Override
-    public boolean isSimple() {
+    public boolean projecte$isSimple() {
         return simple;
     }
 

@@ -29,7 +29,7 @@ public interface IClientBlockExtensions {
     static IClientBlockExtensions of(Block block) {
         return Cache.BY_BLOCK.computeIfAbsent(block, b -> {
             IClientBlockExtensions[] holder = {DEFAULT};
-            b.initializeClient(extensions -> holder[0] = extensions);
+            b.projecte$initializeClient(extensions -> holder[0] = extensions);
             return holder[0];
         });
     }

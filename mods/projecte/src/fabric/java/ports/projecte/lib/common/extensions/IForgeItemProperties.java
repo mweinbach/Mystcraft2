@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
  */
 public interface IForgeItemProperties {
 
-    default Item.Properties setNoRepair() {
+    default Item.Properties projecte$setNoRepair() {
         return (Item.Properties) this;
     }
 }

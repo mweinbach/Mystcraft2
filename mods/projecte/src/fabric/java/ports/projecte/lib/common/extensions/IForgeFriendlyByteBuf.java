@@ -39,7 +39,7 @@ public interface IForgeFriendlyByteBuf {
         writeRegistryIdUnsafe(registry, entry);
     }
 
-    default <T> T readRegistryId() {
+    default <T> T projecte$readRegistryId() {
         ResourceLocation registryName = self().readResourceLocation();
         IForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(registryName);
         if (registry == null) {
@@ -48,8 +48,8 @@ public interface IForgeFriendlyByteBuf {
         return readRegistryIdUnsafe(registry);
     }
 
-    default <T> T readRegistryIdSafe(Class<? super T> registrySuperType) {
-        T value = readRegistryId();
+    default <T> T projecte$readRegistryIdSafe(Class<? super T> registrySuperType) {
+        T value = projecte$readRegistryId();
         if (!registrySuperType.isInstance(value)) {
             throw new IllegalArgumentException("Attempted to read a registry entry of the wrong type, expected " + registrySuperType + " got " + value);
         }

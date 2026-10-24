@@ -14,16 +14,16 @@ import ports.projecte.lib.common.crafting.VanillaIngredientSerializer;
  */
 public interface IForgeIngredient {
 
-    default boolean isSimple() {
+    default boolean projecte$isSimple() {
         return true;
     }
 
-    default boolean isVanilla() {
+    default boolean projecte$isVanilla() {
         return getClass() == Ingredient.class;
     }
 
     default IIngredientSerializer<? extends Ingredient> getSerializer() {
-        if (isVanilla()) {
+        if (projecte$isVanilla()) {
             return VanillaIngredientSerializer.INSTANCE;
         }
         throw new IllegalStateException("Modders must implement Ingredient.getSerializer in their custom Ingredients: " + this);

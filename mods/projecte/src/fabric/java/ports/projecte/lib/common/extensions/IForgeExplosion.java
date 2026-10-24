@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public interface IForgeExplosion {
 
     @Nullable
-    default Entity getExploder() {
+    default Entity projecte$getExploder() {
         return ((Explosion) this).source;
     }
 }

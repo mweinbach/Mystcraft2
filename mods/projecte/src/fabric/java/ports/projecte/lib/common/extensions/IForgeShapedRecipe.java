@@ -11,11 +11,11 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
  */
 public interface IForgeShapedRecipe {
 
-    default int getRecipeWidth() {
+    default int projecte$getRecipeWidth() {
         return ((ShapedRecipe) this).getWidth();
     }
 
-    default int getRecipeHeight() {
+    default int projecte$getRecipeHeight() {
         return ((ShapedRecipe) this).getHeight();
     }
 }

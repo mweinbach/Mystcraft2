@@ -17,7 +17,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ports.projecte.lib.client.model.data.ModelData;
 import ports.projecte.lib.common.capabilities.AttachedCapabilities;
 import ports.projecte.lib.common.capabilities.Capability;
 import ports.projecte.lib.common.capabilities.ICapabilitySerializable;
@@ -52,7 +51,7 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
         ((AttachedCapabilities.Holder) this).projecte$capabilities().invalidate();
     }
 
-    default void reviveCaps() {
+    default void projecte$reviveCaps() {
         ((AttachedCapabilities.Holder) this).projecte$capabilities().revive();
     }
 
@@ -66,30 +65,30 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
         return self().saveWithFullMetadata();
     }
 
-    default void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+    default void projecte$onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
         CompoundTag tag = packet.getTag();
         if (tag != null) {
             self().load(tag);
         }
     }
 
-    default void handleUpdateTag(CompoundTag tag) {
+    default void projecte$handleUpdateTag(CompoundTag tag) {
         self().load(tag);
     }
 
-    default void onChunkUnloaded() {
+    default void projecte$onChunkUnloaded() {
         projecte$invalidateCaps();
     }
 
     default void projecte$onLoad() {
-        requestModelDataUpdate();
+        projecte$requestModelDataUpdate();
     }
 
     /**
      * The box the level renderer tests against the frustum. Matches Forge: the block's collision shape, except the
      * vanilla blocks whose renderer draws outside that shape.
      */
-    default AABB getRenderBoundingBox() {
+    default AABB projecte$getRenderBoundingBox() {
         BlockEntity blockEntity = self();
         BlockPos pos = blockEntity.getBlockPos();
         BlockState state = blockEntity.getBlockState();
@@ -114,13 +113,9 @@ public interface IForgeBlockEntity extends ICapabilitySerializable<CompoundTag> 
     }
 
     /**
-     * Fabric's renderer reads {@link #getModelData} when it rebuilds the chunk, so there is no cached copy to refresh.
+     * ProjectE's block models have no model data, so there is nothing to refresh.
      */
-    default void requestModelDataUpdate() {
+    default void projecte$requestModelDataUpdate() {
     }
 
-    @NotNull
-    default ModelData getModelData() {
-        return ModelData.EMPTY;
-    }
 }

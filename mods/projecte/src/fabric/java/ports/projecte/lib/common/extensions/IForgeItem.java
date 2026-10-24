@@ -66,19 +66,19 @@ public interface IForgeItem {
         return (Item) this;
     }
 
-    default Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+    default Multimap<Attribute, AttributeModifier> projecte$getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
         return self().getDefaultAttributeModifiers(slot);
     }
 
-    default InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+    default InteractionResult projecte$onItemUseFirst(ItemStack stack, UseOnContext context) {
         return InteractionResult.PASS;
     }
 
-    default boolean isPiglinCurrency(ItemStack stack) {
+    default boolean projecte$isPiglinCurrency(ItemStack stack) {
         return stack.is(PiglinAi.BARTERING_ITEM);
     }
 
-    default boolean makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
+    default boolean projecte$makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
         return stack.getItem() instanceof ArmorItem armor && armor.getMaterial() == ArmorMaterials.GOLD;
     }
 
@@ -118,37 +118,41 @@ public interface IForgeItem {
         return tag == null ? 0 : tag.getInt("Damage");
     }
 
-    default ItemStack getCraftingRemainingItem(ItemStack stack) {
-        Item remainder = self().getCraftingRemainingItem();
-        return remainder == null ? ItemStack.EMPTY : new ItemStack(remainder);
+    /**
+     * Defers to Fabric API's {@link net.fabricmc.fabric.api.item.v1.FabricItem#getRecipeRemainder}, so remainders other
+     * mods declare through Fabric API (or their own Forge-hook shims) are honored. ProjectE's own overrides answer
+     * Fabric API through {@code ports.projecte.fabric.mixin.CraftingRemainderMixin}.
+     */
+    default ItemStack projecte$getCraftingRemainingItem(ItemStack stack) {
+        return ((net.fabricmc.fabric.api.item.v1.FabricItem) self()).getRecipeRemainder(stack);
     }
 
-    default boolean hasCraftingRemainingItem(ItemStack stack) {
-        return self().hasCraftingRemainingItem();
+    default boolean projecte$hasCraftingRemainingItem(ItemStack stack) {
+        return !projecte$getCraftingRemainingItem(stack).isEmpty();
     }
 
-    default boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
+    default boolean projecte$doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
         return false;
     }
 
-    default void onArmorTick(ItemStack stack, Level level, Player player) {
+    default void projecte$onArmorTick(ItemStack stack, Level level, Player player) {
     }
 
-    default boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
+    default boolean projecte$canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
         return Mob.getEquipmentSlotForItem(stack) == armorType;
     }
 
     @Nullable
-    default EquipmentSlot getEquipmentSlot(ItemStack stack) {
+    default EquipmentSlot projecte$getEquipmentSlot(ItemStack stack) {
         return null;
     }
 
-    default boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+    default boolean projecte$isBookEnchantable(ItemStack stack, ItemStack book) {
         return true;
     }
 
     @Nullable
-    default String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+    default String projecte$getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         return null;
     }
 
@@ -180,7 +184,7 @@ public interface IForgeItem {
      * Forge's stack-aware durability. Paxels and Mekanism armor override it; the stack mixin calls it from
      * {@link ItemStack#getMaxDamage()}.
      */
-    default int getMaxDamage(ItemStack stack) {
+    default int projecte$getMaxDamage(ItemStack stack) {
         return self().getMaxDamage();
     }
 
@@ -188,26 +192,26 @@ public interface IForgeItem {
      * Forge's damageable check. It ignores the unbreakable flag, which the paxel recipe relies on when it averages
      * the durability of its inputs.
      */
-    default boolean isDamageable(ItemStack stack) {
-        return getMaxDamage(stack) > 0;
+    default boolean projecte$isDamageable(ItemStack stack) {
+        return projecte$getMaxDamage(stack) > 0;
     }
 
     /**
      * Forge adds this to digger items. Mekanism axes, hoes, pickaxes, shovels and paxels override it.
      */
-    default float getAttackDamage() {
+    default float projecte$getAttackDamage() {
         return 0;
     }
 
-    default int getMaxStackSize(ItemStack stack) {
+    default int projecte$getMaxStackSize(ItemStack stack) {
         return self().getMaxStackSize();
     }
 
-    default boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+    default boolean projecte$canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         return enchantment.category.canEnchant(stack.getItem());
     }
 
-    default int getEnchantmentLevel(ItemStack stack, Enchantment enchantment) {
+    default int projecte$getEnchantmentLevel(ItemStack stack, Enchantment enchantment) {
         ResourceLocation id = Registry.ENCHANTMENT.getKey(enchantment);
         for (Tag tag : stack.getEnchantmentTags()) {
             CompoundTag entry = (CompoundTag) tag;
@@ -218,15 +222,15 @@ public interface IForgeItem {
         return 0;
     }
 
-    default Map<Enchantment, Integer> getAllEnchantments(ItemStack stack) {
+    default Map<Enchantment, Integer> projecte$getAllEnchantments(ItemStack stack) {
         return EnchantmentHelper.deserializeEnchantments(stack.getEnchantmentTags());
     }
 
-    default boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    default boolean projecte$shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return !ItemStack.matches(oldStack, newStack);
     }
 
-    default boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
+    default boolean projecte$shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
         if (!newStack.is(oldStack.getItem())) {
             return true;
         } else if (!newStack.isDamageableItem() || !oldStack.isDamageableItem()) {
@@ -265,31 +269,31 @@ public interface IForgeItem {
         return null;
     }
 
-    default int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+    default int projecte$getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
         return -1;
     }
 
-    default <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken) {
+    default <T extends LivingEntity> int projecte$damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken) {
         return amount;
     }
 
-    default void onDestroyed(ItemEntity itemEntity, DamageSource damageSource) {
+    default void projecte$onDestroyed(ItemEntity itemEntity, DamageSource damageSource) {
         self().onDestroyed(itemEntity);
     }
 
-    default boolean isEnderMask(ItemStack stack, Player player, EnderMan enderMan) {
+    default boolean projecte$isEnderMask(ItemStack stack, Player player, EnderMan enderMan) {
         return stack.is(Blocks.CARVED_PUMPKIN.asItem());
     }
 
-    default boolean canElytraFly(ItemStack stack, LivingEntity entity) {
+    default boolean projecte$canElytraFly(ItemStack stack, LivingEntity entity) {
         return false;
     }
 
-    default boolean elytraFlightTick(ItemStack stack, LivingEntity entity, int flightTicks) {
+    default boolean projecte$elytraFlightTick(ItemStack stack, LivingEntity entity, int flightTicks) {
         return false;
     }
 
-    default boolean canWalkOnPowderedSnow(ItemStack stack, LivingEntity wearer) {
+    default boolean projecte$canWalkOnPowderedSnow(ItemStack stack, LivingEntity wearer) {
         return stack.is(Items.LEATHER_BOOTS);
     }
 
@@ -298,21 +302,21 @@ public interface IForgeItem {
     }
 
     @Nullable
-    default FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
+    default FoodProperties projecte$getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
         return self().getFoodProperties();
     }
 
-    default boolean isNotReplaceableByPickAction(ItemStack stack, Player player, int inventorySlot) {
+    default boolean projecte$isNotReplaceableByPickAction(ItemStack stack, Player player, int inventorySlot) {
         return stack.isEnchanted();
     }
 
-    default boolean isRepairable(ItemStack stack) {
+    default boolean projecte$isRepairable(ItemStack stack) {
         return stack.isDamageableItem();
     }
 
     /**
      * Supplies the item's client behavior; read once through {@link IClientItemExtensions#of}.
      */
-    default void initializeClient(Consumer<IClientItemExtensions> consumer) {
+    default void projecte$initializeClient(Consumer<IClientItemExtensions> consumer) {
     }
 }

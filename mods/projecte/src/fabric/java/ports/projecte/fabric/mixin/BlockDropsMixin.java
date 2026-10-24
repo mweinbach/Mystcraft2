@@ -23,7 +23,7 @@ public abstract class BlockDropsMixin {
     @Inject(method = "popResource(Lnet/minecraft/world/level/Level;Ljava/util/function/Supplier;Lnet/minecraft/world/item/ItemStack;)V", at = @At("HEAD"),
           cancellable = true)
     private static void projecte$skipWhileRestoring(Level level, Supplier<ItemEntity> itemEntity, ItemStack stack, CallbackInfo ci) {
-        if (level.isRestoringBlockSnapshots()) {
+        if (level.projecte$isRestoringBlockSnapshots()) {
             ci.cancel();
         }
     }

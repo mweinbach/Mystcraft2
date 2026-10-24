@@ -4,49 +4,14 @@
  */
 package ports.projecte.fabric.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import ports.projecte.lib.common.extensions.IForgeExplosion;
 
+/**
+ * Gives explosions Forge's {@code getExploder}, which the Nova explosion reads. ProjectE's own explosion drives its
+ * block hooks itself, so vanilla's explosion is not patched.
+ */
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin implements IForgeExplosion {
-
-    @Shadow
-    private Level level;
-
-    @Redirect(method = "finalizeExplosion", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
-    private boolean projecte$onBlockExploded(Level level, BlockPos pos, BlockState state, int flags) {
-        if (state.is(Blocks.AIR)) {
-            BlockState current = level.getBlockState(pos);
-            if (!current.isAir()) {
-                current.onBlockExploded(level, pos, (Explosion) (Object) this);
-                return true;
-            }
-        }
-        return level.setBlock(pos, state, flags);
-    }
-
-    @Redirect(method = "finalizeExplosion", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/Block;wasExploded(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;)V"))
-    private void projecte$explodedByHook(Block block, Level level, BlockPos pos, Explosion explosion) {
-    }
-
-    @WrapOperation(method = "finalizeExplosion", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/Block;dropFromExplosion(Lnet/minecraft/world/level/Explosion;)Z"))
-    private boolean projecte$canDrop(Block block, Explosion explosion, Operation<Boolean> original, @Local(ordinal = 0) BlockState state,
-          @Local(ordinal = 0) BlockPos pos) {
-        return state.canDropFromExplosion(this.level, pos, (Explosion) (Object) this);
-    }
 }

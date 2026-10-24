@@ -4,6 +4,7 @@
  */
 package ports.projecte.fabric.mixin;
 
+import ports.projecte.fabric.PEHooks;
 import ports.projecte.lib.common.extensions.IForgeFriendlyByteBuf;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -20,6 +21,6 @@ public abstract class FriendlyByteBufMixin implements IForgeFriendlyByteBuf {
     /** Forge sends the item's share tag rather than the full stack tag. */
     @WrapOperation(method = "writeItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getTag()Lnet/minecraft/nbt/CompoundTag;"))
     private CompoundTag projecte$shareTag(ItemStack stack, Operation<CompoundTag> original) {
-        return ((IForgeItem) stack.getItem()).projecte$getShareTag(stack);
+        return PEHooks.ours(stack.getItem()) ? ((IForgeItem) stack.getItem()).projecte$getShareTag(stack) : original.call(stack);
     }
 }

@@ -14,7 +14,7 @@ import net.minecraft.world.entity.EntityType;
 public interface IForgeEntityType {
 
     @SuppressWarnings("deprecation")
-    default Stream<TagKey<EntityType<?>>> getTags() {
+    default Stream<TagKey<EntityType<?>>> projecte$getTags() {
         return ((EntityType<?>) this).builtInRegistryHolder().tags();
     }
 }

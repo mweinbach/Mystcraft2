@@ -12,7 +12,7 @@ import net.minecraft.network.protocol.PacketFlow;
  */
 public interface IForgeConnection {
 
-    default PacketFlow getDirection() {
+    default PacketFlow projecte$getDirection() {
         return ((Connection) this).getReceiving();
     }
 }

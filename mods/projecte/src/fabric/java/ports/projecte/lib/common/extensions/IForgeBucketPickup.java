@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public interface IForgeBucketPickup {
 
-    default Optional<SoundEvent> getPickupSound(BlockState state) {
+    default Optional<SoundEvent> projecte$getPickupSound(BlockState state) {
         return ((BucketPickup) this).getPickupSound();
     }
 }

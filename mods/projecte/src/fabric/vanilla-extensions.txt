@@ -26,3 +26,27 @@ isCorrectToolForDrops (PESword|PEShears)\.java
 getDamage DamageProcessor\.java
 getPlant
 getPlantType
+canApplyAtEnchantingTable
+canDropFromExplosion
+damageItem
+getEnchantmentLevel
+getExploder
+getPickedResult
+isBookEnchantable
+onArmorTick
+onBlockExploded
+onCaughtFire
+onDestroyedByPlayer
+reviveCaps
+setRestoringBlockSnapshots
+shouldCauseReequipAnimation
+getMaxDamage DamageProcessor\.java
+getCraftingRemainingItem (DMFurnaceBlockEntity|VolcaniteAmulet|PhilosophersStone|Arcana|Zero|EvertideAmulet|BaseRecipeTypeMapper)\.java
+hasCraftingRemainingItem (VolcaniteAmulet|PhilosophersStone|Arcana|Zero|EvertideAmulet|BaseRecipeTypeMapper)\.java
+getAttributeModifiers (PEMorningStar|PEKatar|PEHammer|PESword|GemFeet)\.java
+getPickupSound BlackHoleBand\.java
+getCloneItemStack WorldTransmuteEntry\.java
+getFlammability ProjectETNT\.java
+isFlammable (PECore|WorldHelper)\.java
+isRepairable ItemHelper\.java
+getSlotUnderMouse GUITransmutation\.java

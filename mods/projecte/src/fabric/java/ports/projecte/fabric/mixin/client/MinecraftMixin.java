@@ -4,6 +4,10 @@
  */
 package ports.projecte.fabric.mixin.client;
 
+import net.minecraft.world.entity.Entity;
+import ports.projecte.fabric.PEHooks;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.jetbrains.annotations.Nullable;
 import ports.projecte.lib.event.entity.player.PlayerInteractEvent;
@@ -23,7 +27,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ports.projecte.fabric.FabricGameEvents;
 import ports.projecte.fabric.client.FabricClientMod;
@@ -110,11 +113,11 @@ public abstract class MinecraftMixin {
         FabricClientMod.beforeInitialResourceReload();
     }
 
-    @Redirect(method = "pickBlock", at = @At(value = "INVOKE",
-          target = "Lnet/minecraft/world/level/block/Block;getCloneItemStack(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack projecte$pickBlock(Block block, BlockGetter level, BlockPos pos, BlockState state) {
+    /** Forge asks an entity for its pick result with the hit; ProjectE's primed Nova entities answer with their block. */
+    @WrapOperation(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getPickResult()Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack projecte$pickEntity(Entity entity, Operation<ItemStack> original) {
         Minecraft minecraft = (Minecraft) (Object) this;
-        return state.getCloneItemStack(minecraft.hitResult, level, pos, minecraft.player);
+        return PEHooks.ours(entity) ? entity.projecte$getPickedResult(minecraft.hitResult) : original.call(entity);
     }
 
     /**

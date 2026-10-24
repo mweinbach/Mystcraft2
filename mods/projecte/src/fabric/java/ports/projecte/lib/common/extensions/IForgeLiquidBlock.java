@@ -12,7 +12,7 @@ import net.minecraft.world.level.material.FlowingFluid;
  */
 public interface IForgeLiquidBlock {
 
-    default FlowingFluid getFluid() {
+    default FlowingFluid projecte$getFluid() {
         return ((LiquidBlock) this).fluid;
     }
 }

@@ -126,6 +126,9 @@ def forgeOnlyVanillaMembers = [
     // Vanilla already sends velocity updates for these entity types.
     [~/\.setShouldReceiveVelocityUpdates\(true\)/, '', ~/PEEntityTypes\.java$/],
     [~/\bthis\(item\.get\(\), nbt\)/, 'this(item.value(), nbt)', ~/NSSItemParser\.java$/],
+    // Forge methods whose names the same files also use for other, non-Forge methods.
+    [~/\bliquidBlock\.getFluid\(/, 'liquidBlock.projecte\\$getFluid(', ~/(WorldTransmuteEntry|TransmutationRenderingOverlay)\.java$/],
+    [~/\bpublic int getBurnTime\(ItemStack\b/, 'public int projecte\\$getBurnTime(ItemStack', ~/(AlchemicalFuel|ItemFuelBlock)\.java$/],
 ]
 // Every method the port's Forge API layer adds to a vanilla class is named projecte$<name> on Fabric, so it can never
 // clash with the same Forge-shaped method another mod's layer adds to that class: Mekanism's port, Porting Lib (which

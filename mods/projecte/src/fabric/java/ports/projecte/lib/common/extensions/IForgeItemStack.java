@@ -57,65 +57,65 @@ public interface IForgeItemStack extends ICapabilitySerializable<CompoundTag> {
         throw new UnsupportedOperationException("Use ItemStack.of to read an item stack");
     }
 
-    default ItemStack getCraftingRemainingItem() {
-        return self().getItem().getCraftingRemainingItem(self());
+    default ItemStack projecte$getCraftingRemainingItem() {
+        return self().getItem().projecte$getCraftingRemainingItem(self());
     }
 
-    default boolean hasCraftingRemainingItem() {
-        return self().getItem().hasCraftingRemainingItem(self());
+    default boolean projecte$hasCraftingRemainingItem() {
+        return self().getItem().projecte$hasCraftingRemainingItem(self());
     }
 
-    default int getBurnTime(@Nullable RecipeType<?> recipeType) {
-        return self().getItem().getBurnTime(self(), recipeType);
+    default int projecte$getBurnTime(@Nullable RecipeType<?> recipeType) {
+        return self().getItem().projecte$getBurnTime(self(), recipeType);
     }
 
     default boolean canPerformAction(ToolAction toolAction) {
         return self().getItem().canPerformAction(self(), toolAction);
     }
 
-    default int getEnchantmentLevel(Enchantment enchantment) {
-        return self().getItem().getEnchantmentLevel(self(), enchantment);
+    default int projecte$getEnchantmentLevel(Enchantment enchantment) {
+        return self().getItem().projecte$getEnchantmentLevel(self(), enchantment);
     }
 
-    default Map<Enchantment, Integer> getAllEnchantments() {
-        return self().getItem().getAllEnchantments(self());
-    }
-
-    @Nullable
-    default EquipmentSlot getEquipmentSlot() {
-        return self().getItem().getEquipmentSlot(self());
-    }
-
-    default boolean canEquip(EquipmentSlot armorType, Entity entity) {
-        return self().getItem().canEquip(self(), armorType, entity);
-    }
-
-    default boolean isBookEnchantable(ItemStack book) {
-        return self().getItem().isBookEnchantable(self(), book);
-    }
-
-    default boolean canElytraFly(LivingEntity entity) {
-        return self().getItem().canElytraFly(self(), entity);
-    }
-
-    default boolean elytraFlightTick(LivingEntity entity, int flightTicks) {
-        return self().getItem().elytraFlightTick(self(), entity, flightTicks);
-    }
-
-    default boolean canWalkOnPowderedSnow(LivingEntity wearer) {
-        return self().getItem().canWalkOnPowderedSnow(self(), wearer);
-    }
-
-    default void onDestroyed(ItemEntity itemEntity, DamageSource damageSource) {
-        self().getItem().onDestroyed(itemEntity, damageSource);
+    default Map<Enchantment, Integer> projecte$getAllEnchantments() {
+        return self().getItem().projecte$getAllEnchantments(self());
     }
 
     @Nullable
-    default FoodProperties getFoodProperties(@Nullable LivingEntity entity) {
-        return self().getItem().getFoodProperties(self(), entity);
+    default EquipmentSlot projecte$getEquipmentSlot() {
+        return self().getItem().projecte$getEquipmentSlot(self());
     }
 
-    default boolean isRepairable() {
-        return self().getItem().isRepairable(self());
+    default boolean projecte$canEquip(EquipmentSlot armorType, Entity entity) {
+        return self().getItem().projecte$canEquip(self(), armorType, entity);
+    }
+
+    default boolean projecte$isBookEnchantable(ItemStack book) {
+        return self().getItem().projecte$isBookEnchantable(self(), book);
+    }
+
+    default boolean projecte$canElytraFly(LivingEntity entity) {
+        return self().getItem().projecte$canElytraFly(self(), entity);
+    }
+
+    default boolean projecte$elytraFlightTick(LivingEntity entity, int flightTicks) {
+        return self().getItem().projecte$elytraFlightTick(self(), entity, flightTicks);
+    }
+
+    default boolean projecte$canWalkOnPowderedSnow(LivingEntity wearer) {
+        return self().getItem().projecte$canWalkOnPowderedSnow(self(), wearer);
+    }
+
+    default void projecte$onDestroyed(ItemEntity itemEntity, DamageSource damageSource) {
+        self().getItem().projecte$onDestroyed(itemEntity, damageSource);
+    }
+
+    @Nullable
+    default FoodProperties projecte$getFoodProperties(@Nullable LivingEntity entity) {
+        return self().getItem().projecte$getFoodProperties(self(), entity);
+    }
+
+    default boolean projecte$isRepairable() {
+        return self().getItem().projecte$isRepairable(self());
     }
 }
