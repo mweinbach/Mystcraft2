@@ -868,7 +868,7 @@ class Port:
         # ProjectE-only state: tag node values, the items the ore blacklists zero (and why), the items
         # metals.json prices, and the item (and why) a policy conversion names in place of a tag.
         self.tag_values, self.projecte_unvalued, self.projecte_overwritten, self.projecte_tag_items = {}, {}, {}, {}
-        self.projecte_blacklisted, self.projecte_tag_reasons = {}, {}
+        self.projecte_blacklisted, self.projecte_tag_reasons, self.projecte_standalone = {}, {}, {}
         for system in SYSTEMS:
             tags, remainders, recipes, skipped = self.system_inputs(system)
             baseline = read_baseline(system)
@@ -905,8 +905,11 @@ class Port:
                     problems.append(f"{item} is excluded but Item Alchemy gives it {fixed[item]} via {source[item]}")
                 fixed.pop(item, None)
             alternatives = self.recipe_alternatives(system)
+            borrowed = set()
             for item, value in self._optional_values(system).items():
-                fixed.setdefault(item, value)
+                if item not in fixed:
+                    fixed[item] = value
+                    borrowed.add(item)
             unblacklisted = dict(fixed)
             blacklisted = self._projecte_blacklist(tags, universe) if system == "projecte" else {}
             for item in blacklisted:
@@ -916,10 +919,13 @@ class Port:
             overwritten_tags = {entry["output"] for entry in metals}
             tag_nodes = {f"#{tag}": Fraction(value) for tag, value in tag_defaults.items()} if system == "projecte" else {}
             conversions = conversions_from(recipes, tags, remainders)
+            optional_only = set()
             for label, extra, extra_tags, priced in alternatives:
                 if priced:
-                    conversions += [(f"{rid} ({label})", output, count, ingredients)
-                                    for rid, output, count, ingredients in conversions_from(extra, extra_tags, remainders)]
+                    added = [(f"{rid} ({label})", output, count, ingredients)
+                             for rid, output, count, ingredients in conversions_from(extra, extra_tags, remainders)]
+                    optional_only.update(name for name, *_rest in added)
+                    conversions += added
             self.alternatives[system] = [("standalone", recipes, tags, True), *alternatives]
             for name, output, count, ingredients in self.policy_conversions:
                 nodes = {}
@@ -950,6 +956,14 @@ class Port:
                         if item not in values and item not in blacklisted and others.get(item, 0) >= 1:
                             self.projecte_unvalued[item] = "made only from items ProjectE's ore blacklists zero"
                 self._choose_projecte_tag_items(created | overwritten_tags, tags, universe, baseline, values)
+                # ProjectE derives values from the recipes that actually load, so a port whose values take the
+                # cheapest of its optional mods' recipes reads higher when it runs alone. Record that value too.
+                self.projecte_standalone = {}
+                if optional_only or borrowed:
+                    alone = resolve([c for c in conversions if c[0] not in optional_only],
+                                    {**{k: v for k, v in fixed.items() if k not in borrowed}, **tag_nodes},
+                                    blocked, remainders)
+                    self.projecte_standalone = {item: alone.get(item) for item in self.items}
             self.inputs[system] = (tags, remainders, conversions, baseline, fixed, skipped)
             self.results[system] = values
             self.sources[system] = source
@@ -1462,6 +1476,11 @@ class Port:
                     entry.setdefault("no_value", {})[system] = self.projecte_unvalued[item]
                 else:
                     self.problems.append(f"{item} resolves to no {system} value; give it an explicit value or exclude it")
+            if item in self.projecte_standalone:
+                alone = self.projecte_standalone[item]
+                alone = int(alone) if alone is not None and alone >= 1 else 0
+                if alone != entry.get("projecte"):
+                    entry["projecte_standalone"] = alone
             entry["source"] = self.source_of(item)
             items[item] = entry
         document = {"namespace": self.namespace,

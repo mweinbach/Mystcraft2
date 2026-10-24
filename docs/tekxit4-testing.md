@@ -199,3 +199,127 @@ The affected ports pass their checks:
 
 The test instance remains in Prism with the ports, the merged EMC config and Sodium. The probe, the GameTest API and
 the ICBM Tekxit test jar were removed after the runs.
+
+## ProjectE Fabric port in Tekxit 4 (2026-10-24)
+
+This repository's ProjectE 1.1.0 Fabric port ([`mods/projecte`](../mods/projecte/README.md)) was added to the same
+disposable server copy and Prism test instance as above. Two configurations were tested: (a) beside Tekxit's
+Item Alchemy 1.1.3, and (b) with `itemalchemy.jar` removed. The pack inputs, loader, Fabric API and the method are the
+same as in the section above. The probe added a ProjectE stage:
+
+- **Server.** It checks ProjectE's anchor values: vanilla items, the Philosopher's Stone and the wither skeleton
+  skull loop fix. A wrong anchor is a failure. It also compares each port's expected `projecte` values.
+- **Client.** It checks a client-side EMC value, the EMC tooltip and ProjectE's key bindings. It then places the
+  Transmutation Table, Alchemical Chest, Energy Condenser MK1, Energy Collector MK1 and Dark Matter Furnace, opens
+  each one's screen and takes a screenshot of it.
+
+| Installed jar (this branch) | SHA-256 |
+| --- | --- |
+| projecte-fabric-1.19.2-1.1.0-port.1 | `0426fe94773a63456e976cbc887594c7d7542cdc7f275520a95d107392df3a1a` |
+| advancedgenetics-fabric-1.19.2-1.0.3-port.1-dev (night-config fix below) | `51ce89e41c1b1830e0d9a9370757935043fc25436a74a2a9f3c9b4aabbf181b8` |
+| tekxit4-probe-fabric-1.19.2-1.0.0 (test only) | `c90a808f7c443a1e290bb242d2658caa2288c8ba0608402c0b4646d53ff03d60` |
+| Item Alchemy 1.1.3 (`TKXAddons/itemalchemy.jar`, configuration a only) | `31e3a0c9eb8cfb4fd0b3e8e22cc57e3a97415f2b902145fca3a02edbbc02ea95` |
+
+The other port jars rebuilt byte-for-byte identical to the table above. Trinkets 3.4.2 and EMI 1.1.24 are the pack's
+own copies.
+
+### Boot matrix
+
+| Boot | Result |
+| --- | --- |
+| Dedicated server (a), with Item Alchemy | `Done (11.583s)`. 456 mods and 20,723 recipes. 0 probe failures, 7/7 Tekxit GameTests, clean `stop`. Distant Horizons then kept the JVM alive, as before. A second boot of the same world: `Done (0.826s)`, the same results, and the JVM exited. |
+| Dedicated server (b), without Item Alchemy | `Done (12.204s)`. 455 mods and 20,668 recipes. 0 probe failures, 7/7 Tekxit GameTests, clean `stop` and exit. |
+| Client (a), with Item Alchemy | The first launch died in a HotSpot C2 compiler crash while creating the world (see below). The relaunch passed every stage: the title screen, the world, the showcase, every creative tab including ProjectE's, EMI pages including ProjectE's Aeternalis Fuel, the ProjectE stage, the GameTests and save/quit. Only the probe's own GameTest ran (1/1), because the ICBM Tekxit test jar was not installed for this run. Integrated-server probe: 0 failures. |
+| Client (b), without Item Alchemy | The first launch died in the same kind of HotSpot crash. The relaunch passed every stage, with 7/7 GameTests (ICBM Tekxit test jar installed). Integrated-server probe: 0 failures. |
+
+The ProjectE stage gave the same result in both clients:
+
+- Diamond EMC on the client is 8,192, and item tooltips show EMC.
+- ProjectE's six key bindings are registered.
+- These screens opened:
+  - `GUITransmutation`;
+  - `AlchChestScreen`;
+  - `AbstractCondenserScreen$MK1`;
+  - `AbstractCollectorScreen$MK1`;
+  - `GUIDMFurnace`.
+
+### EMC
+
+| | (a) with Item Alchemy | (b) without |
+| --- | --- | --- |
+| ProjectE entries after mapping | 6,933 | 6,923 |
+| ProjectE anchors: cobblestone 1, iron ingot 256, gold ingot 2,048, diamond 8,192, nether star 139,264, Philosopher's Stone 9,984 | all match | all match |
+| ProjectE `minecraft:wither_skeleton_skull` | 46,422 | 46,422 |
+| Item Alchemy | 9,132 entries, skull 46,422, 0 mismatches against the 2,091 expected port values | not loaded |
+
+ICBM's `pe_custom_conversions` file sets the skull's value. With it, the Wither loop stays closed under ProjectE in
+both configurations, as under Item Alchemy.
+
+The ports' ProjectE values differ from their `emc/values.json` in this pack. Configurations (a) and (b) give the same
+differences:
+
+| Port | Differ | Lost value |
+| --- | --- | --- |
+| BuildCraft | 66 of 230 | none |
+| JurassiCraft | 16 of 626 | none |
+| Gridwright | 2 of 83 | none |
+| Mystcraft | 8 of 24 | none |
+| Advanced Genetics | 0 of 94 | none |
+| Extreme Reactors | 29 of 113 | `yellorite_ore` |
+| Mekanism | 203 of 779 | tin, lead and bronze blocks and nuggets, `nugget_steel` |
+| ICBM | 65 of 142 | `iron_plate`, `steel_plate` |
+
+These differences are expected. They are warnings, not failures:
+
+- ProjectE derives values from the recipes a pack actually loads. The values the ports ship are derived from the
+  ports' own recipes. In Tekxit, other mods' recipes and Almost Unified's tag unification make many inputs cheaper.
+  For example, Tech Reborn's steel makes Extreme Reactors' reinforced parts cheaper.
+- The mapper takes the cheapest recipe for each item, so no recipe it maps returns more EMC than it consumes.
+- The items that lost their value fall into two groups:
+  - Almost Unified replaces these outputs with its preferred mod's items, so no loaded recipe produces them.
+  - Tekxit's tags put `yellorite_ore` in an ore tag, and ProjectE's ore blacklist gives ores no EMC. That is upstream
+    behaviour.
+
+The CI audits, without the pack, check that the values match exactly (see [emc.md](emc.md)).
+
+### Problems found and fixed
+
+These were found by the live ProjectE audits that every Fabric port's CI GameTests now run, before the pack was
+booted. The Tekxit runs found no further ProjectE defects.
+
+| Where | Symptom | Fix | Regression check |
+| --- | --- | --- | --- |
+| ProjectE (Fabric) | A furnace burning Aeternalis Fuel lost most of its burn time on save. Vanilla saves `BurnTime` as a short; Forge saves an int. | `AbstractFurnaceBurnTimeMixin` stores it as an int when it exceeds `Short.MAX_VALUE`. | `ItemGameTests.longBurnTimeSurvivesSaving` |
+| Advanced Genetics (Fabric) | night-config 3.6.6 is nested by ProjectE and Mekanism, and a pack loads the newest copy. Its TOML parser loses table key order, so the config correction reordered keys on every rewrite. | Rebuilds each table in declared order. | AG Fabric GameTests with `-PwithProjectE` |
+| Extreme Reactors GameTests | The netherite steel stand-in priced every reinforced part under ProjectE. | The stand-in is off under `-PwithProjectE`. | ER Fabric audit |
+| ICBM EMC audit | 81 values were higher than expected without Mekanism. The expected values took Mekanism's cheaper recipes, but ProjectE only sees the recipes that load. | `scripts/emc.py` records `projecte_standalone`, and the audit expects it when Mekanism is absent. | `scripts/tests/test_emc.py`, ICBM audit |
+
+### Remaining warnings
+
+- **Key conflicts.** ProjectE's default keys collide with other pack keys:
+  - G with Advanced Genetics, Mekanism and Origins;
+  - V with Item Alchemy, Mekanism and voice chat;
+  - C with JurassiCraft, Botania and Zoomify;
+  - R with JurassiCraft and Observable.
+
+  The helmet and boots toggles are Shift+X and X, as upstream. Rebind the keys in Controls.
+- **Item particle textures.** Four ProjectE item models have no particle texture: `alchemical_chest`, `condenser_mk1`,
+  `condenser_mk2` and `arcana_ring`. Upstream's generated models are the same, and the items render.
+- **HotSpot crashes.** Two client launches were killed by HotSpot C2 compiler crashes in Prism's Java runtime
+  (Microsoft OpenJDK 17.0.15). One crashed in `Chunk::operator delete`. The other crashed in `Chunk::next_chop` while
+  compiling Distant Horizons' `LodDataBuilder.createFromChunk`. No mod frame was on either stack. Both relaunches
+  passed. The earlier all-ports run saw the same crash once.
+- **Not covered.** Nobody interacted inside the screens, and nobody played through transmutation in the client. The
+  dedicated GameTests cover that gameplay (see [PARITY.md](../mods/projecte/PARITY.md)).
+
+### Screenshots
+
+| | |
+| --- | --- |
+| ![Transmutation Table screen](tekxit4-screenshots/projecte_08_transmutation_table.png) | ![Energy Condenser screen](tekxit4-screenshots/projecte_08_condenser_mk1.png) |
+| ![ProjectE creative tab](tekxit4-screenshots/projecte_05_creative.png) | ![EMI page for Aeternalis Fuel](tekxit4-screenshots/projecte_06_emi_aeternalis_fuel.png) |
+
+After the runs, the test instance keeps the ProjectE Fabric jar beside Item Alchemy (configuration a) and the updated
+port jars. The probe, the GameTest API, the ICBM Tekxit test jar, the autorun marker and the `Tekxit Probe` world
+were removed. The user's `Tekxit 4 (Official)` instance and `accounts.json` were not touched. The disposable server
+copies are `.local/tekxit4/server-projecte-a` and `server-projecte-b`.

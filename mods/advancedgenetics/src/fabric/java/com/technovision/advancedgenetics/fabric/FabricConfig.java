@@ -18,12 +18,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Loads {@code config/AdvancedGenetics.toml} with the corrections ForgeConfigSpec applies, so the
@@ -54,33 +52,27 @@ public final class FabricConfig {
     /** Applies ForgeConfigSpec's corrections to {@code text}, touching neither the game nor the disk. */
     public static Corrected correct(String text) {
         TomlFormat format = TomlFormat.instance();
+        CommentedConfig parsed = CommentedConfig.of(LinkedHashMap::new, format);
+        format.createParser().parse(text, parsed, ParsingMode.REPLACE);
+        // The output is rebuilt in declared order. night-config 3.6.6 (Mekanism's and ProjectE's Fabric jars nest it,
+        // and a pack loads the newest copy) does not keep a parsed table's key order, as 3.6.4 did, so correcting the
+        // parsed tables in place would reorder the keys on every rewrite.
         CommentedConfig config = CommentedConfig.of(LinkedHashMap::new, format);
-        format.createParser().parse(text, config, ParsingMode.REPLACE);
         Map<Config.Value<?>, Object> values = new LinkedHashMap<>();
-        Map<String, Object> root = config.valueMap();
         for (Config.Section section : Config.sections()) {
-            if (!(root.get(section.name()) instanceof CommentedConfig)) {
-                root.put(section.name(), config.createSubConfig());
-            }
-            CommentedConfig table = (CommentedConfig) root.get(section.name());
-            Map<String, Object> stored = table.valueMap();
+            Map<String, Object> stored = parsed.valueMap().get(section.name()) instanceof CommentedConfig old
+                    ? old.valueMap() : Map.of();
+            CommentedConfig table = CommentedConfig.of(LinkedHashMap::new, format);
             for (Config.Value<?> value : section.values()) {
                 Object corrected = corrected(value, stored.get(value.key()));
-                stored.put(value.key(), corrected);
+                table.valueMap().put(value.key(), corrected);
                 values.put(value, typed(value, corrected));
                 String comment = comment(value);
-                if (comment == null) {
-                    table.removeComment(value.key());
-                } else {
-                    table.setComment(value.key(), comment);
-                }
+                if (comment != null) table.setComment(value.key(), comment);
             }
-            Set<String> known = section.values().stream().map(Config.Value::key).collect(Collectors.toSet());
-            stored.keySet().retainAll(known);
+            config.valueMap().put(section.name(), table);
             config.setComment(section.name(), String.join("\n", section.comment()));
         }
-        Set<String> sections = Config.sections().stream().map(Config.Section::name).collect(Collectors.toSet());
-        root.keySet().retainAll(sections);
         return new Corrected(format.createWriter().writeToString(config), Collections.unmodifiableMap(values));
     }
 

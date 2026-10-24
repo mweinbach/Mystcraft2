@@ -652,8 +652,11 @@ class OptionalModTests(unittest.TestCase):
         port, outputs = self.build()
         self.assertEqual(port.problems, [])
         values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
-        self.assertEqual(values["testmod:bomb"], {"projecte": 20, "itemalchemy": 14, "source": "recipe"})
-        self.assertEqual(values["testmod:charge"], {"projecte": 10, "itemalchemy": 7, "source": "recipe"})
+        # ProjectE derives values from the recipes that load, so standalone it reads the unconditional recipes.
+        self.assertEqual(values["testmod:bomb"], {"projecte": 20, "itemalchemy": 14, "projecte_standalone": 8192,
+                                                  "source": "recipe"})
+        self.assertEqual(values["testmod:charge"], {"projecte": 10, "itemalchemy": 7, "projecte_standalone": 2048,
+                                                    "source": "recipe"})
         self.assertNotIn("othermod:alloy", json.loads(outputs[self.dir / "res" / "data" / "testmod" / "default_emcs"
                                                               / "testmod.json"]))
         readme = outputs[self.dir / "emc" / "README.md"]
@@ -681,7 +684,8 @@ class OptionalModTests(unittest.TestCase):
         values = json.loads(outputs[self.dir / "emc" / "values.json"])["items"]
         # Standalone the cheapest sulfur is gunpowder (192); with othermod its dust (3 / 2) is, so the battery
         # takes that price (64 redstone + dust) rather than 256, or crafting it with othermod would gain EMC.
-        self.assertEqual(values["testmod:battery"], {"projecte": 67, "itemalchemy": 66, "source": "recipe"})
+        self.assertEqual(values["testmod:battery"], {"projecte": 67, "itemalchemy": 66, "projecte_standalone": 256,
+                                                     "source": "recipe"})
         self.assertIn("| `testmod:battery` | `testmod:battery` | wider tags with othermod | 67 | 66 |",
                       outputs[self.dir / "emc" / "README.md"])
 

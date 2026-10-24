@@ -15,6 +15,7 @@ import java.util.Map;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
@@ -22,17 +23,22 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.gametest.framework.GameTestRegistry;
 import net.minecraft.gametest.framework.GlobalTestReporter;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameRules;
@@ -43,6 +49,8 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import ports.tekxitprobe.GameTestTally;
 import ports.tekxitprobe.ServerChecks;
 import ports.tekxitprobe.TekxitProbe;
@@ -58,7 +66,7 @@ import ports.tekxitprobe.mixin.CreativeModeInventoryScreenAccessor;
  * {@code -Dtekxitprobe.client=true} is set.
  */
 public final class TekxitProbeClient implements ClientModInitializer {
-    private enum Stage { WAIT_TITLE, OPEN_CREATE, CREATING, IN_WORLD, SHOWCASE, CREATIVE, EMI, TESTS, QUIT, DONE }
+    private enum Stage { WAIT_TITLE, OPEN_CREATE, CREATING, IN_WORLD, SHOWCASE, CREATIVE, EMI, PROJECTE, TESTS, QUIT, DONE }
 
     private static final int TITLE_TIMEOUT_TICKS = 20 * 60 * 20;
     private static final int WORLD_TIMEOUT_TICKS = 20 * 60 * 15;
@@ -128,6 +136,7 @@ public final class TekxitProbeClient implements ClientModInitializer {
                 case SHOWCASE -> showcase(mc);
                 case CREATIVE -> creative(mc);
                 case EMI -> emi(mc);
+                case PROJECTE -> projectE(mc);
                 case TESTS -> tests(mc);
                 case QUIT -> quit(mc);
                 default -> { }
@@ -283,7 +292,7 @@ public final class TekxitProbeClient implements ClientModInitializer {
 
     private void emi(Minecraft mc) {
         if (!FabricLoader.getInstance().isModLoaded("emi")) {
-            next(Stage.TESTS);
+            next(Stage.PROJECTE);
             return;
         }
         try {
@@ -292,7 +301,7 @@ public final class TekxitProbeClient implements ClientModInitializer {
                 if (!loaded) {
                     if (stageTicks > EMI_TIMEOUT_TICKS) {
                         failures.add("EMI did not finish reloading within 10 minutes");
-                        next(Stage.TESTS);
+                        next(Stage.PROJECTE);
                     }
                     return;
                 }
@@ -304,7 +313,7 @@ public final class TekxitProbeClient implements ClientModInitializer {
             int index = step - 1;
             if (index >= emiStacks.size()) {
                 mc.setScreen(null);
-                next(Stage.TESTS);
+                next(Stage.PROJECTE);
                 return;
             }
             ItemStack stack = emiStacks.get(index);
@@ -326,8 +335,99 @@ public final class TekxitProbeClient implements ClientModInitializer {
             }
         } catch (ReflectiveOperationException e) {
             failures.add("EMI API call failed: " + e);
-            next(Stage.TESTS);
+            next(Stage.PROJECTE);
         }
+    }
+
+    /** Blocks whose menus the ProjectE stage opens by using them, as a player would. */
+    private static final List<String> PROJECTE_GUIS = List.of("projecte:transmutation_table", "projecte:alchemical_chest",
+            "projecte:condenser_mk1", "projecte:collector_mk1", "projecte:dm_furnace");
+    private final List<BlockPos> projectEBlocks = new ArrayList<>();
+
+    /**
+     * With ProjectE installed: the EMC tooltip, the EMC the client sees, the key bindings, and each block GUI in
+     * {@link #PROJECTE_GUIS}, opened by a real use packet and screenshotted.
+     */
+    private void projectE(Minecraft mc) {
+        if (!FabricLoader.getInstance().isModLoaded("projecte")) {
+            next(Stage.TESTS);
+            return;
+        }
+        if (step == 0) {
+            if (stageTicks != 1) return;
+            mc.setScreen(null);
+            report.add("projecteClient", projectEClient(mc));
+            MinecraftServer server = mc.getSingleplayerServer();
+            BlockPos feet = mc.player.blockPosition();
+            for (int i = 0; i < PROJECTE_GUIS.size(); i++) projectEBlocks.add(feet.offset(-4 + i * 2, 0, -2));
+            server.execute(() -> {
+                ServerLevel level = server.overworld();
+                for (int i = 0; i < PROJECTE_GUIS.size(); i++) {
+                    Block block = Registry.BLOCK.get(new ResourceLocation(PROJECTE_GUIS.get(i)));
+                    level.setBlock(projectEBlocks.get(i), block.defaultBlockState(), 3);
+                }
+                server.getPlayerList().getPlayers().get(0).getInventory().setItem(
+                        server.getPlayerList().getPlayers().get(0).getInventory().selected, ItemStack.EMPTY);
+            });
+            step = 1;
+            stageTicks = 0;
+            return;
+        }
+        int index = step - 1;
+        if (index >= PROJECTE_GUIS.size()) {
+            mc.setScreen(null);
+            next(Stage.TESTS);
+            return;
+        }
+        String id = PROJECTE_GUIS.get(index);
+        BlockPos pos = projectEBlocks.get(index);
+        if (stageTicks == 20) {
+            mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
+                    new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
+        } else if (stageTicks == 50) {
+            String screen = mc.screen == null ? "none" : mc.screen.getClass().getName();
+            if (!screen.startsWith("moze_intel.projecte")) {
+                failures.add("ProjectE " + id + " opened no ProjectE screen (screen " + screen + ")");
+            }
+            shot(mc, "08_projecte_" + id.substring(id.indexOf(':') + 1));
+            if (mc.player != null) mc.player.closeContainer();
+            step++;
+            stageTicks = 0;
+        }
+    }
+
+    private JsonObject projectEClient(Minecraft mc) {
+        JsonObject out = new JsonObject();
+        try {
+            Object proxy = Class.forName("moze_intel.projecte.api.ProjectEAPI").getMethod("getEMCProxy").invoke(null);
+            Method value = Class.forName("moze_intel.projecte.api.proxy.IEMCProxy").getMethod("getValue", Item.class);
+            long diamond = (Long) value.invoke(proxy, Items.DIAMOND);
+            out.addProperty("diamondEmc", diamond);
+            if (diamond != 8192L) failures.add("ProjectE client EMC for a diamond is " + diamond + ", expected 8192");
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            failures.add("ProjectE EMC proxy failed on the client: " + e);
+        }
+        List<Component> lines = new ItemStack(Items.DIAMOND).getTooltipLines(mc.player, TooltipFlag.Default.NORMAL);
+        boolean tooltip = lines.stream().anyMatch(line -> hasKey(line, "emc.projecte.tooltip"));
+        out.addProperty("tooltipShowsEmc", tooltip);
+        if (!tooltip) failures.add("ProjectE EMC tooltip missing on a diamond");
+        JsonArray keys = new JsonArray();
+        for (KeyMapping key : mc.options.keyMappings) {
+            if (key.getName().contains("projecte")) keys.add(key.getName() + "=" + key.saveString());
+        }
+        out.add("keys", keys);
+        if (keys.isEmpty()) failures.add("ProjectE registered no key bindings");
+        return out;
+    }
+
+    private static boolean hasKey(Component component, String key) {
+        if (component.getContents() instanceof TranslatableContents translatable) {
+            if (translatable.getKey().equals(key)) return true;
+            for (Object arg : translatable.getArgs()) {
+                if (arg instanceof Component nested && hasKey(nested, key)) return true;
+            }
+        }
+        return component.getSiblings().stream().anyMatch(sibling -> hasKey(sibling, key));
     }
 
     private void tests(Minecraft mc) {

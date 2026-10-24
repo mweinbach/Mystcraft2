@@ -39,6 +39,9 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
+// -PwithProjectE: this repository's ProjectE Fabric port in development runs, for the live EMC audit.
+apply from: '../../../gradle/projecte-fabric.gradle'
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
     withSourcesJar()
