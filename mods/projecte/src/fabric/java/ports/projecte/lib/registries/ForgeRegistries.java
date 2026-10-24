@@ -31,7 +31,7 @@ import ports.projecte.lib.fluids.FluidType;
 import com.mojang.serialization.Codec;
 
 /**
- * Views of the vanilla registries Mekanism reads, and the keys of Forge's own registries. On Fabric the backend
+ * Views of the vanilla registries ProjectE reads, and the keys of Forge's own registries. On Fabric the backend
  * supplies plain in-memory registries for the Forge-only keys.
  */
 public final class ForgeRegistries {

@@ -238,7 +238,7 @@ public final class FabricLifecycle {
 
     /**
      * Runs {@code action} with {@code registry} writable, then restores its previous frozen state. The worldgen registries
-     * may still be open here: other mods initialised after Mekanism register their own features into them, and in
+     * may still be open here: other mods initialised after ProjectE register their own features into them, and in
      * Tekxit 4 freezing them unconditionally crashed every later mod with "Registry is already frozen".
      */
     public static void whileWritable(Registry<?> registry, Runnable action) {

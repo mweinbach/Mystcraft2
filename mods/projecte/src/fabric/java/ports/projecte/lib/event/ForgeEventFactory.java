@@ -27,7 +27,7 @@ import ports.projecte.lib.event.entity.player.PlayerEvent;
 import ports.projecte.lib.event.level.BlockEvent;
 
 /**
- * The Forge event hooks Mekanism calls directly. Fabric has no standard events for explosions starting, items
+ * The Forge event hooks ProjectE calls directly. Fabric has no standard events for explosions starting, items
  * breaking or bows firing, so those only reach listeners on the port's own bus.
  */
 public final class ForgeEventFactory {

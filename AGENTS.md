@@ -146,6 +146,30 @@ After Mekanism changes, run:
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy`
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithPortingLib -PwithCraftTweaker`
 
+## ProjectE loader support
+
+ProjectE (`mods/projecte`) is upstream sinkillerj/ProjectE `mc1.19.x` (PE1.1.0,
+MIT) on Forge and Fabric, with mod id `projecte`. Use only the official
+repository; never read or copy Fabricated Exchange or other remakes. It uses the
+Mekanism layout: upstream sources in `src/main`, Forge metadata and the Curios /
+The One Probe integrations in `src/forge`, the Forge API mirror
+(`ports.projecte.lib`), mixins and Trinkets replacement in `src/fabric`, and the
+Loom build in `mods/projecte/fabric`. Every Forge method injected into a vanilla
+class whose descriptor has only vanilla or JDK types is named `projecte$<name>`
+(`src/fabric/vanilla-extensions.txt`); mixins must not `@Redirect` or
+`@Overwrite`, and wrapped calls run ProjectE hooks only for ProjectE objects
+(`PEHooks.ours`), so the layer coexists with the Mekanism port and Porting Lib.
+Record upstream edits in `mods/projecte/UPSTREAM.md` and verification status in
+`mods/projecte/PARITY.md`. After ProjectE changes, run:
+
+- `./scripts/gradle.sh :projecte:build`
+- `./scripts/gradle.sh -p mods/projecte/fabric build` (includes `checkFabricClashes`)
+- `python3 mods/projecte/scripts/check_loader_parity.py`
+- `python3 mods/projecte/scripts/generate_fabric_tags.py --check`
+- `./scripts/gradle.sh :projecte:runGameTestServer`
+- `./scripts/gradle.sh -p mods/projecte/fabric runGametest`
+- `./scripts/gradle.sh -p mods/projecte/fabric runGametest -PwithMekanism -PwithPortingLib`
+
 ## Extreme Reactors loader support
 
 Extreme Reactors uses the same layout: Extreme Reactors 2's gameplay, assets and

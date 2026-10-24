@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * State Forge adds to {@link net.minecraft.world.level.Level}, injected into it on Fabric as methods a mixin
- * implements. Forge's {@code restoringBlockSnapshots} field becomes accessors the port's build rewrites Mekanism's field
+ * implements. Forge's {@code restoringBlockSnapshots} field becomes accessors the port's build rewrites ProjectE's field
  * accesses to; while it is set, blocks do not drop items.
  */
 public interface IForgeLevel {

@@ -14,7 +14,7 @@ import ports.projecte.lib.event.level.LevelEvent;
 
 /**
  * Forge posts {@code LevelEvent.Load} at the end of the client level constructor. That is the level
- * {@code Mekanism.onWorldLoad} stores for player-state sounds.
+ * the shared code stores on world load.
  */
 @Mixin(ClientLevel.class)
 public abstract class ClientLevelMixin {

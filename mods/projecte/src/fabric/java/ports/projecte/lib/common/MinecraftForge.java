@@ -33,7 +33,7 @@ public final class MinecraftForge {
     }
 
     /**
-     * Mekanism posts {@link BlockEvent.BreakEvent} itself to ask whether a machine or tool may break a block. On
+     * ProjectE posts {@link BlockEvent.BreakEvent} itself to ask whether a machine or tool may break a block. On
      * Fabric, protection mods answer through {@link PlayerBlockBreakEvents#BEFORE}, so a break event is also offered
      * there.
      */

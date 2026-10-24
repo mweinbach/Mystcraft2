@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import ports.projecte.lib.registries.tags.ITagManager;
 
 /**
- * A registry as Mekanism reads it. Vanilla registries and every Fabric registry are views over the vanilla
+ * A registry as ProjectE reads it. Vanilla registries and every Fabric registry are views over the vanilla
  * {@link Registry}; Forge-only custom registries are views over Forge's registry.
  */
 public interface IForgeRegistry<V> extends Iterable<V> {

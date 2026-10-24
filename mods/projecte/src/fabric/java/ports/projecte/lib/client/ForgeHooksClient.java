@@ -53,7 +53,7 @@ public final class ForgeHooksClient {
     }
 
     /**
-     * Posts the recipe update after the client has replaced its recipe book. Mekanism clears its recipe cache here.
+     * Posts the recipe update after the client has replaced its recipe book. Shared code clears its recipe caches here.
      */
     public static void onRecipesUpdated(RecipeManager recipeManager) {
         MinecraftForge.EVENT_BUS.post(new RecipesUpdatedEvent(recipeManager));

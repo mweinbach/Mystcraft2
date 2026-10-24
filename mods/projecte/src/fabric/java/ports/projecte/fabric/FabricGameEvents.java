@@ -168,8 +168,8 @@ public final class FabricGameEvents {
     }
 
     /**
-     * Mekanism uses {@link PlayerInteractEvent.RightClickBlock} to let a sneaking player use a block while holding an
-     * item, and to stop the item being used.
+     * Forge's {@link PlayerInteractEvent.RightClickBlock}: listeners may let a sneaking player use a block while
+     * holding an item, or stop the item being used.
      */
     private static InteractionResult rightClickBlock(Player player, Level level, InteractionHand hand, BlockHitResult hit) {
         PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(player, hand, hit.getBlockPos(), hit);

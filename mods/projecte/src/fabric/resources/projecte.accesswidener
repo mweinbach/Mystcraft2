@@ -1,6 +1,6 @@
 accessWidener v2 named
 
-# Translated from src/forge/resources/META-INF/accesstransformer.cfg (upstream Mekanism) to named mappings.
+# Translated from src/forge/resources/META-INF/accesstransformer.cfg (upstream ProjectE) to named mappings.
 accessible field net/minecraft/client/KeyMapping isDown Z
 
 accessible field net/minecraft/client/gui/components/EditBox frame I
@@ -92,7 +92,7 @@ accessible method net/minecraft/world/level/levelgen/placement/PlacedFeature pla
 
 accessible method net/minecraft/world/phys/AABB getDirection (Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/phys/Vec3;[DLnet/minecraft/core/Direction;DDD)Lnet/minecraft/core/Direction;
 
-# Widened by Forge's own access transformer, which Mekanism relies on.
+# Widened by Forge's own access transformer, which ProjectE relies on.
 accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
 accessible class net/minecraft/client/renderer/block/model/ItemOverrides$BakedOverride
 
@@ -118,7 +118,7 @@ accessible field net/minecraft/world/item/AxeItem STRIPPABLES Ljava/util/Map;
 accessible field net/minecraft/world/item/ShovelItem FLATTENABLES Ljava/util/Map;
 accessible method net/minecraft/world/entity/Entity findDimensionEntryPoint (Lnet/minecraft/server/level/ServerLevel;)Lnet/minecraft/world/level/portal/PortalInfo;
 
-# Opened by Forge's own access transformer or by Forge patches that Mekanism relies on.
+# Opened by Forge's own access transformer or by Forge patches that ProjectE relies on.
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible class net/minecraft/client/renderer/RenderType$CompositeRenderType
@@ -156,7 +156,7 @@ accessible field net/minecraft/world/inventory/MenuType constructor Lnet/minecra
 accessible method net/minecraft/client/gui/screens/MenuScreens getConstructor (Lnet/minecraft/world/inventory/MenuType;)Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;
 # EnchantmentHelper.EnchantmentVisitor is package-private. The enchantment mixin iterates it.
 accessible class net/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor
-# Worldgen registries may already be frozen when Mekanism writes its ore features; they are reopened, then their state is restored.
+# Registries may already be frozen when the port registers into them (Forge attributes); they are reopened, then their state is restored.
 accessible field net/minecraft/core/MappedRegistry frozen Z
 # Fog distances are read after vanilla setup so a canceled fog event can replace them.
 accessible class net/minecraft/client/renderer/FogRenderer$FogData

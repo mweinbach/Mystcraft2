@@ -19,7 +19,7 @@ public final class FluidUtil {
     }
 
     /**
-     * The fluid handler of an item stack: Mekanism's own, or a view of the item's Fabric transfer API storage.
+     * The fluid handler of an item stack: ProjectE's own, or a view of the item's Fabric transfer API storage.
      */
     public static LazyOptional<IFluidHandlerItem> getFluidHandler(ItemStack itemStack) {
         return itemStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM);

@@ -16,7 +16,7 @@ import ports.projecte.lib.registries.ForgeRegistries;
 
 /**
  * Matches one item whose share tag equals the given stack's tag exactly ({@code forge:nbt}). The share tag is the
- * stack's own tag; Mekanism does not replace it.
+ * stack's own tag; ProjectE does not replace it.
  */
 public class StrictNBTIngredient extends AbstractIngredient {
 

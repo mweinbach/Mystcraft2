@@ -16,7 +16,7 @@ import ports.projecte.lib.registries.RegistryObject;
 
 /**
  * The entity attributes and fluid types Forge adds. On Fabric the attributes are registered under the
- * {@code mekanism} namespace so they cannot clash with another port's copy of Forge's; the port's mixins apply them
+ * {@code projecte} namespace so they cannot clash with another port's copy of Forge's; the port's mixins apply them
  * to players.
  */
 public final class ForgeMod {
@@ -43,7 +43,7 @@ public final class ForgeMod {
     }
 
     /**
-     * Registers the attributes. Called once by the Fabric entrypoint before any Mekanism registry event.
+     * Registers the attributes. Called once by the Fabric entrypoint before any ProjectE registry event.
      */
     public static synchronized void registerAttributes() {
         if (registered) {

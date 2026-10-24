@@ -12,7 +12,7 @@ import ports.projecte.lib.fluids.capability.IFluidHandler;
 
 /**
  * A fluid block that is not a vanilla {@link net.minecraft.world.level.block.LiquidBlock}. No Fabric mod implements
- * it, so on Fabric only Mekanism's own checks see it.
+ * it, so on Fabric only ProjectE's own checks see it.
  */
 public interface IFluidBlock {
 

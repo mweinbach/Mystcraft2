@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Matches a stack only when every child matches ({@code forge:intersection}). Mekanism's recipes do not use it;
+ * Matches a stack only when every child matches ({@code forge:intersection}). ProjectE's recipes do not use it;
  * datapacks can.
  */
 public class IntersectionIngredient extends AbstractIngredient {

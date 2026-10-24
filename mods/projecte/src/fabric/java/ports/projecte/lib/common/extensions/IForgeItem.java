@@ -157,7 +157,7 @@ public interface IForgeItem {
     }
 
     /**
-     * Forge's per-item tool actions. Paxels and other Mekanism tools override this; vanilla tool classes get the
+     * Forge's per-item tool actions. ProjectE's tools override this; vanilla tool classes get the
      * action set Forge gives that class, so a hoe can till and an axe can strip unless a subclass says otherwise.
      */
     default boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
@@ -181,7 +181,7 @@ public interface IForgeItem {
     }
 
     /**
-     * Forge's stack-aware durability. Paxels and Mekanism armor override it; the stack mixin calls it from
+     * Forge's stack-aware durability. Items with stack-dependent durability override it; the stack mixin calls it from
      * {@link ItemStack#getMaxDamage()}.
      */
     default int projecte$getMaxDamage(ItemStack stack) {
@@ -197,7 +197,7 @@ public interface IForgeItem {
     }
 
     /**
-     * Forge adds this to digger items. Mekanism axes, hoes, pickaxes, shovels and paxels override it.
+     * Forge adds this to digger items. ProjectE's tools override it.
      */
     default float projecte$getAttackDamage() {
         return 0;

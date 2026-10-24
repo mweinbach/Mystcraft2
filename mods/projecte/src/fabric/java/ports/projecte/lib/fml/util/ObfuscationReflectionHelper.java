@@ -7,7 +7,7 @@ package ports.projecte.lib.fml.util;
 import java.lang.reflect.Field;
 
 /**
- * Mekanism only reflects into the port's own classes, whose names are not remapped.
+ * ProjectE only reflects into the port's own classes, whose names are not remapped.
  */
 public final class ObfuscationReflectionHelper {
 

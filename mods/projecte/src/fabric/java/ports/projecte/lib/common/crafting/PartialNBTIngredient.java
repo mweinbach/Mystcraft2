@@ -28,7 +28,7 @@ import ports.projecte.lib.registries.ForgeRegistries;
 
 /**
  * Matches any of the given items when the stack's tag contains the required tags ({@code forge:partial_nbt}). Extra
- * tags still match. Mekanism's own recipes do not use this type; datapacks and the QIO crafting window can.
+ * tags still match. ProjectE's own recipes do not use this type; datapacks can.
  */
 public class PartialNBTIngredient extends AbstractIngredient {
 

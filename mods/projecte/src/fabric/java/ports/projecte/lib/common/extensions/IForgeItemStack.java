@@ -29,7 +29,7 @@ import ports.projecte.platform.Platform;
  * Methods Forge adds to {@link ItemStack}, injected into it on Fabric. A stack's capabilities come from
  * {@link IForgeItem#initCapabilities}, created the first time they are asked for. Item, fluid, energy, chemical and heat
  * capabilities other items do not provide that way come from the Fabric lookups other mods register on (the Transfer
- * API, Team Reborn Energy and {@code MekanismChemicalLookups}), as a bucket's does on Forge.
+ * API and Team Reborn Energy), as a bucket's does on Forge.
  */
 public interface IForgeItemStack extends ICapabilitySerializable<CompoundTag> {
 

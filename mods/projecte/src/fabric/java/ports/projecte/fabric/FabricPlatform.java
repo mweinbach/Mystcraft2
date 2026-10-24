@@ -222,7 +222,7 @@ public final class FabricPlatform implements Platform.Backend {
 
     /**
      * Forge reads the tags of a modded registry from {@code tags/<namespace>/<path>}, vanilla from {@code tags/<path>}.
-     * Registries Mekanism creates keep Forge's layout so the shared data's tags load.
+     * Registries ProjectE creates keep Forge's layout so the shared data's tags load.
      */
     public static boolean usesForgeTagDirectory(ResourceKey<? extends Registry<?>> registry) {
         return FORGE_TAG_DIRECTORIES.contains(registry);

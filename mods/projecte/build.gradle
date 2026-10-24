@@ -69,7 +69,7 @@ dependencies {
     if (providers.gradleProperty('withCraftTweaker').isPresent()) {
         runtimeOnly(fg.deobf('com.blamejared.crafttweaker:CraftTweaker-forge-1.19.2:10.1.50')) { transitive = false }
     }
-    // EMI replaces JEI in Tekxit 4. The port's EMI plugin is shared by both loaders.
+    // EMI replaces JEI in Tekxit 4; the port's EMI plugin (phase 3) compiles against this API.
     compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
     if (providers.gradleProperty('withEmi').isPresent()) {
         runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
@@ -126,6 +126,8 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach {
 tasks.withType(Jar).configureEach {
     from('NOTICE.md') { into 'META-INF'; rename { 'ProjectE-NOTICE.md' } }
     from('UPSTREAM.md') { into 'META-INF'; rename { 'ProjectE-UPSTREAM.md' } }
+    // Forge-LICENSE.txt covers the forge: tag values only the Fabric jar's tag bridges repeat.
+    from('licenses') { into 'META-INF/licenses/projecte'; exclude 'Forge-LICENSE.txt' }
 }
 // The shaded JAR is the published artifact, as upstream's: Commons Math is relocated into ProjectE's package so it
 // cannot clash with another mod's copy. The plain JAR keeps a classifier.

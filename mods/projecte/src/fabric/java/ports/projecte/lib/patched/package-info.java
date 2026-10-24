@@ -4,6 +4,6 @@
  */
 /**
  * Constructors and static methods Forge patches into vanilla classes. Java cannot add them to the vanilla classes, so
- * the Fabric build rewrites Mekanism's calls to point here; see the rewrite table in {@code fabric/build.gradle}.
+ * the Fabric build rewrites ProjectE's calls to point here; see the rewrite table in {@code fabric/build.gradle}.
  */
 package ports.projecte.lib.patched;

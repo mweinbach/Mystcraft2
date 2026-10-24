@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 
 /**
  * Forge's {@code Item.Properties.setNoRepair}, injected into {@link Item.Properties} on Fabric. Forge's flag only
- * stops damageable items from being repaired; every Mekanism item that sets it has no durability, so vanilla never
+ * stops damageable items from being repaired; every ProjectE item that sets it has no durability, so vanilla never
  * repairs it either and the flag has nothing to change.
  */
 public interface IForgeItemProperties {

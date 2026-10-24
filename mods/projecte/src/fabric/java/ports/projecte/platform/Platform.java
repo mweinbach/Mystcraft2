@@ -33,7 +33,7 @@ import ports.projecte.lib.registries.RegistryBuilder;
 
 /**
  * The loader services the shared code needs. Each loader entrypoint installs a {@link Backend} before any
- * Mekanism class is initialized.
+ * ProjectE class is initialized.
  */
 public final class Platform {
 

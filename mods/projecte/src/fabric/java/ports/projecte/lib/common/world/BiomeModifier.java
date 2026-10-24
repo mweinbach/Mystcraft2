@@ -10,7 +10,7 @@ import net.minecraft.world.level.biome.Biome;
 
 /**
  * A data-driven change to biomes, read from {@code data/<namespace>/forge/biome_modifier}. On Fabric the port applies
- * Mekanism's modifiers through Fabric's biome modification API.
+ * data-driven modifiers through Fabric's biome modification API.
  */
 public interface BiomeModifier {
 

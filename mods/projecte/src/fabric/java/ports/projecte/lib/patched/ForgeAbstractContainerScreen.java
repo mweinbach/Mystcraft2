@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * {@link AbstractContainerScreen} with Forge's getters as class methods. They are also injected into every container
  * screen as interface defaults, but a screen that implements an interface declaring one of them abstractly, as
- * Mekanism's {@code IFancyFontRenderer} does, needs the class method Forge has.
+ * shared screen code does, needs the class method Forge has.
  */
 public abstract class ForgeAbstractContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 

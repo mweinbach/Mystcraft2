@@ -22,7 +22,7 @@ import ports.projecte.platform.Platform;
 
 /**
  * A fluid, an amount in millibuckets and an optional tag. The NBT and packet layouts are the ones Forge uses, so
- * Mekanism's saved data reads the same on both loaders.
+ * ProjectE's saved data reads the same on both loaders.
  */
 public class FluidStack {
 

@@ -42,7 +42,7 @@ public class BlockEvent extends Event {
 
     /**
      * Fired before a player breaks a block. Posting it on the Forge bus also asks Fabric's block break listeners, so
-     * protection mods can veto Mekanism's machines.
+     * protection mods can veto ProjectE's machines.
      */
     @Cancelable
     /** A fluid is about to place a block; cancelable, and the placed state can be replaced. */

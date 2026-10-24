@@ -86,7 +86,7 @@ public interface IForgeEntity extends ICapabilitySerializable<CompoundTag> {
 
     /**
      * Forge tracks the height of every fluid type the entity touches. Vanilla tracks water and lava; the other types,
-     * such as Mekanism's fluids, are measured here the way Forge's per-type fluid pass measures them.
+     * such as other mods' fluids, are measured here the way Forge's per-type fluid pass measures them.
      */
     default FluidType getMaxHeightFluidType() {
         double water = self().getFluidHeight(FluidTags.WATER);
