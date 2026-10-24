@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -22,6 +23,8 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.gametest.framework.GameTestRegistry;
+import net.minecraft.gametest.framework.GlobalTestReporter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -40,8 +43,10 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import ports.tekxitprobe.GameTestTally;
 import ports.tekxitprobe.ServerChecks;
 import ports.tekxitprobe.TekxitProbe;
+import ports.tekxitprobe.Verdict;
 import ports.tekxitprobe.mixin.CreateWorldScreenAccessor;
 import ports.tekxitprobe.mixin.CreativeModeInventoryScreenAccessor;
 
@@ -59,7 +64,9 @@ public final class TekxitProbeClient implements ClientModInitializer {
     private static final int WORLD_TIMEOUT_TICKS = 20 * 60 * 15;
     private static final int SETTLE_TICKS = 20 * 20;
     private static final int EMI_TIMEOUT_TICKS = 20 * 60 * 10;
-    private static final int TEST_TICKS = 20 * 45;
+    private static final int TEST_TIMEOUT_TICKS = 20 * 60 * 5;
+    private GameTestTally tally;
+    private int completeTicks;
 
     private final JsonObject report = new JsonObject();
     private final JsonArray screens = new JsonArray();
@@ -338,20 +345,32 @@ public final class TekxitProbeClient implements ClientModInitializer {
                 next(Stage.QUIT);
                 return;
             }
+            GameTestTally run = new GameTestTally(classes);
+            tally = run;
             MinecraftServer server = mc.getSingleplayerServer();
             server.execute(() -> {
+                GlobalTestReporter.replaceWith(run);
                 ServerPlayer player = server.getPlayerList().getPlayers().get(0);
                 int offset = 0;
+                int expected = 0;
                 for (String test : classes) {
+                    expected += GameTestRegistry.getTestFunctionsForClassName(test.toLowerCase(Locale.ROOT)).size();
                     // Run each class away from the showcase so their structures do not overlap.
                     var source = player.createCommandSourceStack().withPermission(4)
                             .withPosition(player.position().add(24 + offset, 0, 24));
                     server.getCommands().performPrefixedCommand(source, "test runall " + test);
                     offset += 32;
                 }
+                run.scheduled(expected);
             });
-        } else if (stageTicks > TEST_TICKS) {
+        } else {
+            boolean settled = tally.complete() && completeTicks++ >= 20;
+            if (!settled && stageTicks <= TEST_TIMEOUT_TICKS) return;
+            // A short pause after the last result lets the summary reach the chat before the screenshot.
+            if (!tally.complete()) tally.markTimedOut();
             shot(mc, "07_gametests");
+            report.add("gameTests", tally.toJson());
+            failures.addAll(Verdict.gameTestFailures(tally.snapshot()));
             next(Stage.QUIT);
         }
     }
@@ -359,7 +378,9 @@ public final class TekxitProbeClient implements ClientModInitializer {
     private void quit(Minecraft mc) {
         if (step == 0) {
             mc.setScreen(null);
-            report.add("integratedServer", TekxitProbe.lastServerReport());
+            JsonObject serverReport = TekxitProbe.lastServerReport();
+            report.add("integratedServer", serverReport);
+            failures.addAll(Verdict.serverReportFailures("integrated", serverReport));
             if (mc.level != null) {
                 boolean local = mc.isLocalServer();
                 mc.level.disconnect();

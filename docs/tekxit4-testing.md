@@ -77,6 +77,16 @@ Loader resolved 537 mods on the client. The extra mod count comes from nested ja
 - **Probe checks.** For every port namespace it checks registries, recipes, tags and loot tables, plus models,
   textures, names, key conflicts and the MetalRender status on the client. It also checks Item Alchemy EMC after
   `scripts/emc.py merge-itemalchemy` was run on the test copy's `config/itemalchemy/emc_config.json`.
+- **Client verdict.** During these runs the client's PASSED verdict covered only the client stages. The 7/7
+  client GameTest results below come from the per-test `passed!` lines and the `All required tests passed` summaries
+  in each run's log. The integrated-server results come from its report. After review the verdict became stricter.
+  It now fails when:
+  - the integrated-server report has failures or is missing;
+  - any GameTest fails;
+  - no tests were found;
+  - not every scheduled test reports within five minutes.
+
+  The rules are in `tools/tekxit4-probe/README.md`.
 
 ### Boot matrix
 

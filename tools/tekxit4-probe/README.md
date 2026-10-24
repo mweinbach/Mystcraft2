@@ -54,9 +54,16 @@ sets.
    one EMI recipe page per port;
 4. runs the client checks: missing block and item models or textures, missing names, key binding conflicts and
    MetalRender status;
-5. runs the GameTests, then saves and quits.
+5. runs the GameTests on the integrated server and collects every result, then saves and quits.
 
 The result goes to `tekxit-probe/client-report.json`, and the log carries a
-`[TEKXIT_PROBE] client result PASSED|FAILED` line.
+`[TEKXIT_PROBE] client result PASSED|FAILED` line. The verdict is PASSED only if all of these hold:
+
+- no client stage failed;
+- the integrated server's checks report no failures, and a missing report also fails the run;
+- every scheduled GameTest reported a pass within five minutes.
+
+Failed tests, an empty test set, and unfinished or timed-out runs all fail the verdict. `Verdict` holds these rules,
+and `src/test/java/ports/tekxitprobe/VerdictTest.java` covers them.
 
 Delete `tekxit-probe/autorun`, the probe jar and the `Tekxit Probe` world before playing the instance.
