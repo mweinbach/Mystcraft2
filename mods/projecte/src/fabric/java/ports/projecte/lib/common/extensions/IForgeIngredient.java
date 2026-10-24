@@ -14,8 +14,12 @@ import ports.projecte.lib.common.crafting.VanillaIngredientSerializer;
  */
 public interface IForgeIngredient {
 
+    /**
+     * Simple unless Fabric's {@code requiresTesting} says otherwise, which covers Fabric's own NBT ingredients and the
+     * Forge ingredient types the Mekanism port carries its own copy of, when its reader runs before this port's.
+     */
     default boolean projecte$isSimple() {
-        return true;
+        return !((Ingredient) (Object) this).requiresTesting();
     }
 
     default boolean projecte$isVanilla() {
