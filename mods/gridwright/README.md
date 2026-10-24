@@ -1,7 +1,8 @@
 # Gridwright
 
-A clean-room, Extra Utilities 2–style utility mod for Minecraft 1.19.2 on **Forge 43.5.0** and
-**Fabric (Loader 0.16.14, Fabric API 0.77.0+1.19.2)**, built from one shared core. Phase 1 adds a
+A clean-room, Extra Utilities 2–style utility mod for Minecraft 1.19.2 on **Fabric (Loader 0.16.14,
+Fabric API 0.77.0+1.19.2)**, the primary loader, with an optional **Forge 43.5.0** variant built from
+the same shared core. Phase 1 adds a
 player-owned, cable-free power grid ("Grid Power", GP), the GP producers, a family of fuel generators
 that make the pack's normal energy, and the resonator, the first GP consumer. Phase 2a adds transfer
 nodes and pipes for items and fluids, their upgrades, retrieval nodes and filters. Phase 2c adds the

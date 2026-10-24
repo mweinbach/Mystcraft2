@@ -1,11 +1,18 @@
 # Workspace instructions
 
 This repository is a collection of independent ports targeting Minecraft 1.19.2.
-Use Java 17 and the checked-in Gradle wrapper. Forge 43.5.0 is the default;
-`mods/icbm_port` explicitly targets Fabric and uses an independent included
-build. Mystcraft, JurassiCraft and Advanced Genetics support both Forge and
-Fabric; their Fabric variants use Loader 0.16.14 and Fabric API 0.77.0+1.19.2. Respect each port's loader. Do not upgrade
-Minecraft as part of a port.
+Use Java 17 and the checked-in Gradle wrapper. Do not upgrade Minecraft as part of a port.
+
+**Fabric first.** Fabric is the primary loader for every port in this workspace, and Forge support is
+optional. Build, test and verify on Fabric first; nothing is done until it works on Fabric. Keep a
+port's Forge variant working where that is cheap, but a Forge-only difficulty never blocks or reshapes
+Fabric work: ship it on Fabric, record the Forge gap in the port's README or PARITY file, and list any
+Fabric-only GameTest in `mods/<mod>/gametest-loader-only.txt` with its reason. New ports start on
+Fabric. In the command lists below, run the Fabric commands first.
+
+Fabric variants use Loader 0.16.14 and Fabric API 0.77.0+1.19.2 in independent Loom builds
+(`mods/<mod>/fabric`, or the port's own build for Fabric-only ports such as `mods/icbm_port`). The
+root Gradle build compiles the optional Forge variants with Forge 43.5.0.
 
 - Read the target mod's README, `port.properties`, and upstream attribution.
 - Keep mod-specific work under `mods/<mod-id>`. Shared configuration lives in
@@ -145,6 +152,30 @@ After Mekanism changes, run:
 - `./scripts/gradle.sh :mekanism:runGameTestServer -PwithProjectE`
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithItemAlchemy`
 - `./scripts/gradle.sh -p mods/mekanism/fabric runGametest -PwithPortingLib -PwithCraftTweaker`
+
+## ProjectE loader support
+
+ProjectE (`mods/projecte`) is upstream sinkillerj/ProjectE `mc1.19.x` (PE1.1.0,
+MIT) on Forge and Fabric, with mod id `projecte`. Use only the official
+repository; never read or copy Fabricated Exchange or other remakes. It uses the
+Mekanism layout: upstream sources in `src/main`, Forge metadata and the Curios /
+The One Probe integrations in `src/forge`, the Forge API mirror
+(`ports.projecte.lib`), mixins and Trinkets replacement in `src/fabric`, and the
+Loom build in `mods/projecte/fabric`. Every Forge method injected into a vanilla
+class whose descriptor has only vanilla or JDK types is named `projecte$<name>`
+(`src/fabric/vanilla-extensions.txt`); mixins must not `@Redirect` or
+`@Overwrite`, and wrapped calls run ProjectE hooks only for ProjectE objects
+(`PEHooks.ours`), so the layer coexists with the Mekanism port and Porting Lib.
+Record upstream edits in `mods/projecte/UPSTREAM.md` and verification status in
+`mods/projecte/PARITY.md`. After ProjectE changes, run:
+
+- `./scripts/gradle.sh :projecte:build`
+- `./scripts/gradle.sh -p mods/projecte/fabric build` (includes `checkFabricClashes`)
+- `python3 mods/projecte/scripts/check_loader_parity.py`
+- `python3 mods/projecte/scripts/generate_fabric_tags.py --check`
+- `./scripts/gradle.sh :projecte:runGameTestServer`
+- `./scripts/gradle.sh -p mods/projecte/fabric runGametest`
+- `./scripts/gradle.sh -p mods/projecte/fabric runGametest -PwithMekanism -PwithPortingLib`
 
 ## Extreme Reactors loader support
 
