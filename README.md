@@ -103,7 +103,8 @@ Check the upstream license before importing source or assets, retain its notices
 and license text in the port, and record the imported revision in `port.properties`.
 See [the porting guide](docs/porting.md) and [contribution guide](CONTRIBUTING.md).
 To give a port's items EMC values for ProjectE and Item Alchemy, follow
-[docs/emc.md](docs/emc.md).
+[docs/emc.md](docs/emc.md). For Claude Code cloud sessions, see
+[docs/claude-cloud.md](docs/claude-cloud.md).
 
 ## Layout
 

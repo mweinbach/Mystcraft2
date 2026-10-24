@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./scripts/gradle.sh:*)",
+      "Bash(./scripts/setup.sh)",
+      "Bash(./gradlew:*)",
+      "Bash(python3 scripts/ports.py:*)",
+      "Bash(python3 scripts/emc.py:*)",
+      "Bash(python3 mods/*/scripts/check_loader_parity.py:*)",
+      "Bash(python3 -m unittest:*)"
+    ]
+  }
+}
