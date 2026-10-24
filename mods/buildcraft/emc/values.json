@@ -28,6 +28,26 @@
       "itemalchemy": 1120,
       "source": "conversion recordings_are_worth_their_blanks"
     },
+    "buildcraft:board_carrier": {
+      "projecte": 384,
+      "itemalchemy": 384,
+      "source": "conversion assemble_board_carrier"
+    },
+    "buildcraft:board_lumberjack": {
+      "projecte": 1096,
+      "itemalchemy": 1084,
+      "source": "conversion assemble_board_lumberjack"
+    },
+    "buildcraft:board_miner": {
+      "projecte": 1096,
+      "itemalchemy": 1084,
+      "source": "conversion assemble_board_miner"
+    },
+    "buildcraft:board_picker": {
+      "projecte": 1664,
+      "itemalchemy": 1644,
+      "source": "conversion assemble_board_picker"
+    },
     "buildcraft:builder": {
       "projecte": 85100,
       "itemalchemy": 35876,
@@ -46,6 +66,11 @@
     "buildcraft:distiller": {
       "projecte": 42164,
       "itemalchemy": 17552,
+      "source": "recipe"
+    },
+    "buildcraft:docking_station": {
+      "projecte": 1088,
+      "itemalchemy": 1072,
       "source": "recipe"
     },
     "buildcraft:electronic_library": {
@@ -869,6 +894,11 @@
       "itemalchemy": 320,
       "source": "conversion assemble_quartz_chipset"
     },
+    "buildcraft:redstone_board": {
+      "projecte": 320,
+      "itemalchemy": 320,
+      "source": "recipe"
+    },
     "buildcraft:redstone_chipset": {
       "projecte": 64,
       "itemalchemy": 64,
@@ -882,6 +912,11 @@
     "buildcraft:replacer": {
       "projecte": 21052,
       "itemalchemy": 20980,
+      "source": "recipe"
+    },
+    "buildcraft:robot": {
+      "projecte": 18368,
+      "itemalchemy": 6060,
       "source": "recipe"
     },
     "buildcraft:schematic_single_clean": {

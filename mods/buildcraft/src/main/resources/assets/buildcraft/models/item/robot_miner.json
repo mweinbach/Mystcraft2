@@ -1,0 +1,6 @@
+{
+  "parent": "buildcraft:item/robot_skin",
+  "textures": {
+    "all": "buildcraft:entity/robot/miner"
+  }
+}

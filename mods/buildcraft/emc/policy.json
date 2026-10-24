@@ -9,6 +9,8 @@
   "notes": [
     "Every survival BuildCraft item in this port apart from fluid buckets and the map location is crafted, so its value comes from its recipe: gears, the wrench, engines, machines (including the distiller, the heat exchanger and the builders machines: filler, builder, architect table, electronic library and replacer), blank templates, blueprints and single block schematics, the tank, land and path marks, the marker connector, waterproof, paintbrushes, the zone planner, all pipes (including the structure pipe and the shapeless recipes that turn fluid and kinesis pipes back into item pipes), and the pipe plug and power adapter.",
     "",
+    "The robot, redstone board and docking station are crafted, so their values come from their recipes; a robot's board and energy are NBT, which transmutation strips, so it pays out an empty robot. The picker, carrier, lumberjack and miner boards are programmed in the assembly table, so each is restated as a conversion from a redstone board and its tool with laser power left unvalued. Installing or removing a board in the crafting grid is a special recipe that moves NBT, which neither EMC mod maps.",
+    "",
     "Gates, the gate copier, pipe wire, lenses and filters, the pipe pulsar, the timer and facades come from the assembly table, which ProjectE and Item Alchemy do not map, so each assembly recipe is restated as a conversion with laser power left unvalued. Basic gates and the iron and nether brick gates and iron lapis and quartz gates also have crafting recipes, and the one-item recipes that swap a gate between AND and OR give both logics the same value; where assembly is cheaper, the conversion sets the value so that assembling a gate and transmuting it gains nothing. A facade is one item for every block: its value is the cheapest full block, dirt, plus three structure pipes, divided by the six facades the recipe makes. That counts the copied block and stays below one, so six facades of a diamond block cannot pay out the diamond block. The crafting swap that flips hollow is the same item, and transmutation strips the block NBT.",
     "",
     "The mining well, quarry and pump take blocks and fluids from the world for power alone, as a player with a pickaxe or bucket would; they consume no items, so there is no item process to check for EMC gain.",
@@ -136,6 +138,30 @@
       "why": "The assembly table makes a pipe pulsar from a redstone engine, two iron ingots and laser power (upstream BCSiliconRecipes), which is left unvalued.",
       "output": "buildcraft:plug_pulsar",
       "ingredients": {"buildcraft:redstone_engine": 1, "minecraft:iron_ingot": 2}
+    },
+    {
+      "name": "assemble_board_picker",
+      "why": "The assembly table programs a redstone board into the picker robot board with a hopper and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_picker",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:hopper": 1}
+    },
+    {
+      "name": "assemble_board_carrier",
+      "why": "The assembly table programs a redstone board into the carrier robot board with a chest and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_carrier",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:chest": 1}
+    },
+    {
+      "name": "assemble_board_lumberjack",
+      "why": "The assembly table programs a redstone board into the lumberjack robot board with an iron axe and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_lumberjack",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_axe": 1}
+    },
+    {
+      "name": "assemble_board_miner",
+      "why": "The assembly table programs a redstone board into the miner robot board with an iron pickaxe and laser power (this port's clean-room robots), which is left unvalued.",
+      "output": "buildcraft:board_miner",
+      "ingredients": {"buildcraft:redstone_board": 1, "minecraft:iron_pickaxe": 1}
     },
     {
       "name": "assemble_timer",

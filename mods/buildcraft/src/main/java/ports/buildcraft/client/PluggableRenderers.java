@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import ports.buildcraft.BuildCraft;
+import ports.buildcraft.robotics.BCRobotics;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.transport.BCTransport;
 import ports.buildcraft.transport.PipeBlockEntity;
@@ -58,6 +59,8 @@ public final class PluggableRenderers {
         register(BCSilicon.PULSAR, PulsarRenderer::render);
         SPRITES.addAll(PulsarRenderer.sprites());
         register(BCSilicon.FACADE, FacadeRenderer::render);
+        register(BCRobotics.DOCKING_STATION, DockingStationRenderer::render);
+        SPRITES.addAll(DockingStationRenderer.sprites());
     }
 
     /** The pipe plug drawn inside an opaque full facade, as upstream's baker added the blocker quads. */

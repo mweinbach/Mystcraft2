@@ -81,6 +81,15 @@ public abstract class PipePluggable {
         return null;
     }
 
+    /**
+     * Port addition for the docking station: a receiver the pipe's own kinesis flow feeds through this face as it
+     * would a connected machine, or null. Unlike {@link #energyPort()} it faces the pipe, not the neighbour.
+     */
+    @Nullable
+    public EnergyPort powerSink() {
+        return null;
+    }
+
     /** Upstream {@code PipeEventItem.TryInsert} for this face: false refuses an item entering through it. */
     public boolean canItemEnter(@Nullable DyeColor colour) {
         return true;

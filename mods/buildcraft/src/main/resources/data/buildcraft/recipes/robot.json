@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iii",
+    "iri",
+    "c c"
+  ],
+  "key": {
+    "i": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ],
+    "r": {
+      "item": "minecraft:redstone_block"
+    },
+    "c": {
+      "item": "buildcraft:diamond_chipset"
+    }
+  },
+  "result": {
+    "item": "buildcraft:robot"
+  }
+}

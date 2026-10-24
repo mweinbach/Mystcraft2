@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.buildcraft.statement.Action;
@@ -37,6 +39,21 @@ public class GateLogic implements Gate, RedstoneStatementContainer, WireEmitter 
     /** Whether any action is active; the gate glows on clients while it is. */
     public boolean isOn;
     private final EnumSet<DyeColor> wireBroadcasts = EnumSet.noneOf(DyeColor.class);
+    /** Not upstream: the player who last changed the configuration, see {@link Editor}. */
+    @Nullable
+    private Editor editor;
+
+    /**
+     * Not upstream. The player who last configured a gate through its GUI or a gate copier, and whether they were an
+     * operator then. Actions that direct someone else's machines, such as "Work in Area" sending a robot that breaks
+     * blocks as its owner, only apply when this player may do so. It is saved with the gate but never copied, sent to
+     * clients or kept in schematics.
+     */
+    public record Editor(UUID id, boolean operator) {
+        public static Editor of(Player player) {
+            return new Editor(player.getGameProfile().getId(), player.hasPermissions(2));
+        }
+    }
 
     public GateLogic(PluggableGate pluggable, GateVariant variant) {
         this.pluggable = pluggable;
@@ -59,6 +76,24 @@ public class GateLogic implements Gate, RedstoneStatementContainer, WireEmitter 
         for (DyeColor colour : DyeColor.values()) {
             if ((broadcasts & (1 << colour.getId())) != 0) wireBroadcasts.add(colour);
         }
+        editor = tag.hasUUID(NBT_EDITOR) ? new Editor(tag.getUUID(NBT_EDITOR), tag.getBoolean(NBT_EDITOR_OP)) : null;
+    }
+
+    private static final String NBT_EDITOR = "editor", NBT_EDITOR_OP = "editorOp";
+
+    @Nullable
+    public Editor editor() {
+        return editor;
+    }
+
+    public void setEditor(@Nullable Editor editor) {
+        this.editor = editor;
+    }
+
+    /** Removes what {@link #writeToNbt} saves of the {@link Editor}, for data that leaves the server's save. */
+    public static void stripEditor(CompoundTag tag) {
+        tag.remove(NBT_EDITOR);
+        tag.remove(NBT_EDITOR_OP);
     }
 
     /** Upstream's legacy string statements came from 1.12 worlds, which the port does not load. */
@@ -86,13 +121,18 @@ public class GateLogic implements Gate, RedstoneStatementContainer, WireEmitter 
         int broadcasts = 0;
         for (DyeColor colour : wireBroadcasts) broadcasts |= 1 << colour.getId();
         tag.putInt("wireBroadcasts", broadcasts);
+        if (editor != null) {
+            tag.putUUID(NBT_EDITOR, editor.id());
+            tag.putBoolean(NBT_EDITOR_OP, editor.operator());
+        }
         return tag;
     }
 
-    /** What the gate copier stores: the saved data without the colours being emitted. */
+    /** What the gate copier stores: the saved data without the colours being emitted or who configured the gate. */
     public CompoundTag writeConfigData() {
         CompoundTag tag = writeToNbt();
         tag.remove("wireBroadcasts");
+        stripEditor(tag);
         return tag;
     }
 

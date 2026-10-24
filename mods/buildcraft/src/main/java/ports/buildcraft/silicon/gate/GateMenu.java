@@ -209,18 +209,18 @@ public class GateMenu extends BCMenu {
     public static void receive(ServerPlayer player, FriendlyByteBuf buffer) {
         int containerId = buffer.readVarInt();
         if (player.containerMenu instanceof GateMenu menu && menu.containerId == containerId && menu.gate != null && menu.stillValid(player)) {
-            menu.handle(menu.gate.logic(), buffer);
+            menu.handle(menu.gate.logic(), buffer, player);
         }
     }
 
-    private void handle(GateLogic logic, FriendlyByteBuf buffer) {
+    private void handle(GateLogic logic, FriendlyByteBuf buffer, ServerPlayer player) {
         int op = buffer.readByte();
         int index = buffer.readUnsignedByte();
         if (op == OP_CONNECTION) {
             boolean connected = buffer.readBoolean();
             if (index >= logic.connections.length || logic.isSplitInTwo() && index == logic.statements.length / 2 - 1) return;
             logic.connections[index] = connected;
-            changed(logic);
+            changed(logic, player);
             return;
         }
         boolean action = buffer.readBoolean();
@@ -235,7 +235,7 @@ public class GateMenu extends BCMenu {
             boolean set = action
                     ? setIfAllowed(pair.action, statement == null ? null : ActionType.read(statement, part), possibleActions, logic, true)
                     : setIfAllowed(pair.trigger, statement == null ? null : TriggerType.read(statement, part), possibleTriggers, logic, false);
-            if (set) changed(logic);
+            if (set) changed(logic, player);
         } else if (op == OP_PARAMETER) {
             int param = buffer.readUnsignedByte();
             CompoundTag tag = buffer.readNbt();
@@ -243,7 +243,7 @@ public class GateMenu extends BCMenu {
             StatementParameter value = tag == null ? null : StatementManager.readParameter(tag);
             if (value == null || !full.canSet(param, value)) return;
             full.set(param, value);
-            changed(logic);
+            changed(logic, player);
         }
     }
 
@@ -266,7 +266,9 @@ public class GateMenu extends BCMenu {
         return false;
     }
 
-    private static void changed(GateLogic logic) {
+    /** The gate now does what {@code player} configured, so it acts with their authority (see {@link GateLogic.Editor}). */
+    private static void changed(GateLogic logic, ServerPlayer player) {
+        logic.setEditor(GateLogic.Editor.of(player));
         logic.pluggable.queueSync();
         logic.pluggable.holder.setChanged();
     }

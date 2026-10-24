@@ -12,10 +12,13 @@ import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +41,9 @@ import ports.buildcraft.factory.BCFactory;
 import ports.buildcraft.lib.FluidAmount;
 import ports.buildcraft.platform.Platform;
 import ports.buildcraft.robotics.BCRobotics;
+import ports.buildcraft.robotics.RobotItem;
 import ports.buildcraft.robotics.ZonePackets;
+import ports.buildcraft.robotics.board.RobotBoardType;
 import ports.buildcraft.silicon.BCSilicon;
 import ports.buildcraft.silicon.gate.GateCopierItem;
 import ports.buildcraft.silicon.plug.LensVariant;
@@ -73,6 +78,14 @@ public final class BCClient {
         sink.register(BCRobotics.ZONE_PLANNER_TYPE.get(), context -> new ZonePlannerRenderer());
     }
 
+    public interface EntityRendererSink {
+        <T extends Entity> void register(EntityType<? extends T> type, EntityRendererProvider<T> provider);
+    }
+
+    public static void registerEntityRenderers(EntityRendererSink sink) {
+        sink.register(BCRobotics.ROBOT_TYPE.get(), RobotRenderer::new);
+    }
+
     public interface ItemColourSink {
         void register(ItemColor colour, ItemLike item);
     }
@@ -105,6 +118,10 @@ public final class BCClient {
                 (stack, level, entity, seed) -> GateCopierItem.getCopiedGateData(stack) != null ? 1 : 0);
         sink.register(BCCore.MAP_LOCATION.get(), BuildCraft.id("type"),
                 (stack, level, entity, seed) -> MapLocationItem.Type.of(stack).ordinal());
+        sink.register(BCRobotics.ROBOT_ITEM.get(), BuildCraft.id("board"), (stack, level, entity, seed) -> {
+            RobotBoardType board = RobotItem.board(stack);
+            return board == null ? 0 : (board.ordinal() + 1) / 20F;
+        });
     }
 
     /** Called on the client thread once registries are populated. */
@@ -176,6 +193,7 @@ public final class BCClient {
         sprites.addAll(LaserRenderer.sprites());
         sprites.addAll(PluggableRenderers.sprites());
         sprites.addAll(PipeWireRenderer.sprites());
+        sprites.addAll(RobotRenderer.sprites());
         for (BCFluidDefinition fluid : BCEnergy.FLUIDS) {
             sprites.add(fluid.stillTexture());
             sprites.add(fluid.flowingTexture());

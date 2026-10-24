@@ -682,6 +682,54 @@
         }
       ]
     },
+    "buildcraft_assemble_board_picker": {
+      "comment": "The assembly table programs a redstone board into the picker robot board with a hopper and laser power (this port's clean-room robots), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:board_picker",
+          "ingredients": {
+            "buildcraft:redstone_board": 1,
+            "minecraft:hopper": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_board_carrier": {
+      "comment": "The assembly table programs a redstone board into the carrier robot board with a chest and laser power (this port's clean-room robots), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:board_carrier",
+          "ingredients": {
+            "buildcraft:redstone_board": 1,
+            "minecraft:chest": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_board_lumberjack": {
+      "comment": "The assembly table programs a redstone board into the lumberjack robot board with an iron axe and laser power (this port's clean-room robots), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:board_lumberjack",
+          "ingredients": {
+            "buildcraft:redstone_board": 1,
+            "minecraft:iron_axe": 1
+          }
+        }
+      ]
+    },
+    "buildcraft_assemble_board_miner": {
+      "comment": "The assembly table programs a redstone board into the miner robot board with an iron pickaxe and laser power (this port's clean-room robots), which is left unvalued.",
+      "conversions": [
+        {
+          "output": "buildcraft:board_miner",
+          "ingredients": {
+            "buildcraft:redstone_board": 1,
+            "minecraft:iron_pickaxe": 1
+          }
+        }
+      ]
+    },
     "buildcraft_assemble_timer": {
       "comment": "The assembly table makes a timer from a clock and laser power (upstream BCSiliconRecipes), which is left unvalued.",
       "conversions": [

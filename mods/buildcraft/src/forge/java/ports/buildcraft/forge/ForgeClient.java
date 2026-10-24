@@ -36,7 +36,10 @@ final class ForgeClient implements ClientPlatform.Backend {
         MinecraftForge.EVENT_BUS.addListener((RenderLevelStageEvent event) -> {
             if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) BCClient.renderLevel(event.getPoseStack(), event.getCamera());
         });
-        modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> BCClient.registerRenderers(event::registerBlockEntityRenderer));
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+            BCClient.registerRenderers(event::registerBlockEntityRenderer);
+            BCClient.registerEntityRenderers(event::registerEntityRenderer);
+        });
         modBus.addListener((TextureStitchEvent.Pre event) -> {
             if (event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS)) BCClient.extraSprites().forEach(event::addSprite);
         });

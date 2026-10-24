@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " i ",
+    "ici"
+  ],
+  "key": {
+    "i": [
+      {
+        "tag": "c:iron_ingots"
+      },
+      {
+        "tag": "forge:ingots/iron"
+      }
+    ],
+    "c": {
+      "item": "buildcraft:iron_chipset"
+    }
+  },
+  "result": {
+    "item": "buildcraft:docking_station"
+  }
+}
