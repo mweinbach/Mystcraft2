@@ -28,13 +28,28 @@ public enum ProducerKind {
     /** This producer's output at {@code pos} right now. */
     public double output(ServerLevel level, BlockPos pos) {
         boolean skylight = level.dimensionType().hasSkyLight() && !level.dimensionType().hasFixedTime();
+        boolean sunUp = sunUp(level);
         return switch (this) {
-            case SOLAR_PANEL -> solar(skylight && level.isDay(), level.canSeeSky(pos.above()), level.isRaining());
-            case LUNAR_PANEL -> lunar(skylight && !level.isDay(), level.canSeeSky(pos.above()), level.isRaining());
+            case SOLAR_PANEL -> solar(skylight && sunUp, level.canSeeSky(pos.above()), level.isRaining());
+            case LUNAR_PANEL -> lunar(skylight && !sunUp, level.canSeeSky(pos.above()), level.isRaining());
             case WATER_MILL -> water(flowingSides(level, pos));
             case WIND_MILL -> wind(pos.getY(), level.getSeaLevel(), openSides(level, pos), level.isRaining(),
                     level.isThundering(), level.dimensionType().hasSkyLight());
         };
+    }
+
+    /**
+     * Whether the sun is above the horizon, from the time of day alone. {@code Level.isDay()} is not
+     * used because it reads the sky's darkness, which a thunderstorm deepens enough to call noon night;
+     * weather instead only scales panel output through the rain multiplier.
+     */
+    public static boolean sunUp(ServerLevel level) {
+        return sunUp(level.getTimeOfDay(1.0F));
+    }
+
+    /** {@code timeOfDay} is the celestial angle in [0, 1), where 0 is noon and 0.5 midnight. */
+    public static boolean sunUp(float timeOfDay) {
+        return Math.cos(timeOfDay * 2.0 * Math.PI) > 0;
     }
 
     public static double solar(boolean day, boolean seesSky, boolean raining) {

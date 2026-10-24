@@ -18,7 +18,7 @@ language files, and is not affiliated with it. Every number below is Gridwright'
 | --- | --- | --- |
 | Grid Power | — | Every producer and consumer belongs to the player who placed it. If that player is on a scoreboard team, the block joins the team's grid instead (and follows them if they change teams). GP is a rate, never stored. Each tick a grid's **capacity** is the sum of its producers' output and its **demand** the sum of its working consumers' needs; while demand exceeds capacity **every** consumer on that grid stops. Blocks placed by commands or machines have no owner and join no grid. Right-click any grid block to see its grid's capacity and demand. |
 | Diminishing returns | — | Within one grid, the k-th strongest producer of one block type (from 0) adds `output × 32 / (32 + k)`. Mixing producer types pays more than repeating one. |
-| Solar panel | `solar_panel` | 4 GP in daylight with open sky above, 2 GP in rain, 0 at night, underground or in dimensions without a day cycle. |
+| Solar panel | `solar_panel` | 4 GP while the sun is above the horizon with open sky above, 2 GP in rain or a thunderstorm, 0 at night, underground or in dimensions without a day cycle. Day and night come from the time alone, so a storm halves output but never turns noon into night. |
 | Lunar panel | `lunar_panel` | The night-time mirror of the solar panel. |
 | Water mill | `water_mill` | 3 GP per horizontal side touching flowing (not source) water, up to 12 GP. |
 | Wind mill | `wind_mill` | `(1 + blocks above sea level / 16, capped at 6) × open sides / 8 × weather` GP, where "open sides" counts air among the 8 blocks around it, rain multiplies by 1.5 and thunder by 2. Nothing below sea level or without a sky. |
