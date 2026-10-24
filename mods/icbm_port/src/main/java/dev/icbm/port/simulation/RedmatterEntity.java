@@ -62,6 +62,8 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
   private int lived, starved, debrisCursor, inFlight;
   private int maxHorizon = -1;
   private Vec3d anchor;
+  /** Set once the core has collapsed but its crater still waits for a free scar slot. */
+  private boolean collapsing;
   private LongArrayList band;
   private int bandIndex;
   private final LongOpenHashSet deferred = new LongOpenHashSet();
@@ -145,7 +147,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       discard();
       return;
     }
-    if (++lived >= config.durationTicks()) {
+    if (collapsing || ++lived >= config.durationTicks()) {
       collapse(server);
       return;
     }
@@ -244,19 +246,28 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     }
   }
 
-  /** Moving cores restart their horizon around the new position; the old crater is finished. */
+  /**
+   * Moving cores restart their horizon around the new position; the old crater is finished as a
+   * scar. If every scar slot is busy the core keeps its old anchor and deferred work (both saved)
+   * and tries again next tick.
+   */
   private void reanchor(ServerWorld server) {
     sky.flush(server);
-    Payloads.registerScar(server, anchor, horizonRadius(), deferred);
+    if (!Payloads.registerScar(server, anchor, horizonRadius(), deferred)) return;
     deferred.clear();
     anchor = getPos();
     band = null;
     dataTracker.set(HORIZON, 0);
   }
 
+  /**
+   * Hands the unfinished crater to a scar and removes the core. If every scar slot is busy the core
+   * stays (saved, with its deferred work) and retries each tick until a slot frees.
+   */
   private void collapse(ServerWorld server) {
     sky.flush(server);
-    if (anchor != null) Payloads.registerScar(server, anchor, horizonRadius(), deferred);
+    collapsing = true;
+    if (anchor != null && !Payloads.registerScar(server, anchor, horizonRadius(), deferred)) return;
     deferred.clear();
     server.spawnParticles(
         ParticleTypes.REVERSE_PORTAL, getX(), getY(), getZ(), 200, size() * .3, size() * .3, size() * .3, .4);
@@ -470,6 +481,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
       n.putDouble("anchorZ", anchor.z);
     }
     n.put("deferred", new NbtLongArray(deferred.toLongArray()));
+    if (collapsing) n.putBoolean("collapsing", true);
     n.putInt("captured", capturedBlocks());
     n.putInt("consumed", consumedBlocks());
     if (owner != null) n.putUuid("owner", owner);
@@ -497,6 +509,7 @@ public final class RedmatterEntity extends Entity implements FlyingItemEntity {
     }
     deferred.clear();
     for (long pos : n.getLongArray("deferred")) if (deferred.size() < MAX_DEFERRED) deferred.add(pos);
+    collapsing = n.getBoolean("collapsing");
     band = null;
     dataTracker.set(CAPTURED, Math.max(0, Math.min(1000000, n.getInt("captured"))));
     dataTracker.set(CONSUMED, Math.max(0, Math.min(1000000, n.getInt("consumed"))));
