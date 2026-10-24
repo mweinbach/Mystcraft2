@@ -10,6 +10,7 @@ import static moze_intel.projecte.gametest.PEGameTestSupport.check;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import moze_intel.projecte.api.capabilities.item.IItemCharge;
+import moze_intel.projecte.gameObjs.block_entities.DMFurnaceBlockEntity;
 import moze_intel.projecte.gameObjs.registries.PEBlocks;
 import moze_intel.projecte.gameObjs.registries.PEItems;
 import moze_intel.projecte.utils.Constants;
@@ -30,9 +31,11 @@ import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -167,16 +170,32 @@ public class MatterGameTests {
         helper.succeed();
     }
 
-    /** The Dark Matter furnace smelts with ordinary fuel and sometimes doubles ores. */
+    /**
+     * The Dark Matter furnace smelts with ordinary fuel and doubles ores with upstream's 50% chance. The roll uses the
+     * level's shared random, which other tests in the batch also draw from, so the smelts run with the chance pinned:
+     * one furnace always doubles (16 ores give exactly 32 ingots) and one never does (exactly 16).
+     */
     @GameTest(template = TEMPLATE, timeoutTicks = 400)
     public static void darkMatterFurnaceSmeltsAndDoublesOres(GameTestHelper helper) {
-        furnaceSmeltsAndDoubles(helper, PEBlocks.DARK_MATTER_FURNACE.getBlock());
+        PinnedDoublingFurnace always = pinnedDarkMatterFurnace(helper, CENTER, 1F);
+        PinnedDoublingFurnace never = pinnedDarkMatterFurnace(helper, CENTER.west(2), 0F);
+        check(helper, always.upstreamChance() == 0.5F, "The Dark Matter furnace doubles ores with chance " + always.upstreamChance() + ", not 0.5");
+        loadOreAndFuel(helper, always);
+        loadOreAndFuel(helper, never);
+        helper.succeedWhen(() -> {
+            requireSmelted(always, 32);
+            requireSmelted(never, 16);
+        });
     }
 
-    /** The Red Matter furnace does the same, faster. */
+    /** The Red Matter furnace does the same, faster, and always doubles (chance 1), so the count is exact. */
     @GameTest(template = TEMPLATE, timeoutTicks = 120)
     public static void redMatterFurnaceSmeltsAndDoublesOres(GameTestHelper helper) {
-        furnaceSmeltsAndDoubles(helper, PEBlocks.RED_MATTER_FURNACE.getBlock());
+        helper.setBlock(CENTER, PEBlocks.RED_MATTER_FURNACE.getBlock());
+        DMFurnaceBlockEntity furnace = (DMFurnaceBlockEntity) helper.getBlockEntity(CENTER);
+        check(helper, furnace != null, "No furnace block entity");
+        loadOreAndFuel(helper, furnace);
+        helper.succeedWhen(() -> requireSmelted(furnace, 32));
     }
 
     /** A full set of Dark Matter armour takes 80% off damage that bypasses vanilla armour. */
@@ -222,29 +241,58 @@ public class MatterGameTests {
         helper.succeed();
     }
 
-    private static void furnaceSmeltsAndDoubles(GameTestHelper helper, Block furnaceBlock) {
-        helper.setBlock(CENTER, furnaceBlock);
-        moze_intel.projecte.gameObjs.block_entities.DMFurnaceBlockEntity furnace =
-              (moze_intel.projecte.gameObjs.block_entities.DMFurnaceBlockEntity) helper.getBlockEntity(CENTER);
-        check(helper, furnace != null, "No furnace block entity");
-        check(helper, furnace.getFuel().insertItem(0, new ItemStack(net.minecraft.world.item.Items.COAL, 4), false).isEmpty(), "Fuel refused");
+    /** A Dark Matter furnace placed at {@code relative} whose ore-doubling chance is {@code chance}. */
+    private static PinnedDoublingFurnace pinnedDarkMatterFurnace(GameTestHelper helper, BlockPos relative, float chance) {
+        helper.setBlock(relative, PEBlocks.DARK_MATTER_FURNACE.getBlock());
+        BlockPos pos = helper.absolutePos(relative);
+        PinnedDoublingFurnace furnace = new PinnedDoublingFurnace(pos, helper.getLevel().getBlockState(pos), chance);
+        helper.getLevel().setBlockEntity(furnace);
+        check(helper, helper.getBlockEntity(relative) == furnace, "The pinned furnace did not replace the placed one");
+        return furnace;
+    }
+
+    private static void loadOreAndFuel(GameTestHelper helper, DMFurnaceBlockEntity furnace) {
+        check(helper, furnace.getFuel().insertItem(0, new ItemStack(Items.COAL, 4), false).isEmpty(), "Fuel refused");
         check(helper, furnace.getInput().insertItem(0, new ItemStack(Blocks.IRON_ORE, 16), false).isEmpty(), "Ore refused");
-        helper.succeedWhen(() -> {
-            int ingots = 0;
-            for (int slot = 0; slot < furnace.getOutput().getSlots(); slot++) {
-                ItemStack stack = furnace.getOutput().getStackInSlot(slot);
-                if (stack.is(net.minecraft.world.item.Items.IRON_INGOT)) {
-                    ingots += stack.getCount();
-                }
+    }
+
+    private static void requireSmelted(DMFurnaceBlockEntity furnace, int expectedIngots) {
+        int oreLeft = 0;
+        for (int slot = 0; slot < furnace.getInput().getSlots(); slot++) {
+            oreLeft += furnace.getInput().getStackInSlot(slot).getCount();
+        }
+        PEGameTestSupport.require(oreLeft == 0, oreLeft + " ore left to smelt");
+        int ingots = 0;
+        for (int slot = 0; slot < furnace.getOutput().getSlots(); slot++) {
+            ItemStack stack = furnace.getOutput().getStackInSlot(slot);
+            if (stack.is(Items.IRON_INGOT)) {
+                ingots += stack.getCount();
             }
-            int oreLeft = 0;
-            for (int slot = 0; slot < furnace.getInput().getSlots(); slot++) {
-                oreLeft += furnace.getInput().getStackInSlot(slot).getCount();
-            }
-            PEGameTestSupport.require(oreLeft == 0, oreLeft + " ore left to smelt");
-            // Each ore doubles with a 50% (or better) chance: 16 ores all failing to double is a 1 in 65,536 event.
-            PEGameTestSupport.require(ingots > 16, "Smelted 16 ores into only " + ingots + " ingots");
-        });
+        }
+        PEGameTestSupport.require(ingots == expectedIngots, "Smelted 16 ores into " + ingots + " ingots, not " + expectedIngots);
+    }
+
+    /**
+     * A Dark Matter furnace whose doubling roll ({@code random.nextFloat() < chance}) always succeeds at chance 1 and
+     * never at chance 0, whatever the level's random returns. Everything else is the real furnace.
+     */
+    private static final class PinnedDoublingFurnace extends DMFurnaceBlockEntity {
+
+        private final float chance;
+
+        PinnedDoublingFurnace(BlockPos pos, BlockState state, float chance) {
+            super(pos, state);
+            this.chance = chance;
+        }
+
+        float upstreamChance() {
+            return super.getOreDoubleChance();
+        }
+
+        @Override
+        protected float getOreDoubleChance() {
+            return chance;
+        }
     }
 
     private static ItemStack charged(Item item, int charge) {
