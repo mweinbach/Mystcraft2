@@ -327,6 +327,7 @@ public final class GateTests {
         source.statements[1].trigger.set(trigger(BCCoreStatements.TRIGGER_REDSTONE_INACTIVE, null));
         source.statements[1].action.set(action(BCCoreStatements.ACTION_REDSTONE));
         source.connections[0] = true;
+        source.setEditor(new GateLogic.Editor(UUID.randomUUID(), true));
         useAt(helper, player, first, Direction.SOUTH, ON_GATE, copier);
         require(helper, "chat.gateCopier.gateCopied".equals(connection.lastActionBarKey()) && GateCopierItem.getCopiedGateData(copier) != null,
                 "a copier copies a configured gate");
@@ -338,6 +339,9 @@ public final class GateTests {
         require(helper, trigger(BCCoreStatements.TRIGGER_REDSTONE_INACTIVE, null).equals(target.statements[1].trigger.get())
                 && action(BCCoreStatements.ACTION_REDSTONE).equals(target.statements[1].action.get()) && target.connections[0]
                 && target.statements[0].trigger.get() == null, "pasting gives the second gate the first one's statements and grouping");
+        require(helper, !GateCopierItem.getCopiedGateData(copier).contains("editor") && target.editor() != null
+                && player.getUUID().equals(target.editor().id()) && !target.editor().operator(),
+                "the copier never carries who configured a gate: the pasted gate acts for the player who pasted it");
 
         player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         player.setItemInHand(InteractionHand.MAIN_HAND, copier);
@@ -384,6 +388,8 @@ public final class GateTests {
             GateMenu.receive(player, buffer(buffer -> GateMenu.writeStatementChange(buffer, id + 1, 1, false, trigger(BCCoreStatements.TRIGGER_TRUE, null))));
             require(helper, contains.equals(logic.statements[0].trigger.get()) && logic.statements[1].trigger.get() == null,
                     "the server takes a trigger the gate can use and ignores one it cannot, or one for another menu");
+            require(helper, logic.editor() != null && player.getUUID().equals(logic.editor().id()) && !logic.editor().operator(),
+                    "the gate remembers who configured it through its GUI");
 
             StatementWrapper redstone = action(BCCoreStatements.ACTION_REDSTONE);
             GateMenu.receive(player, buffer(buffer -> GateMenu.writeStatementChange(buffer, id, 0, true, redstone)));

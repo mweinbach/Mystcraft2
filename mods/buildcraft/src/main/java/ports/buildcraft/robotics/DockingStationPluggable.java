@@ -21,6 +21,7 @@ import ports.buildcraft.lib.Ports;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.platform.EnergyPort;
 import ports.buildcraft.platform.ItemPort;
+import ports.buildcraft.silicon.gate.GateLogic;
 import ports.buildcraft.transport.PipeBlockEntity;
 import ports.buildcraft.transport.flow.ItemFlow;
 import ports.buildcraft.transport.flow.PowerFlow;
@@ -65,6 +66,9 @@ public class DockingStationPluggable extends PipePluggable {
     /** {@link #areaMap} decoded, so robots asking every tick do not rebuild a zone. */
     @Nullable
     private WorkArea area;
+    /** Who configured the gate that gave {@link #area}; only robots they may direct work there. */
+    @Nullable
+    private GateLogic.Editor areaEditor;
 
     public DockingStationPluggable(PluggableDefinition definition, PipeBlockEntity holder, Direction side) {
         super(definition, holder, side);
@@ -241,8 +245,10 @@ public class DockingStationPluggable extends PipePluggable {
         forbidTick = now();
     }
 
-    public void actionWorkInArea(ItemStack map) {
+    /** @param editor who configured the gate, see {@link #gateArea(RobotEntity)} */
+    public void actionWorkInArea(ItemStack map, @Nullable GateLogic.Editor editor) {
         areaTick = now();
+        areaEditor = editor;
         // A gate hands over the same parameter stack every tick; only compare its NBT when that stack changes.
         if (map == areaSource) return;
         areaSource = map;
@@ -272,10 +278,14 @@ public class DockingStationPluggable extends PipePluggable {
         return held(forbidTick);
     }
 
-    /** The area a gate gives the robots that live here, or null for their default area. */
+    /**
+     * The area a gate gives the robots that live here, or null for their default area. A robot breaks blocks as its
+     * owner, so it only takes an area from a gate that its owner or an operator configured (or any gate if nobody
+     * owns it); otherwise anyone who could reach the pipe could send it to work where only its owner may.
+     */
     @Nullable
-    public WorkArea gateArea() {
-        return held(areaTick) ? area : null;
+    public WorkArea gateArea(RobotEntity robot) {
+        return held(areaTick) && robot.mayBeDirectedBy(areaEditor) ? area : null;
     }
 
     private static boolean passes(List<ItemStack> filters, ItemStack stack) {

@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import ports.buildcraft.robotics.DockingStationPluggable;
+import ports.buildcraft.silicon.gate.GateLogic;
 import ports.buildcraft.statement.Action;
 import ports.buildcraft.statement.BCStatement;
 import ports.buildcraft.statement.Gate;
@@ -91,6 +92,8 @@ public class ActionStation extends BCStatement implements Action.Internal {
         for (int index = 0; index < kind.parameters; index++) {
             stacks.add(getParam(index, parameters, StatementParameterItemStack.EMPTY).getItemStack());
         }
+        // Only a gate's own logic knows who configured it; any other statement container directs nobody's robots.
+        GateLogic.Editor editor = gate instanceof GateLogic logic ? logic.editor() : null;
         for (Direction face : Direction.values()) {
             if (!(gate.getPipe().getPluggable(face) instanceof DockingStationPluggable station)) continue;
             switch (kind) {
@@ -99,7 +102,7 @@ public class ActionStation extends BCStatement implements Action.Internal {
                 case DROP_IN_PIPE -> station.actionDropInPipe();
                 case FORBID_ROBOT -> station.actionForbid();
                 case WAKE_UP -> station.actionWakeUp();
-                case WORK_IN_AREA -> station.actionWorkInArea(stacks.get(0));
+                case WORK_IN_AREA -> station.actionWorkInArea(stacks.get(0), editor);
             }
         }
     }

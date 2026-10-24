@@ -39,6 +39,7 @@ import ports.buildcraft.lib.MjBattery;
 import ports.buildcraft.lib.Power;
 import ports.buildcraft.robotics.board.RobotBoard;
 import ports.buildcraft.robotics.board.RobotBoardType;
+import ports.buildcraft.silicon.gate.GateLogic;
 
 /**
  * The robot, written for this port from BuildCraft 7's documented behaviour. A robot is a small flying machine that
@@ -196,7 +197,7 @@ public class RobotEntity extends Entity {
      */
     public WorkArea workArea() {
         DockingStationPluggable station = home == null ? null : home.resolve(level);
-        WorkArea area = station == null ? null : station.gateArea();
+        WorkArea area = station == null ? null : station.gateArea(this);
         if (area != null) return area;
         return WorkArea.around(home != null ? home.pos() : blockPosition(), WorkArea.DEFAULT_RADIUS);
     }
@@ -378,10 +379,7 @@ public class RobotEntity extends Entity {
         }
         if (!pos.equals(breakPos)) {
             cancelBreak();
-            if (BlockUtil.isUnbreakableBlock(level, pos) || state.requiresCorrectToolForDrops() && !tool.isCorrectToolForDrops(state)
-                    || !BlockProtection.mayBreak(server, pos, actor(pos))) {
-                return Progress.FAILED;
-            }
+            if (!mayBreak(pos)) return Progress.FAILED;
             breakPos = pos.immutable();
             breakProgress = 0;
             breakTotal = breakTicks(state, pos);
@@ -406,6 +404,17 @@ public class RobotEntity extends Entity {
         if (tool.isDamageableItem() && tool.hurt(1, random, actor)) tool = ItemStack.EMPTY;
         cancelBreak();
         return Progress.DONE;
+    }
+
+    /**
+     * Whether the robot could break the block at {@code pos} now: it is breakable, the robot's tool may harvest it,
+     * and protection lets the owner break it. Boards ask this while choosing targets so that the robot never sets
+     * off for a block it may not touch; {@link #breakBlock} asks again before and as the block breaks.
+     */
+    public boolean mayBreak(BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (BlockUtil.isUnbreakableBlock(level, pos) || state.requiresCorrectToolForDrops() && !tool.isCorrectToolForDrops(state)) return false;
+        return BlockProtection.mayBreak((ServerLevel) level, pos, actor(pos));
     }
 
     private ServerPlayer actor(BlockPos pos) {
@@ -505,6 +514,16 @@ public class RobotEntity extends Entity {
         UUID id = owner.getId();
         if (id == null || id.equals(BlockProtection.NULL_PROFILE.getId()) || player.hasPermissions(2)) return true;
         return id.equals(player.getGameProfile().getId());
+    }
+
+    /**
+     * Whether a gate configured by {@code editor} may direct this robot (see {@link DockingStationPluggable#gateArea}):
+     * the same people as {@link #mayControl}, as they were when they last configured the gate.
+     */
+    public boolean mayBeDirectedBy(@Nullable GateLogic.Editor editor) {
+        UUID id = owner.getId();
+        if (id == null || id.equals(BlockProtection.NULL_PROFILE.getId())) return true;
+        return editor != null && (editor.operator() || id.equals(editor.id()));
     }
 
     /** Drops the robot's cargo and tool where it is. */

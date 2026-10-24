@@ -8,6 +8,7 @@ import static ports.buildcraft.gametest.BCTests.useAt;
 import static ports.buildcraft.gametest.BCTests.useOn;
 
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -124,9 +125,14 @@ public final class RobotTests {
         return gate;
     }
 
-    /** Keeps the robots that live on {@code pipe} inside the test's arena with a "Work in Area" gate. */
-    private static void confine(GameTestHelper helper, PipeBlockEntity pipe, Direction side) {
-        gate(pipe, side, ONE_PARAMETER, BCRoboticsStatements.ACTION_WORK_IN_AREA, areaMap(helper, new BlockPos(0, 1, 0), new BlockPos(8, 6, 8)));
+    /**
+     * Keeps the robots that live on {@code pipe} inside the test's arena with a "Work in Area" gate, configured by
+     * {@code owner} as robots only take an area from a gate their owner configured.
+     */
+    private static void confine(GameTestHelper helper, PipeBlockEntity pipe, Direction side, Player owner) {
+        PluggableGate gate = gate(pipe, side, ONE_PARAMETER, BCRoboticsStatements.ACTION_WORK_IN_AREA,
+                areaMap(helper, new BlockPos(0, 1, 0), new BlockPos(8, 6, 8)));
+        gate.logic().setEditor(GateLogic.Editor.of(owner));
     }
 
     private static void done(GameTestHelper helper, RobotEntity... robots) {
@@ -360,9 +366,10 @@ public final class RobotTests {
         BlockPos pos = new BlockPos(4, 2, 4);
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.WOOD_POWER);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        confine(helper, pipe, Direction.NORTH);
+        Player owner = helper.makeMockPlayer();
+        confine(helper, pipe, Direction.NORTH, owner);
         require(helper, station.canCharge(), "a station on a kinesis pipe charges robots");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
+        RobotEntity robot = deploy(helper, owner, pos, station, RobotBoardType.PICKER);
         robot.undock();
         robot.setPos(robot.getX() + 3, robot.getY(), robot.getZ() + 2);
         robot.battery().set(RobotEntity.LOW_ENERGY - Power.MJ);
@@ -388,7 +395,8 @@ public final class RobotTests {
         ChestBlockEntity chest = chest(helper, new BlockPos(4, 1, 4));
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        confine(helper, pipe, Direction.NORTH);
+        Player owner = helper.makeMockPlayer();
+        confine(helper, pipe, Direction.NORTH, owner);
         // The arena floor is at y = 1: the items rest on it (an item spawned inside the floor may be pushed out below
         // it, out of the work area). Neighbouring tests' drops may land here too, so count only the named items.
         helper.setBlock(new BlockPos(2, 1, 2), Blocks.STONE);
@@ -398,7 +406,7 @@ public final class RobotTests {
         cobblestone.setCount(8);
         cobblestone.setHoverName(name);
         helper.spawnItem(Items.DIAMOND, 6.5F, 2.1F, 6.5F).getItem().setHoverName(name);
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
+        RobotEntity robot = deploy(helper, owner, pos, station, RobotBoardType.PICKER);
         helper.succeedWhen(() -> {
             require(helper, countNamed(chest, Items.COBBLESTONE, name) == 8 && countNamed(chest, Items.DIAMOND, name) == 1,
                     "the picker brings the cobblestone and the diamond home, chest has " + countNamed(chest, Items.COBBLESTONE, name)
@@ -424,7 +432,8 @@ public final class RobotTests {
         BlockPos homePos = new BlockPos(4, 2, 4);
         PipeBlockEntity home = pipe(helper, homePos, BCTransport.STONE_ITEM);
         DockingStationPluggable homeStation = station(home, Direction.UP);
-        confine(helper, home, Direction.NORTH);
+        Player owner = helper.makeMockPlayer();
+        confine(helper, home, Direction.NORTH, owner);
 
         ChestBlockEntity source = chest(helper, new BlockPos(1, 1, 1), new ItemStack(Items.COBBLESTONE, 16), new ItemStack(Items.DIRT, 4));
         PipeBlockEntity provider = pipe(helper, new BlockPos(1, 2, 1), BCTransport.STONE_ITEM);
@@ -436,7 +445,7 @@ public final class RobotTests {
         station(acceptor, Direction.UP);
         gate(acceptor, Direction.NORTH, PLAIN, BCRoboticsStatements.ACTION_ACCEPT_ITEMS);
 
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), homePos, homeStation, RobotBoardType.CARRIER);
+        RobotEntity robot = deploy(helper, owner, homePos, homeStation, RobotBoardType.CARRIER);
         helper.succeedWhen(() -> {
             require(helper, count(target, Items.COBBLESTONE) == 16, "the carrier moves the cobblestone, target has " + count(target, Items.COBBLESTONE)
                     + "; " + describe(helper, robot));
@@ -451,12 +460,13 @@ public final class RobotTests {
         ChestBlockEntity chest = chest(helper, new BlockPos(4, 1, 4), new ItemStack(Items.IRON_AXE));
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        confine(helper, pipe, Direction.NORTH);
+        Player owner = helper.makeMockPlayer();
+        confine(helper, pipe, Direction.NORTH, owner);
         BlockPos[] logs = {new BlockPos(1, 1, 1), new BlockPos(1, 2, 1), new BlockPos(7, 1, 2)};
         for (BlockPos log : logs) helper.setBlock(log, Blocks.OAK_LOG);
         require(helper, BreakerBoard.isAxe(new ItemStack(Items.IRON_AXE)) && !BreakerBoard.isAxe(new ItemStack(Items.IRON_PICKAXE)),
                 "the lumberjack takes axes, not pickaxes");
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.LUMBERJACK);
+        RobotEntity robot = deploy(helper, owner, pos, station, RobotBoardType.LUMBERJACK);
         helper.succeedWhen(() -> {
             for (BlockPos log : logs) require(helper, helper.getBlockState(log).isAir(), "the lumberjack cuts the log at " + log);
             require(helper, count(chest, Items.OAK_LOG) == 3, "the lumberjack brings the logs home, chest has " + count(chest, Items.OAK_LOG));
@@ -474,7 +484,8 @@ public final class RobotTests {
         ChestBlockEntity chest = chest(helper, new BlockPos(4, 1, 4), new ItemStack(Items.IRON_PICKAXE));
         PipeBlockEntity pipe = pipe(helper, pos, BCTransport.STONE_ITEM);
         DockingStationPluggable station = station(pipe, Direction.UP);
-        confine(helper, pipe, Direction.NORTH);
+        Player player = helper.makeMockPlayer();
+        confine(helper, pipe, Direction.NORTH, player);
         BlockPos open = new BlockPos(1, 1, 1);
         BlockPos refused = new BlockPos(7, 1, 1);
         BlockPos sealed = new BlockPos(6, 2, 6);
@@ -485,9 +496,13 @@ public final class RobotTests {
         TestProtection.refuse(helper, refused);
         require(helper, BreakerBoard.isOre(Blocks.COAL_ORE.defaultBlockState()) && BreakerBoard.isOre(Blocks.DEEPSLATE_IRON_ORE.defaultBlockState())
                 && !BreakerBoard.isOre(Blocks.STONE.defaultBlockState()), "the miner knows ores from stone");
-        Player player = helper.makeMockPlayer();
         RobotEntity robot = deploy(helper, player, pos, station, RobotBoardType.MINER);
+        // Protection is asked while the miner looks for ores, so it never sets off for the refused one.
+        Vec3 refusedCentre = helper.absoluteVec(Vec3.atCenterOf(refused));
+        double[] closest = {Double.MAX_VALUE};
+        helper.onEachTick(() -> closest[0] = Math.min(closest[0], robot.position().distanceTo(refusedCentre)));
         helper.succeedWhen(() -> {
+            require(helper, closest[0] > 2, "the miner never flies to the protected ore, came within " + closest[0]);
             require(helper, helper.getBlockState(open).isAir(), "the miner digs the open ore");
             require(helper, count(chest, Items.COAL) >= 1, "the miner brings the coal home");
             require(helper, player.getGameProfile().getName().equals(TestProtection.refusedPlayer(helper, refused)),
@@ -528,7 +543,8 @@ public final class RobotTests {
                 && !BCRoboticsStatements.TRIGGER_STATION_LINKED.isTriggerActive(logic, NO_PARAMETERS),
                 "an empty station has no robot docked or linked");
 
-        RobotEntity robot = deploy(helper, helper.makeMockPlayer(), pos, station, RobotBoardType.PICKER);
+        Player owner = helper.makeMockPlayer();
+        RobotEntity robot = deploy(helper, owner, pos, station, RobotBoardType.PICKER);
         robot.setBoard(null);
         require(helper, BCRoboticsStatements.TRIGGER_ROBOT_IN_STATION.isTriggerActive(logic, NO_PARAMETERS)
                 && BCRoboticsStatements.TRIGGER_STATION_LINKED.isTriggerActive(logic, NO_PARAMETERS)
@@ -554,14 +570,39 @@ public final class RobotTests {
                     require(helper, station.isDroppingInPipe() && station.accepts(visitor, new ItemStack(Items.DIRT)),
                             "Drop Items In Pipe takes anything into an item pipe");
                     ItemStack map = areaMap(helper, new BlockPos(1, 1, 1), new BlockPos(3, 3, 3));
-                    BCRoboticsStatements.ACTION_WORK_IN_AREA.actionActivate(logic, new StatementParameter[] {new StatementParameterItemStack(map)});
+                    StatementParameter[] mapParameter = {new StatementParameterItemStack(map)};
+                    BlockPos outside = helper.absolutePos(new BlockPos(5, 1, 1));
+                    // The robot breaks blocks as its owner, so only a gate its owner (or an operator) configured may move it.
+                    logic.setEditor(null);
+                    BCRoboticsStatements.ACTION_WORK_IN_AREA.actionActivate(logic, mapParameter);
+                    require(helper, station.gateArea(robot) == null && robot.workArea().contains(outside),
+                            "a gate nobody configured gives someone's robot no area");
+                    logic.setEditor(new GateLogic.Editor(UUID.randomUUID(), false));
+                    BCRoboticsStatements.ACTION_WORK_IN_AREA.actionActivate(logic, mapParameter);
+                    require(helper, station.gateArea(robot) == null && robot.workArea().contains(outside),
+                            "a gate another player configured gives someone's robot no area");
+                    require(helper, visitor.mayBeDirectedBy(null), "a robot nobody owns takes any gate's area");
+                    logic.setEditor(new GateLogic.Editor(UUID.randomUUID(), true));
+                    BCRoboticsStatements.ACTION_WORK_IN_AREA.actionActivate(logic, mapParameter);
+                    require(helper, station.gateArea(robot) != null && !robot.workArea().contains(outside),
+                            "a gate an operator configured gives anyone's robot its area");
+                    logic.setEditor(GateLogic.Editor.of(owner));
+                    BCRoboticsStatements.ACTION_WORK_IN_AREA.actionActivate(logic, mapParameter);
+                    GateLogic reloaded = new GateLogic(gate, logic.variant);
+                    reloaded.readFromNbt(logic.writeToNbt());
+                    require(helper, reloaded.editor() != null && owner.getUUID().equals(reloaded.editor().id()),
+                            "a gate remembers who configured it when saved");
+                    CompoundTag client = new CompoundTag();
+                    gate.writeClient(client);
+                    require(helper, !client.getCompound("data").contains("editor") && !logic.writeConfigData().contains("editor"),
+                            "who configured a gate is neither sent to clients nor copied");
                     WorkArea area = robot.workArea();
                     require(helper, area.contains(helper.absolutePos(new BlockPos(1, 1, 1))) && !area.contains(helper.absolutePos(new BlockPos(5, 1, 1))),
                             "Work in Area gives the robots that live here the map's area");
                 })
                 .thenIdle(4)
                 .thenExecute(() -> {
-                    require(helper, !station.isForbidden() && !station.isDroppingInPipe() && station.gateArea() == null,
+                    require(helper, !station.isForbidden() && !station.isDroppingInPipe() && station.gateArea(robot) == null,
                             "the actions lapse once the gate stops holding them");
                     require(helper, BCRoboticsStatements.TRIGGER_STATION_LINKED.isTriggerActive(logic, NO_PARAMETERS), "the station stays linked");
                 })

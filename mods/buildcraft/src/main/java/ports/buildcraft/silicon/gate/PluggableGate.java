@@ -55,6 +55,7 @@ public class PluggableGate extends PipePluggable implements WireEmitter {
     @Override
     public void writeClient(CompoundTag tag) {
         save(tag);
+        GateLogic.stripEditor(tag.getCompound("data"));
         tag.putBoolean("on", logic.isOn);
     }
 
@@ -126,6 +127,7 @@ public class PluggableGate extends PipePluggable implements WireEmitter {
         CompoundTag stored = GateCopierItem.getCopiedGateData(stack);
         if (stored != null) {
             logic.readConfigData(stored);
+            logic.setEditor(GateLogic.Editor.of(player));
             queueSync();
             holder.setChanged();
             player.displayClientMessage(Component.translatable("chat.gateCopier.gatePasted"), true);

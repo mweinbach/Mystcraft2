@@ -49,6 +49,11 @@ public class BreakerBoard extends RobotBoard {
     private final Set<BlockPos> skipped = new HashSet<>();
     /** Positions checked per tick while looking for a target: a 64-block cube takes 32 ticks, the default area 5. */
     public static final int SCAN_BUDGET = 8192;
+    /**
+     * What asking protection about a candidate costs out of {@link #SCAN_BUDGET}: protection mods may do real work
+     * for each break event, so a sweep asks at most 128 times a tick.
+     */
+    public static final int PROTECTION_COST = 64;
     /** The sweep in progress over {@link #scanArea}, and the nearest target it has found so far. */
     @Nullable
     private Iterator<BlockPos> scan;
@@ -176,8 +181,10 @@ public class BreakerBoard extends RobotBoard {
 
     /**
      * Looks for the nearest target over several ticks, checking at most {@link #SCAN_BUDGET} positions a tick so a
-     * large area (or one full of blocks protection refuses) never costs a whole sweep in one tick. Returns true once
-     * the sweep is done, leaving its nearest find (or null) in {@link #scanBest}.
+     * large area (or one full of blocks protection refuses) never costs a whole sweep in one tick. A block the robot
+     * may not break (protected, or its tool cannot harvest it) is skipped as it is found, costing
+     * {@link #PROTECTION_COST}, so the robot never sets off for it. Returns true once the sweep is done, leaving its
+     * nearest find (or null) in {@link #scanBest}.
      */
     private boolean scanStep(WorkArea area) {
         if (scan == null || !area.equals(scanArea)) {
@@ -191,6 +198,12 @@ public class BreakerBoard extends RobotBoard {
             BlockPos pos = scan.next();
             double distance = pos.distToCenterSqr(from);
             if (distance >= scanBestDistance || !isTarget(pos, area)) continue;
+            // Only a block that would become the nearest find is put to protection, so a sweep asks about few blocks.
+            checked += PROTECTION_COST;
+            if (!robot.mayBreak(pos)) {
+                skipped.add(pos.immutable());
+                continue;
+            }
             scanBest = pos.immutable();
             scanBestDistance = distance;
         }
