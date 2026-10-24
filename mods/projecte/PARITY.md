@@ -16,7 +16,7 @@ The port lands in phases, one pull request each:
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | EMC core and mapper, player knowledge and EMC sync, Philosopher's Stone, Transmutation Table and Tablet, Alchemical Chest and Bags, Energy Collectors, Antimatter Relays, Energy Condensers, Klein Stars as EMC storage | GameTests below on both loaders |
-| 2 | Dark and Red Matter blocks, furnaces, tools and armour; Gem armour | Code present on both loaders, unverified |
+| 2 | Dark and Red Matter blocks, furnaces, tools and armour; Gem armour | Verified on both loaders (GameTests below) |
 | 3 | Rings, amulets, Divining Rods, Watch of Flowing Time, Mercurial Eye, lenses, Destruction Catalyst, Interdiction Torch, Nova Catalyst and Cataclysm, the pedestal, key bindings and modes, Trinkets slots, an EMI plugin | Code present on both loaders (EMI plugin not yet written), unverified |
 | 4 | ProjectE EMC audits for every port on Fabric; Tekxit 4 server and client check with and without Item Alchemy | Not started |
 
@@ -37,6 +37,18 @@ The port lands in phases, one pull request each:
 | An Energy Condenser turns its input into its locked item | `EmcBlockGameTests.condenserTurnsItsInputIntoItsLock` |
 | An Antimatter Relay burns items and feeds a neighbour; it charges a Klein Star | `EmcBlockGameTests.relayBurnsItemsAndFeedsANeighbour`, `relayChargesAKleinStar` |
 | The Alchemical Chest stores items through its item handler | `EmcBlockGameTests.alchemicalChestHoldsItemsThroughItsItemHandler` |
+| Right-clicking an ore with a Dark Matter Pickaxe mines the connected vein and drops its ore | `MatterGameTests.pickaxeVeinMinesAnOre` |
+| A charged shovel, hoe and axe flatten, till and strip a square around the clicked block | `MatterGameTests.chargedShovelFlattensAnArea`, `chargedHoeTillsAnArea`, `chargedAxeStripsAnArea` |
+| A charged hammer digs a square | `MatterGameTests.chargedHammerDigsAnArea` |
+| Dark Matter Shears shear nearby sheep on right-click (Fabric: `IForgeShearable` on sheep through a mixin) | `MatterGameTests.shearsShearNearbySheep` |
+| Swords attack through armour, harder with charge | `MatterGameTests.chargedSwordHitsHarder` |
+| Charge raises a tool's attack damage (Fabric: Fabric API's stack-aware attribute modifiers) | `MatterGameTests.chargeRaisesAttackDamage` |
+| Charge steps up to the tool's maximum through `IItemCharge` | `MatterGameTests.chargeChangesThroughTheCapability` |
+| Matter tools mine matter blocks of their tier at full speed and higher tiers slower | `MatterGameTests.matterToolsMineMatterBlocksOfTheirTier` |
+| The Dark and Red Matter furnaces smelt with ordinary fuel and double ores | `MatterGameTests.darkMatterFurnaceSmeltsAndDoublesOres`, `redMatterFurnaceSmeltsAndDoublesOres` |
+| Dark Matter armour takes 80% off damage that bypasses armour (Fabric: the port's `LivingHurtEvent`) | `MatterGameTests.darkMatterArmourReducesDamage` |
+| The Gem Helmet's night vision and the Gem Boots' fall protection act on the armour tick | `MatterGameTests.gemArmourActsOnTheArmourTick` |
+| Gem Boots add movement speed through their attribute modifiers | `MatterGameTests.gemBootsAddMovementSpeed` |
 
 Fabric only (allowlisted in [gametest-loader-only.txt](gametest-loader-only.txt)): the Alchemical Chest is a Transfer
 API `Storage<ItemVariant>`, and condenser output can be extracted through the Transfer API. Transfer API moves act on
@@ -73,7 +85,9 @@ Mekanism's charcoal block (16,000 ticks) and ProjectE's fuels burn for their own
 
 - No client has been launched on either loader. Screens, the transmutation GUI's rendering, HUD overlays, key
   bindings and renderers are unverified.
-- Phases 2 and 3 above: registered, untested.
+- Phase 3 above: registered, untested. Phase 2's Red Matter tool modes, the Katar and Morning Star's combined
+  actions, and Gem armour's key-bound abilities (explosion, flight, fire protection) have no GameTest of their own;
+  they reuse the `ToolHelper` and ability code the tests above exercise.
 - Fabric: Forge hooks no ProjectE class uses are not ported (see [UPSTREAM.md](UPSTREAM.md)). Another mod that
   expects ProjectE's Fabric jar to provide Forge's full hook set will not find it; ProjectE's own items get what
   they need.

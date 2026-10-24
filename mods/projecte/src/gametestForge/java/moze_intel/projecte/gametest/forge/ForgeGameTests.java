@@ -15,6 +15,7 @@ import java.util.Locale;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.gametest.EmcBlockGameTests;
 import moze_intel.projecte.gametest.EmcMapperGameTests;
+import moze_intel.projecte.gametest.MatterGameTests;
 import moze_intel.projecte.gametest.PhilosophersStoneGameTests;
 import moze_intel.projecte.gametest.TransmutationGameTests;
 import net.minecraft.gametest.framework.GameTest;
@@ -31,7 +32,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 public class ForgeGameTests {
 
     private static final List<Class<?>> SHARED_TESTS = List.of(EmcMapperGameTests.class, TransmutationGameTests.class,
-          EmcBlockGameTests.class, PhilosophersStoneGameTests.class);
+          EmcBlockGameTests.class, PhilosophersStoneGameTests.class, MatterGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {
