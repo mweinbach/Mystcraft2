@@ -36,8 +36,12 @@ public final class BotaniaForgePlugin {
 	public static void init() {
 		BotaniaPlugin.init();
 		MinecraftForge.EVENT_BUS.addListener((ManaNetworkEvent event) -> {
-			if (event.getAction() == ManaNetworkAction.REMOVE && event.getType() == ManaBlockType.POOL) {
-				ManaGrowthCondition.removePoll(event.getReceiver());
+			if (event.getType() == ManaBlockType.POOL) {
+				if (event.getAction() == ManaNetworkAction.REMOVE) {
+					ManaGrowthCondition.removePoll(event.getReceiver());
+				} else if (event.getAction() == ManaNetworkAction.ADD) {
+					ManaGrowthCondition.poolAdded(event.getReceiver());
+				}
 			}
 		});
 		MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, BotaniaForgePlugin::attach);

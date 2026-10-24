@@ -221,12 +221,14 @@ and the `@REIPluginClient` subclass `forge/compat/AgriCraftReiForgePlugin`; Fabr
     light and redstone power; malformed ids from NBT or data resolve to nothing instead of throwing.
   - Crop hitboxes are cached per species and growth stage; 4.0.6 cached them per stage only, so wheat planted
     after carrots kept the carrot's shape. Crops and the mutation complexities look their data up again after
-    `/reload`; 4.0.6 kept the first world's.
+    `/reload`; 4.0.6 kept the first world's. So do the JEI growth requirement views.
+  - Botania's mana growth condition caches the closest pool per level and drops a cached pool that is gone or in
+    another level, and forgets a level's pools when a new one is placed; 4.0.6 keyed the cache by position alone.
   - A harvest, clip or rake product whose tag resolves to no item (e.g. Petinia's `#agricraft:nuggets/tin` with
     no tin mod loaded) drops nothing; 4.0.6 called `nextInt(0)` and crashed the server on harvest and block
     drops. A product with `max < min` drops `min`, and stat rolls never use a max below 1. Plants with a
-    `required` product that resolves to nothing are hidden from the creative tab and never come out of a
-    mutation, as AgriCraft 3 disabled them (4.0.6 ignores the flag); planted ones still grow and drop nothing,
+    `required` product that resolves to nothing are hidden from the creative tab and the recipe viewers and never come
+    out of a mutation, as AgriCraft 3 disabled them (4.0.6 ignores the flag); planted ones still grow and drop nothing,
     and `/agricraft_seed` still gives their seeds.
 - **Datagen.** Upstream's Forge datagen classes are not ported; the generated data is shipped as files
   (see `NOTICE.md`).

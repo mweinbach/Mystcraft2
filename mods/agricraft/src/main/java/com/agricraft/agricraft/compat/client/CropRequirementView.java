@@ -62,6 +62,11 @@ public class CropRequirementView {
 	private int soil;
 	private long lastTime;
 
+	/** The plant this view was built for; a reload or new server data replaces the plant instance. */
+	public AgriPlant plant() {
+		return this.plant;
+	}
+
 	public CropRequirementView(AgriPlant plant) {
 		this.plant = plant;
 		this.plantId = AgriApi.getPlantId(plant).map(ResourceLocation::toString).orElse("");

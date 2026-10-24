@@ -1,6 +1,7 @@
 package com.agricraft.agricraft.compat.jei;
 
 import com.agricraft.agricraft.client.gui.AgriGuiGraphics;
+import com.agricraft.agricraft.common.registry.AgriDataRegistries;
 import com.agricraft.agricraft.compat.AgriRecipeDisplays;
 import com.agricraft.agricraft.compat.client.CropRequirementView;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -33,13 +34,27 @@ public class CropRequirementCategory implements IRecipeCategory<AgriRecipeDispla
 
 	public final IDrawable icon;
 	private final Map<ResourceLocation, CropRequirementView> views = new HashMap<>();
+	/** {@link AgriDataRegistries#generation()} the views were built against (they hold the plant and its soils). */
+	private int viewsGeneration = -1;
 
 	public CropRequirementCategory(IGuiHelper helper) {
 		icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, AgriRecipeDisplays.farmland());
 	}
 
 	private CropRequirementView view(AgriRecipeDisplays.PlantDisplay recipe) {
-		return views.computeIfAbsent(recipe.id(), id -> new CropRequirementView(recipe.plant()));
+		// views were kept for the life of the category: after a /reload (or joining another server) they showed the
+		// old plant's requirements and soils, so rebuild them once the data or the displayed plant changes
+		int generation = AgriDataRegistries.generation();
+		if (generation != this.viewsGeneration) {
+			this.views.clear();
+			this.viewsGeneration = generation;
+		}
+		CropRequirementView view = this.views.get(recipe.id());
+		if (view == null || view.plant() != recipe.plant()) {
+			view = new CropRequirementView(recipe.plant());
+			this.views.put(recipe.id(), view);
+		}
+		return view;
 	}
 
 	@Override

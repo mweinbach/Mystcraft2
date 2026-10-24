@@ -26,8 +26,12 @@ public class BotaniaFabricPlugin {
 			return null;
 		}, ModBlockEntityTypes.CROP.get());
 		ManaNetworkCallback.EVENT.register((receiver, type, action) -> {
-			if (action == ManaNetworkAction.REMOVE && type == ManaBlockType.POOL) {
-				ManaGrowthCondition.removePoll(receiver);
+			if (type == ManaBlockType.POOL) {
+				if (action == ManaNetworkAction.REMOVE) {
+					ManaGrowthCondition.removePoll(receiver);
+				} else if (action == ManaNetworkAction.ADD) {
+					ManaGrowthCondition.poolAdded(receiver);
+				}
 			}
 		});
 	}
