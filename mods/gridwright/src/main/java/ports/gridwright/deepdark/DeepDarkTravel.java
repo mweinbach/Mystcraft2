@@ -185,8 +185,9 @@ public final class DeepDarkTravel {
             }
         }
         if (!level.noCollision(player, box)) return false;
-        // The slightly larger box also takes in the floor block.
-        if (level.getBlockStates(touched).anyMatch(DeepDarkArrival::harmful)) return false;
+        // Nothing harmful in the space or anywhere in the block below it that the player would land on.
+        AABB withFloor = new AABB(touched.minX, box.minY - 1.0, touched.minZ, touched.maxX, touched.maxY, touched.maxZ);
+        if (level.getBlockStates(withFloor).anyMatch(DeepDarkArrival::harmful)) return false;
         // Something to stand on within a block (no fall damage), or water or a ladder to hold on to.
         AABB below = new AABB(box.minX, box.minY - 1.0, box.minZ, box.maxX, box.minY, box.maxZ);
         return !level.noCollision(player, below)

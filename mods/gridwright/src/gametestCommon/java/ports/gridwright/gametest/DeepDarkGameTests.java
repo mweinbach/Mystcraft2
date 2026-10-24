@@ -422,6 +422,11 @@ public class DeepDarkGameTests {
         helper.setBlock(new BlockPos(4, 2, 2), Blocks.LADDER);
         check(DeepDarkTravel.clear(level, null, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(4, 2, 2)))), "Ladder spot rejected");
 
+        Vec3 midJump = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 2, 3))).add(0.0, 0.4, 0.0);
+        check(DeepDarkTravel.clear(level, null, midJump), "Mid-jump spot over stone rejected");
+        helper.setBlock(new BlockPos(2, 1, 3), Blocks.MAGMA_BLOCK);
+        check(!DeepDarkTravel.clear(level, null, midJump), "Mid-jump spot over magma accepted");
+
         helper.setBlock(new BlockPos(3, 1, 3), Blocks.MAGMA_BLOCK);
         BlockPos magmaTop = helper.absolutePos(new BlockPos(3, 2, 3));
         if (level.getHeight(Heightmap.Types.MOTION_BLOCKING, magmaTop.getX(), magmaTop.getZ()) == magmaTop.getY()) {
