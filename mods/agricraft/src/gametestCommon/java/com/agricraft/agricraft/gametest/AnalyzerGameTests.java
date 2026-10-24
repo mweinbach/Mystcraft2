@@ -13,7 +13,9 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -71,6 +73,21 @@ public class AnalyzerGameTests {
 			int[] slots = analyzer.getSlotsForFace(side);
 			check(slots.length == 1 && slots[0] == SeedAnalyzerBlockEntity.JOURNAL_SLOT, "automation from " + side + " should only reach the journal slot");
 		}
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void analyzerSlotEditsFromTheMenuAreSaved(GameTestHelper helper) {
+		BlockPos pos = new BlockPos(1, 1, 1);
+		SeedAnalyzerBlockEntity analyzer = analyzer(helper, pos);
+		LevelChunk chunk = helper.getLevel().getChunkAt(helper.absolutePos(pos));
+		chunk.setUnsaved(false);
+		// the analyzer menu's slots write straight into the container, bypassing insertSeed()
+		new Slot(analyzer.getInventory(), SeedAnalyzerBlockEntity.SEED_SLOT, 0, 0).set(AgriSeedItem.toStack(genome("minecraft:wheat", 3)));
+		check(chunk.isUnsaved(), "a seed placed through the menu should mark the analyzer's chunk for saving");
+		chunk.setUnsaved(false);
+		new Slot(analyzer.getInventory(), SeedAnalyzerBlockEntity.SEED_SLOT, 0, 0).remove(1);
+		check(chunk.isUnsaved(), "a seed taken through the menu should mark the analyzer's chunk for saving");
 		helper.succeed();
 	}
 

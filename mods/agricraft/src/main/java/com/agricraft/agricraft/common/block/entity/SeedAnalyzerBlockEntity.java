@@ -42,6 +42,8 @@ public class SeedAnalyzerBlockEntity extends BlockEntity implements WorldlyConta
 	public SeedAnalyzerBlockEntity(BlockPos blockPos, BlockState blockState) {
 		super(ModBlockEntityTypes.SEED_ANALYZER.get(), blockPos, blockState);
 		this.inventory = new SimpleContainer(2);
+		// the menu edits the container directly, so its changes must mark the block entity for saving
+		this.inventory.addListener(container -> this.setChanged());
 	}
 
 	@Override
