@@ -4,7 +4,9 @@ import net.minecraft.core.Registry;
 
 import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.common.block.CropStickVariant;
+import com.agricraft.agricraft.common.item.ChannelValveItem;
 import com.agricraft.agricraft.common.item.ClipperItem;
+import com.agricraft.agricraft.common.item.TooltipBlockItem;
 import com.agricraft.agricraft.common.item.CropSticksItem;
 import com.agricraft.agricraft.common.item.DebuggerItem;
 import com.agricraft.agricraft.common.item.JournalItem;
@@ -36,6 +38,13 @@ public class ModItems {
 	public static final PlatformRegistry.Entry<Item> OBSIDIAN_CROP_STICKS = ITEMS.register("obsidian_crop_sticks", () -> new CropSticksItem(ModBlocks.CROP.get(), CropStickVariant.OBSIDIAN));
 	public static final PlatformRegistry.Entry<Item> SEED_BAG = ITEMS.register("seed_bag", () -> new SeedBagItem(tab().stacksTo(1)));
 	public static final PlatformRegistry.Entry<Item> SEED = ITEMS.register("seed", () -> Platform.get().createAgriSeedItem(new Item.Properties().tab(ModCreativeTabs.SEED_TAB)));
+
+	// irrigation, ported from AgriCraft 3
+	public static final PlatformRegistry.Entry<Item> IRRIGATION_TANK = ITEMS.register("irrigation_tank", () -> new TooltipBlockItem(ModBlocks.IRRIGATION_TANK.get(), tab(), "agricraft.tooltip.tank.l1"));
+	public static final PlatformRegistry.Entry<Item> IRRIGATION_CHANNEL = ITEMS.register("irrigation_channel", () -> new TooltipBlockItem(ModBlocks.IRRIGATION_CHANNEL.get(), tab()));
+	public static final PlatformRegistry.Entry<Item> IRRIGATION_CHANNEL_HOLLOW = ITEMS.register("irrigation_channel_hollow", () -> new TooltipBlockItem(ModBlocks.IRRIGATION_CHANNEL_HOLLOW.get(), tab()));
+	public static final PlatformRegistry.Entry<Item> SPRINKLER = ITEMS.register("sprinkler", () -> new TooltipBlockItem(ModBlocks.SPRINKLER.get(), tab(), "agricraft.tooltip.sprinkler.l1"));
+	public static final PlatformRegistry.Entry<Item> CHANNEL_VALVE = ITEMS.register("agri_channel_valve", () -> new ChannelValveItem(tab()));
 
 	public static final PlatformRegistry.Entry<Item> COAL_PEBBLE = ITEMS.register("coal_pebble", () -> new Item(tab()));
 	public static final PlatformRegistry.Entry<Item> COPPER_NUGGET = ITEMS.register("copper_nugget", () -> new Item(tab()));

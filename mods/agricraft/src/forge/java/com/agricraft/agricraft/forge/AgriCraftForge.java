@@ -1,5 +1,8 @@
 package com.agricraft.agricraft.forge;
 
+import com.agricraft.agricraft.common.forge.irrigation.ForgeTankFluidHandler;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import com.agricraft.agricraft.AgriCraft;
 import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.common.commands.DumpRegistriesCommand;
@@ -52,6 +55,7 @@ public class AgriCraftForge {
 		MinecraftForge.EVENT_BUS.addListener(AgriCraftForge::onRegisterCommands);
 		MinecraftForge.EVENT_BUS.addListener(AgriCraftForge::onRightClick);
 		MinecraftForge.EVENT_BUS.addListener(AgriCraftForge::onRightClickBonemeal);
+		MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeTankFluidHandler::attach);
 		// 1.19.2 has no datapack registries for mods: plants, weeds, soils, mutations and fertilizers
 		// load with the server's data and are sent to clients on join and after /reload.
 		MinecraftForge.EVENT_BUS.addListener((AddReloadListenerEvent event) -> event.addListener(AgriDataRegistries.reloadListener()));

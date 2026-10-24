@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "brb",
+    " b ",
+    " i "
+  ],
+  "key": {
+    "r": {
+      "tag": "agricraft:dyes/red"
+    },
+    "b": {
+      "item": "minecraft:iron_bars"
+    },
+    "i": {
+      "tag": "agricraft:ingots/iron"
+    }
+  },
+  "result": {
+    "item": "agricraft:agri_channel_valve",
+    "count": 1
+  }
+}

@@ -67,6 +67,9 @@ public class CropGameTests {
 	@GameTest(template = TEMPLATE)
 	public static void seedPlantsOnCropSticksAndGrows(GameTestHelper helper) {
 		BlockPos soil = new BlockPos(1, 1, 1);
+		// the Forge test world persists between runs, so pin noon for the light requirement
+		helper.getLevel().setDayTime(6000);
+		helper.getLevel().updateSkyBrightness();
 		AgriCrop crop = cropSticks(helper, soil, CropState.SINGLE_STICKS);
 		// resistance 10 keeps weeds away so only plant growth ticks run
 		ItemStack seed = AgriSeedItem.toStack(genome("minecraft:wheat", 10));

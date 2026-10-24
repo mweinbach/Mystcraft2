@@ -12,6 +12,9 @@ public final class AgriCraftConfig {
 	@InlineCategory
 	public static StatsConfig stats;
 
+	@InlineCategory
+	public static IrrigationConfig irrigation;
+
 
 	@InlineCategory
 	public static CompatConfig compat;
