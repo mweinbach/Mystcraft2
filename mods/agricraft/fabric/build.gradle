@@ -22,7 +22,26 @@ repositories {
         url = 'https://nexus.resourcefulbees.com/repository/maven-public/'
         content { includeGroup 'com.teamresourceful.resourcefulconfig' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content {
+            includeGroup 'dev.emi'
+            includeGroup 'com.terraformersmc'
+        }
+    }
+    maven {
+        url = 'https://maven.shedaniel.me/'
+        content {
+            includeGroup 'me.shedaniel'
+            includeGroup 'me.shedaniel.cloth'
+        }
+    }
 }
+def reiVersion = '9.2.784'
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -38,9 +57,45 @@ dependencies {
     if (providers.gradleProperty('withItemAlchemy').isPresent()) {
         modRuntimeOnly 'maven.modrinth:item-alchemy:1AYUTFS2'
         modRuntimeOnly 'maven.modrinth:mcpitanlibarch:cTAftMK5'
+    }
+    // Recipe viewers: only their APIs are needed to compile. -PwithJei, -PwithEmi and -PwithRei add each viewer
+    // to the development runs; each plugin loads only when its viewer is installed.
+    modCompileOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    modCompileOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${reiVersion}") { transitive = false }
+    // REI's widget API places things with Cloth's Point and Rectangle.
+    compileOnly('me.shedaniel.cloth:basic-math:0.6.1') { transitive = false }
+    if (providers.gradleProperty('withJei').isPresent()) {
+        modRuntimeOnly('mezz.jei:jei-1.19.2-fabric:11.8.1.1034') { transitive = false }
+    }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        modRuntimeOnly('dev.emi:emi-fabric:1.1.24+1.19.2') { transitive = false }
+    }
+    if (providers.gradleProperty('withRei').isPresent()) {
+        modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${reiVersion}") { transitive = false }
+        modRuntimeOnly('me.shedaniel.cloth:cloth-config-fabric:8.3.134') { transitive = false }
+    }
+    // Tooltips (Jade 8.7.3, WTHIT 5), the Mod Menu config screen and the Botania hooks are optional; only their
+    // APIs are needed to compile. -PwithJade and -PwithWthit add the tooltip mods to the development runs.
+    modCompileOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    modCompileOnly('maven.modrinth:wthit:APJpZnsA') { transitive = false }
+    modCompileOnly('maven.modrinth:botania:rY2B5H93') { transitive = false }
+    modCompileOnly('com.terraformersmc:modmenu:4.2.0-beta.2') { transitive = false }
+    if (providers.gradleProperty('withJade').isPresent()) {
+        modRuntimeOnly('maven.modrinth:jade:ZASePpsm') { transitive = false }
+    }
+    if (providers.gradleProperty('withWthit').isPresent()) {
+        modRuntimeOnly('maven.modrinth:wthit:APJpZnsA') { transitive = false }
+        modRuntimeOnly('maven.modrinth:badpackets:7Y5NcPRW') { transitive = false }
+    }
+    // Architectury 6.6.92 for 1.19.2 is shared by Item Alchemy and REI; declare it once.
+    if (providers.gradleProperty('withItemAlchemy').isPresent() || providers.gradleProperty('withRei').isPresent()) {
         modRuntimeOnly 'maven.modrinth:architectury-api:cde9Su0w'
     }
 }
+// The viewer flags this run was started with, so the viewer GameTest can tell "missing" from "not asked for".
+def viewerFlags = ['Jei', 'Emi', 'Rei'].findAll { providers.gradleProperty("with${it}").isPresent() }
+        .collect { it.toLowerCase(Locale.ROOT) }.join(',') ?: 'none'
 
 // -PwithProjectE: this repository's ProjectE Fabric port in development runs, for the live EMC audit.
 apply from: '../../../gradle/projecte-fabric.gradle'
@@ -104,6 +159,7 @@ loom {
             vmArg '-Dfabric-api.gametest'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('../emc/values.json')}"
+            vmArg "-Dagricraft.viewers=${viewerFlags}"
         }
     }
 }

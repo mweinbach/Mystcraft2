@@ -151,6 +151,7 @@
   "agricraft.tooltip.light": "Light Level",
   "config.jade.plugin_agricraft.crop_block": "Crop Block",
   "config.jade.plugin_agricraft.soil": "Soil",
+  "config.jade.plugin_agricraft.irrigation": "Irrigation",
   "agricraft.tooltip.jade.species": "Species: ",
   "agricraft.tooltip.jade.stat.gain": "Gain: %d",
   "agricraft.tooltip.jade.stat.growth": "Growth: %d",

@@ -87,7 +87,7 @@ public final class AgriCraftForgeNetwork {
 		static void handle(SyncRegistries message, Supplier<NetworkEvent.Context> context) {
 			context.get().enqueueWork(() -> {
 				AgriDataRegistries.apply(message.registries());
-				DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientUtil::refreshCreativeSearch);
+				DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientUtil::onRemoteDataApplied);
 			});
 			context.get().setPacketHandled(true);
 		}

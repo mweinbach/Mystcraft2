@@ -67,6 +67,9 @@ public class AgriCraftForge {
 			}
 		});
 		MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> AgriDataRegistries.clear(false));
+		if (net.minecraftforge.fml.ModList.get().isLoaded("botania") && com.agricraft.agricraft.api.config.CompatConfig.enableBotania) {
+			com.agricraft.agricraft.forge.compat.BotaniaForgePlugin.init();
+		}
 	}
 
 	public static void onCommonSetup(FMLCommonSetupEvent event) {

@@ -23,10 +23,14 @@ phase of this port), **absent** (not in 4.0.6).
 | Compat datapacks and resource packs for other mods (`datapacks/<modid>`, `resourcepacks/<modid>`) | ported | Registered only when that mod is loaded, as upstream. |
 | `/agricraft seed` and `/agricraft dump` commands | ported | |
 | Config (ResourcefulConfig) | ported | Uses ResourcefulConfig 1.0.20, the 1.19.2 build Tekxit 4 ships. |
-| ModMenu / Forge config screen | planned (phase 3) | Upstream's `ForgeMenuConfig` and the ModMenu entry point are removed for now. |
-| EMI, JEI, REI plugins | planned (phase 3) | |
-| Jade / WTHIT tooltips | planned (phase 3) | |
-| Botania (mana growth condition, horn harvest), Fabric Seasons / Serene Seasons, PneumaticCraft, Industrial Foregoing, Mystical Agriculture plugins | planned (phase 3) | |
+| ModMenu / Forge config screen | ported | Upstream's `ModMenuConfig` (Mod Menu 4.2 `modmenu` entrypoint) and `ForgeMenuConfig` (mod-list config button), both opening ResourcefulConfig's screen. Not yet opened in a client. |
+| EMI plugin (mutation, produce, clipping, growth requirement categories) | tested (data, wiring) | EMI 1.1.24. Screens are not yet checked in a client. See [Recipe viewers](#recipe-viewers). |
+| JEI plugin (the same four categories, plant ingredient type, magnifying helmet crafting extension) | tested (data, wiring) | JEI 11. Screens are not yet checked in a client. See [Recipe viewers](#recipe-viewers). |
+| REI plugin (the same four categories) | tested (data, wiring) | Not in 4.0.6 (upstream has no REI plugin); original port code for REI 9.2. Screens are not yet checked in a client. See [Recipe viewers](#recipe-viewers). |
+| Jade / WTHIT tooltips (crop species, stats and growth, soil properties, irrigation fluid level) | tested (lines) | Jade 8 on both loaders (Fabric `jade` entrypoint, Forge `@WailaPlugin`); WTHIT 5 on Fabric through the `waila:plugins` entry in `fabric.mod.json` (upstream's `wthit_plugins.json` needs WTHIT 6+). The irrigation provider is AgriCraft 3's. See [Integrations](#integrations). |
+| Botania (mana growth condition and plant modifier, Horn of the Wild harvest) | ported | Both loaders, as upstream, when Botania is loaded and `compat.botania` is on. Compiled against Botania 1.19.2-440.2; not run with Botania. |
+| Fabric Seasons plugin | ported (stub, as upstream) | Upstream 4.0.6 claims the season logic and reports `ANY` everywhere, so season requirements never block growth on Fabric; kept as is. |
+| Serene Seasons, PneumaticCraft, Industrial Foregoing, Mystical Agriculture plugins | absent | Present in the 4.0.6 sources but never initialised (Serene Seasons is commented out), so they do nothing upstream; not ported. |
 | Irrigation (tank, channel, hollow channel, valve, sprinkler) | tested | Not in 4.x; ported from AgriCraft 3 (branch `1.16.5`, MIT). See [Irrigation](#irrigation-from-agricraft-3). |
 | Greenhouses | absent | Not in AgriCraft 4.0.6 (or 3.x). |
 | Torchflower plant and mutation | absent on 1.19.2 | Torchflowers were added in Minecraft 1.19.4; the data and models are removed. Its lang keys remain unused. |
@@ -69,6 +73,68 @@ Differences from AgriCraft 3:
   (they store no water and would come back empty); buckets use the vanilla filled-bucket logic, so a stack of empty buckets is not
   consumed; the valve wheel animates from block-state changes; clients are synced when a component becomes
   empty or full, not only on large changes.
+
+## Recipe viewers
+
+The viewers are optional: their APIs are compile-only, and each plugin loads only when its viewer is installed
+(EMI 1.1.24, JEI 11.6 on Forge / 11.8 on Fabric, REI 9.2). Registration: Forge by `@EmiEntrypoint`, `@JeiPlugin`
+and the `@REIPluginClient` subclass `forge/compat/AgriCraftReiForgePlugin`; Fabric by the `emi`,
+`jei_mod_plugin` and `rei_client` entrypoints. All three show the lists built by the shared
+`compat/AgriRecipeDisplays` (sorted by id):
+
+- **Mutation**: two parent seeds give the child seed (valid mutations only, i.e. all three plants loaded).
+- **Produce** and **clipping**: a seed and its possible products / clip products, for plants that have any.
+- **Growth requirement**: the interactive page (strength and growth-stage buttons, fertile light levels, soil
+  humidity/acidity/nutrients, seasons when a season mod is active, the plant rendered on a cycling suitable
+  soil). Its drawing, buttons and tooltips are upstream's, moved into one client class,
+  `compat/client/CropRequirementView`, that the EMI recipe widget, the JEI category and the REI widget share.
+- Seeds are compared by species (EMI comparison, JEI subtype interpreter, REI item comparator); EMI hides the
+  NBT-less seed, as upstream.
+
+1.19.2 changes and simplifications:
+
+- **Drawing.** EMI 1.1.24 widgets and JEI 11 categories draw with a `PoseStack`, so the upstream `GuiGraphics`
+  calls go through `AgriGuiGraphics`; the requirement page's block/plant rendering uses 1.19.2's
+  `Vector3f` rotations and the shared buffer source.
+- **EMI.** Upstream builds the requirement page from EMI button, drawable and tooltip widgets; here one
+  widget delegates to `CropRequirementView` (same buttons, drawing and tooltips). `CropClippingRecipe` is a
+  subclass of `CropProduceRecipe` instead of a copy. Upstream listed mutations with missing plants as
+  empty seeds; they are left out.
+- **JEI.** The four categories, the plant ingredient type and the magnifying helmet extension map onto JEI 11
+  unchanged apart from the `PoseStack` signatures. Recipe objects are the shared display records instead of
+  `AgriPlant`/`AgriMutation`; the produce category lists only plants with products (upstream listed every
+  plant). Because EMI shows JEI plugins' categories itself, the JEI plugin registers nothing but the seed
+  subtype interpreter when EMI is installed, so the categories are not listed twice.
+- **REI** (original port code, MIT): the same four categories on the JEI layouts and textures, plant icons
+  with name/description tooltips, and the interactive requirement page.
+- **Remote servers.** On 1.19.2 AgriCraft's plants and mutations reach remote clients in the
+  `agricraft:data_registries` packet, after the recipes and tags the viewers build their lists from. Once the
+  data is applied, `compat/RecipeViewers` reloads EMI (`EmiReloadManager.reload()`) and REI
+  (`RoughlyEnoughItemsCoreClient.reloadPlugins`), both called reflectively and only when present. JEI 11 has
+  no public reload, so its plugin adds the missing recipes, plant ingredients and seeds through JEI's runtime
+  API (`IRecipeManager.addRecipes`, `IIngredientManager.addIngredientsAtRuntime`). Limitation: after a
+  `/reload` that removes or changes plants, JEI keeps the old entries until it restarts (rejoin). In
+  singleplayer the registries are shared in-process and none of this runs.
+- Not verified: the screens (layout, rendering, buttons) have not been checked in a client session, and the
+  remote-data refresh has not been exercised against a dedicated server with a client.
+
+## Integrations
+
+- **Tooltips.** `compat/AgriTooltipLines` holds the crop, soil and irrigation lines once; upstream's Jade and
+  WTHIT plugins each carried a copy of the crop and soil logic. Jade 8.7/8.9 (`IBlockComponentProvider`,
+  `config.jade.plugin_agricraft.{crop_block,soil,irrigation}`) and WTHIT 5.36 (`IBlockComponentProvider` at
+  `TooltipPosition.BODY`) only format those lines. `TooltipGameTests` checks the lines for a planted crop, a
+  soil and a filled tank/channel; the overlays themselves have not been seen in a client.
+- **Config screens.** Mod Menu (Fabric) and the Forge mod list open ResourcefulConfig's `ConfigScreen` for
+  `AgriCraftConfig`, as upstream.
+- **Botania.** Upstream's common classes (`compat/botania`: `ManaGrowthCondition`, `ManaPlantModifier`,
+  `AgriHornHarvestable`, `BotaniaPlugin`) are shared; `compat/fabric/botania/BotaniaFabricPlugin` registers
+  the horn lookup and the `ManaNetworkCallback` pool cleanup, and `forge/compat/BotaniaForgePlugin` the
+  `ManaNetworkEvent` cleanup and the horn capability (attached by `AttachCapabilitiesEvent`, since this port
+  has no Forge-specific crop block entity). Fix over 4.0.6: `ManaPlantModifier` skips crops whose pool lookup
+  returns nothing instead of failing.
+- **Seasons.** `common/plugin/fabric/FabricSeasonPlugin` is upstream's stub (always `ANY`).
+- Development runs: `-PwithJade` (both loaders) and `-PwithWthit` (Fabric) add the tooltip mods.
 
 ## 1.19.2 changes
 
@@ -165,9 +231,11 @@ Differences from AgriCraft 3:
 
 ## Validation
 
-- GameTests on both loaders: `src/gametestCommon` (crop, analyzer, irrigation and EMC suites), run by
+- GameTests on both loaders: `src/gametestCommon` (crop, analyzer, irrigation, EMC, viewer and tooltip suites), run by
   `ForgeGameTests` and the Fabric `fabric-gametest` entrypoints, plus `TankFluidGameTests`, which has a
   Forge (fluid capability) and a Fabric (Transfer API) version under the same name. No test is loader-only.
+  `ViewerGameTests` checks the shared viewer displays against the registries and, run with
+  `-PwithEmi -PwithJei -PwithRei`, that each installed viewer's plugin is wired up.
 - `scripts/check_loader_parity.py` compares the two jars (resources, shared classes, mixins and refmaps,
   descriptors, access widener/transformer, nested MixinExtras).
 - Not yet done: a client session (screens, overlay, journal, models, irrigation renderers and particles) and

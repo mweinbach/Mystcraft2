@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import com.agricraft.agricraft.client.gui.JournalScreen;
+import com.agricraft.agricraft.compat.RecipeViewers;
 import com.agricraft.agricraft.common.block.CropStickVariant;
 import com.agricraft.agricraft.common.item.JournalItem;
 import net.minecraft.client.Minecraft;
@@ -80,6 +81,15 @@ public class ClientUtil {
 
 	public static void openJournalScreen(Player player, InteractionHand hand) {
 		Minecraft.getInstance().setScreen(new JournalScreen(JournalItem.getJournalData(player.getItemInHand(hand))));
+	}
+
+	/**
+	 * Called on the client thread once a remote server's AgriCraft data registries were applied: rebuilds the
+	 * creative search and refreshes the installed recipe viewers, which built their lists before the data arrived.
+	 */
+	public static void onRemoteDataApplied() {
+		refreshCreativeSearch();
+		RecipeViewers.reloadAfterRemoteData();
 	}
 
 	/**

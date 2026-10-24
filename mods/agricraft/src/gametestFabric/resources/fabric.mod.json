@@ -12,7 +12,9 @@
       "com.agricraft.agricraft.gametest.AnalyzerGameTests",
       "com.agricraft.agricraft.gametest.EmcGameTests",
       "com.agricraft.agricraft.gametest.IrrigationGameTests",
-      "com.agricraft.agricraft.gametest.TankFluidGameTests"
+      "com.agricraft.agricraft.gametest.TankFluidGameTests",
+      "com.agricraft.agricraft.gametest.ViewerGameTests",
+      "com.agricraft.agricraft.gametest.TooltipGameTests"
     ]
   },
   "depends": {
