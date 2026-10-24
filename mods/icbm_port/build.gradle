@@ -117,6 +117,7 @@ tasks.register('remapEmiTestJar', net.fabricmc.loom.task.RemapJarTask) {
 // Compile the optional integration fixtures in CI without downloading/running the pack.
 tasks.named('check') { dependsOn 'tekxittestClasses', 'emitestClasses' }
 loom {
+    accessWidenerPath = file('src/main/resources/icbm_port.accesswidener')
     mods {
         icbm_port { sourceSet sourceSets.main }
         icbm_port_gametest { sourceSet sourceSets.gametest }
@@ -131,6 +132,11 @@ loom {
             vmArg '-Dfabric-api.gametest'
             vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile}"
             vmArg "-Demc.values=${file('emc/values.json')}"
+            // Opt-in antimatter cost measurement (ExtremeBenchmarkGameTests); off in CI.
+            if (providers.gradleProperty('icbmBenchmark').isPresent()) {
+                vmArg '-Dicbm.benchmark=true'
+                vmArg "-Dicbm.benchmark.radius=${providers.gradleProperty('icbmBenchmarkRadius').getOrElse('275')}"
+            }
         }
         materialGametest {
             server()

@@ -23,6 +23,8 @@ import net.minecraft.util.registry.Registry;
 /** Modern Brigadier adaptation of upstream ICBMCommands, CommandBlast*, Remove and Lag. */
 public final class IcbmCommands {
   public static final int MAX_RADIUS = 1024, MAX_GRID_COUNT = 4, MAX_SPACING = 128;
+  /** Antimatter and red matter accept up to 384; other families still reject sizes above 80. */
+  public static final double MAX_SIZE = dev.icbm.port.payload.PayloadType.MAX_EXTREME_RADIUS;
   private static final SimpleCommandExceptionType INVALID =
       new SimpleCommandExceptionType(
           Text.literal("Unknown ICBM action/type, invalid location, or unloaded target"));
@@ -65,7 +67,7 @@ public final class IcbmCommands {
                             CommandSource.suggestMatching(
                                 IcbmApi.actions().stream().map(d -> d.id().toString()), b))
                     .then(
-                        argument("size", DoubleArgumentType.doubleArg(.01, 80))
+                        argument("size", DoubleArgumentType.doubleArg(.01, MAX_SIZE))
                             .executes(
                                 c ->
                                     trigger(
@@ -75,7 +77,7 @@ public final class IcbmCommands {
                             .then(
                                 argument("position", Vec3ArgumentType.vec3())
                                     .then(
-                                        argument("size", DoubleArgumentType.doubleArg(.01, 80))
+                                        argument("size", DoubleArgumentType.doubleArg(.01, MAX_SIZE))
                                             .executes(
                                                 c ->
                                                     trigger(
@@ -107,7 +109,7 @@ public final class IcbmCommands {
                                                         argument(
                                                                 "size",
                                                                 DoubleArgumentType.doubleArg(
-                                                                    .01, 80))
+                                                                    .01, MAX_SIZE))
                                                             .executes(IcbmCommands::spread))))))));
     root.then(blast);
     root.then(
@@ -343,7 +345,8 @@ public final class IcbmCommands {
         Text.literal(
             "ICBM (permission 2): blast list; blast trigger <id> <size> or <id> <dimension> <x y z>"
                 + " <size>; blast spread <count 1-4> <spacing 1-128> <id> <dimension> <x y z> <size"
-                + " .01-80>; remove <all|missiles|explosions> [radius 1-1024] or <type> <dimension>"
+                + " .01-384 (above 80: antimatter and red matter only)>; remove"
+                + " <all|missiles|explosions> [radius 1-1024] or <type> <dimension>"
                 + " <x y z> <radius>; lag [radius]; help. Locations support relative coordinates."
                 + " Loaded terrain only."),
         false);

@@ -73,6 +73,17 @@ public enum PayloadType {
     };
   }
 
+  /** Generic radius cap for configured and scripted blasts. */
+  public static final int MAX_RADIUS = 80;
+
+  /** Cap for the two direct-section families, antimatter and red matter. */
+  public static final int MAX_EXTREME_RADIUS = 384;
+
+  /** Largest radius this family accepts from configuration, commands or the API. */
+  public int maxRadius() {
+    return this == ANTIMATTER || this == REDMATTER ? MAX_EXTREME_RADIUS : MAX_RADIUS;
+  }
+
   public int blockFuseTicks() {
     return PayloadConfig.forType(this).blockFuseTicks();
   }

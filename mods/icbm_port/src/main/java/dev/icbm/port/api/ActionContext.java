@@ -19,7 +19,8 @@ public record ActionContext(
         || !Double.isFinite(position.z)
         || !Double.isFinite(size)
         || size < 0
-        || size > 80) throw new IllegalArgumentException("Invalid action position or size [0,80]");
+        || size > dev.icbm.port.payload.PayloadType.MAX_EXTREME_RADIUS)
+      throw new IllegalArgumentException("Invalid action position or size [0,384]");
   }
 
   public boolean isLoadedAndInBounds() {

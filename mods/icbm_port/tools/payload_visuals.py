@@ -286,6 +286,10 @@ def validate_profiles():
     pixels = {tuple(paint_label(profile)) for profile in PROFILES}
     if len(pixels) != 23:
         raise ValueError("payload labels must not be pixel-identical")
+    sides = {tuple(paint_explosive_side(profile)) for profile in PROFILES}
+    tops = {tuple(paint_explosive_top(profile)) for profile in PROFILES}
+    if len(sides) != 23 or len(tops) != 23:
+        raise ValueError("explosive block faces must not be pixel-identical")
 
 
 def paint_label(profile):
@@ -318,6 +322,82 @@ def paint_label(profile):
                 pixels[(4 + dy) * 16 + 4 + dx] = bright + (255,)
             elif cell == ".":
                 pixels[(4 + dy) * 16 + 4 + dx] = shade + (255,)
+    return pixels
+
+
+# Explosive blocks are plain full cubes with flat, TNT-style faces: a side with casing bands,
+# payload-coloured charge sticks and a dark label band carrying the glyph; a top showing four
+# stick ends around a detonator; and one shared bottom plate. Every face uses flat colours only.
+# There are no light/dark edge pairs, so nothing pretends to be depth on a flat cube.
+CASING = (46, 57, 66, 255)
+CASING_SEAM = (31, 40, 47, 255)
+PLATE = (22, 28, 34, 255)
+RAINBOW = ((255, 48, 48), (255, 160, 32), (255, 230, 48), (48, 220, 80), (48, 140, 255), (190, 64, 255))
+
+
+def _scale(color, factor):
+    return tuple(max(0, min(255, round(channel * factor))) for channel in color[:3]) + (255,)
+
+
+def _stick_colors(profile):
+    return _scale(profile.rgb, 0.85), _scale(profile.rgb, 0.55)
+
+
+def paint_explosive_side(profile):
+    stick, seam = _stick_colors(profile)
+    bright = tuple(min(255, channel + 80) for channel in profile.rgb) + (255,)
+    pixels = []
+    for y in range(16):
+        for x in range(16):
+            if y < 2 or y > 13:
+                pixels.append(CASING_SEAM if y in (1, 14) else CASING)
+            elif 4 <= y <= 11:
+                pixels.append(PLATE)
+            else:
+                pixels.append(seam if x % 4 == 3 else stick)
+    if profile.id == "colors":
+        for index, stripe in enumerate(RAINBOW):
+            for y in range(5, 11):
+                pixels[y * 16 + 5 + index] = stripe + (255,)
+        return pixels
+    for dy, row in enumerate(profile.mark):
+        for dx, cell in enumerate(row):
+            if cell == "#":
+                pixels[(4 + dy) * 16 + 4 + dx] = profile.rgb + (255,)
+            elif cell == "+":
+                pixels[(4 + dy) * 16 + 4 + dx] = bright
+    return pixels
+
+
+def paint_explosive_top(profile):
+    stick, seam = _stick_colors(profile)
+    pixels = []
+    for y in range(16):
+        for x in range(16):
+            px, py = x + 0.5, y + 0.5
+            ends = [(4, 4), (12, 4), (4, 12), (12, 12)]
+            distance = min(((px - cx) ** 2 + (py - cy) ** 2) ** 0.5 for cx, cy in ends)
+            if 6 <= x <= 9 and 6 <= y <= 9:
+                pixels.append(profile.rgb + (255,) if 7 <= x <= 8 and 7 <= y <= 8 else PLATE)
+            elif distance <= 1.1:
+                pixels.append(seam)
+            elif distance <= 3.2:
+                pixels.append(stick)
+            else:
+                pixels.append(CASING)
+    return pixels
+
+
+def explosive_bottom_pixels():
+    pixels = []
+    for y in range(16):
+        for x in range(16):
+            if (x, y) in ((2, 2), (13, 2), (2, 13), (13, 13)):
+                pixels.append(CASING_SEAM)
+            elif 5 <= x <= 10 and 5 <= y <= 10:
+                pixels.append(CASING_SEAM)
+            else:
+                pixels.append(CASING)
     return pixels
 
 

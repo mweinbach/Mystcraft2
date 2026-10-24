@@ -1,0 +1,3 @@
+accessWidener v2 named
+# SphereEraser lowers heightmaps after direct section writes without rescanning whole columns.
+accessible method net/minecraft/world/Heightmap set (III)V

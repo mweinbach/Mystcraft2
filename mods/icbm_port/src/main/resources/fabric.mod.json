@@ -37,6 +37,7 @@
   "mixins": [
     "icbm_port.mixins.json"
   ],
+  "accessWidener": "icbm_port.accesswidener",
   "depends": {
     "fabricloader": ">=0.16.14",
     "fabric-api": ">=0.77.0",

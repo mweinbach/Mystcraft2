@@ -99,6 +99,12 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     return entity;
   }
 
+  /** The red matter core this block is falling into, if any. */
+  @Nullable
+  public java.util.UUID boundTo() {
+    return singularity;
+  }
+
   public void bindToSingularity(java.util.UUID id) {
     singularity = id;
     coreLoadGrace = 0;
@@ -116,7 +122,8 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     if (attracting instanceof RedmatterEntity core && !core.isRemoved()) {
       coreLoadGrace = 0;
       Vec3d delta = core.getPos().subtract(getPos());
-      double speed = Math.min(.65, delta.length() * .4);
+      // Fast enough to cross a large event horizon; never overshoots the core.
+      double speed = Math.min(3, delta.length() * .4);
       setVelocity(delta.lengthSquared() < .0001 ? Vec3d.ZERO : delta.normalize().multiply(speed));
       // Captured cargo belongs to the core, so intervening terrain cannot cause it
       // to land and recreate the crater while it is being drawn inward.

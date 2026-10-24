@@ -22,7 +22,9 @@ receive existing descriptors followed by future registrations. Tier is 0–4;
 not a request to automatically manufacture item/block registrations.
 
 `IcbmApi.execute(ActionContext)` requires the server thread, a registered action,
-finite coordinates/size, loaded origin, border/build bounds, and size 0–80.
+finite coordinates/size, loaded origin, border/build bounds, and size 0–384.
+Built-in payloads then refuse sizes above their own cap: 384 for antimatter and
+red matter (whose defaults are 275 and 300), 80 for every other family.
 Size is an **absolute area/radius override**, matching upstream command
 `AREA_SIZE`; it is not a damage multiplier. Individual handlers may impose
 additional validation and report refusal with `false`. Zero supports nonradial
@@ -79,7 +81,8 @@ Forge dimension IDs, and normal relative coordinates are accepted.
 - `/icbm blast trigger <id> <size>` runs at the source position; the full form is
   `<id> <dimension> <x> <y> <z> <size>`. Short built-in names and legacy numeric
   explosive IDs resolve to current descriptors; `icbmclassic:` aliases resolve
-  to `icbm_port:`. Size is positive and at most 80.
+  to `icbm_port:`. Size is positive and at most 384; built-in families other
+  than antimatter and red matter refuse sizes above 80.
 - `/icbm blast spread <count> <distance> <id> <dimension> <x> <y> <z> <size>` uses
   the upstream square grid: `(2 * count + 1)^2` centers. Count is bounded to 1–4
   (up to 81 effects), spacing to 1–128. Every center is checked before the first
