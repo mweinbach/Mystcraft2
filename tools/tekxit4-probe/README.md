@@ -67,3 +67,7 @@ Failed tests, an empty test set, and unfinished or timed-out runs all fail the v
 and `src/test/java/ports/tekxitprobe/VerdictTest.java` covers them.
 
 Delete `tekxit-probe/autorun`, the probe jar and the `Tekxit Probe` world before playing the instance.
+
+`scripts/tekxit4.py` automates the dedicated-server route: it fetches the official server, installs the built
+ports, the probe and the Fabric GameTest API into a disposable copy, and reads the reports. See
+[docs/claude-cloud.md](../../docs/claude-cloud.md#testing).

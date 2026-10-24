@@ -21,6 +21,7 @@
       "Bash(./gradlew:*)",
       "Bash(python3 scripts/ports.py:*)",
       "Bash(python3 scripts/emc.py:*)",
+      "Bash(python3 scripts/tekxit4.py:*)",
       "Bash(python3 mods/*/scripts/check_loader_parity.py:*)",
       "Bash(python3 -m unittest:*)"
     ]
