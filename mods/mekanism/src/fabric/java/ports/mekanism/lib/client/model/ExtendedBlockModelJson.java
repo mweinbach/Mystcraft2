@@ -7,7 +7,7 @@ package ports.mekanism.lib.client.model;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +22,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import ports.mekanism.lib.client.NamedRenderTypeManager;
 import ports.mekanism.lib.client.RenderTypeGroup;
 import ports.mekanism.lib.client.model.geometry.BlockGeometryBakingContext;
@@ -35,6 +36,7 @@ import ports.mekanism.lib.client.model.geometry.IGeometryLoader;
  */
 public final class ExtendedBlockModelJson {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<BakedModel, ResourceLocation> RENDER_TYPE_HINTS = Collections.synchronizedMap(new WeakHashMap<>());
 
     private ExtendedBlockModelJson() {
@@ -42,12 +44,11 @@ public final class ExtendedBlockModelJson {
 
     public static void read(BlockModel model, JsonObject json, JsonDeserializationContext context) {
         BlockGeometryBakingContext customData = model.getCustomData();
-        if (json.has("loader")) {
-            ResourceLocation name = new ResourceLocation(GsonHelper.getAsString(json, "loader"));
-            IGeometryLoader<?> loader = GeometryLoaderManager.get(name);
-            if (loader == null) {
-                throw new JsonParseException("Unknown model loader: " + name);
-            }
+        // A loader the port does not know belongs to another mod or library (see ModelLoaderKey); unlike Forge,
+        // the model is left as vanilla read it.
+        IGeometryLoader<?> loader = ModelLoaderKey.resolve(json, GeometryLoaderManager::get,
+              name -> LOGGER.debug("Model loader {} is not one of Mekanism's; leaving its models to the mod that registers it", name));
+        if (loader != null) {
             model.getElements().clear();
             customData.setCustomGeometry(loader.read(json, context));
         }

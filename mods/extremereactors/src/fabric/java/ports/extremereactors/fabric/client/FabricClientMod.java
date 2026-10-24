@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
@@ -19,6 +20,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -35,8 +38,10 @@ import ports.extremereactors.platform.FluidDefinition;
 import ports.extremereactors.platform.Network;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The Fabric client entrypoint.
@@ -83,6 +88,8 @@ public final class FabricClientMod implements ClientModInitializer {
 
     private static void registerFluidRenderers(final Map<Fluid, FluidDefinition> fluids) {
 
+        final Set<ResourceLocation> bucketModels = new HashSet<>();
+
         fluids.forEach((fluid, definition) -> {
 
             if (fluid instanceof FlowingFluid flowing && flowing.isSource(flowing.defaultFluidState())) {
@@ -96,13 +103,31 @@ public final class FabricClientMod implements ClientModInitializer {
 
                     final int tint = definition.tint() & 0xffffff;
 
-                    // Forge draws these buckets with its dynamic bucket model; on Fabric, forge:item/bucket_drip is
-                    // the vanilla bucket with a fluid overlay in layer 1.
+                    final ResourceLocation item = Registry.ITEM.getKey(flowing.getBucket());
+
+                    // Forge draws these buckets with its dynamic bucket model; on Fabric, BUCKET_MODEL is the vanilla
+                    // bucket with a fluid overlay in layer 1.
                     ColorProviderRegistry.ITEM.register((stack, layer) -> 1 == layer ? tint : -1, flowing.getBucket());
+                    bucketModels.add(new ResourceLocation(item.getNamespace(), "item/" + item.getPath()));
                 }
             }
         });
+
+        // The shared bucket item models use Forge's "forge:bucket" loader. Fabric hands out BUCKET_MODEL before their
+        // JSON is read: Porting Lib (in Tekxit 4) reads the "loader" key, has no forge:bucket loader and fails the
+        // model, and a forge:item/bucket_drip stand-in would clash with other ports shipping one.
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider(resources -> (id, context) -> {
+            if (!bucketModels.contains(id)) {
+                return null;
+            }
+            final BlockModel model = BlockModel.fromString(BUCKET_MODEL);
+            model.name = id.toString();
+            return model;
+        });
     }
+
+    static final String BUCKET_MODEL = "{\"parent\": \"minecraft:item/generated\", \"textures\": "
+            + "{\"layer0\": \"minecraft:item/bucket\", \"layer1\": \"bigreactors:item/bucket_fluid_overlay\"}}";
 
     private static final class ClientSide implements FabricPlatform.ClientSide {
 

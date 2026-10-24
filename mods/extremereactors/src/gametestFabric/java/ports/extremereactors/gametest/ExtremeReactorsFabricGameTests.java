@@ -159,6 +159,11 @@ public final class ExtremeReactorsFabricGameTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY)
+    public void everyBlockWithAnItemHasALootTable(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.everyBlockWithAnItemHasALootTable(helper);
+    }
+
+    @GameTest(template = EMPTY)
     public void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
         final List<String> failures = EmcAudit.run(helper.getLevel().getServer(), Platform.MOD_ID);

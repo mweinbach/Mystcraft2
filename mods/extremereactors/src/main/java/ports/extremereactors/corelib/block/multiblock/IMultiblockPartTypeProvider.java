@@ -4,7 +4,7 @@
  */
 package ports.extremereactors.corelib.block.multiblock;
 
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import ports.extremereactors.multiblock.IMultiblockController;
 
 import java.util.Optional;
@@ -15,11 +15,15 @@ import java.util.Optional;
 public interface IMultiblockPartTypeProvider<Controller extends IMultiblockController<Controller>,
                                              PartType extends Enum<PartType> & IMultiblockPartType> {
 
-    BlockState getBlockState();
-
+    /**
+     * Reads the state through {@link BlockEntity#getBlockState()} instead of declaring an abstract
+     * {@code getBlockState()}: Fabric Loom remaps the vanilla method in production jars but not a method declared here,
+     * so the inherited implementation would not satisfy the interface and calls would throw {@code AbstractMethodError}.
+     * See {@link IMultiblockVariantProvider}.
+     */
     @SuppressWarnings("unchecked")
     default Optional<PartType> getPartType() {
-        return this.getBlockState().getBlock() instanceof MultiblockPartBlock<?, ?> block ?
+        return this instanceof BlockEntity entity && entity.getBlockState().getBlock() instanceof MultiblockPartBlock<?, ?> block ?
                 Optional.of((PartType) block.getPartType()) : Optional.empty();
     }
 

@@ -17,15 +17,15 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(ShaderInstance.class)
 public abstract class ShaderInstanceMixin {
 
-    private static final String CORE_PATH = "shaders/core/";
+    private static final String mekanism$CORE_PATH = "shaders/core/";
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/ResourceLocation;<init>(Ljava/lang/String;)V", ordinal = 0))
     private String mekanism$namespacedDefinition(String location) {
         int separator = location.indexOf(':');
-        if (!location.startsWith(CORE_PATH) || separator < 0) {
+        if (!location.startsWith(mekanism$CORE_PATH) || separator < 0) {
             return location;
         }
-        String namespace = location.substring(CORE_PATH.length(), separator);
-        return namespace + ":" + CORE_PATH + location.substring(separator + 1);
+        String namespace = location.substring(mekanism$CORE_PATH.length(), separator);
+        return namespace + ":" + mekanism$CORE_PATH + location.substring(separator + 1);
     }
 }

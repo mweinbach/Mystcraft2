@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "tekxitprobe",
+  "version": "${version}",
+  "name": "Tekxit 4 boot probe (test only)",
+  "description": "Disposable-instance boot probe for the Mystcraft2 ports. Never install in a world you care about.",
+  "authors": ["1.19.2 port contributors"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["ports.tekxitprobe.TekxitProbe"],
+    "client": ["ports.tekxitprobe.client.TekxitProbeClient"],
+    "fabric-gametest": ["ports.tekxitprobe.TekxitProbeGameTests"]
+  },
+  "mixins": ["tekxitprobe.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": "1.19.2",
+    "java": ">=17"
+  }
+}

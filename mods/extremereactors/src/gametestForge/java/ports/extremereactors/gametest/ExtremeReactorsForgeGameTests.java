@@ -184,6 +184,11 @@ public final class ExtremeReactorsForgeGameTests {
     }
 
     @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
+    public static void everyBlockWithAnItemHasALootTable(final GameTestHelper helper) {
+        ExtremeReactorsGameTests.everyBlockWithAnItemHasALootTable(helper);
+    }
+
+    @GameTest(template = ExtremeReactorsGameTests.EMPTY_TEMPLATE, templateNamespace = Platform.MOD_ID)
     public static void everyItemHasAnEmcDecision(final GameTestHelper helper) {
 
         final List<String> failures = EmcAudit.run(helper.getLevel().getServer(), Platform.MOD_ID);

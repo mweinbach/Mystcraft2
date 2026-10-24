@@ -37,7 +37,7 @@ import ports.mekanism.lib.client.model.geometry.BlockGeometryBakingContext;
 @Mixin(BlockModel.class)
 public abstract class BlockModelMixin implements IForgeBlockModel {
 
-    private static final String BAKE = "bake(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;";
+    private static final String mekanism$BAKE = "bake(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;";
 
     @Unique
     @Nullable
@@ -54,7 +54,7 @@ public abstract class BlockModelMixin implements IForgeBlockModel {
         return mekanism$customData;
     }
 
-    @Inject(method = BAKE, at = @At("HEAD"), cancellable = true)
+    @Inject(method = mekanism$BAKE, at = @At("HEAD"), cancellable = true)
     private void mekanism$bakeCustomGeometry(ModelBakery bakery, BlockModel owner, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState,
           ResourceLocation modelLocation, boolean guiLight3d, CallbackInfoReturnable<BakedModel> cir) {
         BlockGeometryBakingContext customData = getCustomData();
@@ -65,7 +65,7 @@ public abstract class BlockModelMixin implements IForgeBlockModel {
         }
     }
 
-    @ModifyVariable(method = BAKE, at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = mekanism$BAKE, at = @At("HEAD"), argsOnly = true)
     private ModelState mekanism$applyRootTransform(ModelState modelState) {
         var rootTransform = getCustomData().getRootTransform();
         if (rootTransform.mekanism$isIdentity() || getCustomData().hasCustomGeometry()) {
@@ -74,7 +74,7 @@ public abstract class BlockModelMixin implements IForgeBlockModel {
         return new SimpleModelState(modelState.getRotation().compose(rootTransform), modelState.isUvLocked());
     }
 
-    @Inject(method = BAKE, at = @At("RETURN"))
+    @Inject(method = mekanism$BAKE, at = @At("RETURN"))
     private void mekanism$recordRenderType(ModelBakery bakery, BlockModel owner, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState,
           ResourceLocation modelLocation, boolean guiLight3d, CallbackInfoReturnable<BakedModel> cir) {
         ExtendedBlockModelJson.recordRenderType(cir.getReturnValue(), getCustomData());

@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerFabricMixin implements GeneticsHolder {
 
     @Unique
-    private static final String LEGACY_COMPONENTS_KEY = "cardinal_components";
+    private static final String advancedgenetics$LEGACY_COMPONENTS_KEY = "cardinal_components";
 
     @Unique
     private PlayerGeneticsComponent advancedgenetics$genetics;
@@ -52,7 +52,7 @@ public abstract class PlayerFabricMixin implements GeneticsHolder {
             advancedgenetics$genetics().deserializeNBT(tag.getCompound(SAVE_KEY));
             return;
         }
-        CompoundTag legacy = tag.getCompound(LEGACY_COMPONENTS_KEY);
+        CompoundTag legacy = tag.getCompound(advancedgenetics$LEGACY_COMPONENTS_KEY);
         if (legacy.contains(SAVE_KEY, Tag.TAG_COMPOUND)) {
             advancedgenetics$genetics().deserializeNBT(legacy.getCompound(SAVE_KEY));
         }

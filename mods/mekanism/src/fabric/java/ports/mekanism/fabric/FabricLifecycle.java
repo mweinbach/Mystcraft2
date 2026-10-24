@@ -190,8 +190,8 @@ public final class FabricLifecycle {
     /**
      * Fires one {@link RegisterEvent} per registry. Fluid types, fluids, blocks and items go first, in that order,
      * because the port's buckets and liquid blocks look their fluid up when they are created; the rest follow sorted
-     * by name, as on Forge. Configured and placed features live in {@link BuiltinRegistries} and are already frozen, so
-     * they are opened, filled, and frozen again after the static registries.
+     * by name, as on Forge. Configured and placed features live in {@link BuiltinRegistries}; they are filled after the
+     * static registries and opened only if something already froze them.
      */
     private static void registerContent() {
         Map<ResourceKey<? extends Registry<?>>, RegisterEvent.Registrar> registrars = new LinkedHashMap<>();
@@ -230,16 +230,26 @@ public final class FabricLifecycle {
     }
 
     private static void registerWorldgen(Registry<?> registry) {
-        if (registry instanceof MappedRegistry<?> mapped) {
-            unfreeze(mapped);
-        }
         RegistryManager.ACTIVE.add(new VanillaForgeRegistry<>(registry));
-        postToMods(new RegisterEvent(registry.key(), vanilla(registry)));
-        registry.freeze();
+        whileWritable(registry, () -> postToMods(new RegisterEvent(registry.key(), vanilla(registry))));
     }
 
-    private static <T> void unfreeze(MappedRegistry<T> registry) {
-        registry.frozen = false;
+    /**
+     * Runs {@code action} with {@code registry} writable, then restores its previous frozen state. The worldgen registries
+     * may still be open here: other mods initialised after Mekanism register their own features into them, and in
+     * Tekxit 4 freezing them unconditionally crashed every later mod with "Registry is already frozen".
+     */
+    public static void whileWritable(Registry<?> registry, Runnable action) {
+        if (!(registry instanceof MappedRegistry<?> mapped) || !mapped.frozen) {
+            action.run();
+            return;
+        }
+        mapped.frozen = false;
+        try {
+            action.run();
+        } finally {
+            mapped.freeze();
+        }
     }
 
     private static RegisterEvent.Registrar vanilla(Registry<?> registry) {

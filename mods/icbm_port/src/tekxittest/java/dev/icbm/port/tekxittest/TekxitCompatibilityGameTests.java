@@ -226,22 +226,29 @@ public final class TekxitCompatibilityGameTests implements FabricGameTest {
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void actualDustProvidersSelectConditionsAndKeepBucketRemainders(TestContext c) {
     requirePack(c);
+    // With the Mekanism port installed, gunpowder_from_dusts is deliberately off (see docs/RECIPES.md): Mekanism fills
+    // the dust tags and converts sulfur and gunpowder one-to-one, so neither ICBM gunpowder recipe may load.
+    boolean mekanism = FabricLoader.getInstance().isModLoaded("mekanism");
     check(
         c,
-        has(c, "icbm_port:gunpowder_from_dusts") && !has(c, "icbm_port:gunpowder_from_components"),
-        "Actual coal/charcoal providers must select only dust gunpowder recipe");
-    for (String sulfur : new String[] {"techreborn:sulfur_dust", "indrev:sulfur_dust"})
-      for (String carbon :
-          new String[] {"techreborn:coal_dust", "techreborn:charcoal_dust", "indrev:coal_dust"})
-        check(
-            c,
-            matches(
-                c,
-                "icbm_port:gunpowder_from_dusts",
-                item(c, carbon),
-                item(c, sulfur),
-                item(c, "techreborn:saltpeter_dust")),
-            "Real dust combination rejected: " + carbon + " / " + sulfur);
+        has(c, "icbm_port:gunpowder_from_dusts") != mekanism
+            && !has(c, "icbm_port:gunpowder_from_components"),
+        mekanism
+            ? "With Mekanism, neither ICBM gunpowder recipe may load"
+            : "Actual coal/charcoal providers must select only dust gunpowder recipe");
+    if (!mekanism)
+      for (String sulfur : new String[] {"techreborn:sulfur_dust", "indrev:sulfur_dust"})
+        for (String carbon :
+            new String[] {"techreborn:coal_dust", "techreborn:charcoal_dust", "indrev:coal_dust"})
+          check(
+              c,
+              matches(
+                  c,
+                  "icbm_port:gunpowder_from_dusts",
+                  item(c, carbon),
+                  item(c, sulfur),
+                  item(c, "techreborn:saltpeter_dust")),
+              "Real dust combination rejected: " + carbon + " / " + sulfur);
     Item sulfur = item(c, "techreborn:sulfur_dust");
     var input =
         gridItems(

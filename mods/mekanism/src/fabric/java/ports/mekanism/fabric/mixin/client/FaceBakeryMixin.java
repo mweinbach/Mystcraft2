@@ -28,8 +28,8 @@ import ports.mekanism.fabric.client.EmissiveBlockElementFace;
 @Mixin(FaceBakery.class)
 public abstract class FaceBakeryMixin {
 
-    private static final int LIGHT_OFFSET = 6;
-    private static final int VERTEX_STRIDE = 8;
+    private static final int mekanism$LIGHT_OFFSET = 6;
+    private static final int mekanism$VERTEX_STRIDE = 8;
 
     @Inject(method = "bakeQuad(Lcom/mojang/math/Vector3f;Lcom/mojang/math/Vector3f;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/renderer/block/model/BlockElementRotation;ZLnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/block/model/BakedQuad;",
           at = @At("RETURN"))
@@ -42,7 +42,7 @@ public abstract class FaceBakeryMixin {
         int light = LightTexture.pack(emissivity, emissivity);
         int[] vertices = cir.getReturnValue().getVertices();
         for (int vertex = 0; vertex < 4; vertex++) {
-            vertices[vertex * VERTEX_STRIDE + LIGHT_OFFSET] = light;
+            vertices[vertex * mekanism$VERTEX_STRIDE + mekanism$LIGHT_OFFSET] = light;
         }
     }
 }
