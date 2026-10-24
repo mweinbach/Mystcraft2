@@ -42,17 +42,12 @@ public abstract class BlockEntityMixin implements IForgeBlockEntity, AttachedCap
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void projecte$saveCapabilities(CompoundTag tag, CallbackInfo ci) {
-        CompoundTag capabilities = projecte$capabilities().serialize();
-        if (capabilities != null) {
-            tag.put(AttachedCapabilities.TAG_KEY, capabilities);
-        }
+        projecte$capabilities().saveInto(tag);
     }
 
     @Inject(method = "load", at = @At("HEAD"))
     private void projecte$loadCapabilities(CompoundTag tag, CallbackInfo ci) {
-        if (tag.contains(AttachedCapabilities.TAG_KEY, CompoundTag.TAG_COMPOUND)) {
-            projecte$capabilities().deserialize(tag.getCompound(AttachedCapabilities.TAG_KEY));
-        }
+        projecte$capabilities().loadFrom(tag);
     }
 
     @Inject(method = "setRemoved", at = @At("TAIL"))

@@ -77,6 +77,33 @@ public final class AttachedCapabilities {
         return tag.isEmpty() ? null : tag;
     }
 
+    /**
+     * Writes the serializable providers into {@code owner}'s {@link #TAG_KEY} compound. Other Forge-API layers on Fabric
+     * (the ProjectE and Mekanism ports each have one) keep their providers in the same compound under their own keys,
+     * so this adds to it instead of replacing it; whichever layer saves last keeps the others' data.
+     */
+    public void saveInto(CompoundTag owner) {
+        CompoundTag capabilities = serialize();
+        if (capabilities == null) {
+            return;
+        }
+        if (owner.contains(TAG_KEY, Tag.TAG_COMPOUND)) {
+            CompoundTag shared = owner.getCompound(TAG_KEY);
+            for (String key : capabilities.getAllKeys()) {
+                shared.put(key, capabilities.get(key));
+            }
+        } else {
+            owner.put(TAG_KEY, capabilities);
+        }
+    }
+
+    /** Reads this layer's providers from {@code owner}'s {@link #TAG_KEY} compound, leaving other layers' keys alone. */
+    public void loadFrom(CompoundTag owner) {
+        if (owner.contains(TAG_KEY, Tag.TAG_COMPOUND)) {
+            deserialize(owner.getCompound(TAG_KEY));
+        }
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void deserialize(@Nullable CompoundTag tag) {
         if (tag == null) {

@@ -367,6 +367,16 @@ loom {
 }
 tasks.named('processGametestResources', ProcessResources) {
     from('../src/gametestCommon/structures') { into 'data/projecte/gametest/structures' }
+    // Test classes for an optional mod run only when it is loaded. Their entrypoints sit before the always-present
+    // FabricTransferGameTests entry, so removing a line never leaves a trailing comma.
+    def optionalTests = ['withMekanism': 'FabricMekanismGameTests']
+    def absentTests = optionalTests.findAll { property, testClass -> !providers.gradleProperty(property).isPresent() }.values().toList()
+    inputs.property('absentOptionalTests', absentTests)
+    if (!absentTests.isEmpty()) {
+        filesMatching('fabric.mod.json') {
+            filter { String line -> absentTests.any { line.contains(it) } ? null : line }
+        }
+    }
 }
 tasks.named('runGametest') {
     doFirst {

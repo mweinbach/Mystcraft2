@@ -1,3 +1,6 @@
 # Tests that run on one loader only. Format: <forge|fabric> <Class>.<method>  # reason
 fabric FabricTransferGameTests.alchemicalChestIsAFabricItemStorage  # Fabric Transfer API; Forge has the item handler capability, covered by the shared chest test
 fabric FabricTransferGameTests.condenserOutputIsExtractable  # Fabric Transfer API; Forge automation goes through the item handler the shared condenser test uses
+fabric FabricMekanismGameTests.playerKeepsProjectEKnowledgeAndMekanismRadiation  # the Mekanism port's Fabric jar shares the ForgeCaps compound; Forge merges capabilities itself; registered only with -PwithMekanism
+fabric FabricMekanismGameTests.eitherSaveOrderKeepsTheOtherLayersCapabilities  # two Forge-API layers on Fabric write the same ForgeCaps compound; Forge has one; registered only with -PwithMekanism
+fabric FabricMekanismGameTests.mekanismAndProjectEFuelsBurnInAVanillaFurnace  # Fabric fuel registry beside Mekanism Fabric's furnace hook; Forge asks each item; registered only with -PwithMekanism

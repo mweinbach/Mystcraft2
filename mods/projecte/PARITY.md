@@ -44,7 +44,9 @@ API `Storage<ItemVariant>`, and condenser output can be extracted through the Tr
 Upstream's JUnit tests (graph mapper, fractions, custom-conversion serialization) pass on both loaders.
 
 The Fabric GameTests also pass with Porting Lib 2.1.1453 (`-PwithPortingLib`) and with the Mekanism port's Fabric jar
-(`-PwithMekanism`) loaded beside ProjectE.
+(`-PwithMekanism`) loaded beside ProjectE. With Mekanism loaded, `FabricMekanismGameTests` also checks that a player's
+ProjectE knowledge and EMC and Mekanism radiation all survive a save and reload, in either save order, and that
+Mekanism's charcoal block (16,000 ticks) and ProjectE's fuels burn for their own times in a vanilla furnace.
 
 ## Differences from upstream
 
@@ -56,6 +58,13 @@ The Fabric GameTests also pass with Porting Lib 2.1.1453 (`-PwithPortingLib`) an
 - Fabric: JEI's plugin compiles but is not registered on Fabric yet; Tekxit 4 ships EMI, and the EMI plugin is
   planned for phase 3.
 - Fabric: CraftTweaker's fluid-stack NSS helpers are absent (CraftTweaker for Fabric 1.19.2 has no fluid stacks).
+- Fabric: entity and block entity capabilities are saved under Forge's `ForgeCaps` key. The Mekanism port's Fabric
+  layer uses the same compound, so each layer adds its own keys to it and reads only its own keys back, rather than
+  replacing it; otherwise whichever saved last would wipe the other's data (ProjectE knowledge, EMC and bags, or
+  Mekanism radiation).
+- Fabric: the alchemical fuels are registered in Fabric's `FuelRegistry` with upstream's burn times instead of
+  patching furnace fuel lookups. A patch competed with Mekanism Fabric's identical one: only the first ran, so one
+  mod's fuels stopped burning.
 
 ## Known gaps
 
