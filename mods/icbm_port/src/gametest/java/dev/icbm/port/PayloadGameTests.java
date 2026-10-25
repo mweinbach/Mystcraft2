@@ -4,7 +4,6 @@ import dev.icbm.port.payload.*;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.test.*;
 import net.minecraft.util.math.*;
 
@@ -13,21 +12,7 @@ public class PayloadGameTests implements FabricGameTest {
     if (!condition) c.throwGameTestException(message);
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
-  public void shrapnelCreatesThirtyBurningProjectiles(TestContext c) {
-    Vec3d center = Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(2, 3, 2)));
-    Payloads.detonate(c.getWorld(), center, PayloadType.SHRAPNEL, null);
-    var arrows =
-        c.getWorld()
-            .getEntitiesByClass(ArrowEntity.class, new Box(center, center).expand(2), e -> true);
-    check(c, arrows.size() == 30, "Shrapnel must spawn 30 fragments");
-    check(
-        c,
-        arrows.stream().allMatch(e -> e.isOnFire() && e.getDamage() == 11),
-        "Shrapnel fragments retain damage11 and incendiary flag");
-    arrows.forEach(ArrowEntity::discard);
-    c.complete();
-  }
+  // Shrapnel, anvil and fragmentation bursts are covered by payload.FragmentParityGameTests.
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void mutationConvertsPigs(TestContext c) {

@@ -11,7 +11,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.*;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -144,49 +143,10 @@ public final class Payloads {
         job.rayWork = new RayWork(true, size, settings.energy());
         return state(server).enqueue(job, false);
       }
-      case SHRAPNEL ->
-          arrows(server, center, source, settings.fragments(), settings.entityDamage(), true);
-      case ANVIL -> {
-        for (int i = 0; i < settings.fragments(); i++) {
-          BlockPos pos =
-              new BlockPos(center)
-                  .add(
-                      server.random.nextInt(9) - 4,
-                      3 + server.random.nextInt(5),
-                      server.random.nextInt(9) - 4);
-          if (!loaded(server, pos) || !server.getBlockState(pos).isAir()) continue;
-          FallingBlockEntity anvil =
-              FallingBlockEntity.spawnFromBlock(server, pos, Blocks.ANVIL.getDefaultState());
-          anvil.setHurtEntities(
-              (float) settings.entityDamage(),
-              (int) Math.min(Integer.MAX_VALUE, settings.entityDamage() * 2));
-          anvil.dropItem = false;
-          anvil.setVelocity(
-              (server.random.nextDouble() - .5) * 1.5, .6, (server.random.nextDouble() - .5) * 1.5);
-        }
-      }
-      case FRAGMENTATION -> {
-        for (int i = 0; i < settings.fragments(); i++) {
-          Vec3d direction =
-              new Vec3d(
-                      server.random.nextDouble() - .5,
-                      server.random.nextDouble() - .3,
-                      server.random.nextDouble() - .5)
-                  .normalize();
-          Vec3d end = center.add(direction.multiply(18));
-          var hit =
-              server.raycast(
-                  new RaycastContext(
-                      center,
-                      end,
-                      RaycastContext.ShapeType.COLLIDER,
-                      RaycastContext.FluidHandling.NONE,
-                      source));
-          Vec3d target = hit.getType() == HitResult.Type.MISS ? end : hit.getPos();
-          if (loaded(server, new BlockPos(target)))
-            explosion(server, target, (float) Math.min(16, settings.energy()), source, false);
-        }
-        arrows(server, center, source, settings.fragments(), settings.entityDamage(), false);
+      case SHRAPNEL, ANVIL, FRAGMENTATION ->
+          FragmentBlast.spawn(server, center, type, settings, size, attribution);
+      case SMOKE -> {
+        return dev.icbm.port.entity.SmokeEntity.spawn(server, center, settings.durationTicks());
       }
       case REPULSIVE, ATTRACTIVE -> {
         force(server, center, size * 4, type == PayloadType.ATTRACTIVE ? -3 : 3, false);
@@ -324,26 +284,6 @@ public final class Payloads {
   private static void explosion(ServerWorld w, Vec3d p, float power, Entity source, boolean fire) {
     if (loaded(w, new BlockPos(p)))
       w.createExplosion(source, p.x, p.y, p.z, power, fire, Explosion.DestructionType.DESTROY);
-  }
-
-  private static void arrows(
-      ServerWorld w, Vec3d p, Entity source, int count, double damage, boolean fire) {
-    for (int i = 0; i < count; i++) {
-      ArrowEntity arrow = new ArrowEntity(w, p.x, p.y + .2, p.z);
-      arrow.setOwner(source);
-      arrow.setDamage(damage);
-      arrow.setCritical(true);
-      arrow.pickupType =
-          net.minecraft.entity.projectile.PersistentProjectileEntity.PickupPermission.DISALLOWED;
-      if (fire) arrow.setOnFireFor(100);
-      arrow.setVelocity(
-          w.random.nextDouble() - .5,
-          w.random.nextDouble() - .25,
-          w.random.nextDouble() - .5,
-          2.5f,
-          1);
-      w.spawnEntity(arrow);
-    }
   }
 
   private static boolean loaded(ServerWorld w, BlockPos p) {
@@ -730,67 +670,19 @@ public final class Payloads {
     boolean tick(ServerWorld w, int budget) {
       PayloadConfig.Settings settings = PayloadConfig.forType(type);
       if (!settings.enabled()) return true;
-      boolean timed =
-          type == PayloadType.DEBILITATION
-              || type == PayloadType.CHEMICAL
-              || type == PayloadType.CONTAGIOUS
-              || type == PayloadType.SMOKE
-              || type == PayloadType.COLOR
-              || type == PayloadType.ANTI_GRAVITATIONAL
-              || type == PayloadType.REDMATTER;
+      boolean timed = type == PayloadType.ANTI_GRAVITATIONAL || type == PayloadType.REDMATTER;
       if (timed && elapsedTicks >= settings.durationTicks()) return true;
       age++;
-      boolean gas =
-          type == PayloadType.DEBILITATION
-              || type == PayloadType.CHEMICAL
-              || type == PayloadType.CONTAGIOUS
-              || type == PayloadType.SMOKE
-              || type == PayloadType.COLOR;
-      if (gas) {
-        if (type == PayloadType.SMOKE) {
-          w.spawnParticles(
-              ParticleTypes.SMOKE,
-              center.x,
-              center.y + .1,
-              center.z,
-              3 + w.random.nextInt(4),
-              .05,
-              .1,
-              .05,
-              .02);
-          return elapsedTicks >= settings.durationTicks();
-        }
+      if (type == PayloadType.SMOKE) {
+        // Smoke is a SmokeEntity now; a smoke job saved by an older version becomes one.
+        dev.icbm.port.entity.SmokeEntity.spawn(
+            w, center, Math.max(0, settings.durationTicks() - elapsedTicks));
+        return true;
+      }
+      if (GasWork.handles(type)) {
         if (gasWork == null) gasWork = new GasWork(new BlockPos(center));
-        gasWork.tick(w, center, radius, budget);
-        if (age % 5 == 1) {
-          if (type == PayloadType.COLOR) {
-            var dust =
-                new net.minecraft.particle.DustParticleEffect(
-                    new Vec3f(w.random.nextFloat(), w.random.nextFloat(), w.random.nextFloat()), 2);
-            w.spawnParticles(
-                dust, center.x, center.y, center.z, 100, radius * .4, 2, radius * .4, .01);
-          } else
-            w.spawnParticles(
-                type == PayloadType.SMOKE
-                    ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE
-                    : ParticleTypes.SNEEZE,
-                center.x,
-                center.y,
-                center.z,
-                80,
-                radius * .4,
-                2,
-                radius * .4,
-                .01);
-          for (Entity e : nearby(w, center, radius))
-            if (e instanceof LivingEntity living) {
-              if (gasWork.contains(living.getBlockPos())
-                  && (type == PayloadType.DEBILITATION
-                      || type == PayloadType.CHEMICAL
-                      || type == PayloadType.CONTAGIOUS)) ExposureContent.expose(living, type);
-            }
-        }
-        return elapsedTicks >= settings.durationTicks();
+        return gasWork.tick(
+            w, type, center, radius, settings.durationTicks(), elapsedTicks, budget * 2);
       }
       if (type == PayloadType.ANTI_GRAVITATIONAL || type == PayloadType.REDMATTER) {
         force(

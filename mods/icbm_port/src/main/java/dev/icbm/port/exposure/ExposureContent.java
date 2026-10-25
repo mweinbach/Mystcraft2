@@ -118,17 +118,84 @@ public final class ExposureContent {
     return rating >= threshold && rating >= entity.getRandom().nextFloat();
   }
 
+  /** Chemical gas damage; like upstream {@code icbm.chemical} it is not armor-bypassing. */
+  public static final DamageSource CHEMICAL_DAMAGE = new GasDamageSource("icbm_port.chemical");
+
+  /** Viral gas damage; like upstream {@code icbm.contagious} it is not armor-bypassing. */
+  public static final DamageSource CONTAGIOUS_DAMAGE =
+      new GasDamageSource("icbm_port.contagious");
+
+  private static final class GasDamageSource extends DamageSource {
+    GasDamageSource(String name) {
+      super(name);
+    }
+  }
+
+  /** Upstream {@code minGasProtection()} per gas family ({@code ConfigMain.protectiveArmor}). */
+  public static float gasProtectionThreshold(PayloadType payload) {
+    return switch (payload) {
+      case DEBILITATION -> config.debilitationProtection;
+      case CHEMICAL -> config.chemicalProtection;
+      case CONTAGIOUS -> config.viralProtection;
+      default -> 1;
+    };
+  }
+
+  /**
+   * Upstream {@code BlastGasBase.canGasEffect} plus the chemical/contagious invulnerability
+   * checks: living, not a creative (or spectator) player, not immune to the gas damage source.
+   */
+  public static boolean gasCanAffect(LivingEntity entity, PayloadType payload) {
+    if (!entity.isAlive()) return false;
+    if (entity instanceof PlayerEntity player && (player.isCreative() || player.isSpectator()))
+      return false;
+    return switch (payload) {
+      case CHEMICAL -> !entity.isInvulnerableTo(CHEMICAL_DAMAGE);
+      case CONTAGIOUS -> !entity.isInvulnerableTo(CONTAGIOUS_DAMAGE);
+      default -> true;
+    };
+  }
+
+  /**
+   * Persistent-record exposure used by viral spread and API callers: rolls protection, then
+   * counts hits in the entity's saved dose record.
+   */
   public static void expose(LivingEntity entity, PayloadType payload) {
     if (!(entity.world instanceof ServerWorld world) || !entity.isAlive()) return;
-    float threshold =
+    if (protectedFrom(entity, gasProtectionThreshold(payload))) return;
+    ExposureState.Dose dose = ExposureState.get(world).dose(entity.getUuid());
+    int hits =
         switch (payload) {
-          case DEBILITATION -> config.debilitationProtection;
-          case CHEMICAL -> config.chemicalProtection;
-          case CONTAGIOUS -> config.viralProtection;
+          case CHEMICAL -> dose.chemicalHits = Math.min(100000, dose.chemicalHits + 1);
+          case CONTAGIOUS -> dose.viralHits = Math.min(100000, dose.viralHits + 1);
           default -> 1;
         };
-    if (protectedFrom(entity, threshold)) return;
-    ExposureState.Dose dose = ExposureState.get(world).dose(entity.getUuid());
+    affect(world, entity, payload, hits, dose);
+  }
+
+  /**
+   * Gas-cloud exposure, adapted from MIT ICBM-Classic {@code BlastGasBase.doExplode} and the
+   * {@code applyEffect} overrides in {@code BlastDebilitation}, {@code BlastChemical} and {@code
+   * BlastContagious}. The caller has already rolled protection and supplies the cloud-local hit
+   * count (upstream {@code impactedEntityMap}). Viral exposure still marks the persistent record
+   * infectious so the documented spread extension works.
+   */
+  public static void applyGas(LivingEntity entity, PayloadType payload, int hitCount) {
+    if (!(entity.world instanceof ServerWorld world) || !entity.isAlive()) return;
+    ExposureState.Dose dose =
+        payload == PayloadType.CONTAGIOUS
+            ? ExposureState.get(world).dose(entity.getUuid())
+            : null;
+    if (dose != null) dose.viralHits = Math.max(dose.viralHits, Math.min(100000, hitCount));
+    affect(world, entity, payload, hitCount, dose);
+  }
+
+  private static void affect(
+      ServerWorld world,
+      LivingEntity entity,
+      PayloadType payload,
+      int hits,
+      ExposureState.Dose dose) {
     switch (payload) {
       case DEBILITATION -> {
         effect(entity, StatusEffects.POISON, 360, 0);
@@ -136,23 +203,25 @@ public final class ExposureContent {
         effect(entity, StatusEffects.SLOWNESS, 1200, 2);
       }
       case CHEMICAL -> {
-        dose.chemicalHits = Math.min(100000, dose.chemicalHits + 1);
         effect(entity, StatusEffects.POISON, 600, 0);
         effect(entity, StatusEffects.NAUSEA, 600, 0);
         commonEffects(entity, 0);
-        if (dose.chemicalHits > 20)
-          entity.damage(DamageSource.MAGIC, Math.max(1, dose.chemicalHits * .1f));
+        if (hits > config.chemicalToxicityStart)
+          entity.damage(
+              CHEMICAL_DAMAGE,
+              Math.max(config.chemicalToxicityMinDamage, hits * config.chemicalToxicityScale));
       }
       case CONTAGIOUS -> {
-        dose.viralHits = Math.min(100000, dose.viralHits + 1);
-        dose.infectiousTicks = 900;
+        if (dose != null) dose.infectiousTicks = 900;
         effect(entity, StatusEffects.POISON, 900, 3);
         effect(entity, StatusEffects.BLINDNESS, 300, 3);
         commonEffects(entity, 3);
         if (dev.icbm.port.payload.Payloads.applyMutation(entity))
           ExposureState.get(world).clear(entity.getUuid());
-        else if (dose.viralHits > 10)
-          entity.damage(DamageSource.MAGIC, Math.max(1, dose.viralHits * .05f));
+        else if (hits > config.viralToxicityStart)
+          entity.damage(
+              CONTAGIOUS_DAMAGE,
+              Math.max(config.viralToxicityMinDamage, hits * config.viralToxicityScale));
       }
       default -> {}
     }

@@ -5,12 +5,21 @@ Independent Fabric adaptation of MIT Java: `BlastGasBase`, `BlastChemical`,
 `ProtectiveArmorHandler`, `RadioactiveHandler`, `BlockRadioactive`,
 `ConfigMain.protectiveArmor`, and `ConfigRadioactive`. Upstream art is not used.
 
-Gas entry is `ExposureContent.expose(entity, payload)` after the blast engine
-selects reachable cloud cells every five ticks. Source effect durations and
-amplifiers are preserved: debilitation poison18s/fatigue60s/slownessIII60s;
+Gas clouds (`payload/GasWork.java`) run every five ticks like upstream
+`BlastGasBase`, roll the family's protection for each living entity standing in
+a reached cell, count hits per entity for that cloud (upstream
+`impactedEntityMap`, saved with the cloud, at most 4,096 entities tracked) and
+call `ExposureContent.applyGas(entity, payload, hits)`. Source effect durations
+and amplifiers are preserved: debilitation poison18s/fatigue60s/slownessIII60s;
 chemical poison/nausea/hunger30s, weakness35s, fatigue60s; viral poisonIV45s,
 blindnessIV15s, hungerIV30s, weaknessIV35s/fatigueIV60s. Chemical direct damage
-starts above20 hits at max(1,hits*0.1); viral above10 at max(1,hits*0.05).
+starts above20 hits at max(1,hits*0.1); viral above10 at max(1,hits*0.05). Those
+starts, scales and minimums are the exposure config keys
+`chemicalToxicityStart/Scale/MinDamage` and `viralToxicityStart/Scale/MinDamage`.
+Damage uses the `icbm_port.chemical` and `icbm_port.contagious` sources, which,
+like upstream, armor can reduce and invulnerable entities ignore. Colors clouds
+never affect entities. `ExposureContent.expose(entity, payload)` remains the
+persistent-record entry used by viral spread and API callers.
 Viral exposure invokes the blast engine's mutation helper; successfully converted
 entities are exempt from direct toxicity damage and their old dose record is removed.
 
@@ -25,8 +34,10 @@ spectator players are exempt.
 
 Per-entity UUID dose and infection records live in the overworld persistent state,
 so they survive unload, dimension travel and restart. Antidote integration clears
-the record. Compared with the source blast-local counters, this port adds gradual
-one-hit-per-second recovery outside exposure and persistent nearby viral spread.
+the record. Gas-cloud toxicity uses the cloud-local counters described above;
+viral clouds also mark the persistent record infectious. On top of that the port
+adds gradual one-hit-per-second recovery outside exposure and persistent nearby
+viral spread.
 Spread is configurable, defaults every100 ticks within2 blocks, and can be disabled.
 Source viral potion code itself has a TODO instead of a functioning spread potion;
 this is an explicit gameplay extension, not a claim of exact source behavior.

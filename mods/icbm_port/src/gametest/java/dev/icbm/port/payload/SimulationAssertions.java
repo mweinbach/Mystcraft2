@@ -152,14 +152,23 @@ public final class SimulationAssertions {
     BlockPos center = c.getAbsolutePos(new BlockPos(2, 3, 2));
     for (Direction direction : Direction.values())
       c.getWorld().setBlockState(center.offset(direction), Blocks.STONE.getDefaultState(), 2);
+    // Colors paths the same cloud as the toxic gases but never touches neighbouring entities.
     GasWork gas = new GasWork(center);
-    for (int tick = 0; tick < 10; tick++) gas.tick(c.getWorld(), Vec3d.ofCenter(center), 5, 512);
+    GasWork open = new GasWork(center.up(4));
+    for (int elapsed = 1; elapsed <= 120; elapsed++) {
+      gas.tick(c.getWorld(), PayloadType.COLOR, Vec3d.ofCenter(center), 5, 600, elapsed, 512);
+      open.tick(c.getWorld(), PayloadType.COLOR, Vec3d.ofCenter(center.up(4)), 5, 600, elapsed, 512);
+    }
+    check(c, open.contains(center.up(4).east(2)), "Open-air control must diffuse two layers");
     check(c, gas.contains(center), "Gas seed must remain present");
+    check(c, gas.cellCount() == 1, "Solid enclosure must keep the cloud to its seed");
     check(c, !gas.contains(center.east(2)), "Solid enclosure must prevent diffusion to exterior");
     GasWork restored = GasWork.read(gas.write(), center);
+    for (int elapsed = 121; elapsed <= 200; elapsed++)
+      restored.tick(c.getWorld(), PayloadType.COLOR, Vec3d.ofCenter(center), 5, 600, elapsed, 512);
     check(
         c,
-        !restored.contains(center.east(2)),
+        restored.cellCount() == 1 && !restored.contains(center.east(2)),
         "Saved gas bounds must preserve collision filtering");
     c.complete();
   }

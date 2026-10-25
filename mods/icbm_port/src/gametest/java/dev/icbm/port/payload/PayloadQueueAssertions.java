@@ -141,8 +141,11 @@ public final class PayloadQueueAssertions {
   public static void loadedQueuesKeepRealTimeFieldLifetimes(TestContext context) {
     var state = new Payloads.QueueState();
     Vec3d pos = Vec3d.ofCenter(context.getAbsolutePos(new BlockPos(2, 2, 2)));
-    int duration = PayloadConfig.forType(PayloadType.SMOKE).durationTicks();
-    for (int i = 0; i < 256; i++) state.enqueue(new Payloads.Job(PayloadType.SMOKE, pos, 0), false);
+    // Radius-0 gas clouds: timed by world ticks like upstream BlastGasBase, with no block or
+    // entity work, so a full queue of them isolates lifetime bookkeeping.
+    int duration = PayloadConfig.forType(PayloadType.DEBILITATION).durationTicks();
+    for (int i = 0; i < 256; i++)
+      state.enqueue(new Payloads.Job(PayloadType.DEBILITATION, pos, 0), false);
     for (int tick = 0; tick < duration - 1; tick++) state.tick(context.getWorld());
     check(
         context,
@@ -158,11 +161,13 @@ public final class PayloadQueueAssertions {
         context,
         restored.jobs.stream().allMatch(j -> j.elapsedTicks == duration - 1),
         "Save/load must preserve elapsed lifetime independently of service age");
-    for (int tick = 0; tick < 32; tick++) restored.tick(context.getWorld());
+    // A cloud ends on its first run past the duration (t + 1 > duration). Eight jobs are served per
+    // tick, so the first eight (served at t = duration) come round again on tick 33.
+    for (int tick = 0; tick < 33; tick++) restored.tick(context.getWorld());
     check(
         context,
         restored.jobs.isEmpty(),
-        "All expired fields must retire within32 ticks under full queue load");
+        "All expired fields must retire within 33 ticks under full queue load");
     NbtCompound legacy = saved.getList("jobs", 10).getCompound(0).copy();
     legacy.remove("elapsedTicks");
     NbtList entries = new NbtList();
