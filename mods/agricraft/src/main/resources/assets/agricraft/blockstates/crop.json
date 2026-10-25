@@ -1,7 +1,13 @@
 {
 	"variants": {
-		"": {
-			"model": "minecraft:block/air"
+		"variant=wooden": {
+			"model": "agricraft:block/crop_particle/wooden"
+		},
+		"variant=iron": {
+			"model": "agricraft:block/crop_particle/iron"
+		},
+		"variant=obsidian": {
+			"model": "agricraft:block/crop_particle/obsidian"
 		}
 	}
 }

@@ -6,6 +6,8 @@ import com.agricraft.agricraft.gametest.CropGameTests;
 import com.agricraft.agricraft.gametest.EmcGameTests;
 import com.agricraft.agricraft.gametest.IrrigationGameTests;
 import com.agricraft.agricraft.gametest.TankFluidGameTests;
+import com.agricraft.agricraft.gametest.TooltipGameTests;
+import com.agricraft.agricraft.gametest.ViewerGameTests;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestGenerator;
 import net.minecraft.gametest.framework.StructureUtils;
@@ -29,7 +31,7 @@ import java.util.Locale;
 @GameTestHolder(AgriApi.MOD_ID)
 public class ForgeGameTests {
 
-    private static final List<Class<?>> SHARED_TESTS = List.of(CropGameTests.class, AnalyzerGameTests.class, EmcGameTests.class, IrrigationGameTests.class, TankFluidGameTests.class);
+    private static final List<Class<?>> SHARED_TESTS = List.of(CropGameTests.class, AnalyzerGameTests.class, EmcGameTests.class, IrrigationGameTests.class, TankFluidGameTests.class, ViewerGameTests.class, TooltipGameTests.class);
 
     @GameTestGenerator
     public static List<TestFunction> sharedTests() {

@@ -60,7 +60,7 @@ public class AgriCraftFabricClient implements ClientModInitializer {
 			var registries = AgriDataRegistries.read(buf);
 			client.execute(() -> {
 				AgriDataRegistries.apply(registries);
-				ClientUtil.refreshCreativeSearch();
+				ClientUtil.onRemoteDataApplied();
 			});
 		});
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> AgriDataRegistries.clear(true));

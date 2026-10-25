@@ -109,6 +109,9 @@ jobs:
             kind: dual
             forge_props: -PwithProjectE
             fabric_props: -PwithItemAlchemy -PwithProjectE
+            # The optional recipe viewers and tooltip mods, apart from the EMC runs.
+            forge_compat_props: -PwithEmi -PwithJei -PwithRei -PwithJade
+            fabric_compat_props: -PwithEmi -PwithJei -PwithRei -PwithJade -PwithWthit
             jars: |
               mods/agricraft/build/libs/*.jar
               mods/agricraft/fabric/build/libs/*.jar

@@ -8,10 +8,12 @@ Read [`NOTICE.md`](NOTICE.md) for provenance: the code, assets and data are upst
 [`LICENSE`](LICENSE)), with the 1.19.2 changes listed in [`PARITY.md`](PARITY.md).
 
 - Mod ID `agricraft`, package `com.agricraft.agricraft` (upstream's), licence MIT.
-- Status: **in progress**. Phase 1 ports AgriCraft 4.0.6's gameplay and phase 2 adds irrigation, ported
-  from AgriCraft 3 because AgriCraft 4 has none; the recipe-viewer, tooltip and other mod integrations
-  follow. Server GameTests pass on both loaders; the screens, overlay, journal, models and irrigation
-  renderers have not been looked at in a client yet.
+- Status: **in progress**. Phase 1 ports AgriCraft 4.0.6's gameplay, phase 2 adds irrigation, ported
+  from AgriCraft 3 because AgriCraft 4 has none, and phase 3 adds upstream's integrations (EMI, JEI, an
+  REI plugin written for the port, Jade, WTHIT, Mod Menu/Forge config screen, Botania, the Fabric Seasons
+  stub). Server GameTests pass on both loaders, and the Fabric jar boots in the Tekxit 4 server and
+  client with every other port (see [`docs/tekxit4-testing.md`](../../docs/tekxit4-testing.md)); the screens, overlay,
+  journal, irrigation renderers, recipe-viewer pages and tooltips have not been play-tested by hand.
 
 ## Features
 
@@ -27,6 +29,10 @@ Read [`NOTICE.md`](NOTICE.md) for provenance: the code, assets and data are upst
 | Tools | `trowel`, `magnifying_glass`, `clipper`, `wooden_rake`, `iron_rake`, `seed_bag`, `debugger` | Move plants between sticks, inspect crops and soils, clip products, remove weeds, carry and sort seeds; a magnifying glass crafted onto any helmet gives the same overlay. |
 | Resource crops | `coal_pebble`, `copper_nugget`, `diamond_shard`, `emerald_shard`, `quartz_shard`, `netherite_sliver`, `amathyllis_petal` | Products of AgriCraft's resource plants; nine craft the vanilla item. |
 | Irrigation (from AgriCraft 3) | `irrigation_tank`, `irrigation_channel`, `irrigation_channel_hollow`, `agri_channel_valve`, `sprinkler` | Tanks fill from buckets and rain and merge into multi-blocks; channels carry the water, valves (by hand, or redstone on hollow channels) stop it; sprinklers under a channel moisten farmland and speed up plants below. Tanks expose their water to pipes (Forge fluid capability, Fabric Transfer). |
+| Recipe viewers | EMI, JEI, REI (optional) | Mutation, produce, clipping and growth-requirement pages for every loaded plant, with the seed and crop sticks, clipper or farmland as workstations; seeds of different plants are told apart. Rebuilt after joining a server or `/reload`. EMI and JEI pages follow upstream; the REI plugin is written for this port. |
+| Tooltips | Jade (both loaders), WTHIT (Fabric) (optional) | Crop species, stats and growth; soil humidity, acidity and nutrients; irrigation tank and channel water level. |
+| Config screen | Mod Menu (Fabric), Forge mod list | Opens ResourcefulConfig's screen for AgriCraft's options. |
+| Botania | Botania (optional) | Plants with the `agricraft:botania_mana` modifier (Botania's flowers in the bundled Botania datapack) grow only within 16 blocks of a mana pool holding enough mana, and each growth step drains it; the Horn of the Wild harvests mature crops. Disable with `compat.botania`. |
 | Mod compatibility data | `datapacks/<modid>`, `resourcepacks/<modid>` | Plant data and models for other mods' crops, registered only when that mod is loaded. |
 
 Configuration uses [ResourcefulConfig](https://modrinth.com/mod/resourceful-config) 1.0.20 (required on
@@ -40,6 +46,8 @@ both loaders; Tekxit 4 ships it). Commands: `/agricraft seed …` and `/agricraf
 python3 mods/agricraft/scripts/check_loader_parity.py
 ./scripts/gradle.sh :agricraft:runGameTestServer -PwithProjectE
 ./scripts/gradle.sh -p mods/agricraft/fabric runGametest -PwithItemAlchemy
+./scripts/gradle.sh :agricraft:runGameTestServer -PwithEmi -PwithJei -PwithRei -PwithJade
+./scripts/gradle.sh -p mods/agricraft/fabric runGametest -PwithEmi -PwithJei -PwithRei -PwithJade -PwithWthit
 python3 scripts/emc.py check
 ```
 

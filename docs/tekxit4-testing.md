@@ -323,3 +323,48 @@ After the runs, the test instance keeps the ProjectE Fabric jar beside Item Alch
 port jars. The probe, the GameTest API, the ICBM Tekxit test jar, the autorun marker and the `Tekxit Probe` world
 were removed. The user's `Tekxit 4 (Official)` instance and `accounts.json` were not touched. The disposable server
 copies are `.local/tekxit4/server-projecte-a` and `server-projecte-b`.
+
+## AgriCraft in the Tekxit 4 client and server (2026-10-24)
+
+The AgriCraft Fabric jar from the phase 3 branch (`cursor/agricraft-integrations`) was added to the same disposable
+setup, next to every other Fabric port built from that branch (main `ba06951a` plus the AgriCraft stack). ProjectE was
+left out: its Tekxit check belonged to its own PR (merged later, see above), and that branch's probe did not list it. Fabric Loader 0.18.4, Fabric API
+0.77.0+1.19.2, Item Alchemy 1.1.3. The pack's own Jade 8.7.3, Botania 1.19.2-440.2, Fabric Seasons 2.3,
+ResourcefulConfig 1.0.20 and EMI 1.1.24 were loaded with it, so AgriCraft's Jade plugin, Botania hooks, seasons stub
+and EMI plugin ran against the pack's copies.
+
+| Installed jar | SHA-256 |
+| --- | --- |
+| agricraft-fabric-1.19.2-4.0.6-port.1 | `b18f2b9680f4071f11ca45d4b091402bde90de21721591006f6ec4b7f8be7bed` |
+| tekxit4-probe-fabric-1.19.2-1.0.0 (now checks `agricraft`) | `cc649079cd55e2caba3892342139e9b023969e4ef1155a8173816ee1137a80b0` |
+
+The other port jars match the hashes listed above, except Gridwright (`b855cc42…`), Mekanism (`6a1bdf65…`) and
+ICBM (`b19bd98b…`), which were rebuilt from the newer main.
+
+| Boot | Result |
+| --- | --- |
+| Dedicated server, all ports + AgriCraft | 455 mods, `Done (15.559s)`. AgriCraft loaded 69 plants, 1 weed, 12 soils, 65 mutations and 1 fertilizer, including the bundled Botania and other compat datapacks. Probe: 0 failures, 0 warnings. 7/7 Tekxit GameTests passed, clean `stop`, then the known Distant Horizons linger (exit 143). Item Alchemy: 9,119 entries, wither skull 46,422; 2,116 port values from nine EMC files compared with 0 mismatches, AgriCraft's 25 among them. |
+| Client, all ports + AgriCraft (Prism, test instance) | 538 mods. The title screen, world, showcase, every port creative tab (AgriCraft's included), EMI recipe pages (AgriCraft: `agri_channel_valve`), 7/7 GameTests and save/quit all passed: `client result PASSED with 0 failure(s)`. The showcase placed AgriCraft's crop sticks, seed analyzer, irrigation tank and both channels. The integrated server reported 0 failures and 0 warnings, and AgriCraft's 25 EMC values matched. |
+
+Item Alchemy values were merged into the test copies with `scripts/emc.py merge-itemalchemy`.
+
+The first runs found three problems, all fixed on the branch:
+
+- **`tekxit4.py prepare` skipped two ports.** It filtered out every jar with `-dev` in its name, which also dropped
+  Mystcraft (`0.4.0-dev`) and Advanced Genetics (`1.0.3-port.1-dev`). It now drops a `-dev` jar only when its plain
+  twin is beside it. `scripts/tests/test_tekxit4.py` covers the case.
+- **Loot-table warning.** The probe warned that AgriCraft's crop, seed analyzer and irrigation blocks name loot tables
+  that do not exist. AgriCraft 4.0.6 ships no block loot tables, and these blocks drop their sticks, contents, valves
+  and wood in `getDrops`. They were added to the probe's code-drop allowlist.
+- **`blockParticleMissing` for `agricraft:crop` (816 states).** Upstream's crop block state is `minecraft:block/air`,
+  which on 1.20 is hidden by `noParticlesOnBreak()`. That method does not exist on 1.19.2, so breaking crop sticks would
+  show missing-texture particles. The block state now points to particle-only models with the stick textures. The
+  rerun client reported no AgriCraft warnings.
+
+The remaining client warnings are the pre-existing ones listed above for other ports. `agricraft:seed` appears under
+the informational `itemBuiltinRenderer` count, because seed models are chosen per plant.
+
+These were automated boots. Nobody played AgriCraft by hand: crossing, the analyzer and journal screens, irrigation
+rendering, and the Jade and EMI overlays were not checked by eye beyond the probe's screenshots. After the runs, the
+probe, `autorun`, the `Tekxit Probe` world, the GameTest API and the ICBM test jar were removed from the test instance,
+and ProjectE was put back. The AgriCraft jar and the rebuilt port jars stay installed.

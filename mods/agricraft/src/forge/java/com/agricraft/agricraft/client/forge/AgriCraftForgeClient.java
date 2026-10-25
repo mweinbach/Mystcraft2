@@ -78,6 +78,7 @@ public class AgriCraftForgeClient {
 
 	public static void init() {
 		AgriCraftClient.init();
+		com.agricraft.agricraft.common.config.forge.ForgeMenuConfig.register();
 	}
 
 }

@@ -33,11 +33,15 @@ public final class ServerChecks {
     /** Mod ids that must be loaded, in install order. */
     public static final List<String> PORT_MODS = List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
             "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
-            "gridwright", "fluidphysics");
+            "gridwright", "agricraft", "fluidphysics");
     /** Registry namespaces the ports own; every one must register items and recipes. */
-    /** Blocks that drop through code rather than a loot table: the action figure keeps its figure NBT, and Mekanism's
-     *  bounding block is the filler of multiblock machines, whose main block drops (as upstream). */
-    private static final List<String> NO_LOOT_TABLE = List.of("jurassicraft:action_figure", "mekanism:bounding_block");
+    /** Blocks that drop through code rather than a loot table: the action figure keeps its figure NBT, Mekanism's
+     *  bounding block is the filler of multiblock machines, whose main block drops (as upstream), and AgriCraft's crop
+     *  sticks, seed analyzer and irrigation blocks drop their sticks, contents, valves and wood variant in
+     *  {@code getDrops} (AgriCraft 4.0.6 ships no block loot tables). */
+    private static final List<String> NO_LOOT_TABLE = List.of("jurassicraft:action_figure", "mekanism:bounding_block",
+            "agricraft:crop", "agricraft:seed_analyzer", "agricraft:irrigation_tank", "agricraft:irrigation_channel",
+            "agricraft:irrigation_channel_hollow", "agricraft:sprinkler");
     public static final List<String> NAMESPACES = namespaces();
     public static final String WITHER_SKULL = "minecraft:wither_skeleton_skull";
     public static final long WITHER_SKULL_EMC = 46_422L;
@@ -52,7 +56,7 @@ public final class ServerChecks {
     private static List<String> namespaces() {
         List<String> list = new ArrayList<>(List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
                 "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
-                "gridwright"));
+                "gridwright", "agricraft"));
         if (FabricLoader.getInstance().isModLoaded("projecte")) list.add("projecte");
         return List.copyOf(list);
     }

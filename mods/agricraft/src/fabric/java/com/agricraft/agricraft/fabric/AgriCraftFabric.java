@@ -3,7 +3,10 @@ package com.agricraft.agricraft.fabric;
 import com.agricraft.agricraft.common.util.fabric.FabricTankStorage;
 
 import com.agricraft.agricraft.AgriCraft;
+import com.agricraft.agricraft.api.config.CompatConfig;
 import com.agricraft.agricraft.api.config.CoreConfig;
+import com.agricraft.agricraft.common.plugin.fabric.FabricSeasonPlugin;
+import com.agricraft.agricraft.compat.fabric.botania.BotaniaFabricPlugin;
 import com.agricraft.agricraft.common.commands.DumpRegistriesCommand;
 import com.agricraft.agricraft.common.item.SeedBagItem;
 import com.agricraft.agricraft.common.commands.GiveSeedCommand;
@@ -66,6 +69,10 @@ public class AgriCraftFabric implements ModInitializer {
 		});
 
 		MinecraftPlugin.init();
+		FabricSeasonPlugin.init();
+		if (FabricLoader.getInstance().isModLoaded("botania") && CompatConfig.enableBotania) {
+			BotaniaFabricPlugin.init();
+		}
 
 		FabricLoader.getInstance().getModContainer("agricraft").ifPresent(agricraft -> {
 			// Fabric API 0.77 only accepts a custom sub-path with the boolean overload.

@@ -28,6 +28,14 @@ retained here and in the mod metadata.
 - Port-specific code written for this repository (the 1.19.2 data-registry loader and sync, the
   `AgriGuiGraphics` drawing facade, the loader adapters' 1.19.2 event wiring, GameTests and EMC data) is
   also MIT-licensed.
+- The EMI and JEI plugins (`compat/emi`, `compat/jei`) are upstream's, ported to EMI 1.1 and JEI 11 for
+  1.19.2. The REI plugin (`compat/rei`, `forge/compat`), the shared viewer data and reload helpers
+  (`AgriRecipeDisplays`, `RecipeViewers`) and the split of upstream's requirement page into
+  `CropRequirementView` and `PlantRendering` are port code, also MIT-licensed. No viewer code is bundled.
+- The Jade, WTHIT, Botania, Mod Menu, Forge config-screen and Fabric Seasons plugins are upstream's. The
+  irrigation tooltip lines are AgriCraft 3's (`1.16.5`, as above). The shared `AgriTooltipLines`, the WTHIT 5
+  registration and the Forge `BotaniaForgePlugin` capability attachment are port code, also MIT-licensed.
+  No integration code is bundled.
 
 The Fabric artifact bundles MixinExtras 0.4.1 by LlamaLad7 under the MIT License for the lava-bucket hook.
 Its license is retained in the nested dependency JAR and in `licenses/mixinextras-LICENSE.txt`.

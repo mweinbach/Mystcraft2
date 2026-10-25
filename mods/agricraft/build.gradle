@@ -16,7 +16,31 @@ repositories {
         url = 'https://nexus.resourcefulbees.com/repository/maven-public/'
         content { includeGroup 'com.teamresourceful.resourcefulconfig' }
     }
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+    maven {
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'dev.emi' }
+    }
+    maven {
+        url = 'https://maven.shedaniel.me/'
+        content {
+            includeGroup 'me.shedaniel'
+            includeGroup 'me.shedaniel.cloth'
+        }
+    }
+    maven {
+        url = 'https://maven.architectury.dev/'
+        content { includeGroup 'dev.architectury' }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
 }
+def reiVersion = '9.2.784'
 dependencies {
     implementation fg.deobf('com.teamresourceful.resourcefulconfig:resourcefulconfig-forge-1.19.2:1.0.20')
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
@@ -24,7 +48,35 @@ dependencies {
     if (providers.gradleProperty('withProjectE').isPresent()) {
         runtimeOnly fg.deobf('curse.maven:projecte-226410:4860858')
     }
+    // Recipe viewers: only their APIs are needed to compile. -PwithJei, -PwithEmi and -PwithRei add each viewer
+    // to the development runs; each plugin loads only when its viewer is installed.
+    compileOnly(fg.deobf('mezz.jei:jei-1.19.2-common-api:11.6.0.1024')) { transitive = false }
+    compileOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2:api')) { transitive = false }
+    compileOnly(fg.deobf("me.shedaniel:RoughlyEnoughItems-api-forge:${reiVersion}")) { transitive = false }
+    // REI's widget API places things with Cloth's Point and Rectangle.
+    compileOnly('me.shedaniel.cloth:basic-math:0.6.1') { transitive = false }
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly(fg.deobf('mezz.jei:jei-1.19.2-forge:11.6.0.1024')) { transitive = false }
+    }
+    if (providers.gradleProperty('withEmi').isPresent()) {
+        runtimeOnly(fg.deobf('dev.emi:emi-forge:1.1.24+1.19.2')) { transitive = false }
+    }
+    if (providers.gradleProperty('withRei').isPresent()) {
+        runtimeOnly(fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:${reiVersion}")) { transitive = false }
+        runtimeOnly(fg.deobf('dev.architectury:architectury-forge:6.6.92')) { transitive = false }
+        runtimeOnly(fg.deobf('me.shedaniel.cloth:cloth-config-forge:8.3.134')) { transitive = false }
+    }
+    // Jade 8.9.2 for the crop, soil and irrigation tooltips; -PwithJade adds it to the development runs.
+    compileOnly(fg.deobf('maven.modrinth:jade:kp0HjPre')) { transitive = false }
+    if (providers.gradleProperty('withJade').isPresent()) {
+        runtimeOnly(fg.deobf('maven.modrinth:jade:kp0HjPre')) { transitive = false }
+    }
+    // Botania 1.19.2-440.2 for the mana growth condition and Horn of the Wild harvest (optional).
+    compileOnly(fg.deobf('maven.modrinth:botania:aTGY8zMJ')) { transitive = false }
 }
+// The viewer flags this run was started with, so the viewer GameTest can tell "missing" from "not asked for".
+def viewerFlags = ['Jei', 'Emi', 'Rei'].findAll { providers.gradleProperty("with${it}").isPresent() }
+        .collect { it.toLowerCase(Locale.ROOT) }.join(',') ?: 'none'
 
 // Map official-name mixin targets to SRG names for the reobfuscated JAR.
 dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
@@ -69,6 +121,7 @@ minecraft.runs {
         property 'forge.enableGameTest', 'true'
         property 'forge.enabledGameTestNamespaces', portMetadata.mod_id
         property 'emc.values', file('emc/values.json').absolutePath
+        property 'agricraft.viewers', viewerFlags
         mods {
             "${portMetadata.mod_id}" { source sourceSets.gametest }
         }

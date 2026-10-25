@@ -20,7 +20,12 @@
   "environment": "*",
   "entrypoints": {
     "main": ["com.agricraft.agricraft.fabric.AgriCraftFabric"],
-    "client": ["com.agricraft.agricraft.client.fabric.AgriCraftFabricClient"]
+    "client": ["com.agricraft.agricraft.client.fabric.AgriCraftFabricClient"],
+    "emi": ["com.agricraft.agricraft.compat.emi.AgriCraftEmiPlugin"],
+    "jei_mod_plugin": ["com.agricraft.agricraft.compat.jei.AgriCraftJeiPlugin"],
+    "rei_client": ["com.agricraft.agricraft.compat.rei.AgriCraftReiPlugin"],
+    "jade": ["com.agricraft.agricraft.compat.jade.AgriCraftJadePlugin"],
+    "modmenu": ["com.agricraft.agricraft.common.config.fabric.ModMenuConfig"]
   },
   "mixins": ["agricraft.fabric.mixins.json"],
   "accessWidener": "agricraft.accesswidener",
@@ -32,6 +37,17 @@
     "resourcefulconfig": ">=1.0.20"
   },
   "suggests": {
-    "itemalchemy": "*"
+    "itemalchemy": "*",
+    "emi": "*",
+    "jade": "*",
+    "wthit": "*",
+    "modmenu": "*",
+    "botania": "*"
+  },
+  "custom": {
+    "waila:plugins": {
+      "id": "agricraft:plugin",
+      "initializer": "com.agricraft.agricraft.compat.fabric.wthit.AgriCraftWthitPlugin"
+    }
   }
 }
