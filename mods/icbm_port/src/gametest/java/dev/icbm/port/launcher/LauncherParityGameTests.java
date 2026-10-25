@@ -2,6 +2,7 @@ package dev.icbm.port.launcher;
 
 import dev.icbm.port.IcbmPort;
 import dev.icbm.port.block.LauncherBlock;
+import dev.icbm.port.delivery.HeldItemMissileEntity;
 import dev.icbm.port.entity.MissileEntity;
 import dev.icbm.port.radio.RadioMessage;
 import dev.icbm.port.radio.RadioNetwork;
@@ -118,6 +119,66 @@ public class LauncherParityGameTests implements FabricGameTest {
         LauncherContent.validTarget(context.getWorld(), pos, pos.add(range, 0, range))
             && !LauncherContent.validTarget(context.getWorld(), pos, pos.add(range + 1, 0, 0)),
         "Maximum range is a per-axis square, as upstream");
+    context.complete();
+  }
+
+  /**
+   * Review fix: a diagonal target inside the per-axis range square but beyond the Euclidean range
+   * must actually launch, for missiles and held-item ammunition, and survive a save.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  public void diagonalTargetInsideRangeSquareLaunches(TestContext context) {
+    var world = context.getWorld();
+    BlockPos pos = context.getAbsolutePos(new BlockPos(2, 2, 2));
+    world.setBlockState(
+        pos, LauncherContent.BASE_TIER_1.getDefaultState().with(LauncherBlock.FACING, Direction.UP));
+    world.setBlockState(pos.east(), LauncherContent.FRAME.getDefaultState());
+    var launcher = (LauncherBlockEntity) world.getBlockEntity(pos);
+    launcher.setStack(0, new ItemStack(IcbmPort.CONDENSED_MISSILE));
+    NbtCompound energy = launcher.createNbt();
+    energy.putInt("Energy", 100_000);
+    launcher.readNbt(energy);
+    int range = LauncherContent.BASE_TIER_1.range();
+    // Inside the square on both axes, ~1.3x the range in a straight line; the margin covers the
+    // launcher's inaccuracy.
+    BlockPos target = pos.add(range - 500, 0, range - 500);
+    check(
+        context,
+        Math.sqrt(pos.getSquaredDistance(target)) > range,
+        "The target must lie beyond the Euclidean range");
+    check(context, launcher.configure(target, true, 0), "The diagonal target must be storable");
+    var status = LauncherContent.BASE_TIER_1.fire(world, pos, 1);
+    var fired = missiles(context, pos, 4);
+    HeldItemMissileEntity held = null;
+    try {
+      check(
+          context,
+          status == LauncherStatus.LAUNCHED && fired.size() == 1,
+          "The diagonal target must launch: " + status);
+      var plan = fired.get(0).flightPlan();
+      check(context, plan.targeted(), "The launched missile must be targeted");
+      var reloaded = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      reloaded.readNbt(fired.get(0).writeNbt(new NbtCompound()));
+      check(
+          context,
+          reloaded.flightPlan().targeted()
+              && reloaded.flightPlan().target().equals(plan.target()),
+          "The diagonal flight plan must survive a save");
+      ItemStack ammo = new ItemStack(dev.icbm.port.delivery.DeliveryContent.HELD_ITEM_MISSILE);
+      dev.icbm.port.delivery.HeldItemMissileItem.setCargo(
+          ammo, new ItemStack(net.minecraft.item.Items.COBBLESTONE));
+      held =
+          dev.icbm.port.delivery.DeliveryContent.launchHeldEntity(
+              world, null, ammo, Vec3d.ofCenter(pos.up(2)), Vec3d.ZERO, target);
+      check(context, held != null, "Held-item ammunition must launch at the diagonal target too");
+      check(
+          context,
+          !LauncherContent.validTarget(world, pos, pos.add(range + 1, 0, 0)),
+          "One axis past the range is still refused");
+    } finally {
+      fired.forEach(Entity::discard);
+      if (held != null) held.discard();
+    }
     context.complete();
   }
 

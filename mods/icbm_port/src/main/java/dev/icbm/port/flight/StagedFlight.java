@@ -84,12 +84,22 @@ public final class StagedFlight {
     };
   }
 
+  /**
+   * The launcher range contract (upstream {@code LauncherCapability#isTargetTooFar}): a per-axis
+   * square on X and Z, so every target a launcher accepts can also be flown to. The height is
+   * bounded by the world.
+   */
+  private static boolean outOfRange(Vec3d origin, BlockPos destination, double range) {
+    return dev.icbm.port.launcher.LauncherRules.tooFar(
+        origin.x, origin.z, destination.getX() + .5, destination.getZ() + .5, range);
+  }
+
   public void configure(World world, Vec3d origin, BlockPos destination) {
     // Retargeting a missile in the air is not an upstream action; re-planning from mid-air would
     // restart the warmup there. Only a missile still on the pad (or untargeted) may be configured.
     if (inFlight()) throw new IllegalArgumentException("Flight already under way");
     if (!finite(origin)
-        || origin.distanceTo(Vec3d.ofCenter(destination)) > FlightSettings.current.maxRange
+        || outOfRange(origin, destination, FlightSettings.current.maxRange)
         || world.isOutOfHeightLimit(destination)
         || !world.getWorldBorder().contains(destination))
       throw new IllegalArgumentException("Target outside flight bounds");
@@ -201,7 +211,7 @@ public final class StagedFlight {
     BlockPos destination = BlockPos.fromLong(nbt.getLong("Target"));
     if (world.isOutOfHeightLimit(destination)
         || !world.getWorldBorder().contains(destination)
-        || origin.distanceTo(Vec3d.ofCenter(destination)) > FlightSettings.current.maxRange + 2048)
+        || outOfRange(origin, destination, FlightSettings.current.maxRange + 2048))
       return;
     try {
       stage = Stage.valueOf(nbt.getString("Stage"));
