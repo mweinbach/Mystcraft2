@@ -11,6 +11,7 @@ import dev.icbm.port.payload.PayloadType;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
@@ -210,6 +211,21 @@ public final class DeliveryParityGameTests implements FabricGameTest {
     cart.setPosition(Vec3d.ofCenter(pos));
     cart.prime();
     world.spawnEntity(cart);
+    // Review fix: the defuser acts through AttackEntityCallback, which needs the crosshair to
+    // select the entity; GameRenderer only offers entities that are not spectators and canHit().
+    var viewer = EntityType.PIG.create(world);
+    Vec3d eye = Vec3d.ofCenter(pos).add(0, 0, -3), end = Vec3d.ofCenter(pos).add(0, 0, 3);
+    for (Entity e : new Entity[] {grenade, bomblet, primed, cart}) {
+      var hit =
+          net.minecraft.entity.projectile.ProjectileUtil.raycast(
+              viewer,
+              eye,
+              end,
+              new Box(eye, end).expand(1),
+              t -> t == e && !t.isSpectator() && t.canHit(),
+              36);
+      check(c, hit != null && hit.getEntity() == e, "A player must be able to target " + e.getType());
+    }
     for (Entity e : new Entity[] {grenade, bomblet, primed, cart})
       check(c, DefuserItem.defuse(e) && e.isRemoved(), "Defuser must disarm " + e.getType());
     check(

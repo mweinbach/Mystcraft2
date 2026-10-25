@@ -60,6 +60,16 @@ public final class BombletEntity extends ThrownItemEntity {
     return (float) Math.ceil(speed * IMPACT_DAMAGE_SCALE);
   }
 
+  /**
+   * Players can target a falling bomblet (crosshair selection only offers entities whose no-arg
+   * {@code canHit()} is true), so the defuser's attack callback can disarm it, like grenades and
+   * primed charges.
+   */
+  @Override
+  public boolean canHit() {
+    return !isRemoved();
+  }
+
   @Override
   protected boolean canHit(Entity entity) {
     return !(entity instanceof BombletEntity) && super.canHit(entity);
