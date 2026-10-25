@@ -75,8 +75,9 @@ public final class EnderExplosiveBlock extends CondensedExplosiveBlock implement
   }
 
   @Override
-  protected void configurePrimed(World world, BlockPos pos, PrimedExplosiveEntity entity) {
-    if (world.getBlockEntity(pos) instanceof Target target && target.position != null)
+  protected void configurePrimed(
+      BlockState state, @Nullable BlockEntity blockEntity, PrimedExplosiveEntity entity) {
+    if (blockEntity instanceof Target target && target.position != null)
       entity.setEnderTarget(target.dimension, target.position);
   }
 

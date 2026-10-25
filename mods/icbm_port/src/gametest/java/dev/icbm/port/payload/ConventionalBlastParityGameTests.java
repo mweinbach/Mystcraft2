@@ -116,7 +116,9 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
       var job = job(c, PayloadType.SONIC, center, 10, null);
       check(c, !job.tick(c.getWorld(), 512), "Sonic blasts last several ticks");
       check(c, pig.getVelocity().y > 0, "The first pulse must throw nearby mobs upward");
-      check(c, run(c, job, 20), "Sonic blast must end within radius ticks");
+      // Under a contended time budget the ray pass takes 512 units per call (about 160 calls at
+      // radius 10); the wave's radius-call lifetime only starts after it.
+      check(c, run(c, job, 400), "Sonic blast must end once collection and the wave finish");
       check(c, c.getWorld().isAir(origin.down()), "The widening pulse must strip stone");
       check(c, c.getWorld().isAir(origin.north(2)), "The pulse must remove the explosive block");
       var primed =
@@ -127,6 +129,25 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
       primed.forEach(PrimedExplosiveEntity::discard);
     } finally {
       pig.discard();
+      clearDebris(c, center, 12);
+    }
+    c.complete();
+  }
+
+  /** Review fix: a ray pass that outlasts radius calls must still strip terrain afterwards. */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmBlastSonicLate")
+  public void sonicWaitsForSlowRayCollectionBeforeExpiring(TestContext c) {
+    BlockPos origin = c.getAbsolutePos(new BlockPos(2, 40, 2));
+    Vec3d center = Vec3d.ofCenter(origin);
+    c.getWorld().setBlockState(origin.down(), Blocks.STONE.getDefaultState(), 2);
+    try {
+      var job = job(c, PayloadType.SONIC, center, 10, null);
+      // As if collection had been starved for 100 calls, far past the radius lifetime.
+      job.age = 100;
+      check(c, !job.tick(c.getWorld(), 512), "A late-collected sonic blast must not expire at once");
+      check(c, run(c, job, 400), "Sonic blast must end once collection and the wave finish");
+      check(c, c.getWorld().isAir(origin.down()), "A late-collected pulse must still strip stone");
+    } finally {
       clearDebris(c, center, 12);
     }
     c.complete();

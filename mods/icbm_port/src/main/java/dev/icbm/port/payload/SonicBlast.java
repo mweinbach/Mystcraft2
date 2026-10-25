@@ -22,7 +22,8 @@ import net.minecraft.util.math.Vec3d;
  * found blocks within {@code max(1, ticks)} of the centre are removed: explosive blocks are primed,
  * one in ten becomes a flying block, the rest are cleared without drops. Every tick, non-creative
  * entities within {@code 2 * ticks} are thrown outward and upward. The blast ends after {@code
- * radius} ticks, or at a removal pass with nothing left.
+ * radius} ticks, or at a removal pass with nothing left. Like upstream, which waits for its ray
+ * thread, block removal and the expanding lifetime start only once the ray pass is complete.
  *
  * <p>Port differences: the ray pass is time-sliced on the server thread instead of a worker thread
  * (upstream also waits for its thread), unloaded chunks stop a ray, at most {@link
@@ -32,6 +33,8 @@ final class SonicBlast implements BlastWork {
   private final int size;
   private int ray;
   private boolean started;
+  /** Service calls spent finishing the ray pass beyond the first; the wave starts after it. */
+  private int collectionDelay = -1;
   private final LongArrayList results = new LongArrayList();
   private final it.unimi.dsi.fastutil.longs.LongOpenHashSet seen =
       new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
@@ -48,8 +51,6 @@ final class SonicBlast implements BlastWork {
   public boolean tick(ServerWorld world, Payloads.Job job, int budget) {
     Vec3d c = job.center;
     int radius = radius();
-    // Upstream doExplode(callCount++): the argument is the previous count, the field the new one.
-    int calls = job.age, call = calls - 1;
     if (!started) {
       started = true;
       world.playSound(
@@ -62,7 +63,13 @@ final class SonicBlast implements BlastWork {
       ray++;
       units += march(world, c, radius, radius * 2, steps, phi, theta);
     }
-    if (call % 4 == 0 && ray >= total) {
+    // Upstream waits for its ray thread before the wave moves. Under a contended time budget the
+    // pass can outlast radius calls, so the expanding lifetime starts once collection completes.
+    boolean collected = ray >= total;
+    if (collected && collectionDelay < 0) collectionDelay = Math.max(0, job.age - 1);
+    // Upstream doExplode(callCount++): the argument is the previous count, the field the new one.
+    int calls = job.age - Math.max(0, collectionDelay), call = calls - 1;
+    if (collected && call % 4 == 0) {
       if (results.isEmpty()) return true;
       int reach = Math.max(1, calls);
       for (int i = results.size() - 1; i >= 0; i--) {
@@ -94,7 +101,7 @@ final class SonicBlast implements BlastWork {
               Math.abs(d.y * world.random.nextFloat()),
               d.z * world.random.nextFloat() * .2));
     }
-    return calls > radius;
+    return collected && calls > radius;
   }
 
   private int march(
@@ -133,6 +140,7 @@ final class SonicBlast implements BlastWork {
     NbtCompound nbt = new NbtCompound();
     nbt.putInt("ray", ray);
     nbt.putBoolean("started", started);
+    nbt.putInt("collectionDelay", collectionDelay);
     nbt.putLongArray("results", results.toLongArray());
     return nbt;
   }
@@ -141,6 +149,7 @@ final class SonicBlast implements BlastWork {
     SonicBlast blast = new SonicBlast(radius);
     blast.ray = Math.max(0, nbt.getInt("ray"));
     blast.started = nbt.getBoolean("started");
+    blast.collectionDelay = nbt.contains("collectionDelay") ? nbt.getInt("collectionDelay") : -1;
     for (long pos : nbt.getLongArray("results")) if (blast.seen.add(pos)) blast.results.add(pos);
     return blast;
   }

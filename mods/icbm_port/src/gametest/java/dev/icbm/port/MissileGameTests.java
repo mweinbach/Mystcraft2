@@ -80,4 +80,40 @@ public final class MissileGameTests implements FabricGameTest {
     bomblets.forEach(e -> e.discard());
     c.complete();
   }
+
+  /** Review fix: an EMP engine kill leaves the missile falling but still live on impact. */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmEngineKill")
+  public void engineKilledMissileStillDetonatesOnImpact(TestContext c) {
+    var world = c.getWorld();
+    BlockPos floor = c.getAbsolutePos(new BlockPos(2, 2, 2));
+    world.setBlockState(floor, net.minecraft.block.Blocks.STONE.getDefaultState(), 2);
+    var missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+    missile.setPayload(PayloadType.SMOKE);
+    missile.refreshPositionAndAngles(floor.getX() + .5, floor.getY() + 4, floor.getZ() + .5, 0, 0);
+    missile.configureTarget(floor.east(40));
+    world.spawnEntity(missile);
+    missile.killEngine();
+    var restored = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+    restored.readNbt(missile.writeNbt(new NbtCompound()));
+    Box around = new Box(floor).expand(3);
+    try {
+      check(
+          c,
+          restored.isEngineFailed() && !restored.isEmpDisabled() && !restored.hasNoGravity(),
+          "An engine kill must persist as a falling, non-EMP-disabled missile");
+      for (int tick = 0; tick < 200 && !missile.isRemoved(); tick++) missile.tick();
+      check(c, missile.isRemoved(), "The engine-killed missile must hit the ground");
+      check(
+          c,
+          !world.getEntitiesByClass(dev.icbm.port.entity.SmokeEntity.class, around, e -> true)
+              .isEmpty(),
+          "Hitting the ground must still detonate the payload");
+    } finally {
+      missile.discard();
+      world.getEntitiesByClass(dev.icbm.port.entity.SmokeEntity.class, around, e -> true)
+          .forEach(net.minecraft.entity.Entity::discard);
+      world.removeBlock(floor, false);
+    }
+    c.complete();
+  }
 }

@@ -46,7 +46,8 @@ public final class UtilityBlastParityGameTests implements FabricGameTest {
           c,
           far.getPos().squaredDistanceTo(target) > 1 && far.getVelocity().z > 0,
           "Mobs further out are only drawn towards the centre");
-      job.age = EnderBlast.DURATION;
+      // World ticks end the blast even though the job was served only twice.
+      job.elapsedTicks = EnderBlast.DURATION + 1;
       check(c, job.tick(c.getWorld(), 512), "Ender blast must end after its duration");
       var endermen =
           c.getWorld()
@@ -172,6 +173,57 @@ public final class UtilityBlastParityGameTests implements FabricGameTest {
     } finally {
       inside.discard();
       outside.discard();
+    }
+    c.complete();
+  }
+
+  /**
+   * Review fix: blasts clear a block before {@code onDestroyedByExplosion}, so chain-primed charges
+   * must still carry the breaching facing and the ender target captured when they were replaced.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void chainPrimedChargesKeepTheirConfiguration(TestContext c) {
+    var world = c.getWorld();
+    BlockPos breachPos = c.getAbsolutePos(new BlockPos(1, 2, 2));
+    BlockPos enderPos = c.getAbsolutePos(new BlockPos(3, 2, 2));
+    BlockPos destination = new BlockPos(100, 70, -40);
+    Identifier dimension = new Identifier("minecraft", "the_nether");
+    var breaching = IcbmPort.EXPLOSIVE_BLOCKS.get(PayloadType.BREACHING);
+    world.setBlockState(
+        breachPos,
+        breaching
+            .getDefaultState()
+            .with(dev.icbm.port.block.BreachingExplosiveBlock.FACING, net.minecraft.util.math.Direction.WEST),
+        2);
+    var ender = IcbmPort.EXPLOSIVE_BLOCKS.get(PayloadType.ENDER);
+    world.setBlockState(enderPos, ender.getDefaultState(), 2);
+    ((EnderExplosiveBlock.Target) world.getBlockEntity(enderPos)).set(dimension, destination);
+    var explosion = BlastSupport.context(world, null, Vec3d.ofCenter(breachPos.up(3)), 4);
+    var primed = new java.util.ArrayList<PrimedExplosiveEntity>();
+    try {
+      check(c, BlastSupport.destroy(world, breachPos, explosion, 0, 3), "Blast clears breaching");
+      check(c, BlastSupport.destroy(world, enderPos, explosion, 0, 3), "Blast clears ender");
+      primed.addAll(
+          world.getEntitiesByClass(
+              PrimedExplosiveEntity.class, new Box(breachPos, enderPos).expand(1), e -> true));
+      check(c, primed.size() == 2, "Both charges must chain-prime: " + primed.size());
+      for (PrimedExplosiveEntity charge : primed) {
+        if (charge.getPayload() == PayloadType.BREACHING)
+          check(
+              c,
+              charge.getBlastDirection() == net.minecraft.util.math.Direction.EAST,
+              "A chain-primed breaching charge must keep its facing: " + charge.getBlastDirection());
+        else
+          check(
+              c,
+              destination.equals(charge.getTargetPosition())
+                  && dimension.equals(charge.getTargetDimension()),
+              "A chain-primed ender charge must keep its GPS target");
+      }
+    } finally {
+      primed.forEach(PrimedExplosiveEntity::discard);
+      world.removeBlock(breachPos, false);
+      world.removeBlock(enderPos, false);
     }
     c.complete();
   }

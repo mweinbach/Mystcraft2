@@ -84,7 +84,9 @@ final class AntiGravityBlast implements BlastWork {
       lift(world, c);
     }
     pull(world, c, radius);
-    if (job.age > PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks()) {
+    // World ticks, not service calls: a busy queue serves each job only intermittently.
+    int duration = PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks();
+    if (job.elapsedTicks > Math.min(duration, GasWork.MAX_ELAPSED_TICKS - 1)) {
       for (UUID id : lifted)
         if (world.getEntity(id) instanceof FlyingBlockEntity block) block.restoreGravity();
       return true;

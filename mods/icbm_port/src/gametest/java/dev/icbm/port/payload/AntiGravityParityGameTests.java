@@ -55,8 +55,11 @@ public final class AntiGravityParityGameTests implements FabricGameTest {
       // The lifted block ids survive a reload, so a restored blast still lets them fall.
       var restored = new Payloads.Job(PayloadType.ANTI_GRAVITATIONAL, center, 3);
       restored.work = BlastWork.read(PayloadType.ANTI_GRAVITATIONAL, job.work.write(), 3);
-      restored.age = PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks();
+      // Only world ticks count: a job served once (age 1) on a busy queue still expires on time.
+      restored.elapsedTicks =
+          PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks() + 1;
       check(c, restored.tick(c.getWorld(), 512), "The blast must end after its duration");
+      check(c, restored.age == 1, "The restored job was served once");
       check(
           c,
           lifted.stream().allMatch(b -> b.gravity() == FlyingBlockEntity.DEFAULT_GRAVITY),

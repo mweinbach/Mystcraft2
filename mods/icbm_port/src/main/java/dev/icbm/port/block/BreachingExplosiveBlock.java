@@ -4,14 +4,14 @@ import dev.icbm.port.entity.PrimedExplosiveEntity;
 import dev.icbm.port.payload.PayloadType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Breaching charge that remembers the face it was placed on. Adapted from MIT ICBM-Classic {@code
@@ -48,8 +48,10 @@ public final class BreachingExplosiveBlock extends CondensedExplosiveBlock {
   }
 
   @Override
-  protected void configurePrimed(World world, BlockPos pos, PrimedExplosiveEntity entity) {
-    BlockState state = world.getBlockState(pos);
+  protected void configurePrimed(
+      BlockState state,
+      @Nullable BlockEntity blockEntity,
+      PrimedExplosiveEntity entity) {
     if (state.isOf(this)) entity.setBlastDirection(state.get(FACING).getOpposite());
   }
 }

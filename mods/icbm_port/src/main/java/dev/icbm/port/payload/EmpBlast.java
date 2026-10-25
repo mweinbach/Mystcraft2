@@ -126,8 +126,8 @@ final class EmpBlast {
             Explosion.DestructionType.DESTROY);
     } else if (world.random.nextFloat() <= ENGINE_KILL) {
       // Upstream DeadFlightLogic: no more thrust or guidance; it falls and hits what it hits.
-      missile.configureFuel(0);
-      missile.disableByEmp(12000);
+      // A permanent engine failure, not a temporary EMP disable: impact still detonates it.
+      missile.killEngine();
     } else if (world.random.nextFloat() <= TRIGGER) {
       missile.discard();
       Payloads.detonate(world, at, missile.getPayload(), missile);

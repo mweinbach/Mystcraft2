@@ -100,7 +100,8 @@ final class EnderBlast implements BlastWork {
     world.playSound(
         null, c.x, c.y, c.z, SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.BLOCKS, 2f,
         world.random.nextFloat() * .4f + .8f);
-    if (job.age > DURATION) {
+    // The lifetime is in world ticks; a busy queue serves each job only intermittently.
+    if (job.elapsedTicks > DURATION) {
       for (int i = 0; i < 8; i++) {
         EndermanEntity enderman = EntityType.ENDERMAN.create(world);
         if (enderman == null) break;
