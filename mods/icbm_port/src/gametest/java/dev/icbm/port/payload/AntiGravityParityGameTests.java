@@ -73,6 +73,52 @@ public final class AntiGravityParityGameTests implements FabricGameTest {
     c.complete();
   }
 
+  /**
+   * A lifted block carries the rest of the field's lifetime, so it regains gravity on time by
+   * itself: a long configured field can lift more blocks than the blast tracks, and a tracked block
+   * may be unloaded when the field ends.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmBlastAntigravity")
+  public void antigravityBlocksFallOnTheirOwnFieldTimer(TestContext c) {
+    BlockPos origin = c.getAbsolutePos(new BlockPos(2, 60, 2));
+    Vec3d center = Vec3d.ofCenter(origin);
+    BlockPos floor = origin.down();
+    c.getWorld().setBlockState(floor, Blocks.DIRT.getDefaultState(), 2);
+    int duration = PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks();
+    try {
+      var job = job(c, PayloadType.ANTI_GRAVITATIONAL, center, 3, null);
+      // Served late in the field: three world ticks remain.
+      for (int tick = 0; tick < 4 && flying(c, center).isEmpty(); tick++) {
+        job.elapsedTicks = duration - 2;
+        job.tick(c.getWorld(), 512);
+      }
+      var lifted = flying(c, center);
+      check(c, lifted.size() == 1, "The dirt block must be lifted: " + lifted.size());
+      FlyingBlockEntity block = lifted.get(0);
+      check(
+          c,
+          block.gravity() == 0 && block.fieldTicks() == 3,
+          "A lifted block carries the rest of the field: " + block.fieldTicks());
+      NbtCompound saved = new NbtCompound();
+      block.writeNbt(saved);
+      var reloaded = new FlyingBlockEntity(SimulationContent.FLYING_BLOCK, c.getWorld());
+      reloaded.readNbt(saved);
+      check(c, reloaded.fieldTicks() == 3, "The field timer must survive a reload");
+      // The blast is never served again (lost track of it); the block falls by itself.
+      for (int tick = 0; tick < 2; tick++) block.tick();
+      check(c, block.gravity() == 0, "The block floats until its field runs out");
+      block.tick();
+      check(
+          c,
+          block.gravity() == FlyingBlockEntity.DEFAULT_GRAVITY && block.fieldTicks() == 0,
+          "The block must regain gravity when its field runs out");
+    } finally {
+      flying(c, center).forEach(Entity::discard);
+      c.getWorld().removeBlock(floor, false);
+    }
+    c.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmFlyingBlock")
   public void flyingBlockGravityPersistsAndImpactsHurtMobs(TestContext c) {
     BlockPos pos = c.getAbsolutePos(new BlockPos(2, 30, 2));

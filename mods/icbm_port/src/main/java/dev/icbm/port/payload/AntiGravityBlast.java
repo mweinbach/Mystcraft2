@@ -32,8 +32,9 @@ import net.minecraft.util.math.random.Random;
  * reload (it only reads the world); each tick looks at no more than {@link #SCAN_PER_TICK}
  * positions; upstream's entity box used {@code y + r} as its east edge, here it is {@code x + r};
  * blocks straight above the centre are not given a NaN push; at most {@link
- * BlastSupport#MAX_ENTITIES} entities are lifted; only lifted blocks still loaded at the end regain
- * gravity (others settle when their air time runs out, as upstream's do).
+ * BlastSupport#MAX_ENTITIES} entities are lifted; each lifted block carries the rest of the field's
+ * lifetime ({@link FlyingBlockEntity#setGravity(double, int)}) and regains gravity when it runs out,
+ * however long the field is configured to last, even if it was unloaded or never tracked.
  */
 final class AntiGravityBlast implements BlastWork {
   static final int RUNNING_TICKS = 20 * 60 * 2;
@@ -90,17 +91,25 @@ final class AntiGravityBlast implements BlastWork {
       int due =
           lastLift < 0 ? 1 : Math.max(1, Math.min(MAX_LIFT_CATCH_UP, job.elapsedTicks - lastLift));
       lastLift = job.elapsedTicks;
-      for (int i = 0; i < due; i++) lift(world, c);
+      // Each lifted block carries the rest of the field's lifetime itself, so it falls again on
+      // time however long the field is configured to last and whether or not it is tracked here.
+      int remaining = Math.max(1, fieldEnd() - job.elapsedTicks);
+      for (int i = 0; i < due; i++) lift(world, c, remaining);
     }
     pull(world, c, radius);
     // World ticks, not service calls: a busy queue serves each job only intermittently.
-    int duration = PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks();
-    if (job.elapsedTicks > Math.min(duration, GasWork.MAX_ELAPSED_TICKS - 1)) {
+    if (job.elapsedTicks >= fieldEnd()) {
       for (UUID id : lifted)
         if (world.getEntity(id) instanceof FlyingBlockEntity block) block.restoreGravity();
       return true;
     }
     return false;
+  }
+
+  /** The world tick (job age) at which the field ends and lifted blocks fall again. */
+  private static int fieldEnd() {
+    int duration = PayloadConfig.forType(PayloadType.ANTI_GRAVITATIONAL).durationTicks();
+    return Math.min(duration, GasWork.MAX_ELAPSED_TICKS - 1) + 1;
   }
 
   private static void shuffle(long[] values, Random random) {
@@ -112,7 +121,7 @@ final class AntiGravityBlast implements BlastWork {
     }
   }
 
-  private void lift(ServerWorld world, Vec3d c) {
+  private void lift(ServerWorld world, Vec3d c, int remaining) {
     if (order.length == 0) return;
     if (searchIndex >= order.length) searchIndex = 0;
     for (int scanned = 0; scanned < SCAN_PER_TICK && searchIndex < order.length; scanned++) {
@@ -128,7 +137,9 @@ final class AntiGravityBlast implements BlastWork {
         block.setSpin(50 * world.random.nextFloat(), 100 * world.random.nextFloat());
         block.setVelocity(
             dx * (1 - world.random.nextFloat()), 1, dz * (1 - world.random.nextFloat()));
-        block.setGravity(0);
+        block.setGravity(0, remaining);
+        // Tracked only to drop loaded blocks promptly when the field ends; a block past the cap
+        // still falls on its own timer.
         if (lifted.size() < MAX_TRACKED) lifted.add(block.getUuid());
         // Upstream breaks without advancing; the emptied spot is skipped next tick.
         return;
