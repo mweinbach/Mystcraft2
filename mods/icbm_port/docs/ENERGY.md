@@ -4,11 +4,15 @@ Machines and batteries use Team Reborn Energy API 2.3.0, bundled with the mod. T
 
 The battery stores 100,000 E by default and transfers up to 10,000 E per operation in either direction. It persists charge in item NBT, shows charge in its item bar/tooltip and accepts ordinary compatible Fabric energy providers. Use it on a compatible machine to insert power; sneak-use extracts power. Machine inventory slots also charge from batteries. Energy moves through Fabric transactions: aborted transfers leave both ends unchanged.
 
-Launchers expose 1,200 E per API transfer. Source bases/cruise start empty, hold 1,200 E and consume 1,200 E per successful launch. The legacy prototype retains its older capacity and initial charge. A launcher can consume redstone dust for up to 1,000 E as a documented compatibility fallback; other energy normally comes from compatible power mods. Connected launcher bases share available energy without duplication. Radar and EMP costs and buffers are listed in [DEFENSE.md](DEFENSE.md).
+Launchers expose 1,200 E per API transfer. Source bases/cruise start empty, hold 1,200 E and consume 1,200 E per successful launch. The legacy prototype retains its older capacity and initial charge. A launcher can consume redstone dust for up to 1,000 E as a documented compatibility fallback; other energy normally comes from compatible power mods. Launchers no longer move energy between each other; each base pays its own launch cost. Radar and EMP costs and buffers are listed in [DEFENSE.md](DEFENSE.md).
 
 ## What other mods see
 
-Launchers and defense machines answer `EnergyStorage.SIDED` on every side with an **insert-only** view: `supportsExtraction()` is false and `extract` returns 0. Cables, batteries and other mods can charge a machine but never drain it. The machines' own costs and launcher energy sharing use the full internal buffer.
+Launchers and defense machines answer `EnergyStorage.SIDED` on every side with an **insert-only** view: `supportsExtraction()` is false and `extract` returns 0. Cables, batteries and other mods can charge a machine but never drain it. The machines' own costs use the full internal buffer.
+
+Launcher frames, supports, screens and connectors also answer `EnergyStorage.SIDED`, with a network view adapted from MIT ICBM-Classic `content/blocks/launcher/network/NetworkEnergyStorage.java`: it is insert-only, reports the summed amount/capacity of every connected launcher base, and splits an insertion so each base is offered `floor(amount / n) + 1` (bases that are full take less; the transaction commits only what was accepted). The view is rebuilt from the bounded launcher network walk for each lookup, so nothing is cached or duplicated. Upstream's network extraction path is not reproduced.
+
+The EMP tower's buffer is dynamic (firing cost plus 100 ticks of upkeep, recomputed as its radius changes), drains its upkeep every tick, and refuses insertion while cooling down; see [DEFENSE.md](DEFENSE.md).
 
 EMP blasts also drain other mods' energy devices, as upstream EMP did. EMP payload detonations use the blast's radius (the configured EMP payload radius unless an API caller scales the blast); EMP towers use their configured range. In one Fabric transaction the blast empties:
 

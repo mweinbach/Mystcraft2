@@ -121,8 +121,11 @@ launcher upgrade recipes are port-specific. The source's launcher support recipe
 actually produces its frame; the new energy support has a separate role.
 The additional nine non-condensed bomblet recipes extend the source condensed
 casing-plus-explosive pattern; they are not published upstream recipes.
-A real `iron_plate` restores the source's `plateIron` export; its four-iron-ingot
-to four-plate recipe is a port extension analogous to the source steel recipe.
+A real `iron_plate` restores the source's `plateIron` export. Its recipe is a port
+extension: two iron ingots stacked vertically make two plates. The earlier 2×2
+four-ingot recipe shadowed the vanilla iron trapdoor (found by the Tekxit 4 probe),
+and a 1×3 row would clash with Industrial Revolution's fluid pipe in Tekxit 4;
+`ContentGameTests.ironPlateRecipeLeavesVanillaTrapdoor` guards the vanilla grid.
 Iron ingots are not mislabeled as plates in common tags.
 
 The upstream advanced/elite circuit recipes both use the basic circuit in their

@@ -15,6 +15,12 @@ import net.minecraft.world.World;
 
 public final class LauncherContent {
   public static final Identifier CONFIGURE = IcbmPort.id("launcher_configure");
+
+  /**
+   * Launcher screen packet: sync id (4), target (8), arc flag (1), channel (4), action (4), reserved
+   * (4), firing delay (4) and lock height (4).
+   */
+  public static final int CONFIGURE_PACKET_BYTES = 33;
   public static final dev.icbm.port.block.LauncherBlock BASE_TIER_1 = base(1, false),
       BASE_TIER_2 = base(2, false),
       BASE_TIER_3 = base(3, false),
@@ -49,7 +55,7 @@ public final class LauncherContent {
   public static BlockEntityType<LauncherBlockEntity> BLOCK_ENTITY;
   public static ScreenHandlerType<LauncherScreenHandler> SCREEN;
   public static final Item GPS = new TargetingItem(false),
-      LASER_DESIGNATOR = new TargetingItem(true),
+      LASER_DESIGNATOR = new LaserDetonatorItem(),
       RADIO_DETONATOR = new RadioItem();
 
   public static void register() {
@@ -84,25 +90,50 @@ public final class LauncherContent {
     Registry.register(Registry.ITEM, IcbmPort.id("gps"), GPS);
     Registry.register(Registry.ITEM, IcbmPort.id("laser_designator"), LASER_DESIGNATOR);
     Registry.register(Registry.ITEM, IcbmPort.id("radio_detonator"), RADIO_DETONATOR);
+    dev.icbm.port.radio.RadioNetwork.registerLifecycle();
+    // Upstream LauncherNetwork capabilities, reached through frames, connectors and screens.
+    team.reborn.energy.api.EnergyStorage.SIDED.registerForBlocks(
+        (world, pos, state, entity, side) -> LauncherNetworkStorage.energy(world, pos),
+        FRAME,
+        SUPPORT,
+        SCREEN_BLOCK,
+        CONNECTOR);
+    net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.registerForBlocks(
+        (world, pos, state, entity, side) -> LauncherNetworkStorage.items(world, pos),
+        FRAME,
+        SUPPORT,
+        SCREEN_BLOCK,
+        CONNECTOR);
     ServerPlayNetworking.registerGlobalReceiver(
         CONFIGURE,
         (server, player, handler, buf, response) -> {
-          if (buf.readableBytes() != 25) return;
+          if (buf.readableBytes() != CONFIGURE_PACKET_BYTES) return;
           int sync = buf.readInt();
           BlockPos target = buf.readBlockPos();
           boolean targeted = buf.readBoolean();
           int frequency = buf.readInt();
           int action = buf.readInt();
           int reserved = buf.readInt();
+          int delay = buf.readInt();
+          int lockHeight = buf.readInt();
           server.execute(
               () -> {
                 if (!validAction(action, reserved)
+                    || !validLaunchSettings(delay, lockHeight)
                     || !(player.currentScreenHandler instanceof LauncherScreenHandler screen)
                     || screen.syncId != sync
                     || !(screen.inventory instanceof LauncherBlockEntity launcher)
+                    || launcher.isRemoved()
+                    || launcher.getWorld() != player.world
+                    || !player.world.isChunkLoaded(launcher.getPos())
                     || !screen.canUse(player)
                     || player.isSpectator()) return;
-                if (!launcher.configure(target, targeted, frequency)) return;
+                // Validate everything before mutating anything.
+                if (!validTarget(player.world, launcher.getPos(), target)
+                    || frequency < 0
+                    || frequency > dev.icbm.port.radio.RadioNetwork.MAX_CHANNEL) return;
+                if (!launcher.configure(target, targeted, frequency)
+                    || !launcher.configureLaunch(delay, lockHeight)) return;
                 if (action == 1) launcher.charge();
                 if (action == 2)
                   launcher
@@ -118,11 +149,21 @@ public final class LauncherContent {
     return reserved == 0 && action >= 0 && action <= 2;
   }
 
+  /** Firing delay 0..1200 ticks and lock height 3..64 blocks; anything else fails closed. */
+  public static boolean validLaunchSettings(int delay, int lockHeight) {
+    return delay == LauncherRules.clampFiringDelay(delay)
+        && lockHeight == LauncherRules.clampLockHeight(lockHeight);
+  }
+
   @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
   public static void registerClient() {
     net.minecraft.client.gui.screen.ingame.HandledScreens.register(SCREEN, LauncherScreen::new);
   }
 
+  /**
+   * A storable target: inside the build height and world border and within the launcher's range on
+   * both X and Z (upstream {@code LauncherCapability#isTargetTooFar} is per axis, a square).
+   */
   public static boolean validTarget(World world, BlockPos launcher, BlockPos target) {
     int range =
         world.getBlockState(launcher).getBlock() instanceof dev.icbm.port.block.LauncherBlock block
@@ -130,7 +171,22 @@ public final class LauncherContent {
             : dev.icbm.port.flight.FlightSettings.current.maxRange;
     return !world.isOutOfHeightLimit(target)
         && world.getWorldBorder().contains(target)
-        && target.getSquaredDistance(launcher) <= (double) range * range;
+        && !LauncherRules.tooFar(
+            launcher.getX() + .5, launcher.getZ() + .5, target.getX() + .5, target.getZ() + .5, range);
+  }
+
+  /**
+   * Items whose own {@code useOnBlock} acts on the clicked block: the remote and laser detonators
+   * copy a radio block's channel (upstream {@code ItemRadio#onItemUse}), and the GPS and radar gun
+   * record the clicked position. Vanilla only calls {@code useOnBlock} when the block's {@code onUse}
+   * returns PASS (or the player sneaks), so machine blocks must pass these through instead of
+   * opening their screen.
+   */
+  public static boolean isBlockTool(ItemStack stack) {
+    Item item = stack.getItem();
+    return item instanceof RadioItem
+        || item instanceof TargetingItem
+        || item instanceof dev.icbm.port.defense.RadarGunItem;
   }
 
   public static void writeTarget(World world, ItemStack stack, BlockPos target) {

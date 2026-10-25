@@ -70,6 +70,16 @@ public final class DefenseMachineBlock extends BlockWithEntity {
     return kind == Kind.RADAR ? state.get(POWER) : 0;
   }
 
+  /** Upstream {@code BlockRadarStation} reports the same strong and weak signal. */
+  @Override
+  public int getStrongRedstonePower(
+      BlockState state,
+      BlockView world,
+      BlockPos pos,
+      net.minecraft.util.math.Direction direction) {
+    return getWeakRedstonePower(state, world, pos, direction);
+  }
+
   @Override
   public void onStateReplaced(
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
@@ -98,6 +108,23 @@ public final class DefenseMachineBlock extends BlockWithEntity {
       return ActionResult.FAIL;
     if (player.getStackInHand(hand).isOf(DefenseContent.EMP_TOWER_EXTENSION.asItem()))
       return ActionResult.PASS;
+    // Detonators copy this machine's channel, the GPS/radar gun record its position and batteries
+    // charge it, all in the item's useOnBlock, which vanilla only reaches if this returns PASS.
+    // Launchers already pass every item they don't consume, so this matches them.
+    var held = player.getStackInHand(hand);
+    if (dev.icbm.port.launcher.LauncherContent.isBlockTool(held)
+        || held.getItem() instanceof dev.icbm.port.energy.BatteryItem) return ActionResult.PASS;
+    // Upstream BlockRadarStation#onBlockActivated: redstone dust toggles the redstone output.
+    if (kind == Kind.RADAR && player.getStackInHand(hand).isOf(net.minecraft.item.Items.REDSTONE)) {
+      if (!world.isClient && world.getBlockEntity(pos) instanceof DefenseMachineBlockEntity machine)
+        player.sendMessage(
+            net.minecraft.text.Text.translatable(
+                machine.toggleRedstoneOutput()
+                    ? "message.icbm_port.radar.redstone_on"
+                    : "message.icbm_port.radar.redstone_off"),
+            true);
+      return ActionResult.success(world.isClient);
+    }
     if (!world.isClient && world.getBlockEntity(pos) instanceof DefenseMachineBlockEntity machine) {
       var ammo = player.getStackInHand(hand);
       if (kind == Kind.SAM

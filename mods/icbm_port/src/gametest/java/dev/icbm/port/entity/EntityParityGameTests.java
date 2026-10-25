@@ -452,7 +452,10 @@ public class EntityParityGameTests implements FabricGameTest {
     ActionableMissileEntity missile = missiles.get(0);
     check(
         context,
-        Vec3d.ofCenter(target).equals(missile.getTriggerTarget())
+        // Upstream ConditionTargetDistance reads the missile's own target, which already carries
+        // the launcher inaccuracy (LauncherCapability#applyInaccuracy), so compare against that.
+        Vec3d.ofCenter(missile.flightPlan().target()).equals(missile.getTriggerTarget())
+            && missile.getTriggerTarget().distanceTo(Vec3d.ofCenter(target)) <= 4
             && missile.getTriggerDistance() == ActionableMissileEntity.CLUSTER_TRIGGER_DISTANCE
             && !missile.hasImpactTrigger(),
         "Targeted cluster must release near the target and never on impact");

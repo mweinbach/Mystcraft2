@@ -14,20 +14,30 @@ as an insert-only view: other mods can charge a machine but cannot extract from
 it (see [ENERGY.md](ENERGY.md)). The battery slot is also reachable through
 Fabric's `ItemStorage.SIDED` lookup, so hoppers and pipes can insert or remove
 batteries. New machines start empty. Configuration buttons change detection/EMP/SAM range,
-radar trigger range, radio channel, explosive/cargo missile filters, radio/relay
-and enabled state. The SAM radar-only toggle disables autonomous scanning while
+radio channel (±1 and ±100), explosive/cargo missile
+filters, radio, radar redstone output and enabled state. The SAM radar-only toggle disables autonomous scanning while
 retaining incoming radio targeting. Server handlers validate the open container,
 player distance, block identity, spectator status, build permissions and button
 range. Battery inventory, energy, settings and cooldown persist in block NBT.
 
 Radar consumes the upstream default **1000 energy per tick**, stores 20,000,
 and scans loaded missiles every powered tick. Its initial detection range is
-100 and trigger radius 50; detection is configurable to upstream maximum 500.
-It tracks explosive and held-item missile families. Redstone reports incoming
-tracks capped at 15. Incoming classification projects velocity toward the
-trigger sphere, ignores receding flights and EMP-disabled missiles. Radar
-broadcasts an incoming UUID at most every 40 ticks on its configured channel.
-An unpowered radar clears its output; it cannot scan for free.
+100, configurable to upstream maximum 500. Upstream's radar also stores a
+trigger range (default 50) that nothing reads; the port has no such control.
+Adapted from MIT ICBM-Classic `content/blocks/radarstation/TileRadarStation.java`,
+the scan covers a full-height square column of half-width equal to the range,
+ignores missiles airborne for one tick or less, and splits the rest into
+**incoming** (their next position is closer to the radar) and merely
+**detected**, each sorted nearest first. EMP-disabled flights are never
+incoming. The radar state is OFF (unpowered or disabled), ON, WARNING
+(detections only) or DANGER (incoming). It tracks explosive missiles and, as a
+port extension, held-item cargo missiles. When redstone output is enabled the
+radar emits strong and weak power equal to the incoming count capped at 15;
+the screen's Redstone button or right-clicking the radar with redstone dust
+toggles that output, and the choice persists. With a radio channel set, the
+radar broadcasts an incoming-missile trigger naming the nearest incoming track,
+then waits 40 ticks (upstream SAM delay) before the next alert. An unpowered
+radar clears its output; it cannot scan for free.
 
 Load `sam_missile` items into the SAM station by right-clicking, or with
 hoppers and item pipes, up to 15. Automated loading goes through an
@@ -52,28 +62,37 @@ is recovered without running its tool/block interaction. Interception currently
 uses reliable neutralization instead of upstream configurable attack damage.
 
 EMP starts with upstream radius **60**, max base radius **150** and firing cost
-`radius * radius * 100`, with **200-tick cooldown**. Redstone, radio incoming
-messages or the validated Fire EMP button can request firing. It fires only
-when the complete action cost is available. Place `emp_tower_extension` blocks
-in a connected vertical column above the base: each adds upstream **20 blocks**
-of configurable maximum radius. Up to 16 extenders are supported; scans and EMP
-fields are globally capped at 512. A broken base/gap tears down orphan pieces
-with ordinary drops; removing boosters immediately lowers the range cap.
-The source's documented range-scaled upkeep was itself a TODO and is not charged
-here. The port uses a bounded 32,000,000 energy buffer for EMP/SAM, rather than
-upstream's dynamic EMP buffer. Maximum insertion is 10,000 per transfer.
+`radius * radius * 100`, with **200-tick cooldown**. Adapted from MIT
+ICBM-Classic `content/blocks/emptower/TileEMPTower.java`, its buffer is dynamic:
+capacity is the firing cost plus 100 ticks of upkeep, upkeep (`radius * 10`
+per tick) drains every tick, and the tower refuses energy while cooling down.
+Lowering the radius keeps energy above the new capacity (as upstream) and a
+reload keeps it too; only insertion stops until it drops below.
+Maximum insertion is 10,000 per transfer. Strong redstone, a radio trigger or
+the validated Fire EMP button fires it, only when the complete firing cost is
+stored. The screen shows capacity, firing cost and upkeep. Place
+`emp_tower_extension` blocks in the column above the base: every booster in the
+contiguous column of tower/booster blocks adds upstream **20 blocks** of
+maximum radius. The column scan stops after 64 blocks or 16 boosters, and EMP
+fields are capped at 512. Breaking the base leaves boosters in place but inert;
+removing boosters immediately lowers the range cap.
 
 ## Radio
 
-The loaded, per-dimension registry supports channels 1–4095; zero is unset.
-Radar sends incoming-target messages to matching receivers within 512 blocks.
-SAM receivers launch against validated targets and EMP receivers fire only when
-the target is inside their configured sphere. Optional machine relays forward
-messages from their own position. A delivery visits each receiver once, allows
-four hops and caps total deliveries at 256. Receivers are weakly referenced,
-unregister on removal and are pruned when their chunks unload; radio never
-loads chunks. These are working incoming-message/channel semantics, not the
-full upstream command vocabulary or radio GUI protocol.
+Adapted from MIT ICBM-Classic `lib/radio/RadioRegistry.java` and
+`api/radio/`, `radio/RadioNetwork` is one registry per dimension. Channels are
+integers 1–9999 (0 means unset; upstream uses string frequencies). Block
+entities register when loaded or first ticked and unregister when removed or
+unloaded; radio never loads chunks and has no distance limit inside a
+dimension. Message types are text, target, trigger, trigger-with-target and
+incoming-missile, and receivers can reply to the sender (players see replies in
+chat). One broadcast reaches at most 256 receivers and nested re-broadcasts
+stop at depth 4. Radar only sends. EMP towers fire on a trigger, or on an
+incoming-missile trigger whose missile is inside their radius, and reply when
+they fire. SAM stations (port machine) launch at the referenced missile when it
+passes their checks. Launcher behavior is described in
+[LAUNCHERS.md](LAUNCHERS.md). The older relay toggle and 512-block radius no
+longer exist.
 
 ## EMP fields and protection
 
@@ -111,13 +130,18 @@ hardness 0.3, resistance 0.6 and glass sounds.
 Defense GameTests cover sphere bounds, loaded radar output, guided SAM firing
 and exact ammunition use, persisted target/lifetime, receding-target rejection,
 wall obstruction, EMP field reload/expiry/storage/radius caps, spike effects,
-cargo missile countermeasures, configuration/energy persistence, EMP extension
-teardown/action cost and radio channel/relay isolation. Interop GameTests use
+cargo missile countermeasures, configuration/energy persistence and radio
+channel isolation. `DefenseParityGameTests` adds the radar column/age/incoming
+split, state, strong redstone and toggle persistence, delayed radar radio
+alerts, radio lifecycle registration and recursion bounds, server-side button
+validation, and EMP dynamic capacity, upkeep, cooldown refusal, booster count,
+inert orphan boosters and radio-triggered firing. Interop GameTests use
 the public lookups on placed blocks: insert succeeds and extraction fails on
 launchers and all three machines, EMP drains a test energy block and battery
 item inside its radius but not outside or when disabled, and a vanilla hopper
-and `ItemStorage.SIDED` load SAM ammunition while rejecting other items. Integration builds and dedicated-server tests passed. Radar/EMP screens were inspected in a live client at the default window size, and radar changes were confirmed after close/reopen; see VALIDATION.md.
+and `ItemStorage.SIDED` load SAM ammunition while rejecting other items. Integration builds and dedicated-server tests passed. Radar/EMP screens were inspected in a live client at the default window size before this revision; the new Redstone, ±100 channel and EMP cost lines have not yet been checked in a live client. See VALIDATION.md.
 
-Remaining upstream differences include full machine/radio GUI appearance,
-exact upstream energy buffer sizing, all radio command/message types,
-upstream ownership/faction behavior and configurable SAM attack damage.
+Remaining upstream differences include full machine/radio GUI appearance (no
+radar blip map), string radio frequencies, separate base/booster blocks with a
+bounded column scan, the held-item radar filter, upstream ownership/faction
+behavior and configurable SAM attack damage.

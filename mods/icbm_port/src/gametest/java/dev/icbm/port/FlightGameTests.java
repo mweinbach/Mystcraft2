@@ -106,26 +106,49 @@ public class FlightGameTests implements FabricGameTest {
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void energyPoolSplitsImmediately(TestContext context) {
+    // Upstream NetworkEnergyStorage: energy offered to a frame/connector is split across the
+    // connected launchers; launchers never pull from each other.
     BlockPos pos = context.getAbsolutePos(new BlockPos(2, 2, 2));
     context.getWorld().setBlockState(pos, LauncherContent.BASE_TIER_1.getDefaultState());
     context.getWorld().setBlockState(pos.east(), LauncherContent.CONNECTOR.getDefaultState());
     context.getWorld().setBlockState(pos.east(2), LauncherContent.BASE_TIER_1.getDefaultState());
-    LauncherBlockEntity receiver = (LauncherBlockEntity) context.getWorld().getBlockEntity(pos),
-        donor = (LauncherBlockEntity) context.getWorld().getBlockEntity(pos.east(2));
-    donor.energyBuffer().setAmount(1200);
-    receiver.shareEnergy();
+    LauncherBlockEntity first = (LauncherBlockEntity) context.getWorld().getBlockEntity(pos),
+        second = (LauncherBlockEntity) context.getWorld().getBlockEntity(pos.east(2));
+    var network =
+        team.reborn.energy.api.EnergyStorage.SIDED.find(
+            context.getWorld(), pos.east(), net.minecraft.util.math.Direction.UP);
+    check(context, network != null, "Connector must expose the network energy view");
+    try (var tx = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+      check(context, network.insert(2400, tx) == 2400, "Network must accept two launches");
+      check(context, network.extract(100, tx) == 0, "Network view must be insert-only");
+      tx.commit();
+    }
     check(
         context,
-        receiver.energy() == 1200 && donor.energy() == 0,
-        "Connected bases must share source-default launch energy without duplication");
-    receiver.energyBuffer().setAmount(0);
-    donor.energyBuffer().setAmount(1200);
+        first.energy() == 1200 && second.energy() == 1200,
+        "Network insertion must split evenly without duplication");
+    first.energyBuffer().setAmount(0);
+    second.energyBuffer().setAmount(0);
     context.getWorld().removeBlock(pos.east(), false);
-    receiver.shareEnergy();
     check(
         context,
-        receiver.energy() == 0 && donor.energy() == 1200,
-        "Removing connector must immediately split energy pools");
+        team.reborn.energy.api.EnergyStorage.SIDED.find(
+                context.getWorld(), pos.east(), net.minecraft.util.math.Direction.UP)
+            == null,
+        "Removing the connector must remove its network view");
+    context.getWorld().setBlockState(pos.east(), LauncherContent.FRAME.getDefaultState());
+    context.getWorld().setBlockState(pos.east(2), net.minecraft.block.Blocks.AIR.getDefaultState());
+    var alone =
+        team.reborn.energy.api.EnergyStorage.SIDED.find(
+            context.getWorld(), pos.east(), net.minecraft.util.math.Direction.UP);
+    try (var tx = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+      alone.insert(2400, tx);
+      tx.commit();
+    }
+    check(
+        context,
+        first.energy() == 1200,
+        "A split network must only charge the launchers still connected");
     context.complete();
   }
 }

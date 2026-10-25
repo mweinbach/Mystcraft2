@@ -15,7 +15,7 @@ public final class LauncherScreenHandler extends ScreenHandler {
   public final PropertyDelegate properties;
 
   public LauncherScreenHandler(int id, PlayerInventory player) {
-    this(id, player, new SimpleInventory(2), new ArrayPropertyDelegate(11));
+    this(id, player, new SimpleInventory(2), new ArrayPropertyDelegate(LauncherBlockEntity.PROPERTY_COUNT));
   }
 
   public LauncherScreenHandler(
@@ -37,8 +37,8 @@ public final class LauncherScreenHandler extends ScreenHandler {
         });
     for (int row = 0; row < 3; row++)
       for (int col = 0; col < 9; col++)
-        addSlot(new Slot(player, col + row * 9 + 9, 8 + col * 18, 145 + row * 18));
-    for (int col = 0; col < 9; col++) addSlot(new Slot(player, col, 8 + col * 18, 203));
+        addSlot(new Slot(player, col + row * 9 + 9, 8 + col * 18, 163 + row * 18));
+    for (int col = 0; col < 9; col++) addSlot(new Slot(player, col, 8 + col * 18, 221));
     addProperties(properties);
   }
 

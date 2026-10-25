@@ -145,6 +145,18 @@ public final class DeliveryContent {
       net.minecraft.util.math.Vec3d muzzle,
       net.minecraft.util.math.Vec3d velocity,
       net.minecraft.util.math.BlockPos target) {
+    return launchHeldEntity(world, owner, ammo, muzzle, velocity, target, 3);
+  }
+
+  /** As above, climbing to {@code lockHeight} before turning (a launcher's lock-height setting). */
+  public static HeldItemMissileEntity launchHeldEntity(
+      net.minecraft.world.World world,
+      net.minecraft.entity.Entity owner,
+      net.minecraft.item.ItemStack ammo,
+      net.minecraft.util.math.Vec3d muzzle,
+      net.minecraft.util.math.Vec3d velocity,
+      net.minecraft.util.math.BlockPos target,
+      int lockHeight) {
     if (world.isClient || !isLoadedHeldMissile(ammo)) return null;
     HeldItemMissileEntity missile = new HeldItemMissileEntity(HELD_MISSILE, world);
     missile.setOwner(owner);
@@ -152,6 +164,7 @@ public final class DeliveryContent {
     missile.setPosition(muzzle);
     missile.setVelocity(velocity);
     if (target != null) {
+      missile.flightPlan().setLockHeight(lockHeight);
       try {
         missile.configureTarget(target);
       } catch (IllegalArgumentException ignored) {

@@ -1,6 +1,7 @@
 package dev.icbm.port.defense;
 
 import dev.icbm.port.energy.*;
+import dev.icbm.port.radio.RadioMessage;
 import dev.icbm.port.radio.RadioNetwork;
 import java.util.*;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
@@ -25,32 +26,70 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.*;
 
 /**
- * Persistent configuration, battery slot, energy and radio receiver for defense machines.
+ * Persistent configuration, battery slot, energy and radio for defense machines.
+ *
+ * <p>Radar station: adapted from MIT ICBM-Classic {@code content/blocks/radarstation/
+ * TileRadarStation.java} and {@code RadioRadar.java} with {@code config/machines/ConfigRadar.java}
+ * defaults. EMP tower: adapted from {@code content/blocks/emptower/TileEMPTower.java}, {@code
+ * RadioEmpTower.java} and {@code config/machines/ConfigEmpTower.java}. The SAM station is a port
+ * machine (upstream fires SAMs from launchers) that reuses the same radio receiver contract.
  *
  * <p>The battery slot is a separate {@link Inventory} rather than this block entity: hoppers only
  * use {@code ItemStorage.SIDED} for targets that are not inventories, and that lookup is how the
  * SAM station's ammunition counter accepts {@code sam_missile} items from hoppers and pipes.
  */
 public final class DefenseMachineBlockEntity extends BlockEntity
-    implements EnergyMachine, NamedScreenHandlerFactory, RadioNetwork.Receiver {
+    implements EnergyMachine,
+        NamedScreenHandlerFactory,
+        RadioNetwork.Receiver,
+        RadioNetwork.Sender {
+  // ConfigRadar defaults.
+  public static final int RADAR_MAX_RANGE = 500,
+      RADAR_CAPACITY = 20_000,
+      RADAR_COST = 1_000,
+      RADAR_SCAN_TICKS = 1,
+      RADAR_SAM_TICKS = 40;
+  // ConfigEmpTower defaults.
+  public static final int EMP_BONUS_RADIUS = 20,
+      EMP_COST_AREA = 100,
+      EMP_COST_TICKING = 10,
+      EMP_COST_TICKING_CAP = 100,
+      EMP_COOLDOWN = 200,
+      EMP_INPUT = 10_000,
+      EMP_MAX_BASE_RANGE = 150,
+      EMP_MAX_EXTENSIONS = 16;
+  /** Upper bound on scanned column height (port bound; upstream walks the column unbounded). */
+  public static final int EMP_MAX_COLUMN = 64;
+
+  /** Upstream {@code EnumRadarState}. */
+  public enum RadarState {
+    ON,
+    OFF,
+    WARNING,
+    DANGER
+  }
+
   private final DefaultedList<ItemStack> items = DefaultedList.ofSize(1, ItemStack.EMPTY);
   private final BatterySlot batterySlot = new BatterySlot();
   private final SamAmmoStorage samAmmo = new SamAmmoStorage();
   private final EnergyBuffer energy;
-  private int range, triggerRange = 50, channel, cooldown, tracks;
+  private int range, channel, cooldown;
   private boolean explosiveFilter = true,
       heldFilter = true,
       radioEnabled = true,
-      relay,
+      outputRedstone = true,
       radarOnly,
       enabled = true;
   private int radioCooldown;
+  private final List<Entity> detectedThreats = new ArrayList<>();
+  private final List<Entity> incomingThreats = new ArrayList<>();
+  private RadarState radarState = RadarState.OFF;
   private int visualFlags, visualYaw, lastSentVisualFlags = -1, lastSentVisualYaw;
   private long lastVisualSync = Long.MIN_VALUE, visualTargetUntil;
 
   /**
    * Read-only synchronized rendering state: ready=1, cooling=2, incoming=4, disabled=8,
-   * tracking=16.
+   * tracking=16, warning=32.
    */
   public int visualFlags() {
     return visualFlags;
@@ -66,15 +105,17 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     boolean ready =
         !disabled
             && switch (kind()) {
-              case RADAR -> energy.getAmount() >= 1000;
-              case EMP -> cooldown == 0 && energy.getAmount() >= (long) range * range * 100;
+              case RADAR -> energy.getAmount() >= RADAR_COST;
+              case EMP -> cooldown == 0 && energy.getAmount() >= empFiringCost();
               case SAM -> getCachedState().get(DefenseMachineBlock.POWER) > 0;
             };
+    boolean radar = kind() == DefenseMachineBlock.Kind.RADAR;
     return (ready ? 1 : 0)
         | (cooldown > 0 ? 2 : 0)
-        | (kind() == DefenseMachineBlock.Kind.RADAR && tracks > 0 ? 4 : 0)
+        | (radar && radarState == RadarState.DANGER ? 4 : 0)
         | (disabled ? 8 : 0)
-        | (world.getTime() < visualTargetUntil ? 16 : 0);
+        | (world.getTime() < visualTargetUntil ? 16 : 0)
+        | (radar && radarState == RadarState.WARNING ? 32 : 0);
   }
 
   private void syncVisual() {
@@ -111,12 +152,20 @@ public final class DefenseMachineBlockEntity extends BlockEntity
         kind() == DefenseMachineBlock.Kind.EMP
             ? 60
             : kind() == DefenseMachineBlock.Kind.SAM ? 30 : 100;
-    energy =
-        new EnergyBuffer(
-            kind() == DefenseMachineBlock.Kind.RADAR ? 20_000 : 32_000_000,
-            10_000,
-            32_000_000,
-            this::markDirty);
+    if (kind() == DefenseMachineBlock.Kind.EMP) {
+      // Upstream TileEMPTower: capacity = firing cost + ticking cost * 100 ticks, receive limit
+      // 10,000 per action and no receiving while cooling down.
+      energy =
+          new EnergyBuffer(32_000_000, EMP_INPUT, 32_000_000, this::markDirty)
+              .withDynamicCapacity(() -> empFiringCost() + empTickingCost() * EMP_COST_TICKING_CAP)
+              .withInsertCondition(() -> cooldown <= 0);
+    } else
+      energy =
+          new EnergyBuffer(
+              kind() == DefenseMachineBlock.Kind.RADAR ? RADAR_CAPACITY : 32_000_000,
+              10_000,
+              32_000_000,
+              this::markDirty);
   }
 
   public DefenseMachineBlock.Kind kind() {
@@ -125,16 +174,36 @@ public final class DefenseMachineBlockEntity extends BlockEntity
 
   public int maximumRange() {
     return kind() == DefenseMachineBlock.Kind.EMP
-        ? Math.min(512, 150 + extensions() * 20)
-        : kind() == DefenseMachineBlock.Kind.SAM ? 128 : 500;
+        ? Math.min(512, EMP_MAX_BASE_RANGE + extensions() * EMP_BONUS_RADIUS)
+        : kind() == DefenseMachineBlock.Kind.SAM ? 128 : RADAR_MAX_RANGE;
   }
 
+  /** Upstream {@code TileEMPTower#getFiringCost}: range squared times the area cost. */
+  public long empFiringCost() {
+    return (long) range * range * EMP_COST_AREA;
+  }
+
+  /** Upstream {@code TileEMPTower#getTickingCost}: range times the ticking cost, per tick. */
+  public long empTickingCost() {
+    return (long) range * EMP_COST_TICKING;
+  }
+
+  /**
+   * Upstream {@code TileEMPTower#updateStructure}: walk the contiguous column of EMP tower blocks
+   * above the base and count the boosters ("fake" tower cells) in it. Upstream's base and fake cells
+   * are one block with two metadata values; here they are {@code emp_tower} and {@code
+   * emp_tower_extension}, so both continue the column and only extensions count.
+   */
   public int extensions() {
     if (world == null || kind() != DefenseMachineBlock.Kind.EMP) return 0;
     int count = 0;
-    while (count < 16
-        && world.isChunkLoaded(pos.up(count + 1))
-        && world.getBlockState(pos.up(count + 1)).isOf(DefenseContent.EMP_TOWER_EXTENSION)) count++;
+    for (int height = 1; height <= EMP_MAX_COLUMN && count < EMP_MAX_EXTENSIONS; height++) {
+      BlockPos above = pos.up(height);
+      if (!world.isChunkLoaded(above)) break;
+      BlockState state = world.getBlockState(above);
+      if (state.isOf(DefenseContent.EMP_TOWER_EXTENSION)) count++;
+      else if (!state.isOf(DefenseContent.EMP_TOWER)) break;
+    }
     return count;
   }
 
@@ -151,37 +220,26 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       DefenseMachineBlockEntity machine) {
     if (!(world instanceof ServerWorld server)) return;
     try {
-      RadioNetwork.register(server, machine);
+      if (!RadioNetwork.isRegistered(server, machine)) RadioNetwork.register(server, machine);
+      if (machine.kind() == DefenseMachineBlock.Kind.EMP) {
+        // Upstream drains the ticking upkeep every tick before anything else.
+        machine.energy.drain(machine.empTickingCost());
+      }
       EnergyContent.chargeFromBattery(machine.batterySlot, 0, machine.energy, 10_000);
       if (machine.cooldown > 0) {
         machine.cooldown--;
         machine.markDirty();
       }
-      if (machine.radioCooldown > 0) machine.radioCooldown--;
       machine.range = MathHelper.clamp(machine.range, 1, machine.maximumRange());
       if (!machine.enabled || DefenseContent.isEmpDisabled(world, pos)) {
+        machine.clearTracks();
         machine.output(0);
         return;
       }
-      if (machine.kind() == DefenseMachineBlock.Kind.RADAR) {
-        if (!machine.energy.consume(1000)) {
-          machine.tracks = 0;
-          machine.output(0);
-          return;
-        }
-        var detected =
-            DefenseContent.trackedMissiles(world, Vec3d.ofCenter(pos), machine.range).stream()
-                .filter(machine::accepts)
-                .toList();
-        machine.tracks = detected.size();
-        var incoming = detected.stream().filter(entity -> machine.incoming(entity)).toList();
-        machine.output(Math.min(15, incoming.size()));
-        if (!incoming.isEmpty() && machine.radioCooldown == 0) {
-          RadioNetwork.broadcast(server, machine, incoming.get(0).getUuid());
-          machine.radioCooldown = 40;
-        }
-      } else if (machine.kind() == DefenseMachineBlock.Kind.EMP) {
-        if (machine.cooldown == 0 && world.isReceivingRedstonePower(pos)) machine.fireEmp();
+      if (machine.kind() == DefenseMachineBlock.Kind.RADAR) machine.radarTick(server);
+      else if (machine.kind() == DefenseMachineBlock.Kind.EMP) {
+        if (machine.cooldown == 0 && world.getReceivedStrongRedstonePower(pos) > 0)
+          machine.fireEmp();
       } else if (!machine.radarOnly
           && world.isReceivingRedstonePower(pos)
           && machine.cooldown == 0) {
@@ -197,17 +255,108 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     }
   }
 
-  private boolean incoming(Entity entity) {
-    if (DefenseContent.isFlightDisabled(entity)) return false;
-    Vec3d station = Vec3d.ofCenter(pos),
-        motion = entity.getVelocity(),
-        delta = station.subtract(entity.getPos());
-    if (motion.lengthSquared() < 1e-8) return delta.lengthSquared() <= triggerRange * triggerRange;
-    double time = delta.dotProduct(motion) / motion.lengthSquared();
-    return time >= 0
-        && time <= 2400
-        && entity.getPos().add(motion.multiply(time)).squaredDistanceTo(station)
-            <= triggerRange * triggerRange;
+  /** Upstream {@code TileRadarStation#update}. */
+  private void radarTick(ServerWorld server) {
+    if (!energy.consume(RADAR_COST)) {
+      clearTracks();
+      output(0);
+      return;
+    }
+    if (server.getTime() % RADAR_SCAN_TICKS == 0) scan();
+    if (radioEnabled && RadioNetwork.validChannel(channel) && !incomingThreats.isEmpty()) {
+      if (radioCooldown > 0) radioCooldown--;
+      if (radioCooldown <= 0) {
+        radioCooldown = RADAR_SAM_TICKS;
+        Entity first = incomingThreats.get(0);
+        RadioNetwork.broadcast(
+            server,
+            this,
+            new RadioMessage.IncomingMissile(channel, first.getUuid(), first.getPos(), true));
+        markDirty();
+      }
+    }
+    radarState = incomingThreats.isEmpty()
+        ? detectedThreats.isEmpty() ? RadarState.ON : RadarState.WARNING
+        : RadarState.DANGER;
+    output(outputRedstone ? Math.min(15, incomingThreats.size()) : 0);
+  }
+
+  private void clearTracks() {
+    incomingThreats.clear();
+    detectedThreats.clear();
+    radarState = RadarState.OFF;
+  }
+
+  /**
+   * Upstream {@code TileRadarStation#doScan}: every loaded explosive missile (and, as a port
+   * extension, held-item cargo missile) inside a square column of half-width {@code min(range,
+   * 500)} that has been airborne for more than one tick is either incoming (moving closer) or merely
+   * detected; both lists are sorted nearest first by block-distance sum.
+   */
+  void scan() {
+    incomingThreats.clear();
+    detectedThreats.clear();
+    if (world == null) return;
+    double half = Math.min(range, RADAR_MAX_RANGE);
+    double cx = pos.getX() + 0.5, cz = pos.getZ() + 0.5;
+    Box column =
+        new Box(cx - half, world.getBottomY(), cz - half, cx + half, world.getTopY(), cz + half);
+    for (Entity entity :
+        world.getEntitiesByClass(
+            Entity.class,
+            column,
+            e -> DefenseContent.isTrackedMissile(e) && !e.isRemoved() && accepts(e))) {
+      if (entity.age <= 1) continue;
+      if (isMissileGoingToHit(entity)) incomingThreats.add(entity);
+      else detectedThreats.add(entity);
+    }
+    Comparator<Entity> nearest = Comparator.comparingInt(this::blockDistance);
+    incomingThreats.sort(nearest);
+    detectedThreats.sort(nearest);
+  }
+
+  private int blockDistance(Entity entity) {
+    return (int) Math.floor(Math.abs(pos.getX() + 0.5 - entity.getX()))
+        + (int) Math.floor(Math.abs(pos.getY() + 0.5 - entity.getY()))
+        + (int) Math.floor(Math.abs(pos.getZ() + 0.5 - entity.getZ()));
+  }
+
+  /**
+   * Upstream {@code TileRadarStation#isMissileGoingToHit}: the missile is incoming when its next
+   * position is closer to the radar than its current one. EMP-disabled flights are never incoming
+   * (port rule: they have no guidance left).
+   */
+  public boolean isMissileGoingToHit(Entity entity) {
+    if (entity == null || entity.isRemoved() || DefenseContent.isFlightDisabled(entity))
+      return false;
+    Vec3d radar = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+    Vec3d now = entity.getPos();
+    return now.add(entity.getVelocity()).distanceTo(radar) < now.distanceTo(radar);
+  }
+
+  public RadarState radarState() {
+    return radarState;
+  }
+
+  public List<Entity> incomingThreats() {
+    return List.copyOf(incomingThreats);
+  }
+
+  public List<Entity> detectedThreats() {
+    return List.copyOf(detectedThreats);
+  }
+
+  public boolean outputsRedstone() {
+    return outputRedstone;
+  }
+
+  /** Upstream right-click-with-redstone toggle on the radar block. */
+  public boolean toggleRedstoneOutput() {
+    if (kind() != DefenseMachineBlock.Kind.RADAR) return false;
+    outputRedstone = !outputRedstone;
+    if (!outputRedstone) output(0);
+    markDirty();
+    return outputRedstone;
   }
 
   private void output(int power) {
@@ -218,22 +367,30 @@ public final class DefenseMachineBlockEntity extends BlockEntity
           pos, getCachedState().with(DefenseMachineBlock.POWER, power), Block.NOTIFY_ALL);
   }
 
+  /** Upstream {@code TileEMPTower#fire}: requires no cooldown and the full area cost. */
   public boolean fireEmp() {
     if (!(world instanceof ServerWorld)
         || kind() != DefenseMachineBlock.Kind.EMP
         || !enabled
         || cooldown > 0) return false;
-    long cost = (long) range * range * 100;
-    if (!energy.consume(cost)) return false;
+    if (!energy.consume(empFiringCost())) return false;
     DefenseContent.applyEmp(world, Vec3d.ofCenter(pos), range);
     EmpEnergyDrain.drain(
         (ServerWorld) world,
         Vec3d.ofCenter(pos),
         range,
         dev.icbm.port.payload.PayloadConfig.empEnergyDrain());
-    cooldown = 200;
+    cooldown = EMP_COOLDOWN;
     markDirty();
     return true;
+  }
+
+  public int cooldown() {
+    return cooldown;
+  }
+
+  public int range() {
+    return range;
   }
 
   public boolean fireSam(Entity target) {
@@ -264,30 +421,35 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     return true;
   }
 
+  /** Highest server button id accepted by {@link #configure(int)}. */
+  public static final int MAX_BUTTON = 14;
+
   public boolean configure(int button) {
     switch (button) {
       case 0 -> range -= 10;
       case 1 -> range += 10;
-      case 2 -> triggerRange -= 10;
-      case 3 -> triggerRange += 10;
       case 4 -> channel--;
       case 5 -> channel++;
       case 6 -> explosiveFilter = !explosiveFilter;
       case 7 -> heldFilter = !heldFilter;
       case 8 -> radioEnabled = !radioEnabled;
-      case 9 -> relay = !relay;
+      case 9 -> {
+        if (kind() != DefenseMachineBlock.Kind.RADAR) return false;
+        toggleRedstoneOutput();
+      }
       case 10 -> {
         return fireEmp();
       }
       case 11 -> enabled = !enabled;
       case 12 -> radarOnly = !radarOnly;
+      case 13 -> channel -= 100;
+      case 14 -> channel += 100;
       default -> {
         return false;
       }
     }
     range = MathHelper.clamp(range, 1, maximumRange());
-    triggerRange = MathHelper.clamp(triggerRange, 1, range);
-    channel = MathHelper.clamp(channel, 0, 4095);
+    channel = MathHelper.clamp(channel, 0, RadioNetwork.MAX_CHANNEL);
     markDirty();
     return true;
   }
@@ -296,27 +458,32 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     return new PropertyDelegate() {
       @Override
       public int size() {
-        return 15;
+        return PROPERTY_COUNT;
       }
 
       @Override
       public int get(int index) {
         return switch (index) {
           case 0 -> range;
-          case 1 -> triggerRange;
+          case 1 -> 0; // upstream trigger range: stored but never read there; not ported
           case 2 -> channel;
           case 3 -> explosiveFilter ? 1 : 0;
           case 4 -> heldFilter ? 1 : 0;
           case 5 -> radioEnabled ? 1 : 0;
-          case 6 -> relay ? 1 : 0;
+          case 6 -> outputRedstone ? 1 : 0;
           case 7 -> cooldown;
-          case 8 -> tracks;
+          case 8 -> detectedThreats.size() + incomingThreats.size();
           case 9 -> (int) (energy.getAmount() / 1000);
           case 10 -> kind().ordinal();
           case 11 -> maximumRange();
           case 12 -> enabled ? 1 : 0;
           case 13 -> extensions();
           case 14 -> radarOnly ? 1 : 0;
+          case 15 -> radarState.ordinal();
+          case 16 -> incomingThreats.size();
+          case 17 -> (int) (energy.getCapacity() / 1000);
+          case 18 -> kind() == DefenseMachineBlock.Kind.EMP ? (int) empTickingCost() : 0;
+          case 19 -> kind() == DefenseMachineBlock.Kind.EMP ? (int) (empFiringCost() / 1000) : 0;
           default -> 0;
         };
       }
@@ -325,6 +492,8 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       public void set(int index, int value) {}
     };
   }
+
+  public static final int PROPERTY_COUNT = 20;
 
   @Override
   public BlockPos radioPosition() {
@@ -340,27 +509,47 @@ public final class DefenseMachineBlockEntity extends BlockEntity
   public boolean radioEnabled() {
     return enabled
         && radioEnabled
-        && channel > 0
+        && RadioNetwork.validChannel(channel)
         && world != null
         && !DefenseContent.isEmpDisabled(world, pos);
   }
 
+  /**
+   * Upstream {@code RadioEmpTower#onMessage}: an incoming-missile message with its trigger set
+   * fires when the missile is inside the configured range; any other trigger message fires
+   * outright. Radars only send ({@code RadioRadar}). SAM stations (port machine) launch at the
+   * referenced missile.
+   */
   @Override
-  public boolean receive(RadioNetwork.Incoming message) {
-    if (!radioEnabled() || channel != message.channel() || !(world instanceof ServerWorld server))
-      return false;
-    Entity target = server.getEntity(message.target());
-    if (target != null && DefenseContent.isTrackedMissile(target) && accepts(target)) {
-      if (kind() == DefenseMachineBlock.Kind.SAM) fireSam(target);
-      else if (kind() == DefenseMachineBlock.Kind.EMP
-          && target.squaredDistanceTo(Vec3d.ofCenter(pos)) <= (double) range * range) fireEmp();
+  public void onMessage(RadioNetwork.Sender sender, RadioMessage message) {
+    if (!(world instanceof ServerWorld server) || !radioEnabled()) return;
+    switch (kind()) {
+      case RADAR -> {}
+      case EMP -> {
+        if (message instanceof RadioMessage.IncomingMissile incoming) {
+          if (!incoming.shouldTrigger()) return;
+          Entity missile = server.getEntity(incoming.missile());
+          if (missile != null && DefenseContent.isTrackedMissile(missile) && !accepts(missile))
+            return;
+          Vec3d at = missile != null ? missile.getPos() : incoming.position();
+          if (at.distanceTo(Vec3d.ofCenter(pos)) < range && fireEmp())
+            RadioNetwork.reply(sender, this, "message.icbm_port.radio.emp_fired");
+        } else if (message.shouldTrigger() && fireEmp())
+          RadioNetwork.reply(sender, this, "message.icbm_port.radio.emp_fired");
+      }
+      case SAM -> {
+        if (message instanceof RadioMessage.IncomingMissile incoming) {
+          Entity target = server.getEntity(incoming.missile());
+          if (target != null && DefenseContent.isTrackedMissile(target) && accepts(target))
+            fireSam(target);
+        }
+      }
     }
-    return relay;
   }
 
   @Override
   public void markRemoved() {
-    if (world instanceof ServerWorld server) RadioNetwork.remove(server, pos);
+    if (world instanceof ServerWorld server) RadioNetwork.remove(server, this);
     super.markRemoved();
   }
 
@@ -519,38 +708,39 @@ public final class DefenseMachineBlockEntity extends BlockEntity
   public void writeNbt(NbtCompound nbt) {
     super.writeNbt(nbt);
     Inventories.writeNbt(nbt, items);
-    energy.writeNbt(nbt);
     nbt.putInt("Range", range);
-    nbt.putInt("Trigger", triggerRange);
+    energy.writeNbt(nbt);
     nbt.putInt("Channel", channel);
     nbt.putInt("Cooldown", cooldown);
     nbt.putBoolean("ExplosiveFilter", explosiveFilter);
     nbt.putBoolean("HeldFilter", heldFilter);
     nbt.putBoolean("RadioEnabled", radioEnabled);
-    nbt.putBoolean("Relay", relay);
+    nbt.putBoolean("OutputRedstone", outputRedstone);
     nbt.putBoolean("Enabled", enabled);
     nbt.putBoolean("RadarOnly", radarOnly);
+    nbt.putInt("SamDelay", radioCooldown);
   }
 
   @Override
   public void readNbt(NbtCompound nbt) {
     if (nbt.getBoolean("DefenseVisual")) {
-      visualFlags = nbt.getInt("VisualFlags") & 31;
+      visualFlags = nbt.getInt("VisualFlags") & 63;
       visualYaw = MathHelper.clamp(nbt.getInt("VisualYaw"), -180, 180);
       return;
     }
     super.readNbt(nbt);
     Inventories.readNbt(nbt, items);
-    energy.readNbt(nbt);
+    // Range first: the EMP tower's energy capacity depends on it.
     range = MathHelper.clamp(nbt.getInt("Range"), 1, 512);
-    triggerRange = MathHelper.clamp(nbt.getInt("Trigger"), 1, 500);
-    channel = MathHelper.clamp(nbt.getInt("Channel"), 0, 4095);
-    cooldown = MathHelper.clamp(nbt.getInt("Cooldown"), 0, 200);
+    cooldown = MathHelper.clamp(nbt.getInt("Cooldown"), 0, EMP_COOLDOWN);
+    energy.readNbt(nbt);
+    channel = MathHelper.clamp(nbt.getInt("Channel"), 0, RadioNetwork.MAX_CHANNEL);
     explosiveFilter = !nbt.contains("ExplosiveFilter") || nbt.getBoolean("ExplosiveFilter");
     heldFilter = !nbt.contains("HeldFilter") || nbt.getBoolean("HeldFilter");
     radioEnabled = !nbt.contains("RadioEnabled") || nbt.getBoolean("RadioEnabled");
-    relay = nbt.getBoolean("Relay");
+    outputRedstone = !nbt.contains("OutputRedstone") || nbt.getBoolean("OutputRedstone");
     radarOnly = nbt.getBoolean("RadarOnly");
     enabled = !nbt.contains("Enabled") || nbt.getBoolean("Enabled");
+    radioCooldown = MathHelper.clamp(nbt.getInt("SamDelay"), 0, RADAR_SAM_TICKS);
   }
 }

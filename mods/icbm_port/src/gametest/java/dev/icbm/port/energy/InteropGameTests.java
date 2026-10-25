@@ -90,7 +90,7 @@ public final class InteropGameTests implements FabricGameTest {
     var launcher = (LauncherBlockEntity) c.getWorld().getBlockEntity(pos);
     checkInsertOnly(c, pos, launcher.energyBuffer(), "Launcher");
 
-    // Connected launchers still share energy internally.
+    // ICBM's own launch cost still draws from the buffer directly.
     BlockPos donorPos = pos.east();
     c.getWorld().setBlockState(donorPos, LauncherContent.BASE_TIER_1.getDefaultState());
     var donor = (LauncherBlockEntity) c.getWorld().getBlockEntity(donorPos);
@@ -99,7 +99,7 @@ public final class InteropGameTests implements FabricGameTest {
       check(
           c,
           donor.energyBuffer().extract(600, tx) == 600,
-          "ICBM's own launcher sharing must still extract from the buffer");
+          "ICBM's own launch costs must still extract from the buffer");
     }
     c.complete();
   }

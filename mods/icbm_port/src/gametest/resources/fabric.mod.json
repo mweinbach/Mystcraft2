@@ -30,6 +30,8 @@
       "dev.icbm.port.entity.EntityParityGameTests",
       "dev.icbm.port.entity.FlightStateMachineGameTests",
       "dev.icbm.port.payload.BlastLightBeamGameTests",
+      "dev.icbm.port.defense.DefenseParityGameTests",
+      "dev.icbm.port.launcher.LauncherParityGameTests",
       "dev.icbm.port.MissileGameTests",
       "dev.icbm.port.ContentGameTests",
       "dev.icbm.port.energy.EnergyGameTests",

@@ -1,5 +1,94 @@
 # Validation — 0.2.0-alpha.4
 
+## Review fixes and final stack validation (October 25, 2026)
+
+Codex review findings on the stack, fixed on the layer that introduced each one and re-run on every layer. Dedicated-server and offline checks only; no client was launched.
+
+- Gas clouds end at the saturated 72,000-tick job clock (`GasParityGameTests.maximumDurationCloudExpiresWhenClockSaturates`).
+- Explosive fragment bursts also respect the shared fragment cap (`FragmentBlastTest`, 2 JUnit tests).
+- Chain-primed breaching and ender charges keep their facing and GPS target. `CondensedExplosiveBlock` captures the replaced state and block entity, because both vanilla explosions and the staged blasts clear the block before `onDestroyedByExplosion` (`UtilityBlastParityGameTests.chainPrimedChargesKeepTheirConfiguration`).
+- Sonic blasts start their radius-call lifetime only after ray collection finishes (`ConventionalBlastParityGameTests.sonicWaitsForSlowRayCollectionBeforeExpiring`). The existing sonic test now allows contended collection; that limit was the CI failure on #158/#159.
+- Antigravity and ender lifetimes count world ticks (`job.elapsedTicks`), not queue service calls.
+- An EMP engine kill is a persistent `engineFailed` state: the missile falls, but still detonates on impact (`MissileGameTests.engineKilledMissileStillDetonatesOnImpact`).
+- Direct rocket-launcher cluster aim points are limited to the 300-block flight range (`EntityParityGameTests.directClusterAimPointIsWithinFlightRange`).
+- Bomblets can be targeted by players, so the defuser can reach them. The defuser test now raycasts each target the way crosshair selection does.
+
+Second review round (queue contention). `QueueState.tick()` serves at most eight jobs per world tick, so any timer that counted service calls stretched under load (towards ~3,200 world ticks at the 256-job cap). Every timer, delay, lifetime and countdown in the blast queue, payloads and entities was audited:
+
+- Now counted in world ticks (`job.elapsedTicks`): the beam's 100-tick phase-2 delay, the sonic wave (radius calls, with removal passes caught up), ender particle/flash cadence and the antigravity lift rate (caught up, at most 32 lifts per service). Antigravity and ender lifetimes, gas clouds and legacy red matter already used `elapsedTicks`.
+- Not affected: TNT, fire, breaching and thermal have no waits; EMP is instant; `Scar.ticks` and the fallout cursor are statistics and work cursors, not timers. Entities (light beam, missiles, grenades, bomblets, cargo, redmatter, flight ledger) and block-entity tickers (launcher countdown, radio cooldown) tick every world tick, outside the queue.
+- `QueueContentionGameTests` (2) run the beam, ender and sonic blasts behind 14–15 never-ending filler jobs and check that each finishes within a few world ticks of its nominal time.
+- Cluster discs stay perpendicular to diagonal and pitched headings; later discs stack back along the flight path (`ClusterBurstTest`, now 5 JUnit tests).
+- A targeted launcher applies its lock height to held-item missiles too (`LauncherParityGameTests.heldItemMissileUsesLauncherLockHeight`).
+
+Third review round:
+
+- Virtual flight carries non-player riders. A mob on a missile (off-hand lead, launcher seat) used to make `FlightLedger.tryCapture` refuse, so the missile was discarded at the exit height (and held-item ammunition hovered there). Riders whose types can be saved now travel inside the flight snapshot and reenter on the missile. Player riders, and riders that cannot be saved, keep physical flight as before. Capture refuses if the snapshot is missing any rider, and removes the live riders so none is left at altitude (`EntityParityGameTests.longRangeMissileCarriesMobThroughVirtualFlight`, `longRangeHeldItemMissileCarriesMobThroughVirtualFlight`: 400-block flights from launch to reentry). A held-item missile that the ledger cannot admit now drops its casing and cargo instead of hovering.
+- Reentry waits until the destination chunk is entity-ticking. A ticket-loaded chunk reports loaded before that, and an entity spawned in between was hidden: it did not tick or resolve by UUID, so the ticket sweep dropped its ticket. This applied to riderless long-range flights too; the two tests above cover it.
+- Audit of the other capture and hand-off paths: cluster and actionable missiles are `MissileEntity` subclasses and take the same path; launcher seat riders move onto the missile before its first tick; an EMP-killed engine clears the flight plan, so the missile falls physically and is never captured; bomblets, cargo balloons and grenades are not flight-tracked.
+- Exothermic conversion of the block below a stone or aggregate block checks that target too (loaded, in bounds, breakable), so bedrock is never replaced (`BeamBlastParityGameTests.exothermicNeverConvertsUnbreakableBlocksBelow`).
+- Sonic removal passes are time-sliced with a persisted cursor; the blast ends only after the last pass (`ConventionalBlastParityGameTests.sonicRemovalPassIsTimeSliced`).
+- Staged flight uses the launcher's per-axis range square, so a diagonal target a tiered base accepts also launches, for missiles and held-item ammunition, and survives a save (`LauncherParityGameTests.diagonalTargetInsideRangeSquareLaunches`).
+
+Fourth review round (flight state machine). Instead of fixing one mid-flight case at a time, every flight stage was checked against every mid-flight event, and the decisions are recorded as one table in DELIVERY.md, "Flight state machine":
+
+- Riders are reconciled every guided tick through the single rule `FlightLedger.capturable`. An ASCENT that picks up a rider virtual flight cannot carry (a player boarding mid-climb, the review case) re-plans to the physical arc from where it is instead of climbing until its 12,000-tick lifetime ends. LOCK_HEIGHT picks ASCENT or ARC with the same rule, and DESCENT is never re-captured.
+- Retargeting is rejected once a missile is past WARMUP (`StagedFlight.configure`), or for an untargeted missile that has already flown (`MissileEntity.configureTarget`).
+- `FlightStateMachineGameTests.flightStateMachineTable` drives the risky cells as one table (boarding in ASCENT by a player, explosive and held-item; boarding by a mob; a rider dying; an ARC above the exit height losing its player; boarding in DESCENT; an engine kill; retargeting on the pad and in CLIMB; blast damage; a leashed mob boarding). Every tick it also round-trips each live missile through NBT, covering saves in every stage.
+- Explosive fragments credit their owner for explosion damage (`FragmentParityGameTests.explosiveFragmentSplashCreditsItsOwner`).
+- A fragment that breaks glass, leaves or a snow layer keeps its speed and air time instead of sticking and dislodging slowly, so it still hits what is behind (`FragmentParityGameTests.fragmentPassesThroughGlassAndHitsTheMobBehind`). It is the only projectile in the stack with pass-through blocks. Bomblets, grenades, held-item and launcher missiles detonate or recover on any block hit.
+- Lifted antigravity blocks carry the rest of the field's lifetime themselves, so a field configured longer than 2,400 ticks no longer leaves untracked blocks floating (`AntiGravityParityGameTests.antigravityBlocksFallOnTheirOwnFieldTimer`).
+- Launcher inaccuracy cannot push a target that was accepted at the range edge out of the flight bounds, so a ready launcher no longer fails at random (`LauncherParityGameTests.inaccuracyKeepsRangeEdgeTargetsFlyable`).
+- EMP tower energy kept above a shrunken capacity survives a reload (`DefenseParityGameTests.empTowerKeepsOverCapacityEnergyAcrossReload`).
+
+Fifth review round (configuration audit). The EMP blast's own battery drains ignored `emp_energy_drain.enabled`, so every config toggle and limit was checked against every code path the stack added:
+
+- Fixed on parity 2: `EmpBlast` drains batteries in block-entity inventories and dropped items only when `emp_energy_drain` is enabled, within its `maxBlocks` (at most 1,024 inventories) and `maxEntities` caps. Creepers, primed explosives, missiles, smoke, sound and the EMP field are unchanged (`InteropGameTests.empBlastKeepsBatteriesButStillPulsesWhenDrainDisabled`).
+- Fixed on parity 2: `Payloads.EMP_HANDLERS` are typed `EmpHandler(world, center, radius)` and receive the blast's size. The drain handler and defence field used the configured EMP radius (50) even for a smaller API-scaled EMP; the same test checks an energy block outside the blast but inside 50 blocks keeps its charge. Parity 4's `PrimedExplosiveEntity.empKill` takes the same radius (`DeliveryParityGameTests.empRemovesPrimedExplosivesWithoutDetonating`).
+- Fixed on parity 2: `TntBlast` (condensed, repulsive, attractive) ignored the payload `energy` setting after the upstream ray rewrite. Ray energy now scales by configured over default energy. At the defaults it is identical to upstream, and it never exceeds 80 (`ConventionalBlastParityGameTests.tntRayEnergyFollowsTheEnergySetting`).
+- Fixed on parity 5: the radar's trigger-range buttons changed and saved a setting nothing read, because the upstream-algorithm radar (`isMissileGoingToHit`) replaced the old trigger-range alert. Upstream stores the same field and never reads it either, so the port drops the control: the screen hides it, `configure(2/3)` is rejected and it is not saved (`DefenseParityGameTests.radarSeparatesIncomingFromDetected`).
+- Checked, no change needed:
+  - Every delivery path (blocks, carts, grenades, bomblets, missiles, cluster bursts, EMP-triggered payloads, API actions) goes through `Payloads.dispatch`, which checks `enabled`; queued jobs re-check it live. `detonateScaled` rejects sizes above the type's maximum radius.
+  - Fragment counts are bounded by `fragments` (or an explicit size) and the 64 grid and world caps. `entityDamage`, `durationTicks` and `energy` reach thermal, breach, fragment, red matter, antigravity, smoke, gas and colour work. Every activation uses the configured block, cart and grenade fuses.
+  - Delivery properties: cargo, held and cluster lists are checked on loading, launch and impact. `held.blockDamageMultiplier`, `held.genericInteractions`, `balloon.liftTicks` and the cluster sizes are honoured.
+  - `icbm-flight.json` `maxRange` is enforced by every launcher fire (`LauncherBlock.check`) and by `StagedFlight.inBounds` for every configured target, including rocket-launcher and held-item missiles. The ticket settings are used only by `FlightLedger`.
+  - Exposure, spike damage and battery settings each have a single consumer. The EMP tower drains through `EmpEnergyDrain` with the toggle. Machine ranges are clamped every tick.
+  - The config has no blast block-damage toggle; the only block-damage setting is `held.blockDamageMultiplier`. Nuclear aftermath fallout and mutation remain upstream's unconditional sub-blasts (unchanged from main).
+
+Sixth review round (tool interactions, parity 5 only). `DefenseMachineBlock.onUse` opened the machine screen for every held item, so a non-sneaking detonator click on a radar, EMP tower or SAM station never reached `RadioItem.useOnBlock` and could not copy the channel. Every block `onUse` in the stack was audited against the items with a `useOnBlock`:
+
+- Fixed: defence machines return PASS for the remote and laser detonators, GPS, radar gun (`LauncherContent.isBlockTool`) and batteries, as launchers already did. Radar redstone toggling and SAM loading are unchanged (`LauncherParityGameTests.detonatorPairsWithDefenseMachinesWithoutSneaking` runs vanilla's `onUse`-then-`useOnBlock` order with a non-sneaking player on all three machines with both detonators and the GPS).
+- Fixed: launcher frames, supports, screens and connectors consumed every item, so the GPS and radar gun could not record them. They now pass the same tools through (same test). A detonator used on a component (not a radio) then behaves as on any other non-radio block.
+- Checked, no change needed: launcher bases (including the cruise launcher) already pass items they do not use. Condensed explosives only act on flint and steel or fire charges. The ender explosive deliberately takes a recorded GPS/radar-gun target, as upstream. Bomb carts and batteries act only on rails and energy blocks.
+
+CI timing (parity 4). `EntityParityGameTests.longRangeMissileCarriesMobThroughVirtualFlight` timed out on CI after "Can't keep up!". Its arc flies about 85 blocks east before capture, over chunks nothing kept entity-ticking, and the reentry chunk was generated asynchronously. The rider-flight tests now hold their own entity-ticking tickets along the climb, generate the target area up front and launch once the climb ticks entities; `FlightStateMachineGameTests` starts its table once every lane ticks entities. Three consecutive EMI/JEI/REI runs at parity 4 passed (194/194).
+
+| Check | Result |
+| --- | --- |
+| Layer GameTests (`runGametest`) | Fifth round: parity 2 **155**, parity 4 **194** (Item Alchemy/ProjectE), parity 3 **180** (EMI/JEI/REI). Fourth round: parity 1 **128**, parity 2 **153**, parity 3 **178**, parity 4 **192** (EMI/JEI/REI). Third round: parity 2 **150**, parity 3 **172** (EMI/JEI/REI). Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
+| Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **35** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **215** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **215** passed |
+| Stack tip `runMaterialGametest` | Passed (1/1) |
+| `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
+| `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+
+## Machine, launcher network and radio parity (October 25, 2026)
+
+Branch `icbm/parity-5-machines-radio`, rebased onto the delivery/item, seat/actionable-missile, blast and gas work. Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run, so the revised launcher/defense screens (delay/lock fields, status text, radar Redstone and ±100 channel buttons, EMP cost lines) are not yet visually checked.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** recorded before the review fixes (superseded by the 34-test run above), including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 212-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
+| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 212-test run above |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
+| `python3 tools/validate_resources.py <client jar>`, `tools/check_payload_visuals.py` | Passed |
+| `python3 -m unittest discover -s tools/tests` | 10 passed |
+| Repository `ports.py check`, `emc.py check`, `scripts/tests` (155, 3 skipped), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+
+The two radar parity tests run in their own batch (`pr5RadarParity`). In the default batch they had failed: the radar scans a full-height column of half-width 100, which covers neighbouring GameTest structures, so other fixtures' missiles changed the incoming count and nearest track. A temporary copy of the original strict assertions at the original height passed once isolated, confirming the cause; the kept tests also compare against the radar's own lists.
+
 ## Delivery and item parity (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run. Run after rebasing onto the gas/fragment, blast and seat/actionable-missile/defense work.

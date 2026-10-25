@@ -38,6 +38,19 @@ public final class LauncherNetwork {
     return result;
   }
 
+  /**
+   * Upstream {@code TileLauncherScreen#fireAllLaunchers}: fire every launcher in the network as one
+   * salvo, each with the salvo size as its inaccuracy launcher count. Returns how many accepted.
+   */
+  public static int fireAll(net.minecraft.server.world.ServerWorld world, BlockPos origin) {
+    List<LauncherBlockEntity> launchers = LauncherNetworkStorage.launchers(world, origin);
+    int accepted = 0;
+    for (LauncherBlockEntity launcher : launchers)
+      if (launcher.launcherBlock().fire(world, launcher.getPos(), launchers.size()).accepted())
+        accepted++;
+    return accepted;
+  }
+
   public static boolean canUse(World world, BlockPos launcher, PlayerEntity player) {
     if (player.squaredDistanceTo(launcher.getX() + .5, launcher.getY() + .5, launcher.getZ() + .5)
         <= 64) return true;
