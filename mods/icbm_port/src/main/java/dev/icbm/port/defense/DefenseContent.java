@@ -84,13 +84,7 @@ public final class DefenseContent {
         DefenseMachineBlockEntity::itemStorage, MACHINE_BLOCK_ENTITY);
     block("emp_tower_extension", EMP_TOWER_EXTENSION);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("sam_interceptor"), SAM_INTERCEPTOR);
-    dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(
-        (world, pos) ->
-            applyEmp(
-                world,
-                pos,
-                dev.icbm.port.payload.PayloadConfig.forType(dev.icbm.port.payload.PayloadType.EMP)
-                    .radius()));
+    dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(DefenseContent::applyEmp);
     dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(
         dev.icbm.port.energy.EmpEnergyDrain.PAYLOAD_HANDLER);
     block("radar_station", RADAR_STATION);

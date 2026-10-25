@@ -36,6 +36,33 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
     c.complete();
   }
 
+  /** The TNT family's {@code energy} setting scales its rays; the defaults keep upstream's. */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void tntRayEnergyFollowsTheEnergySetting(TestContext c) throws java.io.IOException {
+    for (PayloadType type :
+        new PayloadType[] {PayloadType.CONDENSED, PayloadType.REPULSIVE, PayloadType.ATTRACTIVE})
+      check(c, TntBlast.energyScale(type) == 1f, type + " default energy must keep upstream rays");
+    java.nio.file.Path config =
+        net.fabricmc.loader.api.FabricLoader.getInstance()
+            .getConfigDir()
+            .resolve("icbm_port")
+            .resolve("payloads.json");
+    String original = java.nio.file.Files.readString(config);
+    float scaled;
+    try {
+      java.nio.file.Files.writeString(
+          config, "{\"" + PayloadType.CONDENSED.id() + "\":{\"energy\":12}}");
+      PayloadConfig.reload();
+      scaled = TntBlast.energyScale(PayloadType.CONDENSED);
+    } finally {
+      java.nio.file.Files.writeString(config, original);
+      PayloadConfig.reload();
+    }
+    check(c, scaled == 2f, "Doubling condensed energy must double its ray energy: " + scaled);
+    check(c, TntBlast.energyScale(PayloadType.CONDENSED) == 1f, "Restored config must reset it");
+    c.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmBlastCondensed")
   public void condensedBreaksWeakBlocksSparesObsidianAndHurtsMobs(TestContext c) {
     BlockPos origin = c.getAbsolutePos(new BlockPos(2, 4, 2));

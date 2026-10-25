@@ -23,6 +23,10 @@ import org.jetbrains.annotations.Nullable;
  * left are destroyed with a {@code 1 / blastRadius} drop chance after entities are damaged
  * (condensed) or pushed (repulsive/attractive).
  *
+ * <p>The payload's {@code energy} setting scales the ray energy ({@link #energyScale}); at its
+ * default the rays start with upstream's {@code blastRadius * (0.7..1.3)}, and the scaled energy
+ * never exceeds {@link PayloadType#MAX_RADIUS}.
+ *
  * <p>Port differences: collection is time-sliced on the server thread (normally finishing in the
  * detonation tick), unloaded chunks stop a ray instead of loading, and at most {@link
  * BlastSupport#MAX_ENTITIES} entities are affected.
@@ -56,11 +60,12 @@ final class TntBlast implements BlastWork {
   @Override
   public boolean tick(ServerWorld world, Payloads.Job job, int budget) {
     float blastRadius = BlastSupport.blastRadius(size);
+    float rayEnergy = Math.min(PayloadType.MAX_RADIUS, blastRadius * energyScale(type));
     int total = RAYS_PER_AXIS * RAYS_PER_AXIS * RAYS_PER_AXIS, units = 0;
     while (ray < total && (units < budget || BlastBudget.hasTime(world))) {
       Vec3d direction = cubeRay(RAYS_PER_AXIS, ray++);
       if (direction == null) continue;
-      units += march(world, job.center, direction, blastRadius);
+      units += march(world, job.center, direction, rayEnergy);
     }
     if (ray < total) return false;
     Entity source = job.source.resolve(world);
@@ -87,8 +92,17 @@ final class TntBlast implements BlastWork {
     return destroyed >= order.length;
   }
 
-  private int march(ServerWorld world, Vec3d center, Vec3d step, float blastRadius) {
-    float energy = blastRadius * (.7f + world.random.nextFloat() * .6f);
+  /**
+   * The payload's configured {@code energy} relative to its default (6 condensed, 2 repulsive and
+   * attractive), so the default matches upstream's ray energy of the blast radius.
+   */
+  static float energyScale(PayloadType type) {
+    double base = PayloadDefaults.forType(type).energy();
+    return base > 0 ? (float) (PayloadConfig.forType(type).energy() / base) : 1f;
+  }
+
+  private int march(ServerWorld world, Vec3d center, Vec3d step, float rayEnergy) {
+    float energy = rayEnergy * (.7f + world.random.nextFloat() * .6f);
     double x = center.x, y = center.y, z = center.z;
     int steps = 0;
     BlockPos.Mutable pos = new BlockPos.Mutable();

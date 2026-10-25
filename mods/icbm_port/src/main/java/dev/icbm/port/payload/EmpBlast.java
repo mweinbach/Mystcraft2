@@ -40,6 +40,12 @@ import team.reborn.energy.api.EnergyStorage;
  * Payloads#EMP_HANDLERS} then drain energy blocks and player/entity inventories ({@code
  * energy/EmpEnergyDrain}) and raise the defence EMP field (machines, SAMs and surviving missiles).
  *
+ * <p>Every energy drain here obeys the {@code emp_energy_drain} section of {@code payloads.json}
+ * ({@link PayloadConfig#empEnergyDrain()}): when it is disabled no battery loses energy, and its
+ * {@code maxBlocks}/{@code maxEntities} caps bound the drained block inventories and dropped items.
+ * The non-energy effects (creepers, primed explosives, missiles, smoke, sound, EMP field) do not
+ * depend on it.
+ *
  * <p>Port differences: upstream's empty-by-default block swap list is not ported; block entities
  * are found per loaded chunk (nearest {@link #MAX_BLOCK_ENTITIES}) instead of probing every cube
  * position; at most {@link BlastSupport#MAX_ENTITIES} entities are affected; a missile whose payload
@@ -63,9 +69,10 @@ final class EmpBlast {
       @Nullable Entity source,
       dev.icbm.port.api.ActionSource attribution) {
     BlockPos origin = new BlockPos(center);
-    tiles(world, origin, size);
-    entities(world, origin, size);
-    for (var handler : Payloads.EMP_HANDLERS) handler.accept(world, center);
+    PayloadConfig.EmpEnergyDrain drain = PayloadConfig.empEnergyDrain();
+    tiles(world, origin, size, drain.enabled() ? Math.min(MAX_BLOCK_ENTITIES, drain.maxBlocks()) : 0);
+    entities(world, origin, size, drain.enabled() ? drain.maxEntities() : 0);
+    for (var handler : Payloads.EMP_HANDLERS) handler.apply(world, center, size);
     world.playSound(
         null, center.x, center.y, center.z, SoundEvents.BLOCK_BEACON_DEACTIVATE,
         SoundCategory.BLOCKS, 4f,
@@ -73,12 +80,14 @@ final class EmpBlast {
     return true;
   }
 
-  private static void tiles(ServerWorld world, BlockPos origin, int size) {
+  /** Smoke over the area, then drains the nearest {@code maxInventories} block inventories. */
+  private static void tiles(ServerWorld world, BlockPos origin, int size, int maxInventories) {
     for (int i = 0; i < Math.min(256, size * 4); i++) {
       double x = origin.getX() + world.random.nextInt(2 * size + 1) - size + .5;
       double z = origin.getZ() + world.random.nextInt(2 * size + 1) - size + .5;
       world.spawnParticles(ParticleTypes.LARGE_SMOKE, x, origin.getY() + .5, z, 1, 0, 0, 0, 0);
     }
+    if (maxInventories <= 0) return;
     List<BlockEntity> found = new ArrayList<>();
     for (int cx = (origin.getX() - size) >> 4; cx <= (origin.getX() + size - 1) >> 4; cx++)
       for (int cz = (origin.getZ() - size) >> 4; cz <= (origin.getZ() + size - 1) >> 4; cz++) {
@@ -95,13 +104,15 @@ final class EmpBlast {
       }
     found.sort(
         java.util.Comparator.comparingDouble(be -> be.getPos().getSquaredDistance(origin)));
-    for (int i = 0; i < Math.min(found.size(), MAX_BLOCK_ENTITIES); i++)
+    for (int i = 0; i < Math.min(found.size(), maxInventories); i++)
       drain((Inventory) found.get(i));
   }
 
-  private static void entities(ServerWorld world, BlockPos origin, int size) {
+  /** Entity effects; at most {@code maxItems} dropped items (nearest first) lose their energy. */
+  private static void entities(ServerWorld world, BlockPos origin, int size, int maxItems) {
     Vec3d c = Vec3d.of(origin);
     Box box = new Box(origin.add(-size, -size, -size), origin.add(size, size, size));
+    int items = 0;
     for (Entity entity : BlastSupport.entities(world, box, c, e -> true)) {
       if (entity instanceof CreeperEntity creeper) {
         LightningEntity lightning = EntityType.LIGHTNING_BOLT.create(world);
@@ -111,8 +122,12 @@ final class EmpBlast {
           creeper.onStruckByLightning(world, lightning);
         }
       } else if (entity instanceof PrimedExplosiveEntity) entity.discard();
-      else if (entity instanceof ItemEntity item) drain(item);
-      else if (entity instanceof MissileEntity missile) missile(world, missile);
+      else if (entity instanceof ItemEntity item) {
+        if (items < maxItems) {
+          items++;
+          drain(item);
+        }
+      } else if (entity instanceof MissileEntity missile) missile(world, missile);
     }
   }
 

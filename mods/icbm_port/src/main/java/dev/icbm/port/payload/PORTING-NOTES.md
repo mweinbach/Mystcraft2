@@ -58,8 +58,9 @@ chain-prime. Upstream typos are not reproduced: antigravity's entity box used
 Rot uses the queue's cube cursor with `ExposureContent.replace`; mutation converts
 mobs in the radius cube immediately. Both default to upstream's size 3 and ender to
 20 (config version 3). Nuclear completion queues radius-80 fallout and mutation.
-EMP calls the registered `Payloads.EMP_HANDLERS` after its own block-entity and
-entity pass. Antimatter cancels nearby redmatter singularities.
+EMP calls the registered `Payloads.EMP_HANDLERS` with its own size after its own
+block-entity and entity pass; its battery drains, like the handler's, obey the
+`emp_energy_drain` toggle and caps. Antimatter cancels nearby redmatter singularities.
 
 Placed breaching charges face the clicked side and drive into it; the primed
 charge saves that direction (`Facing`). Carriers use their velocity, or a living
@@ -132,11 +133,11 @@ The file carries `config_version` (now 3). On load, a version-1 file whose antim
 | entityDamage |0–2147483647| Condensed, fragments, breach, thermobaric/nuclear pulse (`energy × entityDamage`), antimatter/redmatter |
 | fragments |0–128| Shrapnel, anvil, fragmentation |
 | durationTicks |0–72000| Gas, smoke, antigravity (default 2,400), singularity |
-| energy |0–20000| Breaching line energy, thermobaric/nuclear ray energy, fragmentation explosion size |
+| energy |0–20000| Condensed/repulsive/attractive ray energy scale (relative to the defaults 6/2, at most 80), breaching line energy, thermobaric/nuclear ray energy, fragmentation explosion size |
 | blockFuseTicks/cartFuseTicks/grenadeFuseTicks |0–72000| New corresponding delivery activations |
 
-Queued radius, initial ray energy and captured block lift are snapshots; enabled,
-damage and field durations are checked live. Existing primed fuses retain their
+Queued radius and captured block lift are snapshots; enabled, damage, ray energy
+and field durations are checked live. Existing primed fuses retain their
 assigned value. Unused fields remain in the uniform schema. Fragmentation bursts
 still use vanilla power capped16 and immediate collision traces rather than the
 upstream moving explosive-fragment entity. Source-specific sounds, custom

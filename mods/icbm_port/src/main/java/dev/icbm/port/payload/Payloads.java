@@ -264,11 +264,17 @@ public final class Payloads {
         .5f);
   }
 
+  /** An EMP sub-effect, applied with the radius of the EMP blast that triggered it. */
+  @FunctionalInterface
+  public interface EmpHandler {
+    void apply(ServerWorld world, Vec3d center, double radius);
+  }
+
   /**
    * Defense integrations register here; avoids a hard dependency on optional technology systems.
+   * {@link EmpBlast} calls each with its own size, so a scaled EMP's sub-effects match its blast.
    */
-  public static final List<java.util.function.BiConsumer<ServerWorld, Vec3d>> EMP_HANDLERS =
-      new ArrayList<>();
+  public static final List<EmpHandler> EMP_HANDLERS = new ArrayList<>();
 
   private static boolean loaded(ServerWorld w, BlockPos p) {
     return !w.isOutOfHeightLimit(p) && w.getWorldBorder().contains(p) && w.isChunkLoaded(p);

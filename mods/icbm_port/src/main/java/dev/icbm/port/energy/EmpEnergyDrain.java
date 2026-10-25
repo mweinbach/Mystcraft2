@@ -1,11 +1,9 @@
 package dev.icbm.port.energy;
 
 import dev.icbm.port.payload.PayloadConfig;
-import dev.icbm.port.payload.PayloadType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.BiConsumer;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -49,14 +47,9 @@ public final class EmpEnergyDrain {
     Direction.EAST
   };
 
-  /** Registered in {@code Payloads.EMP_HANDLERS}; uses the EMP payload radius and live config. */
-  public static final BiConsumer<ServerWorld, Vec3d> PAYLOAD_HANDLER =
-      (world, center) ->
-          drain(
-              world,
-              center,
-              PayloadConfig.forType(PayloadType.EMP).radius(),
-              PayloadConfig.empEnergyDrain());
+  /** Registered in {@code Payloads.EMP_HANDLERS}; uses the EMP blast's radius and live config. */
+  public static final dev.icbm.port.payload.Payloads.EmpHandler PAYLOAD_HANDLER =
+      (world, center, radius) -> drain(world, center, radius, PayloadConfig.empEnergyDrain());
 
   /** Storages that lost energy and the total energy removed. */
   public record Result(int blocks, int items, long energy) {
