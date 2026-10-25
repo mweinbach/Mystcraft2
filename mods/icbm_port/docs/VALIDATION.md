@@ -1,5 +1,23 @@
 # Validation — 0.2.0-alpha.4
 
+## Delivery and item parity (October 25, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run. Run after rebasing onto the gas/fragment, blast and seat/actionable-missile/defense work.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **26** passed, including the new `ClusterBurstTest` (4 tests: ActionCluster disc geometry for horizontal and vertical headings, per-layer rotation/speed-up, bounded random spread, projectile yaw/pitch convention) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **177** required GameTests passed, 0 failed |
+| `./gradlew :icbm_port:runGametest -PwithEmi -PwithJei -PwithRei` | All **177** passed, 0 failed |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
+| `python3 tools/validate_resources.py <client jar>` | 673 JSON files, 1,899 references, 140 enabled fixed recipes, 7 optional recipes disabled standalone; `tools/check_payload_visuals.py` passed |
+| `python3 -m unittest discover -s tools/tests` | 10 passed |
+| Repository `ports.py check` (12 ports), `scripts/tests` (155, 3 skipped), `emc.py check`, `check_mixin_member_names.py`, `check_unmapped_overrides.py`, Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+
+New `DeliveryParityGameTests` (14): grenade fuse from config and full duration; grenade throw vector and consumption; primed explosive pop and fuse; chain reaction using the payload block fuse; explosive placed beside fire primes burning; EMP removes primed explosives without detonating; defuser disarms thrown grenades and primed explosives; bomblets ignore damage and use upstream ballistics; cluster volume and heading; balloon air-kill release; handheld stack sizes and no launcher wear; ballistic cluster aims 20 blocks above the target; radar gun stores a point and configures a launcher; dungeon chests carry upstream components. Existing `DeliveryGameTests` and `ContentGameTests` assertions were updated for the two-tick grenade fuse check, unbounded launcher durability, the 200-bomblet hard cap, the 88/89 volume fill and the uniform 0–9 sulfur drop. `SmokeGameTests.smokeDeliveriesLeaveSmokeEntities` now ticks a one-tick grenade and primed charge twice, matching upstream's fuse + 1 detonation. `ballisticClusterAimsAboveTarget` expects the `ActionableMissileEntity` cluster flight, whose release uses the same `ClusterBurst` geometry as silo clusters.
+
+These checks do not cover multiplayer presentation, client rendering of thrown/primed entities or the rocket launcher behaviours still listed as partial in [PARITY.md](PARITY.md).
+
 ## Seats, light beams, actionable missiles and defense blocks (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.

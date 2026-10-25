@@ -76,6 +76,8 @@ public final class SmokeGameTests implements FabricGameTest {
     grenade.setNoGravity(true);
     grenade.setPosition(grenadeAt);
     c.getWorld().spawnEntity(grenade);
+    // Upstream timing: a fuse of N ticks detonates on tick N + 1.
+    grenade.tick();
     grenade.tick();
     check(c, grenade.isRemoved(), "Grenade must detonate");
     check(c, smokeNear(c, grenadeAt).size() == 1, "Smoke grenade must leave one smoke entity");
@@ -87,6 +89,7 @@ public final class SmokeGameTests implements FabricGameTest {
     primed.setNoGravity(true);
     primed.setPosition(primedAt);
     c.getWorld().spawnEntity(primed);
+    primed.tick();
     primed.tick();
     check(c, primed.isRemoved(), "Primed smoke block must detonate");
     check(c, smokeNear(c, primedAt).size() == 1, "Smoke block must leave one smoke entity");

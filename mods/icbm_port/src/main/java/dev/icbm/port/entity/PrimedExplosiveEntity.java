@@ -15,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public final class PrimedExplosiveEntity extends Entity implements FlyingItemEntity {
@@ -62,19 +63,41 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
     dataTracker.set(FUSE, Math.max(0, Math.min(fuse, 72000)));
   }
 
+  /**
+   * Upstream {@code EntityExplosive(World, Pos, EnumFacing, ItemStack)} launch: a small random
+   * horizontal drift and a 0.2 upward pop.
+   */
+  public void applyPrimePop() {
+    float angle = (float) (random.nextDouble() * Math.PI * 2.0D);
+    setVelocity(-Math.sin(angle) * 0.02F, 0.20000000298023224D, -Math.cos(angle) * 0.02F);
+  }
+
+  /** Detonation point: upstream {@code posY + 0.5}, the middle of the 0.98-block body. */
+  public net.minecraft.util.math.Vec3d detonationPoint() {
+    return getPos().add(0, 0.5, 0);
+  }
+
+  /**
+   * Physics and fuse adapted from MIT ICBM-Classic {@code content/entity/EntityExplosive.java}:
+   * 0.95 horizontal drag and 0.045 gravity applied before the move, 0.7/-0.5 ground bounce, and
+   * {@code fuse-- < 1}, so a fuse of N ticks detonates on tick N + 1 (zero detonates on the first
+   * tick). Upstream also offsets X/Z by 0.5 when detonating; that offset places the blast on a
+   * block edge and is not reproduced.
+   */
   @Override
   public void tick() {
     super.tick();
-    if (!hasNoGravity()) setVelocity(getVelocity().add(0, -0.04, 0));
+    Vec3d motion = getVelocity().multiply(0.95, 1, 0.95);
+    if (!hasNoGravity()) motion = motion.add(0, -0.045, 0);
+    setVelocity(motion);
     move(MovementType.SELF, getVelocity());
-    setVelocity(getVelocity().multiply(0.98));
     if (onGround) setVelocity(getVelocity().multiply(0.7, -0.5, 0.7));
     if (!world.isClient) {
-      setFuse(getFuse() - 1);
-      if (getFuse() <= 0) {
+      int fuse = getFuse();
+      if (fuse < 1) {
         discard();
-        Payloads.detonate(world, getPos(), getPayload(), this);
-      }
+        Payloads.detonate(world, detonationPoint(), getPayload(), this);
+      } else setFuse(fuse - 1);
     } else {
       world.addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0, 0, 0);
       // Upstream EntityExplosive: burning fuses for the heat payloads.
@@ -110,6 +133,38 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
       net.minecraft.util.Identifier dimension, net.minecraft.util.math.BlockPos position) {
     enderDimension = dimension;
     enderPosition = position;
+  }
+
+  /** Upstream {@code canBeCollidedWith}: players can target (and defuse) a primed explosive. */
+  @Override
+  public boolean canHit() {
+    return !isRemoved();
+  }
+
+  /** Upstream {@code canBePushed}. */
+  @Override
+  public boolean isPushable() {
+    return true;
+  }
+
+  /**
+   * Upstream {@code CapabilityEmpKill}: an EMP removes primed explosives without detonating them.
+   */
+  public static void registerEmpKill() {
+    Payloads.EMP_HANDLERS.add(PrimedExplosiveEntity::empKill);
+  }
+
+  /** Removes primed explosives within the EMP blast's {@code radius} of {@code center}. */
+  public static void empKill(
+      net.minecraft.server.world.ServerWorld world, Vec3d center, double blastRadius) {
+    double radius = Math.min(512, blastRadius);
+    if (!(radius > 0)) return;
+    world
+        .getEntitiesByClass(
+            PrimedExplosiveEntity.class,
+            new net.minecraft.util.math.Box(center, center).expand(radius),
+            e -> e.squaredDistanceTo(center) <= radius * radius)
+        .forEach(Entity::discard);
   }
 
   @Override

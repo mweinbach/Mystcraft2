@@ -487,27 +487,64 @@ public class EntityParityGameTests implements FabricGameTest {
 
   // ---- Virtual flight with riders (review) -----------------------------------------------------
 
+  /** Blocks east of the pad the 400-block test arc covers before capture (85), with margin. */
+  private static final int CLIMB_BLOCKS = 128;
+
+  private static final net.minecraft.server.world.ChunkTicketType<java.util.UUID> FLIGHT_PATH =
+      net.minecraft.server.world.ChunkTicketType.create(
+          "icbm_port_gametest_flight", java.util.UUID::compareTo);
+
   /**
    * Review fix: a long-range ballistic flight carrying a mob reaches the virtual-flight boundary.
    * The mob must travel inside the flight snapshot and reenter on the missile, not be discarded at
    * altitude or stall the missile there.
+   *
+   * <p>Lag-proof: the test counts its own ticks, but an entity only ticks in an entity-ticking
+   * chunk. The arc travels about 85 blocks east before it reaches the exit height, over chunks
+   * nothing guaranteed to be entity-ticking (neighbouring test areas usually were), a busy server
+   * promotes chunks late, and the reentry chunk 400 blocks away is generated asynchronously. On CI
+   * that ate the 1200-tick limit after "Can't keep up!". So the test holds its own entity-ticking
+   * tickets along the climb, generates the target area up front on the server thread, and launches
+   * (by {@code launch}) only once the whole climb ticks entities.
    */
   private void assertRiderSurvivesVirtualFlight(
-      TestContext c, net.minecraft.entity.Entity missile, String kind) {
+      TestContext c,
+      BlockPos start,
+      BlockPos target,
+      java.util.function.Supplier<net.minecraft.entity.Entity> launch,
+      String kind) {
     var world = c.getWorld();
-    PigEntity pig = pig(c, missile.getBlockPos());
-    check(c, pig.startRiding(missile, true), kind + ": pig must mount the missile");
-    var missileId = missile.getUuid();
-    var pigId = pig.getUuid();
+    for (int dx = -2; dx <= 2; dx++)
+      for (int dz = -2; dz <= 2; dz++)
+        world.getChunk((target.getX() >> 4) + dx, (target.getZ() >> 4) + dz);
+    java.util.UUID holder = java.util.UUID.randomUUID();
+    List<net.minecraft.util.math.ChunkPos> climb = new java.util.ArrayList<>();
+    for (int x = start.getX() >> 4; x <= (start.getX() + CLIMB_BLOCKS) >> 4; x++)
+      climb.add(new net.minecraft.util.math.ChunkPos(x, start.getZ() >> 4));
+    // Radius 2 is ticket level 31: entity-ticking at each chunk of the climb.
+    climb.forEach(chunk -> world.getChunkManager().addTicket(FLIGHT_PATH, chunk, 2, holder));
+    net.minecraft.entity.Entity[] missile = {null};
+    PigEntity[] pig = {null};
     boolean[] captured = {false};
     c.runAtEveryTick(
         () -> {
+          if (missile[0] == null) {
+            for (var chunk : climb)
+              if (!world.shouldTickEntity(chunk.getCenterAtY(start.getY()))) return;
+            missile[0] = launch.get();
+            check(c, missile[0] != null, kind + " must launch");
+            pig[0] = pig(c, missile[0].getBlockPos());
+            check(c, pig[0].startRiding(missile[0], true), kind + ": pig must mount the missile");
+            return;
+          }
+          var missileId = missile[0].getUuid();
+          var pigId = pig[0].getUuid();
           var ledger = dev.icbm.port.flight.FlightLedger.get(world);
           if (!captured[0]) {
-            if (!missile.isRemoved()) {
+            if (!missile[0].isRemoved()) {
               check(
                   c,
-                  missile.getPassengerList().contains(pig),
+                  missile[0].getPassengerList().contains(pig[0]),
                   kind + ": the mob fell off before the boundary");
               return;
             }
@@ -535,37 +572,51 @@ public class EntityParityGameTests implements FabricGameTest {
               kind + ": the mob must reenter riding the missile");
           check(
               c,
-              Math.abs(reentry.getX() - (c.getAbsolutePos(BlockPos.ORIGIN).getX() + 402.5)) < 2,
+              Math.abs(reentry.getX() - (target.getX() + .5)) < 2,
               kind + ": reentry must be above the target");
           rider.discard();
           reentry.discard();
+          climb.forEach(chunk -> world.getChunkManager().removeTicket(FLIGHT_PATH, chunk, 2, holder));
           c.complete();
         });
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1200)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 2400)
   public void longRangeMissileCarriesMobThroughVirtualFlight(TestContext c) {
     var world = c.getWorld();
     BlockPos start = c.getAbsolutePos(new BlockPos(2, 2, 2));
-    MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
-    missile.setPosition(Vec3d.ofBottomCenter(start));
     // ~400 blocks: under ARC_DISTANCE_LIMIT, so the physical arc climbs through the exit height.
-    missile.configureTarget(start.east(400));
-    check(c, world.spawnEntity(missile), "Missile must spawn");
-    assertRiderSurvivesVirtualFlight(c, missile, "Missile");
+    BlockPos target = start.east(400);
+    assertRiderSurvivesVirtualFlight(
+        c,
+        start,
+        target,
+        () -> {
+          MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+          missile.setPosition(Vec3d.ofBottomCenter(start));
+          missile.configureTarget(target);
+          check(c, world.spawnEntity(missile), "Missile must spawn");
+          return missile;
+        },
+        "Missile");
   }
 
-  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1200)
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 2400)
   public void longRangeHeldItemMissileCarriesMobThroughVirtualFlight(TestContext c) {
     var world = c.getWorld();
     BlockPos start = c.getAbsolutePos(new BlockPos(2, 2, 2));
-    ItemStack ammo = new ItemStack(DeliveryContent.HELD_ITEM_MISSILE);
-    dev.icbm.port.delivery.HeldItemMissileItem.setCargo(
-        ammo, new ItemStack(net.minecraft.item.Items.COBBLESTONE));
-    var missile =
-        DeliveryContent.launchHeldEntity(
-            world, null, ammo, Vec3d.ofBottomCenter(start), Vec3d.ZERO, start.east(400));
-    check(c, missile != null, "Held-item missile must launch");
-    assertRiderSurvivesVirtualFlight(c, missile, "Held-item missile");
+    BlockPos target = start.east(400);
+    assertRiderSurvivesVirtualFlight(
+        c,
+        start,
+        target,
+        () -> {
+          ItemStack ammo = new ItemStack(DeliveryContent.HELD_ITEM_MISSILE);
+          dev.icbm.port.delivery.HeldItemMissileItem.setCargo(
+              ammo, new ItemStack(net.minecraft.item.Items.COBBLESTONE));
+          return DeliveryContent.launchHeldEntity(
+              world, null, ammo, Vec3d.ofBottomCenter(start), Vec3d.ZERO, target);
+        },
+        "Held-item missile");
   }
 }

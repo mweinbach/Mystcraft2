@@ -50,7 +50,16 @@ public class CondensedExplosiveBlock extends Block {
       BlockState state, @Nullable BlockEntity blockEntity, PrimedExplosiveEntity entity) {}
 
   public boolean prime(World world, BlockPos pos, int fuse, Entity owner) {
-    return prime(world, pos, fuse, owner, world.getBlockState(pos), world.getBlockEntity(pos));
+    return prime(world, pos, fuse, owner, false);
+  }
+
+  /**
+   * Adapted from MIT ICBM-Classic {@code TileEntityExplosive#trigger}: spawns the primed entity
+   * with its upstream pop, optionally burning (fire-triggered), and removes nothing itself.
+   */
+  public boolean prime(World world, BlockPos pos, int fuse, Entity owner, boolean burning) {
+    return prime(
+        world, pos, fuse, owner, burning, world.getBlockState(pos), world.getBlockEntity(pos));
   }
 
   private boolean prime(
@@ -58,15 +67,18 @@ public class CondensedExplosiveBlock extends Block {
       BlockPos pos,
       int fuse,
       Entity owner,
+      boolean burning,
       BlockState state,
       @Nullable BlockEntity blockEntity) {
     if (world.isClient) return false;
     PrimedExplosiveEntity entity = new PrimedExplosiveEntity(IcbmPort.PRIMED_EXPLOSIVE, world);
     entity.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+    entity.applyPrimePop();
     entity.setFuse(fuse);
     entity.setPayload(payload);
     entity.setOwner(owner);
     configurePrimed(state, blockEntity, entity);
+    if (burning) entity.setOnFireFor(100);
     if (!world.spawnEntity(entity)) return false;
     world.playSound(null, pos, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1, 1);
     return true;
@@ -74,6 +86,31 @@ public class CondensedExplosiveBlock extends Block {
 
   private void primeAndRemove(World world, BlockPos pos) {
     if (prime(world, pos, payload.blockFuseTicks())) world.removeBlock(pos, false);
+  }
+
+  /** Upstream {@code onBlockPlacedBy}: horizontal fire or lava next to a placed charge ignites it. */
+  public static boolean besideFire(World world, BlockPos pos) {
+    for (net.minecraft.util.math.Direction side :
+        net.minecraft.util.math.Direction.Type.HORIZONTAL) {
+      BlockState neighbour = world.getBlockState(pos.offset(side));
+      if (neighbour.isIn(net.minecraft.tag.BlockTags.FIRE)
+          || neighbour.getFluidState().isIn(net.minecraft.tag.FluidTags.LAVA)) return true;
+    }
+    return false;
+  }
+
+  @Override
+  public void onPlaced(
+      World world,
+      BlockPos pos,
+      BlockState state,
+      net.minecraft.entity.LivingEntity placer,
+      ItemStack stack) {
+    super.onPlaced(world, pos, state, placer, stack);
+    if (!world.isClient
+        && world.getBlockState(pos).isOf(this)
+        && besideFire(world, pos)
+        && prime(world, pos, payload.blockFuseTicks(), placer, true)) world.removeBlock(pos, false);
   }
 
   @Override
@@ -153,16 +190,22 @@ public class CondensedExplosiveBlock extends Block {
     super.onStateReplaced(state, world, pos, newState, moved);
   }
 
+  /**
+   * Upstream {@code onBlockExploded} triggers the tile with the normal configured block fuse
+   * (not vanilla TNT's random 10–30 ticks), so a condensed chain detonates on the next tick.
+   */
   @Override
   public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
     Replaced replaced = lastReplaced;
     lastReplaced = null;
-    int fuse = 10 + world.random.nextInt(20);
+    int fuse = payload.blockFuseTicks();
     if (replaced != null
         && replaced.world == world
         && replaced.pos.equals(pos)
         && replaced.state.isOf(this))
-      prime(world, pos, fuse, explosion.getCausingEntity(), replaced.state, replaced.blockEntity);
+      prime(
+          world, pos, fuse, explosion.getCausingEntity(), false, replaced.state,
+          replaced.blockEntity);
     else prime(world, pos, fuse, explosion.getCausingEntity());
   }
 }

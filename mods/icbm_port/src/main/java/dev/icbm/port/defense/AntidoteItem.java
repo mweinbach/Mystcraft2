@@ -7,10 +7,13 @@ import net.minecraft.item.*;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
-/** Upstream antidote clears all potion effects after a 32-tick eating action. */
+/**
+ * Upstream antidote clears all potion effects after a 32-tick eating action (adapted from MIT
+ * ICBM-Classic {@code content/items/ItemAntidote.java}, which keeps the default 64 stack size).
+ */
 public final class AntidoteItem extends Item {
   AntidoteItem() {
-    super(new Settings().group(IcbmPort.GROUP).maxCount(16));
+    super(new Settings().group(IcbmPort.GROUP).maxCount(64));
   }
 
   @Override

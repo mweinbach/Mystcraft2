@@ -81,8 +81,7 @@ public final class DefenseContent {
   public static final Item SAM_MISSILE =
       new Item(new Item.Settings().group(IcbmPort.GROUP).maxCount(16));
   public static final Item RADAR_GUN = new RadarGunItem();
-  public static final Item DEFUSER =
-      new Item(new Item.Settings().group(IcbmPort.GROUP).maxDamage(128));
+  public static final Item DEFUSER = new DefuserItem();
   public static final Item ANTIDOTE = new AntidoteItem();
 
   public static final Block EMP_TOWER_EXTENSION = new EmpTowerExtensionBlock();
@@ -128,24 +127,7 @@ public final class DefenseContent {
     item("defuser", DEFUSER);
     item("antidote", ANTIDOTE);
     AttackEntityCallback.EVENT.register(
-        (player, world, hand, target, hit) -> {
-          if (player.isSpectator()) return ActionResult.PASS;
-          ItemStack held = player.getStackInHand(hand);
-          if (held.isOf(DEFUSER) && canDefuse(target)) {
-            if (!world.isClient) {
-              if (target instanceof TntEntity) target.dropItem(Items.TNT);
-              else if (target instanceof PrimedExplosiveEntity explosive)
-                target.dropStack(explosive.getStack().copy());
-              else if (target instanceof MissileEntity missile)
-                target.dropStack(missile.getStack().copy());
-              if (target instanceof HeldItemMissileEntity heldMissile) heldMissile.recover();
-              else target.discard();
-              held.damage(1, player, p -> p.sendToolBreakStatus(hand));
-            }
-            return ActionResult.SUCCESS;
-          }
-          return ActionResult.PASS;
-        });
+        (player, world, hand, target, hit) -> DefuserItem.attack(player, world, hand, target));
   }
 
   private static void block(String name, Block block) {
@@ -162,11 +144,7 @@ public final class DefenseContent {
   }
 
   public static boolean canDefuse(Entity entity) {
-    return entity instanceof SamInterceptorEntity
-        || entity instanceof HeldItemMissileEntity
-        || entity instanceof MissileEntity
-        || entity instanceof PrimedExplosiveEntity
-        || entity instanceof TntEntity;
+    return DefuserItem.canDefuse(entity);
   }
 
   /** Bounded loaded-entity query; no chunk loading and no explosion on interception. */

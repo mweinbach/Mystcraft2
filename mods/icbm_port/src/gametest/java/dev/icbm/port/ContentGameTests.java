@@ -46,17 +46,22 @@ public final class ContentGameTests implements FabricGameTest {
             .random(42)
             .build(LootContextTypes.ENTITY);
     boolean sulfur = false, gunpowder = false;
+    java.util.Set<Integer> counts = new java.util.HashSet<>();
     for (int i = 0; i < 60; i++)
       for (var stack : table.generateLoot(context)) {
         if (stack.isOf(Registry.ITEM.get(IcbmPort.id("sulfur_dust")))) {
-          if (stack.getCount() != 10)
-            c.throwGameTestException("Sulfur loot must preserve upstream stack size10");
+          // Upstream LootEntryItemStack rolls random.nextInt(10): 0..9, where 0 drops nothing.
+          if (stack.getCount() < 1 || stack.getCount() > 9)
+            c.throwGameTestException("Sulfur loot must roll upstream's 0-9 stack size");
+          counts.add(stack.getCount());
           sulfur = true;
         }
         if (stack.isOf(net.minecraft.item.Items.GUNPOWDER)) gunpowder = true;
       }
     if (!sulfur || !gunpowder)
       c.throwGameTestException("Both sulfur and vanilla main-pool loot must remain obtainable");
+    if (counts.size() < 3)
+      c.throwGameTestException("Sulfur stack size must vary like upstream, saw " + counts);
     c.complete();
   }
 }

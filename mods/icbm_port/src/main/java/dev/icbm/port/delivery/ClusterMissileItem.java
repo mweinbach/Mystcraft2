@@ -16,9 +16,12 @@ public final class ClusterMissileItem extends Item {
   public void appendTooltip(
       ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
     ClusterPlan plan = ClusterPlan.fromStack(stack);
+    tooltip.add(Text.translatable("tooltip.icbm_port.cluster_bomblets", plan.size()));
     tooltip.add(
         Text.translatable(
-            "tooltip.icbm_port.cluster_contents", plan.size(), ClusterPlan.MAX_BOMBLETS));
+            "tooltip.icbm_port.cluster_volume",
+            ClusterLoadingRecipe.storedVolume(plan) + DeliveryConfig.clusterSize(stack),
+            DeliveryConfig.clusterMaxVolume()));
     if (plan.isEmpty()) tooltip.add(Text.translatable("tooltip.icbm_port.cluster_load"));
   }
 }

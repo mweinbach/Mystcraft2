@@ -164,7 +164,8 @@ public final class CargoEntity extends ThrownItemEntity {
         && (onGround
             || horizontalCollision
             || cargoLanded
-            || age >= (balloon ? Math.max(1200, DeliveryConfig.balloonLiftTicks() + 1200) : 1200)
+            // Upstream EntityProjectile.inAirKillTime = TICKS_MIN for parachutes and balloons.
+            || age >= 1200
             || getY() >= world.getTopY() - 1
             || getY() < world.getBottomY()
             || (balloon && liftTicks <= 0 && random.nextFloat() <= .05))) releaseCargo();

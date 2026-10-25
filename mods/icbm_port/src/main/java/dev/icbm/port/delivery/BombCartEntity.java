@@ -109,6 +109,23 @@ public final class BombCartEntity extends TntMinecartEntity {
     discard();
   }
 
+  /**
+   * Defuser action. Upstream calls {@code killMinecart(DamageSource.GENERIC)}: the cart (primed or
+   * not) is recovered as an item and its fuse is lost, while a cart moving at 0.1 blocks/tick or
+   * faster detonates. Upstream would also drop the item from a detonating cart; the port detonates
+   * without the duplicate.
+   */
+  public void defuse() {
+    if (world.isClient || isRemoved()) return;
+    double speed = getVelocity().horizontalLengthSquared();
+    if (speed >= .01) {
+      explode(speed);
+      return;
+    }
+    if (world.getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) dropItem(getItem());
+    discard();
+  }
+
   @Override
   public void writeCustomDataToNbt(NbtCompound nbt) {
     super.writeCustomDataToNbt(nbt);

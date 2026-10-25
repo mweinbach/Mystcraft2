@@ -96,7 +96,7 @@ public class FlightStateMachineGameTests implements FabricGameTest {
   @GameTest(
       templateName = FabricGameTest.EMPTY_STRUCTURE,
       batchId = "icbmFlightStateMachine",
-      tickLimit = 900)
+      tickLimit = 1800)
   public void flightStateMachineTable(TestContext c) {
     var world = c.getWorld();
     List<Row> rows = new ArrayList<>();
@@ -348,8 +348,18 @@ public class FlightStateMachineGameTests implements FabricGameTest {
 
     EnumSet<Stage> saved = EnumSet.noneOf(Stage.class);
     int[] tick = {0};
+    boolean[] ready = {false};
     c.runAtEveryTick(
         () -> {
+          // Expectations count test ticks after an event, which only match the missiles' own ticks
+          // once their chunks tick entities. A busy server promotes a fresh test area late, so the
+          // table starts when every lane does (forced test chunks then stay entity-ticking).
+          if (!ready[0]) {
+            for (Row row : rows)
+              if (!row.missile.isRemoved() && !world.shouldTickEntity(row.missile.getBlockPos()))
+                return;
+            ready[0] = true;
+          }
           tick[0]++;
           boolean all = true;
           for (Row row : rows) {

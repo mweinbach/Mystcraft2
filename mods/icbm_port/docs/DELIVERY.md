@@ -42,21 +42,72 @@ recovers cargo without applying the payload action.
 
 ## Grenades and launchers
 
-Grenades charge throw strength for up to 60 ticks, with speed up to 1.8, drag
-0.98 (0.8 in water), and gravity 0.03. Upstream fuse time starts after throwing;
-holding the item does not cook its fuse. Payload, remaining fuse, render stack,
-and owner survive entity saves. Only upstream tier-one payloads have grenade and
-bomblet items.
+Grenades charge throw strength for up to 60 ticks, with speed up to 1.8
+(`EntityGrenade.setThrowMotion`: 0.16 side offset, eye height minus 0.1, gaussian
+0.0075 inaccuracy), drag 0.98 (0.8 in water), gravity 0.03 and ground friction
+0.5. Upstream fuse time starts after throwing; holding the item does not cook
+its fuse. A fuse of N ticks detonates on tick N + 1 (upstream `ticksExisted >
+fuse`), 0.3 blocks above the grenade. Survival throws consume one grenade,
+creative throws none. One deliberate difference: holding the full 60 ticks
+throws at full strength, whereas upstream's bow-style use never fires on a full
+hold. Payload, remaining fuse, render stack, and owner survive entity saves. Only
+upstream tier-one payloads have grenade and bomblet items.
 
-The rocket launcher consumes one inventory missile per shot. The ballistic
-launcher requires a visible block target at least 20 blocks away, with a
-500-block targeting ray. Both support paid mixed cluster manifests and held-item
-missiles. Cluster loading appends one bomblet per occupied crafting slot and caps
-the manifest at 64; empty cluster casings cannot fire. Handheld cluster rockets
-fly as `ActionableMissileEntity`: they release within 3 blocks of the aim point
-(20 blocks above a ballistic target) and are duds on impact, as upstream.
-Sneaking while firing rides the rocket; a lead in the off hand puts one leashed
-mob within 7 blocks on it instead. Rockets never hit their own rider.
+Primed explosive blocks pop up 0.2 with a 0.02 random drift, use upstream's 0.95
+horizontal drag, 0.045 gravity and 0.7/-0.5 ground bounce, and detonate from the
+middle of the body after `fuse + 1` ticks. Explosions prime neighbouring charges
+with their configured block fuse (upstream chain behaviour) rather than vanilla
+TNT's random delay; placing a charge beside fire or lava primes it already
+burning; EMP blasts remove primed charges without detonating them.
+
+The rocket launcher consumes one inventory missile per shot and, like upstream's
+electrical item whose charge never runs out, has no durability. A 20-tick
+cooldown stands in for upstream's one-second click delay. The ballistic launcher
+requires a visible block target at least 20 blocks away, with a 500-block
+targeting ray. Blocked muzzles, missing/too-close targets and launch failures
+report an action-bar message. Both support paid mixed cluster manifests and
+held-item missiles. Handheld cluster rockets fly as `ActionableMissileEntity`
+with the `icbm_port:cluster` action: they release within 3 blocks of the aim
+point (20 blocks above a ballistic target, `ballisticBurstY`) and are duds on
+impact, as upstream. Sneaking while firing rides the rocket; a lead in the off
+hand puts one leashed mob within 7 blocks on it instead. Rockets never hit their
+own rider.
+
+## Clusters and bomblets
+
+Cluster loading appends one bomblet per occupied crafting slot under upstream's
+volume rule: stored contents plus every item in the grid, the carrier itself
+included (20), must not exceed `cluster.maxSize` (200); tier-one bomblets take 2.
+That allows 90 bomblets by default. A port-only hard cap of 200 droplets per
+burst keeps a misconfigured volume bounded. Empty cluster casings cannot fire.
+Every cluster release (silo, handheld and actionable missiles) goes through the
+same burst, which follows `ActionCluster`: discs of ten aimed perpendicular to the carrier's
+heading, tipped back 22.5 degrees, each disc rotated 22.5 degrees and ejected
+0.1 faster, spawned from the end of the manifest. Droplets fall with 0.99 drag
+and 0.05 gravity, deal `ceil(speed * 3)` impact damage with projectile knockback,
+explode at the impact point, cannot be destroyed or chain-detonated in flight,
+and expire after 1,200 ticks. Parachutes and balloons also expire after 1,200
+ticks in the air.
+
+## Handheld utilities
+
+The defuser disarms primed charges, grenades, bomblets, explosive carts, primed
+TNT and missiles with a left click, dropping the disarmed item; it never wears
+out. The radar gun records the exact point under the crosshair within 200
+blocks (or the clicked point), its dimension, shows both in the tooltip, clears
+on sneak-use, and copies its point into a launcher it is used on (Ender payloads
+take it as their teleport destination). The antidote stacks to 64. Remote and
+laser detonator radio triggers belong to the radio work and remain partial.
+
+## Loot
+
+Creepers and blazes can drop 0-9 sulfur dust (upstream `nextInt(10)`), and
+abandoned mineshaft and simple dungeon chests gain upstream's copper ingot
+(vanilla copper here), steel ingot/plate, copper/gold wire and circuit entries
+with the same weights, qualities and uniform 0..n-1 stack sizes.
+`config/icbm-port-items.properties` provides `loot.sulfur`, `loot.chests`,
+`loot.ingots`, `loot.plates`, `loot.wires` and `loot.circuits` (upstream
+`ConfigItems`); item registration itself is always on.
 
 ## Flight state machine
 
@@ -113,12 +164,14 @@ were all saved.
 ## Configuration
 
 `config/icbm-port-delivery.properties` is created at first launch. Restart after
-editing. `cargo.items`, `cargo.entities`, and `held.items` each have `.ban` and
-`.list` settings. Lists contain comma-separated exact registry IDs. With
-`ban=true`, listed entries are denied; with `ban=false`, only listed entries are
-accepted. Entity defaults exclude players, the ender dragon, and the wither.
-Other settings are `held.genericInteractions`, `held.blockDamageMultiplier`, and
-`balloon.liftTicks` (default 600). Numeric settings are finite and bounded.
+editing. `cargo.items`, `cargo.entities`, `held.items` and `cluster.items` each
+have `.ban` and `.list` settings. Lists contain comma-separated exact registry
+IDs. With `ban=true`, listed entries are denied; with `ban=false`, only listed
+entries are accepted. Entity defaults exclude players, the ender dragon, and the
+wither. Other settings are `held.genericInteractions`,
+`held.blockDamageMultiplier`, `balloon.liftTicks` (default 600),
+`cluster.maxSize` (200), `cluster.defaultSize` (1) and `cluster.sizes`
+(`namespace:item=size` entries). Numeric settings are finite and bounded.
 
 Third-party Forge capability adapters and special Dynamic Trees reflection hooks
 are not reproduced on Fabric. Generic third-party item interactions depend on

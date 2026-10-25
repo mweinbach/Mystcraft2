@@ -24,6 +24,7 @@
       "dev.icbm.port.payload.QueueContentionGameTests",
       "dev.icbm.port.delivery.SmokeGameTests",
       "dev.icbm.port.delivery.DeliveryGameTests",
+      "dev.icbm.port.delivery.DeliveryParityGameTests",
       "dev.icbm.port.defense.DefenseGameTests",
       "dev.icbm.port.defense.DefenseBlockParityGameTests",
       "dev.icbm.port.entity.EntityParityGameTests",

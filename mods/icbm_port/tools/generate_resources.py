@@ -103,7 +103,9 @@ blocks=[p.stem for p in (ROOT/'assets/icbm_port/blockstates').glob('*.json')]
 put('data/minecraft/tags/blocks/mineable/pickaxe.json',{'replace':False,'values':['icbm_port:'+b for b in sorted(blocks) if not b.endswith('_explosive')]})
 
 put('data/icbm_port/recipes/cluster_loading.json',{'type':'icbm_port:cluster_loading'})
-lang['tooltip.icbm_port.cluster_contents']='Bomblets: %s / %s'
+lang.pop('tooltip.icbm_port.cluster_contents',None)
+lang['tooltip.icbm_port.cluster_bomblets']='Bomblets loaded: %s'
+lang['tooltip.icbm_port.cluster_volume']='Space used: %s of %s (carrier included)'
 lang['tooltip.icbm_port.cluster_load']='Craft with bomblets to load. Mixed payloads are supported.'
 put('assets/icbm_port/lang/en_us.json',lang)
 

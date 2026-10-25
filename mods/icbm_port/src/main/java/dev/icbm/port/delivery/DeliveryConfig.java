@@ -24,6 +24,13 @@ public final class DeliveryConfig {
     p.setProperty("held.blockDamageMultiplier", "4");
     p.setProperty("held.genericInteractions", "true");
     p.setProperty("balloon.liftTicks", "600");
+    // Upstream ConfigClusterMissile item_ban_allow / item_sizes (MAX_SIZE 200, DEFAULT_SIZE 1,
+    // carrier 20, tier-one bomblet 2). Sizes accept "namespace:item=whole_number" entries.
+    p.setProperty("cluster.items.ban", "true");
+    p.setProperty("cluster.items.list", "");
+    p.setProperty("cluster.maxSize", "200");
+    p.setProperty("cluster.defaultSize", "1");
+    p.setProperty("cluster.sizes", "");
     return p;
   }
 
@@ -93,6 +100,38 @@ public final class DeliveryConfig {
 
   public static int balloonLiftTicks() {
     return (int) number("balloon.liftTicks", 600, 0, 72000);
+  }
+
+  /** Upstream ConfigClusterMissile.ITEM_SIZES.MAX_SIZE. */
+  public static int clusterMaxVolume() {
+    return (int) number("cluster.maxSize", 200, 1, 100000);
+  }
+
+  /**
+   * Volume of one item inside a cluster, adapted from MIT ICBM-Classic {@code
+   * content/cluster/missile/ClusterMissileHandler.java}: explicit "id=size" entries win, then the
+   * upstream defaults (carrier 20, tier-one bomblet 2), then {@code cluster.defaultSize}.
+   */
+  public static int clusterSize(ItemStack stack) {
+    String id = Registry.ITEM.getId(stack.getItem()).toString();
+    for (String entry : properties.getProperty("cluster.sizes", "").split(",")) {
+      int eq = entry.indexOf('=');
+      if (eq > 0 && entry.substring(0, eq).trim().equals(id))
+        try {
+          return Math.max(1, Integer.parseInt(entry.substring(eq + 1).trim()));
+        } catch (NumberFormatException ignored) {
+          // Malformed entries fall through to defaults, as upstream logs and skips them.
+        }
+    }
+    if (stack.isOf(DeliveryContent.CLUSTER_MISSILE)) return 20;
+    if (DeliveryContent.payloadForBomblet(stack) != null) return 2;
+    return (int) number("cluster.defaultSize", 1, 1, 100000);
+  }
+
+  /** Upstream ClusterMissileHandler.isAllowed against the item ban/allow list. */
+  public static boolean clusterAllowed(ItemStack stack) {
+    return !stack.isEmpty()
+        && allowed("cluster.items", Registry.ITEM.getId(stack.getItem()).toString());
   }
 
   private DeliveryConfig() {}
