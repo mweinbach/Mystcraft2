@@ -44,6 +44,8 @@ public final class EntityContent {
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("player_seat"), PLAYER_SEAT);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("light_beam"), LIGHT_BEAM);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("actionable_missile"), ACTIONABLE_MISSILE);
+    // Exothermic/endothermic blasts report their beam through this server-side hook.
+    dev.icbm.port.payload.BeamEffects.setListener(LightBeamEntity::onBlastBeam);
     IcbmApi.registerProjectile(
         IcbmPort.id("actionable_missile"),
         context -> {

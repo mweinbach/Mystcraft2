@@ -48,6 +48,9 @@ public final class LightBeamEntity extends Entity {
   /** Ticks after which the death cycle starts automatically; negative means never. */
   private int closeAfter = -1;
   private int beamAge;
+  /** Id of the exothermic/endothermic blast driving this beam, kept across saves. */
+  private long blastBeamId;
+  private boolean hasBlastBeamId;
 
   /** Client-side smoothed progress used by the renderer. */
   public float clientProgress;
@@ -206,6 +209,8 @@ public final class LightBeamEntity extends Entity {
     deathCycle = nbt.getBoolean("Closing");
     closeAfter = nbt.contains("CloseAfter") ? nbt.getInt("CloseAfter") : -1;
     beamAge = MathHelper.clamp(nbt.getInt("BeamAge"), 0, MAX_AGE + 1);
+    hasBlastBeamId = nbt.contains("BlastBeamId");
+    blastBeamId = nbt.getLong("BlastBeamId");
   }
 
   @Override
@@ -218,11 +223,60 @@ public final class LightBeamEntity extends Entity {
     nbt.putBoolean("Closing", deathCycle);
     nbt.putInt("CloseAfter", closeAfter);
     nbt.putInt("BeamAge", beamAge);
+    if (hasBlastBeamId) nbt.putLong("BlastBeamId", blastBeamId);
   }
 
   @Override
   public Packet<?> createSpawnPacket() {
     return new EntitySpawnS2CPacket(this);
+  }
+
+  public boolean isBlastBeam(long id) {
+    return hasBlastBeamId && blastBeamId == id;
+  }
+
+  /** Converts 0..1 colour channels to the packed RGB the beam stores. */
+  public static int packColor(float red, float green, float blue) {
+    return (Math.round(MathHelper.clamp(red, 0, 1) * 255) << 16)
+        | (Math.round(MathHelper.clamp(green, 0, 1) * 255) << 8)
+        | Math.round(MathHelper.clamp(blue, 0, 1) * 255);
+  }
+
+  /**
+   * {@code BeamEffects} listener for the exothermic/endothermic blasts, mirroring upstream {@code
+   * BlastBeam}: the first update spawns a beam (sizes 1/2) in the blast colour, later updates move
+   * its target progress, and the dying update starts the death cycle with target 0. The beam is
+   * found again by blast id, so a blast resumed from a save keeps driving the same beam.
+   */
+  public static void onBlastBeam(
+      ServerWorld world,
+      Vec3d center,
+      long beamId,
+      float red,
+      float green,
+      float blue,
+      float progress,
+      boolean dying) {
+    LightBeamEntity beam =
+        world
+            .getEntitiesByClass(
+                LightBeamEntity.class,
+                new net.minecraft.util.math.Box(center, center).expand(2),
+                candidate -> !candidate.isRemoved() && candidate.isBlastBeam(beamId))
+            .stream()
+            .findFirst()
+            .orElse(null);
+    if (beam == null) {
+      if (dying) return;
+      beam = spawn(world, center, packColor(red, green, blue), -1);
+      if (beam == null) return;
+      beam.blastBeamId = beamId;
+      beam.hasBlastBeamId = true;
+    }
+    // A live blast keeps its beam alive past the idle safety expiry.
+    beam.beamAge = 0;
+    beam.setTargetProgress(dying ? 0 : progress);
+    if (dying) beam.close();
   }
 
   /** Lets callers such as blasts look up their beam after a reload. */
