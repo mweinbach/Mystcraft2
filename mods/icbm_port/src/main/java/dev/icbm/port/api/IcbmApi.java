@@ -144,16 +144,13 @@ public final class IcbmApi {
           dev.icbm.port.payload.PayloadType type =
               dev.icbm.port.IcbmPort.payloadForMissile(context.payload());
           if (type == null) return null;
+          if (context.payload().isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE))
+            return dev.icbm.port.entity.ActionableMissileEntity.forCluster(
+                context.world(), context.payload());
           var missile =
               new dev.icbm.port.entity.MissileEntity(
                   dev.icbm.port.IcbmPort.MISSILE_ENTITY, context.world());
           missile.setPayload(type);
-          if (context.payload().isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE)) {
-            var plan = dev.icbm.port.delivery.ClusterPlan.fromStack(context.payload());
-            if (plan.isEmpty()) return null;
-            missile.setCluster(true);
-            missile.setClusterPlan(plan);
-          }
           return missile;
         });
     registerProjectile(

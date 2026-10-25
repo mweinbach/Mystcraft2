@@ -86,8 +86,10 @@ public final class HeldItemMissileEntity extends ThrownItemEntity
     if (!world.isClient && !flightPlan.targeted() && --fuel <= 0) setNoGravity(false);
     Vec3d motion = !world.isClient ? flightPlan.nextVelocity(this) : getVelocity();
     Vec3d next = getPos().add(motion);
+    boolean carriesPlayer = hasPlayerRider();
     if (!world.isClient
         && flightPlan.targeted()
+        && !carriesPlayer
         && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
                 && flightPlan.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
             || !world.isChunkLoaded(new BlockPos(next)))) {
@@ -100,7 +102,8 @@ public final class HeldItemMissileEntity extends ThrownItemEntity
             || !Double.isFinite(next.y)
             || !Double.isFinite(next.z)
             || !world.isChunkLoaded(new BlockPos(next))
-            || world.isOutOfHeightLimit(new BlockPos(next))
+            || (world.isOutOfHeightLimit(new BlockPos(next))
+                && !(carriesPlayer && next.y >= world.getTopY()))
             || !world.getWorldBorder().contains(new BlockPos(next)))) {
       recover();
       return;
@@ -204,6 +207,14 @@ public final class HeldItemMissileEntity extends ThrownItemEntity
   @Override
   public boolean canHit() {
     return !isRemoved();
+  }
+
+  /** Upstream EntityProjectile#shouldCollideWith: ignore launcher seats and our own riders. */
+  @Override
+  protected boolean canHit(Entity entity) {
+    return !(entity instanceof dev.icbm.port.entity.PlayerSeatEntity)
+        && !entity.isConnectedThroughVehicle(this)
+        && super.canHit(entity);
   }
 
   @Override

@@ -42,5 +42,6 @@ public final class IcbmPortClient implements ClientModInitializer {
     dev.icbm.port.defense.DefenseContent.registerClient();
     EntityRendererRegistry.register(IcbmPort.MISSILE_ENTITY, ProjectileItemRenderer::new);
     EntityRendererRegistry.register(IcbmPort.PRIMED_EXPLOSIVE, PrimedExplosiveRenderer::new);
+    EntityContentClient.register();
   }
 }

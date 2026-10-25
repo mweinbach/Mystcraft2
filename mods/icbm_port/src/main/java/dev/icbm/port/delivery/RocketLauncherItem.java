@@ -77,29 +77,67 @@ public final class RocketLauncherItem extends Item {
       target = blockHit.getBlockPos();
     }
     boolean launched;
-    if (DeliveryContent.isLoadedHeldMissile(ammo))
-      launched =
-          DeliveryContent.launchHeld(
+    net.minecraft.entity.Entity rocket = null;
+    if (DeliveryContent.isLoadedHeldMissile(ammo)) {
+      rocket =
+          DeliveryContent.launchHeldEntity(
               world, player, ammo, muzzle, direction.multiply(IcbmPort.MISSILE_SPEED), target);
-    else {
-      MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      launched = rocket != null;
+    } else {
+      boolean clusterAmmo = ammo.isOf(DeliveryContent.CLUSTER_MISSILE);
+      MissileEntity missile =
+          clusterAmmo
+              ? dev.icbm.port.entity.ActionableMissileEntity.forCluster(world, ammo)
+              : new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      if (missile == null) return;
       missile.setOwner(player);
-      missile.setPayload(payload);
-      missile.setCluster(ammo.isOf(DeliveryContent.CLUSTER_MISSILE));
-      if (ammo.isOf(DeliveryContent.CLUSTER_MISSILE))
-        missile.setClusterPlan(ClusterPlan.fromStack(ammo));
+      if (!clusterAmmo) missile.setPayload(payload);
       missile.setPosition(muzzle);
       missile.setVelocity(direction.multiply(IcbmPort.MISSILE_SPEED));
+      if (missile instanceof dev.icbm.port.entity.ActionableMissileEntity actionable) {
+        // Upstream raytraces 500 blocks for an air-burst aim point and lifts ballistic cluster
+        // aim by ballisticBurstY; release happens within 3 blocks and never on impact.
+        net.minecraft.util.math.Vec3d aim = null;
+        if (target != null)
+          aim =
+              net.minecraft.util.math.Vec3d.ofCenter(target)
+                  .add(0, dev.icbm.port.entity.ActionableMissileEntity.BALLISTIC_BURST_HEIGHT, 0);
+        else {
+          var hit = player.raycast(500, 1, false);
+          if (hit.getType() == net.minecraft.util.hit.HitResult.Type.BLOCK) aim = hit.getPos();
+        }
+        if (aim != null)
+          actionable.setProximityTrigger(
+              aim, dev.icbm.port.entity.ActionableMissileEntity.CLUSTER_TRIGGER_DISTANCE, false);
+      }
       if (target != null) {
+        net.minecraft.util.math.BlockPos flightTarget = target;
+        if (clusterAmmo) {
+          // Upstream moves the cluster's target data itself up by ballisticBurstY.
+          var raised =
+              target.up((int) dev.icbm.port.entity.ActionableMissileEntity.BALLISTIC_BURST_HEIGHT);
+          if (!world.isOutOfHeightLimit(raised)) flightTarget = raised;
+        }
         try {
-          missile.configureTarget(target);
+          missile.configureTarget(flightTarget);
         } catch (IllegalArgumentException ignored) {
           return;
         }
       }
       launched = world.spawnEntity(missile);
+      rocket = missile;
     }
     if (!launched) return;
+    if (player.isSneaking()) player.startRiding(rocket, true);
+    else if (player.getOffHandStack().isOf(Items.LEAD))
+      for (net.minecraft.entity.mob.MobEntity victim :
+          world.getEntitiesByClass(
+              net.minecraft.entity.mob.MobEntity.class,
+              player.getBoundingBox().expand(7),
+              mob -> mob.getHoldingEntity() == player)) {
+        victim.startRiding(rocket, true);
+        break;
+      }
     if (!player.getAbilities().creativeMode) {
       ammo.decrement(1);
       stack.damage(1, player, p -> p.sendToolBreakStatus(player.getActiveHand()));

@@ -124,6 +124,7 @@ public final class IcbmPort implements ModInitializer {
     dev.icbm.port.simulation.SimulationContent.register();
     dev.icbm.port.entity.BlastEntities.register();
     Payloads.initialize();
+    dev.icbm.port.entity.EntityContent.register();
     LauncherContent.register();
     DeliveryContent.register();
     DefenseContent.register();

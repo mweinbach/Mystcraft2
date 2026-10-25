@@ -101,7 +101,11 @@ public final class StagedFlight {
     if (stage == Stage.LOCK_HEIGHT) {
       if (entity.getY() >= start.y + lockHeight) {
         double flat = Math.hypot(target.getX() + .5 - start.x, target.getZ() + .5 - start.z);
-        stage = flat >= FlightProfile.ARC_DISTANCE_LIMIT ? Stage.ASCENT : Stage.ARC;
+        // Upstream ArcFlightLogic: a missile carrying a player always flies the physical arc.
+        stage =
+            flat >= FlightProfile.ARC_DISTANCE_LIMIT && !entity.hasPlayerRider()
+                ? Stage.ASCENT
+                : Stage.ARC;
         elapsed = 0;
         start = entity.getPos();
       } else return new Vec3d(0, Math.min(2, .1 * Math.max(1, elapsed)), 0);

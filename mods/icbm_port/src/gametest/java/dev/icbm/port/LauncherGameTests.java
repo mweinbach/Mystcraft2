@@ -192,14 +192,16 @@ public class LauncherGameTests implements FabricGameTest {
     var missiles =
         context
             .getWorld()
-            .getEntitiesByType(
-                IcbmPort.MISSILE_ENTITY,
+            .getEntitiesByClass(
+                dev.icbm.port.entity.MissileEntity.class,
                 new net.minecraft.util.math.Box(launcher.getPos()).expand(3),
                 e -> true);
     check(
         context,
-        missiles.size() == 1 && missiles.get(0).isCluster(),
-        "Launcher must preserve cluster delivery flag");
+        missiles.size() == 1
+            && missiles.get(0).isCluster()
+            && missiles.get(0) instanceof dev.icbm.port.entity.ActionableMissileEntity,
+        "Launcher must fire cluster ammo as an actionable cluster missile");
     missiles.forEach(dev.icbm.port.entity.MissileEntity::discard);
     context.complete();
   }

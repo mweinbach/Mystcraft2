@@ -16,8 +16,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-/** Server-authoritative game projectile; targeted arcs are bounded Minecraft animations. */
-public final class MissileEntity extends ThrownItemEntity
+/**
+ * Server-authoritative game projectile; targeted arcs are bounded Minecraft animations. Riders
+ * (from a launcher seat, the rocket launcher or right-clicking) travel with it, as upstream {@code
+ * EntityMissile}; a missile carrying a player is never handed to the virtual flight ledger.
+ */
+public class MissileEntity extends ThrownItemEntity
     implements dev.icbm.port.flight.FlightTracked {
   private static final net.minecraft.entity.data.TrackedData<Integer> VISUAL_STAGE =
       net.minecraft.entity.data.DataTracker.registerData(
@@ -105,9 +109,15 @@ public final class MissileEntity extends ThrownItemEntity
         || !Float.isFinite(amount)
         || amount <= 0) return false;
     health -= amount;
-    if (health <= 0) discard();
+    if (health <= 0) {
+      onDestroyedBy(source);
+      if (!isRemoved()) discard();
+    }
     return true;
   }
+
+  /** Upstream {@code EntityMissile#onDestroyedBy}; explosive missiles simply break. */
+  protected void onDestroyedBy(net.minecraft.entity.damage.DamageSource source) {}
 
   public MissileEntity(EntityType<? extends MissileEntity> type, World world) {
     super(type, world);
@@ -231,7 +241,10 @@ public final class MissileEntity extends ThrownItemEntity
         discard();
         return;
       }
+      // Upstream MissileTrackerHandler never simulates a missile carrying a player.
+      boolean carriesPlayer = hasPlayerRider();
       if (flight.targeted()
+          && !carriesPlayer
           && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
                   && flight.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
               || !world.isChunkLoaded(new BlockPos(next)))) {
@@ -240,7 +253,7 @@ public final class MissileEntity extends ThrownItemEntity
         discard();
         return;
       }
-      if (next.y >= world.getTopY() || !world.isChunkLoaded(new BlockPos(next))) {
+      if ((next.y >= world.getTopY() && !carriesPlayer) || !world.isChunkLoaded(new BlockPos(next))) {
         discard();
         return;
       }
@@ -251,16 +264,46 @@ public final class MissileEntity extends ThrownItemEntity
         && !isRemoved()
         && !isEmpDisabled()
         && !engineFailed
-        && ((cluster && flightTicks >= 40 && !flight.targeted()) || flight.arrived()))
+        && shouldTriggerInFlight())
       detonate(getPos());
     if (world.isClient && !isVisuallyDisabled())
       world.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
   }
 
-  private void detonate(Vec3d position) {
+  /** Cluster airburst timer for untargeted flights, or arrival at a targeted destination. */
+  protected boolean shouldTriggerInFlight() {
+    return (cluster && flightTicks >= 40 && !flight.targeted()) || flight.arrived();
+  }
+
+  protected int flightTicks() {
+    return flightTicks;
+  }
+
+  protected void detonate(Vec3d position) {
     discard();
     if (cluster) DeliveryContent.burst(world, position, clusterPlan, this, getVelocity());
     else Payloads.detonate(world, position, payload, this);
+  }
+
+  /** Never collide with our own riders or with launcher seats (upstream shouldCollideWith). */
+  @Override
+  protected boolean canHit(net.minecraft.entity.Entity entity) {
+    return !(entity instanceof PlayerSeatEntity)
+        && !entity.isConnectedThroughVehicle(this)
+        && super.canHit(entity);
+  }
+
+  /** Upstream processInitialInteract: a player can climb onto a missile. */
+  @Override
+  public net.minecraft.util.ActionResult interact(
+      net.minecraft.entity.player.PlayerEntity player, net.minecraft.util.Hand hand) {
+    if (player.shouldCancelInteraction() || hasPassengers() || isRemoved())
+      return net.minecraft.util.ActionResult.PASS;
+    if (!world.isClient)
+      return player.startRiding(this)
+          ? net.minecraft.util.ActionResult.CONSUME
+          : net.minecraft.util.ActionResult.PASS;
+    return net.minecraft.util.ActionResult.SUCCESS;
   }
 
   @Override
@@ -268,8 +311,13 @@ public final class MissileEntity extends ThrownItemEntity
     super.onCollision(hit);
     if (!world.isClient && !isRemoved() && hit.getType() != HitResult.Type.MISS) {
       if (isEmpDisabled()) discard();
-      else detonate(hit.getPos());
+      else onImpact(hit.getPos());
     }
+  }
+
+  /** Upstream {@code actionOnImpact}: payload missiles detonate where they hit. */
+  protected void onImpact(Vec3d position) {
+    detonate(position);
   }
 
   @Override
