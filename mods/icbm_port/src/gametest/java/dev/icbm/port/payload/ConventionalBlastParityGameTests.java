@@ -153,6 +153,56 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
     c.complete();
   }
 
+  /**
+   * Review fix: a removal pass is time-sliced. With the wall-clock budget spent, one service
+   * removes at most its unit share; the rest stay queued and are removed on later services.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmBlastSonicSliced")
+  public void sonicRemovalPassIsTimeSliced(TestContext c) {
+    var world = c.getWorld();
+    BlockPos origin = c.getAbsolutePos(new BlockPos(4, 40, 4));
+    Vec3d center = Vec3d.ofCenter(origin);
+    java.util.List<BlockPos> stone = new java.util.ArrayList<>();
+    for (BlockPos pos : BlockPos.iterate(origin.add(-2, -3, -2), origin.add(2, -1, 2))) {
+      world.setBlockState(pos, Blocks.STONE.getDefaultState(), 2);
+      stone.add(pos.toImmutable());
+    }
+    long savedBudget = BlastBudget.tickBudgetNanos;
+    try {
+      BlastBudget.tickBudgetNanos = 0;
+      var job = job(c, PayloadType.SONIC, center, 10, null);
+      var sonic = (SonicBlast) job.work;
+      for (int i = 0; i < 4000 && sonic.waveStart() < 0; i++) serve(c, job);
+      check(c, sonic.waveStart() >= 0, "The ray pass must finish");
+      int found = sonic.pendingRemovals();
+      check(c, found > 16, "The rays must find more blocks than one slice removes: " + found);
+      // At the end of the wave every found block is in reach of a single pass.
+      job.elapsedTicks = sonic.waveStart() + (int) BlastSupport.blastRadius(10);
+      int services = 0, standing = countStone(c, stone);
+      while (standing > 0 && services < 400) {
+        job.tick(world, 8);
+        services++;
+        int now = countStone(c, stone);
+        check(c, standing - now <= 8, "One service removed " + (standing - now) + " blocks");
+        standing = now;
+      }
+      check(c, services > 1, "A pass larger than the unit share must span services");
+      check(c, run(c, job, 400), "The blast must end after its removals");
+      check(c, countStone(c, stone) <= stone.size() - found, "Found blocks must all be removed");
+    } finally {
+      BlastBudget.tickBudgetNanos = savedBudget;
+      for (BlockPos pos : stone) world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+      clearDebris(c, center, 12);
+    }
+    c.complete();
+  }
+
+  private static int countStone(TestContext c, java.util.List<BlockPos> positions) {
+    int count = 0;
+    for (BlockPos pos : positions) if (c.getWorld().getBlockState(pos).isOf(Blocks.STONE)) count++;
+    return count;
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmBlastBreach")
   public void breachingBoresSevenBlocksAlongItsDirection(TestContext c) {
     BlockPos origin = c.getAbsolutePos(new BlockPos(1, 4, 2));

@@ -101,4 +101,42 @@ public final class BeamBlastParityGameTests implements FabricGameTest {
     }
     c.complete();
   }
+
+  /**
+   * Review fix: the exothermic conversion of the block below a stone or aggregate block must not
+   * replace an unbreakable block (bedrock) that the scan never validated.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void exothermicNeverConvertsUnbreakableBlocksBelow(TestContext c) {
+    var world = c.getWorld();
+    java.util.List<BlockPos> tops = new java.util.ArrayList<>();
+    for (int x = 0; x < 8; x++)
+      for (int z = 0; z < 8; z++) {
+        BlockPos floor = c.getAbsolutePos(new BlockPos(x, 1, z));
+        world.setBlockState(floor, net.minecraft.block.Blocks.BEDROCK.getDefaultState(), 2);
+        world.setBlockState(
+            floor.up(),
+            (x < 4 ? net.minecraft.block.Blocks.STONE : net.minecraft.block.Blocks.SAND)
+                .getDefaultState(),
+            2);
+        tops.add(floor.up());
+      }
+    // Distance 0 always converts; repeat until every top block has taken one branch or another.
+    for (int round = 0; round < 32; round++)
+      for (BlockPos top : tops) {
+        var state = world.getBlockState(top);
+        if (state.isOf(net.minecraft.block.Blocks.STONE)
+            || state.isOf(net.minecraft.block.Blocks.SAND)) BeamBlast.heat(world, top, 0, 10);
+      }
+    for (BlockPos top : tops)
+      check(
+          c,
+          world.getBlockState(top.down()).isOf(net.minecraft.block.Blocks.BEDROCK),
+          "Exothermic conversion replaced bedrock below " + top.toShortString());
+    for (BlockPos top : tops) {
+      world.setBlockState(top, net.minecraft.block.Blocks.AIR.getDefaultState(), 2);
+      world.setBlockState(top.up(), net.minecraft.block.Blocks.AIR.getDefaultState(), 2);
+    }
+    c.complete();
+  }
 }

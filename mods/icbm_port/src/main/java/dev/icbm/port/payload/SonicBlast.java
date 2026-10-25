@@ -27,7 +27,8 @@ import net.minecraft.util.math.Vec3d;
  *
  * <p>Port differences: the ray pass is time-sliced on the server thread instead of a worker thread
  * (upstream also waits for its thread), unloaded chunks stop a ray, at most {@link
- * BlastSupport#MAX_ENTITIES} entities are thrown per tick.
+ * BlastSupport#MAX_ENTITIES} entities are thrown per tick. Removal passes are time-sliced too: a
+ * pass that does not fit one tick continues on the next, and the blast ends only after it.
  */
 final class SonicBlast implements BlastWork {
   private final int size;
@@ -35,8 +36,12 @@ final class SonicBlast implements BlastWork {
   private boolean started;
   /** World ticks spent finishing the ray pass beyond the first; the wave starts after it. */
   private int collectionDelay = -1;
-  /** Removal passes run so far (upstream removes on every fourth call). */
+  /** Removal passes started so far (upstream removes on every fourth call). */
   private int removalPasses;
+  /** Next result index (counting down) of the removal pass in progress; -1 when none is. */
+  private int removalCursor = -1;
+  /** Reach of the removal pass in progress. */
+  private int removalReach;
   private final LongArrayList results = new LongArrayList();
   private final it.unimi.dsi.fastutil.longs.LongOpenHashSet seen =
       new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
@@ -48,6 +53,11 @@ final class SonicBlast implements BlastWork {
   /** World tick (less one) at which the ray pass finished and the wave began; -1 before. */
   int waveStart() {
     return collectionDelay;
+  }
+
+  /** Found blocks not yet removed. */
+  int pendingRemovals() {
+    return results.size();
   }
 
   private int radius() {
@@ -78,26 +88,38 @@ final class SonicBlast implements BlastWork {
     // the field the new one. The count is in world ticks so a busy queue, which serves each job
     // only intermittently, cannot stretch the wave; a removal pass that fell due between services
     // runs at the next one.
-    int calls = job.elapsedTicks - Math.max(0, collectionDelay), call = calls - 1;
+    int calls = job.elapsedTicks - Math.max(0, collectionDelay);
+    // The last pass upstream runs at call == radius, just before the blast ends.
+    int call = Math.min(calls - 1, radius);
     int passesDue = call < 0 ? 0 : call / 4 + 1;
-    if (collected && passesDue > removalPasses) {
+    if (collected && removalCursor < 0 && passesDue > removalPasses) {
       removalPasses = passesDue;
       if (results.isEmpty()) return true;
-      int reach = Math.max(1, calls);
-      for (int i = results.size() - 1; i >= 0; i--) {
-        BlockPos pos = BlockPos.fromLong(results.getLong(i));
-        if (c.distanceTo(Vec3d.of(pos)) > reach) continue;
-        results.removeLong(i);
-        if (!BlastSupport.loaded(world, pos)) continue;
-        BlockState state = world.getBlockState(pos);
-        if (state.isAir() || state.getHardness(world, pos) < 0) continue;
-        if (state.getBlock() instanceof CondensedExplosiveBlock explosive)
-          explosive.prime(world, pos, explosive.getPayload().blockFuseTicks());
-        else if (world.random.nextFloat() < .1f
-            && FlyingBlockEntity.capture(world, pos, Vec3d.ZERO, 0) != null) continue;
-        world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
-      }
+      removalReach = Math.max(1, call + 1);
+      removalCursor = results.size();
     }
+    // A pass can touch thousands of blocks for a large radius, so it is time-sliced like the ray
+    // pass; unfinished removals stay queued and the blast does not end before they are done.
+    for (int step = 0;
+        removalCursor > 0 && (step < budget || BlastBudget.hasTime(world));
+        step++) {
+      int index = --removalCursor;
+      long packed = results.getLong(index);
+      BlockPos pos = BlockPos.fromLong(packed);
+      if (c.distanceTo(Vec3d.of(pos)) > removalReach) continue;
+      // Swap-remove: the moved entry was already examined in this pass.
+      results.set(index, results.getLong(results.size() - 1));
+      results.removeLong(results.size() - 1);
+      if (!BlastSupport.loaded(world, pos)) continue;
+      BlockState state = world.getBlockState(pos);
+      if (state.isAir() || state.getHardness(world, pos) < 0) continue;
+      if (state.getBlock() instanceof CondensedExplosiveBlock explosive)
+        explosive.prime(world, pos, explosive.getPayload().blockFuseTicks());
+      else if (world.random.nextFloat() < .1f
+          && FlyingBlockEntity.capture(world, pos, Vec3d.ZERO, 0) != null) continue;
+      world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
+    }
+    if (removalCursor == 0) removalCursor = -1;
     int reach = 2 * calls;
     for (Entity entity :
         BlastSupport.entities(
@@ -113,7 +135,7 @@ final class SonicBlast implements BlastWork {
               Math.abs(d.y * world.random.nextFloat()),
               d.z * world.random.nextFloat() * .2));
     }
-    return collected && calls > radius;
+    return collected && calls > radius && removalCursor < 0 && passesDue <= removalPasses;
   }
 
   private int march(
@@ -154,6 +176,8 @@ final class SonicBlast implements BlastWork {
     nbt.putBoolean("started", started);
     nbt.putInt("collectionDelay", collectionDelay);
     nbt.putInt("removalPasses", removalPasses);
+    nbt.putInt("removalCursor", removalCursor);
+    nbt.putInt("removalReach", removalReach);
     nbt.putLongArray("results", results.toLongArray());
     return nbt;
   }
@@ -165,6 +189,9 @@ final class SonicBlast implements BlastWork {
     blast.collectionDelay = nbt.contains("collectionDelay") ? nbt.getInt("collectionDelay") : -1;
     blast.removalPasses = Math.max(0, nbt.getInt("removalPasses"));
     for (long pos : nbt.getLongArray("results")) if (blast.seen.add(pos)) blast.results.add(pos);
+    int cursor = nbt.contains("removalCursor") ? nbt.getInt("removalCursor") : -1;
+    blast.removalCursor = cursor < 0 ? -1 : Math.min(cursor, blast.results.size());
+    blast.removalReach = Math.max(1, nbt.getInt("removalReach"));
     return blast;
   }
 }

@@ -153,6 +153,17 @@ final class BeamBlast implements BlastWork {
     world.setBlockState(pos, block.getDefaultState(), 3);
   }
 
+  /**
+   * Upstream converts the block under a scanned stone or aggregate block. That target was not
+   * scanned, so it gets the scan's own checks: loaded, in bounds and breakable (never bedrock).
+   */
+  private static void setBelow(ServerWorld world, BlockPos pos, Block block) {
+    BlockPos below = pos.down();
+    if (!BlastSupport.loaded(world, below)) return;
+    if (world.getBlockState(below).getHardness(world, below) < 0) return;
+    set(world, below, block);
+  }
+
   static void heat(ServerWorld world, BlockPos pos, double distance, double radius) {
     double decay = Math.max(1, radius * .3), ensured = Math.max(1, radius * .1);
     double scale = 1 - distance / radius;
@@ -168,10 +179,10 @@ final class BeamBlast implements BlastWork {
       else set(world, pos, Blocks.FIRE);
     } else if (material == Material.STONE) {
       if (world.random.nextFloat() > .9f) set(world, pos, Blocks.LAVA);
-      else if (world.random.nextBoolean()) set(world, pos.down(), Blocks.MAGMA_BLOCK);
+      else if (world.random.nextBoolean()) setBelow(world, pos, Blocks.MAGMA_BLOCK);
       else if (world.random.nextBoolean() || distance <= ensured) netherrack(world, pos);
     } else if (material == Material.AGGREGATE) {
-      if (world.random.nextBoolean()) set(world, pos.down(), Blocks.SOUL_SAND);
+      if (world.random.nextBoolean()) setBelow(world, pos, Blocks.SOUL_SAND);
       else netherrack(world, pos);
     } else if (material == Material.SOIL || material == Material.SOLID_ORGANIC)
       netherrack(world, pos);
