@@ -3772,12 +3772,12 @@
     "mapping_note": "Disabled when Mekanism is loaded: Mekanism fills the carbon/charcoal/coal dust tags and converts gunpowder and sulfur dust one-to-one, so one sulfur dust making three gunpowder would duplicate gunpowder and create EMC (scripts/emc.py checks every conditional recipe for gain)."
   },
   "iron_plate": {
-    "source": "port-specific: mirrors parts/plate.steel.json for the previously uncraftable plateIron subtype",
+    "source": "port-specific: restores the previously uncraftable plateIron subtype; two stacked ingots make two plates (a 2x2 grid would shadow the vanilla iron trapdoor, and a 1x3 row clashes with Industrial Revolution's fluid pipe in Tekxit 4)",
     "recipe": {
       "type": "minecraft:crafting_shaped",
       "pattern": [
-        "ii",
-        "ii"
+        "i",
+        "i"
       ],
       "key": {
         "i": {
@@ -3786,7 +3786,7 @@
       },
       "result": {
         "item": "icbm_port:iron_plate",
-        "count": 4
+        "count": 2
       }
     }
   },
