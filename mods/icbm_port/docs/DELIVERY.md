@@ -52,7 +52,11 @@ The rocket launcher consumes one inventory missile per shot. The ballistic
 launcher requires a visible block target at least 20 blocks away, with a
 500-block targeting ray. Both support paid mixed cluster manifests and held-item
 missiles. Cluster loading appends one bomblet per occupied crafting slot and caps
-the manifest at 64; empty cluster casings cannot fire.
+the manifest at 64; empty cluster casings cannot fire. Handheld cluster rockets
+fly as `ActionableMissileEntity`: they release within 3 blocks of the aim point
+(20 blocks above a ballistic target) and are duds on impact, as upstream.
+Sneaking while firing rides the rocket; a lead in the off hand puts one leashed
+mob within 7 blocks on it instead. Rockets never hit their own rider.
 
 ## Configuration
 

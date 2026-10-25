@@ -92,10 +92,19 @@ primed explosives, missiles and TNT, recovering ammunition and using one of
 128 durability points. Spectators cannot defuse.
 
 Normal/compact/reinforced concrete retains source hardness 10 and resistance
-28/280/2800. Numeric resistance uses 1.19.2 mechanics; exact cross-version blast
-shapes are unverified. Reinforced glass resistance is 60. Normal/poison/fire
-spikes permit overlap and deal one damage, with 140 poison ticks or seven fire
-seconds. Glass buttons and plates use vanilla behavior.
+28/280/2800 and needs a pickaxe. Numeric resistance uses 1.19.2 mechanics; exact
+cross-version blast shapes are unverified. Reinforced glass has hardness 10 and
+resistance 28.8 (the source's 48 converted to 1.19 units), the stone sound, no
+mob spawning or suffocation, and drops itself without a tool. Normal/poison/fire
+spikes are iron blocks that need a pickaxe, have hardness/resistance 1 and a
+full-block selection box, let entities overlap and hit every overlap tick with
+the `icbm_port.spikes` damage source (vanilla hurt immunity is the only
+cooldown, as upstream). Damage per type comes from `config/icbm_port-blocks.json`
+(`normalSpikeDamage`, `poisonSpikeDamage`, `fireSpikeDamage`; default 1, minimum
+1); poison lasts 140 ticks and fire seven seconds. The glass button behaves like
+a stone button (20-tick pulse, arrows ignored) with hardness 0.5 and glass
+sounds; the glass pressure plate detects every entity, including items, with
+hardness 0.3, resistance 0.6 and glass sounds.
 
 ## Validation and remaining differences
 

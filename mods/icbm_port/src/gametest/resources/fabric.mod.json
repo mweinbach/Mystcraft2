@@ -25,6 +25,8 @@
       "dev.icbm.port.delivery.SmokeGameTests",
       "dev.icbm.port.delivery.DeliveryGameTests",
       "dev.icbm.port.defense.DefenseGameTests",
+      "dev.icbm.port.defense.DefenseBlockParityGameTests",
+      "dev.icbm.port.entity.EntityParityGameTests",
       "dev.icbm.port.MissileGameTests",
       "dev.icbm.port.ContentGameTests",
       "dev.icbm.port.energy.EnergyGameTests",

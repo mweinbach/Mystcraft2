@@ -198,5 +198,12 @@
   "container.icbm_port.radar_station": "Radar Station",
   "container.icbm_port.emp_tower": "EMP Tower",
   "container.icbm_port.sam_launcher": "SAM Launcher",
-  "tooltip.icbm_port.viewer_remainder": "Returns: %s"
+  "tooltip.icbm_port.viewer_remainder": "Returns: %s",
+  "entity.icbm_port.player_seat": "Launcher Seat",
+  "entity.icbm_port.light_beam": "Blast Light Column",
+  "entity.icbm_port.actionable_missile": "Triggered Missile",
+  "death.attack.icbm_port.spikes": "%1$s stepped onto a bed of spikes",
+  "death.attack.icbm_port.spikes.player": "%1$s was driven onto spikes while fleeing %2$s",
+  "death.attack.icbm_port.radioactive_block": "%1$s absorbed a lethal dose from contaminated ground",
+  "death.attack.icbm_port.radioactive_block.player": "%1$s absorbed a lethal dose from contaminated ground while fighting %2$s"
 }

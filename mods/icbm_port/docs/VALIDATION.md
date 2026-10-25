@@ -1,5 +1,13 @@
 # Validation — 0.2.0-alpha.4
 
+## Seats, light beams, actionable missiles and defense blocks (October 25, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
+
+| Check | Result |
+| --- | --- |
+@@PR3ROWS@@
+
 ## Blast parity (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
