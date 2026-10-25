@@ -184,7 +184,9 @@ public final class DeliveryParityGameTests implements FabricGameTest {
     c.getWorld().spawnEntity(entity);
     // Only the primed-explosive handler: the full EMP also leaves launcher-disable zones that
     // would outlive this test and break later launcher tests at the same structure position.
-    PrimedExplosiveEntity.empKill(c.getWorld(), Vec3d.ofCenter(pos));
+    PrimedExplosiveEntity.empKill(c.getWorld(), Vec3d.ofCenter(pos).add(3, 0, 0), 2);
+    check(c, !entity.isRemoved(), "Primed explosives outside the EMP blast's radius must survive");
+    PrimedExplosiveEntity.empKill(c.getWorld(), Vec3d.ofCenter(pos), 2);
     check(c, entity.isRemoved(), "EMP must remove primed explosives (upstream CapabilityEmpKill)");
     c.complete();
   }

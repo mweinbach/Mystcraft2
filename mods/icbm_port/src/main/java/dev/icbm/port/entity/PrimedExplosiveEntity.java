@@ -154,10 +154,10 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
     Payloads.EMP_HANDLERS.add(PrimedExplosiveEntity::empKill);
   }
 
-  /** Removes primed explosives within the configured EMP radius of {@code center}. */
-  public static void empKill(net.minecraft.server.world.ServerWorld world, Vec3d center) {
-    double radius =
-        Math.min(512, dev.icbm.port.payload.PayloadConfig.forType(PayloadType.EMP).radius());
+  /** Removes primed explosives within the EMP blast's {@code radius} of {@code center}. */
+  public static void empKill(
+      net.minecraft.server.world.ServerWorld world, Vec3d center, double blastRadius) {
+    double radius = Math.min(512, blastRadius);
     if (!(radius > 0)) return;
     world
         .getEntitiesByClass(
