@@ -279,7 +279,8 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
               ammo,
               start,
               new Vec3d(motion.x(), motion.y(), motion.z()),
-              target != null && !cruise ? target : null);
+              target != null && !cruise ? target : null,
+              launcher.lockHeight());
       if (heldMissile == null) return record(launcher, LauncherStatus.ERROR_SPAWN);
       dev.icbm.port.entity.PlayerSeatEntity.transferRiders(world, pos, heldMissile);
     } else {

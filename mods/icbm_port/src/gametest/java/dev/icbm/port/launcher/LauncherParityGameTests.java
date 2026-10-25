@@ -146,6 +146,40 @@ public class LauncherParityGameTests implements FabricGameTest {
     context.complete();
   }
 
+  /** Review fix: held-item missiles fired from a targeted base also climb to its lock height. */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  public void heldItemMissileUsesLauncherLockHeight(TestContext context) {
+    var launcher = legacy(context, new BlockPos(2, 2, 2));
+    BlockPos pos = launcher.getPos(), target = pos.east(300);
+    ItemStack ammo = new ItemStack(dev.icbm.port.delivery.DeliveryContent.HELD_ITEM_MISSILE);
+    dev.icbm.port.delivery.HeldItemMissileItem.setCargo(
+        ammo, new ItemStack(net.minecraft.item.Items.COBBLESTONE));
+    launcher.setStack(0, ammo);
+    launcher.configure(target, true, 0);
+    check(context, launcher.configureLaunch(0, 24), "Lock height 24 must be accepted");
+    var status = IcbmPort.LAUNCHER.fire(context.getWorld(), pos, 1);
+    var fired =
+        context
+            .getWorld()
+            .getEntitiesByType(
+                dev.icbm.port.delivery.DeliveryContent.HELD_MISSILE,
+                new Box(pos).expand(4),
+                e -> true);
+    try {
+      check(
+          context,
+          status == LauncherStatus.LAUNCHED && fired.size() == 1,
+          "The held-item missile must launch: " + status);
+      check(
+          context,
+          fired.get(0).flightPlan().targeted() && fired.get(0).flightPlan().lockHeight() == 24,
+          "The launcher's lock height must reach a held-item missile's flight plan");
+    } finally {
+      fired.forEach(Entity::discard);
+    }
+    context.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH, tickLimit = 40)
   public void firingDelayQueuesPersistsAndFires(TestContext context) {
     var launcher = legacy(context, new BlockPos(2, 2, 2));
