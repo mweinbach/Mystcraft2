@@ -86,11 +86,57 @@ public final class FlightLedger extends PersistentState {
   }
 
   public static boolean tryCapture(Entity entity, StagedFlight plan) {
-    if (!(entity.world instanceof ServerWorld world)
-        || !plan.targeted()
-        || entity.hasPassengers()
-        || entity.hasVehicle()) return false;
+    if (!(entity.world instanceof ServerWorld world) || !plan.targeted() || !capturable(entity))
+      return false;
     return get(world).capture(entity, plan);
+  }
+
+  /**
+   * Whether virtual flight can carry this entity and everything riding it. Upstream never simulates
+   * a missile carrying a player, so player riders (at any depth) keep physical flight. Other riders
+   * are saved with the missile and restored with it at reentry; a rider whose type cannot be saved
+   * would be lost, so it also keeps physical flight.
+   */
+  public static boolean capturable(Entity entity) {
+    return !entity.hasVehicle() && ridersSaveable(entity);
+  }
+
+  private static boolean ridersSaveable(Entity vehicle) {
+    for (Entity rider : vehicle.getPassengerList()) {
+      if (rider instanceof net.minecraft.entity.player.PlayerEntity
+          || rider.isRemoved()
+          || !rider.getType().isSaveable()
+          || !ridersSaveable(rider)) return false;
+    }
+    return true;
+  }
+
+  private static int riderCount(Entity vehicle) {
+    int count = 0;
+    for (Entity rider : vehicle.getPassengerList()) count += 1 + riderCount(rider);
+    return count;
+  }
+
+  private static int savedRiderCount(NbtCompound snapshot) {
+    NbtList riders = snapshot.getList("Passengers", NbtElement.COMPOUND_TYPE);
+    int count = 0;
+    for (int i = 0; i < riders.size(); i++) count += 1 + savedRiderCount(riders.getCompound(i));
+    return count;
+  }
+
+  private static void discardRiders(Entity vehicle) {
+    for (Entity rider : java.util.List.copyOf(vehicle.getPassengerList())) {
+      discardRiders(rider);
+      rider.discard();
+    }
+  }
+
+  private static void placeRiders(Entity vehicle) {
+    for (Entity rider : vehicle.getPassengerList()) {
+      vehicle.updatePassengerPosition(rider);
+      rider.setVelocity(vehicle.getVelocity());
+      placeRiders(rider);
+    }
   }
 
   private boolean capture(Entity entity, StagedFlight plan) {
@@ -102,7 +148,8 @@ public final class FlightLedger extends PersistentState {
     if (next <= 0) return false;
     plan.setGeneration(next);
     NbtCompound snapshot = new NbtCompound();
-    if (!entity.saveNbt(snapshot)) {
+    // Riders are written into the snapshot's Passengers list; refuse rather than drop any of them.
+    if (!entity.saveNbt(snapshot) || savedRiderCount(snapshot) != riderCount(entity)) {
       plan.setGeneration(old);
       return false;
     }
@@ -118,6 +165,8 @@ public final class FlightLedger extends PersistentState {
     generations.put(uuid, next);
     pending.put(uuid, new Entry(snapshot, plan.target(), ticks, next));
     markDirty();
+    // The riders travel inside the snapshot; remove the live copies so none is left at altitude.
+    discardRiders(entity);
     entity.discard();
     return true;
   }
@@ -165,7 +214,11 @@ public final class FlightLedger extends PersistentState {
         entry.attempts++;
         markDirty();
       }
-      if (spawned >= 4 || !world.isChunkLoaded(entry.target)) continue;
+      // A ticket-loaded chunk is FULL before it is entity-ticking. An entity spawned in between is
+      // hidden: it neither ticks nor resolves by UUID, so the ticket sweep above would then drop
+      // the ticket and strand the reentry. Wait for entity ticking.
+      if (spawned >= 4 || !world.isChunkLoaded(entry.target) || !world.shouldTickEntity(entry.target))
+        continue;
       Entity existing = world.getEntity(record.getKey());
       if (existing != null && existing.isRemoved()) existing = null;
       if (existing != null) {
@@ -204,11 +257,21 @@ public final class FlightLedger extends PersistentState {
       tracked.flightPlan().prepareReentry(position);
       entity.setPosition(position);
       entity.setVelocity(0, -FlightProfile.REENTRY_SPEED, 0);
-      if (world.spawnEntity(entity)) {
+      dropLiveDuplicateRiders(world, entity);
+      placeRiders(entity);
+      if (world.spawnNewEntityAndPassengers(entity)) {
         spawned++;
         iterator.remove();
         markDirty();
       }
+    }
+  }
+
+  /** A rider that somehow still exists in the world keeps its live copy; drop the snapshot one. */
+  private static void dropLiveDuplicateRiders(ServerWorld world, Entity vehicle) {
+    for (Entity rider : java.util.List.copyOf(vehicle.getPassengerList())) {
+      if (world.getEntity(rider.getUuid()) != null) rider.stopRiding();
+      else dropLiveDuplicateRiders(world, rider);
     }
   }
 

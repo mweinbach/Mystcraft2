@@ -484,4 +484,88 @@ public class EntityParityGameTests implements FabricGameTest {
     missiles.forEach(MissileEntity::discard);
     context.complete();
   }
+
+  // ---- Virtual flight with riders (review) -----------------------------------------------------
+
+  /**
+   * Review fix: a long-range ballistic flight carrying a mob reaches the virtual-flight boundary.
+   * The mob must travel inside the flight snapshot and reenter on the missile, not be discarded at
+   * altitude or stall the missile there.
+   */
+  private void assertRiderSurvivesVirtualFlight(
+      TestContext c, net.minecraft.entity.Entity missile, String kind) {
+    var world = c.getWorld();
+    PigEntity pig = pig(c, missile.getBlockPos());
+    check(c, pig.startRiding(missile, true), kind + ": pig must mount the missile");
+    var missileId = missile.getUuid();
+    var pigId = pig.getUuid();
+    boolean[] captured = {false};
+    c.runAtEveryTick(
+        () -> {
+          var ledger = dev.icbm.port.flight.FlightLedger.get(world);
+          if (!captured[0]) {
+            if (!missile.isRemoved()) {
+              check(
+                  c,
+                  missile.getPassengerList().contains(pig),
+                  kind + ": the mob fell off before the boundary");
+              return;
+            }
+            captured[0] = true;
+            check(
+                c,
+                ledger.generation(missileId) > 0,
+                kind + ": missile was discarded at the boundary instead of entering virtual flight");
+            check(
+                c,
+                world.getEntity(pigId) == null,
+                kind + ": the mob was left behind at the capture point");
+            return;
+          }
+          var reentry = world.getEntity(missileId);
+          if (!(reentry instanceof dev.icbm.port.flight.FlightTracked tracked)) return;
+          check(
+              c,
+              tracked.flightPlan().stage() == dev.icbm.port.flight.StagedFlight.Stage.DESCENT,
+              kind + ": restored missile must descend onto its target");
+          var rider = world.getEntity(pigId);
+          check(
+              c,
+              rider instanceof PigEntity && rider.getVehicle() == reentry,
+              kind + ": the mob must reenter riding the missile");
+          check(
+              c,
+              Math.abs(reentry.getX() - (c.getAbsolutePos(BlockPos.ORIGIN).getX() + 402.5)) < 2,
+              kind + ": reentry must be above the target");
+          rider.discard();
+          reentry.discard();
+          c.complete();
+        });
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1200)
+  public void longRangeMissileCarriesMobThroughVirtualFlight(TestContext c) {
+    var world = c.getWorld();
+    BlockPos start = c.getAbsolutePos(new BlockPos(2, 2, 2));
+    MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+    missile.setPosition(Vec3d.ofBottomCenter(start));
+    // ~400 blocks: under ARC_DISTANCE_LIMIT, so the physical arc climbs through the exit height.
+    missile.configureTarget(start.east(400));
+    check(c, world.spawnEntity(missile), "Missile must spawn");
+    assertRiderSurvivesVirtualFlight(c, missile, "Missile");
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1200)
+  public void longRangeHeldItemMissileCarriesMobThroughVirtualFlight(TestContext c) {
+    var world = c.getWorld();
+    BlockPos start = c.getAbsolutePos(new BlockPos(2, 2, 2));
+    ItemStack ammo = new ItemStack(DeliveryContent.HELD_ITEM_MISSILE);
+    dev.icbm.port.delivery.HeldItemMissileItem.setCargo(
+        ammo, new ItemStack(net.minecraft.item.Items.COBBLESTONE));
+    var missile =
+        DeliveryContent.launchHeldEntity(
+            world, null, ammo, Vec3d.ofBottomCenter(start), Vec3d.ZERO, start.east(400));
+    check(c, missile != null, "Held-item missile must launch");
+    assertRiderSurvivesVirtualFlight(c, missile, "Held-item missile");
+  }
 }

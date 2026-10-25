@@ -101,9 +101,10 @@ public final class StagedFlight {
     if (stage == Stage.LOCK_HEIGHT) {
       if (entity.getY() >= start.y + lockHeight) {
         double flat = Math.hypot(target.getX() + .5 - start.x, target.getZ() + .5 - start.z);
-        // Upstream ArcFlightLogic: a missile carrying a player always flies the physical arc.
+        // Upstream ArcFlightLogic: a missile carrying a player always flies the physical arc. Other
+        // riders are carried through virtual flight (FlightLedger.capturable).
         stage =
-            flat >= FlightProfile.ARC_DISTANCE_LIMIT && !entity.hasPlayerRider()
+            flat >= FlightProfile.ARC_DISTANCE_LIMIT && FlightLedger.capturable(entity)
                 ? Stage.ASCENT
                 : Stage.ARC;
         elapsed = 0;

@@ -241,10 +241,12 @@ public class MissileEntity extends ThrownItemEntity
         discard();
         return;
       }
-      // Upstream MissileTrackerHandler never simulates a missile carrying a player.
-      boolean carriesPlayer = hasPlayerRider();
+      // Upstream MissileTrackerHandler never simulates a missile carrying a player. Other riders
+      // (a leashed mob, a seat passenger) travel inside the virtual-flight snapshot and reenter
+      // with the missile; only riders that cannot be saved keep physical flight too.
+      boolean physicalOnly = !dev.icbm.port.flight.FlightLedger.capturable(this);
       if (flight.targeted()
-          && !carriesPlayer
+          && !physicalOnly
           && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
                   && flight.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
               || !world.isChunkLoaded(new BlockPos(next)))) {
@@ -253,7 +255,7 @@ public class MissileEntity extends ThrownItemEntity
         discard();
         return;
       }
-      if ((next.y >= world.getTopY() && !carriesPlayer) || !world.isChunkLoaded(new BlockPos(next))) {
+      if ((next.y >= world.getTopY() && !physicalOnly) || !world.isChunkLoaded(new BlockPos(next))) {
         discard();
         return;
       }

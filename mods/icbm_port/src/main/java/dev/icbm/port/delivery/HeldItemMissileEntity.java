@@ -86,15 +86,18 @@ public final class HeldItemMissileEntity extends ThrownItemEntity
     if (!world.isClient && !flightPlan.targeted() && --fuel <= 0) setNoGravity(false);
     Vec3d motion = !world.isClient ? flightPlan.nextVelocity(this) : getVelocity();
     Vec3d next = getPos().add(motion);
-    boolean carriesPlayer = hasPlayerRider();
+    // As MissileEntity: only player (or unsaveable) riders keep physical flight past the boundary.
+    boolean physicalOnly = !world.isClient && !dev.icbm.port.flight.FlightLedger.capturable(this);
     if (!world.isClient
         && flightPlan.targeted()
-        && !carriesPlayer
+        && !physicalOnly
         && ((next.y >= dev.icbm.port.flight.FlightProfile.exitHeight(world)
                 && flightPlan.stage() != dev.icbm.port.flight.StagedFlight.Stage.DESCENT)
             || !world.isChunkLoaded(new BlockPos(next)))) {
       if (dev.icbm.port.flight.FlightLedger.tryCapture(this, flightPlan)) return;
-      setVelocity(Vec3d.ZERO);
+      // Admission refused (ledger full): recover the casing and cargo instead of hovering at the
+      // boundary until the 12,000-tick flight limit.
+      recover();
       return;
     }
     if (!world.isClient
@@ -103,7 +106,7 @@ public final class HeldItemMissileEntity extends ThrownItemEntity
             || !Double.isFinite(next.z)
             || !world.isChunkLoaded(new BlockPos(next))
             || (world.isOutOfHeightLimit(new BlockPos(next))
-                && !(carriesPlayer && next.y >= world.getTopY()))
+                && !(physicalOnly && next.y >= world.getTopY()))
             || !world.getWorldBorder().contains(new BlockPos(next)))) {
       recover();
       return;
