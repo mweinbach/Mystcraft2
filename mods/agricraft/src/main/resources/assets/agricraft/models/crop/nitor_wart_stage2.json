@@ -1,0 +1,6 @@
+{
+  "parent": "agricraft:crop/crop_hash",
+  "textures": {
+    "crop": "agricraft:plant/nitor_wart_stage0"
+  }
+}

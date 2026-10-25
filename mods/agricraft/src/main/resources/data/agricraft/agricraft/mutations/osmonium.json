@@ -1,0 +1,6 @@
+{
+  "chance": 0.25,
+  "child": "agricraft:osmonium",
+  "parent1": "agricraft:ferranium",
+  "parent2": "agricraft:quartzanthemum"
+}

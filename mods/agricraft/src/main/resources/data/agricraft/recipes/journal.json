@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:writable_book"
+    },
+    {
+      "tag": "agricraft:seeds"
+    }
+  ],
+  "result": {
+    "item": "agricraft:journal"
+  }
+}

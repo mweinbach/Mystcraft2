@@ -1,0 +1,24 @@
+{
+  "namespace": "agricraft",
+  "loaders": {"projecte": "forge", "itemalchemy": "fabric"},
+  "resources": {
+    "projecte": ["src/main/resources", "src/forge/resources"],
+    "itemalchemy": ["src/main/resources", "src/fabric/resources"]
+  },
+  "output": "src/main/resources",
+  "values": {
+    "agricraft:coal_pebble": {"like": "minecraft:coal", "times": "1/9", "round": "up", "why": "Harvested from the coal resource crop; nine craft one coal, so a pebble is worth a ninth of coal (rounded up so nine never cost less than the result, which would devalue it) and the recipe never gains."},
+    "agricraft:copper_nugget": {"like": "minecraft:copper_ingot", "times": "1/9", "round": "up", "why": "Harvested from the copper resource crop; nine craft one copper ingot, so a nugget is worth a ninth of the ingot (rounded up so nine never cost less than the result, which would devalue it)."},
+    "agricraft:diamond_shard": {"like": "minecraft:diamond", "times": "1/9", "round": "up", "why": "Harvested from the diamond resource crop; nine craft one diamond, so a shard is worth a ninth of a diamond (rounded up so nine never cost less than the result, which would devalue it)."},
+    "agricraft:emerald_shard": {"like": "minecraft:emerald", "times": "1/9", "round": "up", "why": "Harvested from the emerald resource crop; nine craft one emerald, so a shard is worth a ninth of an emerald (rounded up so nine never cost less than the result, which would devalue it)."},
+    "agricraft:quartz_shard": {"like": "minecraft:quartz", "times": "1/9", "round": "up", "why": "Harvested from the quartz resource crop; nine craft one nether quartz, so a shard is worth a ninth of the quartz (rounded up so nine never cost less than the result, which would devalue it)."},
+    "agricraft:netherite_sliver": {"like": "minecraft:netherite_scrap", "times": "1/9", "round": "up", "why": "Harvested from the netherite resource crop; nine craft one netherite scrap, so a sliver is worth a ninth of the scrap (rounded up so nine never cost less than the result, which would devalue it)."},
+    "agricraft:amathyllis_petal": {"like": "minecraft:amethyst_shard", "times": "1/9", "round": "up", "why": "Harvested from the amathyllis crop; nine craft one amethyst shard, so a petal is worth a ninth of the shard (rounded up so nine never cost less than the result, which would devalue it)."}
+  },
+  "exclude": {
+    "agricraft:seed": "One item for every plant: the species and six stats live in NBT, which transmutation does not copy, and mutations breed rare plants from common seeds, so any value would let cheap seeds be bred into EMC.",
+    "agricraft:debugger": "Creative-only developer tool with no recipe.",
+    "agricraft:journal": "Crafted from a writable book and any seed, and records researched plants in NBT; a transmuted copy would be a blank journal, and pricing it on the seed tag would price AgriCraft seeds through the back door."
+  },
+  "notes": "Resource crops (coal, copper, diamond, emerald, quartz, netherite, amethyst) are a farming source like any crop, not a transmutation loop: their seeds carry no EMC, and each resource item is worth a ninth of the vanilla item its nine-piece recipe makes, rounded up, so crafting nine never gains. The magnifying-helmet recipe only adds an NBT flag to a helmet the player already has."
+}

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:osmium_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/osmium",
+      "required": false
+    }
+  ]
+}

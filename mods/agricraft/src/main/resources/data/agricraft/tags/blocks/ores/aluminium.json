@@ -1,0 +1,20 @@
+{
+  "values": [
+    {
+      "id": "#c:aluminum_ores",
+      "required": false
+    },
+    {
+      "id": "#c:aluminium_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/aluminum",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/aluminium",
+      "required": false
+    }
+  ]
+}

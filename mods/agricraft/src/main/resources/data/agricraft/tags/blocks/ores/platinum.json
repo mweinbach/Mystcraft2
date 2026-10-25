@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:platinum_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/platinum",
+      "required": false
+    }
+  ]
+}

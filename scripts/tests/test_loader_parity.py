@@ -592,7 +592,7 @@ class RepositoryGateTests(unittest.TestCase):
     """Source-only checks of every dual port: runnable in the tooling job before any build."""
 
     def test_every_dual_port_has_a_gate(self):
-        self.assertEqual(DUAL_PORTS, ['advancedgenetics', 'buildcraft', 'extremereactors', 'gridwright',
+        self.assertEqual(DUAL_PORTS, ['advancedgenetics', 'agricraft', 'buildcraft', 'extremereactors', 'gridwright',
                                       'jurassicraft', 'mekanism', 'mystcraft', 'projecte'])
 
     def test_every_gate_calls_the_shared_checks(self):

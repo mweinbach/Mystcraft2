@@ -1,0 +1,6 @@
+{
+  "chance": 0.75,
+  "child": "agricraft:nitor_wart",
+  "parent1": "agricraft:aurigold",
+  "parent2": "minecraft:nether_wart"
+}

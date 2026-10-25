@@ -105,6 +105,17 @@ jobs:
               mods/gridwright/run/gameTestServer/logs/latest.log
               mods/gridwright/fabric/build/gametest-results.xml
               mods/gridwright/fabric/build/gametest/logs/latest.log
+          - id: agricraft
+            kind: dual
+            forge_props: -PwithProjectE
+            fabric_props: -PwithItemAlchemy -PwithProjectE
+            jars: |
+              mods/agricraft/build/libs/*.jar
+              mods/agricraft/fabric/build/libs/*.jar
+            reports: |
+              mods/agricraft/run/gameTestServer/logs/latest.log
+              mods/agricraft/fabric/build/gametest-results.xml
+              mods/agricraft/fabric/build/gametest/logs/latest.log
           - id: mystcraft
             kind: dual
             forge_props: -PwithProjectE
