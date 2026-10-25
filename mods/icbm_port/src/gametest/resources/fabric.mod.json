@@ -21,6 +21,7 @@
       "dev.icbm.port.payload.BeamBlastParityGameTests",
       "dev.icbm.port.payload.AntiGravityParityGameTests",
       "dev.icbm.port.payload.UtilityBlastParityGameTests",
+      "dev.icbm.port.payload.QueueContentionGameTests",
       "dev.icbm.port.delivery.SmokeGameTests",
       "dev.icbm.port.delivery.DeliveryGameTests",
       "dev.icbm.port.defense.DefenseGameTests",

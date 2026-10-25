@@ -25,9 +25,15 @@ final class BlastTestSupport {
     return job;
   }
 
+  /** One queue service in a fresh world tick: the queue ages every job before serving it. */
+  static boolean serve(TestContext c, Payloads.Job job) {
+    job.elapsedTicks = Math.min(GasWork.MAX_ELAPSED_TICKS, job.elapsedTicks + 1);
+    return job.tick(c.getWorld(), 512);
+  }
+
   /** Ticks the job like the queue does until it finishes; false if it outlives {@code maxTicks}. */
   static boolean run(TestContext c, Payloads.Job job, int maxTicks) {
-    for (int tick = 0; tick < maxTicks; tick++) if (job.tick(c.getWorld(), 512)) return true;
+    for (int tick = 0; tick < maxTicks; tick++) if (serve(c, job)) return true;
     return false;
   }
 

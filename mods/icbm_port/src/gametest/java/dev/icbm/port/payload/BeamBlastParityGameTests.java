@@ -79,7 +79,7 @@ public final class BeamBlastParityGameTests implements FabricGameTest {
     try {
       var job = job(c, PayloadType.ENDOTHERMIC, center, 3, null);
       int calls = 0;
-      while (!job.tick(c.getWorld(), 512) && calls < 400) calls++;
+      while (!serve(c, job) && calls < 400) calls++;
       check(
           c,
           calls >= BeamBlast.WAIT_TICKS && calls < 400,

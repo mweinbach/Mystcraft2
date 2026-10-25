@@ -114,7 +114,7 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
     var pig = still(c, EntityType.PIG, center.add(2, 1, 0));
     try {
       var job = job(c, PayloadType.SONIC, center, 10, null);
-      check(c, !job.tick(c.getWorld(), 512), "Sonic blasts last several ticks");
+      check(c, !serve(c, job), "Sonic blasts last several ticks");
       check(c, pig.getVelocity().y > 0, "The first pulse must throw nearby mobs upward");
       // Under a contended time budget the ray pass takes 512 units per call (about 160 calls at
       // radius 10); the wave's radius-call lifetime only starts after it.
@@ -142,9 +142,9 @@ public final class ConventionalBlastParityGameTests implements FabricGameTest {
     c.getWorld().setBlockState(origin.down(), Blocks.STONE.getDefaultState(), 2);
     try {
       var job = job(c, PayloadType.SONIC, center, 10, null);
-      // As if collection had been starved for 100 calls, far past the radius lifetime.
-      job.age = 100;
-      check(c, !job.tick(c.getWorld(), 512), "A late-collected sonic blast must not expire at once");
+      // As if collection had been starved for 100 world ticks, far past the radius lifetime.
+      job.elapsedTicks = 100;
+      check(c, !serve(c, job), "A late-collected sonic blast must not expire at once");
       check(c, run(c, job, 400), "Sonic blast must end once collection and the wave finish");
       check(c, c.getWorld().isAir(origin.down()), "A late-collected pulse must still strip stone");
     } finally {

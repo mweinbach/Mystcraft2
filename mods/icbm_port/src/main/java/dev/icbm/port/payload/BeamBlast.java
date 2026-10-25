@@ -48,6 +48,8 @@ final class BeamBlast implements BlastWork {
   private final PayloadType type;
   private final int size;
   private int phase, cursor, timer = WAIT_TICKS, mutated;
+  /** {@code job.elapsedTicks} when the phase-2 wait began, or -1 before it starts. */
+  private int waitStart = -1;
   private long beamId;
   private LongArrayList found = new LongArrayList();
   private long[] edits;
@@ -55,6 +57,11 @@ final class BeamBlast implements BlastWork {
   BeamBlast(PayloadType type, int size) {
     this.type = type;
     this.size = size;
+  }
+
+  /** Upstream phase: 0 start, 1 lift scan, 2 wait, 3 sphere scan, 4 transform. */
+  int phase() {
+    return phase;
   }
 
   private boolean hot() {
@@ -97,7 +104,10 @@ final class BeamBlast implements BlastWork {
       phase = 2;
     }
     if (phase == 2) {
-      if (timer-- > 0) return false;
+      // World ticks, not service calls: a busy queue serves each job only intermittently.
+      if (waitStart < 0) waitStart = job.elapsedTicks;
+      if (job.elapsedTicks - waitStart < timer && job.elapsedTicks < GasWork.MAX_ELAPSED_TICKS)
+        return false;
       beam(world, c, .8f, false);
       phase = 3;
     }
@@ -239,6 +249,7 @@ final class BeamBlast implements BlastWork {
     // Scans only read the world, so they restart after a reload.
     nbt.putInt("phase", phase);
     nbt.putInt("timer", timer);
+    nbt.putInt("waitStart", waitStart);
     if (phase == 4) {
       long[] remaining = new long[edits.length - mutated];
       System.arraycopy(edits, mutated, remaining, 0, remaining.length);
@@ -252,6 +263,7 @@ final class BeamBlast implements BlastWork {
     blast.beamId = nbt.getLong("beam");
     blast.phase = Math.max(0, Math.min(4, nbt.getInt("phase")));
     blast.timer = nbt.contains("timer") ? Math.max(0, Math.min(WAIT_TICKS, nbt.getInt("timer"))) : WAIT_TICKS;
+    blast.waitStart = nbt.contains("waitStart") ? Math.max(-1, nbt.getInt("waitStart")) : -1;
     if (blast.phase == 4) {
       blast.edits = nbt.getLongArray("remaining");
       blast.found = null;

@@ -71,8 +71,9 @@ final class EnderBlast implements BlastWork {
   public boolean tick(ServerWorld world, Payloads.Job job, int budget) {
     Vec3d c = job.center;
     double radius = BlastSupport.blastRadius(job.radius);
-    int call = job.age - 1;
-    particles(world, c, radius, job.age);
+    // Upstream counts calls, one per world tick; the queue may serve this job less often.
+    int call = Math.max(0, job.elapsedTicks - 1);
+    particles(world, c, radius, job.elapsedTicks);
     boolean flashed = false;
     for (Entity entity : BlastSupport.entities(world, new Box(c, c).expand(radius), c, e -> true)) {
       double dx = entity.getX() - c.x, dy = entity.getY() - c.y, dz = entity.getZ() - c.z;

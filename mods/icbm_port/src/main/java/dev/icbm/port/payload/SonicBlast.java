@@ -33,14 +33,21 @@ final class SonicBlast implements BlastWork {
   private final int size;
   private int ray;
   private boolean started;
-  /** Service calls spent finishing the ray pass beyond the first; the wave starts after it. */
+  /** World ticks spent finishing the ray pass beyond the first; the wave starts after it. */
   private int collectionDelay = -1;
+  /** Removal passes run so far (upstream removes on every fourth call). */
+  private int removalPasses;
   private final LongArrayList results = new LongArrayList();
   private final it.unimi.dsi.fastutil.longs.LongOpenHashSet seen =
       new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
 
   SonicBlast(int size) {
     this.size = size;
+  }
+
+  /** World tick (less one) at which the ray pass finished and the wave began; -1 before. */
+  int waveStart() {
+    return collectionDelay;
   }
 
   private int radius() {
@@ -66,10 +73,15 @@ final class SonicBlast implements BlastWork {
     // Upstream waits for its ray thread before the wave moves. Under a contended time budget the
     // pass can outlast radius calls, so the expanding lifetime starts once collection completes.
     boolean collected = ray >= total;
-    if (collected && collectionDelay < 0) collectionDelay = Math.max(0, job.age - 1);
-    // Upstream doExplode(callCount++): the argument is the previous count, the field the new one.
-    int calls = job.age - Math.max(0, collectionDelay), call = calls - 1;
-    if (collected && call % 4 == 0) {
+    if (collected && collectionDelay < 0) collectionDelay = Math.max(0, job.elapsedTicks - 1);
+    // Upstream doExplode(callCount++) runs once per world tick: the argument is the previous count,
+    // the field the new one. The count is in world ticks so a busy queue, which serves each job
+    // only intermittently, cannot stretch the wave; a removal pass that fell due between services
+    // runs at the next one.
+    int calls = job.elapsedTicks - Math.max(0, collectionDelay), call = calls - 1;
+    int passesDue = call < 0 ? 0 : call / 4 + 1;
+    if (collected && passesDue > removalPasses) {
+      removalPasses = passesDue;
       if (results.isEmpty()) return true;
       int reach = Math.max(1, calls);
       for (int i = results.size() - 1; i >= 0; i--) {
@@ -141,6 +153,7 @@ final class SonicBlast implements BlastWork {
     nbt.putInt("ray", ray);
     nbt.putBoolean("started", started);
     nbt.putInt("collectionDelay", collectionDelay);
+    nbt.putInt("removalPasses", removalPasses);
     nbt.putLongArray("results", results.toLongArray());
     return nbt;
   }
@@ -150,6 +163,7 @@ final class SonicBlast implements BlastWork {
     blast.ray = Math.max(0, nbt.getInt("ray"));
     blast.started = nbt.getBoolean("started");
     blast.collectionDelay = nbt.contains("collectionDelay") ? nbt.getInt("collectionDelay") : -1;
+    blast.removalPasses = Math.max(0, nbt.getInt("removalPasses"));
     for (long pos : nbt.getLongArray("results")) if (blast.seen.add(pos)) blast.results.add(pos);
     return blast;
   }

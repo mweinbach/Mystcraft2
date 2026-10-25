@@ -38,10 +38,14 @@ import net.minecraft.util.math.random.Random;
 final class AntiGravityBlast implements BlastWork {
   static final int RUNNING_TICKS = 20 * 60 * 2;
   static final int SCAN_PER_TICK = 4096;
+  /** Lifts one call may make up for when the queue served this job late (256 jobs / 8 slots). */
+  static final int MAX_LIFT_CATCH_UP = 32;
   static final int MAX_TRACKED = RUNNING_TICKS + 1;
 
   private final int size;
   private int ray, searchIndex;
+  /** {@code job.elapsedTicks} at the last lift, or -1 before the first. */
+  private int lastLift = -1;
   private long seed;
   private boolean ordered;
   private final LongOpenHashSet results = new LongOpenHashSet();
@@ -81,7 +85,12 @@ final class AntiGravityBlast implements BlastWork {
         sorted.sort((a, b) -> Integer.compare(BlockPos.unpackLongY(b), BlockPos.unpackLongY(a)));
         order = sorted.toLongArray();
       }
-      lift(world, c);
+      // Upstream lifts one block per world tick. A busy queue serves this job intermittently, so
+      // it catches up on the ticks it missed (bounded per call).
+      int due =
+          lastLift < 0 ? 1 : Math.max(1, Math.min(MAX_LIFT_CATCH_UP, job.elapsedTicks - lastLift));
+      lastLift = job.elapsedTicks;
+      for (int i = 0; i < due; i++) lift(world, c);
     }
     pull(world, c, radius);
     // World ticks, not service calls: a busy queue serves each job only intermittently.
@@ -162,6 +171,7 @@ final class AntiGravityBlast implements BlastWork {
     NbtCompound nbt = new NbtCompound();
     nbt.putLong("seed", seed);
     nbt.putInt("searchIndex", searchIndex);
+    nbt.putInt("lastLift", lastLift);
     NbtList ids = new NbtList();
     for (UUID id : lifted) ids.add(NbtHelper.fromUuid(id));
     nbt.put("lifted", ids);
@@ -173,6 +183,7 @@ final class AntiGravityBlast implements BlastWork {
     blast.seed = nbt.getLong("seed");
     // The ray pass restarts (it only reads the world); the seeded order resumes near its index.
     blast.searchIndex = Math.max(0, nbt.getInt("searchIndex"));
+    blast.lastLift = nbt.contains("lastLift") ? Math.max(-1, nbt.getInt("lastLift")) : -1;
     NbtList ids = nbt.getList("lifted", 11);
     for (int i = 0; i < Math.min(ids.size(), MAX_TRACKED); i++)
       blast.lifted.add(NbtHelper.toUuid(ids.get(i)));
