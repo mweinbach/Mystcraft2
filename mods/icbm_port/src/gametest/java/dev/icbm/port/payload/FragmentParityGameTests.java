@@ -231,6 +231,38 @@ public final class FragmentParityGameTests implements FabricGameTest {
   @GameTest(
       templateName = FabricGameTest.EMPTY_STRUCTURE,
       batchId = "icbmFragmentHits",
+      tickLimit = 40)
+  public void explosiveFragmentSplashCreditsItsOwner(TestContext c) {
+    var target = still(c, EntityType.IRON_GOLEM, c.getAbsolute(new Vec3d(3.5, 2, 2.5)));
+    var owner = still(c, EntityType.PIG, c.getAbsolute(new Vec3d(.5, 2, 6.5)));
+    FragmentEntity fragment = flying(c, c.getAbsolute(new Vec3d(2.5, 3, 2.5)), Vec3d.ZERO);
+    fragment.setExplosive(true);
+    fragment.setExplosionSize(1.5f);
+    fragment.setOwner(owner);
+    c.getWorld().spawnEntity(fragment);
+    // explode() may defer to a later tick under the per-tick explosion budget.
+    c.runAtTick(2, fragment::explode);
+    c.runAtTick(
+        12,
+        () -> {
+          try {
+            check(c, fragment.isRemoved(), "The explosive fragment must have exploded");
+            var source = target.getRecentDamageSource();
+            check(
+                c,
+                source != null && source.isExplosive() && source.getAttacker() == owner,
+                "Fragment explosion damage must name the fragment's owner");
+          } finally {
+            target.discard();
+            owner.discard();
+          }
+          c.complete();
+        });
+  }
+
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      batchId = "icbmFragmentHits",
       tickLimit = 20)
   public void fragmentsCannotHitDuringTheirFirstTicks(TestContext c) {
     var target = still(c, EntityType.IRON_GOLEM, c.getAbsolute(new Vec3d(4.5, 2, 2.5)));

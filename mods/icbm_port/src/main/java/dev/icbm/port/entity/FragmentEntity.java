@@ -399,8 +399,25 @@ public class FragmentEntity extends Entity {
     }
     exploding = true;
     pendingExplosion = false;
+    // FragmentEntity is not a ProjectileEntity, so vanilla's explosion source would not find the
+    // owner through this entity; name it explicitly, as direct fragment hits do.
+    Entity shooter = getOwner();
+    DamageSource source =
+        shooter == null
+            ? null
+            : new net.minecraft.entity.damage.EntityDamageSource("explosion.player", shooter)
+                .setScaledWithDifficulty()
+                .setExplosive();
     server.createExplosion(
-        this, getX(), getY(), getZ(), explosionSize, Explosion.DestructionType.DESTROY);
+        this,
+        source,
+        null,
+        getX(),
+        getY(),
+        getZ(),
+        explosionSize,
+        false,
+        Explosion.DestructionType.DESTROY);
     discard();
   }
 
