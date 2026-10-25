@@ -67,6 +67,24 @@ tasks.named('jar', Jar) {
     finalizedBy 'reobfJar'
 }
 
+// Forge 43.5.0 ships a default fml.toml without defaultConfigPath, so every fresh run corrects the file while
+// NightConfig's autoreload watcher reloads it. The two threads can tear maxThreads into a duplicate key
+// ('Invalid TOML data: entry "[maxThreads]" defined twice') or throw ConcurrentModificationException before any
+// test runs. A complete file (Forge's defaults) skips the correction. Every run uses run/<name> (see above).
+tasks.matching { it.name ==~ /run[A-Z].*/ }.configureEach { task ->
+    task.doFirst {
+        def config = file("run/${task.name.substring(3).uncapitalize()}/config")
+        config.mkdirs()
+        new File(config, 'fml.toml').text = '''\
+splashscreen = true
+maxThreads = -1
+versionCheck = true
+defaultConfigPath = "defaultconfigs"
+disableOptimizedDFU = true
+'''
+    }
+}
+
 // With -PwithProjectE (the port declares the runtime dependency), ProjectE writes every
 // computed value to <run dir>/config/ProjectE/pregenerated_emc.json; a stale file would be
 // loaded instead of remapping.

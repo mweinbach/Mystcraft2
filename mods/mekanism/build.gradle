@@ -161,11 +161,11 @@ def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
     from 'src/gametestCommon/structures'
     into 'run/gameTestServer/gameteststructures'
 }
-// Forge 43.5.0 ships an fml.toml without defaultConfigPath, and a fresh GameTest server
-// has no Mekanism configs. Startup then corrects those files while NightConfig's watcher
-// reloads them. The two threads race on additions.toml and world.toml ("table declared
-// twice", ConcurrentModificationException) before the ore tests read world generation.
-// A complete fml.toml and spec-matching Mekanism configs skip that startup correction.
+// A fresh GameTest server has no Mekanism configs. Startup then corrects those files while
+// NightConfig's watcher reloads them. The two threads race on additions.toml and world.toml
+// ("table declared twice", ConcurrentModificationException) before the ore tests read world
+// generation. Spec-matching configs skip that startup correction (gradle/forge-mod.gradle
+// seeds fml.toml for every run the same way).
 // Seeding is not enough on its own: additionswalkieselectschannelandcrafts later calls
 // ConfigValue.set on additions.toml, and that autosave races the same watcher. The
 // gameTestServer run sets mekanism.gametest.skipConfigWatcher so MekanismModConfig
@@ -185,13 +185,6 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach {
         }
         def configDir = file('run/gameTestServer/config')
         configDir.mkdirs()
-        new File(configDir, 'fml.toml').text = '''\
-splashscreen = true
-maxThreads = -1
-versionCheck = true
-defaultConfigPath = "defaultconfigs"
-disableOptimizedDFU = true
-'''
         // Forge's own specs are corrected the same way. These match Forge 43.5.0's defaults.
         new File(configDir, 'forge-common.toml').text = '''\
 
