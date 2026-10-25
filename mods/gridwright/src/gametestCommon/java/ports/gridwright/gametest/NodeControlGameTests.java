@@ -41,6 +41,7 @@ public class NodeControlGameTests {
     private static NodeBlockEntity node(GameTestHelper helper, NodeKind kind) {
         helper.setBlock(NODE, TransferRegistry.NODES.get(kind).get().defaultBlockState().setValue(NodeBlock.FACING, Direction.WEST));
         helper.setBlock(PIPE, TransferRegistry.PIPE.get());
+        GameTestTicking.keepTestAreaTicking(helper);
         return (NodeBlockEntity) helper.getBlockEntity(NODE);
     }
 
