@@ -127,7 +127,7 @@ translation_keys={key for source in java.rglob('*.java') for key in re.findall(r
 # Payload tooltips use a dynamic key in the client callback; audit every catalog ID.
 translation_keys={key for key in translation_keys if not key.endswith('.')}
 translation_keys.update('tooltip.icbm_port.payload.'+payload for payload in payloads)
-translation_keys.update({'tooltip.icbm_port.redmatter_counter','death.attack.icbm_port.redmatter','death.attack.icbm_port.redmatter.player'})
+translation_keys.update({'tooltip.icbm_port.redmatter_counter','death.attack.icbm_port.redmatter','death.attack.icbm_port.redmatter.player','death.attack.icbm_port.chemical','death.attack.icbm_port.chemical.player','death.attack.icbm_port.contagious','death.attack.icbm_port.contagious.player'})
 missing_keys=translation_keys-lang.keys()
 if missing_keys:print('Missing translation keys: '+', '.join(sorted(missing_keys)));sys.exit(1)
 print(f'PASS: all {len(translation_keys)} required message/tooltip/container/death translation keys are defined.')

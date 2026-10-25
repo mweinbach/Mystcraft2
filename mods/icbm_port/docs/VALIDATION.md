@@ -1,5 +1,21 @@
 # Validation — 0.2.0-alpha.4
 
+## Gas, fragment and smoke parity (October 25, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
+
+| Check | Result |
+| --- | --- |
+| `./scripts/gradle.sh :icbm_port:build` (JDK 17) | Passed; JUnit **21** passed |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **125** required GameTests passed. New: `GasParityGameTests` (6: upstream radius schedule and one layer per radius change, five-tick hit cadence and full-rating helmet protection, chemical toxicity above 20 hits with `icbm_port.chemical`, contagious toxicity above 10 hits plus mutation, colors never touching entities and ending on the run past its duration, cloud/hit/job save and reload), `FragmentParityGameTests` (9: 900 burning critical shrapnel, 625 owned anvil fragments, 225 explosive fragments, the 1,024 live explosive cap, 16 fragment explosions per tick with the rest deferred, `ceil(speed × damage)` hits naming fragment and owner and igniting the target, no hits in the first five airborne ticks, glass broken and stone stopping a fragment, NBT round-trip) and `SmokeGameTests` (2: one 100-tick smoke entity instead of queued work, alive mid-life, saved age, removed after its lifetime; grenade, primed block and burning cart each leave one). Updated: the queue lifetime test now uses radius-0 debilitation clouds and allows 33 ticks for the first served batch to come round again; the enclosure test uses the new cloud API with an open-air control; the old 30-arrow shrapnel test was replaced |
+| Same with `-PwithEmi -PwithJei -PwithRei` | All 125 passed |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed |
+| `python3 mods/icbm_port/tools/validate_resources.py …/minecraft-client.jar` | Passed (new `entity.icbm_port.fragment`/`smoke` names and chemical/contagious death messages are required keys) |
+| `python3 mods/icbm_port/tools/check_payload_visuals.py` | Passed |
+| `python3 scripts/ports.py check`, `python3 scripts/emc.py check` | Passed (no new items) |
+| `python3 -m unittest discover -s scripts/tests -v`; `… -s mods/icbm_port/tools/tests -v` | 155 (3 skipped) and 10 passed |
+| `python3 scripts/check_mixin_member_names.py`, `tools/tekxit4-probe/mixin_audit.py`, `scripts/check_unmapped_overrides.py` | Passed; 0 mixin conflicts, 0 unmapped overrides |
+
 ## Extreme payloads and flat explosive art (October 24, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.

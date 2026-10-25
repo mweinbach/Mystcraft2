@@ -131,6 +131,12 @@ for id,texture in [('radioactive_stone','stone'),('radioactive_dirt','dirt'),('e
 put('data/icbm_port/recipes/emp_tower_extension.json',{'type':'minecraft:crafting_shaped','pattern':['prp','ewe','prp'],'key':{'p':{'item':'icbm_port:steel_plate'},'r':{'item':'minecraft:redstone'},'e':{'item':'icbm_port:battery'},'w':{'item':'icbm_port:gold_wire'}},'result':{'item':'icbm_port:emp_tower_extension'}})
 lang['entity.icbm_port.flying_block']='Flying Block'
 lang['entity.icbm_port.redmatter_singularity']='Redmatter Singularity'
+lang['entity.icbm_port.fragment']='Blast Fragment'
+lang['entity.icbm_port.smoke']='Smoke Plume'
+lang['death.attack.icbm_port.chemical']='%1$s succumbed to chemical gas'
+lang['death.attack.icbm_port.chemical.player']='%1$s succumbed to chemical gas while fighting %2$s'
+lang['death.attack.icbm_port.contagious']='%1$s succumbed to a viral cloud'
+lang['death.attack.icbm_port.contagious.player']='%1$s succumbed to a viral cloud while fighting %2$s'
 put('assets/icbm_port/lang/en_us.json',lang)
 blocks=[p.stem for p in (ROOT/'assets/icbm_port/blockstates').glob('*.json')]
 put('data/minecraft/tags/blocks/mineable/pickaxe.json',{'replace':False,'values':['icbm_port:'+b for b in sorted(blocks) if not b.endswith('_explosive')]})

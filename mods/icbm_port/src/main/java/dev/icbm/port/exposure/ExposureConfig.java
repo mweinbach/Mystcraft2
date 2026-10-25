@@ -20,6 +20,18 @@ public final class ExposureConfig {
   public boolean randomTickOnly = false;
   public boolean viralSpread = true;
   public int viralSpreadInterval = 100, viralSpreadRange = 2;
+
+  /**
+   * Toxicity from upstream {@code ConfigChemical} and {@code ConfigContagious}: direct damage
+   * starts once an entity's hit count exceeds the start value and is {@code max(min, hits *
+   * scale)}. Missing keys in older config files keep these defaults.
+   */
+  public int chemicalToxicityStart = 20, viralToxicityStart = 10;
+
+  public float chemicalToxicityScale = .1f,
+      chemicalToxicityMinDamage = 1,
+      viralToxicityScale = .05f,
+      viralToxicityMinDamage = 1;
   public Map<String, Float> armorRatings = new LinkedHashMap<>();
 
   public ExposureConfig() {
