@@ -136,6 +136,8 @@ public class IrrigationGameTests {
 
 	@GameTest(template = TEMPLATE, timeoutTicks = 200)
 	public static void channelsSpreadWaterFromATank(GameTestHelper helper) {
+		// tanks, channels and sprinklers work in their tickers; tick them even before the chunk does
+		GameTestTicking.keepTestAreaTicking(helper);
 		IrrigationTankBlockEntity tank = tank(helper, new BlockPos(1, 1, 1));
 		tank.pushWater(8000, true);
 		IrrigationChannelBlockEntity first = channel(helper, new BlockPos(2, 1, 1), IrrigationChannelBlock.Valve.NONE);
@@ -153,6 +155,8 @@ public class IrrigationGameTests {
 
 	@GameTest(template = TEMPLATE, timeoutTicks = 200)
 	public static void closedValveBlocksTheFlow(GameTestHelper helper) {
+		// tanks, channels and sprinklers work in their tickers; tick them even before the chunk does
+		GameTestTicking.keepTestAreaTicking(helper);
 		IrrigationTankBlockEntity tank = tank(helper, new BlockPos(1, 1, 1));
 		tank.pushWater(8000, true);
 		BlockPos valvePos = new BlockPos(2, 1, 1);
@@ -172,6 +176,8 @@ public class IrrigationGameTests {
 
 	@GameTest(template = TEMPLATE, timeoutTicks = 200)
 	public static void sprinklerDrainsTheChannelAndMoistensFarmland(GameTestHelper helper) {
+		// tanks, channels and sprinklers work in their tickers; tick them even before the chunk does
+		GameTestTicking.keepTestAreaTicking(helper);
 		IrrigationChannelBlockEntity channel = channel(helper, new BlockPos(3, 4, 3), IrrigationChannelBlock.Valve.NONE);
 		channel.pushWater(500, true);
 		BlockPos sprinklerPos = new BlockPos(3, 3, 3);
