@@ -252,7 +252,9 @@ public class MachineGameTests {
         });
     }
 
+    /** Places a powered machine that advances once per game tick, whether or not the server is ticking its chunk yet. */
     private static <T extends AbstractInventoryBlockEntity> T machine(GameTestHelper helper, Block block, Class<T> type, int overclock) {
+        GameTestTicking.keepTestAreaTicking(helper);
         helper.setBlock(MACHINE, block);
         BlockEntity blockEntity = helper.getBlockEntity(MACHINE);
         check(type.isInstance(blockEntity), "Expected " + type.getSimpleName() + " but found " + blockEntity);

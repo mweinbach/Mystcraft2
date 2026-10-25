@@ -118,43 +118,45 @@ public class GeneGameTests {
         dropEquipment.setAccessible(true);
         BlockPos dropPos = new BlockPos(1, 2, 1);
 
-        ServerPlayer keeper = player(helper, "ag_nodrop", Genes.KEEP_INVENTORY);
-        keeper.getInventory().add(new ItemStack(Items.EMERALD, 2));
-        dropEquipment.invoke(keeper);
-        check(keeper.getInventory().countItem(Items.EMERALD) == 2, "Keep Inventory player dropped items");
-        helper.assertItemEntityNotPresent(Items.EMERALD, dropPos, 3.0);
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            ServerPlayer keeper = player(helper, "ag_nodrop", Genes.KEEP_INVENTORY);
+            keeper.getInventory().add(new ItemStack(Items.EMERALD, 2));
+            invoke(dropEquipment, keeper);
+            check(keeper.getInventory().countItem(Items.EMERALD) == 2, "Keep Inventory player dropped items");
+            helper.assertItemEntityNotPresent(Items.EMERALD, dropPos, 3.0);
 
-        ServerPlayer plain = player(helper, "ag_drop");
-        plain.getInventory().add(new ItemStack(Items.EMERALD, 2));
-        dropEquipment.invoke(plain);
-        check(plain.getInventory().isEmpty(), "Player without Keep Inventory kept items");
-        helper.assertItemEntityPresent(Items.EMERALD, dropPos, 3.0);
-        helper.killAllEntities();
-        helper.succeed();
+            ServerPlayer plain = player(helper, "ag_drop");
+            plain.getInventory().add(new ItemStack(Items.EMERALD, 2));
+            invoke(dropEquipment, plain);
+            check(plain.getInventory().isEmpty(), "Player without Keep Inventory kept items");
+            helper.assertItemEntityPresent(Items.EMERALD, dropPos, 3.0);
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
     @GameTest(template = TEMPLATE)
     public static void deathGenesDropEmeraldsAndSpawnSlimes(GameTestHelper helper) {
         BlockPos pos = new BlockPos(3, 2, 3);
-        ServerPlayer player = player(helper, "ag_dies", pos);
-        genetics(player).addGene(Genes.EMERALD_HEART);
-        genetics(player).addGene(Genes.SLIMY);
-        player.die(DamageSource.GENERIC);
-        helper.assertItemEntityPresent(Items.EMERALD, pos, 2.0);
-        helper.assertEntityPresent(EntityType.SLIME, pos, 2.0);
-        helper.killAllEntities();
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            ServerPlayer player = player(helper, "ag_dies", pos);
+            genetics(player).addGene(Genes.EMERALD_HEART);
+            genetics(player).addGene(Genes.SLIMY);
+            player.die(DamageSource.GENERIC);
+            helper.assertItemEntityPresent(Items.EMERALD, pos, 2.0);
+            helper.assertEntityPresent(EntityType.SLIME, pos, 2.0);
+            helper.killAllEntities();
 
-        player.die(DamageSource.GENERIC);
-        helper.assertItemEntityNotPresent(Items.EMERALD, pos, 2.0);
-        helper.killAllEntities();
+            player.die(DamageSource.GENERIC);
+            helper.assertItemEntityNotPresent(Items.EMERALD, pos, 2.0);
+            helper.killAllEntities();
 
-        ServerPlayer plain = player(helper, "ag_plain_death", pos);
-        plain.die(DamageSource.GENERIC);
-        helper.assertItemEntityNotPresent(Items.EMERALD, pos, 2.0);
-        check(helper.getLevel().getEntitiesOfClass(Slime.class, new AABB(helper.absolutePos(pos)).inflate(2.0), Slime::isAlive).isEmpty(),
-                "A player without Slimy spawned a slime");
-        helper.killAllEntities();
-        helper.succeed();
+            ServerPlayer plain = player(helper, "ag_plain_death", pos);
+            plain.die(DamageSource.GENERIC);
+            helper.assertItemEntityNotPresent(Items.EMERALD, pos, 2.0);
+            check(helper.getLevel().getEntitiesOfClass(Slime.class, new AABB(helper.absolutePos(pos)).inflate(2.0), Slime::isAlive).isEmpty(),
+                    "A player without Slimy spawned a slime");
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
     @GameTest(template = TEMPLATE)
@@ -239,48 +241,54 @@ public class GeneGameTests {
 
     @GameTest(template = TEMPLATE)
     public static void fireChargesShootWithoutTheGeneAndNotForSpectators(GameTestHelper helper) {
-        ServerPlayer shooter = player(helper, "ag_charge");
-        shooter.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
-        check(useItem(shooter) == InteractionResult.SUCCESS, "Using a fire charge was not handled");
-        check(shooter.getMainHandItem().getCount() == 1, "Shooting used " + (2 - shooter.getMainHandItem().getCount()) + " charges");
-        check(fireballs(helper, shooter).size() == 1, "No fireball was shot");
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            ServerPlayer shooter = player(helper, "ag_charge");
+            shooter.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
+            check(useItem(shooter) == InteractionResult.SUCCESS, "Using a fire charge was not handled");
+            check(shooter.getMainHandItem().getCount() == 1, "Shooting used " + (2 - shooter.getMainHandItem().getCount()) + " charges");
+            check(fireballs(helper, shooter).size() == 1, "No fireball was shot");
 
-        ServerPlayer spectator = player(helper, "ag_ghost");
-        spectator.setGameMode(GameType.SPECTATOR);
-        spectator.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
-        check(useItem(spectator) == InteractionResult.PASS, "A spectator's fire charge was handled");
-        check(fireballs(helper, spectator).isEmpty() && spectator.getMainHandItem().getCount() == 2, "A spectator shot a fireball");
+            ServerPlayer spectator = player(helper, "ag_ghost");
+            spectator.setGameMode(GameType.SPECTATOR);
+            spectator.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
+            check(useItem(spectator) == InteractionResult.PASS, "A spectator's fire charge was handled");
+            check(fireballs(helper, spectator).isEmpty() && spectator.getMainHandItem().getCount() == 2, "A spectator shot a fireball");
 
-        ServerPlayer cooling = player(helper, "ag_cooldown");
-        cooling.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
-        cooling.getCooldowns().addCooldown(Items.FIRE_CHARGE, 100);
-        check(useItem(cooling) == InteractionResult.PASS && fireballs(helper, cooling).isEmpty(), "A fire charge on cooldown shot");
+            ServerPlayer cooling = player(helper, "ag_cooldown");
+            cooling.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
+            cooling.getCooldowns().addCooldown(Items.FIRE_CHARGE, 100);
+            check(useItem(cooling) == InteractionResult.PASS && fireballs(helper, cooling).isEmpty(), "A fire charge on cooldown shot");
 
-        ServerPlayer gene = player(helper, "ag_inverted", Genes.SHOOT_FIREBALLS);
-        gene.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
-        useItem(gene);
-        check(fireballs(helper, gene).isEmpty(), "Upstream only shoots without the gene, but a gene holder shot");
-        helper.killAllEntities();
-        helper.succeed();
+            ServerPlayer gene = player(helper, "ag_inverted", Genes.SHOOT_FIREBALLS);
+            gene.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FIRE_CHARGE, 2));
+            useItem(gene);
+            check(fireballs(helper, gene).isEmpty(), "Upstream only shoots without the gene, but a gene holder shot");
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
+    /**
+     * The explosion bursts on the chicken's feet, so it sees all of the chicken at no distance: 15 damage, nothing random,
+     * against 4 health. It only hurts entities the level shows, though, so wait for that before spawning the chicken.
+     */
     @GameTest(template = TEMPLATE)
-    public static void fireballExplosionCreditsTheShooter(GameTestHelper helper) throws ReflectiveOperationException {
-        BlockPos target = new BlockPos(4, 2, 4);
-        helper.setBlock(target.below(), Blocks.STONE);
-        LivingEntity chicken = helper.spawn(EntityType.CHICKEN, target);
-        ServerPlayer shooter = player(helper, "ag_shooter");
-        FireballEntity fireball = new FireballEntity(helper.getLevel(), shooter, new Vec3(0, -1, 0));
-        check(fireball.getOwner() == shooter, "Fireball owner is " + fireball.getOwner());
+    public static void fireballExplosionCreditsTheShooter(GameTestHelper helper) {
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            BlockPos target = new BlockPos(4, 2, 4);
+            helper.setBlock(target.below(), Blocks.STONE);
+            LivingEntity chicken = helper.spawn(EntityType.CHICKEN, target);
+            ServerPlayer shooter = player(helper, "ag_shooter");
+            FireballEntity fireball = new FireballEntity(helper.getLevel(), shooter, new Vec3(0, -1, 0));
+            check(fireball.getOwner() == shooter, "Fireball owner is " + fireball.getOwner());
 
-        fireball.moveTo(chicken.position());
-        BlockPos floor = helper.absolutePos(target.below());
-        hit(fireball, new BlockHitResult(chicken.position(), Direction.UP, floor, false));
-        check(fireball.isRemoved(), "Fireball survived its impact");
-        check(chicken.isDeadOrDying(), "Fireball explosion did not kill the chicken");
-        check(chicken.getKillCredit() == shooter, "Kill credit went to " + chicken.getKillCredit());
-        helper.killAllEntities();
-        helper.succeed();
+            fireball.moveTo(chicken.position());
+            BlockPos floor = helper.absolutePos(target.below());
+            hit(fireball, new BlockHitResult(chicken.position(), Direction.UP, floor, false));
+            check(fireball.isRemoved(), "Fireball survived its impact");
+            check(chicken.isDeadOrDying(), "Fireball explosion did not kill the chicken (health " + chicken.getHealth() + ")");
+            check(chicken.getKillCredit() == shooter, "Kill credit went to " + chicken.getKillCredit());
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
     @GameTest(template = TEMPLATE)
@@ -357,42 +365,45 @@ public class GeneGameTests {
         helper.succeed();
     }
 
+    /** Fabric adds the goals from {@code ENTITY_LOAD}, which fires only once the level shows the mob. */
     @GameTest(template = TEMPLATE)
     public static void scareGenesAddFleeGoals(GameTestHelper helper) {
-        Mob creeper = helper.spawn(EntityType.CREEPER, new BlockPos(1, 2, 1));
-        Mob skeleton = helper.spawn(EntityType.SKELETON, new BlockPos(3, 2, 3));
-        Mob zombie = helper.spawn(EntityType.ZOMBIE, new BlockPos(5, 2, 5));
-        check(hasFleeGoal(creeper), "Creeper has no flee goal");
-        check(hasFleeGoal(skeleton), "Skeleton has no flee goal");
-        check(!hasFleeGoal(zombie), "Zombie gained a flee goal");
-        helper.killAllEntities();
-        helper.succeed();
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            Mob creeper = helper.spawn(EntityType.CREEPER, new BlockPos(1, 2, 1));
+            Mob skeleton = helper.spawn(EntityType.SKELETON, new BlockPos(3, 2, 3));
+            Mob zombie = helper.spawn(EntityType.ZOMBIE, new BlockPos(5, 2, 5));
+            check(hasFleeGoal(creeper), "Creeper has no flee goal");
+            check(hasFleeGoal(skeleton), "Skeleton has no flee goal");
+            check(!hasFleeGoal(zombie), "Zombie gained a flee goal");
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
     @GameTest(template = TEMPLATE)
     public static void infinityGeneFiresWithoutUsingPlainArrows(GameTestHelper helper) {
-        ServerPlayer plain = archer(helper, "ag_archer", new BlockPos(1, 2, 1), new ItemStack(Items.ARROW, 2));
-        shootBow(plain);
-        check(plain.getInventory().countItem(Items.ARROW) == 1, "A normal shot did not use an arrow");
-        check(arrowPickup(helper, plain) == AbstractArrow.Pickup.ALLOWED, "A normal arrow cannot be picked up");
+        GameTestTicking.awaitEntitiesVisible(helper).thenExecute(() -> {
+            ServerPlayer plain = archer(helper, "ag_archer", new BlockPos(1, 2, 1), new ItemStack(Items.ARROW, 2));
+            shootBow(plain);
+            check(plain.getInventory().countItem(Items.ARROW) == 1, "A normal shot did not use an arrow");
+            check(arrowPickup(helper, plain) == AbstractArrow.Pickup.ALLOWED, "A normal arrow cannot be picked up");
 
-        ServerPlayer infinite = archer(helper, "ag_infinity", new BlockPos(3, 2, 1), new ItemStack(Items.ARROW, 2));
-        genetics(infinite).addGene(Genes.INFINITY);
-        shootBow(infinite);
-        check(infinite.getInventory().countItem(Items.ARROW) == 2, "Infinity gene used a plain arrow");
-        check(arrowPickup(helper, infinite) == AbstractArrow.Pickup.CREATIVE_ONLY, "An infinite arrow can be picked up");
+            ServerPlayer infinite = archer(helper, "ag_infinity", new BlockPos(3, 2, 1), new ItemStack(Items.ARROW, 2));
+            genetics(infinite).addGene(Genes.INFINITY);
+            shootBow(infinite);
+            check(infinite.getInventory().countItem(Items.ARROW) == 2, "Infinity gene used a plain arrow");
+            check(arrowPickup(helper, infinite) == AbstractArrow.Pickup.CREATIVE_ONLY, "An infinite arrow can be picked up");
 
-        ServerPlayer empty = archer(helper, "ag_empty_quiver", new BlockPos(5, 2, 1), ItemStack.EMPTY);
-        genetics(empty).addGene(Genes.INFINITY);
-        shootBow(empty);
-        check(arrowPickup(helper, empty) == AbstractArrow.Pickup.CREATIVE_ONLY, "Infinity gene cannot fire without arrows");
+            ServerPlayer empty = archer(helper, "ag_empty_quiver", new BlockPos(5, 2, 1), ItemStack.EMPTY);
+            genetics(empty).addGene(Genes.INFINITY);
+            shootBow(empty);
+            check(arrowPickup(helper, empty) == AbstractArrow.Pickup.CREATIVE_ONLY, "Infinity gene cannot fire without arrows");
 
-        ServerPlayer spectral = archer(helper, "ag_spectral", new BlockPos(1, 2, 5), new ItemStack(Items.SPECTRAL_ARROW, 2));
-        genetics(spectral).addGene(Genes.INFINITY);
-        shootBow(spectral);
-        check(spectral.getInventory().countItem(Items.SPECTRAL_ARROW) == 1, "Infinity gene made spectral arrows infinite");
-        helper.killAllEntities();
-        helper.succeed();
+            ServerPlayer spectral = archer(helper, "ag_spectral", new BlockPos(1, 2, 5), new ItemStack(Items.SPECTRAL_ARROW, 2));
+            genetics(spectral).addGene(Genes.INFINITY);
+            shootBow(spectral);
+            check(spectral.getInventory().countItem(Items.SPECTRAL_ARROW) == 1, "Infinity gene made spectral arrows infinite");
+            helper.killAllEntities();
+        }).thenSucceed();
     }
 
     @GameTest(template = TEMPLATE)
@@ -443,11 +454,20 @@ public class GeneGameTests {
         try {
             Method onHit = Projectile.class.getDeclaredMethod("onHit", HitResult.class);
             onHit.setAccessible(true);
-            onHit.invoke(projectile, result);
+            invoke(onHit, projectile, result);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** Calls an accessible method, rethrowing what it throws. */
+    private static void invoke(Method method, Object target, Object... args) {
+        try {
+            method.invoke(target, args);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof RuntimeException runtime) throw runtime;
             throw new IllegalStateException(e.getCause());
-        } catch (ReflectiveOperationException e) {
+        } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
     }
