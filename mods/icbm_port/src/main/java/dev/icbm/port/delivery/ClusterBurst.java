@@ -51,9 +51,14 @@ public final class ClusterBurst {
   public static List<Ejection> plan(
       int count, double sourceYaw, double sourcePitch, DoubleSupplier random) {
     List<Ejection> out = new ArrayList<>(Math.max(0, count));
+    // rotateX/rotateY turn +Z towards -X and +Y for positive angles, the opposite sense of the
+    // heading angles from headingYaw/headingPitch (atan2(x, z), atan2(y, horizontal)). Negating
+    // both keeps every disc perpendicular to the flight and stacks later discs back along it, for
+    // diagonal and pitched headings as well as cardinal ones.
+    double rotYaw = -sourceYaw, rotPitch = -sourcePitch;
     // Backward tilt is independent of the carrier heading upstream.
     double[] back = rotateX(0, 1, 0, MOTION_PITCH_OFFSET);
-    double[] stack = rotateY(rotateX(0, 0, 1, sourcePitch - 180), sourceYaw);
+    double[] stack = rotateY(rotateX(0, 0, 1, rotPitch - 180), rotYaw);
     int remaining = count;
     int disc = 0;
     while (remaining > 0) {
@@ -61,7 +66,7 @@ public final class ClusterBurst {
         remaining--;
         double yaw = wrapDegrees(YAW_STEP * slot + disc * DISC_YAW_OFFSET);
         double[] offsetYaw = rotateY(new double[] {0, 0, 1}, yaw);
-        double[] source = rotateY(rotateX(offsetYaw, sourcePitch - 90), sourceYaw);
+        double[] source = rotateY(rotateX(offsetYaw, rotPitch - 90), rotYaw);
         double dx = source[0] + back[0];
         double dy = source[1] + back[1];
         double dz = source[2] + back[2];

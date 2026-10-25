@@ -38,11 +38,11 @@ final class ClusterBurstTest {
     assertEquals(21, plan.size());
     assertEquals(20, plan.get(0).entry());
     assertEquals(0, plan.get(20).entry());
-    // Downward heading: discs are horizontal; upstream's stack vector
-    // rotateY(rotateX(SOUTH, pitch - 180), yaw) is (0, -1, 0), 0.1 per disc.
+    // Downward heading: discs are horizontal and later discs stack back up the flight path
+    // (0, +1, 0), 0.1 per disc, as a level flight stacks them back along -heading.
     assertEquals(0, plan.get(0).offsetY(), EPS);
-    assertEquals(-0.1, plan.get(10).offsetY(), EPS);
-    assertEquals(-0.2, plan.get(20).offsetY(), EPS);
+    assertEquals(0.1, plan.get(10).offsetY(), EPS);
+    assertEquals(0.2, plan.get(20).offsetY(), EPS);
     // Second disc starts 22.5 degrees around from the first.
     double a0 = Math.atan2(plan.get(0).offsetZ(), plan.get(0).offsetX());
     double a1 = Math.atan2(plan.get(10).offsetZ(), plan.get(10).offsetX());
@@ -55,7 +55,7 @@ final class ClusterBurstTest {
       int disc = i / 10;
       double scale = 0.3 + 0.1 * disc;
       double sx = e.offsetX() / 0.25;
-      double sy = (e.offsetY() + 0.1 * disc) / 0.25;
+      double sy = (e.offsetY() - 0.1 * disc) / 0.25;
       double sz = e.offsetZ() / 0.25;
       assertEquals(sx * scale, e.motionX(), EPS);
       assertEquals((sy + backY) * scale, e.motionY(), EPS);
@@ -80,5 +80,38 @@ final class ClusterBurstTest {
     assertEquals(90, ClusterBurst.headingYaw(1, 0, 0), EPS);
     assertEquals(-90, ClusterBurst.headingPitch(0, -1, 0), EPS);
     assertTrue(ClusterBurst.plan(0, 0, 0, () -> 0.5).isEmpty());
+  }
+
+  /** Review fix: discs stay perpendicular to diagonal and pitched headings too. */
+  @Test
+  void discsArePerpendicularToAnyHeadingAndStackBackwards() {
+    double[][] headings = {
+      {Math.sqrt(.5), 0, Math.sqrt(.5)}, {-0.6, 0, 0.8}, {0.48, 0.6, -0.64}, {-0.3, -0.9, 0.316}
+    };
+    for (double[] h : headings) {
+      double n = Math.sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]);
+      double hx = h[0] / n, hy = h[1] / n, hz = h[2] / n;
+      var plan =
+          ClusterBurst.plan(
+              20,
+              ClusterBurst.headingYaw(hx, hy, hz),
+              ClusterBurst.headingPitch(hx, hy, hz),
+              () -> 0.5);
+      double[] mean = new double[3];
+      for (int i = 0; i < 20; i++) {
+        var e = plan.get(i);
+        double along = e.offsetX() * hx + e.offsetY() * hy + e.offsetZ() * hz;
+        // Disc 0 lies in the plane through the burst point; disc 1 is 0.1 further back.
+        assertEquals(i < 10 ? 0 : -0.1, along, 2e-3, "offset along heading, droplet " + i);
+        if (i >= 10) {
+          mean[0] += e.offsetX() / 10;
+          mean[1] += e.offsetY() / 10;
+          mean[2] += e.offsetZ() / 10;
+        }
+      }
+      assertEquals(-0.1 * hx, mean[0], 2e-3);
+      assertEquals(-0.1 * hy, mean[1], 2e-3);
+      assertEquals(-0.1 * hz, mean[2], 2e-3);
+    }
   }
 }
