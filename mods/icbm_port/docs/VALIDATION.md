@@ -21,12 +21,21 @@ Second review round (queue contention). `QueueState.tick()` serves at most eight
 - Cluster discs stay perpendicular to diagonal and pitched headings; later discs stack back along the flight path (`ClusterBurstTest`, now 5 JUnit tests).
 - A targeted launcher applies its lock height to held-item missiles too (`LauncherParityGameTests.heldItemMissileUsesLauncherLockHeight`).
 
+Third review round:
+
+- Virtual flight carries non-player riders. A mob on a missile (off-hand lead, launcher seat) used to make `FlightLedger.tryCapture` refuse, so the missile was discarded at the exit height (and held-item ammunition hovered there). Riders whose types can be saved now travel inside the flight snapshot and reenter on the missile. Player riders, and riders that cannot be saved, keep physical flight as before. Capture refuses if the snapshot is missing any rider, and removes the live riders so none is left at altitude (`EntityParityGameTests.longRangeMissileCarriesMobThroughVirtualFlight`, `longRangeHeldItemMissileCarriesMobThroughVirtualFlight`: 400-block flights from launch to reentry). A held-item missile that the ledger cannot admit now drops its casing and cargo instead of hovering.
+- Reentry waits until the destination chunk is entity-ticking. A ticket-loaded chunk reports loaded before that, and an entity spawned in between was hidden: it did not tick or resolve by UUID, so the ticket sweep dropped its ticket. This applied to riderless long-range flights too; the two tests above cover it.
+- Audit of the other capture and hand-off paths: cluster and actionable missiles are `MissileEntity` subclasses and take the same path; launcher seat riders move onto the missile before its first tick; an EMP-killed engine clears the flight plan, so the missile falls physically and is never captured; bomblets, cargo balloons and grenades are not flight-tracked.
+- Exothermic conversion of the block below a stone or aggregate block checks that target too (loaded, in bounds, breakable), so bedrock is never replaced (`BeamBlastParityGameTests.exothermicNeverConvertsUnbreakableBlocksBelow`).
+- Sonic removal passes are time-sliced with a persisted cursor; the blast ends only after the last pass (`ConventionalBlastParityGameTests.sonicRemovalPassIsTimeSliced`).
+- Staged flight uses the launcher's per-axis range square, so a diagonal target a tiered base accepts also launches, for missiles and held-item ammunition, and survives a save (`LauncherParityGameTests.diagonalTargetInsideRangeSquareLaunches`).
+
 | Check | Result |
 | --- | --- |
-| Layer GameTests (`runGametest`) | Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
+| Layer GameTests (`runGametest`) | Third round: parity 2 **150**, parity 3 **172** (EMI/JEI/REI). Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
 | Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **35** passed |
-| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **201** required GameTests passed |
-| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **201** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **206** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **206** passed |
 | Stack tip `runMaterialGametest` | Passed (1/1) |
 | `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
 | `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
@@ -38,8 +47,8 @@ Branch `icbm/parity-5-machines-radio`, rebased onto the delivery/item, seat/acti
 | Check | Result |
 | --- | --- |
 | `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** recorded before the review fixes (superseded by the 34-test run above), including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
-| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 201-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
-| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 201-test run above |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 206-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
+| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 206-test run above |
 | `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
 | `python3 tools/validate_resources.py <client jar>`, `tools/check_payload_visuals.py` | Passed |
 | `python3 -m unittest discover -s tools/tests` | 10 passed |
