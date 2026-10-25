@@ -1,14 +1,37 @@
 # Validation — 0.2.0-alpha.4
 
+## Review fixes and final stack validation (October 25, 2026)
+
+Codex review findings on the stack, fixed on the layer that introduced each one and re-run on every layer. Dedicated-server and offline checks only; no client was launched.
+
+- Gas clouds end at the saturated 72,000-tick job clock (`GasParityGameTests.maximumDurationCloudExpiresWhenClockSaturates`).
+- Explosive fragment bursts also respect the shared fragment cap (`FragmentBlastTest`, 2 JUnit tests).
+- Chain-primed breaching and ender charges keep their facing and GPS target. `CondensedExplosiveBlock` captures the replaced state and block entity, because both vanilla explosions and the staged blasts clear the block before `onDestroyedByExplosion` (`UtilityBlastParityGameTests.chainPrimedChargesKeepTheirConfiguration`).
+- Sonic blasts start their radius-call lifetime only after ray collection finishes (`ConventionalBlastParityGameTests.sonicWaitsForSlowRayCollectionBeforeExpiring`). The existing sonic test now allows contended collection; that limit was the CI failure on #158/#159.
+- Antigravity and ender lifetimes count world ticks (`job.elapsedTicks`), not queue service calls.
+- An EMP engine kill is a persistent `engineFailed` state: the missile falls, but still detonates on impact (`MissileGameTests.engineKilledMissileStillDetonatesOnImpact`).
+- Direct rocket-launcher cluster aim points are limited to the 300-block flight range (`EntityParityGameTests.directClusterAimPointIsWithinFlightRange`).
+- Bomblets can be targeted by players, so the defuser can reach them. The defuser test now raycasts each target the way crosshair selection does.
+
+| Check | Result |
+| --- | --- |
+| Layer GameTests (`runGametest`) | Parity 2: **146** passed. Parity 3: **168** passed (EMI/JEI/REI). Parity 4: **182** passed (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
+| Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **34** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **198** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **198** passed |
+| Stack tip `runMaterialGametest` | Passed (1/1) |
+| `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
+| `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+
 ## Machine, launcher network and radio parity (October 25, 2026)
 
 Branch `icbm/parity-5-machines-radio`, rebased onto the delivery/item, seat/actionable-missile, blast and gas work. Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run, so the revised launcher/defense screens (delay/lock fields, status text, radar Redstone and ±100 channel buttons, EMP cost lines) are not yet visually checked.
 
 | Check | Result |
 | --- | --- |
-| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** passed, including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
-| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **192** required GameTests passed. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
-| Same with `-PwithEmi -PwithJei -PwithRei` | All **192** passed |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** recorded before the review fixes (superseded by the 34-test run above), including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 198-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
+| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 198-test run above |
 | `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
 | `python3 tools/validate_resources.py <client jar>`, `tools/check_payload_visuals.py` | Passed |
 | `python3 -m unittest discover -s tools/tests` | 10 passed |
