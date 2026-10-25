@@ -13,12 +13,20 @@ Codex review findings on the stack, fixed on the layer that introduced each one 
 - Direct rocket-launcher cluster aim points are limited to the 300-block flight range (`EntityParityGameTests.directClusterAimPointIsWithinFlightRange`).
 - Bomblets can be targeted by players, so the defuser can reach them. The defuser test now raycasts each target the way crosshair selection does.
 
+Second review round (queue contention). `QueueState.tick()` serves at most eight jobs per world tick, so any timer that counted service calls stretched under load (towards ~3,200 world ticks at the 256-job cap). Every timer, delay, lifetime and countdown in the blast queue, payloads and entities was audited:
+
+- Now counted in world ticks (`job.elapsedTicks`): the beam's 100-tick phase-2 delay, the sonic wave (radius calls, with removal passes caught up), ender particle/flash cadence and the antigravity lift rate (caught up, at most 32 lifts per service). Antigravity and ender lifetimes, gas clouds and legacy red matter already used `elapsedTicks`.
+- Not affected: TNT, fire, breaching and thermal have no waits; EMP is instant; `Scar.ticks` and the fallout cursor are statistics and work cursors, not timers. Entities (light beam, missiles, grenades, bomblets, cargo, redmatter, flight ledger) and block-entity tickers (launcher countdown, radio cooldown) tick every world tick, outside the queue.
+- `QueueContentionGameTests` (2) run the beam, ender and sonic blasts behind 14–15 never-ending filler jobs and check that each finishes within a few world ticks of its nominal time.
+- Cluster discs stay perpendicular to diagonal and pitched headings; later discs stack back along the flight path (`ClusterBurstTest`, now 5 JUnit tests).
+- A targeted launcher applies its lock height to held-item missiles too (`LauncherParityGameTests.heldItemMissileUsesLauncherLockHeight`).
+
 | Check | Result |
 | --- | --- |
-| Layer GameTests (`runGametest`) | Parity 2: **146** passed. Parity 3: **168** passed (EMI/JEI/REI). Parity 4: **182** passed (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
-| Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **34** passed |
-| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **198** required GameTests passed |
-| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **198** passed |
+| Layer GameTests (`runGametest`) | Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
+| Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **35** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **201** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **201** passed |
 | Stack tip `runMaterialGametest` | Passed (1/1) |
 | `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
 | `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
@@ -30,8 +38,8 @@ Branch `icbm/parity-5-machines-radio`, rebased onto the delivery/item, seat/acti
 | Check | Result |
 | --- | --- |
 | `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** recorded before the review fixes (superseded by the 34-test run above), including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
-| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 198-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
-| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 198-test run above |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | Recorded as **192** GameTests before the review fixes and the iron plate test; superseded by the 201-test runs above, which include every test listed here. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
+| Same with `-PwithEmi -PwithJei -PwithRei` | Superseded by the 201-test run above |
 | `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
 | `python3 tools/validate_resources.py <client jar>`, `tools/check_payload_visuals.py` | Passed |
 | `python3 -m unittest discover -s tools/tests` | 10 passed |
