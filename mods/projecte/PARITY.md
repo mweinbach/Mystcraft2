@@ -98,6 +98,12 @@ fuels burn for their own times in a vanilla furnace.
 
 ## Differences from upstream
 
+- Fabric, with Item Alchemy installed (Tekxit 4 ships it): Item Alchemy copies ProjectE's recipes with its own outputs,
+  so one of each pair could not be crafted. The Fabric jar's Philosopher's Stone (both recipes), Energy Collector MK1 and
+  medium and high covalence dust recipes load only without Item Alchemy (`fabric:load_conditions`); with it,
+  `data/projecte/recipes/itemalchemy/` loads rearranged recipes with the same ingredients. `check_loader_parity.py` checks
+  that the conditioned copies equal the shared recipes. See [the Tekxit 4 record](../../docs/tekxit4-testing.md).
+
 - Upstream 1.1.0's `registerDefault` world-transmutation entries have no sneaking alternate, so sneaking with the
   Philosopher's Stone does nothing different for them. This is upstream behaviour, kept.
 - Fabric: Curios slots are Trinkets slots (Trinkets 3.4.2, which Tekxit 4 ships). The Fabric jar ships

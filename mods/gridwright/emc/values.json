@@ -19,8 +19,8 @@
       "source": "recipe"
     },
     "gridwright:builders_wand": {
-      "projecte": 2056,
-      "itemalchemy": 2051,
+      "projecte": 2068,
+      "itemalchemy": 2063,
       "source": "recipe"
     },
     "gridwright:chunk_loading_ward": {
@@ -274,8 +274,8 @@
       "source": "recipe"
     },
     "gridwright:overclock_upgrade": {
-      "projecte": 8512,
-      "itemalchemy": 8492,
+      "projecte": 5952,
+      "itemalchemy": 5174,
       "source": "recipe"
     },
     "gridwright:pink_generator": {

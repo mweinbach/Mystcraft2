@@ -40,7 +40,8 @@ failed to apply in Tekxit 4. `scripts/tests/test_check_mixin_member_names.py` ru
 EMC values when `tekxit-probe/emc/` holds the expected values. With the ProjectE Fabric port installed it also checks
 ProjectE's anchor values (vanilla items, the Philosopher's Stone and the wither skeleton skull loop fix are failures if
 wrong) and compares the ports' expected `projecte` values (differences are warnings, because pack recipes legitimately
-change derived values). It writes `tekxit-probe/server-report-*.json`. With
+change derived values). It also reports `craftingClashes`: port crafting recipes whose grid is won by another recipe
+with a different result, so the port item cannot be crafted from that grid (warnings). It writes `tekxit-probe/server-report-*.json`. With
 `-Dtekxitprobe.runTests=<GameTest classes>` and `-Dfabric-api.gametest.command=true` on a dedicated server, it runs
 those GameTests after `Done`, logs `[TEKXIT_PROBE] TEST PASS/FAIL` and writes `gametests.json`. With
 `-Dtekxitprobe.stopAfterTests=true` it then stops the server and writes `server-stopped.txt`. The Tekxit pack blocks

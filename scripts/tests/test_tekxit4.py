@@ -1,6 +1,7 @@
 """Rules of scripts/tekxit4.py, which installs the Fabric ports into a disposable Tekxit 4 server."""
 
 import importlib.util
+import io
 import json
 import os
 import tempfile
@@ -85,6 +86,70 @@ class Tekxit4Tests(unittest.TestCase):
             (out / "gametests.json").write_text(json.dumps(
                 {"expected": 0, "passed": 0, "failed": 0, "end": "no tests found", "results": []}))
             self.assertEqual(tekxit4.report(self.tmp, 0), 1)
+
+    def jar(self, name, meta, nested=()):
+        """A jar holding `meta` as fabric.mod.json, with (file, bytes) pairs nested in it."""
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            meta = dict(meta, jars=[{"file": file} for file, _ in nested])
+            archive.writestr("fabric.mod.json", json.dumps(meta))
+            for file, data in nested:
+                archive.writestr(file, data)
+        if name:
+            (self.tmp / name).write_bytes(buffer.getvalue())
+            return self.tmp / name
+        return buffer.getvalue()
+
+    def test_version_ranges_follow_fabric_loader(self):
+        self.assertTrue(tekxit4.satisfies("2.3.0", ">=2.3.0"))
+        self.assertFalse(tekxit4.satisfies("2.0.0-beta1", ">=2.3.0"))
+        self.assertFalse(tekxit4.satisfies("2.3.0-beta1", ">=2.3.0"))
+        self.assertTrue(tekxit4.satisfies("0.77.0+1.19.2", ">=0.77.0"))
+        self.assertTrue(tekxit4.satisfies("17", ">=17"))
+        self.assertTrue(tekxit4.satisfies("1.19.2", "1.19.2"))
+        self.assertFalse(tekxit4.satisfies("1.19.3", "1.19.2"))
+        self.assertTrue(tekxit4.satisfies("10.3.9-port.1", "10.3.9-port.1"))
+        self.assertTrue(tekxit4.satisfies("0.2-SNAPSHOT", "*"))
+        self.assertTrue(tekxit4.satisfies("1.4.0", "^1.2.0"))
+        self.assertFalse(tekxit4.satisfies("2.0.0", "^1.2.0"))
+        self.assertFalse(tekxit4.satisfies("1.3.0", "~1.2.0"))
+        self.assertTrue(tekxit4.satisfies("1.0.20", [">=2", ">=1.0.20"]))
+        self.assertTrue(tekxit4.satisfies("1.5", ">=1.2 <2"))
+
+    def test_dependencies_resolve_against_the_pack_and_nested_jars(self):
+        nested = self.jar(None, {"id": "fluidphysics", "version": "0.1.0", "depends": {"fabric-api": "*"}})
+        port = self.jar("port.jar", {"id": "port", "version": "1.0", "depends": {
+            "minecraft": "1.19.2", "fabric-api": ">=0.77.0", "fluidphysics": ">=0.1.0", "team_reborn_energy": ">=2.3.0",
+            "resourcefulconfig": ">=1.0.20"}}, [("META-INF/jars/fluidphysics.jar", nested)])
+        pack = {"fabric-api": {"0.77.0+1.19.2"}, "team_reborn_energy": {"2.0.0-beta1", "2.3.0"}}
+        unmet, conflicts, from_pack = tekxit4.check_against_pack([port], pack)
+        self.assertEqual(unmet, ["port.jar: port needs resourcefulconfig >=1.0.20 (found: none)"])
+        self.assertEqual(conflicts, [])
+        self.assertEqual(sorted(from_pack), ["fabric-api", "team_reborn_energy"])
+        self.assertEqual(from_pack["team_reborn_energy"][0], "2.3.0")
+
+    def test_breaks_against_the_pack_is_a_conflict(self):
+        metal = self.jar("metal.jar", {"id": "metalrender", "version": "0.2.0", "breaks": {"sodium": "*"}})
+        _, conflicts, _ = tekxit4.check_against_pack([metal], {"sodium": {"0.4.4+build.18"}})
+        self.assertEqual(conflicts, ["metal.jar: metalrender breaks sodium * (pack has 0.4.4+build.18)"])
+        self.assertEqual(tekxit4.check_against_pack([metal], {})[1], [])
+
+    def test_pack_mods_reads_a_pack_zip_with_nested_jars(self):
+        nested = self.jar(None, {"id": "energy", "version": "2.3.0", "provides": ["team_reborn_energy"]})
+        archive = self.tmp / "pack.zip"
+        with zipfile.ZipFile(archive, "w") as pack:
+            pack.writestr("mods/lib.jar", self.jar(None, {"id": "lib", "version": "1"}, [("e.jar", nested)]))
+            pack.writestr("TKXAddons/itemalchemy.jar", self.jar(None, {"id": "itemalchemy", "version": "1"}))
+        self.assertEqual(tekxit4.pack_mods(archive),
+                         {"lib": {"1"}, "energy": {"2.3.0"}, "team_reborn_energy": {"2.3.0"}})
+
+    def test_release_zip_holds_the_jars_a_readme_and_their_checksums(self):
+        jar = self.jar("port-1.0.jar", {"id": "port", "version": "1.0"})
+        target = self.tmp / "release.zip"
+        tekxit4.write_release_zip(target, [jar], "readme\n")
+        with zipfile.ZipFile(target) as archive:
+            self.assertEqual(archive.namelist(), ["port-1.0.jar", "README.txt", "SHA256SUMS"])
+            self.assertEqual(archive.read("SHA256SUMS").decode(), f"{tekxit4.sha256(jar)}  port-1.0.jar\n")
 
 
 if __name__ == "__main__":

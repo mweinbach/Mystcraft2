@@ -23,6 +23,102 @@ The pack's background threads can keep the JVM alive after vanilla shutdown. Tes
 
 These are dedicated-server tests with native fixture players. They do not establish full-pack graphical-client behavior, simultaneous human clients or a long survival/soak session. Plain Forge and Fabric graphical checks, exact source/runtime scope and installation guidance are recorded in [validation](../mods/mystcraft/docs/validation.md) and [server testing](../mods/mystcraft/docs/server-testing.md). Both loader production JARs remain development builds for disposable-world testing.
 
+## Drop-in release zip for Tekxit 4 20.0.4 (2026-10-24)
+
+### Building it
+
+From a clean checkout, one command builds every Fabric port, checks it against the pack and writes the zips:
+
+```sh
+python3 scripts/tekxit4.py release \
+  --pack "$HOME/Library/Application Support/PrismLauncher/cache/tekxit.b-cdn.net/downloads/tekxit4/20.0.4Tekxit4.zip" \
+  --pack .local/tekxit4/server-ports/mods
+```
+
+`--pack` takes a pack zip, a pack directory or a `mods/` directory, and can be repeated (client pack and server). Without
+`--pack` it checks against the server fetched by `python3 scripts/tekxit4.py fetch`, and refuses to package if there is
+none. `--skip-build` reuses existing jars; `--label` overrides the
+default label (the short commit, plus `-dirty` for uncommitted trees). The output goes to `build/tekxit4-release/`:
+
+| File | Contents |
+|---|---|
+| `mystcraft2-tekxit4-fabric-ports-<label>.zip` | The 13 production jars (no `-sources`/`-dev` artifacts), `README.txt` (install steps, jar list, required pack version, extra dependencies) and `SHA256SUMS` |
+| `metalrender-optional-<label>.zip` | MetalRender and its README/`SHA256SUMS`. It is separate because it declares `breaks: sodium` and Tekxit ships Sodium; the README says to remove Sodium and its add-ons first |
+| `SHA256SUMS-<label>` | Hashes of both zips |
+
+The build runs `assemble` for each `mods/<port>/fabric` project, `:icbm_port:assemble` and `mods/metalrender`.
+Fluid Physics is not listed because it is nested jar-in-jar inside the ports that use it. The zips are deterministic
+(fixed timestamps, stored jars), so rebuilding the same commit gives the same hashes.
+
+Jars in the main zip: advancedgenetics 1.0.3-port.1-dev, agricraft 4.0.6-port.1, buildcraft 8.0.1-alpha.1,
+extremereactors (`bigreactors`) 0.1.0-alpha.1, gridwright 0.1.0-alpha.1, jurassicraft 0.1.0-alpha.1, mekanism,
+mekanismadditions, mekanismgenerators and mekanismtools 10.3.9-port.1, mystcraft 0.4.0-dev, projecte 1.1.0-port.1 and
+icbm_port 0.2.0-alpha.4.
+
+### Dependency check
+
+`release` reads every `fabric.mod.json`, including those of nested jars, in both the release jars and the pack, and fails
+on any unmet `depends` or matching `breaks`. Against the 20.0.4 client zip (`f76b680a…`) and the server mods it found no
+unmet dependencies and no conflicts. MetalRender's `breaks: sodium` is reported only for the client pack, as expected.
+
+| Required by the ports | Supplied by |
+|---|---|
+| Fabric API ≥0.77.0, Fabric Loader ≥0.14 | Pack (fabric-api 0.77.0+1.19.2, loader 0.18.4) |
+| Resourceful Config (Extreme Reactors) | Pack (resourcefulconfig 1.0.20) |
+| Trinkets (ProjectE) | Pack (trinkets 3.4.2) |
+| EMI (ProjectE, optional integrations) | Pack (emi 1.1.24) |
+| Team Reborn Energy | Pack (2.3.0), and nested in the ports |
+| night-config, fabric-permissions-api, Fluid Physics, MixinExtras, commons-math3, maven-artifact | Nested jar-in-jar in the ports |
+
+No extra dependency jars are needed, so none are bundled.
+
+### Boot matrix (full zip, Item Alchemy enabled)
+
+Dedicated server in `.local/tekxit4/server-ports` (Tekxit 4 server 20.0.0 mods, which match 20.0.4 apart from client-only
+mods) and the Prism instance `Tekxit 4 + Mystcraft2 ports (test)`, with the 13 jars from the zip, the
+[tekxit4 probe](../tools/tekxit4-probe/README.md), Fabric GameTest API and the ICBM tekxit tests jar. Item Alchemy 1.1.3
+is enabled in both.
+
+| Run | Result | Details |
+|---|---|---|
+| Server 1 (before the fixes below) | PASSED | `Done (23.107s)`, 457 mods, 20,760 recipes, 0 failures, 7/7 GameTests. Item Alchemy 9,154 EMC entries, 0 mismatches against the 9 ports' defaults; ProjectE 6,967 entries, all anchors match. Found the recipe clashes below |
+| Server 2 (after the fixes) | PASSED | `Done (18.580s)`, 457 mods, 20,759 recipes, 0 failures, 53 warnings, 7/7 GameTests. Item Alchemy 9,151 entries, ProjectE philosopher's stone 9,984 EMC. No ProjectE or Gridwright recipe loses its grid any more |
+| Client (Prism test instance, after the fixes) | PASSED | 540 mods in the integrated server, 0 failures, 7/7 GameTests. Title screen 59 s, world created 121 s, EMI loaded 255 s, saved and quit 294 s. All 9 port creative tabs present (Advanced Genetics, AgriCraft, Extreme Reactors, BuildCraft, Gridwright, JurassiCraft, Mekanism, Mystcraft, ProjectE); ProjectE client EMC and tooltip checks pass alongside Item Alchemy 1.1.3 |
+
+Both servers exit with status 143 after `stop`, because Distant Horizons threads keep the JVM alive (see above).
+
+The client warnings are the ones recorded below for the earlier all-ports run (missing names for a few fluid blocks and
+non-living entities, missing item particles), plus default key overlaps. ProjectE and Item Alchemy both default
+"charge" to V, matching upstream ProjectE; each acts only on its own held items, so it is left as is. ProjectE's helmet
+toggle is Shift+X and boots toggle X (upstream defaults); the probe lists them as a conflict because it ignores the
+port's own key modifiers. Other overlaps (G, C, R, H with Mekanism, Origins, JurassiCraft and pack mods) are default
+bindings players can rebind in Controls.
+
+### Recipe clashes found and fixed
+
+The probe now has a `craftingClashes` check. It lays out every shaped and shapeless crafting recipe from a port in a
+grid, finds other recipes that match the same grid with a different result, and reports the ports' recipes that lose
+(the item cannot be crafted from that grid). It is a warning, not a failure.
+
+- **ProjectE and Item Alchemy.** Item Alchemy copies ProjectE's recipes with its own outputs.
+  `itemalchemy:philosopher_stone2` won the philosopher's stone grid, so ProjectE could not be started at all, and Item
+  Alchemy also won high covalence dust. ProjectE won medium covalence dust and the Energy Collector MK1, making those Item
+  Alchemy items uncraftable. On Fabric, ProjectE's philosopher's stone (both recipes), collector MK1 and medium and high
+  covalence dust now carry `fabric:load_conditions` so they load only without Item Alchemy. With Item Alchemy, rearranged
+  recipes with the same ingredients load instead (`data/projecte/recipes/itemalchemy/`): stone `RRR/GDG/GRG`, collector
+  `GGG/TDF/GGG`, medium dust shaped `I/R`, high dust shaped `D/C`. `check_loader_parity.py` checks that the conditioned
+  copies match the shared recipes.
+- **Gridwright.** The overclock upgrade used the same recipe as the speed upgrade, so the speed upgrade was uncraftable
+  in any pack. It is now `RGR/BCB/RGR` with blaze powder. The builder's wand and destruction wand lost to Simply Swords
+  spears; they are now diagonal gold/brick/stick and diamond/flint/stick.
+- **ICBM.** `icbm_port:iron_plate` (2×2 iron ingots) shadows the vanilla iron trapdoor. This was passed to the ICBM PR.
+
+The other 45 losing recipes are overlaps with pack mods that are expected in a large pack (players get the item through
+EMI or the other mod's recipe): Mekanism tools, blocks and nuggets against Mythic Metals, Industrial Revolution, Tech
+Reborn, BetterEnd and Amethyst Imbuement; Extreme Reactors yellorium against Mekanism uranium; JurassiCraft paleo bale
+against Tech Reborn plantball; JurassiCraft car chassis against the Tech Reborn iron furnace and an MCA ring; and the
+BuildCraft template against Immersive Paintings.
+
 ## All ports in the Tekxit 4 client and server (2026-10-24)
 
 Every Fabric port from main `ab9b9ef5` plus the fixes in this branch was installed into a copy of the Tekxit 4

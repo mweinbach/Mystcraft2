@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "RGR",
-    "GCG",
+    "BCB",
     "RGR"
   ],
   "key": {
@@ -14,6 +14,9 @@
     },
     "C": {
       "item": "gridwright:grid_crystal"
+    },
+    "B": {
+      "item": "minecraft:blaze_powder"
     }
   },
   "result": {
