@@ -13,7 +13,12 @@ public final class DefenseScreenHandler extends ScreenHandler {
   private final PropertyDelegate properties;
 
   public DefenseScreenHandler(int syncId, PlayerInventory playerInventory) {
-    this(syncId, playerInventory, new SimpleInventory(1), null, new ArrayPropertyDelegate(15));
+    this(
+        syncId,
+        playerInventory,
+        new SimpleInventory(1),
+        null,
+        new ArrayPropertyDelegate(DefenseMachineBlockEntity.PROPERTY_COUNT));
   }
 
   DefenseScreenHandler(
@@ -60,8 +65,9 @@ public final class DefenseScreenHandler extends ScreenHandler {
         && canUse(player)
         && !player.isSpectator()
         && button >= 0
-        && button <= 12
-        && ((button != 2 && button != 3) || machine.kind() == DefenseMachineBlock.Kind.RADAR)
+        && button <= DefenseMachineBlockEntity.MAX_BUTTON
+        && ((button != 2 && button != 3 && button != 9)
+            || machine.kind() == DefenseMachineBlock.Kind.RADAR)
         && (button != 10 || machine.kind() == DefenseMachineBlock.Kind.EMP)
         && (button != 12 || machine.kind() == DefenseMachineBlock.Kind.SAM)
         && machine.configure(button);

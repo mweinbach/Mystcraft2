@@ -3,6 +3,9 @@ package dev.icbm.port.block;
 import dev.icbm.port.IcbmPort;
 import dev.icbm.port.core.DirectFlight;
 import dev.icbm.port.entity.MissileEntity;
+import dev.icbm.port.launcher.LauncherBlockEntity;
+import dev.icbm.port.launcher.LauncherRules;
+import dev.icbm.port.launcher.LauncherStatus;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FacingBlock;
@@ -37,14 +40,15 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
   public <T extends net.minecraft.block.entity.BlockEntity>
       net.minecraft.block.entity.BlockEntityTicker<T> getTicker(
           World world, BlockState state, net.minecraft.block.entity.BlockEntityType<T> type) {
-    if (world.isClient
-        || tier == 0
-        || cruise
-        || type != dev.icbm.port.launcher.LauncherContent.BLOCK_ENTITY) return null;
+    if (world.isClient || type != dev.icbm.port.launcher.LauncherContent.BLOCK_ENTITY) return null;
+    boolean seats = tier > 0 && !cruise;
     return (tickWorld, tickPos, tickState, entity) -> {
-      if (tickWorld.getTime() % dev.icbm.port.entity.PlayerSeatEntity.UPDATE_INTERVAL == 0
-          && tickWorld instanceof ServerWorld server
-          && entity instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher)
+      if (!(entity instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher)) return;
+      // Radio registration and the firing-delay countdown (all launchers).
+      dev.icbm.port.launcher.LauncherBlockEntity.tick(tickWorld, tickPos, tickState, launcher);
+      if (seats
+          && tickWorld.getTime() % dev.icbm.port.entity.PlayerSeatEntity.UPDATE_INTERVAL == 0
+          && tickWorld instanceof ServerWorld server)
         dev.icbm.port.entity.PlayerSeatEntity.syncLauncherSeat(server, tickPos, launcher);
     };
   }
@@ -168,39 +172,94 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
     launch(world, pos);
   }
 
+  /** Fire this launcher alone (redstone, GUI, API); true when a missile left the pad or queued. */
   public boolean launch(ServerWorld world, BlockPos pos) {
+    return fire(world, pos, 1).accepted();
+  }
+
+  /**
+   * Upstream {@code LauncherCapability#launch}: check the launch, then either queue a firing package
+   * when the base has a firing delay (upstream {@code FiringWithDelay}) or fire now. {@code
+   * launchers} is the number of launchers fired together, which widens the inaccuracy.
+   */
+  public LauncherStatus fire(ServerWorld world, BlockPos pos, int launchers) {
+    if (!(world.getBlockEntity(pos) instanceof LauncherBlockEntity launcher))
+      return LauncherStatus.ERROR_SPAWN;
+    if (launcher.hasPendingLaunch()) return record(launcher, LauncherStatus.DELAYED);
+    BlockPos target = launcher.targeted() ? launcher.target() : null;
+    if (!cruise && launcher.firingDelay() > 0) {
+      LauncherStatus check = check(world, pos, launcher, target);
+      if (check.blocking()) return record(launcher, check);
+      launcher.queueLaunch(target, launcher.firingDelay(), launchers);
+      return record(launcher, LauncherStatus.DELAYED);
+    }
+    return fireNow(world, pos, target, launchers);
+  }
+
+  private static LauncherStatus record(LauncherBlockEntity launcher, LauncherStatus status) {
+    launcher.recordStatus(status);
+    return status;
+  }
+
+  /** Every pre-launch rule, in upstream order where upstream has the rule. Charges the buffer. */
+  private LauncherStatus check(
+      ServerWorld world, BlockPos pos, LauncherBlockEntity launcher, BlockPos target) {
     BlockState state = world.getBlockState(pos);
-    if (!state.isOf(this)) return false;
-    if (dev.icbm.port.defense.DefenseContent.isEmpDisabled(world, pos)) return false;
-    if (!(world.getBlockEntity(pos) instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher))
-      return false;
-    if (!state.get(LOADED) && !launcher.pullNetworkAmmo()) return false;
-    state = world.getBlockState(pos);
+    if (!state.isOf(this)) return LauncherStatus.ERROR_SPAWN;
+    if (dev.icbm.port.defense.DefenseContent.isEmpDisabled(world, pos))
+      return LauncherStatus.ERROR_EMP;
+    if (!state.get(LOADED)) return LauncherStatus.ERROR_EMPTY;
     ItemStack ammo = launcher.getStack(0);
-    dev.icbm.port.delivery.ClusterPlan clusterPlan =
-        dev.icbm.port.delivery.ClusterPlan.fromStack(ammo);
-    if (ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE) && clusterPlan.isEmpty())
-      return false;
+    if (ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE)
+        && dev.icbm.port.delivery.ClusterPlan.fromStack(ammo).isEmpty())
+      return LauncherStatus.ERROR_INVALID_STACK;
     boolean held = dev.icbm.port.delivery.DeliveryContent.isLoadedHeldMissile(ammo);
-    dev.icbm.port.payload.PayloadType payload = IcbmPort.payloadForMissile(ammo);
-    if (payload == null && !ammo.isEmpty() && !held) return false;
-    if (payload == null && !held)
-      payload = IcbmPort.payloadForMissile(new ItemStack(IcbmPort.CONDENSED_MISSILE));
+    if (IcbmPort.payloadForMissile(ammo) == null && !ammo.isEmpty() && !held)
+      return LauncherStatus.ERROR_INVALID_STACK;
     if (tier > 0 && !cruise && !dev.icbm.port.launcher.LauncherNetwork.hasFrame(world, pos))
-      return false;
-    if (launcher.targeted()
-        && !dev.icbm.port.launcher.LauncherContent.validTarget(world, pos, launcher.target()))
-      return false;
+      return LauncherStatus.ERROR_FRAME;
+    if (target != null) {
+      if (world.isOutOfHeightLimit(target) || !world.getWorldBorder().contains(target))
+        return LauncherStatus.ERROR_TARGET;
+      Vec3d center = Vec3d.ofCenter(pos);
+      if (cruise
+          ? LauncherRules.cruiseTooClose(center.distanceTo(Vec3d.ofCenter(target)))
+          : LauncherRules.tooClose(center.x, center.z, target.getX() + .5, target.getZ() + .5))
+        return LauncherStatus.ERROR_MIN_RANGE;
+      if (!dev.icbm.port.launcher.LauncherContent.validTarget(world, pos, target))
+        return LauncherStatus.ERROR_MAX_RANGE;
+    }
     Direction facing = state.get(FACING);
     // Require a clear muzzle; no spawning through a wall in front of the launcher.
     BlockPos muzzle = pos.offset(facing);
     if (!world.isChunkLoaded(muzzle)
         || !world.getWorldBorder().contains(muzzle)
         || world.isOutOfHeightLimit(muzzle)
-        || !world.getBlockState(muzzle).getCollisionShape(world, muzzle).isEmpty()) return false;
-    launcher.shareEnergy();
+        || !world.getBlockState(muzzle).getCollisionShape(world, muzzle).isEmpty())
+      return LauncherStatus.ERROR_BLOCKED;
     while (launcher.energy() < launchCost() && launcher.charge()) {}
-    if (launcher.energy() < launchCost()) return false;
+    if (launcher.energy() < launchCost()) return LauncherStatus.ERROR_POWER;
+    return LauncherStatus.READY;
+  }
+
+  /**
+   * Upstream {@code LauncherCapability#fireMissile}: spawn the missile at the (inaccurate) target,
+   * then consume the missile and the launch energy. {@code target == null} fires straight along
+   * the facing (port direct mode).
+   */
+  public LauncherStatus fireNow(ServerWorld world, BlockPos pos, BlockPos target, int launchers) {
+    if (!(world.getBlockEntity(pos) instanceof LauncherBlockEntity launcher))
+      return LauncherStatus.ERROR_SPAWN;
+    LauncherStatus check = check(world, pos, launcher, target);
+    if (check.blocking()) return record(launcher, check);
+    BlockState state = world.getBlockState(pos);
+    ItemStack ammo = launcher.getStack(0);
+    boolean held = dev.icbm.port.delivery.DeliveryContent.isLoadedHeldMissile(ammo);
+    dev.icbm.port.payload.PayloadType payload = IcbmPort.payloadForMissile(ammo);
+    if (payload == null && !held)
+      payload = IcbmPort.payloadForMissile(new ItemStack(IcbmPort.CONDENSED_MISSILE));
+    if (target != null && !cruise) target = inaccurate(world, pos, target, launchers);
+    Direction facing = state.get(FACING);
     Vec3d start =
         Vec3d.ofCenter(pos)
             .add(facing.getOffsetX() * 1.1, facing.getOffsetY() * 1.1, facing.getOffsetZ() * 1.1);
@@ -208,8 +267,8 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
         tier > 0 ? dev.icbm.port.flight.FlightProfile.DIRECT_SPEED : IcbmPort.MISSILE_SPEED;
     DirectFlight.Velocity motion =
         DirectFlight.velocity(facing.getOffsetX(), facing.getOffsetY(), facing.getOffsetZ(), speed);
-    if (launcher.targeted() && cruise) {
-      Vec3d delta = Vec3d.ofCenter(launcher.target()).subtract(start);
+    if (target != null && cruise) {
+      Vec3d delta = Vec3d.ofCenter(target).subtract(start);
       motion = DirectFlight.velocity(delta.x, delta.y, delta.z, speed);
     }
     if (held) {
@@ -220,8 +279,8 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
               ammo,
               start,
               new Vec3d(motion.x(), motion.y(), motion.z()),
-              launcher.targeted() && !cruise ? launcher.target() : null);
-      if (heldMissile == null) return false;
+              target != null && !cruise ? target : null);
+      if (heldMissile == null) return record(launcher, LauncherStatus.ERROR_SPAWN);
       dev.icbm.port.entity.PlayerSeatEntity.transferRiders(world, pos, heldMissile);
     } else {
       boolean clusterAmmo = ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE);
@@ -229,7 +288,7 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
           clusterAmmo
               ? dev.icbm.port.entity.ActionableMissileEntity.forCluster(world, ammo)
               : new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
-      if (missile == null) return false;
+      if (missile == null) return record(launcher, LauncherStatus.ERROR_INVALID_STACK);
       if (cruise || tier > 0) missile.configureFuel(dev.icbm.port.flight.FlightProfile.CRUISE_FUEL);
       missile.setPosition(start);
       missile.setVelocity(motion.x(), motion.y(), motion.z());
@@ -240,28 +299,45 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
         missile.configurePayloadDestination(
             launcher.payloadDimension(), launcher.payloadDestination());
       if (missile instanceof dev.icbm.port.entity.ActionableMissileEntity actionable
-          && launcher.targeted())
+          && target != null)
         // Upstream CapabilityClusterMissileStack: release within 3 blocks of the target and never
         // on impact.
         actionable.setProximityTrigger(
-            Vec3d.ofCenter(launcher.target()),
+            Vec3d.ofCenter(target),
             dev.icbm.port.entity.ActionableMissileEntity.CLUSTER_TRIGGER_DISTANCE,
             false);
-      if (launcher.targeted() && !cruise) {
+      if (target != null && !cruise) {
+        missile.flightPlan().setLockHeight(launcher.lockHeight());
         try {
-          missile.configureTarget(launcher.target());
+          missile.configureTarget(target);
         } catch (IllegalArgumentException invalid) {
-          return false;
+          return record(launcher, LauncherStatus.ERROR_MAX_RANGE);
         }
       }
-      if (!world.spawnEntity(missile)) return false;
+      if (!world.spawnEntity(missile)) return record(launcher, LauncherStatus.ERROR_SPAWN);
       dev.icbm.port.entity.PlayerSeatEntity.transferRiders(world, pos, missile);
     }
     launcher.consumeLaunch();
     world.setBlockState(pos, state.with(LOADED, !launcher.getStack(0).isEmpty()), Block.NOTIFY_ALL);
     world.playSound(
         null, pos, SoundEvents.ENTITY_FIREWORK_ROCKET_LAUNCH, SoundCategory.BLOCKS, 1, 0.7F);
-    return true;
+    return record(launcher, LauncherStatus.LAUNCHED);
+  }
+
+  /** Upstream {@code LauncherCapability#applyInaccuracy}, rounded to the target block. */
+  private BlockPos inaccurate(ServerWorld world, BlockPos pos, BlockPos target, int launchers) {
+    double inaccuracy =
+        LauncherRules.inaccuracy(
+            Vec3d.ofCenter(pos).squaredDistanceTo(Vec3d.ofCenter(target)),
+            range(),
+            Math.max(1, launchers));
+    double[] offset =
+        LauncherRules.offset(
+            inaccuracy, world.random.nextFloat(), world.random.nextFloat() * 360.0);
+    return new BlockPos(
+        Math.floor(target.getX() + 0.5 + offset[0]),
+        target.getY(),
+        Math.floor(target.getZ() + 0.5 + offset[1]));
   }
 
   @Override

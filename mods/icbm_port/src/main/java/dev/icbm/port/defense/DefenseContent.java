@@ -105,6 +105,7 @@ public final class DefenseContent {
             new net.minecraft.screen.ScreenHandlerType<>(DefenseScreenHandler::new));
     net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.registerForBlockEntity(
         DefenseMachineBlockEntity::itemStorage, MACHINE_BLOCK_ENTITY);
+    dev.icbm.port.radio.RadioNetwork.registerLifecycle();
     block("emp_tower_extension", EMP_TOWER_EXTENSION);
     Registry.register(Registry.ENTITY_TYPE, IcbmPort.id("sam_interceptor"), SAM_INTERCEPTOR);
     dev.icbm.port.payload.Payloads.EMP_HANDLERS.add(DefenseContent::applyEmp);

@@ -13,14 +13,14 @@ import net.minecraft.util.math.BlockPos;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
-  private TextFieldWidget xField, yField, zField, frequency;
+  private TextFieldWidget xField, yField, zField, frequency, delayField, lockField;
   private boolean targeted, received;
   private ButtonWidget modeButton;
 
   public LauncherScreen(LauncherScreenHandler handler, PlayerInventory inventory, Text title) {
     super(handler, inventory, title);
-    backgroundHeight = 222;
-    playerInventoryTitleY = 134;
+    backgroundHeight = 244;
+    playerInventoryTitleY = 152;
   }
 
   @Override
@@ -34,6 +34,10 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
     yField.setText(Integer.toString(coordinate(1)));
     zField.setText(Integer.toString(coordinate(2)));
     frequency.setText(Integer.toString(handler.properties.get(5)));
+    delayField = field(40, 133, 40, "Delay");
+    lockField = field(128, 133, 40, "Lock height");
+    delayField.setText(Integer.toString(handler.properties.get(11)));
+    lockField.setText(Integer.toString(handler.properties.get(12)));
     targeted = handler.properties.get(4) != 0;
     modeButton =
         addDrawableChild(
@@ -85,6 +89,8 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
       buf.writeInt(Integer.parseInt(frequency.getText()));
       buf.writeInt(action);
       buf.writeInt(0);
+      buf.writeInt(Integer.parseInt(delayField.getText()));
+      buf.writeInt(Integer.parseInt(lockField.getText()));
       ClientPlayNetworking.send(LauncherContent.CONFIGURE, buf);
     } catch (NumberFormatException ignored) {
     }
@@ -135,6 +141,19 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
     textRenderer.draw(matrices, "Y", 62, 61, 0x404040);
     textRenderer.draw(matrices, "Z", 116, 61, 0x404040);
     textRenderer.draw(matrices, "Channel", 8, 96, 0x404040);
+    textRenderer.draw(matrices, "Delay", 8, 137, 0x404040);
+    textRenderer.draw(matrices, "Lock", 98, 137, 0x404040);
+    LauncherStatus status = LauncherStatus.byOrdinal(handler.properties.get(13));
+    Text statusText =
+        status == LauncherStatus.DELAYED
+            ? Text.translatable(status.translationKey() + ".ticks", handler.properties.get(14))
+            : Text.translatable(status.translationKey());
+    textRenderer.draw(
+        matrices,
+        statusText,
+        backgroundWidth - 8 - textRenderer.getWidth(statusText),
+        titleY,
+        status.blocking() ? 0xa02020 : 0x206020);
   }
 
   @Override
@@ -145,6 +164,8 @@ public final class LauncherScreen extends HandledScreen<LauncherScreenHandler> {
       yField.setText(Integer.toString(coordinate(1)));
       zField.setText(Integer.toString(coordinate(2)));
       frequency.setText(Integer.toString(handler.properties.get(5)));
+      delayField.setText(Integer.toString(handler.properties.get(11)));
+      lockField.setText(Integer.toString(handler.properties.get(12)));
       targeted = handler.properties.get(4) != 0;
       modeButton.setMessage(modeText());
     }

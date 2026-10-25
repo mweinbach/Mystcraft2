@@ -1,5 +1,21 @@
 # Validation — 0.2.0-alpha.4
 
+## Machine, launcher network and radio parity (October 25, 2026)
+
+Branch `icbm/parity-5-machines-radio`, rebased onto the delivery/item, seat/actionable-missile, blast and gas work. Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run, so the revised launcher/defense screens (delay/lock fields, status text, radar Redstone and ±100 channel buttons, EMP cost lines) are not yet visually checked.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **32** passed, including the new `LauncherRulesTest` (6: minimum/maximum range, inaccuracy, lock-height and delay clamps) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **192** required GameTests passed. New: `DefenseParityGameTests` (5: radar column/age/incoming split, state and strong redstone with persisted toggle; SAM-delayed radar alerts; radio lifecycle and recursion bounds; server-side defense button validation; EMP dynamic capacity, upkeep, strong-redstone firing, cooldown energy refusal and radio-triggered firing) and `LauncherParityGameTests` (10: range rules, inaccuracy and lock height, persisted firing delay, a delayed launch carrying its seat rider onto the missile, fail-closed settings, strong-redstone screen firing the network, radio target/trigger with replies on base and cruise launchers, remote detonator, laser designator). Updated: defense radar/extension/radio tests, the launcher network energy test, and `EntityParityGameTests.targetedLauncherClusterUsesProximityTrigger`, which now expects the release point at the missile's inaccuracy-offset target (upstream `ConditionTargetDistance` reads the missile target) rather than the exact aim point |
+| Same with `-PwithEmi -PwithJei -PwithRei` | All **192** passed |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed (1/1) |
+| `python3 tools/validate_resources.py <client jar>`, `tools/check_payload_visuals.py` | Passed |
+| `python3 -m unittest discover -s tools/tests` | 10 passed |
+| Repository `ports.py check`, `emc.py check`, `scripts/tests` (155, 3 skipped), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |
+
+The two radar parity tests run in their own batch (`pr5RadarParity`). In the default batch they had failed: the radar scans a full-height column of half-width 100, which covers neighbouring GameTest structures, so other fixtures' missiles changed the incoming count and nearest track. A temporary copy of the original strict assertions at the original height passed once isolated, confirming the cause; the kept tests also compare against the radar's own lists.
+
 ## Delivery and item parity (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run. Run after rebasing onto the gas/fragment, blast and seat/actionable-missile/defense work.

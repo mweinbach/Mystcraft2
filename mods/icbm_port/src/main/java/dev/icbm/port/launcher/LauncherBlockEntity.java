@@ -18,9 +18,20 @@ import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 
-/** Standalone Fabric adaptation of upstream launcher inventory, target and energy buffer. */
+/**
+ * Standalone Fabric adaptation of upstream launcher inventory, target and energy buffer.
+ *
+ * <p>Firing delay, lock height and the persisted firing package are adapted from MIT ICBM-Classic
+ * {@code content/blocks/launcher/base/TileLauncherBase.java} and {@code
+ * content/blocks/launcher/FiringPackage.java}. The port has no separate launcher-screen block
+ * entity, so each launcher is also its own radio receiver on its channel, standing in for upstream
+ * {@code RadioScreen} (bases) and {@code RadioCruise} (cruise launchers).
+ */
 public final class LauncherBlockEntity extends BlockEntity
-    implements Inventory, NamedScreenHandlerFactory, dev.icbm.port.energy.EnergyMachine {
+    implements Inventory,
+        NamedScreenHandlerFactory,
+        dev.icbm.port.energy.EnergyMachine,
+        dev.icbm.port.radio.RadioNetwork.Receiver {
   private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
   private BlockPos target = BlockPos.ORIGIN;
   private final dev.icbm.port.energy.EnergyBuffer energy;
@@ -28,6 +39,13 @@ public final class LauncherBlockEntity extends BlockEntity
   private boolean targeted;
   private net.minecraft.util.registry.RegistryKey<net.minecraft.world.World> payloadDimension;
   private BlockPos payloadDestination;
+  private int firingDelay, lockHeight = LauncherRules.DEFAULT_LOCK_HEIGHT;
+  // Upstream FiringPackage: countdown, target (null = direct fire along the facing) and the
+  // launcher count used for inaccuracy when it fires.
+  private boolean pending;
+  private BlockPos pendingTarget;
+  private int pendingCountdown, pendingLaunchers = 1;
+  private LauncherStatus lastStatus = LauncherStatus.READY;
 
   public net.minecraft.util.registry.RegistryKey<net.minecraft.world.World> payloadDimension() {
     return payloadDimension;
@@ -56,7 +74,7 @@ public final class LauncherBlockEntity extends BlockEntity
   public final PropertyDelegate properties =
       new PropertyDelegate() {
         public int size() {
-          return 11;
+          return PROPERTY_COUNT;
         }
 
         public int get(int i) {
@@ -71,6 +89,10 @@ public final class LauncherBlockEntity extends BlockEntity
             case 7 -> target.getY() >> 16;
             case 8 -> target.getZ() >> 16;
             case 10 -> capacity();
+            case 11 -> firingDelay;
+            case 12 -> lockHeight;
+            case 13 -> lastStatus.ordinal();
+            case 14 -> pending ? pendingCountdown : 0;
             default -> 1;
           };
         }
@@ -86,6 +108,8 @@ public final class LauncherBlockEntity extends BlockEntity
           }
         }
       };
+
+  public static final int PROPERTY_COUNT = 15;
 
   public LauncherBlockEntity(BlockPos pos, BlockState state) {
     super(LauncherContent.BLOCK_ENTITY, pos, state);
@@ -135,6 +159,160 @@ public final class LauncherBlockEntity extends BlockEntity
     return true;
   }
 
+  public int firingDelay() {
+    return firingDelay;
+  }
+
+  public int lockHeight() {
+    return lockHeight;
+  }
+
+  /** Atomically set the firing delay (0..1200 ticks) and lock height (3..64 blocks). */
+  public boolean configureLaunch(int firingDelay, int lockHeight) {
+    if (firingDelay != LauncherRules.clampFiringDelay(firingDelay)
+        || lockHeight != LauncherRules.clampLockHeight(lockHeight)) return false;
+    this.firingDelay = firingDelay;
+    this.lockHeight = lockHeight;
+    markDirty();
+    return true;
+  }
+
+  public LauncherStatus lastStatus() {
+    return lastStatus;
+  }
+
+  public void recordStatus(LauncherStatus status) {
+    lastStatus = status;
+  }
+
+  public boolean hasPendingLaunch() {
+    return pending;
+  }
+
+  public int pendingCountdown() {
+    return pending ? pendingCountdown : 0;
+  }
+
+  /** Upstream {@code TileLauncherBase#setFiringPackage}. */
+  public void queueLaunch(BlockPos target, int countdown, int launchers) {
+    pending = true;
+    pendingTarget = target == null ? null : target.toImmutable();
+    pendingCountdown = Math.max(1, countdown);
+    pendingLaunchers = Math.max(1, launchers);
+    markDirty();
+  }
+
+  /**
+   * Server ticker: count the firing package down and fire it (upstream {@code
+   * TileLauncherBase#handleFirePackage}), and keep the radio registration current.
+   */
+  public static void tick(
+      net.minecraft.world.World world,
+      BlockPos pos,
+      BlockState state,
+      LauncherBlockEntity launcher) {
+    if (!(world instanceof net.minecraft.server.world.ServerWorld server)) return;
+    if (!dev.icbm.port.radio.RadioNetwork.isRegistered(server, launcher))
+      dev.icbm.port.radio.RadioNetwork.register(server, launcher);
+    if (!launcher.pending) return;
+    if (--launcher.pendingCountdown > 0) {
+      launcher.markDirty();
+      return;
+    }
+    BlockPos target = launcher.pendingTarget;
+    int launchers = launcher.pendingLaunchers;
+    launcher.pending = false;
+    launcher.pendingTarget = null;
+    launcher.markDirty();
+    launcher.launcherBlock().fireNow(server, pos, target, launchers);
+  }
+
+  @Override
+  public BlockPos radioPosition() {
+    return pos;
+  }
+
+  @Override
+  public int radioChannel() {
+    return frequency;
+  }
+
+  @Override
+  public boolean radioEnabled() {
+    return world != null
+        && dev.icbm.port.radio.RadioNetwork.validChannel(frequency)
+        && !dev.icbm.port.defense.DefenseContent.isEmpDisabled(world, pos);
+  }
+
+  /**
+   * Upstream {@code RadioScreen#onMessage} (bases) and {@code RadioCruise#onMessage} (cruise): a
+   * message carrying a target retargets the launcher (with a "target set" reply unless it also
+   * triggers); a trigger fires the base, or queues one firing on a cruise launcher.
+   */
+  @Override
+  public void onMessage(
+      dev.icbm.port.radio.RadioNetwork.Sender sender, dev.icbm.port.radio.RadioMessage message) {
+    if (!(world instanceof net.minecraft.server.world.ServerWorld server) || !radioEnabled())
+      return;
+    net.minecraft.util.math.Vec3d aim = message.target();
+    if (aim != null) {
+      BlockPos requested = new BlockPos(aim);
+      if (!LauncherContent.validTarget(world, pos, requested)) {
+        dev.icbm.port.radio.RadioNetwork.reply(
+            sender, this, "message.icbm_port.radio.target_invalid");
+        return;
+      }
+      target = requested.toImmutable();
+      targeted = true;
+      markDirty();
+      if (!message.shouldTrigger())
+        dev.icbm.port.radio.RadioNetwork.reply(
+            sender,
+            this,
+            "message.icbm_port.radio.target_set",
+            target.getX(),
+            target.getY(),
+            target.getZ());
+    }
+    if (!message.shouldTrigger()) return;
+    LauncherBlock block = launcherBlock();
+    if (block.cruise) {
+      if (pending) {
+        dev.icbm.port.radio.RadioNetwork.reply(
+            sender, this, LauncherStatus.ERROR_QUEUED.translationKey());
+        return;
+      }
+      queueLaunch(targeted ? target : null, 1, 1);
+      dev.icbm.port.radio.RadioNetwork.reply(
+          sender, this, "message.icbm_port.radio.launch_triggered");
+      return;
+    }
+    LauncherStatus status =
+        block.fire(server, pos, LauncherNetworkStorage.launchers(world, pos).size());
+    if (status.accepted())
+      dev.icbm.port.radio.RadioNetwork.reply(
+          sender,
+          this,
+          "message.icbm_port.radio.launch_success",
+          target.getX(),
+          target.getY(),
+          target.getZ(),
+          (int) Math.sqrt(target.getSquaredDistance(pos)));
+    else
+      dev.icbm.port.radio.RadioNetwork.reply(
+          sender,
+          this,
+          "message.icbm_port.radio.launch_failed",
+          net.minecraft.text.Text.translatable(status.translationKey()));
+  }
+
+  @Override
+  public void markRemoved() {
+    if (world instanceof net.minecraft.server.world.ServerWorld server)
+      dev.icbm.port.radio.RadioNetwork.remove(server, this);
+    super.markRemoved();
+  }
+
   public boolean acceptCharge() {
     return energy.insert(1000, false) > 0;
   }
@@ -146,37 +324,6 @@ public final class LauncherBlockEntity extends BlockEntity
     inventory.get(1).decrement(1);
     markDirty();
     return true;
-  }
-
-  /** Discover connectivity each operation: removing a connector immediately splits pools. */
-  public void shareEnergy() {
-    if (world == null) return;
-    long required = launcherBlock().launchCost() - energy.getAmount();
-    if (required <= 0) return;
-    for (BlockPos candidate : LauncherNetwork.connected(world, pos)) {
-      if (candidate.equals(pos)
-          || !(world.getBlockEntity(candidate) instanceof LauncherBlockEntity donor)) continue;
-      try (var transaction =
-          net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
-        long taken = donor.energyBuffer().extract(required, transaction);
-        if (energy.insert(taken, transaction) == taken) transaction.commit();
-      }
-      required = launcherBlock().launchCost() - energy.getAmount();
-      if (required <= 0) return;
-    }
-  }
-
-  public boolean pullNetworkAmmo() {
-    if (world == null || !getStack(0).isEmpty()) return false;
-    for (BlockPos candidate : LauncherNetwork.connected(world, pos)) {
-      if (!candidate.equals(pos)
-          && world.getBlockEntity(candidate) instanceof LauncherBlockEntity donor
-          && IcbmPort.isMissile(donor.getStack(0))) {
-        setStack(0, donor.removeStack(0, 1));
-        return true;
-      }
-    }
-    return false;
   }
 
   public void consumeLaunch() {
@@ -194,6 +341,15 @@ public final class LauncherBlockEntity extends BlockEntity
     energy.writeNbt(nbt);
     nbt.putInt("Frequency", frequency);
     nbt.putBoolean("Targeted", targeted);
+    nbt.putInt("FiringDelay", firingDelay);
+    nbt.putInt("LockHeight", lockHeight);
+    if (pending) {
+      NbtCompound firing = new NbtCompound();
+      firing.putInt("Countdown", pendingCountdown);
+      firing.putInt("Launchers", pendingLaunchers);
+      if (pendingTarget != null) firing.putLong("Target", pendingTarget.asLong());
+      nbt.put("FiringPackage", firing);
+    }
     if (payloadDimension != null && payloadDestination != null) {
       nbt.putString("PayloadDimension", payloadDimension.getValue().toString());
       nbt.putLong("PayloadDestination", payloadDestination.asLong());
@@ -210,6 +366,16 @@ public final class LauncherBlockEntity extends BlockEntity
     else energy.setAmount(launcherBlock().tier == 0 ? 1000 : 0);
     frequency = Math.max(0, Math.min(9999, nbt.getInt("Frequency")));
     targeted = nbt.getBoolean("Targeted");
+    firingDelay = LauncherRules.clampFiringDelay(nbt.getInt("FiringDelay"));
+    lockHeight =
+        nbt.contains("LockHeight")
+            ? LauncherRules.clampLockHeight(nbt.getInt("LockHeight"))
+            : LauncherRules.DEFAULT_LOCK_HEIGHT;
+    pending = nbt.contains("FiringPackage");
+    NbtCompound firing = nbt.getCompound("FiringPackage");
+    pendingCountdown = pending ? Math.max(1, Math.min(LauncherRules.MAX_FIRING_DELAY, firing.getInt("Countdown"))) : 0;
+    pendingLaunchers = Math.max(1, Math.min(128, firing.getInt("Launchers")));
+    pendingTarget = pending && firing.contains("Target") ? BlockPos.fromLong(firing.getLong("Target")) : null;
     payloadDimension = null;
     payloadDestination = null;
     var dimension = net.minecraft.util.Identifier.tryParse(nbt.getString("PayloadDimension"));

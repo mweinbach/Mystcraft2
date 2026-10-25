@@ -1,6 +1,5 @@
 package dev.icbm.port.launcher;
 
-import dev.icbm.port.block.LauncherBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -87,6 +86,12 @@ public final class LauncherComponentBlock extends Block {
     return ActionResult.CONSUME;
   }
 
+  /**
+   * Launcher screens fire every launcher in their network while they receive strong redstone
+   * power, re-checked every 3 ticks (adapted from MIT ICBM-Classic {@code
+   * content/blocks/launcher/screen/TileLauncherScreen#update}, which tests {@code getStrongPower}
+   * every third tick). Launchers that already fired are simply empty until reloaded.
+   */
   @Override
   public void neighborUpdate(
       BlockState state,
@@ -96,28 +101,25 @@ public final class LauncherComponentBlock extends Block {
       BlockPos sourcePos,
       boolean notify) {
     if (role != Role.SCREEN || world.isClient) return;
-    boolean powered = world.isReceivingRedstonePower(pos);
+    boolean powered = world.getReceivedStrongRedstonePower(pos) > 0;
     if (state.get(POWERED) == powered) return;
     world.setBlockState(pos, state.with(POWERED, powered), 3);
-    // Screen redstone is a control signal for its connected launcher network; bases retain
-    // edge-triggered firing.
-    if (role == Role.SCREEN
-        && world instanceof ServerWorld server
-        && world.isReceivingRedstonePower(pos)) {
-      for (BlockPos target : LauncherNetwork.connected(world, pos))
-        if (world.getBlockState(target).getBlock() instanceof LauncherBlock launcher) {
-          BlockState launcherState = world.getBlockState(target);
-          if (!launcherState.get(LauncherBlock.TRIGGERED)) {
-            world.setBlockState(target, launcherState.with(LauncherBlock.TRIGGERED, true), 3);
-            world.createAndScheduleBlockTick(target, launcher, 4);
-          }
-        }
-    } else if (role == Role.SCREEN && !world.isClient && !world.isReceivingRedstonePower(pos)) {
-      for (BlockPos target : LauncherNetwork.connected(world, pos))
-        if (world.getBlockState(target).getBlock() instanceof LauncherBlock
-            && !world.isReceivingRedstonePower(target))
-          world.setBlockState(
-              target, world.getBlockState(target).with(LauncherBlock.TRIGGERED, false), 3);
-    }
+    if (powered && !world.getBlockTickScheduler().isQueued(pos, this))
+      world.createAndScheduleBlockTick(pos, this, 1);
   }
+
+  @Override
+  public void scheduledTick(
+      BlockState state, ServerWorld world, BlockPos pos, net.minecraft.util.math.random.Random random) {
+    if (role != Role.SCREEN) return;
+    if (world.getReceivedStrongRedstonePower(pos) <= 0) {
+      if (state.get(POWERED)) world.setBlockState(pos, state.with(POWERED, false), 3);
+      return;
+    }
+    LauncherNetwork.fireAll(world, pos);
+    world.createAndScheduleBlockTick(pos, this, SCREEN_REDSTONE_TICKS);
+  }
+
+  /** Upstream screen redstone poll interval. */
+  public static final int SCREEN_REDSTONE_TICKS = 3;
 }

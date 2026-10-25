@@ -37,6 +37,10 @@ public final class StagedFlight {
     lockHeight = Math.max(3, Math.min(64, height));
   }
 
+  public int lockHeight() {
+    return lockHeight;
+  }
+
   private double lift;
 
   public Stage stage() {

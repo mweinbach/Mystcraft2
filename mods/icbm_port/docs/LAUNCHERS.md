@@ -28,33 +28,69 @@ first; launch also charges if needed. Malformed saved energy is capacity-clamped
 
 Components form physical six-neighbor networks, recomputed for each operation:
 32-block traversal radius, at most 128 loaded component nodes. Removing a
-connector immediately revokes screen access and splits energy/ammunition pools.
-A launcher can pull a missile from another connected base and transactionally
-transfer its missing launch energy. Support blocks distribute hand-fed redstone
-energy. Screens open connected bases; sneak-use cycles the player's selection.
-A player must remain within eight blocks of the base or a connected screen.
-No cached connection can authorize use after the path breaks.
+connector immediately revokes screen access and splits the network. Adapted
+from MIT ICBM-Classic `content/blocks/launcher/network/`, every frame, support,
+screen and connector exposes two Fabric lookups rebuilt from that walk: an
+insert-only Team Reborn `EnergyStorage` that offers each connected launcher
+`floor(amount / n) + 1` of the inserted energy (extraction always fails), and an
+`ItemStorage` combining the launcher inventories. Launchers no longer silently
+move energy or ammunition between each other; each base fires from its own
+slots and buffer. Support blocks still distribute hand-fed redstone energy.
+Screens open connected bases; sneak-use cycles the player's selection. A player
+must remain within eight blocks of the base or a connected screen. No cached
+connection can authorize use after the path breaks.
 
-A rising redstone edge schedules firing four ticks later. Sustained power does
-not repeat. A powered connected screen supplies a network launch pulse. EMP
-prevents launches and disables missile guidance. Failed muzzle/target checks
-preserve ammunition. Loaded tiered bases offer a seat (`PlayerSeatEntity`) on the
-launch face, refreshed every three ticks and removed when the base is emptied or
-broken; whoever sits in it rides the launched missile (sneak to interact with the
-launcher instead). Creative players holding a minecart can seat a minecart. Missiles
-carrying a player stay real entities instead of entering virtual flight. Prototype
-and cruise launchers have no seat, and there is no seat-side rotation control.
-There are no original frame animations, support accuracy bonus or full original
-multipart geometry.
+### Launch rules
+
+Base launchers follow upstream `TileLauncherBase` / `LauncherBaseCapability`:
+
+- **Minimum range**: refused when both |dx| and |dz| are below 10 (cruise:
+  3D distance below 20).
+- **Maximum range**: per-axis square (|dx| or |dz| above the range refuses), not
+  a circle. The staged-flight profile then applies its own 3D limit, so a target
+  in the extreme corner of the square can still fail at fire time with
+  "out of range".
+- **Inaccuracy** (base launchers only, targeted flights): offset radius
+  `2 + distance² / range² × 10 + (launchers − 1)`, where *launchers* is the
+  number of bases fired together by a screen or radio trigger. The constants are
+  fixed rather than configurable, and offsets are rounded to blocks. As upstream,
+  a targeted cluster missile's 3-block release check uses this offset target.
+- **Lock height** 3–64 (default 3) and **firing delay** 0–1,200 ticks are set in
+  the screen. A delayed launch is checked first, then held as a pending firing
+  package (target, countdown, launcher count) that persists in block NBT. While
+  it is pending, further launch requests report `DELAYED`.
+- Each attempt records a status (`READY`, `LAUNCHED`, `DELAYED`, or an error such
+  as power, empty, invalid stack, minimum/maximum range, invalid target, frame,
+  blocked muzzle, EMP, spawn failure, queued). The screen shows it top-right.
+
+A powered **screen** fires every launcher in its network, with the launcher
+count feeding inaccuracy, while it receives **strong** redstone (for example a
+lever or button on the screen itself); it re-checks every three ticks, as
+upstream does. Weak power such as a nearby redstone block no longer triggers it.
+The base's own rising-edge redstone input (fires four ticks later, no repeat
+under sustained power) is kept as a port extension. EMP prevents launches and
+disables missile guidance. Failed muzzle/target checks preserve ammunition.
+
+Loaded tiered bases offer a seat (`PlayerSeatEntity`) on the launch face,
+refreshed every three ticks and removed when the base is emptied or broken;
+whoever sits in it rides the launched missile (sneak to interact with the
+launcher instead). Every launch path (redstone, GUI, screen network firing,
+radio triggers and a delayed firing package when its countdown ends) spawns
+through the same `fireNow` step, so the rider moves to the missile and loaded
+cluster ammunition becomes the actionable cluster missile. Creative players
+holding a minecart can seat a minecart. Missiles carrying a player stay real
+entities instead of entering virtual flight. Prototype and cruise launchers
+have no seat, and there is no seat-side rotation control. There are no
+original frame animations, support accuracy bonus, cruise turret aiming phase
+(cruise fires on the next tick), or full original multipart geometry.
 
 ## Targeting and radio
 
-GPS air-use records the player position; block-use records that block. The laser
-designator records a server raycast hit up to 256 blocks away, falling back to the
-player position on a miss. Use either on a launcher to copy coordinates. For
-ordinary payloads the dimension must match. Sneak-use records the launcher
-position instead. The screen configures flight coordinates, direct/arc mode,
-and channel 0–9,999. Direct cruise flight aims toward coordinates without an arc.
+GPS air-use records the player position; block-use records that block. Use it
+on a launcher to copy coordinates. For ordinary payloads the dimension must
+match. Sneak-use records the launcher position instead. The screen configures
+flight coordinates, direct/arc mode, channel 0–9,999 (0 is unset), firing delay
+and lock height. Direct cruise flight aims toward coordinates without an arc.
 
 A loaded **ender** missile interprets a copied GPS position as the payload's
 relocation destination, independent of the missile flight path. That destination
@@ -62,11 +98,28 @@ may be in another existing server dimension and is checked against its border
 and build height. It survives launcher/missile saves and reaches the payload
 implementation as `getTargetDimension()` / `getTargetPosition()`.
 
-A radio pairs by use on a launcher, storing its position, dimension and channel.
-Air-use launches that paired loaded launcher within 256 blocks when its channel
-matches. It does not load arbitrary chunks. Screen packets use fixed length,
-known action, current handler and matching synchronization ID, valid interaction
-path, spectator checks, world bounds and tier range. Invalid settings are atomic.
+Each launcher base is a radio receiver on its configured channel (upstream puts
+the receiver in the screen block entity, which this port does not have). Adapted
+from MIT ICBM-Classic `content/blocks/launcher/screen/RadioScreen.java` and
+`content/blocks/launcher/cruise/RadioCruise.java`:
+
+- A **target** message is validated (range, height, border); an invalid target
+  is answered with an error and *not* stored. A valid one replaces the target
+  and is acknowledged unless the message also triggers.
+- A **trigger** message fires: base launchers report success with coordinates
+  and distance, or the failure status; cruise launchers refuse with a "queued"
+  reply while a launch is already pending.
+
+The **remote detonator** (`radio` item) copies the channel from any radio block
+when used on it and, on air-use, broadcasts a trigger on that channel with a
+20-tick cooldown; replies arrive as chat messages. There is no in-item channel
+editor. The **laser designator** shares the channel behavior, raycasts up to 200
+blocks and broadcasts a trigger carrying the hit position; it refuses to aim at
+launcher blocks and reports a miss. Radio only reaches loaded, registered
+receivers in the same dimension and never loads chunks. Screen packets use fixed
+length, known action, current handler and matching synchronization ID, valid
+interaction path, spectator checks, world bounds, removed/unloaded launcher
+checks, delay/lock bounds and tier range; invalid settings change nothing.
 
 ## Staged and saved flight
 

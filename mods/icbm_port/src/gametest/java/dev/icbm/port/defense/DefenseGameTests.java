@@ -40,8 +40,11 @@ public class DefenseGameTests implements FabricGameTest {
     ((DefenseMachineBlockEntity) context.getWorld().getBlockEntity(origin))
         .energyBuffer()
         .setAmount(20_000);
+    // Upstream radar only signals missiles that are closing on it and have flown > 1 tick.
     MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, context.getWorld());
-    missile.setPosition(Vec3d.ofCenter(origin.up(3)));
+    missile.setPosition(Vec3d.ofCenter(origin.up(30)));
+    missile.setVelocity(0, -0.5, 0);
+    missile.setNoGravity(true);
     context.getWorld().spawnEntity(missile);
     context.runAtTick(
         12,
@@ -49,7 +52,7 @@ public class DefenseGameTests implements FabricGameTest {
           check(
               context,
               context.getWorld().getBlockState(origin).get(DefenseMachineBlock.POWER) >= 1,
-              "Radar must expose missile tracks as redstone output");
+              "Radar must expose incoming missile tracks as redstone output");
           missile.discard();
           context.complete();
         });
@@ -303,8 +306,9 @@ public class DefenseGameTests implements FabricGameTest {
     context.getWorld().breakBlock(pos, false);
     check(
         context,
-        context.getWorld().isAir(pos.up()) && context.getWorld().isAir(pos.up(2)),
-        "Removing base must tear down orphan extenders");
+        context.getWorld().getBlockState(pos.up()).isOf(DefenseContent.EMP_TOWER_EXTENSION)
+            && EmpTowerExtensionBlock.findBase(context.getWorld(), pos.up(2)) == null,
+        "Removing base must leave boosters in place but inert (upstream keeps the cells)");
     context.complete();
   }
 
@@ -312,12 +316,14 @@ public class DefenseGameTests implements FabricGameTest {
   public void radioChannelsDeliverOnceAndRespectIsolation(TestContext context) {
     var world = context.getWorld();
     BlockPos origin = context.getAbsolutePos(new BlockPos(2, 40, 2));
-    class Receiver implements dev.icbm.port.radio.RadioNetwork.Receiver {
+    class Radio
+        implements dev.icbm.port.radio.RadioNetwork.Receiver,
+            dev.icbm.port.radio.RadioNetwork.Sender {
       final BlockPos pos;
       final int channel;
       int received;
 
-      Receiver(BlockPos pos, int channel) {
+      Radio(BlockPos pos, int channel) {
         this.pos = pos;
         this.channel = channel;
       }
@@ -334,28 +340,36 @@ public class DefenseGameTests implements FabricGameTest {
         return true;
       }
 
-      public boolean receive(dev.icbm.port.radio.RadioNetwork.Incoming message) {
+      public void onMessage(
+          dev.icbm.port.radio.RadioNetwork.Sender sender,
+          dev.icbm.port.radio.RadioMessage message) {
         received++;
-        return true;
       }
     }
-    var sender = new Receiver(origin, 4093);
-    var receiver = new Receiver(origin.up(), 4093);
-    var isolated = new Receiver(origin.up(2), 4092);
+    var sender = new Radio(origin, 4093);
+    var receiver = new Radio(origin.up(), 4093);
+    var isolated = new Radio(origin.up(2), 4092);
     dev.icbm.port.radio.RadioNetwork.register(world, sender);
     dev.icbm.port.radio.RadioNetwork.register(world, receiver);
     dev.icbm.port.radio.RadioNetwork.register(world, isolated);
     int delivered =
-        dev.icbm.port.radio.RadioNetwork.broadcast(world, sender, java.util.UUID.randomUUID());
+        dev.icbm.port.radio.RadioNetwork.broadcast(
+            world, sender, new dev.icbm.port.radio.RadioMessage.Trigger(4093));
     check(
         context,
-        delivered == 1 && receiver.received == 1,
-        "Radio relay loops must not redeliver a message");
+        delivered == 1 && receiver.received == 1 && sender.received == 0,
+        "A broadcast must reach each other receiver once and never echo to its sender");
     check(context, isolated.received == 0, "Different channels must remain isolated");
     dev.icbm.port.radio.RadioNetwork.remove(world, origin);
     dev.icbm.port.radio.RadioNetwork.remove(world, origin.up());
     dev.icbm.port.radio.RadioNetwork.remove(world, origin.up(2));
     context.complete();
+  }
+
+  /** Tune a machine through its screen buttons (+100 = 14, +1 = 5) from channel 0. */
+  static void tune(DefenseMachineBlockEntity machine, int channel) {
+    for (int i = 0; i < channel / 100; i++) machine.configure(14);
+    for (int i = 0; i < channel % 100; i++) machine.configure(5);
   }
 
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
@@ -369,11 +383,14 @@ public class DefenseGameTests implements FabricGameTest {
             DefenseContent.SAM_LAUNCHER.getDefaultState().with(DefenseMachineBlock.POWER, 1));
     var radar = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(radarPos);
     var sam = (DefenseMachineBlockEntity) context.getWorld().getBlockEntity(samPos);
-    radar.configure(5);
-    sam.configure(5);
+    // Radio is dimension-wide, so use a channel no other GameTest tunes to.
+    tune(radar, 4011);
+    tune(sam, 4011);
     radar.energyBuffer().setAmount(20_000);
     var target = new MissileEntity(IcbmPort.MISSILE_ENTITY, context.getWorld());
     target.setPosition(Vec3d.ofCenter(samPos.up(3)));
+    target.setVelocity(0, -0.5, 0);
+    target.age = 5;
     context.getWorld().spawnEntity(target);
     DefenseMachineBlockEntity.tick(
         context.getWorld(), samPos, context.getWorld().getBlockState(samPos), sam);
