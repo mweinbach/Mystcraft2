@@ -11,11 +11,13 @@ import java.util.List;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -622,6 +624,77 @@ public class LauncherParityGameTests implements FabricGameTest {
     RadioNetwork.remove(world, listener);
     world.setBlockState(mark, Blocks.AIR.getDefaultState());
     clearMissiles(context, pos);
+    context.complete();
+  }
+
+  /**
+   * Vanilla {@code ServerPlayerInteractionManager#interactBlock} order: the block's {@code onUse}
+   * runs first unless the player sneaks holding an item, and the item's {@code useOnBlock} only runs
+   * if that did not accept the click. Returns the block's result.
+   */
+  private static ActionResult interactBlock(
+      TestContext context, PlayerEntity player, BlockPos pos) {
+    var world = context.getWorld();
+    ItemStack stack = player.getMainHandStack();
+    var hit = new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false);
+    ActionResult block =
+        player.shouldCancelInteraction() && !stack.isEmpty()
+            ? ActionResult.PASS
+            : world.getBlockState(pos).onUse(world, player, Hand.MAIN_HAND, hit);
+    if (!block.isAccepted() && !stack.isEmpty())
+      stack.useOnBlock(new ItemUsageContext(player, Hand.MAIN_HAND, hit));
+    return block;
+  }
+
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  public void detonatorPairsWithDefenseMachinesWithoutSneaking(TestContext context) {
+    var world = context.getWorld();
+    var player = context.createMockPlayer();
+    player.setSneaking(false);
+    var machines =
+        List.of(
+            dev.icbm.port.defense.DefenseContent.RADAR_STATION,
+            dev.icbm.port.defense.DefenseContent.EMP_TOWER,
+            dev.icbm.port.defense.DefenseContent.SAM_LAUNCHER);
+    for (int i = 0; i < machines.size(); i++) {
+      BlockPos pos = context.getAbsolutePos(new BlockPos(1 + 2 * i, 2, 1));
+      world.setBlockState(pos, machines.get(i).getDefaultState());
+      var machine = (dev.icbm.port.defense.DefenseMachineBlockEntity) world.getBlockEntity(pos);
+      int channel = 4071 + i;
+      for (int c = 0; c < channel / 100; c++) machine.configure(14);
+      for (int c = 0; c < channel % 100; c++) machine.configure(5);
+      check(context, machine.radioChannel() == channel, "Fixture channel must be set");
+      for (var item : List.of(LauncherContent.RADIO_DETONATOR, LauncherContent.LASER_DESIGNATOR)) {
+        ItemStack detonator = new ItemStack(item);
+        player.setStackInHand(Hand.MAIN_HAND, detonator);
+        check(
+            context,
+            interactBlock(context, player, pos) == ActionResult.PASS
+                && RadioItem.channel(detonator) == channel,
+            machines.get(i)
+                + " must hand a non-sneaking "
+                + item
+                + " click to the item, which copies its channel instead of opening the screen");
+      }
+      ItemStack gps = new ItemStack(LauncherContent.GPS);
+      player.setStackInHand(Hand.MAIN_HAND, gps);
+      check(
+          context,
+          interactBlock(context, player, pos) == ActionResult.PASS
+              && pos.equals(LauncherContent.readTarget(world, gps)),
+          machines.get(i) + " must let the GPS record its position");
+    }
+    // Launcher frames are not radios, but must not swallow tools either: the GPS records them.
+    BlockPos frame = context.getAbsolutePos(new BlockPos(1, 2, 4));
+    world.setBlockState(frame, LauncherContent.FRAME.getDefaultState());
+    ItemStack gps = new ItemStack(LauncherContent.GPS);
+    player.setStackInHand(Hand.MAIN_HAND, gps);
+    check(
+        context,
+        interactBlock(context, player, frame) == ActionResult.PASS
+            && frame.equals(LauncherContent.readTarget(world, gps)),
+        "Launcher frames must let the GPS record their position");
+    player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
     context.complete();
   }
 }

@@ -114,7 +114,10 @@ from MIT ICBM-Classic `content/blocks/launcher/screen/RadioScreen.java` and
 
 The **remote detonator** (`radio` item) copies the channel from any radio block
 when used on it and, on air-use, broadcasts a trigger on that channel with a
-20-tick cooldown; replies arrive as chat messages. There is no in-item channel
+20-tick cooldown; replies arrive as chat messages. A plain right-click is
+enough: radar stations, EMP towers, SAM stations and launcher components pass
+the detonators, GPS and radar gun (and, on defence machines, batteries) through
+to the item instead of opening their screen. There is no in-item channel
 editor. The **laser designator** shares the channel behavior, raycasts up to 200
 blocks and broadcasts a trigger carrying the hit position; it refuses to aim at
 launcher blocks and reports a miss. Radio only reaches loaded, registered

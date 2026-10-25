@@ -45,6 +45,9 @@ public final class LauncherComponentBlock extends Block {
       PlayerEntity player,
       Hand hand,
       BlockHitResult hit) {
+    // Tools act in their own useOnBlock (GPS/radar gun record this position; component blocks are
+    // not radios, so a detonator falls through to its normal use), exactly as on any other block.
+    if (LauncherContent.isBlockTool(player.getStackInHand(hand))) return ActionResult.PASS;
     if (world.isClient) return ActionResult.SUCCESS;
     if (player.isSpectator()) return ActionResult.PASS;
     var launchers =

@@ -55,12 +55,18 @@ Fifth review round (configuration audit). The EMP blast's own battery drains ign
   - Exposure, spike damage and battery settings each have a single consumer. The EMP tower drains through `EmpEnergyDrain` with the toggle. Machine ranges are clamped every tick.
   - The config has no blast block-damage toggle; the only block-damage setting is `held.blockDamageMultiplier`. Nuclear aftermath fallout and mutation remain upstream's unconditional sub-blasts (unchanged from main).
 
+Sixth review round (tool interactions, parity 5 only). `DefenseMachineBlock.onUse` opened the machine screen for every held item, so a non-sneaking detonator click on a radar, EMP tower or SAM station never reached `RadioItem.useOnBlock` and could not copy the channel. Every block `onUse` in the stack was audited against the items with a `useOnBlock`:
+
+- Fixed: defence machines return PASS for the remote and laser detonators, GPS, radar gun (`LauncherContent.isBlockTool`) and batteries, as launchers already did. Radar redstone toggling and SAM loading are unchanged (`LauncherParityGameTests.detonatorPairsWithDefenseMachinesWithoutSneaking` runs vanilla's `onUse`-then-`useOnBlock` order with a non-sneaking player on all three machines with both detonators and the GPS).
+- Fixed: launcher frames, supports, screens and connectors consumed every item, so the GPS and radar gun could not record them. They now pass the same tools through (same test). A detonator used on a component (not a radio) then behaves as on any other non-radio block.
+- Checked, no change needed: launcher bases (including the cruise launcher) already pass items they do not use. Condensed explosives only act on flint and steel or fire charges. The ender explosive deliberately takes a recorded GPS/radar-gun target, as upstream. Bomb carts and batteries act only on rails and energy blocks.
+
 | Check | Result |
 | --- | --- |
 | Layer GameTests (`runGametest`) | Fifth round: parity 2 **155**, parity 4 **194** (Item Alchemy/ProjectE), parity 3 **180** (EMI/JEI/REI). Fourth round: parity 1 **128**, parity 2 **153**, parity 3 **178**, parity 4 **192** (EMI/JEI/REI). Third round: parity 2 **150**, parity 3 **172** (EMI/JEI/REI). Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
 | Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **35** passed |
-| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **214** required GameTests passed |
-| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **214** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **215** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **215** passed |
 | Stack tip `runMaterialGametest` | Passed (1/1) |
 | `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
 | `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |

@@ -175,6 +175,20 @@ public final class LauncherContent {
             launcher.getX() + .5, launcher.getZ() + .5, target.getX() + .5, target.getZ() + .5, range);
   }
 
+  /**
+   * Items whose own {@code useOnBlock} acts on the clicked block: the remote and laser detonators
+   * copy a radio block's channel (upstream {@code ItemRadio#onItemUse}), and the GPS and radar gun
+   * record the clicked position. Vanilla only calls {@code useOnBlock} when the block's {@code onUse}
+   * returns PASS (or the player sneaks), so machine blocks must pass these through instead of
+   * opening their screen.
+   */
+  public static boolean isBlockTool(ItemStack stack) {
+    Item item = stack.getItem();
+    return item instanceof RadioItem
+        || item instanceof TargetingItem
+        || item instanceof dev.icbm.port.defense.RadarGunItem;
+  }
+
   public static void writeTarget(World world, ItemStack stack, BlockPos target) {
     NbtCompound nbt = stack.getOrCreateSubNbt("IcbmTarget");
     nbt.putLong("Position", target.asLong());
