@@ -396,5 +396,27 @@
   "agricraft.datapacks.mysticalagriculture": "Mystical Agriculture extra crops (data)",
   "agricraft.resourcepacks.mysticalagriculture": "Mystical Agriculture extra crops (resources)",
   "agricraft.datapacks.pamhc2crops": "Pam's HarvestCraft 2 - Crops extra crops (data)",
-  "agricraft.resourcepacks.pamhc2crops": "Pam's HarvestCraft 2 - Crops extra crops (resources)"
+  "agricraft.resourcepacks.pamhc2crops": "Pam's HarvestCraft 2 - Crops extra crops (resources)",
+
+  "block.agricraft.irrigation_tank": "Wooden Irrigation Tank",
+  "block.agricraft.irrigation_channel": "Wooden Irrigation Channel",
+  "block.agricraft.irrigation_channel_hollow": "Wooden Irrigation Channel (Hollow)",
+  "block.agricraft.sprinkler": "Sprinkler",
+  "item.agricraft.agri_channel_valve": "Irrigation Channel Valve",
+  "agricraft.tooltip.tank.l1": "Try not to fall in... or at least not before attaching a ladder",
+  "agricraft.tooltip.sprinkler.l1": "Attaches to the bottom of Irrigation Channels",
+  "agricraft.tooltip.valve.l1": "Attach to Irrigation Channels to control their flow",
+  "agricraft.tooltip.valve.l2": "Valves in regular channels are operated manually",
+  "agricraft.tooltip.valve.l3": "Valves in hollow channels are operated with redstone signals",
+  "agricraft.tooltip.valve.open": "Valve: Open",
+  "agricraft.tooltip.valve.closed": "Valve: Closed",
+  "subtitles.agricraft.valve": "Valve turns",
+  "config.agricraft.irrigation": "Irrigation",
+  "config.agricraft.irrigation.tank_capacity": "Tank capacity",
+  "config.agricraft.irrigation.channel_capacity": "Channel capacity",
+  "config.agricraft.irrigation.rain_fill_rate": "Rain fill rate",
+  "config.agricraft.irrigation.tank_spawn_water_block": "Tanks spawn water block",
+  "config.agricraft.irrigation.sprinkle_interval": "Sprinkler growth interval",
+  "config.agricraft.irrigation.sprinkle_growth_chance": "Sprinkler growth chance",
+  "config.agricraft.irrigation.sprinkler_water_consumption": "Sprinkler water usage"
 }

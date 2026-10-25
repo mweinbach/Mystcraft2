@@ -1,0 +1,12 @@
+{
+  "valve": {
+    "category": "block",
+    "subtitle": "subtitles.agricraft.valve",
+    "sounds": [
+      {
+        "name": "agricraft:block/valve",
+        "stream": false
+      }
+    ]
+  }
+}

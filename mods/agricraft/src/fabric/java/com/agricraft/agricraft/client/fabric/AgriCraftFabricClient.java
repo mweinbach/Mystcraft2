@@ -2,6 +2,7 @@ package com.agricraft.agricraft.client.fabric;
 
 import com.agricraft.agricraft.api.AgriApi;
 import com.agricraft.agricraft.client.AgriCraftClient;
+import com.agricraft.agricraft.client.IrrigationClient;
 import com.agricraft.agricraft.client.ClientUtil;
 import com.agricraft.agricraft.client.ber.CropBlockEntityRenderer;
 import com.agricraft.agricraft.client.ber.SeedAnalyzerEntityRenderer;
@@ -53,6 +54,7 @@ public class AgriCraftFabricClient implements ClientModInitializer {
 			for (String model : new String[]{"wooden_crop_sticks", "iron_crop_sticks", "obsidian_crop_sticks", "wooden_cross_crop_sticks", "iron_cross_crop_sticks", "obsidian_cross_crop_sticks"}) {
 				out.accept(new ResourceLocation(AgriApi.MOD_ID, "block/" + model));
 			}
+			IrrigationClient.EXTRA_MODELS.forEach(out);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(AgriDataRegistries.SYNC_CHANNEL, (client, handler, buf, responseSender) -> {
 			var registries = AgriDataRegistries.read(buf);
@@ -65,6 +67,7 @@ public class AgriCraftFabricClient implements ClientModInitializer {
 
 		BlockEntityRenderers.register(ModBlockEntityTypes.CROP.get(), CropBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntityTypes.SEED_ANALYZER.get(), SeedAnalyzerEntityRenderer::new);
+		IrrigationClient.registerRenderers(BlockEntityRenderers::register);
 		MenuScreens.register(ModMenus.SEED_ANALYZER_MENU.get(), SeedAnalyzerScreen::new);
 
 		HudRenderCallback.EVENT.register((poseStack, partialTicks) -> MagnifyingGlassOverlay.renderOverlay(new AgriGuiGraphics(poseStack), partialTicks));
@@ -89,6 +92,7 @@ public class AgriCraftFabricClient implements ClientModInitializer {
 			));
 		});
 		BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SEED_ANALYZER.get(), RenderType.cutout());
+		IrrigationClient.cutoutBlocks().forEach(block -> BlockRenderLayerMap.INSTANCE.putBlock(block, RenderType.cutout()));
 	}
 
 }
