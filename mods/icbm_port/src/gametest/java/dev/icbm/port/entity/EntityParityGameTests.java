@@ -393,6 +393,46 @@ public class EntityParityGameTests implements FabricGameTest {
     context.complete();
   }
 
+  /**
+   * Review fix: a direct rocket-launcher cluster only takes aim points it can reach before {@code
+   * MISSILE_LIFETIME} expires; a 500-block upstream aim point would never release.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
+  public void directClusterAimPointIsWithinFlightRange(TestContext context) {
+    Vec3d eye = Vec3d.ofCenter(context.getAbsolutePos(new BlockPos(2, 3, 2)));
+    Vec3d direction = new Vec3d(1, 0, 0);
+    Vec3d muzzle = eye.add(direction);
+    check(
+        context,
+        releaseTick(context, muzzle, eye.add(direction.multiply(500))) < 0,
+        "An aim point past the flight range never releases (the reviewed bug)");
+    int tick =
+        releaseTick(
+            context,
+            muzzle,
+            eye.add(
+                direction.multiply(
+                    dev.icbm.port.delivery.RocketLauncherItem.DIRECT_CLUSTER_AIM_RANGE)));
+    check(
+        context,
+        tick > 0 && tick <= IcbmPort.MISSILE_LIFETIME,
+        "The farthest direct aim point must release before the rocket expires: " + tick);
+    context.complete();
+  }
+
+  /** Flies a direct cluster rocket straight at MISSILE_SPEED; the tick it releases, or -1. */
+  private int releaseTick(TestContext context, Vec3d muzzle, Vec3d aim) {
+    ActionableMissileEntity missile =
+        ActionableMissileEntity.forCluster(context.getWorld(), clusterStack(PayloadType.CONDENSED));
+    missile.setProximityTrigger(aim, ActionableMissileEntity.CLUSTER_TRIGGER_DISTANCE, false);
+    Vec3d step = aim.subtract(muzzle).normalize().multiply(IcbmPort.MISSILE_SPEED);
+    for (int tick = 1; tick <= IcbmPort.MISSILE_LIFETIME; tick++) {
+      missile.setPosition(muzzle.add(step.multiply(tick)));
+      if (missile.shouldTriggerInFlight()) return tick;
+    }
+    return -1;
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void targetedLauncherClusterUsesProximityTrigger(TestContext context) {
     BlockPos pos = context.getAbsolutePos(new BlockPos(2, 2, 2));

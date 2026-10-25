@@ -12,6 +12,12 @@ import net.minecraft.world.World;
 
 /** Inventory missile selection on release, with server-side cooldown and durability cost. */
 public final class RocketLauncherItem extends Item {
+  /**
+   * Upstream raytraces 500 blocks, but a direct (non-ballistic) rocket covers only {@code
+   * MISSILE_LIFETIME * MISSILE_SPEED} blocks (300) from the muzzle, one block ahead of the eye.
+   */
+  public static final double DIRECT_CLUSTER_AIM_RANGE =
+      Math.min(500, IcbmPort.MISSILE_LIFETIME * IcbmPort.MISSILE_SPEED);
   private final boolean ballistic;
 
   public RocketLauncherItem(Settings settings) {
@@ -103,7 +109,9 @@ public final class RocketLauncherItem extends Item {
               net.minecraft.util.math.Vec3d.ofCenter(target)
                   .add(0, dev.icbm.port.entity.ActionableMissileEntity.BALLISTIC_BURST_HEIGHT, 0);
         else {
-          var hit = player.raycast(500, 1, false);
+          // A direct rocket flies straight and expires after MISSILE_LIFETIME ticks, so only aim
+          // points it can reach become proximity targets; beyond that the timed release applies.
+          var hit = player.raycast(DIRECT_CLUSTER_AIM_RANGE, 1, false);
           if (hit.getType() == net.minecraft.util.hit.HitResult.Type.BLOCK) aim = hit.getPos();
         }
         if (aim != null)
