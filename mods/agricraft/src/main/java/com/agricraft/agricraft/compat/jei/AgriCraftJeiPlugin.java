@@ -174,6 +174,7 @@ public class AgriCraftJeiPlugin implements IModPlugin {
 
 	private static List<AgriPlant> unseenPlants() {
 		return AgriApi.getPlantRegistry().map(registry -> registry.keySet().stream().sorted()
+				.filter(id -> AgriRecipeDisplays.showsPlant(registry.get(id)))
 				.filter(SHOWN_PLANTS::add).map(registry::get).toList()).orElse(List.of());
 	}
 

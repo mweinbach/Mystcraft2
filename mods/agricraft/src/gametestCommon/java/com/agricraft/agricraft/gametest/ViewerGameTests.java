@@ -57,8 +57,10 @@ public class ViewerGameTests {
 	public static void mutationDisplaysMatchTheMutationRegistry(GameTestHelper helper) {
 		Registry<AgriMutation> registry = AgriApi.getMutationRegistry().orElseThrow();
 		List<AgriRecipeDisplays.Mutation> shown = AgriRecipeDisplays.mutations();
-		long valid = registry.stream().filter(AgriMutation::isValid).count();
+		long valid = registry.stream().filter(AgriRecipeDisplays::showsMutation).count();
 		check(!shown.isEmpty() && shown.size() == valid, "Mutation displays " + shown.size() + " of " + valid + " valid mutations");
+		check(shown.stream().allMatch(m -> AgriRecipeDisplays.showsPlant(m.parent1()) && AgriRecipeDisplays.showsPlant(m.parent2())
+				&& AgriRecipeDisplays.showsPlant(m.child())), "A mutation display shows a plant whose required products resolve to nothing");
 		checkSorted(shown, AgriRecipeDisplays.Mutation::mutationId, "Mutation");
 		for (AgriRecipeDisplays.Mutation display : shown) {
 			AgriMutation mutation = registry.get(display.mutationId());
@@ -84,13 +86,16 @@ public class ViewerGameTests {
 		Registry<AgriPlant> registry = AgriApi.getPlantRegistry().orElseThrow();
 		checkOutputs(registry, AgriRecipeDisplays.produce(), AgriPlant::getAllPossibleProducts, "products");
 		checkOutputs(registry, AgriRecipeDisplays.clippings(), AgriPlant::getAllPossibleClipProducts, "clippings");
+		// plants whose required products resolve to no item (e.g. petinia without a tin mod) are hidden
+		long visible = registry.stream().filter(AgriRecipeDisplays::showsPlant).count();
 		List<AgriRecipeDisplays.PlantDisplay> requirements = AgriRecipeDisplays.requirements();
-		check(requirements.size() == registry.size(), "Requirement displays " + requirements.size() + " of " + registry.size() + " plants");
+		check(requirements.size() == visible, "Requirement displays " + requirements.size() + " of " + visible + " shown plants");
 		for (AgriRecipeDisplays.PlantDisplay display : requirements) {
 			check(display.outputs().isEmpty() && species(display.seed()).equals(display.plantId().toString()), "Requirement display " + display.id());
 		}
 		List<ItemStack> seeds = AgriRecipeDisplays.seeds();
-		check(seeds.size() == registry.size(), "Seeds " + seeds.size() + " of " + registry.size() + " plants");
+		check(seeds.size() == visible, "Seeds " + seeds.size() + " of " + visible + " shown plants");
+		check(seeds.stream().allMatch(seed -> AgriRecipeDisplays.showsPlant(AgriApi.getPlant(AgriSeedItem.getSpecies(seed)).orElse(null))), "A hidden plant's seed is listed");
 		check(seeds.stream().map(AgriSeedItem::getSpecies).distinct().count() == seeds.size(), "Duplicate seeds");
 		check(AgriRecipeDisplays.produce().stream().anyMatch(d -> d.plantId().equals(new ResourceLocation("minecraft", "wheat"))
 				&& d.outputs().stream().anyMatch(s -> s.is(Items.WHEAT))), "Wheat produces wheat");
@@ -114,6 +119,10 @@ public class ViewerGameTests {
 			List<ItemStack> list = new ArrayList<>();
 			outputs.accept(plant, list::add);
 			List<AgriRecipeDisplays.PlantDisplay> displays = shown.stream().filter(d -> d.plantId().equals(id)).toList();
+			if (!AgriRecipeDisplays.showsPlant(plant)) {
+				check(displays.isEmpty(), "Hidden plant " + id + " has a " + what + " display");
+				continue;
+			}
 			if (list.isEmpty()) {
 				check(displays.isEmpty(), "Plant " + id + " has no " + what + " but a display");
 				continue;

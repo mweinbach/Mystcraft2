@@ -1,6 +1,7 @@
 package com.agricraft.agricraft.compat;
 
 import com.agricraft.agricraft.api.AgriApi;
+import com.agricraft.agricraft.api.codecs.AgriMutation;
 import com.agricraft.agricraft.api.plant.AgriPlant;
 import com.agricraft.agricraft.common.item.AgriSeedItem;
 import com.agricraft.agricraft.common.registry.ModItems;
@@ -41,11 +42,26 @@ public final class AgriRecipeDisplays {
 	public record PlantDisplay(ResourceLocation id, ResourceLocation plantId, AgriPlant plant, ItemStack seed, List<ItemStack> outputs) {
 	}
 
-	/** Every valid mutation (all three plants loaded), sorted by mutation id. */
+	/**
+	 * Whether the viewers list this plant: not when a required product resolves to no item (e.g. Petinia's tin
+	 * nuggets with no tin mod loaded). Such plants are hidden from the creative tab too and never come out of a
+	 * mutation.
+	 */
+	public static boolean showsPlant(AgriPlant plant) {
+		return plant != null && !plant.hasUnresolvedRequiredProducts();
+	}
+
+	/** Whether the viewers list this mutation: all three plants are loaded and none of them is hidden. */
+	public static boolean showsMutation(AgriMutation mutation) {
+		return mutation.isValid() && showsPlant(mutation.getParent1().orElseThrow()) && showsPlant(mutation.getParent2().orElseThrow())
+				&& showsPlant(mutation.getChild().orElseThrow());
+	}
+
+	/** Every valid mutation (all three plants loaded and shown), sorted by mutation id. */
 	public static List<Mutation> mutations() {
 		List<Mutation> list = new ArrayList<>();
 		AgriApi.getMutationRegistry().ifPresent(registry -> sorted(registry, (id, mutation) -> {
-			if (!mutation.isValid()) {
+			if (!showsMutation(mutation)) {
 				return;
 			}
 			AgriPlant parent1 = mutation.getParent1().orElseThrow();
@@ -72,10 +88,14 @@ public final class AgriRecipeDisplays {
 		return plants("requirements", (plant, out) -> { }, false);
 	}
 
-	/** The default seed of every loaded plant, sorted by plant id. */
+	/** The default seed of every shown plant, sorted by plant id. */
 	public static List<ItemStack> seeds() {
 		List<ItemStack> list = new ArrayList<>();
-		AgriApi.getPlantRegistry().ifPresent(registry -> sorted(registry, (id, plant) -> list.add(AgriSeedItem.toStack(plant))));
+		AgriApi.getPlantRegistry().ifPresent(registry -> sorted(registry, (id, plant) -> {
+			if (showsPlant(plant)) {
+				list.add(AgriSeedItem.toStack(plant));
+			}
+		}));
 		return list;
 	}
 
@@ -110,6 +130,9 @@ public final class AgriRecipeDisplays {
 	private static List<PlantDisplay> plants(String prefix, Outputs outputs, boolean needOutputs) {
 		List<PlantDisplay> list = new ArrayList<>();
 		AgriApi.getPlantRegistry().ifPresent(registry -> sorted(registry, (id, plant) -> {
+			if (!showsPlant(plant)) {
+				return;
+			}
 			List<ItemStack> out = new ArrayList<>();
 			outputs.collect(plant, out);
 			if (!needOutputs || !out.isEmpty()) {
