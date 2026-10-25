@@ -157,6 +157,11 @@ public class DefenseParityGameTests implements FabricGameTest {
     var restored = new DefenseMachineBlockEntity(pos, DefenseContent.RADAR_STATION.getDefaultState());
     restored.readNbt(saved);
     check(context, !restored.outputsRedstone(), "Redstone output toggle must persist");
+    // Upstream stores a radar trigger range but never reads it; the port offers no inert control.
+    check(
+        context,
+        !radar.configure(2) && !radar.configure(3) && !saved.contains("Trigger"),
+        "The radar must not accept or save the unused trigger-range setting");
     List.of(closing, leaving, fresh, outside, high).forEach(MissileEntity::discard);
     context.complete();
   }

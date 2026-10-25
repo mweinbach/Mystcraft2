@@ -41,12 +41,26 @@ Fourth review round (flight state machine). Instead of fixing one mid-flight cas
 - Launcher inaccuracy cannot push a target that was accepted at the range edge out of the flight bounds, so a ready launcher no longer fails at random (`LauncherParityGameTests.inaccuracyKeepsRangeEdgeTargetsFlyable`).
 - EMP tower energy kept above a shrunken capacity survives a reload (`DefenseParityGameTests.empTowerKeepsOverCapacityEnergyAcrossReload`).
 
+Fifth review round (configuration audit). The EMP blast's own battery drains ignored `emp_energy_drain.enabled`, so every config toggle and limit was checked against every code path the stack added:
+
+- Fixed on parity 2: `EmpBlast` drains batteries in block-entity inventories and dropped items only when `emp_energy_drain` is enabled, within its `maxBlocks` (at most 1,024 inventories) and `maxEntities` caps. Creepers, primed explosives, missiles, smoke, sound and the EMP field are unchanged (`InteropGameTests.empBlastKeepsBatteriesButStillPulsesWhenDrainDisabled`).
+- Fixed on parity 2: `Payloads.EMP_HANDLERS` are typed `EmpHandler(world, center, radius)` and receive the blast's size. The drain handler and defence field used the configured EMP radius (50) even for a smaller API-scaled EMP; the same test checks an energy block outside the blast but inside 50 blocks keeps its charge. Parity 4's `PrimedExplosiveEntity.empKill` takes the same radius (`DeliveryParityGameTests.empRemovesPrimedExplosivesWithoutDetonating`).
+- Fixed on parity 2: `TntBlast` (condensed, repulsive, attractive) ignored the payload `energy` setting after the upstream ray rewrite. Ray energy now scales by configured over default energy. At the defaults it is identical to upstream, and it never exceeds 80 (`ConventionalBlastParityGameTests.tntRayEnergyFollowsTheEnergySetting`).
+- Fixed on parity 5: the radar's trigger-range buttons changed and saved a setting nothing read, because the upstream-algorithm radar (`isMissileGoingToHit`) replaced the old trigger-range alert. Upstream stores the same field and never reads it either, so the port drops the control: the screen hides it, `configure(2/3)` is rejected and it is not saved (`DefenseParityGameTests.radarSeparatesIncomingFromDetected`).
+- Checked, no change needed:
+  - Every delivery path (blocks, carts, grenades, bomblets, missiles, cluster bursts, EMP-triggered payloads, API actions) goes through `Payloads.dispatch`, which checks `enabled`; queued jobs re-check it live. `detonateScaled` rejects sizes above the type's maximum radius.
+  - Fragment counts are bounded by `fragments` (or an explicit size) and the 64 grid and world caps. `entityDamage`, `durationTicks` and `energy` reach thermal, breach, fragment, red matter, antigravity, smoke, gas and colour work. Every activation uses the configured block, cart and grenade fuses.
+  - Delivery properties: cargo, held and cluster lists are checked on loading, launch and impact. `held.blockDamageMultiplier`, `held.genericInteractions`, `balloon.liftTicks` and the cluster sizes are honoured.
+  - `icbm-flight.json` `maxRange` is enforced by every launcher fire (`LauncherBlock.check`) and by `StagedFlight.inBounds` for every configured target, including rocket-launcher and held-item missiles. The ticket settings are used only by `FlightLedger`.
+  - Exposure, spike damage and battery settings each have a single consumer. The EMP tower drains through `EmpEnergyDrain` with the toggle. Machine ranges are clamped every tick.
+  - The config has no blast block-damage toggle; the only block-damage setting is `held.blockDamageMultiplier`. Nuclear aftermath fallout and mutation remain upstream's unconditional sub-blasts (unchanged from main).
+
 | Check | Result |
 | --- | --- |
-| Layer GameTests (`runGametest`) | Fourth round: parity 1 **128**, parity 2 **153**, parity 3 **178**, parity 4 **192** (EMI/JEI/REI). Third round: parity 2 **150**, parity 3 **172** (EMI/JEI/REI). Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
+| Layer GameTests (`runGametest`) | Fifth round: parity 2 **155**, parity 4 **194** (Item Alchemy/ProjectE), parity 3 **180** (EMI/JEI/REI). Fourth round: parity 1 **128**, parity 2 **153**, parity 3 **178**, parity 4 **192** (EMI/JEI/REI). Third round: parity 2 **150**, parity 3 **172** (EMI/JEI/REI). Second round: parity 2 **148** passed (including the contention tests). First round: parity 2 **146**, parity 3 **168** (EMI/JEI/REI), parity 4 **182** (EMI/JEI/REI). Parity 1 is contained in the parity 2 run. |
 | Stack tip `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **35** passed |
-| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **212** required GameTests passed |
-| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **212** passed |
+| Stack tip `runGametest -PwithItemAlchemy -PwithProjectE` | All **214** required GameTests passed |
+| Stack tip `runGametest -PwithEmi -PwithJei -PwithRei` | All **214** passed |
 | Stack tip `runMaterialGametest` | Passed (1/1) |
 | `validate_resources.py <client jar>`, `check_payload_visuals.py`, `unittest discover -s tools/tests` (10) | Passed |
 | `ports.py check`, `emc.py check`, `scripts/tests` (165), `check_mixin_member_names.py`, `check_unmapped_overrides.py` (0 unmapped), Tekxit mixin audit | Passed; 2 injectors, 0 conflicts with the 805 in the pack |

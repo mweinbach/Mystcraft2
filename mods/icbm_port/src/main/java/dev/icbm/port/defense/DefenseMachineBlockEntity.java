@@ -73,7 +73,7 @@ public final class DefenseMachineBlockEntity extends BlockEntity
   private final BatterySlot batterySlot = new BatterySlot();
   private final SamAmmoStorage samAmmo = new SamAmmoStorage();
   private final EnergyBuffer energy;
-  private int range, triggerRange = 50, channel, cooldown;
+  private int range, channel, cooldown;
   private boolean explosiveFilter = true,
       heldFilter = true,
       radioEnabled = true,
@@ -428,8 +428,6 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     switch (button) {
       case 0 -> range -= 10;
       case 1 -> range += 10;
-      case 2 -> triggerRange -= 10;
-      case 3 -> triggerRange += 10;
       case 4 -> channel--;
       case 5 -> channel++;
       case 6 -> explosiveFilter = !explosiveFilter;
@@ -451,7 +449,6 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       }
     }
     range = MathHelper.clamp(range, 1, maximumRange());
-    triggerRange = MathHelper.clamp(triggerRange, 1, range);
     channel = MathHelper.clamp(channel, 0, RadioNetwork.MAX_CHANNEL);
     markDirty();
     return true;
@@ -468,7 +465,7 @@ public final class DefenseMachineBlockEntity extends BlockEntity
       public int get(int index) {
         return switch (index) {
           case 0 -> range;
-          case 1 -> triggerRange;
+          case 1 -> 0; // upstream trigger range: stored but never read there; not ported
           case 2 -> channel;
           case 3 -> explosiveFilter ? 1 : 0;
           case 4 -> heldFilter ? 1 : 0;
@@ -713,7 +710,6 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     Inventories.writeNbt(nbt, items);
     nbt.putInt("Range", range);
     energy.writeNbt(nbt);
-    nbt.putInt("Trigger", triggerRange);
     nbt.putInt("Channel", channel);
     nbt.putInt("Cooldown", cooldown);
     nbt.putBoolean("ExplosiveFilter", explosiveFilter);
@@ -738,7 +734,6 @@ public final class DefenseMachineBlockEntity extends BlockEntity
     range = MathHelper.clamp(nbt.getInt("Range"), 1, 512);
     cooldown = MathHelper.clamp(nbt.getInt("Cooldown"), 0, EMP_COOLDOWN);
     energy.readNbt(nbt);
-    triggerRange = MathHelper.clamp(nbt.getInt("Trigger"), 1, RADAR_MAX_RANGE);
     channel = MathHelper.clamp(nbt.getInt("Channel"), 0, RadioNetwork.MAX_CHANNEL);
     explosiveFilter = !nbt.contains("ExplosiveFilter") || nbt.getBoolean("ExplosiveFilter");
     heldFilter = !nbt.contains("HeldFilter") || nbt.getBoolean("HeldFilter");

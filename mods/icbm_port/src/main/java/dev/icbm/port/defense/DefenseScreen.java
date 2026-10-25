@@ -26,8 +26,6 @@ public final class DefenseScreen extends HandledScreen<DefenseScreenHandler> {
     controls.clear();
     button(0, 8, 35, 28, "-10");
     button(1, 38, 35, 28, "+10");
-    button(2, 8, 55, 28, "-10");
-    button(3, 38, 55, 28, "+10");
     button(4, 8, 75, 28, "-1");
     button(5, 38, 75, 28, "+1");
     button(6, 8, 95, 82, "Explosives");
@@ -65,8 +63,6 @@ public final class DefenseScreen extends HandledScreen<DefenseScreenHandler> {
 
   private void updateControls() {
     int kind = handler.value(10);
-    controls.get(2).visible = kind == 0;
-    controls.get(3).visible = kind == 0;
     controls.get(9).visible = kind == 0;
     controls.get(10).visible = kind == 1;
     controls.get(12).visible = kind == 2;
@@ -109,9 +105,7 @@ public final class DefenseScreen extends HandledScreen<DefenseScreenHandler> {
           0xb4d7ff);
     textRenderer.draw(
         matrices, "Range: " + handler.value(0) + " / " + handler.value(11), 72, 40, 0xffffff);
-    if (handler.value(10) == 0)
-      textRenderer.draw(matrices, "Trigger: " + handler.value(1), 72, 60, 0xffffff);
-    else if (handler.value(10) == 1)
+    if (handler.value(10) == 1)
       textRenderer.draw(matrices, "Boosters: " + handler.value(13), 8, 60, 0xffffff);
     else textRenderer.draw(matrices, "Cooldown: " + handler.value(7), 8, 60, 0xffffff);
     textRenderer.draw(matrices, "Channel: " + handler.value(2), 72, 80, 0xffffff);

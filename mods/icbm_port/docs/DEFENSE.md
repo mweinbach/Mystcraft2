@@ -14,7 +14,7 @@ as an insert-only view: other mods can charge a machine but cannot extract from
 it (see [ENERGY.md](ENERGY.md)). The battery slot is also reachable through
 Fabric's `ItemStorage.SIDED` lookup, so hoppers and pipes can insert or remove
 batteries. New machines start empty. Configuration buttons change detection/EMP/SAM range,
-radar trigger range, radio channel (±1 and ±100), explosive/cargo missile
+radio channel (±1 and ±100), explosive/cargo missile
 filters, radio, radar redstone output and enabled state. The SAM radar-only toggle disables autonomous scanning while
 retaining incoming radio targeting. Server handlers validate the open container,
 player distance, block identity, spectator status, build permissions and button
@@ -22,7 +22,8 @@ range. Battery inventory, energy, settings and cooldown persist in block NBT.
 
 Radar consumes the upstream default **1000 energy per tick**, stores 20,000,
 and scans loaded missiles every powered tick. Its initial detection range is
-100 and trigger radius 50; detection is configurable to upstream maximum 500.
+100, configurable to upstream maximum 500. Upstream's radar also stores a
+trigger range (default 50) that nothing reads; the port has no such control.
 Adapted from MIT ICBM-Classic `content/blocks/radarstation/TileRadarStation.java`,
 the scan covers a full-height square column of half-width equal to the range,
 ignores missiles airborne for one tick or less, and splits the rest into
