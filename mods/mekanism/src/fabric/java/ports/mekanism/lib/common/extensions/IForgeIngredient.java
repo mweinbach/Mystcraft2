@@ -14,8 +14,15 @@ import ports.mekanism.lib.common.crafting.VanillaIngredientSerializer;
  */
 public interface IForgeIngredient {
 
+    /**
+     * Forge treats ingredients as simple unless they say otherwise. On Fabric, an ingredient this port did not create
+     * says otherwise through Fabric's {@code requiresTesting}: Fabric's own NBT ingredients, and the Forge ingredient
+     * types another mod carries its own copy of (ProjectE's port). When that mod's reader runs before this port's, a
+     * {@code forge:nbt} or {@code forge:partial_nbt} input in a Mekanism recipe is that mod's object, and must still
+     * be tested by stack rather than looked up by item.
+     */
     default boolean isSimple() {
-        return true;
+        return !((Ingredient) (Object) this).requiresTesting();
     }
 
     default boolean isVanilla() {

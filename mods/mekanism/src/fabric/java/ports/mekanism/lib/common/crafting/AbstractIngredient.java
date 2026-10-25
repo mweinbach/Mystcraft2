@@ -58,6 +58,16 @@ public abstract class AbstractIngredient extends Ingredient {
         return false;
     }
 
+    /**
+     * Fabric's flag for the same property, which every mod on Fabric can read. Other mods carry their own copy of
+     * Forge's ingredient types (ProjectE's port does), and whichever copy reads a recipe's JSON first owns the
+     * ingredient, so a non-simple ingredient must say so through this flag as well as {@link #isSimple}.
+     */
+    @Override
+    public boolean requiresTesting() {
+        return !isSimple();
+    }
+
     @NotNull
     @Override
     public abstract IIngredientSerializer<? extends Ingredient> getSerializer();

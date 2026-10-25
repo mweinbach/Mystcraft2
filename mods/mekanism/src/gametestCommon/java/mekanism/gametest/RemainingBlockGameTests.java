@@ -67,6 +67,7 @@ import net.minecraft.world.phys.AABB;
 public class RemainingBlockGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    @LevelTickingOnly
     public static void dimensionalStabilizerLoadsItsChunk(GameTestHelper helper) {
         BlockPos pos = new BlockPos(1, 2, 1);
         helper.setBlock(pos, MekanismBlocks.DIMENSIONAL_STABILIZER.getBlock());

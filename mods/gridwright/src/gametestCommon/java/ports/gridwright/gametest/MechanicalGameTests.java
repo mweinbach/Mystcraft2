@@ -38,6 +38,7 @@ public class MechanicalGameTests {
         helper.setBlock(MACHINE, block.get().defaultBlockState().setValue(MechanicalBlock.FACING, Direction.EAST));
         T machine = (T) helper.getBlockEntity(MACHINE);
         check(machine != null, "No block entity");
+        GameTestTicking.keepTestAreaTicking(helper);
         return owner == null ? machine : owned(machine, owner);
     }
 

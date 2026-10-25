@@ -152,9 +152,13 @@ public class SharedGameTests {
     private static TestFunction function(Class<?> testClass, Method method) {
         GameTest test = method.getAnnotation(GameTest.class);
         String name = testClass.getSimpleName().toLowerCase(Locale.ROOT) + "." + method.getName().toLowerCase(Locale.ROOT);
+        boolean levelTickingOnly = testClass.isAnnotationPresent(LevelTickingOnly.class) || method.isAnnotationPresent(LevelTickingOnly.class);
         return new TestFunction(test.batch(), name, test.template(), StructureUtils.getRotationForRotationSteps(test.rotationSteps()),
               test.timeoutTicks(), test.setupTicks(), test.required(), test.requiredSuccesses(), test.attempts(),
               helper -> {
+                  if (!levelTickingOnly) {
+                      GameTestTicking.keepTestAreaTicking(helper);
+                  }
                   try {
                       method.invoke(null, helper);
                   } catch (InvocationTargetException e) {

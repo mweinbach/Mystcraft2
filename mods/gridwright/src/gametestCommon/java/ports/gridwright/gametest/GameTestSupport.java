@@ -64,11 +64,16 @@ public final class GameTestSupport {
         return grid(helper).snapshot(key);
     }
 
+    /**
+     * Places {@code block} and returns its block entity. The test area then keeps ticking even before its chunk does,
+     * see {@link GameTestTicking#keepTestAreaTicking}.
+     */
     @SuppressWarnings("unchecked")
     static <T extends BlockEntity> T place(GameTestHelper helper, Supplier<? extends Block> block, BlockPos pos) {
         helper.setBlock(pos, block.get().defaultBlockState());
         BlockEntity blockEntity = helper.getBlockEntity(pos);
         check(blockEntity != null, "No block entity at " + pos);
+        GameTestTicking.keepTestAreaTicking(helper);
         return (T) blockEntity;
     }
 

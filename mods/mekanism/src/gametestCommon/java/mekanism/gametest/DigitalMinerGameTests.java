@@ -143,6 +143,7 @@ public class DigitalMinerGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    @LevelTickingOnly
     public static void anchorUpgradeKeepsTheMinerChunkLoaded(GameTestHelper helper) {
         TileEntityDigitalMiner miner = placedMiner(helper);
         check(miner.getComponent().supports(Upgrade.ANCHOR), "The digital miner does not support the anchor upgrade");

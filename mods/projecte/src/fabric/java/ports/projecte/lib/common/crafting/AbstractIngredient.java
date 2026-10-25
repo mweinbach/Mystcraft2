@@ -58,6 +58,16 @@ public abstract class AbstractIngredient extends Ingredient {
         return false;
     }
 
+    /**
+     * Fabric's flag for the same property, which every mod on Fabric can read. The Mekanism port carries its own copy
+     * of Forge's ingredient types, and whichever copy reads a recipe's JSON first owns the ingredient, so Mekanism's
+     * recipe cache learns from this flag that a ProjectE-read {@code forge:nbt} input must be tested by stack.
+     */
+    @Override
+    public boolean requiresTesting() {
+        return !projecte$isSimple();
+    }
+
     @NotNull
     @Override
     public abstract IIngredientSerializer<? extends Ingredient> getSerializer();

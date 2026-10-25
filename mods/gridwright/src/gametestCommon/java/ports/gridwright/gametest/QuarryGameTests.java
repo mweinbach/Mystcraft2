@@ -330,37 +330,54 @@ public class QuarryGameTests {
 
         EnderQuarryBlockEntity quarry = enderQuarry(helper, Owner.random("gwX"));
         charge(quarry, EnderQuarryBlockEntity.CAPACITY);
-        helper.startSequence()
-                .thenWaitUntil(() -> {
-                    for (int x = 3; x <= 5; x++) {
-                        for (int z = 3; z <= 5; z++) {
-                            BlockPos top = new BlockPos(x, 2, z);
-                            BlockPos low = new BlockPos(x, 1, z);
-                            if (!top.equals(claimed)) check(helper.getBlockState(top).isAir(), "Dirt left at " + top);
-                            if (!low.equals(bedrock) && !low.equals(barrier) && !low.equals(chest)) {
-                                check(helper.getBlockState(low).isAir(), "Stone left at " + low);
-                            }
-                        }
-                    }
-                })
-                .thenExecute(() -> {
-                    check(helper.getBlockState(claimed).is(Blocks.DIRT), "Mined a protected block");
-                    check(helper.getBlockState(bedrock).is(Blocks.BEDROCK) && helper.getBlockState(barrier).is(Blocks.BARRIER)
-                            && helper.getBlockState(chest).is(Blocks.CHEST), "Mined an unbreakable block or a block entity");
-                    check(helper.getBlockState(outside).is(Blocks.DIRT) && helper.getBlockState(outside.below()).is(Blocks.STONE), "Mined outside the loop");
-                    check(helper.getBlockState(new BlockPos(2, 2, 4)).is(Blocks.OAK_FENCE), "Mined its own boundary");
-                    int dirt = 0;
-                    int cobble = 0;
-                    for (int slot = WorkerLayout.ENDER_QUARRY.firstOutput(); slot < WorkerLayout.ENDER_QUARRY.size(); slot++) {
-                        ItemStack stack = quarry.getItem(slot);
-                        if (stack.is(Items.DIRT)) dirt += stack.getCount();
-                        if (stack.is(Items.COBBLESTONE)) cobble += stack.getCount();
-                    }
-                    check(dirt >= 8 && cobble >= 6, "Output: " + dirt + " dirt, " + cobble + " cobblestone");
-                    long spent = EnderQuarryBlockEntity.CAPACITY - quarry.energy().stored();
-                    check(spent == quarry.mined() * EnderQuarryBlockEntity.BASE_ENERGY, "Energy " + spent + " for " + quarry.mined() + " blocks");
-                })
-                .thenSucceed();
+        // The quarry is ticked here rather than left to the world. A block entity ticks only once its chunk is ticking
+        // with its entities loaded, and on a loaded CI server a freshly placed GameTest area can wait longer than the
+        // timeout for that, so the area was sometimes still untouched (dirt left at the first column) when the test
+        // gave up. MAX_DRIVEN_TICKS is the old timeout; the 14 minable blocks take about 60 quarry ticks.
+        GameTestTicking.tickUntil(helper, quarry, MAX_DRIVEN_TICKS, () -> enderAreaMined(helper, claimed, bedrock, barrier, chest));
+        for (int x = 3; x <= 5; x++) {
+            for (int z = 3; z <= 5; z++) {
+                BlockPos top = new BlockPos(x, 2, z);
+                BlockPos low = new BlockPos(x, 1, z);
+                String after = " (" + quarry.status() + ", " + quarry.mined() + " mined)";
+                if (!top.equals(claimed)) check(helper.getBlockState(top).isAir(), "Dirt left at " + top + after);
+                if (!low.equals(bedrock) && !low.equals(barrier) && !low.equals(chest)) {
+                    check(helper.getBlockState(low).isAir(), "Stone left at " + low + after);
+                }
+            }
+        }
+        check(helper.getBlockState(claimed).is(Blocks.DIRT), "Mined a protected block");
+        check(helper.getBlockState(bedrock).is(Blocks.BEDROCK) && helper.getBlockState(barrier).is(Blocks.BARRIER)
+                && helper.getBlockState(chest).is(Blocks.CHEST), "Mined an unbreakable block or a block entity");
+        check(helper.getBlockState(outside).is(Blocks.DIRT) && helper.getBlockState(outside.below()).is(Blocks.STONE), "Mined outside the loop");
+        check(helper.getBlockState(new BlockPos(2, 2, 4)).is(Blocks.OAK_FENCE), "Mined its own boundary");
+        int dirt = 0;
+        int cobble = 0;
+        for (int slot = WorkerLayout.ENDER_QUARRY.firstOutput(); slot < WorkerLayout.ENDER_QUARRY.size(); slot++) {
+            ItemStack stack = quarry.getItem(slot);
+            if (stack.is(Items.DIRT)) dirt += stack.getCount();
+            if (stack.is(Items.COBBLESTONE)) cobble += stack.getCount();
+        }
+        check(dirt >= 8 && cobble >= 6, "Output: " + dirt + " dirt, " + cobble + " cobblestone");
+        long spent = EnderQuarryBlockEntity.CAPACITY - quarry.energy().stored();
+        check(spent == quarry.mined() * EnderQuarryBlockEntity.BASE_ENERGY, "Energy " + spent + " for " + quarry.mined() + " blocks");
+        helper.succeed();
+    }
+
+    private static final int MAX_DRIVEN_TICKS = 400;
+
+    /** Whether every minable block inside the loop of {@link #enderQuarryMinesInsideOnlyAndRespectsProtection} is gone. */
+    private static boolean enderAreaMined(GameTestHelper helper, BlockPos claimed, BlockPos... kept) {
+        List<BlockPos> keep = List.of(kept);
+        for (int x = 3; x <= 5; x++) {
+            for (int z = 3; z <= 5; z++) {
+                BlockPos top = new BlockPos(x, 2, z);
+                BlockPos low = new BlockPos(x, 1, z);
+                if (!top.equals(claimed) && !helper.getBlockState(top).isAir()) return false;
+                if (!keep.contains(low) && !helper.getBlockState(low).isAir()) return false;
+            }
+        }
+        return true;
     }
 
     @GameTest(template = TEMPLATE)

@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * separates its transmitters from their networks; when the level comes back the transmitters rejoin. Without the
  * event the cables would stay "loaded" in a network nothing ticks.
  */
+@LevelTickingOnly
 public class TransmitterChunkGameTests {
 
     /**

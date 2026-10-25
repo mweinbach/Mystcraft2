@@ -40,8 +40,7 @@ public class FluidEntityGameTests {
         // Cows have none of the undead or water-mob exceptions that let vanilla mobs breathe in water.
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
         cow.setAirSupply(100);
-        helper.startSequence()
-              .thenIdle(20)
+        GameTestTicking.awaitEntityTicked(helper, cow, 20)
               .thenExecute(() -> check(cow.getAirSupply() < 100, "a cow under brine kept its air: " + cow.getAirSupply()))
               .thenSucceed();
     }
@@ -52,8 +51,7 @@ public class FluidEntityGameTests {
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
         cow.setSprinting(true);
         cow.setSwimming(false);
-        helper.startSequence()
-              .thenIdle(2)
+        GameTestTicking.awaitEntityTicked(helper, cow, 2)
               .thenExecute(() -> check(cow.isSwimming(), "a sprinting cow under brine is not swimming"))
               .thenSucceed();
     }
@@ -62,8 +60,9 @@ public class FluidEntityGameTests {
     public static void entityTracksBrineFluidType(GameTestHelper helper) {
         floodPool(helper, brine());
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 1, 2));
-        helper.startSequence()
-              .thenIdle(2)
+        // Count the cow's own ticks: two test ticks raced its section becoming entity-ticking, and the cow was then
+        // still untracked (minecraft:empty).
+        GameTestTicking.awaitEntityTicked(helper, cow, 2)
               .thenExecute(() -> {
                   check(cow.getMaxHeightFluidType() == brineType(), "the cow's tallest fluid type is " + cow.getMaxHeightFluidType());
                   check(cow.isInFluidType(brineType()), "the cow is not in brine's fluid type");
@@ -78,13 +77,13 @@ public class FluidEntityGameTests {
         LivingEntity[] zombie = new LivingEntity[1];
         double[] startX = new double[1];
         helper.startSequence()
-              .thenIdle(40)
+              .thenWaitUntil(() -> check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(4, 1, 2))).isEmpty(),
+                    "brine did not flow down the channel"))
               .thenExecute(() -> {
-                  check(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(4, 1, 2))).isEmpty(), "brine did not flow down the channel");
                   zombie[0] = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 1, 2));
                   startX[0] = zombie[0].getX();
               })
-              .thenIdle(20)
+              .thenWaitUntil(() -> check(zombie[0].tickCount >= 20, "the zombie was ticked " + zombie[0].tickCount + " of 20 times"))
               .thenExecute(() -> check(zombie[0].getX() > startX[0] + 0.05D,
                     "flowing brine did not push the entity: " + startX[0] + " -> " + zombie[0].getX()))
               .thenSucceed();
@@ -95,9 +94,14 @@ public class FluidEntityGameTests {
         floodPool(helper, brine());
         LivingEntity cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 2, 2));
         cow.setNoGravity(true);
+        int[] setAt = new int[1];
         helper.startSequence()
-              .thenExecute(() -> cow.fallDistance = 10.0F)
-              .thenIdle(1)
+              .thenExecute(() -> {
+                  cow.fallDistance = 10.0F;
+                  setAt[0] = cow.tickCount;
+              })
+              // Exactly one tick of the cow's in brine, which halves the fall distance once.
+              .thenWaitUntil(() -> check(cow.tickCount > setAt[0], "the cow was not ticked"))
               .thenExecute(() -> check(Math.abs(cow.fallDistance - 5.0F) < 0.01F, "brine's fall distance modifier gave " + cow.fallDistance))
               .thenSucceed();
     }
