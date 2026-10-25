@@ -300,8 +300,8 @@ public final class TekxitCompatibilityGameTests implements FabricGameTest {
         "Pack Almost Unified priority must redirect ICBM steel plates to Tech Reborn while"
             + " retaining count4");
     var ironRecipe = recipe(c, "icbm_port:iron_plate");
-    var ironInput =
-        gridItems(c, Items.IRON_INGOT, Items.IRON_INGOT, null, Items.IRON_INGOT, Items.IRON_INGOT);
+    // Two stacked ingots (#160): the old 2x2 grid shadowed the vanilla iron trapdoor.
+    var ironInput = gridItems(c, Items.IRON_INGOT, null, null, Items.IRON_INGOT);
     check(
         c,
         ironRecipe.matches(ironInput, c.getWorld())
