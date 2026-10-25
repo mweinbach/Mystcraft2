@@ -139,9 +139,18 @@ public class AgriPlant {
 		return this.requirement;
 	}
 
+	/**
+	 * True when a product or clip product marked {@code required} resolves to no item, e.g. Petinia's tin nuggets with
+	 * no tin mod loaded. Such plants are hidden from the creative tab and recipe viewers and never come out of a
+	 * mutation, as AgriCraft 3 disabled them (4.0.6 ignores the flag). Planted ones still grow and drop nothing.
+	 */
+	public boolean hasUnresolvedRequiredProducts() {
+		return Stream.concat(this.products.stream(), this.clipProducts.stream()).anyMatch(product -> product.required() && !product.resolves());
+	}
+
 	public void getAllPossibleProducts(Consumer<ItemStack> products) {
 		this.products.forEach(product -> {
-			Platform.get().getItemsFromLocation(product.item()).forEach(item -> {
+			product.resolve().forEach(item -> {
 				ItemStack itemStack = new ItemStack(item, product.min());
 				if (!product.nbt().isEmpty()) {
 					itemStack.getOrCreateTag().merge(product.nbt());
@@ -153,38 +162,23 @@ public class AgriPlant {
 
 	public void getHarvestProducts(Consumer<ItemStack> products, AgriGrowthStage growthStage, AgriGenome genome, RandomSource random) {
 		if (growthStage.isMature()) {
+			// a product that resolves to no item (an empty tag) drops nothing instead of throwing
 			this.products.stream().filter(product -> product.shouldDrop(random))
-					.forEach(product -> {
-						List<Item> possible = Platform.get().getItemsFromLocation(product.item());
-						Item item = possible.get(random.nextInt(possible.size()));
-						ItemStack itemStack = new ItemStack(item, product.getAmount(random));
-						if (!product.nbt().isEmpty()) {
-							itemStack.getOrCreateTag().merge(product.nbt());
-						}
-						products.accept(itemStack);
-					});
+					.forEach(product -> product.roll(random).ifPresent(products));
 		}
 
 	}
 
 	public void getAllPossibleClipProducts(Consumer<ItemStack> products) {
 		this.clipProducts.forEach(product -> {
-			Platform.get().getItemsFromLocation(product.item()).forEach(item -> products.accept(new ItemStack(item)));
+			product.resolve().forEach(item -> products.accept(new ItemStack(item)));
 		});
 	}
 
 	public void getClipProducts(Consumer<ItemStack> products, ItemStack clipper, AgriGrowthStage growthStage, AgriGenome genome, RandomSource random) {
 		if (growthStage.isMature()) {
 			this.clipProducts.stream().filter(product -> product.shouldDrop(random))
-					.forEach(product -> {
-						List<Item> possible = Platform.get().getItemsFromLocation(product.item());
-						Item item = possible.get(random.nextInt(possible.size()));
-						ItemStack itemStack = new ItemStack(item, product.getAmount(random));
-						if (!product.nbt().isEmpty()) {
-							itemStack.getOrCreateTag().merge(product.nbt());
-						}
-						products.accept(itemStack);
-					});
+					.forEach(product -> product.roll(random).ifPresent(products));
 		}
 	}
 

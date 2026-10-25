@@ -31,7 +31,8 @@ public class AgriStat implements AgriRegistrable {
 	}
 
 	public int getMax() {
-		return this.max.getAsInt();
+		// never 0: stat rolls call nextInt(max), which a config of max = 0 would make throw
+		return Math.max(1, this.max.getAsInt());
 	}
 
 	public boolean isHidden() {

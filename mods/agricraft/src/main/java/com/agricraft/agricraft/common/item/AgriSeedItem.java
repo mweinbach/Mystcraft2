@@ -194,6 +194,7 @@ public class AgriSeedItem extends BlockItem implements AgriGenomeProviderItem {
 	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items) {
 		if (this.allowedIn(tab)) {
 			AgriApi.getPlantRegistry().ifPresent(registry -> registry.entrySet().stream()
+					.filter(entry -> !entry.getValue().hasUnresolvedRequiredProducts())
 					.sorted(Comparator.comparing(entry -> entry.getKey().location()))
 					.forEach(entry -> items.add(toStack(entry.getValue()))));
 		}

@@ -88,16 +88,9 @@ public class AgriWeed {
 		if (CoreConfig.rakingDropsItems) {
 			double probability = growthStage.index() / (this.stages.size() - 1.0);
 			if (random.nextDouble() < probability) {
+				// a rake product that resolves to no item (an empty tag) drops nothing instead of throwing
 				this.rakeProducts.stream().filter(product -> product.shouldDrop(random))
-						.forEach(product -> {
-							List<Item> possible = Platform.get().getItemsFromLocation(product.item());
-							Item item = possible.get(random.nextInt(possible.size()));
-							ItemStack itemStack = new ItemStack(item, product.getAmount(random));
-							if (!product.nbt().isEmpty()) {
-								itemStack.getOrCreateTag().merge(product.nbt());
-							}
-							consumer.accept(itemStack);
-						});
+						.forEach(product -> product.roll(random).ifPresent(consumer));
 			}
 		}
 	}

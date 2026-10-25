@@ -163,8 +163,9 @@ public final class AgriApi {
 
 	public static Stream<AgriMutation> getMutationsFromParents(String parent1, String parent2) {
 		return AgriApi.getMutationRegistry().map(registry -> registry.stream()
-				// a mutation whose child is not loaded (missing or disabled data) would plant an unknown species
-				.filter(mutation -> mutation.getChild().isPresent())
+				// a mutation whose child is not loaded (missing or disabled data) would plant an unknown species, and one
+				// whose required products resolve to nothing (no mod provides them) is disabled
+				.filter(mutation -> mutation.getChild().filter(child -> !child.hasUnresolvedRequiredProducts()).isPresent())
 				.filter(mutation -> {
 					String p1 = mutation.parent1().toString();
 					String p2 = mutation.parent2().toString();

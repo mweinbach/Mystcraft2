@@ -162,6 +162,63 @@ public class CropGameTests {
 	}
 
 	@GameTest(template = TEMPLATE)
+	public static void harvestingAPlantWhoseProductTagIsEmptyDropsNothingAndDoesNotCrash(GameTestHelper helper) {
+		// Petinia drops #agricraft:nuggets/tin, which is empty unless a tin mod is loaded; 4.0.6 threw nextInt(0) here
+		String petinia = "agricraft:petinia";
+		com.agricraft.agricraft.api.plant.AgriPlant plant = AgriApi.getPlant(petinia).orElseThrow(() -> new net.minecraft.gametest.framework.GameTestAssertException("petinia is not loaded"));
+		boolean unresolved = plant.hasUnresolvedRequiredProducts();
+		AgriCrop crop = matureCrop(helper, new BlockPos(1, 1, 1), petinia, 10);
+		check(crop.canBeHarvested(), "a fully grown petinia should be harvestable");
+		java.util.List<ItemStack> products = new java.util.ArrayList<>();
+		for (int i = 0; i < 50; i++) {
+			crop.getHarvestProducts(products::add);
+		}
+		check(crop.harvest(products::add, null), "harvesting a mature petinia should succeed");
+		check(products.stream().noneMatch(ItemStack::isEmpty), "harvests produced empty stacks: " + products);
+		if (unresolved) {
+			check(products.isEmpty(), "petinia's tin nugget tag is empty, yet harvests produced " + products);
+			// a hidden plant is never the child of a mutation
+			check(AgriApi.getMutationsFromParents("agricraft:ferranium", "minecraft:wheat")
+					.noneMatch(mutation -> petinia.equals(mutation.child().toString())), "petinia has no products, yet it is still a mutation child");
+		}
+		// regrow and break the block, so the loot-table drops path runs too
+		while (!crop.isFullyGrown()) {
+			crop.setGrowthStage(crop.getGrowthStage().getNext(crop, helper.getLevel().random));
+		}
+		BlockPos cropPos = helper.absolutePos(new BlockPos(1, 2, 1));
+		check(helper.getLevel().destroyBlock(cropPos, true), "the petinia crop could not be broken");
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
+	public static void productsThatResolveToNoItemAreSkippedEverywhere(GameTestHelper helper) {
+		com.agricraft.agricraft.api.codecs.AgriProduct empty = com.agricraft.agricraft.api.codecs.AgriProduct.builder()
+				.tag("agricraft:test/never_defined").count(1, 3, 1.0).required(true).build();
+		check(!empty.resolves(), "an undefined tag should resolve to no item");
+		com.agricraft.agricraft.api.codecs.AgriProduct inverted = com.agricraft.agricraft.api.codecs.AgriProduct.builder()
+				.item("minecraft:wheat").count(3, 1, 1.0).build();
+		check(inverted.getAmount(helper.getLevel().random) == 3, "a product with max < min should drop min, not throw");
+		com.agricraft.agricraft.api.plant.AgriPlant plant = new com.agricraft.agricraft.api.plant.AgriPlant.Builder()
+				.stages(1, 2, 3).harvest(0).products(empty).clips(empty).build();
+		check(plant.hasUnresolvedRequiredProducts(), "a required product with an empty tag should mark the plant unresolved");
+		com.agricraft.agricraft.api.plant.AgriWeed weed = new com.agricraft.agricraft.api.plant.AgriWeed.Builder()
+				.stages(1, 2, 3).rakeProducts(empty).build();
+		com.agricraft.agricraft.api.crop.AgriGrowthStage mature = new com.agricraft.agricraft.api.crop.AgriGrowthStage(2, 3);
+		AgriGenome genome = genome("minecraft:wheat", 5);
+		RandomSource random = helper.getLevel().random;
+		java.util.List<ItemStack> drops = new java.util.ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			plant.getHarvestProducts(drops::add, mature, genome, random);
+			plant.getClipProducts(drops::add, new ItemStack(ModItems.CLIPPER.get()), mature, genome, random);
+			weed.onRake(mature, drops::add, random, null);
+		}
+		plant.getAllPossibleProducts(drops::add);
+		plant.getAllPossibleClipProducts(drops::add);
+		check(drops.isEmpty(), "products that resolve to no item dropped " + drops);
+		helper.succeed();
+	}
+
+	@GameTest(template = TEMPLATE)
 	public static void grownNitorWartRaisesItsLight(GameTestHelper helper) {
 		BlockPos soil = new BlockPos(1, 1, 1);
 		BlockPos cropPos = soil.above();
