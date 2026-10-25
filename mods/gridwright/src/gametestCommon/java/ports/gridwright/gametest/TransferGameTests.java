@@ -3,11 +3,13 @@ package ports.gridwright.gametest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import ports.gridwright.grid.ProducerBlockEntity;
 import ports.gridwright.machine.ResonatorBlockEntity;
 import ports.gridwright.registry.ModBlocks;
@@ -109,6 +112,39 @@ public class TransferGameTests {
         waterColumn(helper, MILL, Direction.EAST);
         waterColumn(helper, MILL, Direction.WEST);
         return mill;
+    }
+
+    /**
+     * Waits until the node has Grid Power, then drives the node's own ticker (at most three operation intervals)
+     * until {@code expectations} hold, and fails with them and the node's state otherwise. The test area is kept
+     * ticking ({@link GameTestTicking#keepTestAreaTicking}), but how many game ticks a busy server gives the rest of
+     * the timeout still varied: CI once timed out {@code worldInteractionPlacesDirectionalBlocks} powered with
+     * nothing placed. Once powered, the node's work no longer depends on that.
+     */
+    private static void succeedWhenNodeWorks(GameTestHelper helper, NodeBlockEntity node, Runnable expectations) {
+        helper.startSequence()
+                .thenWaitUntil(() -> check(node.power() == Power.POWERED, "Node power " + node.power()))
+                .thenExecute(() -> {
+                    GameTestTicking.tickUntil(helper, node, 3 * NodeBlockEntity.INTERVAL, () -> holds(expectations));
+                    try {
+                        expectations.run();
+                    } catch (GameTestAssertException e) {
+                        BlockPos front = helper.absolutePos(FRONT);
+                        throw new GameTestAssertException(e.getMessage() + " (power " + node.power() + ", operations "
+                                + node.operations() + ", front " + helper.getBlockState(FRONT) + ", entities at front "
+                                + helper.getLevel().getEntities((Entity) null, new AABB(front)).size() + ")");
+                    }
+                })
+                .thenSucceed();
+    }
+
+    private static boolean holds(Runnable expectations) {
+        try {
+            expectations.run();
+            return true;
+        } catch (GameTestAssertException e) {
+            return false;
+        }
     }
 
     /** Seals {@code pos} with glass on every side except towards the node. */
@@ -405,7 +441,7 @@ public class TransferGameTests {
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         pipe(helper, PIPE);
         Container target = chest(helper, END);
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             check(helper.getBlockState(FRONT).isAir(), "Stone not mined; power " + node.power());
             check(count(target, Items.COBBLESTONE) == 1, "Expected the cobblestone drop in the chest");
         });
@@ -448,7 +484,7 @@ public class TransferGameTests {
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         pipe(helper, PIPE);
         Container network = chest(helper, END, new ItemStack(Items.STICK, 4), new ItemStack(Items.COBBLESTONE, 3));
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             check(helper.getBlockState(FRONT).is(Blocks.COBBLESTONE), "Nothing placed; power " + node.power());
             check(count(network, Items.COBBLESTONE) == 2 && count(network, Items.STICK) == 4, "Network chest contents");
         });
@@ -534,7 +570,7 @@ public class TransferGameTests {
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         pipe(helper, PIPE);
         Container network = chest(helper, END, new ItemStack(Items.OAK_SAPLING, 4), new ItemStack(Items.COBBLESTONE, 3));
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             check(helper.getBlockState(FRONT).is(Blocks.COBBLESTONE), "Nothing placed; power " + node.power());
             check(count(network, Items.COBBLESTONE) == 2 && count(network, Items.OAK_SAPLING) == 4, "Network chest contents");
         });
@@ -549,7 +585,7 @@ public class TransferGameTests {
         pipe(helper, PIPE);
         // Pistons ask which way the placer looks; a playerless context must still answer.
         Container network = chest(helper, END, new ItemStack(Items.PISTON, 2));
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             check(helper.getBlockState(FRONT).is(Blocks.PISTON), "No piston placed; power " + node.power());
             check(count(network, Items.PISTON) == 1, "Network chest holds " + count(network, Items.PISTON));
         });
@@ -582,7 +618,7 @@ public class TransferGameTests {
         node.inventory().setItem(0, upgrade(UpgradeKind.WORLD_INTERACTION, 1));
         pipe(helper, PIPE);
         TransferTestPlatform.TankAccess target = tank(helper, END);
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             check(helper.getBlockState(FRONT).isAir(), "Source not pumped; power " + node.power());
             check(target.fluid() == Fluids.WATER && target.millibuckets() == 1000, "Tank holds " + target.millibuckets());
         });
@@ -598,7 +634,7 @@ public class TransferGameTests {
         pipe(helper, PIPE);
         TransferTestPlatform.TankAccess network = tank(helper, END);
         network.set(Fluids.WATER, 1500);
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             var poured = helper.getLevel().getFluidState(helper.absolutePos(FRONT));
             check(poured.isSource() && poured.getType() == Fluids.WATER, "No water source poured; power " + node.power());
             check(network.millibuckets() == 500, "Tank holds " + network.millibuckets());
@@ -619,7 +655,7 @@ public class TransferGameTests {
         TransferTestPlatform.TankAccess lava = fixtures().multiTank(helper.getBlockEntity(END), 1);
         water.set(Fluids.WATER, 100);
         lava.set(Fluids.LAVA, 1000);
-        helper.succeedWhen(() -> {
+        succeedWhenNodeWorks(helper, node, () -> {
             var poured = helper.getLevel().getFluidState(helper.absolutePos(FRONT));
             check(poured.isSource() && poured.getType() == Fluids.LAVA, "No lava source poured; power " + node.power());
             check(lava.millibuckets() == 0 && water.millibuckets() == 100,
