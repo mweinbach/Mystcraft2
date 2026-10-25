@@ -39,8 +39,14 @@ FORGE_ONLY = (
 FABRIC_ONLY = ('moze_intel/projecte/integration/curios/',)
 SAME_NAME_REPLACED = ('moze_intel/projecte/integration/curios/',)
 # Fabric-only data besides the tag bridges: the Trinkets slots, entity assignment and item tags that stand in for
-# upstream's Curios IMC and data/curios tags, and the Klein Star slot's name for Trinkets' screen.
-FABRIC_ONLY_RESOURCES = ('data/trinkets/', 'assets/trinkets/lang/')
+# upstream's Curios IMC and data/curios tags, and the Klein Star slot's name for Trinkets' screen. Item Alchemy (a
+# Fabric-only EMC mod Tekxit ships) has the same recipes as five of ProjectE's with its own outputs, and the crafting
+# table gives only one of them. On Fabric those five load only without Item Alchemy, and recipes/itemalchemy/ holds
+# rearranged ones (same ingredients, so the same EMC) that load only with it.
+ITEM_ALCHEMY_RECIPES = tuple(f'data/projecte/recipes/{name}.json' for name in (
+    'philosophers_stone', 'philosophers_stone_alt', 'collector_mk1', 'medium_covalence_dust', 'high_covalence_dust'))
+FABRIC_ONLY_RESOURCES = ('data/trinkets/', 'assets/trinkets/lang/', 'data/projecte/recipes/itemalchemy/',
+                         *ITEM_ALCHEMY_RECIPES)
 require = parity.require
 
 
@@ -143,6 +149,10 @@ with zipfile.ZipFile(forge) as forge_jar, zipfile.ZipFile(fabric) as fabric_jar:
     for name in sorted(overrides):
         require(forge_jar.read(name) == main[name], f'Forge should keep the shared file: {name}')
         require(fabric_jar.read(name) == fabric_src[name], f'Fabric should use its tag bridge: {name}')
+    for name in ITEM_ALCHEMY_RECIPES:
+        copy = json.loads(fabric_src[name])
+        require(copy.pop('fabric:load_conditions', None) is not None, f'{name} lost its Item Alchemy condition')
+        require(copy == json.loads(main[name]), f'{name} differs from the shared recipe beyond its load condition')
 
     for jar in (forge_jar, fabric_jar):
         names = jar.namelist()

@@ -23,17 +23,27 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 /** Server-side assertions shared by the headless GameTest run and the client's integrated server. */
 public final class ServerChecks {
-    /** Mod ids that must be loaded, in install order. */
+    /** Mod ids that must be loaded, in install order: every jar of the Tekxit release zip, and the nested library. */
     public static final List<String> PORT_MODS = List.of("mystcraft", "jurassicraft", "advancedgenetics", "buildcraft",
             "bigreactors", "mekanism", "mekanismgenerators", "mekanismtools", "mekanismadditions", "icbm_port",
-            "gridwright", "agricraft", "fluidphysics");
+            "gridwright", "agricraft", "projecte", "fluidphysics");
     /** Registry namespaces the ports own; every one must register items and recipes. */
     /** Blocks that drop through code rather than a loot table: the action figure keeps its figure NBT, Mekanism's
      *  bounding block is the filler of multiblock machines, whose main block drops (as upstream), and AgriCraft's crop
@@ -155,10 +165,102 @@ public final class ServerChecks {
         });
         report.add("namespaces", namespaces);
 
+        report.add("craftingClashes", craftingClashes(server, warnings));
         report.add("emc", emc(failures, warnings));
         report.add("failures", strings(failures));
         report.add("warnings", strings(warnings));
         return report;
+    }
+
+    /**
+     * Port crafting recipes that overlap another loaded recipe. Each port shaped or shapeless recipe is laid out with
+     * the first item of every ingredient; every other crafting recipe matching that grid with a different result
+     * overlaps it. The crafting table gives only the first match, so each overlapping recipe is laid out on its own
+     * grid as well, and a recipe whose own grid gives something else has lost: its item cannot be crafted that way.
+     * Item Alchemy, for one, copies several ProjectE recipes with its own outputs. Overlaps with a loser are warnings.
+     */
+    private static JsonObject craftingClashes(MinecraftServer server, List<String> warnings) {
+        JsonArray lost = new JsonArray();
+        JsonArray overlaps = new JsonArray();
+        RecipeManager recipes = server.getRecipeManager();
+        int checked = 0;
+        for (CraftingRecipe recipe : recipes.getAllRecipesFor(RecipeType.CRAFTING)) {
+            if (!ours(recipe.getId())) continue;
+            try {
+                CraftingContainer grid = grid(recipe);
+                if (grid == null) continue;
+                checked++;
+                Item result = recipe.getResultItem().getItem();
+                List<CraftingRecipe> others = recipes.getRecipesFor(RecipeType.CRAFTING, grid, server.overworld())
+                        .stream().filter(other -> other != recipe && other.getResultItem().getItem() != result)
+                        .toList();
+                if (others.isEmpty()) continue;
+                List<String> losers = new ArrayList<>();
+                for (CraftingRecipe each : concat(recipe, others)) {
+                    CraftingContainer own = grid(each);
+                    Optional<CraftingRecipe> winner = own == null ? Optional.of(each)
+                            : recipes.getRecipeFor(RecipeType.CRAFTING, own, server.overworld());
+                    if (winner.isEmpty() || winner.get().getResultItem().getItem() != each.getResultItem().getItem()) {
+                        losers.add(each.getId() + " -> " + Registry.ITEM.getKey(each.getResultItem().getItem())
+                                + " (gives " + winner.map(r -> r.getId().toString()).orElse("nothing") + ")");
+                    }
+                }
+                String line = recipe.getId() + " -> " + Registry.ITEM.getKey(result) + " overlaps "
+                        + others.stream().map(o -> o.getId() + " -> " + Registry.ITEM.getKey(o.getResultItem().getItem()))
+                        .toList();
+                if (losers.isEmpty()) {
+                    overlaps.add(line + "; every item stays craftable");
+                } else {
+                    lost.add(line + "; uncraftable with their own grid: " + losers);
+                    warnings.add("crafting clash: " + line + "; uncraftable with their own grid: " + losers);
+                }
+            } catch (RuntimeException e) {
+                warnings.add("crafting clash check of " + recipe.getId() + " threw " + e);
+            }
+        }
+        TekxitProbe.LOGGER.info("[TEKXIT_PROBE] crafting clashes: {} lose an item, {} overlap harmlessly, of {} port "
+                + "crafting recipes", lost.size(), overlaps.size(), checked);
+        JsonObject out = new JsonObject();
+        out.addProperty("checked", checked);
+        out.add("lost", lost);
+        out.add("overlaps", overlaps);
+        return out;
+    }
+
+    private static List<CraftingRecipe> concat(CraftingRecipe first, List<CraftingRecipe> rest) {
+        List<CraftingRecipe> all = new ArrayList<>(List.of(first));
+        all.addAll(rest);
+        return all;
+    }
+
+    private static final AbstractContainerMenu NO_MENU = new AbstractContainerMenu(null, -1) {
+        @Override
+        public ItemStack quickMoveStack(Player player, int index) {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return false;
+        }
+    };
+
+    /** The recipe laid out with the first item of each ingredient, or null for special recipes. */
+    private static CraftingContainer grid(CraftingRecipe recipe) {
+        List<Ingredient> ingredients = recipe.getIngredients();
+        int width = recipe instanceof ShapedRecipe shaped ? shaped.getWidth() : 3;
+        if (!(recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) || ingredients.size() > 9) {
+            return null;
+        }
+        CraftingContainer grid = new CraftingContainer(NO_MENU, 3, 3);
+        for (int i = 0; i < ingredients.size(); i++) {
+            Ingredient ingredient = ingredients.get(i);
+            if (ingredient.isEmpty()) continue;
+            ItemStack[] items = ingredient.getItems();
+            if (items.length == 0) return null;
+            grid.setItem(i / width * 3 + i % width, items[0].copy());
+        }
+        return grid;
     }
 
     private static void tally(Map<String, Map<String, Integer>> counts, String what, Iterable<ResourceLocation> ids) {

@@ -124,7 +124,7 @@ Recipes (all survival): spikes are three swords of the material over four of the
 spikes); drums are a cauldron wrapped in stone, iron, diamond and iron blocks, or netherite and crying
 obsidian; trash cans are cobblestone and stone slabs around a cactus, sponge or redstone block; the
 Angel Ring is gold, feathers, ghast tears, a diamond and a grid crystal; the lasso gold, string and an
-ender pearl; the wands two sticks with gold or a diamond; the watering can iron around a bowl; the bag
+ender pearl; the wands a stick and gold with a brick (builder's) or a diamond with flint (destruction); the watering can iron around a bowl; the bag
 leather, gold, two chests and an ender pearl; the muffler wool and a note block; the pocket workbench
 a crafting table and leather; the spawn ward gold, torches and glowstone; the greater spawn ward four
 spawn wards, glowstone and a grid crystal; the ender ward obsidian, iron and an eye of ender. See [`docs/PARITY.md`](docs/PARITY.md) for the loader-by-loader detail.
@@ -197,7 +197,7 @@ Recipes: the fire mill is bricks, iron, flint and a machine frame; the lava mill
 bucket and a frame; the manual mill planks, sticks, a lever and iron; the dragon egg mill end stone,
 obsidian, eyes of ender and a frame (the egg itself is not consumed); the rainbow generator diamonds,
 grid crystals, glowstone and a frame; the power converter iron, copper, grid crystals and a frame; the
-overclock upgrade redstone, gold and a grid crystal.
+overclock upgrade redstone, gold, blaze powder and a grid crystal.
 
 ### EMC
 
