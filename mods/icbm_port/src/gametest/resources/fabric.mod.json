@@ -27,6 +27,7 @@
       "dev.icbm.port.defense.DefenseGameTests",
       "dev.icbm.port.defense.DefenseBlockParityGameTests",
       "dev.icbm.port.entity.EntityParityGameTests",
+      "dev.icbm.port.entity.FlightStateMachineGameTests",
       "dev.icbm.port.payload.BlastLightBeamGameTests",
       "dev.icbm.port.MissileGameTests",
       "dev.icbm.port.ContentGameTests",

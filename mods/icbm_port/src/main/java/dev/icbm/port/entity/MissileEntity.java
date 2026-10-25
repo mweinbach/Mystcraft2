@@ -193,7 +193,11 @@ public class MissileEntity extends ThrownItemEntity
     return engineFailed;
   }
 
+  /** Targets a missile that has not flown yet (docs/DELIVERY.md, "Flight state machine"). */
   public void configureTarget(BlockPos target) {
+    // An untargeted missile that is already flying is past its launch too.
+    if (flightTicks > 0 && !flight.targeted())
+      throw new IllegalArgumentException("Missile already launched");
     flight.configure(world, getPos(), target);
   }
 
