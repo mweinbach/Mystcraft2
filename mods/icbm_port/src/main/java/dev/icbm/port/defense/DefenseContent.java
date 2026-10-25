@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.item.*;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
@@ -44,17 +45,39 @@ public final class DefenseContent {
       new Block(AbstractBlock.Settings.of(Material.STONE).strength(10, 280).requiresTool());
   public static final Block REINFORCED_CONCRETE =
       new Block(AbstractBlock.Settings.of(Material.STONE).strength(10, 2800).requiresTool());
+  /**
+   * Upstream {@code BlockReinforcedGlass}: hardness 10, 1.12 resistance 48 (= 28.8 here), drops
+   * itself without a tool, default stone sound; glass-like transparency kept for rendering.
+   */
   public static final Block REINFORCED_GLASS =
-      new GlassBlock(AbstractBlock.Settings.of(Material.GLASS).strength(3, 60).nonOpaque());
+      new GlassBlock(
+          AbstractBlock.Settings.of(Material.GLASS)
+              .strength(10, 28.8F)
+              .sounds(BlockSoundGroup.STONE)
+              .nonOpaque()
+              .allowsSpawning((state, world, pos, type) -> false)
+              .solidBlock((state, world, pos) -> false)
+              .suffocates((state, world, pos) -> false)
+              .blockVision((state, world, pos) -> false));
   public static final Block SPIKES = new SpikeBlock();
   public static final Block POISON_SPIKES = new SpikeBlock(SpikeBlock.Kind.POISON);
   public static final Block FIRE_SPIKES = new SpikeBlock(SpikeBlock.Kind.FIRE);
+  /** Upstream {@code BlockGlassButton}: stone-button timing, hardness/resistance 0.5, glass sound. */
   public static final Block GLASS_BUTTON =
-      new StoneButtonBlock(AbstractBlock.Settings.of(Material.GLASS).noCollision().strength(0.5F));
+      new StoneButtonBlock(
+          AbstractBlock.Settings.of(Material.DECORATION)
+              .noCollision()
+              .strength(0.5F)
+              .sounds(BlockSoundGroup.GLASS));
+  /** Upstream {@code BlockGlassPressurePlate}: EVERYTHING rule, hardness 0.3, glass sound. */
   public static final Block GLASS_PRESSURE_PLATE =
       new PressurePlateBlock(
           PressurePlateBlock.ActivationRule.EVERYTHING,
-          AbstractBlock.Settings.of(Material.GLASS).noCollision().strength(0.5F));
+          AbstractBlock.Settings.of(Material.GLASS)
+              .noCollision()
+              .strength(0.3F, 0.6F)
+              .sounds(BlockSoundGroup.GLASS));
+  public static DefenseBlockConfig blockConfig = new DefenseBlockConfig();
   public static final Item SAM_MISSILE =
       new Item(new Item.Settings().group(IcbmPort.GROUP).maxCount(16));
   public static final Item RADAR_GUN = new RadarGunItem();
@@ -73,6 +96,7 @@ public final class DefenseContent {
   private DefenseContent() {}
 
   public static void register() {
+    blockConfig = DefenseBlockConfig.load();
     Registry.register(
         Registry.BLOCK_ENTITY_TYPE, IcbmPort.id("defense_machine"), MACHINE_BLOCK_ENTITY);
     MACHINE_SCREEN =

@@ -133,7 +133,18 @@ public final class DeliveryContent {
       net.minecraft.util.math.Vec3d muzzle,
       net.minecraft.util.math.Vec3d velocity,
       net.minecraft.util.math.BlockPos target) {
-    if (world.isClient || !isLoadedHeldMissile(ammo)) return false;
+    return launchHeldEntity(world, owner, ammo, muzzle, velocity, target) != null;
+  }
+
+  /** As {@link #launchHeld}, returning the spawned missile (or null). */
+  public static HeldItemMissileEntity launchHeldEntity(
+      net.minecraft.world.World world,
+      net.minecraft.entity.Entity owner,
+      net.minecraft.item.ItemStack ammo,
+      net.minecraft.util.math.Vec3d muzzle,
+      net.minecraft.util.math.Vec3d velocity,
+      net.minecraft.util.math.BlockPos target) {
+    if (world.isClient || !isLoadedHeldMissile(ammo)) return null;
     HeldItemMissileEntity missile = new HeldItemMissileEntity(HELD_MISSILE, world);
     missile.setOwner(owner);
     missile.setMissile(ammo);
@@ -143,10 +154,10 @@ public final class DeliveryContent {
       try {
         missile.configureTarget(target);
       } catch (IllegalArgumentException ignored) {
-        return false;
+        return null;
       }
     }
-    return world.spawnEntity(missile);
+    return world.spawnEntity(missile) ? missile : null;
   }
 
   public static PayloadType readPayload(String id) {

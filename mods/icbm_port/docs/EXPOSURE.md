@@ -49,10 +49,15 @@ source20% radioactive replacement chance. Plants/leaves are removed. Only the
 source radioactive dirt and stone types are registered. These environmental
 blocks are obtainable by fallout and mining; they have no invented crafting recipe.
 
-Radioactive blocks schedule source decay checks with delay5 (random1..5 after
-the first tick), plus vanilla random ticks; default decay chance0.0001 returns
-clean dirt/stone. Nearby entities within5 blocks have85% effect chance,
-2 magic damage and20 ticks of wither unless armor protects them. Configuration
+Radioactive blocks start a source decay chain on their first vanilla random
+tick: each check reschedules itself after a random 1..delay5 ticks until the
+block decays, as upstream (placing the block does not start the chain). Default
+decay chance0.0001 returns clean dirt/stone. Both variants use rock material and
+need a pickaxe to drop; hardness/resistance copy dirt (0.5/0.5) and stone
+(1.5/6). Nearby entities within5 blocks have85% effect chance, 2 damage from the
+`icbm_port.radioactive_block` source and20 ticks of wither unless armor protects
+them. One in twelve client display ticks plays a quiet vanilla click in place of
+upstream's own sound. Configuration
 can select random ticks only. Vanilla ash and gas particles supply client feedback.
 Original JSON radioactive block models use vanilla stone/dirt with a lime marker.
 

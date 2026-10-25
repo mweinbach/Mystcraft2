@@ -7,7 +7,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-/** Persistent modular warmup/climb/arc/ascent/reentry stages adapted from upstream logic. */
+/**
+ * Persistent modular warmup/climb/arc/ascent/reentry stages adapted from upstream logic.
+ *
+ * <p>Mid-flight events follow one table (docs/DELIVERY.md, "Flight state machine"). The two rules
+ * that change a flight live here: {@link #nextVelocity} reconciles riders every tick (an ASCENT
+ * that now carries a rider virtual flight cannot take re-plans to the physical arc from where it
+ * is), and {@link #configure} refuses to retarget a flight that is already under way.
+ */
 public final class StagedFlight {
   public enum Stage {
     DIRECT,
@@ -65,7 +72,18 @@ public final class StagedFlight {
     stage = Stage.DIRECT;
   }
 
+  /** True from the first climb tick until the flight ends: the missile has left the pad. */
+  public boolean inFlight() {
+    return switch (stage) {
+      case CLIMB, LOCK_HEIGHT, ARC, ASCENT, DESCENT, COMPLETE -> true;
+      default -> false;
+    };
+  }
+
   public void configure(World world, Vec3d origin, BlockPos destination) {
+    // Retargeting a missile in the air is not an upstream action; re-planning from mid-air would
+    // restart the warmup there. Only a missile still on the pad (or untargeted) may be configured.
+    if (inFlight()) throw new IllegalArgumentException("Flight already under way");
     if (!finite(origin)
         || origin.distanceTo(Vec3d.ofCenter(destination)) > FlightSettings.current.maxRange
         || world.isOutOfHeightLimit(destination)
@@ -82,8 +100,24 @@ public final class StagedFlight {
     lift = Math.min(1000, (flat > 100 ? 160 : 0) + flat);
   }
 
+  /** The physical arc from {@code from} to the target, sized by the remaining flat distance. */
+  private void planArc(Vec3d from) {
+    stage = Stage.ARC;
+    elapsed = 0;
+    start = from;
+    double flat = Math.hypot(target.getX() + .5 - from.x, target.getZ() + .5 - from.z);
+    duration = Math.max(2, Math.min(10000, (int) Math.ceil(flat * 2)));
+    lift = Math.min(1000, (flat > 100 ? 160 : 0) + flat);
+  }
+
   public Vec3d nextVelocity(Entity entity) {
     if (target == null || stage == Stage.DIRECT) return entity.getVelocity();
+    // Rider rule, checked every tick so every way of boarding (interaction, seats, nested riders,
+    // reloads) is covered: ASCENT exists only to hand the missile to virtual flight, so once it
+    // carries a rider capture cannot take (a player), it flies the physical arc from here instead
+    // of climbing until its lifetime runs out. ARC stays valid either way; a capturable arc is
+    // captured at the exit height.
+    if (stage == Stage.ASCENT && !FlightLedger.capturable(entity)) planArc(entity.getPos());
     elapsed++;
     if (stage == Stage.WARMUP) {
       if (--timer <= 0) {
@@ -101,9 +135,13 @@ public final class StagedFlight {
     if (stage == Stage.LOCK_HEIGHT) {
       if (entity.getY() >= start.y + lockHeight) {
         double flat = Math.hypot(target.getX() + .5 - start.x, target.getZ() + .5 - start.z);
-        stage = flat >= FlightProfile.ARC_DISTANCE_LIMIT ? Stage.ASCENT : Stage.ARC;
-        elapsed = 0;
-        start = entity.getPos();
+        // Upstream ArcFlightLogic: a missile carrying a player always flies the physical arc. Other
+        // riders are carried through virtual flight (FlightLedger.capturable).
+        if (flat >= FlightProfile.ARC_DISTANCE_LIMIT && FlightLedger.capturable(entity)) {
+          stage = Stage.ASCENT;
+          elapsed = 0;
+          start = entity.getPos();
+        } else planArc(entity.getPos());
       } else return new Vec3d(0, Math.min(2, .1 * Math.max(1, elapsed)), 0);
     }
     if (stage == Stage.ASCENT) return new Vec3d(0, FlightProfile.DIRECT_SPEED, 0);

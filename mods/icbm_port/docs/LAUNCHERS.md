@@ -38,8 +38,14 @@ No cached connection can authorize use after the path breaks.
 A rising redstone edge schedules firing four ticks later. Sustained power does
 not repeat. A powered connected screen supplies a network launch pulse. EMP
 prevents launches and disables missile guidance. Failed muzzle/target checks
-preserve ammunition. There are no original frame animations, support accuracy
-bonus, seat/riding controls, or full original multipart geometry.
+preserve ammunition. Loaded tiered bases offer a seat (`PlayerSeatEntity`) on the
+launch face, refreshed every three ticks and removed when the base is emptied or
+broken; whoever sits in it rides the launched missile (sneak to interact with the
+launcher instead). Creative players holding a minecart can seat a minecart. Missiles
+carrying a player stay real entities instead of entering virtual flight. Prototype
+and cruise launchers have no seat, and there is no seat-side rotation control.
+There are no original frame animations, support accuracy bonus or full original
+multipart geometry.
 
 ## Targeting and radio
 
@@ -71,11 +77,13 @@ blocks**, default lock height **3**, direct powered speed **2**, simulation spee
 parabolic short arc, or vertical ascent for long range, then simulated travel
 and descending reentry. The short-arc sampler is a bounded numerical adaptation;
 the source climb accelerations .005 and .1 and default lock height are retained,
-while the original renderer, seat logic and arbitrary launch angles are absent. Health,
+while the original renderer and arbitrary launch angles are absent. Health,
 fuel, EMP, cargo/manifests and stage progress persist. Powered direct missiles
 fall under gravity when fuel runs out. Damage can destroy missiles without
-creating a free detonation. Targeted cluster manifests burst at arrival; direct
-cluster missiles retain their forty-tick burst behavior.
+creating a free detonation, except that cluster missiles (`ActionableMissileEntity`)
+release their bomblets when destroyed by explosions or fire, as upstream. Targeted
+cluster missiles release within 3 blocks of the target and never on impact; direct
+cluster missiles retain the port's forty-tick burst behavior.
 
 Upstream exit/enter heights 500/450 are clamped below the modern dimension build
 ceiling. At high altitude or an unloaded next chunk, `FlightLedger` stores the

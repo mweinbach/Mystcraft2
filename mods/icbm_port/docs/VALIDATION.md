@@ -1,5 +1,20 @@
 # Validation — 0.2.0-alpha.4
 
+## Seats, light beams, actionable missiles and defense blocks (October 25, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **22** passed |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **163** required GameTests passed. New `EntityParityGameTests` (13): seat creation/removal on loaded tiered bases and none on prototype/cruise launchers, automatic seat ticker, launcher break dismounting the rider, launch moving the seat rider onto the missile, missiles never hitting their rider or seats, light-beam growth/close/reload and the timed `LightBeamEntity.spawn` API, actionable-missile action/trigger reload, run-once API actions, explosion/fire (not generic) damage setting off the payload, cluster proximity release versus impact duds, targeted launcher clusters and the `explosive_missile` API building actionable clusters. New `BlastLightBeamGameTests` (2): exothermic and endothermic blasts spawn one orange/blue `LightBeamEntity` through the mod-init `BeamEffects` listener, step it 0.1/0.2/0.5/0.8/1, close it on completion and it despawns. New `DefenseBlockParityGameTests` (6): upstream hardness/resistance and sounds for concrete, reinforced glass, spikes, glass plate/button and radioactive blocks; pickaxe requirements and self-drops; spike damage source/config minimum; item-triggered glass plate; 20-tick glass button pulse; radioactive decay chain starting on a random tick with the radioactive-block damage source. `LauncherGameTests.launcherPreservesClusterDelivery` now expects the actionable cluster entity |
+| Same with `-PwithEmi -PwithJei -PwithRei` | All **163** passed |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed |
+| `python3 mods/icbm_port/tools/validate_resources.py …/minecraft-client.jar`, `tools/check_payload_visuals.py` | Passed |
+| `python3 scripts/ports.py check`, `python3 scripts/emc.py check` | Passed (no new items) |
+| `python3 -m unittest discover -s scripts/tests -v`; `… -s mods/icbm_port/tools/tests -v` | 155 (3 skipped) and 10 passed |
+| `python3 scripts/check_mixin_member_names.py`, `tools/tekxit4-probe/mixin_audit.py`, `scripts/check_unmapped_overrides.py` | Passed; 2 injectors, 0 conflicts with the 805 in the pack, 0 unmapped overrides |
+
 ## Blast parity (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.

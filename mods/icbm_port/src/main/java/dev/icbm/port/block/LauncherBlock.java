@@ -32,6 +32,23 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
     return new dev.icbm.port.launcher.LauncherBlockEntity(pos, state);
   }
 
+  /** Upstream TileLauncherBase ticks {@code updateSeat} every three ticks; bases only. */
+  @Override
+  public <T extends net.minecraft.block.entity.BlockEntity>
+      net.minecraft.block.entity.BlockEntityTicker<T> getTicker(
+          World world, BlockState state, net.minecraft.block.entity.BlockEntityType<T> type) {
+    if (world.isClient
+        || tier == 0
+        || cruise
+        || type != dev.icbm.port.launcher.LauncherContent.BLOCK_ENTITY) return null;
+    return (tickWorld, tickPos, tickState, entity) -> {
+      if (tickWorld.getTime() % dev.icbm.port.entity.PlayerSeatEntity.UPDATE_INTERVAL == 0
+          && tickWorld instanceof ServerWorld server
+          && entity instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher)
+        dev.icbm.port.entity.PlayerSeatEntity.syncLauncherSeat(server, tickPos, launcher);
+    };
+  }
+
   public static final BooleanProperty LOADED = BooleanProperty.of("loaded");
   public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
 
@@ -196,26 +213,40 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
       motion = DirectFlight.velocity(delta.x, delta.y, delta.z, speed);
     }
     if (held) {
-      if (!dev.icbm.port.delivery.DeliveryContent.launchHeld(
-          world,
-          null,
-          ammo,
-          start,
-          new Vec3d(motion.x(), motion.y(), motion.z()),
-          launcher.targeted() && !cruise ? launcher.target() : null)) return false;
+      net.minecraft.entity.Entity heldMissile =
+          dev.icbm.port.delivery.DeliveryContent.launchHeldEntity(
+              world,
+              null,
+              ammo,
+              start,
+              new Vec3d(motion.x(), motion.y(), motion.z()),
+              launcher.targeted() && !cruise ? launcher.target() : null);
+      if (heldMissile == null) return false;
+      dev.icbm.port.entity.PlayerSeatEntity.transferRiders(world, pos, heldMissile);
     } else {
-      MissileEntity missile = new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      boolean clusterAmmo = ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE);
+      MissileEntity missile =
+          clusterAmmo
+              ? dev.icbm.port.entity.ActionableMissileEntity.forCluster(world, ammo)
+              : new MissileEntity(IcbmPort.MISSILE_ENTITY, world);
+      if (missile == null) return false;
       if (cruise || tier > 0) missile.configureFuel(dev.icbm.port.flight.FlightProfile.CRUISE_FUEL);
       missile.setPosition(start);
       missile.setVelocity(motion.x(), motion.y(), motion.z());
-      missile.setPayload(payload);
+      if (!clusterAmmo) missile.setPayload(payload);
       if (payload == dev.icbm.port.payload.PayloadType.ENDER
           && launcher.payloadDestination() != null
           && launcher.payloadDimension() != null)
         missile.configurePayloadDestination(
             launcher.payloadDimension(), launcher.payloadDestination());
-      missile.setCluster(ammo.isOf(dev.icbm.port.delivery.DeliveryContent.CLUSTER_MISSILE));
-      missile.setClusterPlan(clusterPlan);
+      if (missile instanceof dev.icbm.port.entity.ActionableMissileEntity actionable
+          && launcher.targeted())
+        // Upstream CapabilityClusterMissileStack: release within 3 blocks of the target and never
+        // on impact.
+        actionable.setProximityTrigger(
+            Vec3d.ofCenter(launcher.target()),
+            dev.icbm.port.entity.ActionableMissileEntity.CLUSTER_TRIGGER_DISTANCE,
+            false);
       if (launcher.targeted() && !cruise) {
         try {
           missile.configureTarget(launcher.target());
@@ -224,6 +255,7 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
         }
       }
       if (!world.spawnEntity(missile)) return false;
+      dev.icbm.port.entity.PlayerSeatEntity.transferRiders(world, pos, missile);
     }
     launcher.consumeLaunch();
     world.setBlockState(pos, state.with(LOADED, !launcher.getStack(0).isEmpty()), Block.NOTIFY_ALL);
@@ -236,6 +268,7 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
   public void onStateReplaced(
       BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
     if (!state.isOf(newState.getBlock()) && !world.isClient) {
+      dev.icbm.port.entity.PlayerSeatEntity.removeSeats(world, pos);
       if (world.getBlockEntity(pos)
           instanceof dev.icbm.port.launcher.LauncherBlockEntity launcher) {
         if (state.get(LOADED) && launcher.getStack(0).isEmpty())

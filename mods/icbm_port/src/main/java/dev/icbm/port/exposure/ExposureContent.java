@@ -26,8 +26,8 @@ import net.minecraft.util.registry.Registry;
 /** Independent adaptation of gas toxicity, armor and radioactive block source behavior. */
 public final class ExposureContent {
   public static ExposureConfig config = new ExposureConfig();
-  public static final RadioactiveBlock RADIOACTIVE_STONE = new RadioactiveBlock(Blocks.STONE);
-  public static final RadioactiveBlock RADIOACTIVE_DIRT = new RadioactiveBlock(Blocks.DIRT);
+  public static final RadioactiveBlock RADIOACTIVE_STONE = new RadioactiveBlock(Blocks.STONE, 1.5f, 6);
+  public static final RadioactiveBlock RADIOACTIVE_DIRT = new RadioactiveBlock(Blocks.DIRT, .5f, .5f);
 
   private ExposureContent() {}
 
@@ -261,7 +261,7 @@ public final class ExposureContent {
           || protectedFrom(entity, config.radiationProtection)) continue;
       ExposureState.Dose dose = ExposureState.get(world).dose(entity.getUuid());
       dose.radiationHits = Math.min(100000, dose.radiationHits + 1);
-      entity.damage(DamageSource.MAGIC, Math.max(0, config.radiationDamage));
+      entity.damage(RadioactiveBlock.DAMAGE_SOURCE, Math.max(0, config.radiationDamage));
       if (config.witherDuration > 0)
         effect(entity, StatusEffects.WITHER, Math.min(12000, config.witherDuration), 0);
     }
