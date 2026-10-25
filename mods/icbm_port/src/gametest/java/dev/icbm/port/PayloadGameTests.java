@@ -30,7 +30,7 @@ public class PayloadGameTests implements FabricGameTest {
     c.complete();
   }
 
-  // defaultBatch places every test in one world. Mutation's radius is 80 and other
+  // defaultBatch places every test in one world. Nuclear aftermath mutates within 80 and other
   // blasts overlap this subject, and an unpinned pig can walk off the structure.
   // A separate batch and a stationary target keep those races out of the assertion.
   @GameTest(

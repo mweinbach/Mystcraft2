@@ -1,7 +1,30 @@
 {
   "variants": {
-    "": {
+    "facing=up": {
       "model": "icbm_port:block/breaching_explosive"
+    },
+    "facing=down": {
+      "model": "icbm_port:block/breaching_explosive",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "icbm_port:block/breaching_explosive",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "icbm_port:block/breaching_explosive",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "icbm_port:block/breaching_explosive",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "icbm_port:block/breaching_explosive",
+      "x": 90,
+      "y": 90
     }
   }
 }

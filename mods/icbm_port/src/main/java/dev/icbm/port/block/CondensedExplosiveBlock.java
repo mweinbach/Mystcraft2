@@ -19,7 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
-public final class CondensedExplosiveBlock extends Block {
+public class CondensedExplosiveBlock extends Block {
   private final PayloadType payload;
 
   public CondensedExplosiveBlock(Settings settings) {
@@ -39,6 +39,9 @@ public final class CondensedExplosiveBlock extends Block {
     return prime(world, pos, fuse, null);
   }
 
+  /** Copies data held by the placed block (still present at {@code pos}) onto the primed entity. */
+  protected void configurePrimed(World world, BlockPos pos, PrimedExplosiveEntity entity) {}
+
   public boolean prime(World world, BlockPos pos, int fuse, Entity owner) {
     if (world.isClient) return false;
     PrimedExplosiveEntity entity = new PrimedExplosiveEntity(IcbmPort.PRIMED_EXPLOSIVE, world);
@@ -46,6 +49,7 @@ public final class CondensedExplosiveBlock extends Block {
     entity.setFuse(fuse);
     entity.setPayload(payload);
     entity.setOwner(owner);
+    configurePrimed(world, pos, entity);
     if (!world.spawnEntity(entity)) return false;
     world.playSound(null, pos, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1, 1);
     return true;

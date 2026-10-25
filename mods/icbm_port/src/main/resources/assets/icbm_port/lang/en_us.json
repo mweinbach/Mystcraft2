@@ -8,6 +8,8 @@
   "message.icbm_port.loaded": "Missile loaded. Apply a new redstone pulse to fire.",
   "message.icbm_port.ready": "Ready. Apply a redstone pulse, or sneak-use with an empty hand to unload.",
   "message.icbm_port.empty": "Use a missile on the launcher to load it.",
+  "message.icbm_port.ender_target_set": "Ender charge will send things to %s",
+  "message.icbm_port.ender_target_missing": "Record a destination with the tool first",
   "item.icbm_port.condensed_bomb_cart": "Condensed Bomb Cart",
   "item.icbm_port.condensed_grenade": "Condensed Grenade",
   "block.icbm_port.shrapnel_explosive": "Shrapnel Explosive",

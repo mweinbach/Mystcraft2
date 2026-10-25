@@ -25,26 +25,50 @@ chunk tickets, or edits unloaded/out-of-border/out-of-height terrain.
 
 ## Propagation and terrain
 
-Condensed and attractive/repulsive terrain use the upstream16-axis cube-surface
-ray algorithm:0.3-block steps,0.225 air energy loss, resistance plus0.3 scaled by
-0.3, and0.7–1.3 per-ray starting energy jitter. Jitter is deterministic by ray ID,
-which makes interrupted work reproducible. Thermobaric/nuclear use the source
-angular grid (ceil(pi*radius) polar slices, twice that many yaw slices),0.5-block
-steps,1.125 air energy loss and resistance charged once per entered block. Their
-liquid resistance is0.25. Collection completes before destruction, so removing
-one ray's blocks cannot erase shielding for later rays. Collection, ray energy,
-step and destruction cursor all persist. Each blast retains at most65536 affected
-positions. This explicit cap can truncate a very large crater; large grids may
-take many ticks. The older simplified sphere threshold is not used by new
-condensed/thermobaric/nuclear jobs.
+Each upstream blast family is a `BlastWork` held by its queued job (`Payloads.Job.work`,
+saved under `"work"`). Every class cites its upstream source and lists its port
+differences in its Javadoc:
 
-Other families retain distinct mechanics: burning damage11 shrapnel30 arrows;
-25 falling anvil fragments;15 explosive fragment rays plus arrows; incendiary
-ignition; seven-deep energy-budget breaching; sonic ejection; thermal vanilla
-material/fluid conversion; maximal-damage antimatter; smoke and color particles.
-Nuclear completion invokes mutation and the exposure module's contamination
-work. EMP invokes registered defense handlers. Antimatter cancels nearby
-redmatter singularities.
+| Payloads | Class | Upstream |
+| --- | --- | --- |
+| condensed, repulsive, attractive | `TntBlast` | `BlastTNT` |
+| incendiary | `FireBlast` | `BlastFire` |
+| sonic | `SonicBlast` | `BlastSonic` + `ThreadLargeExplosion` |
+| breaching | `BreachBlast` | `BlastBreach` |
+| thermobaric, nuclear | `ThermalBlast` | `BlastThermobaric`, `BlastNuclear`, `BlastThreaded` |
+| exothermic, endothermic | `BeamBlast` (+ `BeamEffects` hook) | `BlastBeam`, `BlastExothermic`, `BlastEndothermic` |
+| antigravitational | `AntiGravityBlast` | `BlastAntiGravitational` + `ThreadSmallExplosion` |
+| ender | `EnderBlast` | `BlastEnder`, `EnderBlastCustomization` |
+| EMP (instant) | `EmpBlast` | `ActionEmpArea`, `lib/capability/emp`, `CapabilityEmpMissile` |
+
+Upstream ran the large ray passes on worker threads. Here all world reads and edits
+stay on the server thread: each call gets the job's 512-unit share plus whatever is
+left of a shared 8 ms per-world-tick `BlastBudget`, so small blasts still finish in
+their detonation tick and large ones spread over ticks. Ray collection only reads
+the world, so thermal, beam and antigravity collection restarts after a reload
+while their edit lists and cursors are saved; condensed, fire, sonic and breach
+save their ray cursor or results. Unloaded chunks stop a ray (upstream would load
+them or skip); entity effects take the nearest `BlastSupport.MAX_ENTITIES` (256).
+Entity damage uses upstream `Blast.doDamageEntities`: `(s^2 + s) / 2 * 8 * power + 1`
+with `s` the distance falloff times vanilla exposure. Destruction drops with
+upstream's survival chance and calls `onDestroyedByExplosion`, so explosive blocks
+chain-prime. Upstream typos are not reproduced: antigravity's entity box used
+`y + r` as its east edge and pushed blocks straight above the centre by NaN.
+
+Rot uses the queue's cube cursor with `ExposureContent.replace`; mutation converts
+mobs in the radius cube immediately. Both default to upstream's size 3 and ender to
+20 (config version 3). Nuclear completion queues radius-80 fallout and mutation.
+EMP calls the registered `Payloads.EMP_HANDLERS` after its own block-entity and
+entity pass. Antimatter cancels nearby redmatter singularities.
+
+Placed breaching charges face the clicked side and drive into it; the primed
+charge saves that direction (`Facing`). Carriers use their velocity, or a living
+carrier's look, then down. Placed ender charges take a GPS target from a targeting
+tool used on them (block entity `icbm_port:ender_explosive`), copied to the primed
+charge (`EnderDimension`/`EnderPosition`); missiles use their configured
+destination. The ender blast teleports entities within 4 blocks on top of the
+recorded block, also into another dimension when that chunk is loaded, or to one
+random loaded two-block gap within 150 blocks. Blocks are not moved.
 
 Gas uses saved six-neighbor diffusion with directional collision bounds adapted
 from `BlastGasBase`, rather than applying through all blocks in a sphere. There
@@ -68,8 +92,10 @@ cargo, remaining no-gravity lift and lifetime. Unloaded boundaries stop movement
 and settle in loaded terrain. Multi-part doors, beds, piston heads and paired
 chests are not split. Block data from a held-item carrier can be constructed via
 `FlyingBlockEntity.fromCargo` without consuming a world block. Passengers pause
-movement until released. Antigravity captures real flying blocks with remaining
-field duration; they regain gravity and settle afterward.
+movement until released. Flying blocks carry their own gravity (port default
+0.04; upstream 0.05), spin, a 5-tick launch grace before landing and upstream's
+entity impact (`ceil(speed * 2)` falling-block damage, then the block drops).
+Antigravity lifts them with zero gravity and restores it when the field ends.
 
 Redmatter is a saved moving/no-clip entity. **Deliberate departure (after alpha.4):** upstream (and the port up to alpha.4) searched terrain with shell rays inside a cube-bounded region and captured a few blocks per tick, which players saw as a slow, square suction. The core now owns a spherical *event horizon*: a solid ball that grows one block of radius per tick, and every breakable block whose centre lies inside it is erased by `SphereEraser` (direct chunk-section writes with per-block client deltas, no drops, no neighbour updates). Sky light for the opened columns is collected per chunk and written straight into the light arrays every 20 ticks, and whenever the core moves, collapses or unloads, so the light thread, which also serves chunk loading, never builds a backlog. The horizon is capped by the configured radius, default **300** (was 12), which is larger than antimatter's 275; `/icbm blast` and the API may pass sizes up to 384 for this family. A detonation's size argument becomes that core's cap. Growth across all cores shares a per-server-tick budget of 12 ms and 32,768 blocks; chunks the horizon passes while unloaded are recorded (at most 4,096) and cleared when they load. A core that is moved more than two blocks finishes its old crater as a scar and restarts its horizon at the new position. At lifetime end (default **6,000** ticks, was 2,400) or collapse the crater is finished the same way.
 
@@ -89,12 +115,6 @@ Scars run nearest chunks first and share a per-world-tick wall-clock budget of 1
 
 Antimatter still neutralizes red matter cores inside its radius and, when none were neutralized, applies its entity-damage pulse. A brief flash of `FLASH`/`EXPLOSION_EMITTER` particles and a sound mark the detonation.
 
-GPS-customized ender missiles carry target dimension/position independently of
-flight. Their payload moves nearby entities and conserved blocks to matching
-offsets in an already loaded target world. Occupied block destinations and
-unloaded terrain are skipped rather than overwritten/force-loaded. An ender
-payload with no custom destination retains safe local random entity relocation.
-
 ## Configuration
 
 `config/icbm_port/payloads.json` is generated on initialization. Permission-level2
@@ -103,16 +123,16 @@ nonfinite numbers, fractional integers and out-of-range values reject the whole
 reload while retaining working settings. Missing fields use typed defaults;
 files over1MiB are rejected. Legacy Forge config files are not imported.
 
-The file carries `config_version` (now 2). On load, a version-1 file whose antimatter radius, red matter radius or red matter duration still equals the old default (55, 12, 2,400) is moved to the new default (275, 300, 6,000) and rewritten; values a server owner changed are kept. A file claiming a newer version than the mod understands is rejected.
+The file carries `config_version` (now 3). On load, a version-1 file whose antimatter radius, red matter radius or red matter duration still equals the old default (55, 12, 2,400) is moved to the new default (275, 300, 6,000), and a version-1 or -2 file whose rot/mutation radius is still 80 or ender radius still 30 is moved to upstream's 3 and 20; the file is then rewritten. Values a server owner changed are kept. A file claiming a newer version than the mod understands is rejected.
 
 | Field | Range | Consumers |
 | --- | --- | --- |
 | enabled | boolean | All payloads; queued work ends at next service |
 | radius |0–80; antimatter/redmatter 0–384| Queued fields, condensed bounds, force, mutation, ender, EMP callback; antimatter sphere radius (default 275); red matter horizon cap (default 300) |
-| entityDamage |0–2147483647| Condensed, arrows/anvils, breach, thermobaric/nuclear, antimatter/redmatter |
+| entityDamage |0–2147483647| Condensed, fragments, breach, thermobaric/nuclear pulse (`energy × entityDamage`), antimatter/redmatter |
 | fragments |0–128| Shrapnel, anvil, fragmentation |
-| durationTicks |0–72000| Gas, smoke, antigravity, singularity |
-| energy |0–20000| Condensed/force rays, breaching, thermobaric/nuclear, fragmentation bursts |
+| durationTicks |0–72000| Gas, smoke, antigravity (default 2,400), singularity |
+| energy |0–20000| Breaching line energy, thermobaric/nuclear ray energy, fragmentation explosion size |
 | blockFuseTicks/cartFuseTicks/grenadeFuseTicks |0–72000| New corresponding delivery activations |
 
 Queued radius, initial ray energy and captured block lift are snapshots; enabled,

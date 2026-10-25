@@ -49,7 +49,7 @@ class PayloadConfigTest {
           "{\"antimatter\":{\"radius\":385}}",
           "{\"redmatter\":{\"radius\":385}}",
           "{\"thermobaric\":{\"radius\":81}}",
-          "{\"config_version\":3}",
+          "{\"config_version\":4}",
           "{\"config_version\":0}",
           "{\"config_version\":\"2\"}"
         }) assertThrows(RuntimeException.class, () -> PayloadConfig.parse(json), json);
@@ -76,13 +76,42 @@ class PayloadConfigTest {
     assertEquals(600, custom.payloads().get(PayloadType.REDMATTER).durationTicks());
 
     var current =
-        PayloadConfig.parseAll("{\"config_version\":2,\"antimatter\":{\"radius\":55}}");
+        PayloadConfig.parseAll("{\"config_version\":3,\"antimatter\":{\"radius\":55}}");
     assertFalse(current.migrated());
-    assertEquals(55, current.payloads().get(PayloadType.ANTIMATTER).radius(), "v2 values are kept");
+    assertEquals(55, current.payloads().get(PayloadType.ANTIMATTER).radius(), "v3 values are kept");
+
+    var second =
+        PayloadConfig.parseAll("{\"config_version\":2,\"antimatter\":{\"radius\":55}}");
+    assertTrue(second.migrated());
+    assertEquals(55, second.payloads().get(PayloadType.ANTIMATTER).radius(), "v2 antimatter is kept");
 
     var rewritten = PayloadConfig.parseAll(PayloadConfig.serialize(old));
     assertFalse(rewritten.migrated());
     assertEquals(old.payloads(), rewritten.payloads());
+  }
+
+  @Test
+  void versionTwoFilesMoveRotMutationAndEnderToUpstreamSizes() {
+    var defaults = PayloadConfig.parse("{}");
+    assertEquals(3, defaults.get(PayloadType.ROT).radius());
+    assertEquals(3, defaults.get(PayloadType.MUTATION).radius());
+    assertEquals(20, defaults.get(PayloadType.ENDER).radius());
+    var old =
+        PayloadConfig.parseAll(
+            "{\"config_version\":2,\"rot\":{\"radius\":80},\"mutation\":{\"radius\":80},"
+                + "\"ender\":{\"radius\":30},\"exothermic\":{\"radius\":30}}");
+    assertTrue(old.migrated());
+    assertEquals(3, old.payloads().get(PayloadType.ROT).radius());
+    assertEquals(3, old.payloads().get(PayloadType.MUTATION).radius());
+    assertEquals(20, old.payloads().get(PayloadType.ENDER).radius());
+    assertEquals(30, old.payloads().get(PayloadType.EXOTHERMIC).radius(), "unchanged family");
+    var custom =
+        PayloadConfig.parseAll(
+            "{\"config_version\":2,\"rot\":{\"radius\":12},\"ender\":{\"radius\":25}}");
+    assertEquals(12, custom.payloads().get(PayloadType.ROT).radius(), "edited values are kept");
+    assertEquals(25, custom.payloads().get(PayloadType.ENDER).radius());
+    var unversioned = PayloadConfig.parseAll("{\"rot\":{\"radius\":80}}");
+    assertEquals(3, unversioned.payloads().get(PayloadType.ROT).radius(), "v1 also migrates");
   }
 
   @Test

@@ -1,6 +1,7 @@
 package dev.icbm.port.payload;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.block.LeavesBlock;
 import net.minecraft.nbt.*;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.*;
@@ -24,17 +25,20 @@ public final class PayloadQueueAssertions {
 
   public static void savedTerrainWorkResumes(TestContext context) {
     BlockPos pos = context.getAbsolutePos(new BlockPos(2, 2, 2));
-    context.getWorld().setBlockState(pos, Blocks.WATER.getDefaultState(), 2);
+    context
+        .getWorld()
+        .setBlockState(
+            pos, Blocks.OAK_LEAVES.getDefaultState().with(LeavesBlock.PERSISTENT, true), 2);
     context.getWorld().setBlockState(pos.up(), Blocks.BEDROCK.getDefaultState(), 2);
     var original = new Payloads.QueueState();
-    var job = new Payloads.Job(PayloadType.ENDOTHERMIC, Vec3d.ofCenter(pos), 2);
+    var job = new Payloads.Job(PayloadType.ROT, Vec3d.ofCenter(pos), 2);
     // The center is cube cursor62. Stop immediately before it would be processed.
     check(context, !job.tick(context.getWorld(), 62), "Partial terrain work must remain pending");
     check(context, job.cursor == 62, "Job must retain its exact next candidate cursor");
     check(
         context,
-        context.getWorld().getBlockState(pos).isOf(Blocks.WATER),
-        "Unvisited center must remain water");
+        context.getWorld().getBlockState(pos).isOf(Blocks.OAK_LEAVES),
+        "Unvisited center must keep its leaves");
     original.enqueue(job, false);
     NbtCompound saved = original.writeNbt(new NbtCompound());
     var restored = Payloads.QueueState.read(saved);
@@ -47,8 +51,8 @@ public final class PayloadQueueAssertions {
     restored.tick(context.getWorld());
     check(
         context,
-        context.getWorld().getBlockState(pos).isOf(Blocks.ICE),
-        "Resumed endothermic work must freeze the unvisited water");
+        context.getWorld().getBlockState(pos).isAir(),
+        "Resumed rot work must strip the unvisited leaves");
     check(
         context,
         context.getWorld().getBlockState(pos.up()).isOf(Blocks.BEDROCK),
