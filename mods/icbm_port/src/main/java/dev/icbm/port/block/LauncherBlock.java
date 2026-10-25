@@ -258,11 +258,11 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
     dev.icbm.port.payload.PayloadType payload = IcbmPort.payloadForMissile(ammo);
     if (payload == null && !held)
       payload = IcbmPort.payloadForMissile(new ItemStack(IcbmPort.CONDENSED_MISSILE));
-    if (target != null && !cruise) target = inaccurate(world, pos, target, launchers);
     Direction facing = state.get(FACING);
     Vec3d start =
         Vec3d.ofCenter(pos)
             .add(facing.getOffsetX() * 1.1, facing.getOffsetY() * 1.1, facing.getOffsetZ() * 1.1);
+    if (target != null && !cruise) target = inaccurate(world, pos, target, launchers, start);
     double speed =
         tier > 0 ? dev.icbm.port.flight.FlightProfile.DIRECT_SPEED : IcbmPort.MISSILE_SPEED;
     DirectFlight.Velocity motion =
@@ -325,8 +325,14 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
     return record(launcher, LauncherStatus.LAUNCHED);
   }
 
-  /** Upstream {@code LauncherCapability#applyInaccuracy}, rounded to the target block. */
-  private BlockPos inaccurate(ServerWorld world, BlockPos pos, BlockPos target, int launchers) {
+  /**
+   * Upstream {@code LauncherCapability#applyInaccuracy}, rounded to the target block. Upstream
+   * applies the offset unchecked; here it may not push an accepted target out of the flight bounds
+   * (range square, world border, height) seen from the missile's {@code start}, which would make a
+   * ready launcher fail at random. Such an offset is halved, keeping its direction, until it fits.
+   */
+  public BlockPos inaccurate(
+      ServerWorld world, BlockPos pos, BlockPos target, int launchers, Vec3d start) {
     double inaccuracy =
         LauncherRules.inaccuracy(
             Vec3d.ofCenter(pos).squaredDistanceTo(Vec3d.ofCenter(target)),
@@ -335,10 +341,15 @@ public class LauncherBlock extends FacingBlock implements net.minecraft.block.Bl
     double[] offset =
         LauncherRules.offset(
             inaccuracy, world.random.nextFloat(), world.random.nextFloat() * 360.0);
-    return new BlockPos(
-        Math.floor(target.getX() + 0.5 + offset[0]),
-        target.getY(),
-        Math.floor(target.getZ() + 0.5 + offset[1]));
+    for (int attempt = 0; attempt < 12; attempt++, offset[0] /= 2, offset[1] /= 2) {
+      BlockPos aimed =
+          new BlockPos(
+              Math.floor(target.getX() + 0.5 + offset[0]),
+              target.getY(),
+              Math.floor(target.getZ() + 0.5 + offset[1]));
+      if (dev.icbm.port.flight.StagedFlight.inBounds(world, start, aimed)) return aimed;
+    }
+    return target;
   }
 
   @Override

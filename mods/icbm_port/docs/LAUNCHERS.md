@@ -47,13 +47,15 @@ Base launchers follow upstream `TileLauncherBase` / `LauncherBaseCapability`:
 - **Minimum range**: refused when both |dx| and |dz| are below 10 (cruise:
   3D distance below 20).
 - **Maximum range**: per-axis square (|dx| or |dz| above the range refuses), not
-  a circle. The staged-flight profile then applies its own 3D limit, so a target
-  in the extreme corner of the square can still fail at fire time with
-  "out of range".
+  a circle. Staged flight uses the same square, so every accepted target can be
+  flown to.
 - **Inaccuracy** (base launchers only, targeted flights): offset radius
   `2 + distance² / range² × 10 + (launchers − 1)`, where *launchers* is the
   number of bases fired together by a screen or radio trigger. The constants are
-  fixed rather than configurable, and offsets are rounded to blocks. As upstream,
+  fixed rather than configurable, and offsets are rounded to blocks. Unlike
+  upstream, an offset that would leave the flight bounds (range square, world
+  border, height) is halved until it fits, so a target at the range edge never
+  fails at random. As upstream,
   a targeted cluster missile's 3-block release check uses this offset target.
 - **Lock height** 3–64 (default 3) and **firing delay** 0–1,200 ticks are set in
   the screen. A delayed launch is checked first, then held as a pending firing

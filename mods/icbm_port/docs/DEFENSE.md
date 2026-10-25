@@ -65,6 +65,8 @@ EMP starts with upstream radius **60**, max base radius **150** and firing cost
 ICBM-Classic `content/blocks/emptower/TileEMPTower.java`, its buffer is dynamic:
 capacity is the firing cost plus 100 ticks of upkeep, upkeep (`radius * 10`
 per tick) drains every tick, and the tower refuses energy while cooling down.
+Lowering the radius keeps energy above the new capacity (as upstream) and a
+reload keeps it too; only insertion stops until it drops below.
 Maximum insertion is 10,000 per transfer. Strong redstone, a radio trigger or
 the validated Fire EMP button fires it, only when the complete firing cost is
 stored. The screen shows capacity, firing cost and upkeep. Place

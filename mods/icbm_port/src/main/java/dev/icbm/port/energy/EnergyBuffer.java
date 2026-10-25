@@ -157,6 +157,12 @@ public final class EnergyBuffer extends SimpleEnergyStorage {
   }
 
   public void readNbt(NbtCompound nbt) {
-    setAmount(nbt.getLong("Energy"));
+    // Against the absolute ceiling, not the live capacity: energy kept above a capacity that
+    // shrank (an EMP tower whose radius was lowered) must survive a chunk reload too.
+    long next = Math.max(0, Math.min(capacity, nbt.getLong("Energy")));
+    if (amount != next) {
+      amount = next;
+      dirty.run();
+    }
   }
 }

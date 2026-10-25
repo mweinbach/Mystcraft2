@@ -94,14 +94,19 @@ public final class StagedFlight {
         origin.x, origin.z, destination.getX() + .5, destination.getZ() + .5, range);
   }
 
+  /** Whether a missile at {@code origin} may be configured to fly to {@code destination}. */
+  public static boolean inBounds(World world, Vec3d origin, BlockPos destination) {
+    return finite(origin)
+        && !outOfRange(origin, destination, FlightSettings.current.maxRange)
+        && !world.isOutOfHeightLimit(destination)
+        && world.getWorldBorder().contains(destination);
+  }
+
   public void configure(World world, Vec3d origin, BlockPos destination) {
     // Retargeting a missile in the air is not an upstream action; re-planning from mid-air would
     // restart the warmup there. Only a missile still on the pad (or untargeted) may be configured.
     if (inFlight()) throw new IllegalArgumentException("Flight already under way");
-    if (!finite(origin)
-        || outOfRange(origin, destination, FlightSettings.current.maxRange)
-        || world.isOutOfHeightLimit(destination)
-        || !world.getWorldBorder().contains(destination))
+    if (!inBounds(world, origin, destination))
       throw new IllegalArgumentException("Target outside flight bounds");
     target = destination.toImmutable();
     start = origin;

@@ -182,6 +182,50 @@ public class LauncherParityGameTests implements FabricGameTest {
     context.complete();
   }
 
+  /**
+   * A target exactly at the range edge is accepted; the launcher's inaccuracy must never push it
+   * out of the flight bounds, or a ready launcher would fail at random with ERROR_MAX_RANGE.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  public void inaccuracyKeepsRangeEdgeTargetsFlyable(TestContext context) {
+    var world = context.getWorld();
+    BlockPos pos = context.getAbsolutePos(new BlockPos(2, 2, 2));
+    world.setBlockState(
+        pos, LauncherContent.BASE_TIER_1.getDefaultState().with(LauncherBlock.FACING, Direction.UP));
+    world.setBlockState(pos.east(), LauncherContent.FRAME.getDefaultState());
+    var launcher = (LauncherBlockEntity) world.getBlockEntity(pos);
+    launcher.setStack(0, new ItemStack(IcbmPort.CONDENSED_MISSILE));
+    NbtCompound energy = launcher.createNbt();
+    energy.putInt("Energy", 100_000);
+    launcher.readNbt(energy);
+    int range = LauncherContent.BASE_TIER_1.range();
+    BlockPos target = pos.add(range, 0, 0);
+    check(context, LauncherContent.validTarget(world, pos, target), "The range edge is accepted");
+    Vec3d start = Vec3d.ofCenter(pos).add(0, 1.1, 0);
+    int moved = 0;
+    for (int i = 0; i < 256; i++) {
+      BlockPos aimed = LauncherContent.BASE_TIER_1.inaccurate(world, pos, target, 1, start);
+      check(
+          context,
+          dev.icbm.port.flight.StagedFlight.inBounds(world, start, aimed),
+          "Inaccuracy must keep the target inside the flight bounds: " + aimed);
+      if (!aimed.equals(target)) moved++;
+    }
+    check(context, moved > 0, "Inaccuracy must still move the impact point");
+    check(context, launcher.configure(target, true, 0), "The edge target must be storable");
+    var status = LauncherContent.BASE_TIER_1.fire(world, pos, 1);
+    var fired = missiles(context, pos, 4);
+    try {
+      check(
+          context,
+          status == LauncherStatus.LAUNCHED && fired.size() == 1,
+          "A ready launcher must fire at the range edge: " + status);
+    } finally {
+      fired.forEach(Entity::discard);
+    }
+    context.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
   public void launcherAppliesInaccuracyAndLockHeight(TestContext context) {
     var launcher = legacy(context, new BlockPos(2, 2, 2));

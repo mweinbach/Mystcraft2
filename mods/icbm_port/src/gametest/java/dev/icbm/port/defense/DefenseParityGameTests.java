@@ -277,6 +277,37 @@ public class DefenseParityGameTests implements FabricGameTest {
    * One test method in its own batch: every real EMP fired here would disable fixtures of
    * concurrently running tests. Tower A is shrunk to range 1 so its own field cannot reach tower B.
    */
+  /**
+   * Lowering an EMP tower's radius shrinks its capacity but keeps the stored energy (upstream); a
+   * chunk reload must keep it too instead of clamping it to the new capacity.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = EMP_BATCH)
+  public void empTowerKeepsOverCapacityEnergyAcrossReload(TestContext context) {
+    BlockPos pos = context.getAbsolutePos(new BlockPos(1, 40, 1));
+    var tower = place(context, pos, DefenseContent.EMP_TOWER);
+    long full = tower.energyBuffer().getCapacity();
+    tower.energyBuffer().setAmount(full);
+    for (int i = 0; i < 6; i++) tower.configure(0);
+    check(
+        context,
+        tower.range() == 1 && tower.energyBuffer().getCapacity() < full,
+        "Range 1 must shrink the capacity");
+    check(context, tower.energyBuffer().getAmount() == full, "Shrinking keeps the stored energy");
+    NbtCompound saved = tower.createNbt();
+    tower.readNbt(saved);
+    check(
+        context,
+        tower.energyBuffer().getAmount() == full,
+        "A reload must keep over-capacity energy: " + tower.energyBuffer().getAmount());
+    var copy = place(context, pos.east(3), DefenseContent.EMP_TOWER);
+    copy.readNbt(saved);
+    check(
+        context,
+        copy.range() == 1 && copy.energyBuffer().getAmount() == full,
+        "A fresh tower loading the save must keep it too");
+    context.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = EMP_BATCH)
   public void empTowerParity(TestContext context) {
     var world = context.getWorld();
