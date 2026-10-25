@@ -348,12 +348,17 @@ public class FragmentEntity extends Entity {
   }
 
   private void onBlockHit(BlockHitResult hit) {
-    inTilePos = hit.getBlockPos();
-    inTile = world.getBlockState(inTilePos);
-    // Upstream ProjectileBlockInteraction: leaves, snow layers and glass break as pass-through.
-    Material material = inTile.getMaterial();
+    BlockPos pos = hit.getBlockPos();
+    BlockState state = world.getBlockState(pos);
+    // Upstream ProjectileBlockInteraction: leaves, snow layers and glass break as pass-through. A
+    // fragment that breaks one keeps its flight (velocity, air time, ability to hit what is
+    // behind); only a block it cannot pass makes it stick.
+    Material material = state.getMaterial();
     if ((material == Material.LEAVES || material == Material.GLASS || material == Material.SNOW_LAYER)
-        && inTile.getHardness(world, inTilePos) >= 0) world.breakBlock(inTilePos, true, this);
+        && state.getHardness(world, pos) >= 0
+        && world.breakBlock(pos, true, this)) return;
+    inTilePos = pos;
+    inTile = state;
     Vec3d motion = hit.getPos().subtract(getPos());
     setVelocity(motion);
     double length = motion.length();

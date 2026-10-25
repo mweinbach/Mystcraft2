@@ -314,6 +314,43 @@ public final class FragmentParityGameTests implements FabricGameTest {
         });
   }
 
+  /**
+   * Breaking a pass-through block keeps the fragment's flight: same speed and air time, so it
+   * still hits the mob behind the glass at full damage.
+   */
+  @GameTest(
+      templateName = FabricGameTest.EMPTY_STRUCTURE,
+      batchId = "icbmFragmentHits",
+      tickLimit = 40)
+  public void fragmentPassesThroughGlassAndHitsTheMobBehind(TestContext c) {
+    BlockPos glass = c.getAbsolutePos(new BlockPos(4, 3, 2));
+    c.getWorld().setBlockState(glass, Blocks.GLASS.getDefaultState(), 3);
+    var target = still(c, EntityType.IRON_GOLEM, c.getAbsolute(new Vec3d(7.5, 2, 2.5)));
+    FragmentEntity fragment =
+        flying(c, c.getAbsolute(new Vec3d(1.5, 3.5, 2.5)), new Vec3d(.5, 0, 0));
+    fragment.setDamage(11);
+    c.getWorld().spawnEntity(fragment);
+    float full = target.getHealth();
+    c.runAtTick(
+        25,
+        () -> {
+          try {
+            check(c, c.getWorld().getBlockState(glass).isAir(), "The fragment must break the glass");
+            check(c, fragment.isRemoved(), "The fragment must reach and hit the mob behind");
+            // About 0.47 blocks/tick times 11 damage, rounded up: a fragment slowed by the glass
+            // (the old stick-and-dislodge path) would deal at most 2.
+            check(
+                c,
+                target.getHealth() <= full - 5,
+                "The hit must keep full speed: " + (full - target.getHealth()));
+          } finally {
+            target.discard();
+            fragment.discard();
+          }
+          c.complete();
+        });
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = "icbmFragmentHits")
   public void fragmentStateSurvivesReload(TestContext c) {
     var owner = EntityType.PIG.create(c.getWorld());
