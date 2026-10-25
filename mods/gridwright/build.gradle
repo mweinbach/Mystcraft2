@@ -92,21 +92,8 @@ def copyGameTestStructures = tasks.register('copyGameTestStructures', Sync) {
     from 'src/gametestCommon/structures'
     into 'run/gameTestServer/gameteststructures'
 }
-// Like CI, start from a fresh world. Forge 43.5.0 ships a default fml.toml without defaultConfigPath, so every fresh
-// server corrects the file while NightConfig's watcher reloads it, and the two threads can tear maxThreads into a
-// duplicate key ('Invalid TOML data: entry "[maxThreads]" defined twice'). A complete file skips the correction.
+// Like CI, start from a fresh world. gradle/forge-mod.gradle seeds a complete fml.toml for every run.
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     dependsOn copyGameTestStructures, tasks.named('gametestClasses')
-    doFirst {
-        delete file('run/gameTestServer/world')
-        def configDir = file('run/gameTestServer/config')
-        configDir.mkdirs()
-        new File(configDir, 'fml.toml').text = '''\
-splashscreen = true
-maxThreads = -1
-versionCheck = true
-defaultConfigPath = "defaultconfigs"
-disableOptimizedDFU = true
-'''
-    }
+    doFirst { delete file('run/gameTestServer/world') }
 }
