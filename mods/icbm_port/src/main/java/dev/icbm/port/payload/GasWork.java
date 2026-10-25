@@ -135,8 +135,13 @@ final class GasWork {
       cloudParticles(world, type);
       if (type != PayloadType.COLOR) affectEntities(world, type, center, maxRadius);
     }
-    return lastRun * RUN_INTERVAL + 1 > duration;
+    // Job.elapsedTicks saturates at MAX_ELAPSED_TICKS, so the last due run of a maximum-length
+    // cloud can never pass the duration; the saturated clock itself ends it.
+    return lastRun * RUN_INTERVAL + 1 > duration || elapsedTicks >= MAX_ELAPSED_TICKS;
   }
+
+  /** {@code Payloads.QueueState} stops counting a job's elapsed ticks here (72,000 = one hour). */
+  static final int MAX_ELAPSED_TICKS = 72000;
 
   private void startSound(ServerWorld world, Vec3d center) {
     // Upstream plays its debilitation hiss once when the cloud starts (playShortSoundFX is never

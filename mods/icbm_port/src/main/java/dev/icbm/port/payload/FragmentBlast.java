@@ -47,13 +47,10 @@ public final class FragmentBlast {
     if (n <= 0) return 0;
     boolean explosive = type == PayloadType.FRAGMENTATION;
     int total = n * n;
-    int live =
-        world
-            .getEntitiesByType(
-                BlastEntities.FRAGMENT, fragment -> !explosive || fragment.isExplosive())
-            .size();
-    int allowed =
-        Math.max(0, Math.min(total, (explosive ? MAX_LIVE_EXPLOSIVE : MAX_LIVE_FRAGMENTS) - live));
+    var fragments = world.getEntitiesByType(BlastEntities.FRAGMENT, fragment -> true);
+    int liveExplosive = 0;
+    for (FragmentEntity fragment : fragments) if (fragment.isExplosive()) liveExplosive++;
+    int allowed = admitted(total, fragments.size(), liveExplosive, explosive);
     if (allowed == 0) return 0;
     Entity owner = source.owner() == null ? null : world.getEntity(source.owner());
     float step = 360f / n;
@@ -89,6 +86,16 @@ public final class FragmentBlast {
       }
     }
     return spawned;
+  }
+
+  /**
+   * Fragments a burst of {@code requested} may add. Every burst respects the shared {@link
+   * #MAX_LIVE_FRAGMENTS} total; explosive bursts must also fit under {@link #MAX_LIVE_EXPLOSIVE}.
+   */
+  static int admitted(int requested, int live, int liveExplosive, boolean explosive) {
+    int capacity = MAX_LIVE_FRAGMENTS - live;
+    if (explosive) capacity = Math.min(capacity, MAX_LIVE_EXPLOSIVE - liveExplosive);
+    return Math.max(0, Math.min(requested, capacity));
   }
 
   /** Upstream {@code ExplosiveInit} projectile factories for each fragment payload. */

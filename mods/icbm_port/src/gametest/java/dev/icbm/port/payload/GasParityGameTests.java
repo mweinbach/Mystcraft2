@@ -182,6 +182,23 @@ public final class GasParityGameTests implements FabricGameTest {
     c.complete();
   }
 
+  /** Job.elapsedTicks saturates at 72,000, so a 72,000-tick cloud must end on that clock. */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
+  public void maximumDurationCloudExpiresWhenClockSaturates(TestContext c) {
+    BlockPos center = openCenter(c);
+    GasWork gas = new GasWork(center);
+    int max = GasWork.MAX_ELAPSED_TICKS;
+    check(
+        c,
+        !run(c, gas, PayloadType.COLOR, center, 3, max, max - 8, max - 1),
+        "A maximum-duration cloud must still be live before the clock saturates");
+    check(
+        c,
+        run(c, gas, PayloadType.COLOR, center, 3, max, max, max),
+        "The saturated job clock must end a maximum-duration cloud");
+    c.complete();
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = BATCH)
   public void gasCloudAndHitsSurviveReload(TestContext c) {
     BlockPos center = openCenter(c);
