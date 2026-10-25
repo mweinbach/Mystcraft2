@@ -6,9 +6,16 @@ import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 
-/** Immutable, bounded payload manifest adapted from ActionDataCluster's spawn entries. */
+/**
+ * Immutable, bounded payload manifest adapted from ActionDataCluster's spawn entries.
+ *
+ * <p>Loading is limited by the upstream volume rule ({@link DeliveryConfig#clusterMaxVolume()},
+ * default 200 with 2 per tier-one bomblet and 20 for the carrier, i.e. 90 bomblets). {@link
+ * #MAX_BOMBLETS} is a port-only hard safety cap on droplet entities per burst so a misconfigured
+ * volume can never create unbounded entities in one server tick.
+ */
 public final class ClusterPlan {
-  public static final int MAX_BOMBLETS = 64;
+  public static final int MAX_BOMBLETS = 200;
   public static final ClusterPlan EMPTY = new ClusterPlan(List.of());
   public static final String NBT_KEY = "ClusterEntries";
   private final List<PayloadType> payloads;

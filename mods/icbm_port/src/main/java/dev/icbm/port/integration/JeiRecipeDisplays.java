@@ -36,7 +36,8 @@ public final class JeiRecipeDisplays {
             "cluster",
             DeliveryContent.CLUSTER_MISSILE,
             "Craft an empty cluster carrier with tier-one bomblets to load a mixed payload. Add more"
-                + " bomblets in later crafts, up to 64 total. An empty carrier cannot launch."),
+                + " bomblets in later crafts, up to 90 with default space settings. An empty"
+                + " carrier cannot launch."),
         new InfoPage(
             "held_item",
             DeliveryContent.HELD_ITEM_MISSILE,

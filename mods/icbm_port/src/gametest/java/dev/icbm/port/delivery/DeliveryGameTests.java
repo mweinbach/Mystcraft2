@@ -46,6 +46,8 @@ public final class DeliveryGameTests implements FabricGameTest {
         c.getAbsolutePos(new BlockPos(2, 3, 2)).getZ());
     c.getWorld().spawnEntity(grenade);
     grenade.tick();
+    check(c, !grenade.isRemoved(), "Upstream fuse fires only after the full fuse has elapsed");
+    grenade.tick();
     check(c, grenade.isRemoved(), "Expired grenade must detonate and remove itself");
     c.complete();
   }
@@ -104,8 +106,8 @@ public final class DeliveryGameTests implements FabricGameTest {
     item.onStoppedUsing(launcher, c.getWorld(), player, 71980);
     check(
         c,
-        ammo.getCount() == 1 && launcher.getDamage() == 1,
-        "One shot must consume one missile and one durability");
+        ammo.getCount() == 1 && !launcher.isDamageable() && launcher.getDamage() == 0,
+        "One shot must consume one missile without wearing the launcher (upstream has no wear)");
     check(
         c,
         player.getItemCooldownManager().isCoolingDown(item),
@@ -113,7 +115,7 @@ public final class DeliveryGameTests implements FabricGameTest {
     item.onStoppedUsing(launcher, c.getWorld(), player, 71980);
     check(
         c,
-        ammo.getCount() == 1 && launcher.getDamage() == 1,
+        ammo.getCount() == 1,
         "Cooldown must prevent repeated fire");
     c.getWorld()
         .getEntitiesByType(
@@ -137,7 +139,10 @@ public final class DeliveryGameTests implements FabricGameTest {
         c.getWorld()
             .getEntitiesByType(
                 DeliveryContent.BOMBLET, new net.minecraft.util.math.Box(pos).expand(4), e -> true);
-    check(c, count == 64 && bomblets.size() == 64, "Cluster burst must cap entity creation at64");
+    check(
+        c,
+        count == ClusterPlan.MAX_BOMBLETS && bomblets.size() == ClusterPlan.MAX_BOMBLETS,
+        "Cluster burst must cap entity creation at the hard safety limit");
     check(
         c,
         bomblets.stream().allMatch(b -> b.getPayload() == PayloadType.SMOKE),
@@ -242,7 +247,10 @@ public final class DeliveryGameTests implements FabricGameTest {
                 java.util.List.of(PayloadType.INCENDIARY, PayloadType.SMOKE, PayloadType.SHRAPNEL)),
         "Mixed loading must append exactly one bomblet per slot");
     check(c, ClusterPlan.fromStack(cluster).size() == 1, "Crafting preview must not mutate input");
-    new ClusterPlan(java.util.Collections.nCopies(64, PayloadType.SMOKE)).writeTo(cluster);
+    // Upstream volume rule: carrier 20 + 2 per bomblet <= 200; 88 stored + the 2 in the grid fill it.
+    new ClusterPlan(java.util.Collections.nCopies(88, PayloadType.SMOKE)).writeTo(cluster);
+    check(c, recipe.matches(inventory, c.getWorld()), "Filling to exactly 200 volume must load");
+    new ClusterPlan(java.util.Collections.nCopies(89, PayloadType.SMOKE)).writeTo(cluster);
     check(
         c,
         !recipe.matches(inventory, c.getWorld()),
@@ -371,8 +379,8 @@ public final class DeliveryGameTests implements FabricGameTest {
         .onStoppedUsing(launcher, c.getWorld(), player, 71980);
     check(
         c,
-        ammo.getCount() == 2 && launcher.getDamage() == 0,
-        "Nearby target must preserve ammo and durability");
+        ammo.getCount() == 2,
+        "Nearby target must preserve ammo");
     c.getWorld().removeBlock(near, false);
     c.getWorld().setBlockState(far, Blocks.STONE.getDefaultState());
     var sight = player.raycast(500, 1, false);

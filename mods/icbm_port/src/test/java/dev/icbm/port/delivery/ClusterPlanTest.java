@@ -22,7 +22,9 @@ final class ClusterPlanTest {
 
   @Test
   void oversizedPlansCannotCreateUnboundedEntities() {
-    assertEquals(64, new ClusterPlan(Collections.nCopies(1000, PayloadType.SMOKE)).size());
+    assertEquals(
+        ClusterPlan.MAX_BOMBLETS,
+        new ClusterPlan(Collections.nCopies(1000, PayloadType.SMOKE)).size());
     assertTrue(new ClusterPlan(List.of(PayloadType.NUCLEAR, PayloadType.ROT)).isEmpty());
   }
 
@@ -43,6 +45,8 @@ final class ClusterPlanTest {
     valid.putInt("Count", Integer.MAX_VALUE);
     entries.add(valid);
     nbt.put(ClusterPlan.NBT_KEY, entries);
-    assertEquals(Collections.nCopies(64, PayloadType.SMOKE), ClusterPlan.read(nbt).payloads());
+    assertEquals(
+        Collections.nCopies(ClusterPlan.MAX_BOMBLETS, PayloadType.SMOKE),
+        ClusterPlan.read(nbt).payloads());
   }
 }

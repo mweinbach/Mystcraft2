@@ -27,8 +27,11 @@ for reproducing this migration, and is applied last by the resource generator.
 - Cluster missile, empty bomblet casing, condensed bomblet, cargo balloon and
   cargo parachute follow source recipe shapes/counts. Source cluster crafting
   makes the empty carrier. A special crafting recipe combines it with one or
-  more mixed bomblet slots, preserving previous contents up to 64. This ports
-  source cargo composition into a bounded modern crafting serializer.
+  more mixed bomblet slots, preserving previous contents within upstream
+  `RecipeCluster`'s volume rule (carrier 20 + 2 per bomblet <= 200 by default,
+  i.e. 90 bomblets; see DELIVERY.md for the settings and the 200-droplet hard
+  cap). This ports source cargo composition into a bounded modern crafting
+  serializer.
 
 ## Platform mappings
 

@@ -19,7 +19,7 @@ public final class DeliveryContent {
           new net.minecraft.recipe.SpecialRecipeSerializer<>(CarrierUnloadingRecipe::new);
   public static final Item HELD_ITEM_MISSILE = new HeldItemMissileItem();
   public static final Item BALLISTIC_LAUNCHER =
-      new RocketLauncherItem(new Item.Settings().group(IcbmPort.GROUP).maxDamage(256), true);
+      new RocketLauncherItem(new Item.Settings().group(IcbmPort.GROUP).maxCount(1), true);
   public static final EntityType<HeldItemMissileEntity> HELD_MISSILE =
       FabricEntityTypeBuilder.<HeldItemMissileEntity>create(
               SpawnGroup.MISC, HeldItemMissileEntity::new)
@@ -49,7 +49,7 @@ public final class DeliveryContent {
   public static final Map<PayloadType, Item> GRENADES = new EnumMap<>(PayloadType.class);
   public static final Map<PayloadType, Item> BOMB_CARTS = new EnumMap<>(PayloadType.class);
   public static final Item ROCKET_LAUNCHER =
-      new RocketLauncherItem(new Item.Settings().group(IcbmPort.GROUP).maxDamage(256));
+      new RocketLauncherItem(new Item.Settings().group(IcbmPort.GROUP).maxCount(1));
   public static final EntityType<BombletEntity> BOMBLET =
       FabricEntityTypeBuilder.<BombletEntity>create(SpawnGroup.MISC, BombletEntity::new)
           .dimensions(EntityDimensions.fixed(.25F, .25F))
@@ -119,6 +119,7 @@ public final class DeliveryContent {
                   Registry.ITEM, IcbmPort.id(payload.id() + "_grenade"), new GrenadeItem(payload)));
       }
     DeliveryDispensers.register();
+    dev.icbm.port.entity.PrimedExplosiveEntity.registerEmpKill();
   }
 
   public static boolean isLoadedHeldMissile(net.minecraft.item.ItemStack stack) {
@@ -201,11 +202,18 @@ public final class DeliveryContent {
     return burst(
         world,
         position,
-        new ClusterPlan(java.util.Collections.nCopies(Math.min(64, Math.max(0, count)), payload)),
+        new ClusterPlan(
+            java.util.Collections.nCopies(
+                Math.min(ClusterPlan.MAX_BOMBLETS, Math.max(0, count)), payload)),
         source,
         heading);
   }
 
+  /**
+   * Spawns one droplet per manifest entry using {@link ClusterBurst}'s upstream geometry, oriented
+   * by the carrier heading (upstream reads the host missile's yaw/pitch). If a droplet cannot be
+   * spawned its bomblet item is dropped instead, as upstream ActionCluster does, so nothing is lost.
+   */
   public static int burst(
       net.minecraft.world.World world,
       net.minecraft.util.math.Vec3d position,
@@ -213,25 +221,37 @@ public final class DeliveryContent {
       net.minecraft.entity.Entity source,
       net.minecraft.util.math.Vec3d heading) {
     if (world.isClient) return 0;
+    var random = world.random;
+    var ejections =
+        ClusterBurst.plan(
+            plan.size(),
+            ClusterBurst.headingYaw(heading.x, heading.y, heading.z),
+            ClusterBurst.headingPitch(heading.x, heading.y, heading.z),
+            random::nextFloat);
     int spawned = 0;
-    for (int i = 0; i < plan.size(); i++) {
-      int layer = i / 10;
-      double angle = Math.toRadians((i % 10) * 36 + layer * 22.5);
-      double scale = .3 + layer * .1;
-      var radial = new net.minecraft.util.math.Vec3d(Math.cos(angle), 0, Math.sin(angle));
+    for (ClusterBurst.Ejection ejection : ejections) {
+      PayloadType payload = plan.payloads().get(ejection.entry());
+      var at = position.add(ejection.offsetX(), ejection.offsetY(), ejection.offsetZ());
       BombletEntity bomblet = new BombletEntity(BOMBLET, world);
-      bomblet.setPayload(plan.payloads().get(i));
+      bomblet.setPayload(payload);
       bomblet.setOwner(source);
-      bomblet.setPosition(position.add(radial.multiply(.25)).add(0, layer * .1, 0));
-      bomblet.setVelocity(
-          radial
-              .multiply(scale)
-              .add(heading.multiply(.3))
-              .add(
-                  (world.random.nextFloat() - world.random.nextFloat()) * .1,
-                  .15,
-                  (world.random.nextFloat() - world.random.nextFloat()) * .1));
+      bomblet.setPosition(at);
+      bomblet.setVelocity(ejection.motionX(), ejection.motionY(), ejection.motionZ());
       if (world.spawnEntity(bomblet)) spawned++;
+      else {
+        var drop =
+            new net.minecraft.entity.ItemEntity(
+                world,
+                at.x,
+                at.y,
+                at.z,
+                new net.minecraft.item.ItemStack(BOMBLETS.get(payload)),
+                ejection.motionX(),
+                ejection.motionY(),
+                ejection.motionZ());
+        drop.setToDefaultPickupDelay();
+        world.spawnEntity(drop);
+      }
     }
     return spawned;
   }
