@@ -90,8 +90,14 @@ public final class IcbmPort implements ModInitializer {
       CondensedExplosiveBlock block =
           payload == PayloadType.CONDENSED
               ? CONDENSED_EXPLOSIVE
-              : new CondensedExplosiveBlock(
-                  AbstractBlock.Settings.of(Material.TNT).breakInstantly(), payload);
+              : payload == PayloadType.BREACHING
+                  ? new dev.icbm.port.block.BreachingExplosiveBlock(
+                      AbstractBlock.Settings.of(Material.TNT).breakInstantly())
+                  : payload == PayloadType.ENDER
+                      ? new dev.icbm.port.block.EnderExplosiveBlock(
+                          AbstractBlock.Settings.of(Material.TNT).breakInstantly())
+                      : new CondensedExplosiveBlock(
+                          AbstractBlock.Settings.of(Material.TNT).breakInstantly(), payload);
       Item missile =
           payload == PayloadType.CONDENSED
               ? CONDENSED_MISSILE
@@ -105,6 +111,8 @@ public final class IcbmPort implements ModInitializer {
           new BlockItem(block, new Item.Settings().group(GROUP)));
       Registry.register(Registry.ITEM, id(payload.id() + "_missile"), missile);
     }
+    if (EXPLOSIVE_BLOCKS.get(PayloadType.ENDER) instanceof dev.icbm.port.block.EnderExplosiveBlock ender)
+      dev.icbm.port.block.EnderExplosiveBlock.register(ender);
     Registry.register(Registry.BLOCK, id("launcher"), LAUNCHER);
     Registry.register(
         Registry.ITEM, id("launcher"), new BlockItem(LAUNCHER, new Item.Settings().group(GROUP)));

@@ -57,7 +57,7 @@ public final class PayloadConfig {
    */
   public static final String CONFIG_VERSION = "config_version";
 
-  public static final int CURRENT_VERSION = 2;
+  public static final int CURRENT_VERSION = 3;
 
   record Parsed(
       Map<PayloadType, Settings> payloads, EmpEnergyDrain empEnergyDrain, boolean migrated) {
@@ -172,15 +172,27 @@ public final class PayloadConfig {
       if (parsed.radius() > type.maxRadius())
         throw new IllegalArgumentException(
             key + ".radius must be between 0 and " + type.maxRadius());
-      next.put(type, version < CURRENT_VERSION ? migrate(type, parsed) : parsed);
+      next.put(type, version < CURRENT_VERSION ? migrate(type, parsed, version) : parsed);
     }
     return new Parsed(
         Collections.unmodifiableMap(next), drain, version < CURRENT_VERSION);
   }
 
-  /** Version 1 wrote the old defaults explicitly; only exact old defaults move to new ones. */
-  private static Settings migrate(PayloadType type, Settings s) {
+  /**
+   * Older versions wrote their defaults explicitly; only exact old defaults move to new ones.
+   * Version 1 to 2: antimatter and red matter. Version 2 to 3: standalone rot and mutation radius
+   * 80 to 3 and ender radius 30 to 20 (upstream sizes).
+   */
+  private static Settings migrate(PayloadType type, Settings s, int version) {
     int radius = s.radius(), duration = s.durationTicks();
+    if (version < 3) {
+      if ((type == PayloadType.ROT || type == PayloadType.MUTATION)
+          && radius == PayloadDefaults.LEGACY_ROT_MUTATION_RADIUS)
+        radius = PayloadDefaults.forType(type).radius();
+      if (type == PayloadType.ENDER && radius == PayloadDefaults.LEGACY_ENDER_RADIUS)
+        radius = PayloadDefaults.forType(type).radius();
+    }
+    if (version >= 2) return withRadius(s, radius, duration);
     if (type == PayloadType.ANTIMATTER && radius == PayloadDefaults.LEGACY_ANTIMATTER_RADIUS)
       radius = PayloadDefaults.ANTIMATTER_RADIUS;
     if (type == PayloadType.REDMATTER) {
@@ -188,6 +200,10 @@ public final class PayloadConfig {
       if (duration == PayloadDefaults.LEGACY_REDMATTER_DURATION)
         duration = PayloadDefaults.REDMATTER_DURATION;
     }
+    return withRadius(s, radius, duration);
+  }
+
+  private static Settings withRadius(Settings s, int radius, int duration) {
     return new Settings(
         s.enabled(),
         radius,

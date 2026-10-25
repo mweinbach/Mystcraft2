@@ -24,6 +24,12 @@ public record PayloadDefaults(
       LEGACY_REDMATTER_RADIUS = 12,
       LEGACY_REDMATTER_DURATION = 2400;
 
+  /**
+   * Version-2 defaults for the standalone rot/mutation sizes (now upstream's minimum blast radius of
+   * three; nuclear aftermath keeps its own radius 80) and for ender (upstream fixes it at 20).
+   */
+  static final int LEGACY_ROT_MUTATION_RADIUS = 80, LEGACY_ENDER_RADIUS = 30;
+
   public static PayloadDefaults forType(PayloadType type) {
     return switch (type) {
       case CONDENSED -> new PayloadDefaults(6, 10, 0, 0, 6);
@@ -38,11 +44,12 @@ public record PayloadDefaults(
       case THERMOBARIC -> new PayloadDefaults(30, 1000, 0, 0, 80);
       case NUCLEAR -> new PayloadDefaults(50, 1000, 0, 0, 80);
       case EMP -> new PayloadDefaults(50, 0, 0, 0, 0);
-      case EXOTHERMIC, ENDOTHERMIC, ENDER -> new PayloadDefaults(30, 0, 0, 0, 0);
+      case EXOTHERMIC, ENDOTHERMIC -> new PayloadDefaults(30, 0, 0, 0, 0);
+      case ENDER -> new PayloadDefaults(20, 0, 0, 0, 0);
       case ANTI_GRAVITATIONAL -> new PayloadDefaults(30, 0, 0, 2400, 0);
       case ANTIMATTER -> new PayloadDefaults(ANTIMATTER_RADIUS, Integer.MAX_VALUE, 0, 0, 0);
       case REDMATTER -> new PayloadDefaults(REDMATTER_RADIUS, 2000, 0, REDMATTER_DURATION, 0);
-      case ROT, MUTATION -> new PayloadDefaults(80, 0, 0, 0, 0);
+      case ROT, MUTATION -> new PayloadDefaults(3, 0, 0, 0, 0);
       case COLOR -> new PayloadDefaults(10, 0, 0, 600, 0);
       case SMOKE -> new PayloadDefaults(0, 0, 0, 100, 0);
       case HYPERSONIC, MISSILEMODULE -> new PayloadDefaults(0, 0, 0, 0, 0);

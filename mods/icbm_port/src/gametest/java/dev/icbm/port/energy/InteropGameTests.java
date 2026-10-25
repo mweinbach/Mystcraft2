@@ -208,6 +208,91 @@ public final class InteropGameTests implements FabricGameTest {
     c.complete();
   }
 
+  /**
+   * The EMP blast's own drains (batteries in block inventories and dropped items) obey the same
+   * toggle as the handler; its non-energy effects still happen with the drain disabled. It
+   * outlives the 200-tick defence EMP field the blast raises, so no later launcher test at this
+   * structure position inherits a disabled zone.
+   */
+  @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, batchId = EMP_BATCH, tickLimit = 260)
+  public void empBlastKeepsBatteriesButStillPulsesWhenDrainDisabled(TestContext c)
+      throws IOException {
+    var world = c.getWorld();
+    Vec3d center = Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(4, 2, 4)));
+    BlockPos chestPos = c.getAbsolutePos(new BlockPos(4, 2, 5));
+    world.setBlockState(chestPos, Blocks.CHEST.getDefaultState());
+    var chest = (net.minecraft.block.entity.ChestBlockEntity) world.getBlockEntity(chestPos);
+    chest.setStack(0, TestEnergyFixtures.chargedItem(CHARGE));
+    Vec3d dropAt = Vec3d.ofCenter(c.getAbsolutePos(new BlockPos(3, 2, 4)));
+    var dropped =
+        new net.minecraft.entity.ItemEntity(
+            world, dropAt.x, dropAt.y, dropAt.z, TestEnergyFixtures.chargedItem(CHARGE));
+    dropped.setVelocity(Vec3d.ZERO);
+    dropped.setPickupDelayInfinite();
+    world.spawnEntity(dropped);
+    var creeper = net.minecraft.entity.EntityType.CREEPER.create(world);
+    Vec3d creeperAt = Vec3d.ofBottomCenter(c.getAbsolutePos(new BlockPos(5, 2, 4)));
+    creeper.refreshPositionAndAngles(creeperAt.x, creeperAt.y, creeperAt.z, 0, 0);
+    creeper.setAiDisabled(true);
+    world.spawnEntity(creeper);
+    // Energy blocks for the drain handler: one inside the blast's size 3, one outside it but well
+    // inside the configured EMP radius (50), which the handler must not use for a scaled blast.
+    EnergyStorage nearBlock = battery(c, new BlockPos(4, 2, 6));
+    EnergyStorage farBlock = battery(c, new BlockPos(0, 2, 0));
+    Path config =
+        FabricLoader.getInstance().getConfigDir().resolve("icbm_port").resolve("payloads.json");
+    String original = Files.readString(config);
+    boolean accepted;
+    try {
+      Files.writeString(config, "{\"" + PayloadConfig.EMP_ENERGY_DRAIN + "\":{\"enabled\":false}}");
+      PayloadConfig.reload();
+      accepted =
+          Payloads.detonateScaled(world, center, dev.icbm.port.payload.PayloadType.EMP, null, 3);
+    } finally {
+      Files.writeString(config, original);
+      PayloadConfig.reload();
+    }
+    check(c, accepted, "The EMP blast must run with the drain disabled");
+    check(
+        c,
+        TestEnergyFixtures.stored(chest.getStack(0)) == CHARGE,
+        "Disabled drain must leave batteries in block inventories charged");
+    check(
+        c,
+        TestEnergyFixtures.stored(dropped.getStack()) == CHARGE,
+        "Disabled drain must leave dropped batteries charged");
+    check(c, nearBlock.getAmount() == CHARGE, "Disabled drain must leave energy blocks charged");
+    check(c, creeper.shouldRenderOverlay(), "EMP must still charge creepers with the drain off");
+
+    // Same blast with the drain back on (the restored config) empties both.
+    check(c, PayloadConfig.empEnergyDrain().enabled(), "Restored config must re-enable the drain");
+    Payloads.detonateScaled(world, center, dev.icbm.port.payload.PayloadType.EMP, null, 3);
+    check(
+        c,
+        TestEnergyFixtures.stored(chest.getStack(0)) == 0,
+        "Enabled drain must empty batteries in block inventories");
+    check(
+        c,
+        TestEnergyFixtures.stored(dropped.getStack()) == 0,
+        "Enabled drain must empty dropped batteries");
+    check(c, nearBlock.getAmount() == 0, "Enabled drain must empty energy blocks in the blast");
+    check(
+        c,
+        farBlock.getAmount() == CHARGE,
+        "EMP sub-effects must use the blast's size, not the configured EMP radius");
+    dropped.discard();
+    creeper.discard();
+    c.runAtTick(
+        210,
+        () -> {
+          check(
+              c,
+              !dev.icbm.port.defense.EmpPersistentState.get(world).contains(center, world.getTime()),
+              "The EMP field must have expired before the batch ends");
+          c.complete();
+        });
+  }
+
   @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
   public void hoppersLoadSamAmmoAndRejectOtherItems(TestContext c) {
     BlockPos samPos = new BlockPos(1, 1, 1), rejectPos = new BlockPos(4, 1, 1);

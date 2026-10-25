@@ -1,5 +1,20 @@
 # Validation — 0.2.0-alpha.4
 
+## Blast parity (October 25, 2026)
+
+Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.
+
+| Check | Result |
+| --- | --- |
+| `./gradlew :icbm_port:build` (JDK 17) | Passed; JUnit **22** passed (`PayloadConfigTest` adds the `config_version` 2→3 move of rot/mutation 80→3 and ender 30→20; version 4 is now rejected) |
+| `./gradlew :icbm_port:runGametest -PwithItemAlchemy -PwithProjectE` | All **142** required GameTests passed. New: `ConventionalBlastParityGameTests` (7: 1,352 cube-surface TNT rays, condensed breaking dirt but not obsidian and hurting a pig, repulsive/attractive push directions without damage, incendiary fire and melted ice, sonic throw, stone removal and explosive priming, a seven-block breach along a stored direction, a placed breaching charge aiming into its surface across a reload), `ThermalBlastParityGameTests` (2: thermobaric sphere and lethal pulse with bedrock surviving; nuclear fallout queued and a pig mutated), `BeamBlastParityGameTests` (2: upstream heat/cold transforms; endothermic beam progress 0.1/0.2/0.5/0.8/1/0, the 100-tick wait and the completion effects), `AntiGravityParityGameTests` (2: one zero-gravity block lifted per tick, mobs rising to 0.45, gravity restored from a reloaded blast; flying-block gravity NBT, launch grace and `ceil(speed × 2)` impact then drop) and `UtilityBlastParityGameTests` (4: ender teleport to target, pull and eight endermen; placed ender GPS target through primed charge, reload and legacy saves; EMP charging a creeper and fizzling a primed charge, waiting out the defence field; rot/mutation/ender defaults and the size-3 mutation cube). Updated: the saved-terrain test uses a rot job (leaves) instead of the endothermic cube cursor, the ray-shielding test drives `ThermalBlast` with the time budget disabled |
+| Same with `-PwithEmi -PwithJei -PwithRei` | All 142 passed |
+| `./gradlew :icbm_port:runMaterialGametest` | Passed |
+| `python3 mods/icbm_port/tools/validate_resources.py …/minecraft-client.jar`, `tools/check_payload_visuals.py` | Passed |
+| `python3 scripts/ports.py check`, `python3 scripts/emc.py check` | Passed (no new items) |
+| `python3 -m unittest discover -s scripts/tests -v`; `… -s mods/icbm_port/tools/tests -v` | 155 (3 skipped) and 10 passed |
+| `python3 scripts/check_mixin_member_names.py`, `tools/tekxit4-probe/mixin_audit.py`, `scripts/check_unmapped_overrides.py` | Passed; 2 injectors, 0 conflicts with the 805 in the pack, 0 unmapped overrides |
+
 ## Gas, fragment and smoke parity (October 25, 2026)
 
 Dedicated-server and offline checks only; no client was launched and the Tekxit pack was not run.

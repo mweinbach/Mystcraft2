@@ -14,10 +14,8 @@ import net.minecraft.entity.passive.*;
 import net.minecraft.nbt.*;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 
 /** Server-side adaptations of the MIT-licensed ICBM blast families. No worker accesses worlds. */
@@ -137,41 +135,34 @@ public final class Payloads {
       return true;
     }
     switch (type) {
-      case CONDENSED -> {
+      case CONDENSED,
+          REPULSIVE,
+          ATTRACTIVE,
+          INCENDIARY,
+          SONIC,
+          BREACHING,
+          THERMOBARIC,
+          NUCLEAR,
+          EXOTHERMIC,
+          ENDOTHERMIC,
+          ANTI_GRAVITATIONAL,
+          ENDER -> {
+        // Staged upstream blast ports: see BlastWork and the per-family classes.
+        BlastWork work = BlastWork.create(server, center, type, size, source);
+        if (work == null) return false;
         Job job = new Job(type, center, size);
         job.source = attribution;
-        job.rayWork = new RayWork(true, size, settings.energy());
+        job.work = work;
         return state(server).enqueue(job, false);
+      }
+      case MUTATION -> mutate(server, center, size);
+      case EMP -> {
+        return EmpBlast.detonate(server, center, size, source, attribution);
       }
       case SHRAPNEL, ANVIL, FRAGMENTATION ->
           FragmentBlast.spawn(server, center, type, settings, size, attribution);
       case SMOKE -> {
         return dev.icbm.port.entity.SmokeEntity.spawn(server, center, settings.durationTicks());
-      }
-      case REPULSIVE, ATTRACTIVE -> {
-        force(server, center, size * 4, type == PayloadType.ATTRACTIVE ? -3 : 3, false);
-        Job job = new Job(type, center, size);
-        job.source = attribution;
-        job.rayWork = new RayWork(true, size, settings.energy());
-        return state(server).enqueue(job, false);
-      }
-      case BREACHING -> breach(server, center, source);
-      case MUTATION -> mutate(server, center, size);
-      case ENDER -> {
-        if (source instanceof dev.icbm.port.entity.MissileEntity missile
-            && missile.getTargetPosition() != null) {
-          ServerWorld destination = server.getServer().getWorld(missile.getTargetDimension());
-          if (destination == null) return false;
-          Job job = new Job(type, center, size);
-          job.source = attribution;
-          job.destinationWorld = destination.getRegistryKey().getValue().toString();
-          job.destination = missile.getTargetPosition();
-          return state(server).enqueue(job, false);
-        }
-        teleport(server, center);
-      }
-      case EMP -> {
-        for (var handler : EMP_HANDLERS) handler.accept(server, center);
       }
       case REDMATTER -> {
         RedmatterEntity singularity = new RedmatterEntity(SimulationContent.REDMATTER, server);
@@ -187,8 +178,6 @@ public final class Payloads {
       default -> {
         Job job = new Job(type, center, size);
         job.source = attribution;
-        if (type == PayloadType.THERMOBARIC || type == PayloadType.NUCLEAR)
-          job.rayWork = new RayWork(false, size, settings.energy());
         return state(server).enqueue(job, false);
       }
     }
@@ -275,16 +264,17 @@ public final class Payloads {
         .5f);
   }
 
+  /** An EMP sub-effect, applied with the radius of the EMP blast that triggered it. */
+  @FunctionalInterface
+  public interface EmpHandler {
+    void apply(ServerWorld world, Vec3d center, double radius);
+  }
+
   /**
    * Defense integrations register here; avoids a hard dependency on optional technology systems.
+   * {@link EmpBlast} calls each with its own size, so a scaled EMP's sub-effects match its blast.
    */
-  public static final List<java.util.function.BiConsumer<ServerWorld, Vec3d>> EMP_HANDLERS =
-      new ArrayList<>();
-
-  private static void explosion(ServerWorld w, Vec3d p, float power, Entity source, boolean fire) {
-    if (loaded(w, new BlockPos(p)))
-      w.createExplosion(source, p.x, p.y, p.z, power, fire, Explosion.DestructionType.DESTROY);
-  }
+  public static final List<EmpHandler> EMP_HANDLERS = new ArrayList<>();
 
   private static boolean loaded(ServerWorld w, BlockPos p) {
     return !w.isOutOfHeightLimit(p) && w.getWorldBorder().contains(p) && w.isChunkLoaded(p);
@@ -312,42 +302,18 @@ public final class Payloads {
     }
   }
 
-  private static void breach(ServerWorld w, Vec3d p, Entity source) {
-    // Upstream searches the most resistant adjacent wall, then spends energy along a narrow tunnel.
-    Direction best = Direction.DOWN;
-    float resistance = -1;
-    for (Direction d : Direction.values()) {
-      BlockPos pos = new BlockPos(p).offset(d);
-      if (loaded(w, pos) && w.getBlockState(pos).getBlock().getBlastResistance() > resistance) {
-        resistance = w.getBlockState(pos).getBlock().getBlastResistance();
-        best = d;
-      }
-    }
-    float energy = (float) PayloadConfig.forType(PayloadType.BREACHING).energy();
-    for (int depth = 0; depth < 7 && energy > 0; depth++) {
-      BlockPos target = new BlockPos(p).offset(best, depth);
-      for (int a = -1; a <= 1; a++)
-        for (int b = -1; b <= 1; b++) {
-          BlockPos pos =
-              best.getAxis() == Direction.Axis.Y
-                  ? target.add(a, 0, b)
-                  : best.getAxis() == Direction.Axis.X ? target.add(0, a, b) : target.add(a, b, 0);
-          if (!loaded(w, pos)) continue;
-          BlockState s = w.getBlockState(pos);
-          energy -= s.getBlock().getBlastResistance() * .25f;
-          if (energy > 0 && s.getHardness(w, pos) >= 0) w.breakBlock(pos, false, source);
-        }
-      energy *= .65f;
-    }
-    for (Entity e : nearby(w, p, 7))
-      e.damage(
-          DamageSource.explosion((LivingEntity) null),
-          (float) PayloadConfig.forType(PayloadType.BREACHING).entityDamage());
-  }
-
-  private static void mutate(ServerWorld world, Vec3d center, int radius) {
-    for (Entity entity : nearby(world, center, radius))
-      if (entity instanceof LivingEntity living) applyMutation(living);
+  /**
+   * Adapted from MIT ICBM-Classic {@code content/blast/BlastMutation}: every mob (upstream {@code
+   * EntityLiving}, so not players or armour stands) in the axis-aligned cube of half-size {@code
+   * radius} is offered to {@link #applyMutation}.
+   */
+  static int mutate(ServerWorld world, Vec3d center, double radius) {
+    int mutated = 0;
+    for (Entity entity :
+        BlastSupport.entities(
+            world, new Box(center, center).expand(radius), center, e -> e instanceof MobEntity))
+      if (applyMutation((LivingEntity) entity)) mutated++;
+    return mutated;
   }
 
   public static boolean applyMutation(LivingEntity original) {
@@ -369,26 +335,6 @@ public final class Payloads {
     if (!world.spawnEntity(replacement)) return false;
     original.discard();
     return true;
-  }
-
-  private static void teleport(ServerWorld w, Vec3d p) {
-    for (Entity e : nearby(w, p, PayloadConfig.forType(PayloadType.ENDER).radius())) {
-      for (int attempt = 0; attempt < 16; attempt++) {
-        BlockPos dest =
-            new BlockPos(p)
-                .add(
-                    w.random.nextInt(61) - 30,
-                    w.random.nextInt(31) - 15,
-                    w.random.nextInt(61) - 30);
-        if (loaded(w, dest)
-            && w.getBlockState(dest).isAir()
-            && w.getBlockState(dest.up()).isAir()
-            && w.getBlockState(dest.down()).isSolidBlock(w, dest.down())) {
-          e.requestTeleport(dest.getX() + .5, dest.getY(), dest.getZ() + .5);
-          break;
-        }
-      }
-    }
   }
 
   static int radius(PayloadType type) {
@@ -565,12 +511,18 @@ public final class Payloads {
                 : j.age;
         j.suppressEntityDamage = n.getBoolean("suppressEntityDamage");
         j.source = ActionSource.fromNbt(n.getCompound("source"));
-        if (n.contains("rayWork", 10)) j.rayWork = RayWork.read(n.getCompound("rayWork"));
         if (n.contains("gasWork", 10))
           j.gasWork = GasWork.read(n.getCompound("gasWork"), new BlockPos(center));
-        if (n.contains("destinationWorld", 8) && n.contains("destination")) {
-          j.destinationWorld = n.getString("destinationWorld");
-          j.destination = BlockPos.fromLong(n.getLong("destination"));
+        if (staged(j.type)) {
+          // Older saves carried ray progress or a raw ender destination instead; their blast
+          // restarts from its saved centre (collection only reads the world).
+          NbtCompound work = n.contains("work", 10) ? n.getCompound("work") : new NbtCompound();
+          if (!n.contains("work", 10) && n.contains("destinationWorld", 8)) {
+            work.putString("destinationWorld", n.getString("destinationWorld"));
+            work.putLong("destination", n.getLong("destination"));
+          }
+          j.work = BlastWork.read(j.type, work, radius);
+          if (j.work == null) return null;
         }
         return j;
       } catch (IllegalArgumentException ignored) {
@@ -596,12 +548,8 @@ public final class Payloads {
         n.putInt("elapsedTicks", j.elapsedTicks);
         n.putBoolean("suppressEntityDamage", j.suppressEntityDamage);
         n.put("source", j.source.toNbt());
-        if (j.rayWork != null) n.put("rayWork", j.rayWork.write());
         if (j.gasWork != null) n.put("gasWork", j.gasWork.write());
-        if (j.destination != null && j.destinationWorld != null) {
-          n.putString("destinationWorld", j.destinationWorld);
-          n.putLong("destination", j.destination.asLong());
-        }
+        if (j.work != null) n.put("work", j.work.write());
         list.add(n);
       }
       return list;
@@ -649,16 +597,33 @@ public final class Payloads {
     }
   }
 
+  /** Families whose queued work is a {@link BlastWork} (saved under {@code "work"}). */
+  static boolean staged(PayloadType type) {
+    return switch (type) {
+      case CONDENSED,
+          REPULSIVE,
+          ATTRACTIVE,
+          INCENDIARY,
+          SONIC,
+          BREACHING,
+          THERMOBARIC,
+          NUCLEAR,
+          EXOTHERMIC,
+          ENDOTHERMIC,
+          ANTI_GRAVITATIONAL,
+          ENDER -> true;
+      default -> false;
+    };
+  }
+
   static final class Job {
     final PayloadType type;
     final Vec3d center;
     final int radius;
     int cursor, age, elapsedTicks;
     boolean suppressEntityDamage;
-    RayWork rayWork;
     GasWork gasWork;
-    String destinationWorld;
-    BlockPos destination;
+    BlastWork work;
     ActionSource source = ActionSource.of(null);
 
     Job(PayloadType type, Vec3d center, int radius) {
@@ -670,9 +635,10 @@ public final class Payloads {
     boolean tick(ServerWorld w, int budget) {
       PayloadConfig.Settings settings = PayloadConfig.forType(type);
       if (!settings.enabled()) return true;
-      boolean timed = type == PayloadType.ANTI_GRAVITATIONAL || type == PayloadType.REDMATTER;
+      boolean timed = type == PayloadType.REDMATTER;
       if (timed && elapsedTicks >= settings.durationTicks()) return true;
       age++;
+      if (work != null) return work.tick(w, this, budget);
       if (type == PayloadType.SMOKE) {
         // Smoke is a SmokeEntity now; a smoke job saved by an older version becomes one.
         dev.icbm.port.entity.SmokeEntity.spawn(
@@ -684,77 +650,13 @@ public final class Payloads {
         return gasWork.tick(
             w, type, center, radius, settings.durationTicks(), elapsedTicks, budget * 2);
       }
-      if (type == PayloadType.ANTI_GRAVITATIONAL || type == PayloadType.REDMATTER) {
-        force(
-            w,
-            center,
-            radius,
-            type == PayloadType.REDMATTER ? -2 : 0,
-            type == PayloadType.ANTI_GRAVITATIONAL);
-        if (type == PayloadType.REDMATTER)
-          for (Entity e : nearby(w, center, 1.5))
-            e.damage(DamageSource.OUT_OF_WORLD, (float) settings.entityDamage());
+      if (type == PayloadType.REDMATTER) {
+        // Legacy queued red matter (pre-entity saves) keeps its old pull.
+        force(w, center, radius, -2, false);
+        for (Entity e : nearby(w, center, 1.5))
+          e.damage(DamageSource.OUT_OF_WORLD, (float) settings.entityDamage());
         if (age % 20 == 1)
-          w.spawnParticles(
-              type == PayloadType.REDMATTER ? ParticleTypes.PORTAL : ParticleTypes.END_ROD,
-              center.x,
-              center.y,
-              center.z,
-              40,
-              2,
-              2,
-              2,
-              .03);
-      }
-      if (type == PayloadType.SONIC) force(w, center, Math.min(radius, age * 2), .6, true);
-      if (age == 1 && type == PayloadType.ENDER && destination != null) {
-        ServerWorld target = targetWorld(w);
-        if (target == null) return true;
-        for (Entity entity : nearby(w, center, radius)) {
-          Vec3d to = Vec3d.ofCenter(destination).add(entity.getPos().subtract(center));
-          if (!loaded(target, new BlockPos(to))) continue;
-          if (entity instanceof net.minecraft.server.network.ServerPlayerEntity player)
-            player.teleport(target, to.x, to.y, to.z, entity.getYaw(), entity.getPitch());
-          else {
-            Entity moved = entity.world == target ? entity : entity.moveToWorld(target);
-            if (moved != null) moved.requestTeleport(to.x, to.y, to.z);
-          }
-        }
-      }
-      if (age == 1) {
-        Entity resolved = source.resolve(w);
-        LivingEntity owner = resolved instanceof LivingEntity living ? living : null;
-        if (type == PayloadType.CONDENSED)
-          for (Entity entity : nearby(w, center, radius))
-            entity.damage(
-                DamageSource.explosion(owner),
-                (float)
-                    (settings.entityDamage()
-                        * Math.max(
-                            0, 1 - entity.getPos().distanceTo(center) / Math.max(1, radius))));
-        if (type == PayloadType.INCENDIARY)
-          for (Entity e : nearby(w, center, radius)) e.setOnFireFor(20);
-        w.spawnParticles(
-            ParticleTypes.EXPLOSION_EMITTER, center.x, center.y, center.z, 1, 0, 0, 0, 0);
-        if (type == PayloadType.NUCLEAR || type == PayloadType.THERMOBARIC)
-          for (Entity e : nearby(w, center, 50))
-            e.damage(
-                DamageSource.explosion(owner),
-                (float)
-                    (settings.entityDamage()
-                        * Math.max(0, 1 - e.getPos().distanceTo(center) / 50)));
-        if (type == PayloadType.ENDOTHERMIC)
-          for (Entity e : nearby(w, center, radius))
-            if (e instanceof LivingEntity l) {
-              effect(l, StatusEffects.POISON, 200, 2);
-              effect(l, StatusEffects.MINING_FATIGUE, 2400, 2);
-              effect(l, StatusEffects.SLOWNESS, 2400, 4);
-            }
-      }
-      if (rayWork != null) {
-        boolean complete = rayWork.tick(w, center, source.resolve(w), budget);
-        if (complete) completed(w);
-        return complete;
+          w.spawnParticles(ParticleTypes.PORTAL, center.x, center.y, center.z, 40, 2, 2, 2, .03);
       }
       int side = radius * 2 + 1, total = side * side * side;
       for (int i = 0; i < budget && cursor < total; i++, cursor++) {
@@ -768,130 +670,22 @@ public final class Payloads {
         if (block.getHardness(w, pos) < 0) continue;
         edit(w, pos, block);
       }
-      if (type == PayloadType.ANTI_GRAVITATIONAL) return elapsedTicks >= settings.durationTicks();
       if (type == PayloadType.REDMATTER) {
         if (cursor >= total) cursor = 0;
         return elapsedTicks >= settings.durationTicks();
       }
-      if (cursor >= total) {
-        completed(w);
-        return true;
-      }
-      return false;
-    }
-
-    void completed(ServerWorld world) {
-      if (type == PayloadType.NUCLEAR) {
-        mutate(world, center, 80);
-        ExposureContent.contaminate(world, center, 80);
-      }
-    }
-
-    ServerWorld targetWorld(ServerWorld sourceWorld) {
-      net.minecraft.util.Identifier id =
-          net.minecraft.util.Identifier.tryParse(destinationWorld == null ? "" : destinationWorld);
-      return id == null
-          ? null
-          : sourceWorld
-              .getServer()
-              .getWorld(
-                  net.minecraft.util.registry.RegistryKey.of(
-                      net.minecraft.util.registry.Registry.WORLD_KEY, id));
+      return cursor >= total;
     }
 
     void edit(ServerWorld w, BlockPos p, BlockState s) {
       switch (type) {
-        case ENDER -> {
-          if (s.isAir() || destination == null) return;
-          ServerWorld target = targetWorld(w);
-          if (target == null) return;
-          BlockPos to = destination.add(p.subtract(new BlockPos(center)));
-          if (!loaded(target, to) || !target.getBlockState(to).isAir()) return;
-          FlyingBlockEntity captured = FlyingBlockEntity.capture(w, p, Vec3d.ZERO, 0);
-          if (captured == null) return;
-          // Entity dimensions change through vanilla transfer, preserving custom capture NBT.
-          Entity moved = target == w ? captured : captured.moveToWorld(target);
-          if (moved instanceof FlyingBlockEntity block) {
-            block.requestTeleport(to.getX() + .5, to.getY(), to.getZ() + .5);
-            block.settle();
-          }
-        }
-        case INCENDIARY -> {
-          if (s.isAir()
-              && Blocks.FIRE.getDefaultState().canPlaceAt(w, p)
-              && w.random.nextInt(4) == 0) w.setBlockState(p, Blocks.FIRE.getDefaultState(), 3);
-        }
-        case EXOTHERMIC -> {
-          if (s.isOf(Blocks.WATER) || s.isOf(Blocks.ICE)) w.removeBlock(p, false);
-          else if (s.isOf(Blocks.STONE)
-              || s.isOf(Blocks.DIRT)
-              || s.isOf(Blocks.GRASS_BLOCK)
-              || s.isOf(Blocks.SAND))
-            w.setBlockState(
-                p,
-                (w.random.nextInt(10) == 0
-                        ? Blocks.LAVA
-                        : w.random.nextBoolean() ? Blocks.MAGMA_BLOCK : Blocks.NETHERRACK)
-                    .getDefaultState(),
-                3);
-        }
-        case ENDOTHERMIC -> {
-          Block replacement =
-              s.isOf(Blocks.WATER)
-                  ? Blocks.ICE
-                  : s.isOf(Blocks.LAVA)
-                      ? Blocks.OBSIDIAN
-                      : s.isOf(Blocks.MAGMA_BLOCK)
-                          ? Blocks.STONE
-                          : s.isOf(Blocks.NETHERRACK)
-                              ? Blocks.DIRT
-                              : s.isOf(Blocks.SOUL_SAND)
-                                  ? Blocks.SAND
-                                  : s.isOf(Blocks.DIRT) || s.isOf(Blocks.GRASS_BLOCK)
-                                      ? Blocks.SNOW_BLOCK
-                                      : null;
-          if (replacement != null) w.setBlockState(p, replacement.getDefaultState(), 3);
-          else if (s.isOf(Blocks.FIRE)) w.removeBlock(p, false);
-        }
-
-        case ROT -> {
-          if (s.isOf(Blocks.GRASS_BLOCK) || s.isOf(Blocks.MYCELIUM) || s.isOf(Blocks.PODZOL))
-            w.setBlockState(p, Blocks.COARSE_DIRT.getDefaultState(), 3);
-          else if (s.getBlock() instanceof LeavesBlock || s.getBlock() instanceof PlantBlock)
-            w.removeBlock(p, false);
-        }
-        case ANTI_GRAVITATIONAL -> {
-          if (!s.isAir() && w.random.nextInt(32) == 0)
-            FlyingBlockEntity.capture(
-                w,
-                p,
-                new Vec3d(0, .3, 0),
-                Math.max(0, PayloadConfig.forType(type).durationTicks() - elapsedTicks));
-        }
+        // Adapted from MIT ICBM-Classic content/blast/BlastRot: the radioactive block swaps.
+        case ROT -> ExposureContent.replace(w, p);
         case REDMATTER -> {
           if (!s.isAir() && w.random.nextInt(8) == 0) w.removeBlock(p, false);
-        }
-        case SONIC -> {
-          if (!s.isAir()) {
-            if (w.random.nextInt(10) == 0)
-              FlyingBlockEntity.capture(
-                  w, p, new Vec3d((p.getX() - center.x) * .08, .5, (p.getZ() - center.z) * .08), 0);
-            else w.breakBlock(p, false, source.resolve(w));
-          }
-        }
-        case THERMOBARIC, NUCLEAR -> {
-          double distance = Vec3d.ofCenter(p).distanceTo(center);
-          if (!s.isAir()
-              && s.getBlock().getBlastResistance()
-                  < PayloadConfig.forType(type).energy()
-                      * Math.max(0, 1 - distance / Math.max(1, radius))) w.removeBlock(p, false);
         }
         default -> {}
       }
     }
-  }
-
-  private static void effect(LivingEntity entity, StatusEffect effect, int ticks, int amplifier) {
-    entity.addStatusEffect(new StatusEffectInstance(effect, ticks, amplifier));
   }
 }

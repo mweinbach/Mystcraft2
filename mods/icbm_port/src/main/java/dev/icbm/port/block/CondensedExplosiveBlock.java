@@ -5,6 +5,7 @@ import dev.icbm.port.entity.PrimedExplosiveEntity;
 import dev.icbm.port.payload.PayloadType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -18,8 +19,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
+import org.jetbrains.annotations.Nullable;
 
-public final class CondensedExplosiveBlock extends Block {
+public class CondensedExplosiveBlock extends Block {
   private final PayloadType payload;
 
   public CondensedExplosiveBlock(Settings settings) {
@@ -39,13 +41,32 @@ public final class CondensedExplosiveBlock extends Block {
     return prime(world, pos, fuse, null);
   }
 
+  /**
+   * Copies data held by the placed block onto the primed entity. Explosions clear the block before
+   * {@link #onDestroyedByExplosion}, so this receives the state and block entity captured when the
+   * block was replaced rather than reading the (now empty) position.
+   */
+  protected void configurePrimed(
+      BlockState state, @Nullable BlockEntity blockEntity, PrimedExplosiveEntity entity) {}
+
   public boolean prime(World world, BlockPos pos, int fuse, Entity owner) {
+    return prime(world, pos, fuse, owner, world.getBlockState(pos), world.getBlockEntity(pos));
+  }
+
+  private boolean prime(
+      World world,
+      BlockPos pos,
+      int fuse,
+      Entity owner,
+      BlockState state,
+      @Nullable BlockEntity blockEntity) {
     if (world.isClient) return false;
     PrimedExplosiveEntity entity = new PrimedExplosiveEntity(IcbmPort.PRIMED_EXPLOSIVE, world);
     entity.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
     entity.setFuse(fuse);
     entity.setPayload(payload);
     entity.setOwner(owner);
+    configurePrimed(state, blockEntity, entity);
     if (!world.spawnEntity(entity)) return false;
     world.playSound(null, pos, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1, 1);
     return true;
@@ -112,8 +133,36 @@ public final class CondensedExplosiveBlock extends Block {
     return false;
   }
 
+  /**
+   * Upstream {@code BlockExplosive.onBlockExploded} triggers the charge before Forge clears the
+   * block. Vanilla 1.19 (and the staged blasts, which follow it) set air first and only then call
+   * {@link #onDestroyedByExplosion}, so the replaced state and block entity are kept here for that
+   * immediately following call. A single slot suffices: the two calls are back to back on the
+   * server thread.
+   */
+  private static @Nullable Replaced lastReplaced;
+
+  private record Replaced(
+      World world, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {}
+
+  @Override
+  public void onStateReplaced(
+      BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+    if (!world.isClient && !newState.isOf(this))
+      lastReplaced = new Replaced(world, pos.toImmutable(), state, world.getBlockEntity(pos));
+    super.onStateReplaced(state, world, pos, newState, moved);
+  }
+
   @Override
   public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-    prime(world, pos, 10 + world.random.nextInt(20), explosion.getCausingEntity());
+    Replaced replaced = lastReplaced;
+    lastReplaced = null;
+    int fuse = 10 + world.random.nextInt(20);
+    if (replaced != null
+        && replaced.world == world
+        && replaced.pos.equals(pos)
+        && replaced.state.isOf(this))
+      prime(world, pos, fuse, explosion.getCausingEntity(), replaced.state, replaced.blockEntity);
+    else prime(world, pos, fuse, explosion.getCausingEntity());
   }
 }

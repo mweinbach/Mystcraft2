@@ -143,6 +143,15 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     }
     ticks++;
     if (liftTicks > 0) liftTicks--;
+    if (fieldTicks > 0 && --fieldTicks == 0) restoreGravity();
+    if (yawChange > 0) {
+      setYaw(getYaw() + yawChange);
+      yawChange -= 2;
+    }
+    if (pitchChange > 0) {
+      setPitch(getPitch() + pitchChange);
+      pitchChange -= 2;
+    }
     Vec3d next = getPos().add(getVelocity());
     if (!world.isChunkLoaded(new BlockPos(next))
         || world.isOutOfHeightLimit(new BlockPos(next))
@@ -150,12 +159,94 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
       settle();
       return;
     }
-    if (liftTicks == 0) setVelocity(getVelocity().add(0, -.04, 0));
+    if (liftTicks == 0) setVelocity(getVelocity().add(0, -gravity, 0));
     move(MovementType.SELF, getVelocity());
+    if (!noClip && ticks >= LAUNCH_GRACE && hitEntity()) return;
     setVelocity(getVelocity().multiply(.98));
-    if ((liftTicks == 0 && (isOnGround() || horizontalCollision || verticalCollision))
+    // Upstream gave launched blocks a short grace period to leave the ground.
+    if ((liftTicks == 0
+            && ticks >= LAUNCH_GRACE
+            && (isOnGround() || horizontalCollision || verticalCollision))
         || (ticks >= 4800 && liftTicks == 0)
         || ticks >= 72000) settle();
+  }
+
+  /** Upstream {@code EntityFlyingBlock}: ticks after launch before landing can place it. */
+  public static final int LAUNCH_GRACE = 5;
+  /** Port default fall acceleration (upstream projectiles used 0.05; ported blocks keep 0.04). */
+  public static final double DEFAULT_GRAVITY = .04;
+  private double gravity = DEFAULT_GRAVITY;
+  /** Ticks left before a timed gravity change wears off, or 0 when it is permanent. */
+  private int fieldTicks;
+  private float yawChange, pitchChange;
+
+  public void setGravity(double gravity) {
+    this.gravity = Double.isFinite(gravity) ? Math.max(-1, Math.min(1, gravity)) : DEFAULT_GRAVITY;
+  }
+
+  /**
+   * Gravity from a field that ends after {@code forTicks} of this block's own ticks. The block
+   * carries the deadline itself (and saves it), so it falls again on time even if the field's
+   * blast lost track of it, unloaded, or ended first.
+   */
+  public void setGravity(double gravity, int forTicks) {
+    setGravity(gravity);
+    fieldTicks = Math.max(0, Math.min(72000, forTicks));
+  }
+
+  public double gravity() {
+    return gravity;
+  }
+
+  /** Ticks left on a timed gravity field, or 0. */
+  public int fieldTicks() {
+    return fieldTicks;
+  }
+
+  public void restoreGravity() {
+    gravity = DEFAULT_GRAVITY;
+    fieldTicks = 0;
+  }
+
+  /** Upstream spin animation: degrees added per tick, each falling by 2 per tick. */
+  public void setSpin(float yawChange, float pitchChange) {
+    this.yawChange = yawChange;
+    this.pitchChange = pitchChange;
+  }
+
+  /**
+   * Upstream impact with an entity: {@code ceil(speed * 2)} falling-block damage, then the block
+   * drops as an item.
+   */
+  private boolean hitEntity() {
+    double speed = getVelocity().length();
+    if (speed < .05) return false;
+    for (Entity entity :
+        world.getOtherEntities(
+            this,
+            getBoundingBox(),
+            e -> e instanceof LivingEntity && e.isAlive() && !e.isSpectator())) {
+      entity.damage(
+          net.minecraft.entity.damage.DamageSource.FALLING_BLOCK,
+          (float) Math.ceil(speed * 2));
+      dropAsItem();
+      return true;
+    }
+    return false;
+  }
+
+  private void dropAsItem() {
+    if (world.isClient || completed) return;
+    completed = true;
+    if (world.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_ENTITY_DROPS)) {
+      ItemStack stack = getStack();
+      if (!stack.isEmpty()) {
+        if (blockEntityData != null) stack.setSubNbt("BlockEntityTag", blockEntityData.copy());
+        dropStack(stack);
+      }
+    }
+    blockEntityData = null;
+    discard();
   }
 
   /** Resolve only once, also safe when invoked by collision handlers and tests. */
@@ -224,6 +315,8 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     n.putLong("origin", origin.asLong());
     n.putInt("ticks", ticks);
     n.putInt("lift", liftTicks);
+    if (gravity != DEFAULT_GRAVITY) n.putDouble("gravity", gravity);
+    if (fieldTicks > 0) n.putInt("fieldTicks", fieldTicks);
     n.putBoolean("completed", completed);
     if (singularity != null) n.putUuid("singularity", singularity);
     if (blockEntityData != null) n.put("blockEntity", blockEntityData);
@@ -235,6 +328,8 @@ public final class FlyingBlockEntity extends Entity implements FlyingItemEntity 
     origin = BlockPos.fromLong(n.getLong("origin"));
     ticks = Math.max(0, Math.min(72000, n.getInt("ticks")));
     liftTicks = Math.max(0, Math.min(72000, n.getInt("lift")));
+    setGravity(n.contains("gravity", 6) ? n.getDouble("gravity") : DEFAULT_GRAVITY);
+    fieldTicks = Math.max(0, Math.min(72000, n.getInt("fieldTicks")));
     completed = n.getBoolean("completed");
     singularity = n.containsUuid("singularity") ? n.getUuid("singularity") : null;
     coreLoadGrace = singularity == null ? 0 : 100;

@@ -49,6 +49,7 @@ public final class MissileEntity extends ThrownItemEntity
   private ClusterPlan clusterPlan = ClusterPlan.EMPTY;
   private final dev.icbm.port.flight.StagedFlight flight = new dev.icbm.port.flight.StagedFlight();
   private int fuel = dev.icbm.port.flight.FlightProfile.CRUISE_FUEL;
+  private boolean engineFailed;
   private float health = 50;
   private boolean poweredFuel;
   private net.minecraft.util.registry.RegistryKey<World> targetDimension;
@@ -166,6 +167,22 @@ public final class MissileEntity extends ThrownItemEntity
     return empTicks > 0;
   }
 
+  /**
+   * Upstream EMP {@code DeadFlightLogic}: the engine is gone for good (no thrust or guidance), so
+   * the missile falls ballistically, but unlike a temporary EMP disable it still detonates when it
+   * hits something.
+   */
+  public void killEngine() {
+    engineFailed = true;
+    configureFuel(0);
+    flight.clear();
+    setNoGravity(false);
+  }
+
+  public boolean isEngineFailed() {
+    return engineFailed;
+  }
+
   public void configureTarget(BlockPos target) {
     flight.configure(world, getPos(), target);
   }
@@ -174,7 +191,7 @@ public final class MissileEntity extends ThrownItemEntity
   public void tick() {
     if (!world.isClient) {
       dataTracker.set(VISUAL_STAGE, flight.stage().ordinal());
-      dataTracker.set(VISUAL_DISABLED, isEmpDisabled());
+      dataTracker.set(VISUAL_DISABLED, isEmpDisabled() || engineFailed);
     }
     if (!world.isClient && health <= 0) {
       discard();
@@ -188,6 +205,10 @@ public final class MissileEntity extends ThrownItemEntity
       empTicks--;
       flight.clear();
       setNoGravity(empTicks == 0 && fuel > 0);
+    }
+    if (!world.isClient && engineFailed) {
+      flight.clear();
+      setNoGravity(false);
     }
     Vec3d motion = getVelocity();
     if (!world.isClient && flight.targeted() && !isEmpDisabled()) {
@@ -229,6 +250,7 @@ public final class MissileEntity extends ThrownItemEntity
     if (!world.isClient
         && !isRemoved()
         && !isEmpDisabled()
+        && !engineFailed
         && ((cluster && flightTicks >= 40 && !flight.targeted()) || flight.arrived()))
       detonate(getPos());
     if (world.isClient && !isVisuallyDisabled())
@@ -255,6 +277,7 @@ public final class MissileEntity extends ThrownItemEntity
     super.writeCustomDataToNbt(nbt);
     nbt.putInt("FlightTicks", flightTicks);
     nbt.putInt("EmpTicks", empTicks);
+    nbt.putBoolean("EngineFailed", engineFailed);
     nbt.putString("Payload", payload.id());
     nbt.putBoolean("Cluster", cluster);
     clusterPlan.writeTo(nbt);
@@ -273,6 +296,7 @@ public final class MissileEntity extends ThrownItemEntity
     super.readCustomDataFromNbt(nbt);
     flightTicks = Math.max(0, Math.min(12000, nbt.getInt("FlightTicks")));
     empTicks = Math.max(0, Math.min(12000, nbt.getInt("EmpTicks")));
+    engineFailed = nbt.getBoolean("EngineFailed");
     setPayload(IcbmPort.payloadById(nbt.getString("Payload")));
     cluster = nbt.getBoolean("Cluster");
     clusterPlan = ClusterPlan.read(nbt);
@@ -307,6 +331,6 @@ public final class MissileEntity extends ThrownItemEntity
                       dev.icbm.port.flight.FlightProfile.health(payload.tier()),
                       nbt.getFloat("MissileHealth")))
               : dev.icbm.port.flight.FlightProfile.health(payload.tier());
-    setNoGravity(empTicks == 0 && (!poweredFuel || fuel > 0));
+    setNoGravity(!engineFailed && empTicks == 0 && (!poweredFuel || fuel > 0));
   }
 }

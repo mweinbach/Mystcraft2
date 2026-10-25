@@ -71,15 +71,25 @@ public final class SimulationAssertions {
     BlockPos exposed = center.west(), shielded = center.east(2);
     c.getWorld().setBlockState(exposed, Blocks.STONE.getDefaultState(), 2);
     c.getWorld().setBlockState(shielded, Blocks.STONE.getDefaultState(), 2);
-    RayWork original = new RayWork(false, 3, 80);
-    check(
-        c,
-        !original.tick(c.getWorld(), Vec3d.ofCenter(center), null, 31),
-        "Ray work must pause at its budget");
-    RayWork restored = RayWork.read(original.write());
+    Vec3d c0 = Vec3d.ofCenter(center);
+    // Thermobaric collection is the time-sliced ray march; no spare tick time forces a pause.
+    long budget = BlastBudget.tickBudgetNanos;
+    BlastBudget.tickBudgetNanos = 0;
     boolean completed = false;
-    for (int tick = 0; tick < 200 && !completed; tick++)
-      completed = restored.tick(c.getWorld(), Vec3d.ofCenter(center), null, 512);
+    try {
+      var original = new Payloads.Job(PayloadType.THERMOBARIC, c0, 3);
+      original.suppressEntityDamage = true;
+      original.work = new ThermalBlast(PayloadType.THERMOBARIC, 3);
+      check(c, !original.tick(c.getWorld(), 31), "Ray work must pause at its budget");
+      var restored = new Payloads.Job(PayloadType.THERMOBARIC, c0, 3);
+      restored.suppressEntityDamage = true;
+      restored.work = BlastWork.read(PayloadType.THERMOBARIC, original.work.write(), 3);
+      check(c, restored.work != null, "Saved ray work must load");
+      for (int tick = 0; tick < 200 && !completed; tick++)
+        completed = restored.tick(c.getWorld(), 512);
+    } finally {
+      BlastBudget.tickBudgetNanos = budget;
+    }
     check(c, completed, "Restored ray work must complete");
     check(c, c.getWorld().getBlockState(exposed).isAir(), "Unshielded stone must be destroyed");
     check(

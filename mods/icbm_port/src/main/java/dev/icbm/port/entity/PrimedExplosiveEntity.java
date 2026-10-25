@@ -77,7 +77,39 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
       }
     } else {
       world.addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0, 0, 0);
+      // Upstream EntityExplosive: burning fuses for the heat payloads.
+      PayloadType payload = getPayload();
+      if (payload == PayloadType.INCENDIARY || payload == PayloadType.EXOTHERMIC)
+        world.addParticle(ParticleTypes.LAVA, getX(), getY() + 0.5, getZ(), 0, 0, 0);
     }
+  }
+
+  private net.minecraft.util.math.Direction blastDirection;
+  private net.minecraft.util.Identifier enderDimension;
+  private net.minecraft.util.math.BlockPos enderPosition;
+
+  /** Direction a breaching charge drives into, from the placed block; null when unknown. */
+  public net.minecraft.util.math.Direction getBlastDirection() {
+    return blastDirection;
+  }
+
+  public void setBlastDirection(net.minecraft.util.math.Direction direction) {
+    blastDirection = direction;
+  }
+
+  /** Destination stored on a placed ender explosive, or null. */
+  public net.minecraft.util.math.BlockPos getTargetPosition() {
+    return enderPosition;
+  }
+
+  public net.minecraft.util.Identifier getTargetDimension() {
+    return enderDimension;
+  }
+
+  public void setEnderTarget(
+      net.minecraft.util.Identifier dimension, net.minecraft.util.math.BlockPos position) {
+    enderDimension = dimension;
+    enderPosition = position;
   }
 
   @Override
@@ -85,6 +117,18 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
     ownerUuid = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
     if (nbt.contains("Fuse")) setFuse(nbt.getInt("Fuse"));
     setPayload(IcbmPort.payloadById(nbt.getString("Payload")));
+    blastDirection =
+        nbt.contains("Facing", 8)
+            ? net.minecraft.util.math.Direction.byName(nbt.getString("Facing"))
+            : null;
+    enderDimension =
+        nbt.contains("EnderDimension", 8)
+            ? net.minecraft.util.Identifier.tryParse(nbt.getString("EnderDimension"))
+            : null;
+    enderPosition =
+        enderDimension != null && nbt.contains("EnderPosition", 4)
+            ? net.minecraft.util.math.BlockPos.fromLong(nbt.getLong("EnderPosition"))
+            : null;
   }
 
   @Override
@@ -92,6 +136,11 @@ public final class PrimedExplosiveEntity extends Entity implements FlyingItemEnt
     if (ownerUuid != null) nbt.putUuid("Owner", ownerUuid);
     nbt.putInt("Fuse", getFuse());
     nbt.putString("Payload", getPayload().id());
+    if (blastDirection != null) nbt.putString("Facing", blastDirection.getName());
+    if (enderDimension != null && enderPosition != null) {
+      nbt.putString("EnderDimension", enderDimension.toString());
+      nbt.putLong("EnderPosition", enderPosition.asLong());
+    }
   }
 
   @Override
