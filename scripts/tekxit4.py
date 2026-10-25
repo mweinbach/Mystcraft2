@@ -162,12 +162,48 @@ def command_build(args):
     gradle("-p", "tools/tekxit4-probe", "assemble")
 
 
-def production_jars(libs):
-    jars = [jar for jar in libs.glob("*.jar") if not any(tag in jar.stem for tag in NOT_PRODUCTION)]
-    names = {jar.name for jar in jars}
-    # A "-dev" jar is a development twin only when the plain jar sits beside it; versions such as 0.4.0-dev
-    # (Mystcraft, Advanced Genetics) end in "-dev" themselves and are the production jar.
-    return sorted(jar for jar in jars if not (jar.stem.endswith("-dev") and jar.stem[:-4] + ".jar" in names))
+def property_value(path, key):
+    for line in path.read_text().splitlines():
+        name, separator, value = line.partition("=")
+        if separator and not line.lstrip().startswith("#") and name.strip() == key:
+            return value.strip()
+    raise SystemExit(f"No {key} in {path}")
+
+
+def project_version(project):
+    """The version the project's Gradle build stamps on its jars now, read where its build.gradle reads it."""
+    if project == "probe":
+        return property_value(ROOT / "tools/tekxit4-probe/gradle.properties", "probe_version")
+    if project == "icbm_port":
+        return property_value(ROOT / "mods/icbm_port/gradle.properties", "mod_version")
+    return property_value(ROOT / "mods" / project / "port.properties", "mod_version")
+
+
+def production_jars(libs, version):
+    """The jars a build of `version` left in libs. Jars of earlier versions still lying there are skipped, and so
+    are the -sources, -dev and other twins, whose names do not end in the version."""
+    suffix = f"-{version}.jar"
+    return sorted(jar for jar in libs.glob("*.jar")
+                  if jar.name.endswith(suffix) and not any(tag in jar.stem for tag in NOT_PRODUCTION))
+
+
+def project_jars(project):
+    libs = {"probe": PROBE_LIBS, "metalrender": METALRENDER_LIBS}.get(project) or port_libs(project)
+    return production_jars(libs, project_version(project))
+
+
+def reject_duplicate_mods(jars):
+    """Fabric Loader refuses to start with two copies of a mod, so stop before installing or packaging them."""
+    owners = {}
+    for jar in jars:
+        metas = jar_mods(jar.read_bytes())
+        if metas:
+            for name in [metas[0]["id"], *metas[0].get("provides", [])]:
+                owners.setdefault(name, []).append(jar.name)
+    clashes = [f"{name}: {', '.join(names)}" for name, names in sorted(owners.items()) if len(names) > 1]
+    if clashes:
+        raise SystemExit("Two jars provide the same mod id (remove the stale build/libs jar or fix the port):\n  "
+                         + "\n  ".join(clashes))
 
 
 def eula_accepted():
@@ -204,21 +240,24 @@ def command_prepare(args):
     mods = target / "mods"
     installed = []
     for port in selected(args):
-        jars = production_jars(port_libs(port))
+        jars = project_jars(port)
         if not jars:
-            raise SystemExit(f"No built jars for {port} in {port_libs(port)}. Run: python3 scripts/tekxit4.py build")
+            raise SystemExit(f"No built {project_version(port)} jars for {port} in {port_libs(port)}. "
+                             "Run: python3 scripts/tekxit4.py build")
         installed += jars
     if not args.no_probe:
-        probe = production_jars(PROBE_LIBS)
+        probe = project_jars("probe")
         if not probe:
             raise SystemExit("The boot probe is not built. Run: python3 scripts/tekxit4.py build")
         installed += probe + [CACHE / Path(GAMETEST_API["url"]).name]
-        icbm_tests = sorted(ICBM_LIBS.glob("icbm-fabric-port-*-tekxit-tests.jar"))
-        if "icbm_port" in selected(args) and icbm_tests:
-            installed.append(icbm_tests[-1])
+        icbm_tests = ICBM_LIBS / f"icbm-fabric-port-{project_version('icbm_port')}-tekxit-tests.jar"
+        if "icbm_port" in selected(args) and icbm_tests.is_file():
+            installed.append(icbm_tests)
     for jar in installed:
         if not jar.is_file():
             raise SystemExit(f"Missing {jar}. Run: python3 scripts/tekxit4.py fetch")
+    reject_duplicate_mods(installed)
+    for jar in installed:
         shutil.copy2(jar, mods / jar.name)
     if not args.no_item_alchemy:
         shutil.copy2(target / "TKXAddons/itemalchemy.jar", mods / "itemalchemy.jar")
@@ -520,13 +559,17 @@ def command_release(args):
         gradle("-p", "mods/metalrender", "assemble")
     jars = []
     for port in all_ports():
-        found = production_jars(port_libs(port))
+        found = project_jars(port)
         if not found:
-            raise SystemExit(f"No built jars for {port} in {port_libs(port)}. Run without --skip-build.")
+            raise SystemExit(f"No built {project_version(port)} jars for {port} in {port_libs(port)}. "
+                             "Run without --skip-build.")
         jars += found
-    metalrender = production_jars(METALRENDER_LIBS)
+    metalrender = project_jars("metalrender")
     if len(metalrender) != 1:
-        raise SystemExit(f"Expected one MetalRender jar in {METALRENDER_LIBS}, found {len(metalrender)}.")
+        raise SystemExit(f"Expected one MetalRender {project_version('metalrender')} jar in {METALRENDER_LIBS}, "
+                         f"found {len(metalrender)}.")
+    # MetalRender ships in its own zip, but players install both, so it must not repeat an id either.
+    reject_duplicate_mods(jars + metalrender)
     packs = args.pack or ([str(pristine())] if (pristine() / "mods").is_dir() else [])
     if not packs:
         raise SystemExit("No pack to check the dependencies against. Run: python3 scripts/tekxit4.py fetch, "
