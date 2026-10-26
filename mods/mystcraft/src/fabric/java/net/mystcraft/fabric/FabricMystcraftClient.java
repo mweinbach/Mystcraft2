@@ -27,6 +27,7 @@ import net.mystcraft.minecraft.client.render.LinkBookRenderer;
 
 public final class FabricMystcraftClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        net.mystcraft.minecraft.guide.GuideBookItem.installClientOpener(net.mystcraft.minecraft.client.GuideBookClient::open);
         net.mystcraft.fabric.fluid.FabricInkClient.initialize();
         net.mystcraft.minecraft.presentation.BookPresentationOptions.loadClient(net.minecraft.client.Minecraft.getInstance().gameDirectory.toPath());
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(FabricLinkingTransport.PRESENTATION_OPTIONS,

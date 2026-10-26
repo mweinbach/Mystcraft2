@@ -33,6 +33,16 @@ public final class InkGameplayGameTests implements FabricGameTest {
     public InkGameplayGameTests() {}
 
     @GameTest(template = FLOOR)
+    public void craftAndReadGuide(GameTestHelper helper) {
+        GuideGameplayTests.craftAndReadGuide(helper);
+    }
+
+    @GameTest(template = FLOOR)
+    public void compileGuideExample(GameTestHelper helper) {
+        GuideAgeGameTests.compileGuideExample(helper);
+    }
+
+    @GameTest(template = FLOOR)
     public void vialDrainsOneIndivisibleBucket(GameTestHelper helper) {
         InkGameplayTests.vialDrainsOneIndivisibleBucket(helper, TRANSFER);
     }
