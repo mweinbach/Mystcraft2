@@ -71,3 +71,22 @@ inventory transform table; exact legacy screen-pixel positioning is not claimed.
 ## Archivist shop background
 
 `gui/tradeshop.png` is a byte-identical import from the pinned official LGPL-3.0 source. Its SHA-256 and original path appear in [imported-assets.json](imported-assets.json). The shared shop screen retains its 176×181 background and source card/inventory layout, with native keyboard-focusable purchase buttons and server-synchronized stock.
+
+## Agewriter's Guide artwork
+
+`textures/gui/guide_book.png` (300×220) and `textures/item/guide_book.png`
+(16×16) are original artwork for this port, distributed under its LGPL-3.0-only
+license. They depict teal cloth and leather, brass corner fittings, a stitched
+binding, parchment, and a small portal-and-compass emblem. They do not copy
+upstream or third-party image assets and are not part of the imported manifest.
+The reader background reserves flat, lightly textured areas for readable text.
+
+The images are generated deterministically from the original drawing commands
+in `tools/generate_guide_art.py`. With Pillow installed, regenerate them using:
+
+```sh
+python3 mods/mystcraft/tools/generate_guide_art.py
+```
+
+The generator reads no external artwork and is not required at game runtime or
+by either loader build.

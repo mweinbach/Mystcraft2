@@ -11,6 +11,7 @@ mystcraft:decay_red
 mystcraft:decay_white
 mystcraft:descriptive_book
 mystcraft:folder
+mystcraft:guide_book
 mystcraft:ink_mixer
 mystcraft:ink_vial
 mystcraft:lectern
