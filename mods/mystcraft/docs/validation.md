@@ -2,6 +2,11 @@
 
 This candidate implements the remaining core source-derived book, lectern, page-browser, archivist and specialized-surface work on Forge and Fabric. It remains a development build for disposable-world server testing. Older accepted artifacts and their evidence are preserved in [historical-validation-0.3.md](historical-validation-0.3.md).
 
+The later port-specific [Agewriter's Guide](in-game-guide.md) has its own artifact
+hashes and focused build, GameTest and graphical evidence. The full-port results
+below retain their original artifact scope; they do not claim that those entire
+gameplay suites were rerun for the guide addition.
+
 ## Artifacts and static checks
 
 | Artifact | SHA-256 |

@@ -34,6 +34,16 @@ public final class InkGameplayGameTests {
     private InkGameplayGameTests() {}
 
     @GameTest(template = FLOOR, templateNamespace = MystcraftBootstrap.MOD_ID)
+    public static void craftAndReadGuide(GameTestHelper helper) {
+        GuideGameplayTests.craftAndReadGuide(helper);
+    }
+
+    @GameTest(template = FLOOR, templateNamespace = MystcraftBootstrap.MOD_ID)
+    public static void compileGuideExample(GameTestHelper helper) {
+        GuideAgeGameTests.compileGuideExample(helper);
+    }
+
+    @GameTest(template = FLOOR, templateNamespace = MystcraftBootstrap.MOD_ID)
     public static void vialDrainsOneIndivisibleBucket(GameTestHelper helper) {
         InkGameplayTests.vialDrainsOneIndivisibleBucket(helper, TRANSFER);
     }

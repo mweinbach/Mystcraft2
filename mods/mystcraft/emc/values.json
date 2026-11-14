@@ -56,6 +56,11 @@
       "itemalchemy": 140,
       "source": "recipe"
     },
+    "mystcraft:guide_book": {
+      "projecte": 208,
+      "itemalchemy": 208,
+      "source": "recipe"
+    },
     "mystcraft:ink_mixer": {
       "projecte": 22,
       "itemalchemy": 69,

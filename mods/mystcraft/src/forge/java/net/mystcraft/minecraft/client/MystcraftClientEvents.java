@@ -25,6 +25,7 @@ public final class MystcraftClientEvents {
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            net.mystcraft.minecraft.guide.GuideBookItem.installClientOpener(GuideBookClient::open);
             net.mystcraft.minecraft.presentation.BookPresentationOptions.loadClient(net.minecraft.client.Minecraft.getInstance().gameDirectory.toPath());
         net.mystcraft.minecraft.writing.DynamicSymbolPages.setClientRegistries(() -> net.minecraft.client.Minecraft.getInstance().level == null ? null : net.minecraft.client.Minecraft.getInstance().level.registryAccess());
             net.mystcraft.minecraft.entity.MeteorEntity.installClientSound(meteor -> net.minecraft.client.Minecraft.getInstance().getSoundManager().play(new MeteorMovingSound(meteor)));

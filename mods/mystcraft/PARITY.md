@@ -52,6 +52,8 @@ matches 1.12.2.
   [docs/classic-parity.md](docs/classic-parity.md) state that source
   implementation and passing tests do not establish every combination's
   parity.
+- The craftable [Agewriter's Guide](docs/in-game-guide.md) is a port-specific
+  addition, using shared text, original art and the same custom reader on both loaders.
 - 1.12 save migration is not provided, and 1.12 save and config migration are
   not promised. Saves are not binary or save-format compatible with 1.12
   (README, [NOTICE.md](NOTICE.md), [docs/classic-parity.md](docs/classic-parity.md)).

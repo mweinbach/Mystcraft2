@@ -24,11 +24,13 @@ public final class MystcraftItems {
     public static Supplier<Item> UNLINKED_LINK_BOOK;
     public static Supplier<SimpleRecipeSerializer<LinkingBookRecipe>> LINKING_BOOK_RECIPE;
     public static Supplier<Item> BOOKSTAND;
+    public static Supplier<Item> GUIDE_BOOK;
 
     private MystcraftItems() {}
     public static void register(RegistryBridge bridge) {
         TAB = bridge.createCreativeTab("mystcraft", () -> new ItemStack(LINKING_BOOK.get()));
         BOOSTER = bridge.registerItem("booster", () -> new net.mystcraft.minecraft.item.BoosterPackItem(new Item.Properties().tab(TAB)));
+        GUIDE_BOOK = bridge.registerItem("guide_book", () -> new net.mystcraft.minecraft.guide.GuideBookItem(new Item.Properties().tab(TAB)));
         LINKING_PANEL = bridge.registerItem("linking_panel", () -> new PageItem(new Item.Properties().tab(TAB)));
         LINKING_BOOK = bridge.registerItem("linking_book", () -> new LinkingBookItem(new Item.Properties().tab(TAB), (player, hand, book) -> LinkingNetwork.openBook(player, hand)));
         UNLINKED_LINK_BOOK = bridge.registerItem("unlinked_link_book", () -> new UnlinkedLinkBookItem(new Item.Properties().tab(TAB), LINKING_BOOK));
